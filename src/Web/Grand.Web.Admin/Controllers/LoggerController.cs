@@ -1,11 +1,10 @@
-﻿using Grand.Web.Common.Controllers;
-using Grand.Web.Common.DataSource;
-using Grand.Web.Common.Security.Authorization;
-using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Common.Services.Security;
-using Grand.Web.Admin.Models.Logging;
 using Grand.Web.Admin.Interfaces;
+using Grand.Web.Admin.Models.Logging;
+using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +19,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly ILogger _logger;
         private readonly ITranslationService _translationService;
 
-        public LoggerController(ILogViewModelService logViewModelService, ILogger logger, 
+        public LoggerController(ILogViewModelService logViewModelService, ILogger logger,
             ITranslationService translationService)
         {
             _logViewModelService = logViewModelService;

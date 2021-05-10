@@ -35,7 +35,6 @@ using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.PushNotifications;
 using Grand.Web.Admin.Models.Settings;
-using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
@@ -1315,7 +1314,7 @@ namespace Grand.Web.Admin.Controllers
 
             //doc settings 
             var docsettings = _settingService.LoadSetting<DocumentSettings>();
-            docsettings.PageSize= model.DocumentPageSizeSettings;
+            docsettings.PageSize = model.DocumentPageSizeSettings;
             await _settingService.SaveSetting(docsettings);
 
             //now clear cache

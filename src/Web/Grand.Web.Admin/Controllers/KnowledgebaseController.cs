@@ -4,13 +4,12 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Marketing.Interfaces.Knowledgebase;
-using Grand.Web.Common.Controllers;
-using Grand.Web.Common.DataSource;
-using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Knowledgebase;
+using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
@@ -99,7 +98,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> CreateCategory()
         {
             var model = await _knowledgebaseViewModelService.PrepareKnowledgebaseCategoryModel();
-            
+
             await AddLocales(_languageService, model.Locales);
             return View(model);
         }

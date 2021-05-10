@@ -1,20 +1,19 @@
-﻿using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Checkout.Queries.Models.Orders;
+using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Customers.Interfaces;
-using Grand.Web.Common.Controllers;
+using Grand.Business.Customers.Queries.Models;
+using Grand.Web.Admin.Interfaces;
+using Grand.Web.Admin.Models.Affiliates;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Affiliates;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Threading.Tasks;
-using Grand.Business.Customers.Queries.Models;
-using MediatR;
 using System.Linq;
-using Grand.Business.Checkout.Queries.Models.Orders;
+using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Controllers
 {

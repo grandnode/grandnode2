@@ -1,14 +1,12 @@
 ﻿using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Marketing.Interfaces.Newsletters;
-using Grand.Web.Common.Controllers;
+using Grand.Web.Admin.Extensions;
+using Grand.Web.Admin.Models.Messages;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using Grand.Web.Admin.Extensions;
-using Grand.Web.Admin.Models.Messages;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,19 +21,19 @@ namespace Grand.Web.Admin.Controllers
         private readonly INewsletterCategoryService _newsletterCategoryService;
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
-        private readonly IStoreService _storeService;
 
         #endregion
 
         #region Ctor
 
-        public NewsletterCategoryController(INewsletterCategoryService newsletterCategoryService, ILanguageService languageService,
-            ITranslationService translationService, IStoreService storeService)
+        public NewsletterCategoryController(
+            INewsletterCategoryService newsletterCategoryService,
+            ILanguageService languageService,
+            ITranslationService translationService)
         {
             _newsletterCategoryService = newsletterCategoryService;
             _languageService = languageService;
             _translationService = translationService;
-            _storeService = storeService;
         }
 
         #endregion

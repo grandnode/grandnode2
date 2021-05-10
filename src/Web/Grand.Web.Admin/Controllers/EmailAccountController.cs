@@ -2,16 +2,15 @@
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Messages.Interfaces;
-using Grand.Infrastructure.Caching;
 using Grand.Domain.Messages;
-using Grand.Web.Common.Controllers;
-using Grand.Web.Common.DataSource;
-using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Authorization;
+using Grand.Infrastructure.Caching;
 using Grand.SharedKernel;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Messages;
+using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
@@ -126,7 +125,7 @@ namespace Grand.Web.Admin.Controllers
             //If we got this far, something failed, redisplay form
             return View(model);
         }
-        
+
         [HttpPost]
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         public async Task<IActionResult> SendTestEmail(EmailAccountModel model)

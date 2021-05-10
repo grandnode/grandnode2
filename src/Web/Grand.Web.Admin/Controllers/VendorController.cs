@@ -3,14 +3,13 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Customers.Commands.Models;
 using Grand.Business.Customers.Interfaces;
-using Grand.Web.Common.Controllers;
-using Grand.Web.Common.DataSource;
-using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Authorization;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Vendors;
+using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -24,11 +23,13 @@ namespace Grand.Web.Admin.Controllers
     public partial class VendorController : BaseAdminController
     {
         #region Fields
+
         private readonly IVendorViewModelService _vendorViewModelService;
         private readonly ITranslationService _translationService;
         private readonly IVendorService _vendorService;
         private readonly ILanguageService _languageService;
         private readonly IMediator _mediator;
+
         #endregion
 
         #region Constructors
