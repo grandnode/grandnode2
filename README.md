@@ -187,4 +187,4 @@ To clarify behavior rules in our community, GrandNode has adopted the code of co
 
 ## License
 
-GrandNode is a real open-source project. Without hidden fees, license removal keys, or similar. You can freely remove GrandNode branding from footers, cookie names, etc. It's distributed under the GNU General Public License v3.0. It's available [here](https://github.com/grandnode/grandnode2/blob/develop/LICENSE)
+GrandNode is a real open-source project. Without hidden fees, license removal keys, or similar. You can freely remove GrandNode branding from footers, cookie names, etc. It's distributed under the GNU General Public License v3.0. It's available [here](https://github.com/grandnode/grandnode2/blob/master/LICENSE)
