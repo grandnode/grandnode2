@@ -1,0 +1,42 @@
+﻿@model GeneralCommonSettingsModel
+
+<div class="form-horizontal">
+    <div class="note note-info">
+        <p>@Loc["Admin.Settings.GeneralCommon.GoogleAnalytics_help1"]</p>
+        <p>@Loc["Admin.Settings.GeneralCommon.GoogleAnalytics_help2"]</p>
+        <p>@Loc["Admin.Settings.GeneralCommon.GoogleAnalytics_help3"]</p>
+        <p>@Loc["Admin.Settings.GeneralCommon.GoogleAnalytics_help4"]</p>
+        <p>@Loc["Admin.Settings.GeneralCommon.GoogleAnalytics_help5"]</p>
+        <p>@Loc["Admin.Settings.GeneralCommon.GoogleAnalytics_help6"]</p>
+        <p>@Loc["Admin.Settings.GeneralCommon.GoogleAnalytics_help7"]</p>
+    </div>
+    <div class="form-body">
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="GoogleAnalyticsSettings.GaprivateKey" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="GoogleAnalyticsSettings.GaprivateKey" />
+                <span asp-validation-for="GoogleAnalyticsSettings.GaprivateKey"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="GoogleAnalyticsSettings.GaserviceAccountEmail" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="GoogleAnalyticsSettings.GaserviceAccountEmail" />
+                <span asp-validation-for="GoogleAnalyticsSettings.GaserviceAccountEmail"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="GoogleAnalyticsSettings.GaviewID" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="GoogleAnalyticsSettings.GaviewID" />
+                <span asp-validation-for="GoogleAnalyticsSettings.GaviewID"></span>
+            </div>
+        </div>
+    </div>
+</div>

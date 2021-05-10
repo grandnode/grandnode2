@@ -1,0 +1,52 @@
+﻿@inject Grand.Infrastructure.Configuration.AppConfig config
+<!DOCTYPE html>
+<html use-lang="true">
+<head>
+    <title asp-default-title="true"></title>
+    <meta charset="utf-8">
+    <meta-description>
+    <meta-keywords>
+    <meta name="generator" content="grandnode">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    @RenderSection("meta", required: false)    
+    <head-custom>
+    <partial name="Head" />
+    <vc:widget widget-zone="head_html_tag" additional-data="null"></vc:widget>
+    <canonical-urls>
+    @*Favicon - upload favicon.ico file to the wwwroot directory*@
+    <partial name="_Favicons" />
+    @if (config.DisplayMiniProfilerInPublicStore)
+    {
+        <mini-profiler />
+    }
+    <resources asp-type="HeadLink" />
+    <resources asp-type="HeadScript" />
+    @RenderSection("head", required: false)    
+</head>
+<body>   
+    <resources asp-type="ScriptHeader" />
+    @await Component.InvokeAsync("Widget", new { widgetZone = "body_start_html_tag_after" })
+
+    <div id="app" :dark-theme="darkMode" v-cloak>
+        <div class="page-loader-container">
+            <div class="page-loader"></div>
+        </div>
+        <partial name="_Notifications" />
+        <vc:get-coordinate></vc:get-coordinate>
+        <partial name="Header" />
+        <b-container :fluid="fluid" class="main-container">
+            @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
+            @if (IsSectionDefined("Breadcrumb"))
+            {
+                @RenderSection("Breadcrumb")
+            }
+            @RenderBody()
+            @await Component.InvokeAsync("Widget", new { widgetZone = "content_after" })
+        </b-container>
+        @await Component.InvokeAsync("Footer")
+        <partial name="_Cookie" />
+    </div>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "body_end_html_tag_before" })
+    <resources asp-type="ScriptFooter" />
+</body>
+</html>

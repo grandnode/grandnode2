@@ -1,0 +1,31 @@
+﻿@{
+    Layout = "_AdminPopupLayout";
+}
+@model ShippingByWeightModel
+@using Shipping.ByWeight.Models;
+<form asp-controller="ShippingByWeight" asp-action="EditPopup" method="post"
+      asp-route-ShippingByWeightId="@Context.Request.Query["ShippingByWeightId"]"
+      asp-route-btnId="@Context.Request.Query["btnId"]"
+      asp-route-formId="@Context.Request.Query["formId"]">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-list-alt"></i>
+                        @Loc["Admin.Common.Edit"]
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <input type="submit" name="save" class="btn default" value="@Loc["Admin.Common.Save"]" />
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <partial name="~/Plugins/Shipping.ByWeight/Views/_CreateOrUpdate.cshtml" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

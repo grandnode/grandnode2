@@ -1,0 +1,92 @@
+﻿@model DeliveryDateModel
+@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@using Microsoft.AspNetCore.Mvc.Razor;
+
+@{
+    var canManageUserFields = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageUserFields);
+}
+
+<link rel="stylesheet" type="text/css" asp-src="/_content/Grand.Web.Admin/administration/farbtastic/farbtastic.css" />
+<script asp-location="Footer" asp-src="/_content/Grand.Web.Admin/administration/farbtastic/farbtastic.js"></script>
+
+@{ Func<int, HelperResult>
+          template = @<div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="@Model.Locales[item].Name" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="@Model.Locales[item].Name" />
+                <span asp-validation-for="@Model.Locales[item].Name"></span>
+            </div>
+        </div>
+        <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
+    </div>;
+}
+
+<admin-tabstrip name="delivery-date-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Configuration.Shipping.DeliveryDates.Info"]" tab-index="0">
+            <content>
+                <div>
+
+                    <div asp-validation-summary="All"></div>
+                    <input asp-for="Id" type="hidden" />
+                    <vc:admin-widget widget-zone="delivery_date_details_top" additional-data="Model" />
+                    <input id="active-menu-item" type="hidden" value="/@Constants.AreaAdmin/Shipping/DeliveryDates" />
+                    <div class="form-horizontal">
+                        <localized-editor localized-template=@template name="delivery-date-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+                            <div class="form-body">
+                                <div class="form-group">
+                                    <admin-label asp-for="Name" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="Name" />
+                                        <span asp-validation-for="Name"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </localized-editor>
+
+                        <div class="form-body">
+                            <div class="form-group">
+                                <admin-label asp-for="ColorSquaresRgb" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="ColorSquaresRgb" />
+                                    <div id="color-picker"></div>
+                                    <script>
+                    $(document).ready(function () {
+                        $('#color-picker').farbtastic('#@Html.IdFor(model => model.ColorSquaresRgb)');
+                    });
+                                    </script>
+                                    <span asp-validation-for="ColorSquaresRgb"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="DisplayOrder" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="DisplayOrder" />
+                                    <span asp-validation-for="DisplayOrder"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <vc:admin-widget widget-zone="delivery_date_details_bottom" additional-data="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (canManageUserFields)
+        {
+            <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="1">
+                <content>
+                    <div>
+                        <div class="form-horizontal">
+                            @{
+                                ViewData["ObjectType"] = "DeliveryDate";
+                                ViewData["TabIndex"] = 1;
+                            }
+                            <partial name="_UserFields" model="Model" view-data="ViewData" />
+                        </div>
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+    </items>
+</admin-tabstrip>

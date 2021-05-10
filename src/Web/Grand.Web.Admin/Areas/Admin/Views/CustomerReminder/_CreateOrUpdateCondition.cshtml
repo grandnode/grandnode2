@@ -1,0 +1,67 @@
+﻿@model CustomerReminderModel.ConditionModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="CustomerReminderId" type="hidden" />
+
+<admin-tabstrip name="customerremindercondition-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerReminder.Condition.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_ConditionInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerActionCondition.Products"]" tab-index="1" id="tab-product">
+            <content>
+                <div>
+                    <partial name="_ConditionProduct" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerReminder.Condition.Categories"]" tab-index="2" id="tab-category">
+            <content>
+                <div>
+                    <partial name="_ConditionCategory" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerReminder.Condition.Collections"]" tab-index="3" id="tab-collection">
+            <content>
+                <div>
+                    <partial name="_ConditionCollection" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerReminder.Condition.CustomerGroup"]" tab-index="4" id="tab-customerGroup">
+            <content>
+                <div>
+                    <partial name="_ConditionCustomerGroup" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerReminder.Condition.CustomerTag"]" tab-index="5" id="tab-customerTag">
+            <content>
+                <div>
+                    <partial name="_ConditionCustomerTag" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerReminder.Condition.CustomerRegister"]" tab-index="6" id="tab-customerRegister">
+            <content>
+                <div>
+                    <partial name="_ConditionCustomerRegister" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerReminder.Condition.CustomCustomerAttribute"]" tab-index="7" id="tab-customAttribute">
+            <content>
+                <div>
+                    <partial name="_ConditionCustomCustomerAttribute" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="customer_reminder_condition_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

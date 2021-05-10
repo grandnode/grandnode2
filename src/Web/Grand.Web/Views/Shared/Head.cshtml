@@ -1,0 +1,37 @@
+﻿@inject IWorkContext workContext
+
+@{
+    var supportRtl = workContext.WorkingLanguage.Rtl;
+
+    <link rel="stylesheet" type="text/css" href="/theme/bootstrap-vue/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/theme/bootstrap-vue/bootstrap-vue.min.css">
+    <link rel="stylesheet" type="text/css" href="/theme/css/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/custom/style.css">
+
+    if (supportRtl)
+    {
+        <link rel="stylesheet" type="text/css" href="/theme/css/common/common.rtl.css">
+        <link rel="stylesheet" type="text/css" href="/theme/css/header/header.rtl.css">
+    }
+    else
+    {
+        <link rel="stylesheet" type="text/css" href="/theme/css/common/common.css">
+        <link rel="stylesheet" type="text/css" href="/theme/css/header/header.css">
+    }
+
+    <script src="/theme/lib/vue.min.js"></script>
+    <script src="/theme/lib/portal-vue.umd.min.js"></script>
+    <script src="/theme/lib/bootstrap-vue.min.js"></script>
+    <script src="/theme/lib/bootstrap-vue-icons-slim.min.js"></script>
+    <script src="/theme/script/public.common.js"></script>
+    <script src="/theme/script/public.axios.js"></script>
+    <script src="/theme/lib/axios.min.js"></script>
+    <script src="/theme/lib/vue-awesome-countdown.umd.min.js"></script>
+    <script src="/theme/lib/vee-validate.minimal.min.js"></script>
+    <script src="/theme/script/validation-config.min.js"></script>
+
+    <script asp-location="Footer" asp-src="/theme/script/menu.js"></script>
+    <script asp-location="Footer" asp-src="/theme/lib/popper.min.js"></script>
+    <script asp-location="Footer" asp-src="/assets/custom/script.js"></script>
+    <script asp-location="Footer" asp-src="/theme/script/app.js"></script>
+}

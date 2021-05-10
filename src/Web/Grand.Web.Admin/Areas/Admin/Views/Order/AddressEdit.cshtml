@@ -1,0 +1,34 @@
+﻿@model OrderAddressModel
+@{  
+    //page title
+    ViewBag.Title = Loc["Admin.Orders.Address.EditAddress"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="AddressEdit"
+      asp-route-addressId="@Context.Request.Query["addressId"]"
+      asp-route-billingAddress="@Context.Request.Query["BillingAddress"]"
+      asp-route-orderId="@Context.Request.Query["orderId"]">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cube"></i>
+                        @Loc["Admin.Orders.Address.EditAddress"]
+                        <small>
+                            <i class="fa fa-arrow-circle-left"></i>
+                            @Html.ActionLink(Loc["Admin.Orders.Address.BackToOrder"], "Edit", new { id = Model.OrderId })
+                        </small>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                        <vc:admin-widget widget-zone="order_address_details_buttons" additional-data="Model" />
+                    </div>
+                </div>
+                <div class="x_content form">
+                   <partial name="_CreateOrUpdateAddress" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

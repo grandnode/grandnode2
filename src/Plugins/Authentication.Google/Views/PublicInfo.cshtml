@@ -1,0 +1,10 @@
+﻿@using Grand.Web.Common.Page
+@{
+    Layout = "";
+}
+<link rel="stylesheet" type="text/css" asp-src="/Plugins/Authentication.Google/Assets/googlestyles.css" />
+<div class="google-login-block">
+    <div class="buttons">
+        <a asp-controller="GoogleAuthentication" asp-action="GoogleLogin" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" class="google-btn"></a>
+    </div>
+</div>

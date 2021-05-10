@@ -1,0 +1,53 @@
+﻿
+<div id="incomplete-order-report-grid"></div>
+<script>
+    $(document).ready(function () {
+        $("#incomplete-order-report-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("OrderIncompleteReportList", "Reports", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                numeric: false,
+                previousNext: false,
+                info: false
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "Item",
+                title: "@Loc["Admin.Reports.Incomplete.Item"]",
+                template: '<a class="k-link" href="#=ViewLink#">#=Item#</a>',
+            }, {
+                field: "Total",
+                title: "@Loc["Admin.Reports.Incomplete.Total"]",
+            }, {
+                field: "Count",
+                title: "@Loc["Admin.Reports.Incomplete.Count"]"
+            }]
+        });
+    });
+</script>

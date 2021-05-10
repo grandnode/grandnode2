@@ -1,0 +1,59 @@
+﻿@model ShippingMethodModel
+@using Microsoft.AspNetCore.Mvc.Razor;
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<vc:admin-widget widget-zone="shipping_method_details_top" additional-data="Model" />
+<input id="active-menu-item" type="hidden" value="/@Constants.AreaAdmin/Shipping/Methods" />
+
+@{ Func<int, HelperResult>
+         template = @<div class="form-body">
+    <div class="form-group">
+        <admin-label asp-for="@Model.Locales[item].Name" />
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="@Model.Locales[item].Name" />
+            <span asp-validation-for="@Model.Locales[item].Name"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <admin-label asp-for="@Model.Locales[item].Description" />
+        <div class="col-md-9 col-sm-9">
+            <admin-textarea asp-for="@Model.Locales[item].Description"></admin-textarea>
+            <span asp-validation-for="@Model.Locales[item].Description"></span>
+        </div>
+    </div>
+    <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
+</div>;
+}
+
+<div class="form-horizontal">
+    <localized-editor localized-template=@template name="shipping-method-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+        <div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="Name" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Name" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="Description" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-textarea asp-for="Description"></admin-textarea>
+                    <span asp-validation-for="Description"></span>
+                </div>
+            </div>
+        </div>
+    </localized-editor>
+    
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="DisplayOrder" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrder" />
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<vc:admin-widget widget-zone="shipping_method_details_bottom" additional-data="Model" />

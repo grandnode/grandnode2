@@ -1,0 +1,216 @@
+﻿@model AffiliateListModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Affiliates"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit popup-window">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-cube"></i>
+                    @Loc["Admin.Affiliates"]
+                </div>
+                <div class="actions btn-group btn-group-devided">
+                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
+                </div>
+            </div>
+            <vc:admin-widget widget-zone="affiliate_list_buttons" additional-data="null" />
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="main-header col-12 px-0">
+                            <div class="row align-items-end">
+                                <div class="col-md-4 col-ms-12 col-12">
+                                    <div class="form-group mb-0">
+                                        <admin-label asp-for="SearchFirstName" class="control-label" />
+                                        <admin-input asp-for="SearchFirstName" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-ms-12 col-12">
+                                    <div class="form-group mb-0">
+                                        <admin-label asp-for="SearchLastName" class="control-label" />
+                                        <admin-input asp-for="SearchLastName" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-sm-12 col-12">
+                                    <div class="form-actions">
+                                        <div class="btn-group">
+                                            <button class="btn btn-success filter-submit" id="search-affiliates">
+                                                <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                            </button>
+                                            <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                <i class="fa fa-filter"></i>&nbsp; Filters
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse" id="filterCollapse">
+                            <div class="drop-filters-container w-100">
+                                <div class="form-group">
+                                    <admin-label asp-for="SearchFriendlyUrlName" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="SearchFriendlyUrlName" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="LoadOnlyWithOrders" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                            <admin-input asp-for="LoadOnlyWithOrders" />
+                                            <div class="control__indicator"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="pnlOrdersCreatedFromUtc">
+                                    <admin-label asp-for="OrdersCreatedFromUtc" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="OrdersCreatedFromUtc" />
+                                    </div>
+                                </div>
+                                <div class="form-group" id="pnlOrdersCreatedToUtc">
+                                    <admin-label asp-for="OrdersCreatedToUtc" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="OrdersCreatedToUtc" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>             
+                </div>
+            </div>
+            <div class="x_content">
+                <div id="affiliates-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.LoadOnlyWithOrders)").click(toggleLoadOnlyWithOrders);
+
+        toggleLoadOnlyWithOrders();
+    });
+
+    function toggleLoadOnlyWithOrders() {
+        if ($('#@Html.IdFor(model => model.LoadOnlyWithOrders)').is(':checked')) {
+            $('#pnlOrdersCreatedFromUtc').show();
+            $('#pnlOrdersCreatedToUtc').show();
+        } else {
+            $('#pnlOrdersCreatedFromUtc').hide();
+            $('#pnlOrdersCreatedToUtc').hide();
+        }
+    }
+</script>
+
+
+<script>
+        $(document).ready(function () {
+            $("#affiliates-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("List", "Affiliate", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: additionalData
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [
+                {
+                    field: "Address.Email",
+                    title: "@Loc["Admin.Address.Fields.Email"]",
+                    width: 200,
+                    template: '<a class="k-link" href="Edit/#=Id#">#=Address.Email#</a>',
+                }, {
+                    field: "Address.FirstName",
+                    title: "@Loc["Admin.Address.Fields.FirstName"]",
+                    width: 200,
+                }, {
+                    field: "Address.LastName",
+                    title: "@Loc["Admin.Address.Fields.LastName"]",
+                    width: 200
+                }, {
+                    field: "Active",
+                    title: "@Loc["Admin.Affiliates.Fields.Active"]",
+                    width: 100,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(Active) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                }]
+            });
+        });
+</script>
+<script>
+    $(document).ready(function () {
+
+        $('#search-affiliates').click(function () {
+            var grid = $('#affiliates-grid').data('kendoGrid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            return false;
+        });
+    });
+
+    $("#@Html.IdFor(model => model.SearchFirstName)").keydown(function (event) {
+        if (event.keyCode == 13) {
+            $("#search-affiliates").click();
+            return false;
+        }
+    });
+    $("#@Html.IdFor(model => model.SearchLastName)").keydown(function (event) {
+        if (event.keyCode == 13) {
+            $("#search-affiliates").click();
+            return false;
+        }
+    });
+    $("#@Html.IdFor(model => model.SearchFriendlyUrlName)").keydown(function (event) {
+        if (event.keyCode == 13) {
+            $("#search-affiliates").click();
+            return false;
+        }
+    });
+
+    function additionalData() {
+        var data = {
+            SearchFirstName: $('#@Html.IdFor(model => model.SearchFirstName)').val(),
+            SearchLastName: $('#@Html.IdFor(model => model.SearchLastName)').val(),
+            SearchFriendlyUrlName: $('#@Html.IdFor(model => model.SearchFriendlyUrlName)').val(),
+            LoadOnlyWithOrders: $('#@Html.IdFor(model => model.LoadOnlyWithOrders)').is(':checked'),
+            OrdersCreatedFromUtc: $('#@Html.IdFor(model => model.OrdersCreatedFromUtc)').val(),
+            OrdersCreatedToUtc: $('#@Html.IdFor(model => model.OrdersCreatedToUtc)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+
+</script>

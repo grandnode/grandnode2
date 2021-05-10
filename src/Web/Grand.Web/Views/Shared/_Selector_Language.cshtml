@@ -1,0 +1,29 @@
+﻿@inject Grand.Business.Common.Interfaces.Localization.ILanguageService languageService
+@inject IWorkContext workContext
+@{
+    var availableLanguages = (await languageService.GetAllLanguages(storeId: workContext.CurrentStore.Id))
+                     .Select(x => new LanguageModel
+                     {
+                         Id = x.Id,
+                         Name = x.Name,
+                         Rtl = x.Rtl,
+                         LanguageCulture = x.LanguageCulture,
+                         UniqueSeoCode = x.UniqueSeoCode
+                     }).ToList();
+
+    var returnurl = Context?.Request?.GetEncodedPathAndQuery();
+    if (availableLanguages.Count > 1)
+    {
+        <div>
+            <b-dropdown class="mr-2" text="@availableLanguages.FirstOrDefault(x => x.Id == workContext.WorkingLanguage.Id)?.Name">
+                @foreach (var lang in availableLanguages)
+                {
+                    var className = lang.Id == workContext.WorkingLanguage.Id ? "active" : "";
+                    <b-dropdown-item class="@className" href="@Url.RouteUrl("ChangeLanguage", new { langid = lang.Id, returnurl })">
+                        @lang.Name
+                    </b-dropdown-item>
+                }
+            </b-dropdown>
+        </div>
+    }
+}

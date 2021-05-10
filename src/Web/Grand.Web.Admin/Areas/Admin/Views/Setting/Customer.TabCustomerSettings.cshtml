@@ -1,0 +1,316 @@
+﻿@model CustomerSettingsModel
+@using Grand.Domain.Customers;
+
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.CustomerSettings.UsernamesEnabled)").click(toggleUsername);
+        toggleUsername();
+    });
+
+    function toggleUsername() {
+        if ($('#@Html.IdFor(model => model.CustomerSettings.UsernamesEnabled)').is(':checked')) {
+            $('#pnlAllowUsersToChangeUsernames').show();
+            $('#pnlCheckUsernameAvailability').show();
+        }
+        else {
+            $('#pnlAllowUsersToChangeUsernames').hide();
+            $('#pnlCheckUsernameAvailability').hide();
+        }
+    }
+</script>
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="col-6">
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.UserRegistrationType" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-select asp-for="CustomerSettings.UserRegistrationType" asp-items="((UserRegistrationType)Model.CustomerSettings.UserRegistrationType).ToSelectList(Context)" />
+                    <span asp-validation-for="CustomerSettings.UserRegistrationType"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.GeoEnabled" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.GeoEnabled" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.GeoEnabled"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.NotifyNewCustomerRegistration" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.NotifyNewCustomerRegistration" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.NotifyNewCustomerRegistration"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.HideDownloadableProductsTab" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.HideDownloadableProductsTab" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.HideDownloadableProductsTab"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.HideOutOfStockSubscriptionsTab" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.HideOutOfStockSubscriptionsTab" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.HideOutOfStockSubscriptionsTab"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.HideAuctionsTab" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.HideAuctionsTab" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.HideAuctionsTab"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.HideNotesTab" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.HideNotesTab" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.HideNotesTab"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.HideReviewsTab" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.HideReviewsTab" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.HideReviewsTab"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.HideCoursesTab" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.HideCoursesTab" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.HideCoursesTab"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.HideSubaccountsTab" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.HideSubaccountsTab" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.HideSubaccountsTab"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.HideDocumentsTab" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.HideDocumentsTab" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.HideDocumentsTab"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.HideNewsletterBlock" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.HideNewsletterBlock" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.HideNewsletterBlock"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlNewsletterBlockAllowToUnsubscribe">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.NewsletterBlockAllowToUnsubscribe" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.NewsletterBlockAllowToUnsubscribe" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.NewsletterBlockAllowToUnsubscribe"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.AllowUsersToChangeEmail" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.AllowUsersToChangeEmail" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.AllowUsersToChangeEmail"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.AllowUsersToDeleteAccount" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.AllowUsersToDeleteAccount" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.AllowUsersToDeleteAccount"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.AllowUsersToExportData" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.AllowUsersToExportData" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.AllowUsersToExportData"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.CustomerNameFormat" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-select asp-for="CustomerSettings.CustomerNameFormat" asp-items="((CustomerNameFormat)Model.CustomerSettings.CustomerNameFormat).ToSelectList(Context)" />
+                    <span asp-validation-for="CustomerSettings.CustomerNameFormat"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.UsernamesEnabled" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.UsernamesEnabled" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.UsernamesEnabled"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlAllowUsersToChangeUsernames">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.AllowUsersToChangeUsernames" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.AllowUsersToChangeUsernames" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.AllowUsersToChangeUsernames"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlCheckUsernameAvailability">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.CheckUsernameAvailabilityEnabled" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.CheckUsernameAvailabilityEnabled" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.CheckUsernameAvailabilityEnabled"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.RegistrationFreeShipping" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.RegistrationFreeShipping" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.RegistrationFreeShipping"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.StoreLastVisitedPage" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.StoreLastVisitedPage" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.StoreLastVisitedPage"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.OnlineShoppingCartMinutes" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="CustomerSettings.OnlineShoppingCartMinutes" />
+                    <span asp-validation-for="CustomerSettings.OnlineShoppingCartMinutes"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.OnlineCustomerMinutes" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="CustomerSettings.OnlineCustomerMinutes" />
+                    <span asp-validation-for="CustomerSettings.OnlineCustomerMinutes"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CustomerSettings.SaveVisitedPage" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CustomerSettings.SaveVisitedPage" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CustomerSettings.SaveVisitedPage"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

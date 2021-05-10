@@ -1,0 +1,174 @@
+﻿<div class="row">
+    <div class="col-md-12">
+        <div class="panel">
+            <div class="x_title">
+            <div class="x_content form">
+                <div class="note note-info">
+                   @Loc["Admin.Configuration.Measures.Weights.Description"]
+                </div>
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="x_content">
+                            <div id="measureweight-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        $("#measureweight-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("Weights", "Measure", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    create: {
+                        url: "@Html.Raw(Url.Action("WeightAdd", "Measure", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    update: {
+                        url: "@Html.Raw(Url.Action("WeightUpdate", "Measure", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    destroy: {
+                        url: "@Html.Raw(Url.Action("WeightDelete", "Measure", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    parameterMap: function (data, operation) {
+                        if (operation != "read") {
+                            data.Ratio = kendo.toString(data.Ratio, "n8");
+                            return data;
+                        } else {
+                            return data;
+                        }
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        fields: {
+                            Name: { editable: true, type: "string" },
+                            SystemKeyword: { editable: true, type: "string" },
+                            Ratio: { editable: true, type: "number" },
+                            DisplayOrder: { editable: true, type: "number" },
+                            IsPrimaryWeight: { editable: false, type: "boolean" },
+                            Id: { editable: false, type: "string" }
+                        }
+                    }
+                },
+                requestEnd: function (e) {
+                    if (e.type == "create" || e.type == "update") {
+                        this.read();
+                    }
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                numeric: false,
+                previousNext: false,
+                info: false
+            },
+            toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [
+            {
+                field: "Name",
+                title: "@Loc["Admin.Configuration.Measures.Weights.Fields.Name"]",
+                width: 300
+            }, {
+                field: "SystemKeyword",
+                title: "@Loc["Admin.Configuration.Measures.Weights.Fields.SystemKeyword"]",
+                width: 200
+            }, {
+                field: "Ratio",
+                title: "@Loc["Admin.Configuration.Measures.Weights.Fields.Ratio"]",
+                width: 200,
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                        .appendTo(container)
+                        .kendoNumericTextBox({
+                            format: "{0:n8}",
+                            decimals: 8
+                        });
+                }
+            }, {
+                field: "DisplayOrder",
+                title: "@Loc["Admin.Configuration.Measures.Weights.Fields.DisplayOrder"]",
+                //integer format
+                format: "{0:0}",
+                width: 100
+            }, {
+                field: "Id",
+                title: "@Loc["Admin.Configuration.Measures.Weights.Fields.IsPrimaryWeight"]",
+                width: 150,
+                    template: '<a onclick="markAsPrimaryWeight(\'#=Id#\')" class="k-button"># if(IsPrimaryWeight) {# <i class="fa fa-check" aria-hidden="true" style="color:green;margin-right:5px;"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red;margin-right:5px;"></i> #} # @Loc["Admin.Configuration.Measures.Weights.Fields.MarkAsPrimaryWeight"]</a>'
+            }, {
+                command: [
+                {
+                    name: "edit",
+                    text: {
+                        edit: "@Loc["Admin.Common.Edit"]",
+                        update: "@Loc["Admin.Common.Update"]",
+                        cancel: "@Loc["Admin.Common.Cancel"]"
+                    }
+                }, {
+                    name: "destroy",
+                    text: "@Loc["Admin.Common.Delete"]"
+                        }
+                    ],
+                    width: 200
+                }
+            ]
+        });
+    });
+</script>
+<script>
+    function markAsPrimaryWeight(id) {
+        if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
+            var postData = {
+                id: id
+            };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.Action("MarkAsPrimaryWeight", "Measure", new { area = Constants.AreaAdmin }))",
+                data: postData,
+                success: function(data) {
+                    var grid = $("#measureweight-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    alert('Failed to update weight');
+                }
+            });
+        }
+    };
+</script>

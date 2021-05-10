@@ -1,0 +1,242 @@
+﻿@model SalesSettingsModel
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.IsReOrderAllowed" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OrderSettings.IsReOrderAllowed" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OrderSettings.IsReOrderAllowed"></span>
+            </div>
+        </div>
+        <div class="note note-warning">
+            <span>@Loc["Admin.Settings.Orders.MinOrderSubtotalAmount.Note"]</span>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.MinOrderSubtotalAmount" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="OrderSettings.MinOrderSubtotalAmount" />
+                <span asp-validation-for="OrderSettings.MinOrderSubtotalAmount"></span> @Model.OrderSettings.PrimaryStoreCurrencyCode
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.MinOrderTotalAmount" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="OrderSettings.MinOrderTotalAmount" />
+                <span asp-validation-for="OrderSettings.MinOrderTotalAmount"></span> @Model.OrderSettings.PrimaryStoreCurrencyCode
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.MinOrderSubtotalAmountIncludingTax" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OrderSettings.MinOrderSubtotalAmountIncludingTax" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OrderSettings.MinOrderSubtotalAmountIncludingTax"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.AnonymousCheckoutAllowed" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OrderSettings.AnonymousCheckoutAllowed" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OrderSettings.AnonymousCheckoutAllowed"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.TermsOfServiceOnShoppingCartPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OrderSettings.TermsOfServiceOnShoppingCartPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OrderSettings.TermsOfServiceOnShoppingCartPage"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.TermsOfServiceOnOrderConfirmPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OrderSettings.TermsOfServiceOnOrderConfirmPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OrderSettings.TermsOfServiceOnOrderConfirmPage"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.DisableOrderCompletedPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OrderSettings.DisableOrderCompletedPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OrderSettings.DisableOrderCompletedPage"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.AttachPdfInvoiceToOrderPlacedEmail" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OrderSettings.AttachPdfInvoiceToOrderPlacedEmail" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OrderSettings.AttachPdfInvoiceToOrderPlacedEmail"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.AttachPdfInvoiceToOrderPaidEmail" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OrderSettings.AttachPdfInvoiceToOrderPaidEmail" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OrderSettings.AttachPdfInvoiceToOrderPaidEmail"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.AttachPdfInvoiceToOrderCompletedEmail" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OrderSettings.AttachPdfInvoiceToOrderCompletedEmail" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OrderSettings.AttachPdfInvoiceToOrderCompletedEmail"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.GiftVouchers_Activated_OrderStatusId" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-select asp-for="OrderSettings.GiftVouchers_Activated_OrderStatusId" asp-items="Model.OrderSettings.GiftVouchers_Activated_OrderStatuses" />
+                <span asp-validation-for="OrderSettings.GiftVouchers_Activated_OrderStatusId"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.DeactivateGiftVouchersAfterCancelOrder" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OrderSettings.DeactivateGiftVouchersAfterCancelOrder" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OrderSettings.DeactivateGiftVouchersAfterCancelOrder"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.DeactivateGiftVouchersAfterDeletingOrder" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OrderSettings.DeactivateGiftVouchersAfterDeletingOrder" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OrderSettings.DeactivateGiftVouchersAfterDeletingOrder"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.CompleteOrderWhenDelivered" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OrderSettings.CompleteOrderWhenDelivered" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OrderSettings.CompleteOrderWhenDelivered"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.UserCanCancelUnpaidOrder" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OrderSettings.UserCanCancelUnpaidOrder" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OrderSettings.UserCanCancelUnpaidOrder"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-xs-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.LengthCode" class="control-label" />
+            </div>
+            <div class="col-xs-4 col-md-8 col-sm-8">
+                <admin-input asp-for="OrderSettings.LengthCode" />
+                <span asp-validation-for="OrderSettings.LengthCode"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-xs-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.MinimumOrderPlacementInterval" class="control-label" />
+            </div>
+            <div class="col-xs-4 col-md-8 col-sm-8">
+                <admin-input asp-for="OrderSettings.MinimumOrderPlacementInterval" />
+                <span asp-validation-for="OrderSettings.MinimumOrderPlacementInterval"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.UnpublishAuctionProduct" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OrderSettings.UnpublishAuctionProduct" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OrderSettings.UnpublishAuctionProduct"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-xs-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.PageSize" class="control-label" />
+            </div>
+            <div class="col-xs-4 col-md-8 col-sm-8">
+                <admin-input asp-for="OrderSettings.PageSize" />
+                <span asp-validation-for="OrderSettings.PageSize"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="OrderSettings.AttachPdfInvoiceToBinary" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="OrderSettings.AttachPdfInvoiceToBinary" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="OrderSettings.AttachPdfInvoiceToBinary"></span>
+            </div>
+        </div>
+    </div>
+</div>

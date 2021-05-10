@@ -1,0 +1,119 @@
+﻿@model ProductAttributeModel
+@{
+    if (!string.IsNullOrEmpty(Model.Id))
+    {
+        <div class="panel panel-default">
+            <vc:admin-widget widget-zone="product_attribute_details_predefined_values_top" additional-data="Model" />
+            <div class="panel-body">
+                <div id="productattributevalues-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <button type="submit" id="btnAddNewValue" onclick=" javascript:OpenWindow('@(Url.Action("PredefinedProductAttributeValueCreatePopup", "ProductAttribute", new {productAttributeId = Model.Id, btnId = "btnRefresh", formId = "productattribute-form", area = Constants.AreaAdmin }))', 800, 550, true); return false; " class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.AddNew"]</button>
+                <input type="submit" id="btnRefresh" style="display:none" />
+            </div>
+            <vc:admin-widget widget-zone="product_attribute_details_predefined_values_bottom" additional-data="Model" />
+        </div>
+        <script>
+            $(document).ready(function() {
+                $("#productattributevalues-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("PredefinedProductAttributeValueList", "ProductAttribute", new { productAttributeId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("PredefinedProductAttributeValueDelete", "ProductAttribute", new { area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "Id",
+                                fields: {
+                                    Product2Name: { editable: false, type: "string" },
+                                    ProductId2: { editable: false, type: "string" }
+                                }
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        numeric: false,
+                        previousNext: false,
+                        info: false
+                    },
+                    editable: {
+                        confirmation: true,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [
+                        {
+                            field: "Name",
+                            title: "@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.Name"]",
+                            width: 200,
+                            template: "<a class='k-link' onclick=\"javascript:OpenWindow('@Url.Action("PredefinedProductAttributeValueEditPopup", "ProductAttribute", new { area = Constants.AreaAdmin })/#=Id#?productAttributeId=@Model.Id&btnId=btnRefresh&formId=productattribute-form', 800, 500, true); return false;\">#=kendo.htmlEncode(Name)#</a>"
+                        }, {
+                            field: "PriceAdjustmentStr",
+                            title: "@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.PriceAdjustment"]",
+                            width: 150
+                        }, {
+                            field: "WeightAdjustmentStr",
+                            title: "@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.WeightAdjustment"]",
+                            width: 150
+                        }, {
+                            field: "IsPreSelected",
+                            title: "@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.IsPreSelected"]",
+                            width: 100,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            template: '# if(IsPreSelected) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                        }, {
+                            field: "DisplayOrder",
+                            title: "@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.DisplayOrder"]",
+                            width: 100
+                        }, {
+                            command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                            title: "@Loc["Admin.Common.Delete"]",
+                            width: 200
+                        }
+                    ]
+                });
+            });
+        </script>
+        <script>
+            $(document).ready(function () {
+                $('#btnRefresh').click(function () {
+                    //refresh grid
+                    var grid = $("#productattributevalues-grid").data('kendoGrid');
+                    grid.dataSource.read();
+
+                    //return false to don't reload a page
+                    return false;
+                });
+            });
+        </script>
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.SaveBeforeEdit"]
+        </div>
+    }
+}

@@ -1,0 +1,377 @@
+﻿@model DashboardModel
+
+@inject Grand.Domain.Customers.CustomerSettings customerSettings
+@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@inject Grand.Business.Customers.Interfaces.ICustomerService customerService
+@inject Grand.Business.System.Interfaces.Reports.IOrderReportService orderReportService
+@inject Grand.Business.Catalog.Interfaces.Prices.IPriceFormatter priceFormatter
+@inject Grand.Infrastructure.IWorkContext workContext
+@inject Grand.Business.Common.Interfaces.Directory.IGroupService groupService
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Dashboard"];
+    var isAdminAccess = await groupService.IsAdmin(workContext.CurrentCustomer);
+    var canAccessReports = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageReports);
+    var canManageOrders = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageOrders);
+    var customersOnline = (await customerService.GetOnlineCustomers(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineCustomerMinutes), null, workContext.CurrentCustomer.StaffStoreId, workContext.CurrentCustomer.SeId, 1, 1)).TotalCount;
+    var customersShoppingCart = await customerService.GetCountOnlineShoppingCart(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineShoppingCartMinutes), workContext.CurrentCustomer.StaffStoreId, workContext.CurrentCustomer.SeId);
+    var ordersToday = await orderReportService.GetOrderPeriodReport(0, workContext.CurrentCustomer.StaffStoreId, workContext.CurrentCustomer.SeId);
+    var ordersAmount = priceFormatter.FormatPrice(ordersToday.Amount, false);
+}
+
+<vc:admin-widget widget-zone="admin_dashboard_top" additional-data="null" />
+@if (!Model.IsLoggedInAsVendor && canManageOrders)
+{
+    <div class="form-row top_tiles">
+        <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-12">
+            <div class="tile-stats">
+                <div class="icon"><i class="fa fa-user"></i></div>
+                <div class="count">@customersOnline</div>
+                <h3>
+                    <a href="@Url.Action("List", "OnlineCustomer", new { area = Constants.AreaAdmin })">
+                        @Loc["Admin.Dashboard.OnlineCustomers"]
+                    </a>
+                </h3>
+                <p>@Loc["Admin.Dashboard.OnlineCustomerMinutes", customerSettings.OnlineCustomerMinutes]</p>
+            </div>
+        </div>
+        <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-12">
+            <div class="tile-stats">
+                <div class="icon"><i class="fa fa-shopping-cart"></i></div>
+                <div class="count">@customersShoppingCart</div>
+                <h3>
+                    <a href="@Url.Action("CurrentCarts", "ShoppingCart", new { area = Constants.AreaAdmin })">
+                        @Loc["Admin.Dashboard.ActiveShoppingCarts"]
+                    </a>
+                </h3>
+                <p>@Loc["Admin.Dashboard.OnlineShoppingCart", customerSettings.OnlineShoppingCartMinutes]</p>
+            </div>
+        </div>
+        <div class="animated flipInY col-lg-4 col-md-4 col-sm-6 col-12">
+            <div class="tile-stats">
+                <div class="icon"><i class="fa fa-money"></i></div>
+                <div class="count"> @ordersAmount / @ordersToday.Count</div>
+                <h3>
+                    <a href="@Url.Action("List", "Order", new { startDate = DateTime.UtcNow.ToUniversalTime(), area = Constants.AreaAdmin })">
+                        @Loc["Admin.Dashboard.TodayOrders"]
+                    </a>
+                </h3>
+                <p> @Loc["Admin.Dashboard.TodayOrders.AmountCount"]</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>@Loc["Admin.Dashboard.Summary"]</h2>
+                    <div class="filter">
+                        <div class="page-bar" style="height:43px;">
+                            <div class="page-toolbar">
+                                <div id="dashboard-report-range" class="pull-right btn btn-fit-height green" data-original-title="Change dashboard date range">
+                                    <i class="icon-calendar"></i>&nbsp;
+                                    <span class="thin uppercase d-none d-sm-inline"></span>&nbsp;
+                                    <i class="fa fa-angle-down"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="col-12">
+                        <div id="store_news" class="store-news"></div>
+                        <script>
+                            $.getJSON("https://grandnode.com/news.json", function (data) {
+                                var newsitems = [];
+                                $.each(data, function (key, value) {
+                                    newsitems.push("<li id='news-" + key + "' class='media'><div class='media-body note note-info'><h5><a href='" + value.Url + "' target='_blank' >" + value.Name + "</a></h5>" + value.Message + "</div></li>");
+                                });
+
+                                $("<ul/>", {
+                                    "class": "store-news",
+                                    html: newsitems.join("")
+                                }).appendTo("#store_news");
+                            });
+                        </script>
+                    </div>
+                    @if (canAccessReports)
+                    {
+                        <div class="col-12 col-sm-12 col-lg-8 col-md-12 whiteBg">
+                            @await Component.InvokeAsync("CustomerReportTimeChart")
+                        </div>
+                    }
+                    @if (isAdminAccess)
+                    {
+                        <div class="col-cs-12 col-sm-12 col-lg-4 col-md-12">
+                            <div class="x_panel">
+                                <div class="x_title">
+                                    <h2>
+                                        @Loc["Admin.Dashboard.ActivityOverview"]
+                                    </h2>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="x_content-body">
+                                    <div class="partialContents" data-url="@Url.Action("DashboardActivity", new { area = Constants.AreaAdmin })">
+                                        <img src="/_content/Grand.Web.Admin/administration/build/images/loading.gif" /> Loading ...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            @if (!Model.HideReportGA)
+            {
+                <div class="col-12 col-sm-12 col-lg-4 col-md-12 whiteBg">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <div class="caption level-caption">
+                                <i class="fa fa-line-chart font-blue"></i>
+                                <span class="caption-subject font-blue bold uppercase">@Loc["Admin.Dashboard.GoogleAnalytics"]</span>
+                            </div>
+                        </div>
+                        <div class="x_content">
+                            <div class="partialContents Dashboard_GoogleAnalytics_Data" data-url="@Url.Action("DashboardGeneralData", "GoogleAnalytics", new { area = Constants.AreaAdmin })">
+                                <img src="/_content/Grand.Web.Admin/administration/build/images/loading.gif" /> Loading ...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @if (canAccessReports)
+                {
+                    <div class="col-sm-12 col-lg-8 col-md-12">
+                        @await Component.InvokeAsync("OrderTimeChart")
+                    </div>
+                }
+            }
+            else
+            {
+                @if (canAccessReports)
+                {
+                    <div class="col-sm-12 col-lg-12 col-md-12">
+                        @await Component.InvokeAsync("OrderTimeChart")
+                    </div>
+                }
+            }
+        </div>
+    </div>
+    if (!Model.HideReportGA)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-sm-12 col-lg-6 col-md-12 whiteBg">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <div class="caption level-caption">
+                                <i class="fa fa-sign-in font-blue"></i>
+                                <span class="caption-subject font-blue bold uppercase">@Loc["Admin.Dashboard.GoogleAnalytics.Source"]</span>
+                            </div>
+                        </div>
+                        <div class="x_content">
+                            <div class="partialContents Dashboard_GoogleAnalytics_Data" data-url="@Url.Action("DashboardDataBySource", "GoogleAnalytics", new { area = Constants.AreaAdmin })">
+                                <img src="/_content/Grand.Web.Admin/administration/build/images/loading.gif" /> Loading ...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-lg-6 col-md-12 whiteBg">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <div class="caption level-caption">
+                                <i class="fa fa-sign-out font-blue"></i>
+                                <span class="caption-subject font-blue bold uppercase">@Loc["Admin.Dashboard.GoogleAnalytics.Exit"]</span>
+                            </div>
+                        </div>
+                        <div class="x_content">
+                            <div class="partialContents Dashboard_GoogleAnalytics_Data" data-url="@Url.Action("DashboardDataByExit", "GoogleAnalytics", new { area = Constants.AreaAdmin })">
+                                <img src="/_content/Grand.Web.Admin/administration/build/images/loading.gif" /> Loading ...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-sm-12 col-lg-6 col-md-12 whiteBg">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <div class="caption level-caption">
+                                <i class="fa fa-laptop font-blue"></i>
+                                <span class="caption-subject font-blue bold uppercase">@Loc["Admin.Dashboard.GoogleAnalytics.Device"]</span>
+                            </div>
+                        </div>
+                        <div class="x_content">
+                            <div class="partialContents Dashboard_GoogleAnalytics_Data" data-url="@Url.Action("DashboardDataByDevice", "GoogleAnalytics", new { area = Constants.AreaAdmin })">
+                                <img src="/_content/Grand.Web.Admin/administration/build/images/loading.gif" /> Loading ...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-lg-6 col-md-12 whiteBg">
+                    <div class="x_panel">
+                        <div class="x_title">
+                            <div class="caption level-caption">
+                                <i class="fa fa-map-marker font-blue"></i>
+                                <span class="caption-subject font-blue bold uppercase">@Loc["Admin.Dashboard.GoogleAnalytics.Localization"]</span>
+                            </div>
+                        </div>
+                        <div class="x_content">
+                            <div class="partialContents Dashboard_GoogleAnalytics_Data" data-url="@Url.Action("DashboardDataByLocalization", "GoogleAnalytics", new { area = Constants.AreaAdmin })">
+                                <img src="/_content/Grand.Web.Admin/administration/build/images/loading.gif" /> Loading ...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+@if (Model.IsLoggedInAsVendor)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>@Loc["Admin.Dashboard.Summary"]</h2>
+                    <div class="filter">
+                        <div class="page-bar" style="height:43px;">
+                            <div class="page-toolbar">
+                                <div id="dashboard-report-range" class="pull-right btn btn-fit-height green" data-original-title="Change dashboard date range">
+                                    <i class="icon-calendar"></i>&nbsp;
+                                    <span class="thin uppercase d-none d-sm-inline"></span>&nbsp;
+                                    <i class="fa fa-angle-down"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@if (canManageOrders)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light bordered">
+                <div class="x_title">
+                    <h2 class="caption-subject font-blue bold uppercase">@Loc["Admin.Dashboard.ReportLatestOrder"]</h2>
+                    <div class="clear"></div>
+                </div>
+                <div class="x_content">
+                    @await Component.InvokeAsync("LatestOrder")
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<vc:admin-widget widget-zone="admin_dashboard_bottom" additional-data="null" />
+<script>
+    $(document).ready(function (e) {
+        var site = site || {};
+        site.baseUrl = site.baseUrl || "";
+        $(".partialContents").each(function (index, item) {
+            var url = site.baseUrl + $(item).data("url");
+            if (url && url.length > 0) {
+                $(item).load(url);
+            }
+        });
+    });
+
+
+    var Dashboard = function () {
+        return {
+            initDashboardDaterange: function () {
+                if (!jQuery().daterangepicker) {
+                    return;
+                }
+
+                $('#dashboard-report-range').daterangepicker({
+                    startDate: moment().startOf('month'),
+                    "ranges": {
+                        'Today': [moment(), moment()],
+                        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    },
+                    "locale": {
+                        "format": "MM/DD/YYYY",
+                        "separator": " - ",
+                        "applyLabel": "Apply",
+                        "cancelLabel": "Cancel",
+                        "fromLabel": "From",
+                        "toLabel": "To",
+                        "customRangeLabel": "Custom",
+                        "daysOfWeek": [
+                            "Su",
+                            "Mo",
+                            "Tu",
+                            "We",
+                            "Th",
+                            "Fr",
+                            "Sa"
+                        ],
+                        "monthNames": [
+                            "January",
+                            "February",
+                            "March",
+                            "April",
+                            "May",
+                            "June",
+                            "July",
+                            "August",
+                            "September",
+                            "October",
+                            "November",
+                            "December"
+                        ],
+                        "firstDay": 1
+                    },
+                    opens: ($('html').css('direction') === 'rtl' ? 'right' : 'left'),
+                }, function (start, end, label) {
+                    $('#dashboard-report-range span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                });
+
+                $('#dashboard-report-range span').html(moment().startOf('month').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+                $('#dashboard-report-range').show();
+            },
+
+            init: function () {
+                this.initDashboardDaterange();
+            }
+        }
+    }();
+
+    Dashboard.init();
+
+    $('#dashboard-report-range').on('apply.daterangepicker', function (ev, picker) {
+        if ($.isFunction(window.initReportCustomerTimeChart)) {
+            initReportCustomerTimeChart(false);
+        };
+        if ($.isFunction(window.initReportOrderTimeChart)) {
+            initReportOrderTimeChart(false);
+        };
+        var gridOrders = $('#latest-orders-grid').data('kendoGrid');
+        if (gridOrders != undefined) {
+            gridOrders.dataSource.read();
+        }
+
+        $(".Dashboard_GoogleAnalytics_Data").each(function (index, item) {
+            $(item).html('<img src="/_content/Grand.Web.Admin/administration/build/images/loading.gif" /> Loading ...');
+            var url = $(item).data("url") + '?startDate=' + $('#dashboard-report-range').data('daterangepicker').startDate.format('YYYY-MM-DD') + '&endDate=' + $('#dashboard-report-range').data('daterangepicker').endDate.format('YYYY-MM-DD');
+            if (url && url.length > 0) {
+                $(item).load(url);
+            }
+        });
+    });</script>

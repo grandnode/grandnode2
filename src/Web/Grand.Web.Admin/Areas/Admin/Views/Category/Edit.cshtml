@@ -1,0 +1,37 @@
+﻿@model CategoryModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Catalog.Categories.EditCategoryDetails"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Category" asp-action="Edit" method="post" id="category-form">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-sitemap"></i>
+                        @Loc["Admin.Catalog.Categories.EditCategoryDetails"] - @Model.Name
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Catalog.Categories.BackToList"], "List")</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
+                            <button type="button" onclick="javascript:OpenWindow('@Url.RouteUrl("Category", new {SeName = Model.SeName})', 800, 600, true); return false;" class="btn purple">
+                                <i class="fa fa-eye"></i>
+                                @Loc["Admin.Common.Preview"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                            <span id="category-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
+                        </div>
+                    </div>
+                </div>
+                <vc:admin-widget widget-zone="category_details_buttons" additional-data="Model" />
+                <div class="x_content form">
+                    <partial name="_CreateOrUpdate" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<admin-delete-confirmation button-id="category-delete"/>

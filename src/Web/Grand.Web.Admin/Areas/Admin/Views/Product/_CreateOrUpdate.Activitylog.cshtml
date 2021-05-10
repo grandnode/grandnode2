@@ -1,0 +1,72 @@
+﻿@model ProductModel
+@inject AdminAreaSettings adminAreaSettings
+@if (!String.IsNullOrEmpty(Model.Id))
+{
+
+<div class="panel panel-default">
+    <vc:admin-widget widget-zone="product_details_activity_log_top" additional-data="Model" />
+    <div class="panel-body">
+        <div id="activitylog-grid"></div>
+    </div>
+    <vc:admin-widget widget-zone="product_details_activity_log_bottom" additional-data="Model" />
+</div>
+
+    <script>
+        $(document).ready(function () {
+            $("#activitylog-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("ListActivityLog", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "ActivityLogTypeName",
+                    title: "@Loc["Admin.Catalog.Products.ActivityLog.ActivityLogType"]",
+                }, {
+                    field: "CustomerId",
+                    title: "@Loc["Admin.Catalog.Products.ActivityLog.Customer"]",
+                    minScreenWidth: 500,
+                    template: '<a href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/#=CustomerId#">#:CustomerEmail#</a>'
+                }, {
+                    field: "Comment",
+                    title: "@Loc["Admin.Catalog.Products.ActivityLog.Comment"]",
+                    minScreenWidth: 750,
+                }, {
+                    field: "CreatedOn",
+                    title: "@Loc["Admin.Catalog.Products.ActivityLog.CreatedOn"]",
+                    type: "date",
+                    format: "{0:G}"
+                }]
+            });
+        });
+    </script>
+
+}

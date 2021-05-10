@@ -1,0 +1,102 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\Web\Grand.Web\Plugins\Payments.BrainTree\</OutputPath>
+    <OutDir>$(OutputPath)</OutDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\Web\Grand.Web\Plugins\Payments.BrainTree\</OutputPath>
+    <OutDir>$(OutputPath)</OutDir>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Payments.BrainTree\refs" />
+    <RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Payments.BrainTree\ref" />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="Braintree" Version="5.5.0" />
+    <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
+  </ItemGroup>
+  
+  <Target Name="CopyFile" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <CopyFiles Include="$(NuGetPackageRoot)\braintree\5.5.0\lib\netstandard2.0\*.*" />
+      <CopyFiles Include="$(NuGetPackageRoot)\system.xml.xpath.xmldocument\4.3.0\lib\netstandard1.3\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(CopyFiles)" DestinationFolder="..\..\Web\Grand.Web\Plugins\Payments.BrainTree\" />
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Business\Grand.Business.Authentication\Grand.Business.Authentication.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Business\Grand.Business.Catalog\Grand.Business.Catalog.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Business\Grand.Business.Checkout\Grand.Business.Checkout.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Business\Grand.Business.Cms\Grand.Business.Cms.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Business\Grand.Business.Common\Grand.Business.Common.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Business\Grand.Business.Customers\Grand.Business.Customers.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Business\Grand.Business.Marketing\Grand.Business.Marketing.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Business\Grand.Business.Messages\Grand.Business.Messages.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Business\Grand.Business.Storage\Grand.Business.Storage.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Business\Grand.Business.System\Grand.Business.System.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="logo.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Views\Configure.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Views\PaymentPaymentBrainTreeScripts.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Views\PaymentInfo.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Views\PaymentInfo_3DS.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Views\_ViewImports.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

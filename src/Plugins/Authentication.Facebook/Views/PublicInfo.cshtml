@@ -1,0 +1,10 @@
+﻿@using Grand.Web.Common.Page
+@{
+    Layout = "";
+}
+<link rel="stylesheet" type="text/css" asp-src="/Plugins/Authentication.Facebook/Assets/facebookstyles.css" />
+<div class="facebook-login-block">
+    <div class="buttons">
+        <a href="@Url.Action("FacebookLogin", "FacebookAuthentication", new { ReturnUrl = Context.Request.Query["ReturnUrl"].ToString()})" class="facebook-btn"></a>
+    </div>
+</div>

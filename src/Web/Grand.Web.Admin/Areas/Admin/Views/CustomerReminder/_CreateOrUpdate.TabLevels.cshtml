@@ -1,0 +1,88 @@
+﻿@model CustomerReminderModel
+@{
+
+    if (String.IsNullOrEmpty(Model.Id))
+    {
+        <div class="note note-info">
+            @Loc["Admin.Customers.CustomerReminder.SaveBeforeEdit"]
+        </div>
+    }
+    if (!String.IsNullOrEmpty(Model.Id))
+    {
+        
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="levels-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <button type="submit" id="btnAddNewLevel" name="btnAddNewLevel" onclick="javascript:setLocation('@(Url.Action("AddLevel", "CustomerReminder", new { customerReminderId = Model.Id, area = Constants.AreaAdmin }))'); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.CustomerReminder.Levels.AddNew"]</button>
+            </div>
+        </div>
+        <script>
+            $(document).ready(function () {
+                $("#levels-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("Levels", "CustomerReminder", new { customerReminderId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("DeleteLevel", "CustomerReminder", new { customerReminderId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "Id",
+                            }
+                        },
+                        error: function (e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        numeric: false,
+                        previousNext: false,
+                        info: false
+                    },
+                    editable: {
+                        confirmation: true,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [
+                    {
+                        field: "Name",
+                        title: "@Loc["Admin.Customers.CustomerReminder.Fields.Name"]",
+                        width: 300,
+                            template: '<a class="k-link" href="@Url.Action("EditLevel", "CustomerReminder", new { area = Constants.AreaAdmin })/?customerReminderId=@(Model.Id)&cid=#=Id#">#=kendo.htmlEncode(Name)#</a>',
+                    },
+                    {
+                        field: "Level",
+                        title: "@Loc["Admin.Customers.CustomerReminder.Fields.Level"]",
+                        width: 100,
+                    },
+                    {
+                        command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                        title: "@Loc["Admin.Common.Delete"]",
+                        width: 100
+                    }]
+                });
+            });
+        </script>
+    }
+}

@@ -1,0 +1,49 @@
+﻿@using Grand.Business.Common.Interfaces.Security
+@using Grand.Business.Common.Interfaces.Localization
+@using Grand.Web.Common.Menu
+@using Grand.Business.System.Interfaces.Admin
+@inject IPermissionService permissionService
+@inject ITranslationService translationService
+@inject IAdminSiteMapService adminSiteMapService
+@inject IEnumerable<IAdminMenuProvider> _adminMenuProviders
+@{
+    //load sitemap
+    var siteMap = new SiteMap(adminSiteMapService, permissionService);
+    await siteMap.Load();
+}
+
+<div class="col-md-3 left_col">
+    <div class="left_col scroll-view">
+        <div class="navbar nav_title">
+            <a href="~/Admin" class="site_title"><img src="/_content/Grand.Web.Admin/administration/build/images/grandLogo.png" width="35px" height="35px" /> <span>GrandNode</span></a>
+        </div>
+        <div class="clearfix"></div>
+        <div class="main_menu_side hidden-print main_menu" id="sidebar-menu">
+            <div class="menu_section">
+                <ul class="nav side-menu page-sidebar-menu">
+                    @{
+                        //standard (default) items
+                        var rootNode = siteMap.RootNode;
+
+                        //plugins
+                        foreach (var adminMenuPlugin in _adminMenuProviders.ToList())
+                        {
+                            await adminMenuPlugin.ManageSiteMap(rootNode);
+                        }
+                        //"Plugins" menu item should be visible when it has some child nodes
+                        var pluginNode = rootNode.ChildNodes.FirstOrDefault(x => x.SystemName == "Third party plugins");
+                        if (pluginNode != null && pluginNode.Visible)
+                        {
+                            var hasManagePluginsPermission = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManagePlugins);
+                            pluginNode.Visible = hasManagePluginsPermission && pluginNode.ChildNodes.Any(x => x.Visible);
+                        }
+                    }
+                    @foreach (var item in rootNode.ChildNodes.Where(x => x.Visible))
+                    {
+                        <partial name="_MenuItem" model="item" />
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,140 @@
+﻿@model PermissionMappingModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Configuration.Permissions"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Permission" asp-action="Index" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-user-secret"></i>
+                        @Loc["Admin.Configuration.Permissions"]
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                        <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Configuration.Permissions.InstallMissingPermisions"] </button>
+                    </div>
+                    <vc:admin-widget widget-zone="permission_list_buttons" additional-data="null" />
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <div class="col-md-12 col-sm-12">
+                                    @if (Model.AvailablePermissions.Count == 0)
+                                    {
+                                        <text>No permissions defined</text>
+                                    }
+                                    else if (Model.AvailableCustomerGroups.Count == 0)
+                                    {
+                                        <text>No customer groups available</text>
+                                    }
+                                    else
+                                    {
+                                    <script>
+                                            function checkCategory(checkbox) {
+                                                var cbox = checkbox;
+                                                var input = $(checkbox).closest("td").find("ul input");
+                                                $(input).each(function () {
+                                                    $(this).prop('checked', $(cbox).is(':checked')).change();
+                                                });
+                                            }
+                                            $(document).ready(function () {
+                                                @foreach (var cr in Model.AvailableCustomerGroups)
+                                                {
+                                                    <text>
+                                                        $('#selectall-@(cr.Id)').click(function () {
+                                                            $('.allow_@(cr.Id)').prop('checked', $(this).is(':checked')).change();
+                                                        });
+                                                    </text>
+                                                }
+                                            });
+                                    </script>
+                                        <div class="permissions-table-container">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered tableFixHead permissions-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="first-th" scope="col">
+                                                                <div class="d-flex justify-content-center align-items-center">
+                                                                    <strong>@Loc["Admin.Configuration.Permissions.Permission"]</strong>
+                                                                </div>
+                                                            </th>
+                                                            @foreach (var cr in Model.AvailableCustomerGroups)
+                                                            {
+                                                                <th scope="col">
+                                                                    <div class="d-flex flex-column align-items-center justify-content-center">
+                                                                        <strong>@cr.Name</strong>
+                                                                        <label class='mt-checkbox mt-checkbox-outline control control-checkbox no-action'><input type="checkbox" id="selectall-@(cr.Id)" /> <div class="control__indicator"></div></label>
+                                                                    </div>
+                                                                </th>
+                                                            }
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+
+                                                        @{
+                                                            bool altRow = true;
+                                                            var group = Model.AvailablePermissions.GroupBy(x => x.Category);
+                                                        }
+                                                        @foreach (var pr in group)
+                                                        {
+                                                            altRow = !altRow;
+
+                                                            <tr class="@(altRow ? "altrowstyle" : "rowstyle")">
+                                                                <td>
+                                                                    @{
+                                                                        var groupList = pr.ToList();
+                                                                    }
+                                                                    <button type="button" class="btn btn-info title" data-toggle="collapse" data-target=".multi-collapse-@groupList[0].Category" aria-expanded="true" aria-controls="@groupList[0].Category-collapseMain">@groupList[0].Category <i class="fa fa-chevron-down" aria-hidden="true"></i></button>
+                                                                    <ul id="@groupList[0].Category-collapseMain" class="collapse show multi-collapse-@groupList[0].Category">
+                                                                        @foreach (var item in groupList)
+                                                                        {
+                                                                            <li>
+                                                                                <span>@item.Name</span>
+                                                                            </li>
+                                                                        }
+                                                                    </ul>
+                                                                </td>
+                                                                @foreach (var cr in Model.AvailableCustomerGroups)
+                                                                {
+                                                                    <td class="checkbox-container">
+                                                                        <div class="title">
+                                                                            <span>@cr.Name</span>
+                                                                            <label class='mt-checkbox mt-checkbox-outline control control-checkbox no-action'><input type="checkbox" onclick="checkCategory(this)" /> <div class="control__indicator"></div></label>
+                                                                        </div>
+                                                                        <ul class="collapse show multi-collapse-@groupList[0].Category">
+                                                                            @foreach (var item in groupList)
+                                                                            {
+                                                                                var allowed = Model.Allowed.ContainsKey(item.SystemName) && Model.Allowed[item.SystemName][cr.Id];
+                                                                                <li>
+                                                                                    <label class='mt-checkbox mt-checkbox-outline control control-checkbox @if (!item.Actions) { <text>no-action</text> }'><input class="allow_@(cr.Id)" type="checkbox" value="@(item.SystemName)" name="allow_@(cr.Id)" @(allowed ? " checked=checked" : null) /> <div class="control__indicator"></div></label>
+                                                                                    @if (item.Actions)
+                                                                                    {
+                                                                                        <a class='k-link'
+                                                                                           onclick="javascript:OpenWindow('@Url.Action("PermissionsAction", "Permission", new { area = Constants.AreaAdmin })/?systemname=@(item.SystemName)&customeGroupId=@cr.Id', 600, 400, true); return false;"><i class="icon-settings"></i></a>
+                                                                                    }
+                                                                                </li>
+                                                                            }
+                                                                        </ul>
+                                                                    </td>
+                                                                }
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

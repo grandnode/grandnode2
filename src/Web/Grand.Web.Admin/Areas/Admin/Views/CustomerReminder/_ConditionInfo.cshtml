@@ -1,0 +1,128 @@
+﻿@model CustomerReminderModel.ConditionModel
+
+<script>
+            $(document).ready(function () {
+                $("#@Html.IdFor(model => model.ConditionTypeId)").change(toggleConditionType);
+                toggleConditionType();
+            });
+
+        function toggleConditionType() {
+            var selectedConditionTypeId = $("#@Html.IdFor(model => model.ConditionTypeId)").val();
+            if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerReminderConditionTypeEnum.Product).ToString()))
+            {
+                $('#tab-product').show();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerReminderConditionTypeEnum.Collection).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').show();
+                $('#tab-category').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+
+            } else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerReminderConditionTypeEnum.Category).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').show();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerReminderConditionTypeEnum.CustomerGroup).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-customerGroup').show();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerReminderConditionTypeEnum.CustomerTag).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').show();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerReminderConditionTypeEnum.CustomerRegisterField).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').show();
+                $('#tab-customAttribute').hide();
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerReminderConditionTypeEnum.CustomCustomerAttribute).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').show();
+            }
+            else
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+             }
+        }
+
+</script>
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="Name" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ConditionTypeId" />
+            <div class="col-md-9 col-sm-9">
+                @if (!String.IsNullOrEmpty(Model.Id))
+                {
+                    <admin-select asp-for="ConditionTypeId" asp-items="Model.ConditionType" disabled/>
+                }
+                else
+                {
+                    <admin-select asp-for="ConditionTypeId" asp-items="Model.ConditionType" />
+                }
+                <span asp-validation-for="ConditionTypeId"></span>
+                <input asp-for="ConditionTypeId" type="hidden" />
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ConditionId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="ConditionId" asp-items="((Grand.Domain.Customers.CustomerReminderConditionEnum)Model.ConditionId).ToSelectList(Context)" />
+                <span asp-validation-for="ConditionId"></span>
+            </div>
+        </div>
+    </div>
+</div>

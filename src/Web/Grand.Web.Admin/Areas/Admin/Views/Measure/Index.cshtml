@@ -1,0 +1,38 @@
+﻿@{
+    //page title
+    ViewBag.Title = Loc["Admin.Configuration.Measures"];
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel">
+            <div class="x_content form">
+                <admin-tabstrip name="measures-list">
+                    <items>
+                        <tabstrip-item text="@Loc["Admin.Configuration.Measures.Dimensions"]" tab-index="0">
+                            <content>
+                                <div>
+                                    <partial name="_dimensions" />
+                                </div>
+                            </content>
+                        </tabstrip-item>
+                        <tabstrip-item text="@Loc["Admin.Configuration.Measures.Units"]" tab-index="1">
+                            <content>
+                                <div>
+                                    <partial name="_units" />
+                                </div>
+                            </content>
+                        </tabstrip-item>
+                        <tabstrip-item text="@Loc["Admin.Configuration.Measures.Weights"]" tab-index="2">
+                            <content>
+                                <div>
+                                    <partial name="_weights"/>
+                                </div>
+                            </content>
+                        </tabstrip-item>
+                        <vc:admin-widget widget-zone="measures_details_tabs" additional-data="null" />
+                    </items>
+                </admin-tabstrip>
+            </div>
+        </div>
+    </div>
+</div>

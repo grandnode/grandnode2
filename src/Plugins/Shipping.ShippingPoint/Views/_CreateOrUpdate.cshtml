@@ -1,0 +1,81 @@
+﻿@model Shipping.ShippingPoint.Models.ShippingPointModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+@if (ViewBag.RefreshPage == true)
+{
+    <script>
+        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
+        catch (e){}
+        window.close();
+    </script>
+}
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="ShippingPointName" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="ShippingPointName" />
+                <span asp-validation-for="ShippingPointName"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Description" />
+            <div class="col-md-9 col-sm-9">
+                <admin-textarea asp-for="Description"></admin-textarea>
+                <span asp-validation-for="Description"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CountryId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="CountryId" asp-items="Model.AvailableCountries" />
+                <span asp-validation-for="CountryId"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="City" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="City" />
+                <span asp-validation-for="City"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Address1" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Address1" />
+                <span asp-validation-for="Address1"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ZipPostalCode" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="ZipPostalCode" />
+                <span asp-validation-for="ZipPostalCode"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="OpeningHours" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="OpeningHours" />
+                <span asp-validation-for="OpeningHours"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="PickupFee" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="PickupFee" />
+                <span asp-validation-for="PickupFee"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="StoreId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="StoreId" asp-items="Model.AvailableStores" />
+                <span asp-validation-for="StoreId"></span>
+            </div>
+        </div>
+    </div>
+</div>

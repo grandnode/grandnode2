@@ -1,0 +1,44 @@
+﻿@model Authentication.Google.Models.ConfigurationModel
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+<input id="active-menu-item" type="hidden" value="/Admin/ExternalAuthentication/Methods" />
+<form asp-controller="GoogleAuthentication" asp-action="Configure" method="post">
+
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                @Html.Raw(Loc["Plugins.ExternalAuth.Google.Title"])
+            </div>
+            <div class="panel-body">
+                @Html.Raw(Loc["Plugins.ExternalAuth.Google.Description"])
+                <div class="form-group">
+                    <div class="col-md-3 col-sm-3 text-right">
+                        <admin-label asp-for="ClientKeyIdentifier" class="control-label" />
+                    </div>
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="ClientKeyIdentifier" />
+                        <span asp-validation-for="ClientKeyIdentifier"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3 col-sm-3 text-right">
+                        <admin-label asp-for="ClientSecret" class="control-label" />
+                    </div>
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="ClientSecret" />
+                        <span asp-validation-for="ClientSecret"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <div class="row">
+                    <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
+                        <input type="submit" name="save" class="btn green" value="@Loc["Admin.Common.Save"]" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

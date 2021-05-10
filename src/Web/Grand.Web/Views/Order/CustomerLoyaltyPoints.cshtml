@@ -1,0 +1,74 @@
+﻿@inject IPageHeadBuilder pagebuilder
+@model CustomerLoyaltyPointsModel
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.Account"]);
+}
+@section left
+{
+    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.LoyaltyPoints })
+}
+<section class="page account-page loyalty-points-page pl-lg-3 pt-3 pt-lg-0">
+    <h1 class="h2 generalTitle">@Loc["Account.MyAccount"] - @Loc["Account.LoyaltyPoints"]</h1>
+    <div class="loyalty-points-overview">
+        <div class="current-balance alert alert-success">@Loc["LoyaltyPoints.CurrentBalance", Model.LoyaltyPointsBalance, Model.LoyaltyPointsAmount]</div>
+        @if (Model.MinimumLoyaltyPointsBalance > 0)
+        {
+            <div class="min-balance alert alert-danger">@Loc["LoyaltyPoints.MinimumBalance", Model.MinimumLoyaltyPointsBalance, Model.MinimumLoyaltyPointsAmount]</div>
+        }
+    </div>
+    <div class="loyalty-points-history">
+        <h5><strong>@Loc["LoyaltyPoints.History"]</strong></h5>
+        @if (Model.LoyaltyPoints.Any())
+        {
+                        <div id="customer-loyalty-points"></div>
+                        <script>
+                            var CustomerLoyaltyPoints = Vue.extend({
+                                template: '<b-table :fields="fields" :items="items"> <template v-slot:cell(date)="data"> <div v-html="data.value.date"></div></template> <template v-slot:cell(points)="data"> <div v-html="data.value.points"></div></template> <template v-slot:cell(pointsbalance)="data"> <div v-html="data.value.pointsbalance"></div></template> <template v-slot:cell(message)="data"> <div v-html="data.value.message"></div></template> </b-table>',
+                                data: function () {
+                                    return {
+                                         fields: [
+                                            { key: 'date', label: '@Loc["LoyaltyPoints.Fields.Date"]'},
+                                            { key: 'points', label: '@Loc["LoyaltyPoints.Fields.Points"]'},
+                                            { key: 'pointsbalance', label: '@Loc["LoyaltyPoints.Fields.PointsBalance"]'},
+                                            { key: 'message', label: '@Loc["LoyaltyPoints.Fields.Message"]'},
+                                        ],
+                                        items: [
+                                             @for (int i = 0; i < Model.LoyaltyPoints.Count; i++)
+                                             {
+                                             <text>
+                                                @{ var item = Model.LoyaltyPoints[i];}
+                                            {
+                                                date: {
+                                                    date: '@item.CreatedOn'
+                                                },
+                                                points: {
+                                                    points: '@item.Points'
+                                                },
+                                                pointsbalance: {
+                                                    pointsbalance: '@item.PointsBalance'
+                                                },
+                                                message: {
+                                                    message: '@item.Message',
+                                                }
+
+                                            },
+                                            </text>
+                                            }
+                                        ]
+                                    }
+                                }
+                            })
+                            new CustomerLoyaltyPoints().$mount('#customer-loyalty-points')
+                        </script>
+        }
+        else
+        {
+            <section class="no-data alert alert-info my-3">
+                @Loc["LoyaltyPoints.NoHistory"]
+            </section>
+        }
+    </div>
+</section>

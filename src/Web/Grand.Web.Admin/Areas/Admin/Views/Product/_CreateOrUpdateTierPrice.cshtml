@@ -1,0 +1,71 @@
+﻿@model ProductModel.TierPriceModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="ProductId" type="hidden" />
+
+@if (ViewBag.RefreshPage == true)
+{
+    <script>
+        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
+        catch (e){}
+        window.close();
+    </script>
+}
+    <div class="form-horizontal">
+        <vc:admin-widget widget-zone="product_details_tier_price_top" additional-data="Model" />
+        <div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="Quantity" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Quantity" />
+                    <span asp-validation-for="Quantity"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="Price" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Price" />
+                    <span asp-validation-for="Price"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="CurrencyCode" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-select asp-for="CurrencyCode" asp-items="Model.AvailableCurrencies" />
+                    <span asp-validation-for="CurrencyCode"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="StoreId" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-select asp-for="StoreId" asp-items="Model.AvailableStores" />
+                    <span asp-validation-for="StoreId"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="CustomerGroupId" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-select asp-for="CustomerGroupId" asp-items="Model.AvailableCustomerGroups" />
+                    <span asp-validation-for="CustomerGroupId"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="StartDateTime" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="StartDateTime" />
+                    <span asp-validation-for="StartDateTime"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="EndDateTime" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="EndDateTime" />
+                    <span asp-validation-for="EndDateTime"></span>
+                </div>
+            </div>
+        </div>
+        <vc:admin-widget widget-zone="product_details_tier_price_bottom" additional-data="Model" />
+    </div>
+
+

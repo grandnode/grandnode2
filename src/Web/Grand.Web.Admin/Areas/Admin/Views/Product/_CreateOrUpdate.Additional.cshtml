@@ -1,0 +1,233 @@
+﻿@using Grand.Domain.Catalog;
+@model ProductModel
+<vc:admin-widget widget-zone="product_details_additional_top" additional-data="Model" />
+<div class="form-horizontal" id="group-order">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="DisplayOrderCategory" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrderCategory" />
+                <span asp-validation-for="DisplayOrderCategory"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisplayOrderBrand" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrderBrand" />
+                <span asp-validation-for="DisplayOrderBrand"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisplayOrderCollection" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrderCollection" />
+                <span asp-validation-for="DisplayOrderCollection"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="OnSale" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="OnSale" />
+                <span asp-validation-for="OnSale"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="group-giftvoucher">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="IsGiftVoucher" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsGiftVoucher" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsGiftVoucher"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlGiftVoucherType">
+            <admin-label asp-for="GiftVoucherTypeId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="GiftVoucherTypeId" asp-items="((GiftVoucherType)Model.GiftVoucherTypeId).ToSelectList(Context)" />
+                <span asp-validation-for="GiftVoucherTypeId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlOverriddenGiftVoucherAmount">
+            <admin-label asp-for="OverGiftAmount" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="OverGiftAmount" />
+                <span asp-validation-for="OverGiftAmount"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="group-downloads">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="IsDownload" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsDownload" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsDownload"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlDownloadFile">
+            <admin-label asp-for="DownloadId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DownloadId" />
+                <span asp-validation-for="DownloadId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlUnlimitedDownloads">
+            <admin-label asp-for="UnlimitedDownloads" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="UnlimitedDownloads" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="UnlimitedDownloads"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlMaxNumberOfDownloads">
+            <admin-label asp-for="MaxNumberOfDownloads" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="MaxNumberOfDownloads" />
+                <span asp-validation-for="MaxNumberOfDownloads"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlDownloadExpirationDays">
+            <admin-label asp-for="DownloadExpirationDays" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DownloadExpirationDays" />
+                <span asp-validation-for="DownloadExpirationDays"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlDownloadActivationType">
+            <admin-label asp-for="DownloadActivationTypeId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="DownloadActivationTypeId" asp-items="((DownloadActivationType)Model.DownloadActivationTypeId).ToSelectList(Context)" />
+                <span asp-validation-for="DownloadActivationTypeId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlHasUserAgreement">
+            <admin-label asp-for="HasUserAgreement" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="HasUserAgreement" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="HasUserAgreement"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlUserAgreementText">
+            <admin-label asp-for="UserAgreementText" />
+            <div class="col-md-9 col-sm-9">
+                <admin-textarea asp-for="UserAgreementText"></admin-textarea>
+                <span asp-validation-for="UserAgreementText"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlHasSampleDownload">
+            <admin-label asp-for="HasSampleDownload" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="HasSampleDownload" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="HasSampleDownload"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlSampleDownloadFile">
+            <admin-label asp-for="SampleDownloadId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="SampleDownloadId" />
+                <span asp-validation-for="SampleDownloadId"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="form-horizontal" id="group-recurring">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="IsRecurring" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsRecurring" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsRecurring"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlCycleLength">
+            <admin-label asp-for="RecurringCycleLength" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="RecurringCycleLength" />
+                <span asp-validation-for="RecurringCycleLength"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlCyclePeriod">
+            <admin-label asp-for="RecurringCyclePeriodId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="RecurringCyclePeriodId" asp-items="((RecurringCyclePeriod)Model.RecurringCyclePeriodId).ToSelectList(Context)" />
+                <span asp-validation-for="RecurringCyclePeriodId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlTotalCycles">
+            <admin-label asp-for="RecurringTotalCycles" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="RecurringTotalCycles" />
+                <span asp-validation-for="RecurringTotalCycles"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="form-horizontal" id="group-required-other-products">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="RequireOtherProducts" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="RequireOtherProducts" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="RequireOtherProducts"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlRequiredProductIds">
+            <admin-label asp-for="RequiredProductIds" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="RequiredProductIds" />
+                <span asp-validation-for="RequiredProductIds"></span>
+                <span id="required-products-check-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
+                <input type="submit" id="btnAddNewRequiredProduct" value="@Loc["Admin.Catalog.Products.Fields.RequiredProductIds.AddNew"]"
+                       onclick="javascript:OpenWindow('@(Url.Action("RequiredProductAddPopup", "Product",
+                                                       new { btnId = "btnRefreshRequiredProducts", productIdsInput = "RequiredProductIds", area = Constants.AreaAdmin }))', 800, 800, true); return false;" class="k-button" />
+                <input type="submit" id="btnRefreshRequiredProducts" style="display: none" />
+                <script>
+                    $(document).ready(function () {
+                        $('#btnRefreshRequiredProducts').click(function () {
+                            loadRequiredProductFriendlyNames();
+                            return false;
+                        });
+                    });
+                </script>
+                <span id="required-product-names" class="required-product-names"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlAutomaticallyAddRequiredProducts">
+            <admin-label asp-for="AutoAddRequiredProducts" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="AutoAddRequiredProducts" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="AutoAddRequiredProducts"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<vc:admin-widget widget-zone="product_details_additional_bottom" additional-data="Model" />

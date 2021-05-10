@@ -1,0 +1,14 @@
+﻿@{
+    Layout = "_SingleColumn";
+}
+@model Authentication.Google.Models.FailedModel
+<div class="page facebook-login">
+    <div class="page-title">
+        <h1>@Loc["Plugins.ExternalAuth.Google.Failed"]</h1>
+    </div>
+    <div class="page-body">
+        <div class="alert alert-danger">
+            @Loc["Plugins.ExternalAuth.Google.Failed.ErrorMessage"]: @Model.ErrorMessage
+        </div>
+    </div>
+</div>

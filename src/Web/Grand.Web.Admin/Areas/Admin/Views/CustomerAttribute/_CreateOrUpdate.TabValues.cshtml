@@ -1,0 +1,107 @@
+﻿@model CustomerAttributeModel
+<vc:admin-widget widget-zone="customer_attribute_details_values_top" additional-data="Model" />
+@{
+
+    if (!String.IsNullOrEmpty(Model.Id))
+    {
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="customerattributevalues-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <button type="submit" id="btnAddNewValue" onclick="javascript:OpenWindow('@(Url.Action("ValueCreatePopup", "CustomerAttribute", new { customerAttributeId = Model.Id, btnId = "btnRefresh", formId = "customerattribute-form", area = Constants.AreaAdmin }))', 800, 350, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.CustomerAttributes.Values.AddNew"]</button>
+                <input type="submit" id="btnRefresh" style="display: none" />
+            </div>
+        </div>
+
+
+        <script>
+        $(document).ready(function () {
+            $("#customerattributevalues-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("ValueList", "CustomerAttribute", new { customerAttributeId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("ValueDelete", "CustomerAttribute", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id"
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: true,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "Name",
+                    title: "@Loc["Admin.Customers.CustomerAttributes.Values.Fields.Name"]",
+                    template: "<a class='k-link' onclick=\"javascript:OpenWindow('@Url.Action("ValueEditPopup", "CustomerAttribute", new { area = Constants.AreaAdmin })/#=Id#?customerAttributeId=@(Model.Id)&btnId=btnRefresh&formId=customerattribute-form', 800, 350, true); return false;\">#=kendo.htmlEncode(Name)#</a>",
+                }, {
+                    field: "IsPreSelected",
+                    title: "@Loc["Admin.Customers.CustomerAttributes.Values.Fields.IsPreSelected"]",
+                    width: 100,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(IsPreSelected) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                }, {
+                    field: "DisplayOrder",
+                    title: "@Loc["Admin.Customers.CustomerAttributes.Values.Fields.DisplayOrder"]",
+                    width: 100
+                }, {
+                    command: {name: "destroy", text: "@Loc["Admin.Common.Delete"]"},
+                    title: "@Loc["Admin.Common.Delete"]",
+                    width: 100
+                }]
+            });
+        });
+        </script>
+        <script>
+        $(document).ready(function () {
+            $('#btnRefresh').click(function () {
+                //refresh grid
+                var grid = $("#customerattributevalues-grid").data('kendoGrid');
+                grid.dataSource.read();
+
+                //return false to don't reload a page
+                return false;
+            });
+        });
+        </script>
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["Admin.Customers.CustomerAttributes.Values.SaveBeforeEdit"]
+        </div>
+    }
+}
+<vc:admin-widget widget-zone="customer_attribute_details_values_bottom" additional-data="Model" />

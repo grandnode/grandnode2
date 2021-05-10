@@ -1,0 +1,16 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+@section Breadcrumb {
+    @RenderSection("Breadcrumb", required: false)
+}
+@await Component.InvokeAsync("Widget", new { widgetZone = "main_column_before" })
+@RenderBody()
+@await Component.InvokeAsync("Widget", new { widgetZone = "main_column_after" })
+@section meta {
+    @RenderSection("meta", required: false)
+}
+@section head {
+    @RenderSection("head", required: false)
+}

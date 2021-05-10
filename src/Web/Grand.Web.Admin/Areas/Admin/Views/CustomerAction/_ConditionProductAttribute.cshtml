@@ -1,0 +1,133 @@
+﻿@model CustomerActionConditionModel
+
+@if (String.IsNullOrEmpty(Model.Id))
+{
+    <div class="note note-info">
+        @Loc["Admin.Customers.CustomerActionCondition.SaveBeforeEdit"]
+    </div>
+}
+
+@if (!String.IsNullOrEmpty(Model.Id))
+{
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div id="productattribute-grid"></div>
+        </div>
+    </div>
+                
+
+        <script>
+        $(document).ready(function () {
+        $("#productattribute-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("ConditionProductAttribute", "CustomerAction", new { customerActionId = Model.CustomerActionId, conditionId = Model.Id, area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    create: {
+                        url: "@Html.Raw(Url.Action("ConditionProductAttributeInsert", "CustomerAction", new { customerActionId = Model.CustomerActionId, conditionId = Model.Id, area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    update: {
+                        url: "@Html.Raw(Url.Action("ConditionProductAttributeUpdate", "CustomerAction", new { customerActionId = Model.CustomerActionId, conditionId = Model.Id, area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    destroy: {
+                        url: "@Html.Raw(Url.Action("ConditionDeletePosition", "CustomerAction", new { customerActionId = Model.CustomerActionId, conditionId = Model.Id, area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        fields: {
+                            ProductAttributeName: { editable: true, type: "string" },
+                            ProductAttributeId: { editable: true, type: "string" },
+                            Id: { editable: false, type: "string" }
+                        }
+                    }
+                },
+                requestEnd: function (e) {
+                    if (e.type == "create" || e.type == "update") {
+                        this.read();
+                    }
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                numeric: false,
+                previousNext: false,
+                info: false
+            },
+            toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
+            editable: {
+                confirmation: false,
+                mode: "inline",
+            },
+            scrollable: false,
+            columns: [{
+                    field: "ProductAttributeName",
+                    title: "@Loc["Admin.Customers.CustomerActionCondition.Fields.ProductAttributeName"]",
+                    width: 200,
+                    editor: attrDropDownEditor,
+                    template: "#:ProductAttributeName#"
+                }, {
+                    field: "Name",
+                    title: "@Loc["Admin.Customers.CustomerActionCondition.Fields.ProductAttributeValueName"]",
+                    width: 200,
+                },
+                {
+                command: [
+                    {
+                        name: "edit",
+                        text: {
+                            edit: "@Loc["Admin.Common.Edit"]",
+                            update: "@Loc["Admin.Common.Update"]",
+                            cancel: "@Loc["Admin.Common.Cancel"]"
+                        }
+                },{
+                    name: "destroy",
+                    text: "@Loc["Admin.Common.Delete"]"
+                }],
+                width: 200
+            }]
+        });
+    });
+
+
+    function attrDropDownEditor(container, options) {
+        $('<input required data-text-field="Name" data-value-field="Id" data-bind="value:ProductAttributeId"/>')
+            .appendTo(container)
+            .kendoDropDownList({
+                autoBind: false,
+                dataSource:
+                {
+                    transport: {
+                        read: "@Html.Raw(Url.Action("ProductAttributes", "CustomerAction", new { area = Constants.AreaAdmin }))"
+                    }
+                },
+                optionLabel: " -- Select -- "
+            });
+        }
+        </script>
+}

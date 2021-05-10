@@ -1,0 +1,44 @@
+﻿@model ProductAttributeModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<admin-tabstrip name="product-attribute-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Catalog.Attributes.ProductAttributes.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (!string.IsNullOrEmpty(Model.Id))
+        {
+            <tabstrip-item text="@Loc["Admin.Catalog.Attributes.ProductAttributes.UsedByProducts"]" tab-index="1">
+                <content>
+                    <div>
+                        <partial name="_CreateOrUpdate.TabUsedByProducts" model="Model" />
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        <tabstrip-item text="@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabPredefinedValues" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="3">
+            <content>
+                <div>
+                    @{
+                        ViewData["ObjectType"] = "ProductAttribute";
+                        ViewData["TabIndex"] = 3;
+                    }
+                    <partial name="_UserFields" model="Model" view-data="ViewData" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="productattribute_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

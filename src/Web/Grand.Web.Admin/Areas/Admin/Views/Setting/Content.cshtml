@@ -1,0 +1,66 @@
+﻿@model ContentSettingsModel
+
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Settings.Content"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Setting" asp-action="Content" method="post">
+    
+    <div asp-validation-summary="All"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-fw fa-sliders"></i>
+                        @Loc["Admin.Settings.Content"]
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                        </div>
+                    </div>
+                    <vc:admin-widget widget-zone="content_settings_buttons" additional-data="null" />
+                </div>
+                <div class="x_content">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            @await Component.InvokeAsync("StoreScope")
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <vc:admin-widget widget-zone="content_settings_top" additional-data="null" />
+                    <admin-tabstrip name="contentsettings-edit">
+                        <items>
+                            <tabstrip-item text="@Loc["Admin.Settings.Content.BlogSettings"]" tab-index="0">
+                                <content>
+                                    <div>
+                                        <partial name="Content.TabBlogSettings" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.Content.NewsSettings"]" tab-index="1">
+                                <content>
+                                    <div>
+                                        <partial name="Content.TabNewsSettings" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.Content.KnowledgebaseSettings"]" tab-index="2">
+                                <content>
+                                    <div>
+                                        <partial name="Content.TabKnowledgebaseSettings" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <vc:admin-widget widget-zone="setting_content_details_tabs" additional-data="Model" />
+                        </items>
+                    </admin-tabstrip>
+                    <vc:admin-widget widget-zone="content_settings_bottom" additional-data="null" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+

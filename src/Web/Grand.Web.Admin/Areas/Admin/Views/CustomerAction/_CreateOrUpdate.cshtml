@@ -1,0 +1,95 @@
+﻿@model CustomerActionModel
+
+<input asp-for="Id" type="hidden" />
+@{
+    var validationSummary = Html.ValidationSummary(false);
+    if (!String.IsNullOrEmpty(validationSummary.ToString()))
+    {
+        <div class="message-error">@validationSummary</div>
+    }
+}
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.ReactionTypeId)").change(toggleReaction);
+        toggleReaction();
+
+        function toggleReaction() {
+            var selectedReactionTypeId = $("#@Html.IdFor(model => model.ReactionTypeId)").val();
+            if (selectedReactionTypeId == @(((int)Grand.Domain.Customers.CustomerReactionTypeEnum.Banner).ToString()))
+            {
+                $('#plnBanner').show();
+                $('#plnInteractiveForm').hide();
+                $('#plnMessage').hide();
+                $('#plnRole').hide();
+                $('#plnTag').hide();
+            }
+            if (selectedReactionTypeId == @(((int)Grand.Domain.Customers.CustomerReactionTypeEnum.InteractiveForm).ToString()))
+            {
+                $('#plnBanner').hide();
+                $('#plnInteractiveForm').show();
+                $('#plnMessage').hide();
+                $('#plnRole').hide();
+                $('#plnTag').hide();
+            }
+            else if (selectedReactionTypeId == @(((int)Grand.Domain.Customers.CustomerReactionTypeEnum.Email).ToString()))
+            {
+                $('#plnBanner').hide();
+                $('#plnInteractiveForm').hide();
+                $('#plnMessage').show();
+                $('#plnRole').hide();
+                $('#plnTag').hide();
+
+            } else if (selectedReactionTypeId == @(((int)Grand.Domain.Customers.CustomerReactionTypeEnum.AssignToCustomerGroup).ToString()))
+            {
+                $('#plnBanner').hide();
+                $('#plnInteractiveForm').hide();
+                $('#plnMessage').hide();
+                $('#plnRole').show();
+                $('#plnTag').hide();
+
+            } else if (selectedReactionTypeId == @(((int)Grand.Domain.Customers.CustomerReactionTypeEnum.AssignToCustomerTag).ToString()))
+            {
+                $('#plnBanner').hide();
+                $('#plnInteractiveForm').hide();
+                $('#plnMessage').hide();
+                $('#plnRole').hide();
+                $('#plnTag').show();
+            }
+        }
+    });
+</script>
+
+<admin-tabstrip name="customeraction-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerAction.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerAction.Conditions"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabConditions" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerAction.Reaction"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabReaction" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerAction.History"]" tab-index="3">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabHistory" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="customer_action_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>
+

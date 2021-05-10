@@ -1,0 +1,58 @@
+﻿@model OutOfStockSubscribeModel
+@using Grand.Web.Models.Catalog;
+@{
+    Layout = "";
+}
+<form asp-route="OutOfStockSubscribePopup" method="post" id="out-of-stock-subscription-form">
+    <div class="out-of-stock-subscription-page text-center">
+        <h1 class="h5">
+            @if (Model.AlreadySubscribed)
+                {
+                @Loc["OutOfStockSubscriptions.AlreadySubscribed"]
+            }
+            else
+            {
+                @Loc["OutOfStockSubscriptions.PopupTitle"]
+            }
+        </h1>
+        @if (!Model.SubscriptionAllowed)
+        {
+            <div>
+                @Loc["OutOfStockSubscriptions.NotAllowed"]
+            </div>
+        }
+        else if (!Model.IsCurrentCustomerRegistered)
+        {
+            <div>
+                @Loc["OutOfStockSubscriptions.OnlyRegistered"]
+            </div>
+        }
+        else if (!Model.AlreadySubscribed && Model.CurrentNumberOfOutOfStockSubscriptions >= Model.MaximumOutOfStockSubscriptions)
+        {
+            <div>
+                @string.Format(Loc["OutOfStockSubscriptions.MaxSubscriptions"], Model.MaximumOutOfStockSubscriptions)
+            </div>
+        }
+        else
+        {
+            <input type="submit" id="out-of-stock-notify-me" value="@(Model.AlreadySubscribed ? @Loc["OutOfStockSubscriptions.Unsubscribe"] : @Loc["OutOfStockSubscriptions.NotifyMe"])"
+                   class="btn btn-success btn-sm notify-me-button" />
+                <script>
+                    document.getElementById('out-of-stock-subscription-form').addEventListener('submit', function (event) {
+                        event.preventDefault();
+                        var form = this,
+                        url = form.getAttribute('action');
+                        var formdata = document.querySelector('#out-of-stock-subscription-form');
+                        var data = new FormData(formdata);
+                        axios({
+                            url: url,
+                            data: data,
+                            method: 'post',
+                        }).then(function (response) {
+                            alert(response);
+                        })        
+                    });
+                </script>
+        }
+    </div>
+</form>

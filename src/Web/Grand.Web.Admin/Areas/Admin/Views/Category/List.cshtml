@@ -1,0 +1,215 @@
+﻿@model CategoryListModel
+@inject AdminAreaSettings adminAreaSettings
+
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Catalog.Categories.Manage"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-sitemap"></i>
+                    @Loc["Admin.Catalog.Categories.Manage"]
+                </div>
+                <div class="actions btn-group btn-group-devided util-btn-margin-bottom-5">
+                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
+                    <a href="@Url.Action("ExportXlsx", new { area = Constants.AreaAdmin })" class="btn default">
+                        <i class="fa fa-file-excel-o"></i> @Loc["Admin.Common.ExportToExcel"]
+                    </a>
+                    <button type="button" name="importexcel" id="importexcel" class="btn blue">
+                        <i class="fa fa-upload"></i>
+                        @Loc["Admin.Common.ImportFromExcel"]
+                    </button>
+                    <vc:admin-widget widget-zone="category_list_buttons" additional-data="null" />
+                </div>
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="row align-items-end">
+                            <div class="col-md-6 col-sm-12 col-12">
+                                <div class="form-group mb-0">
+                                    <admin-label asp-for="SearchCategoryName" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                                    <admin-input asp-for="SearchCategoryName" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12 col-12">
+                                <div class="form-group mb-0">
+                                    <admin-label asp-for="SearchStoreId" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                                    <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
+                                <div class="form-actions">
+                                    <button class="btn btn-success filter-submit" id="search-categories">
+                                        <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="x_content">
+                <div id="categories-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#categories-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("List", "Category", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "Breadcrumb",
+                title: "@Loc["Admin.Catalog.Categories.Fields.Name"]",
+                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Breadcrumb)#</a>',
+            },
+            {
+                field: "ShowOnHomePage",
+                title: "@Loc["Admin.Catalog.Categories.Fields.ShowOnHomePage"]",
+                width: 175,
+                minScreenWidth: 750,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(ShowOnHomePage) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            },
+            {
+                field: "IncludeInMenu",
+                title: "@Loc["Admin.Catalog.Categories.Fields.ShowInMenu"]",
+                width: 175,
+                minScreenWidth: 750,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(IncludeInMenu) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            },
+            {
+                field: "Published",
+                title: "@Loc["Admin.Catalog.Categories.Fields.Published"]",
+                width: 100,
+                minScreenWidth: 500,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            }, {
+                field: "DisplayOrder",
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                title: "@Loc["Admin.Catalog.Categories.Fields.DisplayOrder"]",
+                width: 125,    
+                minScreenWidth: 750,
+            }]
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        //search button
+        $('#search-categories').click(function () {
+            //search
+            var grid = $('#categories-grid').data('kendoGrid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            return false;
+        });
+
+        $("#@Html.IdFor(model => model.SearchCategoryName)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-categories").click();
+                return false;
+            }
+        });
+    });
+
+    function additionalData() {
+        var data = {
+            SearchCategoryName: $('#@Html.IdFor(model => model.SearchCategoryName)').val(),
+            SearchStoreId: $('#SearchStoreId').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+</script>
+<div class="modal-dialog" id="importexcel-window" style="display:none; padding: 0 10px;">
+    <form asp-area="@Constants.AreaAdmin" asp-controller="Category" asp-action="ImportFromXlsx" method="post" enctype="multipart/form-data">
+        
+        <em>@Loc["Admin.Catalog.Category.List.ImportFromExcelTip"]</em>
+        <div class="form-group">
+            &nbsp;
+        </div>
+        <div class="form-group">
+            <div class="col-md-3" style="margin-top: 2px; height: 34px; padding-left: 25px;">
+                <label class="control-label">
+                    @Loc["Admin.Common.ExcelFile"]:
+                </label>
+            </div>
+            <div class="col-md-9">
+                <input type="file" id="importexcelfile" name="importexcelfile" />
+            </div>
+        </div>
+        <div class="form-group">
+            &nbsp;
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+                &nbsp;
+            </div>
+            <div class="col-md-10 text-right mt-10">
+                <input type="submit" class="k-button" value="@Loc["Admin.Common.ImportFromExcel"]" />
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+        $(document).ready(function () {
+            $("#importexcel").click(function (e) {
+                e.preventDefault();
+                var window = $("#importexcel-window");
+                if (!window.data("kendoWindow")) {
+                    window.kendoWindow({
+                        modal: true,
+                        title: "@Loc["Admin.Common.ImportFromExcel"]",
+                        actions: ["Close"]
+                    });
+                }
+                window.data('kendoWindow').center().open();
+            });
+
+        });
+</script>

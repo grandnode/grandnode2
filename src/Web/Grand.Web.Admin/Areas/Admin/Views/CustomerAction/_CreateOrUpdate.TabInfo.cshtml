@@ -1,0 +1,69 @@
+﻿@model CustomerActionModel
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="Name" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Active" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="Active" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="Active"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="StartDateTime" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="StartDateTime" />
+                <span asp-validation-for="StartDateTime"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="EndDateTime" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="EndDateTime" />
+                <span asp-validation-for="EndDateTime"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ActionTypeId" />
+            <div class="col-md-9 col-sm-9">
+                @if (Model.ConditionCount > 0)
+                {
+                    <admin-select asp-for="ActionTypeId" asp-items="Model.ActionType" disabled/>
+                }
+                else
+                {
+                    <admin-select asp-for="ActionTypeId" asp-items="Model.ActionType" />
+                }
+                <span asp-validation-for="ActionTypeId"></span>
+                <div class="note note-info margin-top-10">
+                    <p>@Loc["admin.customers.actiontype.helpText.AddToCart"]</p>
+                    <p>@Loc["admin.customers.actiontype.helpText.AddOrder"]</p>
+                    <p>@Loc["admin.customers.actiontype.helpText.Viewed"]</p>
+                    <p>@Loc["admin.customers.actiontype.helpText.Url"]</p>
+                    <p>@Loc["admin.customers.actiontype.helpText.Registration"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ConditionId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="ConditionId" asp-items="((Grand.Domain.Customers.CustomerActionConditionEnum)Model.ConditionId).ToSelectList(Context)" />
+                <span asp-validation-for="ConditionId"></span>
+                <div class="note note-info margin-top-10">
+                    <p>@Loc["admin.customers.actiontype.helpText.OneOfThem"]</p>
+                    <p>@Loc["admin.customers.actiontype.helpText.AllOfThem"]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

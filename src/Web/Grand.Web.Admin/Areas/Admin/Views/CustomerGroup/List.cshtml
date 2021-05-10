@@ -1,0 +1,100 @@
+﻿@inject AdminAreaSettings adminAreaSettings
+
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Customers.CustomerGroups"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-users"></i>
+                    @Loc["Admin.Customers.CustomerGroups"]
+                </div>
+                <div class="actions">
+                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
+                    <vc:admin-widget widget-zone="customer_role_list_buttons" additional-data="null" />
+                </div>
+            </div>
+            <div class="x_content form">
+                <div id="customergroups-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#customergroups-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("List", "CustomerGroup", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)] 
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "Name",
+                title: "@Loc["Admin.Customers.CustomerGroups.Fields.Name"]",
+                width: 300,
+                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Name)#</a>'
+            }, {
+                field: "FreeShipping",
+                title: "@Loc["Admin.Customers.CustomerGroups.Fields.FreeShipping"]",
+                width: 100,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(FreeShipping) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            }, {
+                field: "TaxExempt",
+                title: "@Loc["Admin.Customers.CustomerGroups.Fields.TaxExempt"]",
+                width: 80,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(TaxExempt) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            },{
+                field: "Active",
+                title: "@Loc["Admin.Customers.CustomerGroups.Fields.Active"]",
+                width: 80,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(Active) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            },{
+                field: "IsSystem",
+                title: "@Loc["Admin.Customers.CustomerGroups.Fields.IsSystem"]",
+                width: 80,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(IsSystem) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            }]
+        });
+    });
+</script>

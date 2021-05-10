@@ -1,0 +1,54 @@
+﻿@{
+    //success messages
+    var successMessages = new List<string>();
+    if (TempData[string.Format("Grand.notifications.{0}", NotifyType.Success)] != null)
+    {
+        successMessages.AddRange(TempData[string.Format("Grand.notifications.{0}", NotifyType.Success)] as IList<string>);
+    }
+    if (ViewData[string.Format("Grand.notifications.{0}", NotifyType.Success)] != null)
+    {
+        successMessages.AddRange(ViewData[string.Format("Grand.notifications.{0}", NotifyType.Success)] as IList<string>);
+    }
+
+
+    //error messages
+    var errorMessages = new List<string>();
+    if (TempData[string.Format("Grand.notifications.{0}", NotifyType.Error)] != null)
+    {
+        errorMessages.AddRange(TempData[string.Format("Grand.notifications.{0}", NotifyType.Error)] as IList<string>);
+    }
+    if (ViewData[string.Format("Grand.notifications.{0}", NotifyType.Error)] != null)
+    {
+        errorMessages.AddRange(ViewData[string.Format("Grand.notifications.{0}", NotifyType.Error)] as IList<string>);
+    }
+
+    //warning messages
+    var warningMessages = new List<string>();
+    if (TempData[string.Format("Grand.notifications.{0}", NotifyType.Warning)] != null)
+    {
+        warningMessages.AddRange(TempData[string.Format("Grand.notifications.{0}", NotifyType.Warning)] as IList<string>);
+    }
+    if (ViewData[string.Format("Grand.notifications.{0}", NotifyType.Warning)] != null)
+    {
+        warningMessages.AddRange(ViewData[string.Format("Grand.notifications.{0}", NotifyType.Warning)] as IList<string>);
+    }
+
+}
+@foreach (var message in successMessages)
+{
+    <div class="note note-success">
+        <p> @message </p>
+    </div>
+}
+@foreach (var message in errorMessages)
+{
+    <div class="note note-danger">
+        <p> @message </p>
+    </div>
+}
+@foreach (var message in warningMessages)
+{
+    <div class="note note-warning">
+        <p> @message </p>
+    </div>
+}

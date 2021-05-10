@@ -1,0 +1,204 @@
+﻿@model PluginListModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Plugins.Local"];
+    var installurl = Url.Action("Install", "Plugin", new { area = Constants.AreaAdmin });
+    var uninstallurl = Url.Action("Uninstall", "Plugin", new { area = Constants.AreaAdmin });
+    var remove = Url.Action("Remove", "Plugin", new { area = Constants.AreaAdmin });
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Plugin" asp-action="List" method="post" id="plugins-form">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-plug"></i>
+                        @Loc["Admin.Plugins.Local"]
+                    </div>
+                    <div class="actions btn-group btn-group-devided">
+                        <a href="@Url.Action("ReloadList", new { area = Constants.AreaAdmin })" class="btn default" id="reload-plugin-list">@Loc["Admin.Plugins.ReloadList"]</a>
+                        <input type="button" id="importfile" class="btn btn-success" value="@Loc["Admin.Plugins.Upload"]" />
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="note note-info">
+                        <h4>@Loc["Admin.Plugins.Description"]:</h4>
+                        <ol>
+                            <li>@Loc["Admin.Plugins.Description.Step1"]</li>
+                            <li>@Loc["Admin.Plugins.Description.Step2"]</li>
+                            <li>@Loc["Admin.Plugins.Description.Step3"]</li>
+                            <li>@Loc["Admin.Plugins.Description.Step4"]</li>
+                            <li>@Loc["Admin.Plugins.Description.Step5"]</li>
+                        </ol>
+                        <p><strong>@Loc["Admin.Plugins.Description.Note"]</strong></p><br>
+                        <p>
+                            You can download more grandnode plugins on our <a href="https://grandnode.com/extensions?utm_source=admin-panel&utm_medium=plugins&utm_campaign=admin-panel" target="_blank"><b>extensions directory</b></a>
+                        </p>
+
+                    </div>
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <admin-label asp-for="SearchLoadModeId" />
+                                <div class="col-md-4 col-sm-6">
+                                    <admin-select asp-for="SearchLoadModeId" asp-items="Model.AvailableLoadModes" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <div class="row">
+                                <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
+                                    <a class="btn btn-success" id="filter-plugins">
+                                        <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content">
+                    <vc:admin-widget widget-zone="plugin_list_top" additional-data="Model" />
+                    <div class="table-responsive">
+                        <table id="plugins-table" class="plugins-table">
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="plugins-grid"></div>
+                    <vc:admin-widget widget-zone="plugin_list_bottom" additional-data="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        $(document).ready(function () {
+            $("#importfile").click(function (e) {
+                e.preventDefault();
+                var window = $("#importfile-window");
+                if (!window.data("kendoWindow")) {
+                    window.kendoWindow({
+                        modal: true,
+                        title: "@Loc["Admin.Plugins.Upload"]",
+                        actions: ["Close"]
+                    });
+                }
+                window.data('kendoWindow').center().open();
+            });
+            $("#plugins-grid").on("click", ".install-plugin-link", function (e) {
+                showThrobber('@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.Fields.Install.Progress"]))');
+                $("html, body").animate({ scrollTop: 0 }, 400);
+                return true;
+            });
+            $("#plugins-grid").on("click", ".uninstall-plugin-link", function (e) {
+                showThrobber('@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.Fields.Uninstall.Progress"]))');
+                $("html, body").animate({ scrollTop: 0 }, 400);
+                return true;
+            });
+            $("#plugins-form").on("click", "#reload-plugin-list", function (e) {
+                event.preventDefault();
+                showThrobber('@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.Fields.Reload.List"]))')
+                $("html, body").animate({ scrollTop: 0 }, 400);
+                $.get($(this).attr("href"), function (data) { });
+                setTimeout(function () {
+                    location.reload();
+                }, 10000);
+            });
+        });
+
+        function additionalData() {
+            var data = {
+                SearchLoadModeId: $('#SearchLoadModeId').val()
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+
+        $("#filter-plugins").on("click", function () {
+            var selectVal = $("#SearchLoadModeId").val();
+            var table = $("#plugins-table");
+
+            $(table).removeClass("selected-0 selected-1 selected-2");
+            $(table).addClass('selected-' + selectVal);
+        });
+
+        $(document).ready(function () {
+            $.ajax({
+                url: "@Html.Raw(Url.Action("ListSelect", "Plugin", new { area = Constants.AreaAdmin }))",
+                method: "POST",
+                dataType: "json",
+                data: additionalData()
+            }).done(function (data) {
+
+                var groupedData = data.Data.reduce(function (result, current) {
+
+                    if (typeof current['Group'] === 'undefined')
+                        current['Group'] = "All";
+
+                    result[current['Group']] = result[current['Group']] || [];
+                    result[current['Group']].push(current);
+                    return result;
+                }, {});
+
+                for (var key in groupedData) {
+                    if (groupedData.hasOwnProperty(key)) {
+                        var table = document.getElementById("plugins-table");
+                        var row = table.insertRow(0);
+
+                        var cell = row.insertCell(0);
+                        var keyId = key.replace(/\s+/g, '');
+                        cell.innerHTML = "<div class='category'>" + key + "</div><ul id='" + keyId + "' class='main-list'></ul>";
+
+                        groupedData[key].forEach(function (item) {
+                            if (item.Group == key) {
+                                $("#" + keyId + "").append("<li id='" + item.SystemName + "' class='item-installed-" + item.Installed + "'>" +
+                                    "<div class='logo'><img src='" + item.LogoUrl + "'></img></div>" +
+                                    "<div class='content'><div class='title'>" + item.FriendlyName + "<span class='install-" + item.Installed + "'>@Loc["Admin.Plugins.Fields.Installed"]</span></div><ul class='info'><li class='version'><span>@Loc["Admin.Plugins.Fields.Version"]:</span>" + item.Version + "</li><li class='version'><span>@Loc["Admin.Plugins.Fields.Author"]:</span>" + item.Author + "</li><li class='version'><span>@Loc["Admin.Plugins.Fields.SystemName"]:</span>" + item.SystemName + "</li><li class='version'><span>@Loc["Admin.Plugins.Fields.DisplayOrder"]:</span>" + item.DisplayOrder + "</li></div></div>" +
+                                    "<div class='buttons'><a class='k-button button-" + item.ConfigurationUrl + "' href='" + item.ConfigurationUrl + "'>@Loc["Admin.Plugins.Fields.Configure"]</a><input type='submit' formaction='@installurl' name='install-plugin-link-" + item.SystemName + "' class='btn green install-plugin-link button-installed-" + item.Installed + "' value='@Loc["Admin.Plugins.Fields.Install"]' /><input type='submit' formaction='@uninstallurl' name='uninstall-plugin-link-" + item.SystemName + "' class='btn red uninstall-plugin-link button-" + item.Installed + "' value='@Loc["Admin.Plugins.Fields.Uninstall"]' /><input type='submit' formaction='@remove' name='remove-plugin-link-" + item.SystemName + "' class='btn btn-danger button-installed-" + item.Installed + "' value='@Loc["Admin.Plugins.Fields.Remove"]' /></div>"
+                                +"</li>");
+                            }
+                        });
+                    }
+                }
+
+            });
+        });
+    </script>
+</form>
+
+<div class="modal-dialog" id="importfile-window" style="display:none; padding: 0 10px;">
+    <form asp-area="@Constants.AreaAdmin" asp-controller="Plugin" asp-action="UploadPlugin" method="post" enctype = "multipart/form-data">
+        
+        <ul class="common-list">
+            <li>
+                <strong>NOTE: It can take up to several minutes.</strong>
+            </li>
+            <li>
+                <strong>NOTE: DO NOT click twice.</strong>
+            </li>
+        </ul>
+        <div class="form-group">
+            <div class="col-md-2" style="margin-top: 7px; height: 34px; padding-left: 25px;">
+                <label class="control-label">
+                    Zip file
+                </label>
+            </div>
+            <div class="col-md-10">
+                <input id="importfiledialog" name="zippedFile" class="form-control" type="file">
+            </div>
+        </div>
+        <div class="form-group">
+            &nbsp;
+        </div>
+            <div class="form-group">
+                <div class="col-md-2">
+                    &nbsp;
+                </div>
+                <div class="col-md-10 text-right mt-10">
+                    <input id="importfilesubmit" class="btn btn-success" value="@Loc["Admin.Plugins.Upload"]" type="submit">
+                </div>
+            </div>
+    </form>
+</div>

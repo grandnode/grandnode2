@@ -1,0 +1,174 @@
+﻿@model DiscountListModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["admin.marketing.Discounts"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-tags"></i>
+                    @Loc["admin.marketing.Discounts"]
+                </div>
+                <div class="actions btn-group btn-group-devided">
+                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
+                    <vc:admin-widget widget-zone="discount_list_buttons" additional-data="null" />
+                </div>
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="row align-items-end">
+                            <div class="col-md-3 col-sm-12 col-12">
+                                <div class="form-group mb-0">
+                                    <admin-label asp-for="SearchDiscountName" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                                    <admin-input asp-for="SearchDiscountName" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12 col-12">
+                                <div class="form-group mb-0">
+                                    <admin-label asp-for="SearchDiscountCouponCode" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                                    <admin-input asp-for="SearchDiscountCouponCode" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12 col-12">
+                                <div class="form-group mb-0">
+                                    <admin-label asp-for="SearchDiscountTypeId" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                                    <admin-select asp-for="SearchDiscountTypeId" asp-items="Model.AvailableDiscountTypes" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
+                                <div class="form-actions">
+                                    <button class="btn btn-success filter-submit" id="search-discounts">
+                                        <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="x_content">
+                <div id="discounts-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+        $(document).ready(function () {
+            $("#discounts-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("List", "Discount", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: additionalData
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "Name",
+                    title: "@Loc["admin.marketing.Discounts.Fields.Name"]",
+                    width: 350,
+                    template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Name)#</a>',
+                }, {
+                    field: "DiscountTypeName",
+                    title: "@Loc["admin.marketing.Discounts.Fields.DiscountType"]",
+                    width: 250
+                },{
+                    field: "DiscountAmount",
+                    title: "@Loc["admin.marketing.Discounts.Fields.Discount"]",
+                    width: 200,
+                    template: '# if(!CalculateByPlugin) { if(UsePercentage) {# #=DiscountPercentage# % #} else {#  #=DiscountAmount# #=CurrencyCode# #} } # '
+                }, {
+                    field: "StartDate",
+                    title: "@Loc["admin.marketing.Discounts.Fields.StartDate"]",
+                    width: 200,
+                    type: "date",
+                    format: "{0:G}"
+                }, {
+                    field: "EndDate",
+                    title: "@Loc["admin.marketing.Discounts.Fields.EndDate"]",
+                    width: 200,
+                    type: "date",
+                    format: "{0:G}"
+                }, {
+                    field: "TimesUsed",
+                    title: "@Loc["admin.marketing.Discounts.Fields.TimesUsed"]",
+                    width: 200
+                }, {
+                    field: "IsEnabled",
+                    title: "@Loc["admin.marketing.Discounts.Fields.IsEnabled"]",
+                    width: 100,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(IsEnabled) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                }]
+            });
+        });
+</script>
+<script>
+
+        $(document).ready(function () {
+
+            $('#search-discounts').click(function () {
+                var grid = $('#discounts-grid').data('kendoGrid');
+                grid.dataSource.page(1); //new search. Set page size to 1
+                //grid.dataSource.read(); we already loaded the grid above using "page" function
+                return false;
+            });
+        });
+
+        $("#@Html.IdFor(model => model.SearchDiscountName)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-discounts").click();
+                return false;
+            }
+        });
+
+        $("#@Html.IdFor(model => model.SearchDiscountCouponCode)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-discounts").click();
+                return false;
+            }
+        });
+
+        function additionalData() {
+            var data = {
+                SearchDiscountTypeId: $('#@Html.IdFor(model => model.SearchDiscountTypeId)').val(),
+                SearchDiscountCouponCode: $('#@Html.IdFor(model => model.SearchDiscountCouponCode)').val(),
+                SearchDiscountName: $('#@Html.IdFor(model => model.SearchDiscountName)').val()
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+
+</script>

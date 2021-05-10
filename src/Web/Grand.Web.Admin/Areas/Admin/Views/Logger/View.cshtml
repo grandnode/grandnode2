@@ -1,0 +1,86 @@
+﻿@model LogModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.System.Log.ViewLogDetails"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Log" asp-action="View" method="post">
+    
+    <div asp-validation-summary="All"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-tag"></i>
+                        @Loc["Admin.System.Log.ViewLogDetails"]
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.System.Log.BackToList"], "List")</small>
+                    </div>
+                    <div class="actions">
+                        <span id="log-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
+                    </div>
+                    <vc:admin-widget widget-zone="log_details_buttons" additional-data="Model" />
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <admin-label asp-for="LogLevel" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="control-label">@Model.LogLevel</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="ShortMessage" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="control-label" style="text-align:left">@Model.ShortMessage</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="FullMessage" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="control-label" style="text-align:left">@Model.FullMessage</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="IpAddress" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="control-label">@Model.IpAddress</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="CustomerId" />
+                                <div class="col-md-9 col-sm-9">
+                                    @if (!String.IsNullOrEmpty(Model.CustomerId))
+                                    {
+                                        <label class="control-label">
+                                            @Html.ActionLink(!String.IsNullOrEmpty(Model.CustomerEmail) ? Model.CustomerEmail : Loc["Admin.Customers.Guest"], "Edit", "Customer", new { id = Model.CustomerId }, new { })
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="PageUrl" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="control-label">@Model.PageUrl</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="ReferrerUrl" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="control-label">@Model.ReferrerUrl</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="CreatedOn" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="control-label">@Model.CreatedOn</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<admin-delete-confirmation button-id="log-delete"/>

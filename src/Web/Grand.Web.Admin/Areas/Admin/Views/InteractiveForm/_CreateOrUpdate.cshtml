@@ -1,0 +1,23 @@
+﻿@model InteractiveFormModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<admin-tabstrip name="interactiveform-edit">
+    <items>
+        <tabstrip-item text="@Loc["admin.marketing.InteractiveForms.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["admin.marketing.InteractiveForms.Attribute"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabValues" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="interactiveform_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

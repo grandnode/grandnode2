@@ -1,0 +1,123 @@
+﻿@model CustomerReminderModel.ReminderLevelModel
+<input asp-for="Id" type="hidden" />
+<input asp-for="CustomerReminderId" type="hidden" />
+@{
+    var validationSummary = Html.ValidationSummary(false);
+    if (!string.IsNullOrEmpty(validationSummary.ToString()))
+    {
+        <div class="message-error">@validationSummary</div>
+    }
+}
+
+<link rel="stylesheet" type="text/css" asp-src="/_content/Grand.Web.Admin/administration/codemirror/codemirror.css" />
+<script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/codemirror/codemirror.js"></script>
+<script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/codemirror/mode/xml/xml.js"></script>
+
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="Level" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Level" />
+                <span asp-validation-for="Level"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Name" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-3 col-sm-3">
+            </div>
+            <div class="col-md-9 col-sm-9 form-inline">
+                <div class="form-group">
+                    <label class="control-label">@Loc["Admin.Customers.CustomerReminder.Level.Fields.SendDay"]</label>
+                    <br>
+                    @Html.EditorFor(model => model.Day)
+                    <span asp-validation-for="Day"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">@Loc["Admin.Customers.CustomerReminder.Level.Fields.SendHour"]</label>
+                    <br>
+                    @Html.EditorFor(model => model.Hour)
+                    <span asp-validation-for="Hour"></span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">@Loc["Admin.Customers.CustomerReminder.Level.Fields.SendMinutes"]</label>
+                    <br>
+                    @Html.EditorFor(model => model.Minutes)
+                    <span asp-validation-for="Minutes"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="EmailAccounts" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="EmailAccountId" asp-items="Model.EmailAccounts" />
+                <span asp-validation-for="EmailAccountId"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="BccEmailAddresses" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="BccEmailAddresses" />
+                <span asp-validation-for="BccEmailAddresses"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Subject" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Subject" />
+                <span asp-validation-for="Subject"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Body" />
+            <div class="col-md-9 col-sm-9">
+                <div>
+                    <label>@Loc["Admin.Content.MessageTemplates.Fields.AllowedTokens"]</label>
+                    <input type="search" name="SearchTokens" class="form-control SearchTokens" placeholder="@Loc["Search"]" />
+                </div>
+                <div class="AllowedTokens">
+                    @foreach (var token in Model.AllowedTokens)
+                    {
+                        <button type="button" onclick="AddTokenToEditor(this)" class="btn btn-info">@token</button>
+                    }
+                </div>
+                <admin-input asp-for="Body" asp-template="Codemirror" />
+                <span asp-validation-for="Body"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $(".SearchTokens").on("input", function (e) { SearchTokens(e); })
+        $("input").click(function (e) {
+            onInputFocus = $(e.target);
+        });
+    });
+
+    function AddTokenToEditor(e) {
+        var cm = $('.CodeMirror')[0].CodeMirror;
+        var doc = cm.getDoc();
+        var cursor = doc.getCursor(); // gets the line number in the cursor position
+        doc.replaceRange($(e).text(), cursor);
+    }
+
+    function SearchTokens(e) {
+        var searchVal = $(e.target).val();
+        var TokensPnl = $(e.target).closest(".form-group").find(".AllowedTokens");
+        $(TokensPnl).find(".btn").show()
+            .each(function (i, c) {
+                var Token = $(c).text();
+                if (Token.search(new RegExp(searchVal, "i")) == -1) {
+                    $(c).hide();
+                }
+            });
+    }
+</script>

@@ -1,0 +1,146 @@
+﻿@model GeneralCommonSettingsModel
+
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Settings.GeneralCommon"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Setting" asp-action="GeneralCommon" method="post">
+    
+    <div asp-validation-summary="All"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-fw fa-sliders"></i>
+                        @Loc["Admin.Settings.GeneralCommon"]
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                        </div>
+                    </div>
+                    <vc:admin-widget widget-zone="general_common_settings_buttons" additional-data="null" />
+                </div>
+                <div class="x_content">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            @await Component.InvokeAsync("StoreScope")
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <vc:admin-widget widget-zone="general_common_settings_top" additional-data="null" />
+                    <admin-tabstrip name="generalsettings-edit">
+                        <items>
+                            <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.StoreInformationSettings"]" tab-index="0">
+                                <content>
+                                    <div>
+                                        <partial name="GeneralCommon.TabStoreInformationSettings" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.SEOSettings"]" tab-index="1">
+                                <content>
+                                    <div>
+                                        <partial name="GeneralCommon.TabSEOSettings" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.SecuritySettings"]" tab-index="2">
+                                <content>
+                                    <div>
+                                        <partial name="GeneralCommon.TabSecuritySettings" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.PdfSettings"]" tab-index="3">
+                                <content>
+                                    <div>
+                                        <partial name="GeneralCommon.TabPdfSettings" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.FullTextSettings"]" tab-index="4">
+                                <content>
+                                    <div>
+                                        <partial name="GeneralCommon.TabFullTextSettings" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.GoogleAnalytics"]" tab-index="5">
+                                <content>
+                                    <div>
+                                        <partial name="GeneralCommon.TabGoogleAnalyticsSettings" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.GeneralCommon.DisplayMenu"]" tab-index="6">
+                                <content>
+                                    <div>
+                                        <partial name="GeneralCommon.TabMenuSettings" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <vc:admin-widget widget-zone="setting_general_details_tabs" additional-data="Model" />
+                        </items>
+                    </admin-tabstrip>
+                    <vc:admin-widget widget-zone="general_common_settings_bottom" additional-data="null" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+<div class="modal-dialog" id="importfile-window" style="display:none; padding: 0 10px;">
+    <form asp-area="@Constants.AreaAdmin" asp-controller="Plugin" asp-action="UploadTheme" method="post" enctype="multipart/form-data">
+        
+        <ul class="common-list">
+            <li>
+                <strong>NOTE: It can take up to several minutes.</strong>
+            </li>
+            <li>
+                <strong>NOTE: DO NOT click twice.</strong>
+            </li>
+        </ul>
+        <div class="form-group">
+            <div class="col-md-2" style="margin-top: 7px; height: 34px; padding-left: 25px;">
+                <label class="control-label">
+                    Zip file
+                </label>
+            </div>
+            <div class="col-md-10">
+                <input id="importfiledialog" name="zippedFile" class="form-control" type="file">
+            </div>
+        </div>
+        <div class="form-group">
+            &nbsp;
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+                &nbsp;
+            </div>
+            <div class="col-md-10 text-right mt-10">
+                <input id="importfilesubmit" class="btn btn-success" value="@Loc["Admin.Configuration.Themes.Upload"]" type="submit">
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#importfile").click(function (e) {
+            e.preventDefault();
+            var window = $("#importfile-window");
+            if (!window.data("kendoWindow")) {
+                window.kendoWindow({
+                    modal: true,
+                    title: "@Loc["Admin.Configuration.Themes.Upload"]",
+                    actions: ["Close"]
+                });
+            }
+            window.data('kendoWindow').center().open();
+        });
+    });
+</script>

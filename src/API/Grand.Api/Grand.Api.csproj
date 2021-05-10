@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
+    <Company>UNIT-SOFT Sp. z o.o.</Company>
+    <Authors>UNIT-SOFT Sp. z o.o.</Authors>
+    <Product>grandnode</Product>
+    <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
+    <TieredCompilation>true</TieredCompilation>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Business\Grand.Business.Authentication\Grand.Business.Authentication.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Cms\Grand.Business.Cms.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Common\Grand.Business.Common.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Customers\Grand.Business.Customers.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Storage\Grand.Business.Storage.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.System\Grand.Business.System.csproj" />
+    <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OData" Version="7.5.7" />
+    <PackageReference Include="Microsoft.AspNetCore.OData.Versioning" Version="5.0.0" />
+    <PackageReference Include="Microsoft.OData.Core" Version="7.8.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.1.2" />
+  </ItemGroup>  
+
+</Project>

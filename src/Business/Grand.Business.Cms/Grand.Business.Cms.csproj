@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
+    <Company>UNIT-SOFT Sp. z o.o.</Company>
+    <Authors>UNIT-SOFT Sp. z o.o.</Authors>
+    <Product>grandnode</Product>
+    <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />
+    <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
+    <ProjectReference Include="..\Grand.Business.Common\Grand.Business.Common.csproj" />
+  </ItemGroup>
+
+</Project>

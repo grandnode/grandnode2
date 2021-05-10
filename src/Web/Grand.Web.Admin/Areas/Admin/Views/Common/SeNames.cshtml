@@ -1,0 +1,230 @@
+﻿@model UrlEntityListModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["admin.configuration.senames"];
+}
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-sitemap"></i>
+                    @Loc["admin.configuration.senames"]
+                </div>
+                <vc:admin-widget widget-zone="senames_buttons" additional-data="null" />
+                <div class="actions btn-group btn-group-devided">
+                    <span id="delete-selected" class="btn red"><i class="fa fa-trash-o"></i> @Loc["admin.configuration.senames.DeleteSelected"]</span>
+                </div>
+            </div>
+            <div class="x_content form">
+                <vc:admin-widget widget-zone="senames_top" additional-data="null" />
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="row align-items-end mb-3">
+                            <div class="col-md-6 col-sm-12 col-12">
+                                <div class="form-group mb-0">
+                                    <admin-label asp-for="SeName" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                                    <admin-input asp-for="SeName" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12 col-12">
+                                <div class="form-group mb-0">
+                                    <admin-label asp-for="SearchActiveId" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                                    <admin-select asp-for="SearchActiveId" asp-items="Model.AvailableActiveOptions" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
+                                <div class="form-actions">
+                                    <button class="btn btn-success filter-submit" id="search-senames">
+                                        <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <vc:admin-widget widget-zone="senames_bottom" additional-data="null" />
+            </div>
+            <div class="x_content">
+                <div id="sename-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#sename-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("SeNames", "Common", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            scrollable: false,
+            dataBound: onDataBound,
+            columns: [{
+                field: "Id",
+                headerTemplate: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input id='mastercheckbox' type='checkbox'/> <div class='control__indicator'></div></label>",
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input type='checkbox' value='#=Id#' class='checkboxGroups'/> <div class='control__indicator'></div></label>",
+                width: 50
+            }, {
+                field: "Name",
+                title: "@Loc["admin.configuration.senames.Name"]",
+                width: 300,
+                template: '# if(DetailsUrl && DetailsUrl.length > 0) {# <a class="k-link" href="#=DetailsUrl#">#=kendo.htmlEncode(Name)#</a> #} #'
+            }, {
+                field: "EntityName",
+                title: "@Loc["admin.configuration.senames.EntityName"]",
+                width: 100
+            }, {
+                field: "IsActive",
+                title: "@Loc["admin.configuration.senames.IsActive"]",
+                width: 50,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(IsActive) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            }, {
+                field: "Language",
+                title: "@Loc["admin.configuration.senames.Language"]",
+                width: 100
+            }]
+        });
+    });
+</script>
+
+<script>
+    var selectedIds = [];
+
+    $(document).ready(function() {
+
+        //search button
+        $('#search-senames').click(function() {
+            //search
+            var grid = $('#sename-grid').data('kendoGrid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            //clear selected checkboxes
+            $('.checkboxGroups').prop('checked', false).change();
+            selectedIds = [];
+            return false;
+        });
+
+        $("#@Html.IdFor(model => model.SeName)").keydown(function(event) {
+            if (event.keyCode == 13) {
+                $("#search-senames").click();
+                return false;
+            }
+        });
+
+        //"delete selected" button
+        $('#delete-selected').click(function(e) {
+            e.preventDefault();
+
+            var postData = {
+                selectedIds: selectedIds
+            };
+            addAntiForgeryToken(postData);
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.Action("DeleteSelectedSeNames", "Common", new { area = Constants.AreaAdmin }))",
+                data: postData,
+                complete: function(data) {
+                    //reload grid
+                    var grid = $('#sename-grid').data('kendoGrid');
+                    grid.dataSource.page(1); //new search. Set page size to 1
+                    //grid.dataSource.read(); we already loaded the grid above using "page" function
+                    //clear selected checkboxes
+                    $('.checkboxGroups').prop('checked', false).change();
+                    selectedIds = [];
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+            return false;
+        });
+
+        $('#mastercheckbox').click(function() {
+            $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
+        });
+
+        //wire up checkboxes.
+        $('#sename-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function(e) {
+            var $check = $(this);
+            if ($check.is(":checked") == true) {
+                var checked = jQuery.inArray($check.val(), selectedIds);
+                if (checked == -1) {
+                    //add id to selectedIds.
+                    selectedIds.push($check.val());
+                }
+            } else {
+                var checked = jQuery.inArray($check.val(), selectedIds);
+                if (checked > -1) {
+                    //remove id from selectedIds.
+                    selectedIds = $.grep(selectedIds, function(item, index) {
+                        return item != $check.val();
+                    });
+                }
+            }
+            updateMasterCheckbox();
+        });
+    });
+
+    function additionalData() {
+        var data = {
+            SeName: $('#@Html.IdFor(model => model.SeName)').val(),
+            SearchActiveId: $('#@Html.IdFor(model => model.SearchActiveId)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+
+    function onDataBound(e) {
+
+        $('#sename-grid input[type=checkbox][id!=mastercheckbox]').each(function() {
+            var currentId = $(this).val();
+            var checked = jQuery.inArray(currentId, selectedIds);
+            //set checked based on if current checkbox's value is in selectedIds.
+            $(this).prop('checked', checked > -1);
+        });
+
+        updateMasterCheckbox();
+    }
+
+    function updateMasterCheckbox() {
+        var numChkBoxes = $('#sename-grid input[type=checkbox][id!=mastercheckbox]').length;
+        var numChkBoxesChecked = $('#sename-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
+        $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+    }
+</script>

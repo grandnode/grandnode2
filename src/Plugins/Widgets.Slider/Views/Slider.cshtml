@@ -1,0 +1,42 @@
+﻿@using Grand.Infrastructure
+@using Grand.Web.Common.Page
+@using Grand.Web.Common.Themes
+@model PublicInfoModel
+@inject IWorkContext workContext
+@inject IPageHeadBuilder pagebuilder
+@inject IThemeContext themeContext
+
+<link rel="stylesheet" type="text/css" asp-src="/Plugins/Widgets.Slider/Assets/vue-style.css" />
+<script asp-location="Header">
+    document.addEventListener('DOMContentLoaded', function () {
+        // fire if first slide has set full width
+        if (document.querySelector('#GrandCarousel .carousel-item').getAttribute('data-width') == 'full') {
+            var mainContainer = document.querySelector(".main-container");
+            var GrandCarousel = document.getElementById("GrandCarousel");
+            var parentDiv = mainContainer.parentNode;
+
+            parentDiv.insertBefore(GrandCarousel, mainContainer);
+        }
+    });
+</script>
+
+<b-carousel id="GrandCarousel" fade controls indicators img-width="1024" img-height="267" :interval="6000">
+    @foreach (var item in Model.Slide)
+    {
+        if (string.IsNullOrEmpty(item.PictureUrl))
+        {
+            <b-carousel-slide height="500" img-blank img-alt="Blank image" caption-html="@item.Description" @if (item.FullWidth) { <text> data-width="full" </text> } @if (!string.IsNullOrEmpty(item.Link)) { <text> class="link" onclick="window.location='@item.Link'" </text> }></b-carousel-slide>
+        }
+        else
+        {
+            <b-carousel-slide text-html="@item.Description" @if (item.FullWidth) { <text> data-width="full" class="img-desc wide-img @if (!string.IsNullOrEmpty(item.Link)) { <text> link </text> }" </text>  } else { <text> class="img-desc no-wide-img @if (!string.IsNullOrEmpty(item.Link)) { <text> link </text> }" </text> } @if (!string.IsNullOrEmpty(item.Link)) { <text> onclick="window.location='@item.Link'" </text> }>
+                <template #img>
+                    <picture>
+                        <source media="(max-width: 767px)" sizes="1px" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 1w" />
+                        <img class="d-block img-fluid" src="@item.PictureUrl" data-thumb="@item.PictureUrl" data-transition="" alt="@item.Name" title="" />
+                    </picture>
+                </template>
+            </b-carousel-slide>
+        }
+    }
+</b-carousel>

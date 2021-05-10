@@ -1,0 +1,32 @@
+﻿@using Widgets.Slider.Models
+@model SlideModel
+@{
+    //page title
+    ViewBag.Title = Loc["Widgets.Slider.AddNew"];
+    Layout = "_ConfigurePlugin";
+}
+<form asp-controller="WidgetsSlider" asp-action="Create" method="post" id="slider-form">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-sitemap"></i>
+                        @Loc["Widgets.Slider.AddNew"]
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Widgets.Slider.BackToList"], "Configure")</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <partial name="~/Plugins/Widgets.Slider/Views/_CreateOrUpdate.cshtml" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

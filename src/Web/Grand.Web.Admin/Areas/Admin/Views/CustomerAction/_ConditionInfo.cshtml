@@ -1,0 +1,271 @@
+﻿@model CustomerActionConditionModel
+<script>
+            $(document).ready(function () {
+                $("#@Html.IdFor(model => model.CustomerActionConditionTypeId)").change(toggleConditionType);
+                toggleConditionType();
+            });
+
+        function toggleConditionType() {
+            var selectedConditionTypeId = $("#@Html.IdFor(model => model.CustomerActionConditionTypeId)").val();
+            if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerActionConditionTypeEnum.Product).ToString()))
+            {
+                $('#tab-product').show();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-vendor').hide();
+                $('#tab-productAttribute').hide();
+                $('#tab-productSpecification').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+                $('#tab-urlReferrer').hide();
+                $('#tab-urlCurrent').hide();
+                $('#tab-store').hide();
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerActionConditionTypeEnum.Collection).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').show();
+                $('#tab-category').hide();
+                $('#tab-vendor').hide();
+                $('#tab-productAttribute').hide();
+                $('#tab-productSpecification').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+                $('#tab-urlReferrer').hide();
+                $('#tab-urlCurrent').hide();
+                $('#tab-store').hide();
+
+            } else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerActionConditionTypeEnum.Category).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').show();
+                $('#tab-vendor').hide();
+                $('#tab-productAttribute').hide();
+                $('#tab-productSpecification').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+                $('#tab-urlReferrer').hide();
+                $('#tab-urlCurrent').hide();
+                $('#tab-store').hide();
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerActionConditionTypeEnum.Vendor).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-vendor').show();
+                $('#tab-productAttribute').hide();
+                $('#tab-productSpecification').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+                $('#tab-urlReferrer').hide();
+                $('#tab-urlCurrent').hide();
+                $('#tab-store').hide();
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerActionConditionTypeEnum.ProductAttribute).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-vendor').hide();
+                $('#tab-productAttribute').show();
+                $('#tab-productSpecification').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+                $('#tab-urlReferrer').hide();
+                $('#tab-urlCurrent').hide();
+                $('#tab-store').hide();
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerActionConditionTypeEnum.ProductSpecification).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-vendor').hide();
+                $('#tab-productAttribute').hide();
+                $('#tab-productSpecification').show();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+                $('#tab-urlReferrer').hide();
+                $('#tab-urlCurrent').hide();
+                $('#tab-store').hide();
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerActionConditionTypeEnum.CustomerGroup).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-vendor').hide();
+                $('#tab-productAttribute').hide();
+                $('#tab-productSpecification').hide();
+                $('#tab-customerGroup').show();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+                $('#tab-urlReferrer').hide();
+                $('#tab-urlCurrent').hide();
+                $('#tab-store').hide();
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerActionConditionTypeEnum.Store).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-vendor').hide();
+                $('#tab-productAttribute').hide();
+                $('#tab-productSpecification').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+                $('#tab-urlReferrer').hide();
+                $('#tab-urlCurrent').hide();
+                $('#tab-store').show();
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerActionConditionTypeEnum.CustomerTag).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-vendor').hide();
+                $('#tab-productAttribute').hide();
+                $('#tab-productSpecification').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').show();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+                $('#tab-urlReferrer').hide();
+                $('#tab-urlCurrent').hide();
+                $('#tab-store').hide();
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerActionConditionTypeEnum.CustomerRegisterField).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-vendor').hide();
+                $('#tab-productAttribute').hide();
+                $('#tab-productSpecification').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').show();
+                $('#tab-customAttribute').hide();
+                $('#tab-urlReferrer').hide();
+                $('#tab-urlCurrent').hide();
+                $('#tab-store').hide();
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerActionConditionTypeEnum.CustomCustomerAttribute).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-vendor').hide();
+                $('#tab-productAttribute').hide();
+                $('#tab-productSpecification').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').show();
+                $('#tab-urlReferrer').hide();
+                $('#tab-urlCurrent').hide();
+                $('#tab-store').hide();
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerActionConditionTypeEnum.UrlReferrer).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-vendor').hide();
+                $('#tab-productAttribute').hide();
+                $('#tab-productSpecification').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+                $('#tab-urlReferrer').show();
+                $('#tab-urlCurrent').hide();
+                $('#tab-store').hide();
+            }
+            else if (selectedConditionTypeId == @(((int)Grand.Domain.Customers.CustomerActionConditionTypeEnum.UrlCurrent).ToString()))
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-vendor').hide();
+                $('#tab-productAttribute').hide();
+                $('#tab-productSpecification').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+                $('#tab-urlReferrer').hide();
+                $('#tab-urlCurrent').show();
+                $('#tab-store').hide();
+            }
+            else
+            {
+                $('#tab-product').hide();
+                $('#tab-collection').hide();
+                $('#tab-category').hide();
+                $('#tab-vendor').hide();
+                $('#tab-productAttribute').hide();
+                $('#tab-productSpecification').hide();
+                $('#tab-customerGroup').hide();
+                $('#tab-customerTag').hide();
+                $('#tab-customerRegister').hide();
+                $('#tab-customAttribute').hide();
+                $('#tab-urlReferrer').hide();
+                $('#tab-urlCurrent').hide();
+                $('#tab-store').hide();
+             }
+        }
+
+</script>
+
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="Name" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CustomerActionConditionTypeId" />
+            <div class="col-md-9 col-sm-9">
+                @if (!String.IsNullOrEmpty(Model.Id))
+                {
+                    <admin-select asp-for="CustomerActionConditionTypeId" asp-items="Model.CustomerActionConditionType" disabled/>
+                }
+                else
+                {
+                    <admin-select asp-for="CustomerActionConditionTypeId" asp-items="Model.CustomerActionConditionType" />
+                }
+                <span asp-validation-for="CustomerActionConditionTypeId"></span>
+                <input asp-for="CustomerActionConditionTypeId" type="hidden" />
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ConditionId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="ConditionId" asp-items="((Grand.Domain.Customers.CustomerActionConditionEnum)Model.ConditionId).ToSelectList(Context)" />
+                <span asp-validation-for="ConditionId"></span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,66 @@
+﻿
+<div class="panel panel-default">
+    <div class="note note-info">
+        <p>
+            <h4>@Loc["Admin.Settings.Order.MerchandiseReturnActions"]</h4>
+        </p>
+    </div>
+    <div class="panel-body">
+        <div id="merchandisereturnactions-grid"></div>
+    </div>
+    <div class="panel-footer">
+        <a href="@Url.Action("MerchandiseReturnActionCreate", new { area = Constants.AreaAdmin })" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Common.AddNew"]</a>
+    </div>
+</div>
+
+           
+<script>
+$(document).ready(function () {
+    $("#merchandisereturnactions-grid").kendoGrid({
+        dataSource: {
+            transport: {
+                read: {
+                    url: "@Html.Raw(Url.Action("MerchandiseReturnActionList", new { area = Constants.AreaAdmin }))",
+                    type: "POST",
+                    dataType: "json",
+                    data: addAntiForgeryToken
+                }
+            },
+            schema: {
+                data: "Data",
+                total: "Total",
+                errors: "Errors"
+            },
+            error: function(e) {
+                display_kendoui_grid_error(e);
+                // Cancel the changes
+                this.cancelChanges();
+            },
+            serverPaging: true,
+            serverFiltering: true,
+            serverSorting: true
+        },
+        pageable: {
+            refresh: true,
+            numeric: false,
+            previousNext: false,
+            info: false
+        },
+        editable: {
+            confirmation: false,
+            mode: "inline"
+        },
+        scrollable: false,
+        columns: [{
+            field: "Name",
+            title: "@Loc["Admin.Settings.Order.MerchandiseReturnActions.Name"]",
+            width: 300,
+            template: '<a class="k-link" href="@Url.Action("MerchandiseReturnActionEdit", "Setting", new { area = Constants.AreaAdmin })/#=Id#">#=kendo.htmlEncode(Name)#</a>',
+        }, {
+            field: "DisplayOrder",
+            title: "@Loc["Admin.Settings.Order.MerchandiseReturnActions.DisplayOrder"]",
+            width: 100
+        }]
+    });
+});
+</script>

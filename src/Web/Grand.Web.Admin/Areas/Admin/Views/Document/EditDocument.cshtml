@@ -1,0 +1,69 @@
+﻿@model DocumentModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Documents.Document.Edit"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Document" asp-action="EditDocument" method="post" id="document-form">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-sitemap"></i>
+                        @Loc["Admin.Documents.Document.Edit"] - @Model.Name
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Documents.Document.BackToList"], "List")</small>
+                        @if (!string.IsNullOrEmpty(Model.CustomerId))
+                        {
+                            <small><i class="fa fa-user"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToCustomer"], "Edit", "Customer", new { id = Model.CustomerId })</small>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.Order)
+                        {
+                            <small><i class="fa fa-shopping-cart"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToOrder"], "Edit", "Order", new { id = Model.ObjectId })</small>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.Shipment)
+                        {
+                            <small><i class="fa fa-cube"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToShipment"], "ShipmentDetails", "Shipment", new { id = Model.ObjectId })</small>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.MerchandiseReturn)
+                        {
+                            <small><i class="fa fa-cube"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToMerchandiseReturn"], "Edit", "MerchandiseReturn", new { id = Model.ObjectId })</small>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.Product)
+                        {
+                            <small><i class="fa fa-cube"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToProduct"], "Edit", "Product", new { id = Model.ObjectId })</small>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.Category)
+                        {
+                            <small><i class="fa fa-cube"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToCategory"], "Edit", "Category", new { id = Model.ObjectId })</small>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.Brand)
+                        {
+                            <small><i class="fa fa-cube"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToBrand"], "Edit", "Brand", new { id = Model.ObjectId })</small>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.Collection)
+                        {
+                            <small><i class="fa fa-cube"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToCollection"], "Edit", "Collection", new { id = Model.ObjectId })</small>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.ObjectId) && Model.ReferenceId == (int)Reference.Vendor)
+                        {
+                            <small><i class="fa fa-cube"></i>@Html.ActionLink(Loc["Admin.Documents.Document.GoToVendor"], "Edit", "Vendor", new { id = Model.ObjectId })</small>
+                        }
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                            <span id="document-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
+                        </div>
+                    </div>
+                </div>
+                <vc:admin-widget widget-zone="document_details_buttons" additional-data="Model" />
+                <div class="x_content form">
+                    <partial name="_CreateOrUpdateDocument" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<admin-delete-confirmation button-id="document-delete" action-name="DeleteDocument" />

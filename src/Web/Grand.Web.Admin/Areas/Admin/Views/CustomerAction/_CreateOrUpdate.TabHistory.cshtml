@@ -1,0 +1,73 @@
+﻿@model CustomerActionModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+
+    if (String.IsNullOrEmpty(Model.Id))
+    {
+        <div class="note note-info">
+            @Loc["Admin.Customers.CustomerAction.SaveBeforeEdit"]
+        </div>
+    }
+    if (!String.IsNullOrEmpty(Model.Id))
+    {
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="history-grid"></div>
+            </div>
+        </div>
+        <script>
+        $(document).ready(function () {
+            $("#history-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("History", "CustomerAction", new { customerActionId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                    },
+                schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [
+                {
+                    field: "CreateDate",
+                    title: "@Loc["Admin.Customers.CustomerAction.History.Fields.CreateDate"]",
+                    width: 200,
+                    type: "date",
+                    format: "{0:G}"
+                },
+                {
+                    field: "Email",
+                    title: "@Loc["Admin.Customers.CustomerAction.History.Fields.Customer"]",
+                    width: 100,
+                }]
+            });
+        });
+        </script>
+    }
+
+}

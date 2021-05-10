@@ -1,0 +1,37 @@
+﻿<template v-if="catalog.Model !== null">
+    <template v-if="catalog.Model.PagingFilteringContext.TotalPages > 1">
+        <ul class="pagination">
+            <template v-if="(catalog.Model.PagingFilteringContext.PageIndex >= 3) && (catalog.Model.PagingFilteringContext.TotalPages > 5)">
+                <li class="page-item">
+                    <a class="page-link" @@click="catalog.goToPage(1)">
+                        @Loc["pager.firstpagetitle"]
+                    </a>
+                </li>
+            </template>
+            <template v-if="catalog.Model.PagingFilteringContext.HasPreviousPage">
+                <li class="page-item">
+                    <a class="page-link" @@click="catalog.goToPage(catalog.Model.PagingFilteringContext.PageNumber - 1)">@Loc["pager.previouspagetitle"]</a>
+                </li>
+            </template>
+            <template v-for="item in catalog.pager">
+                <li class="page-item" v-bind:class="{ currentpage: (catalog.Model.PagingFilteringContext.PageNumber) == item }">
+                    <a class="page-link" @@click="catalog.goToPage(item)">
+                        {{item}}
+                    </a>
+                </li>
+            </template>
+            <template v-if="catalog.Model.PagingFilteringContext.HasNextPage">
+                <li class="page-item">
+                    <a class="page-link" @@click="catalog.goToPage(catalog.Model.PagingFilteringContext.PageNumber + 1)">@Loc["pager.nextpagetitle"]</a>
+                </li>
+            </template>
+            <template v-if="((catalog.Model.PagingFilteringContext.PageIndex + 3) < catalog.Model.PagingFilteringContext.TotalPages) && (catalog.Model.PagingFilteringContext.TotalPages > 5)">
+                <li class="page-item">
+                    <a class="page-link" @@click="catalog.goToPage(catalog.Model.PagingFilteringContext.TotalPages)">
+                        @Loc["pager.lastpagetitle"]
+                    </a>
+                </li>
+            </template>
+        </ul>
+    </template>
+</template>

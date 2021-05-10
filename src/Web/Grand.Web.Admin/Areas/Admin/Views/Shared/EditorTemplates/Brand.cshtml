@@ -1,0 +1,26 @@
+﻿@model string
+
+@Html.TextBoxFor(model => model, new { @class = "col-md-12", @style = "width: 100%;" })
+
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdForModel()").kendoDropDownList({
+            autobind: false,
+            optionLabel: "Select brand...",
+            filter: "startswith",
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("Brand", "Search", new { area = Constants.AreaAdmin, brandId = Model }))"
+                    }
+                },
+                schema: {
+                    data: "Data"
+                },
+                serverFiltering: true
+            },
+            dataTextField: "Name",
+            dataValueField: "Id",
+        });
+    });
+</script>

@@ -1,0 +1,31 @@
+﻿@model CountryModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Configuration.Countries.AddNew"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Country" asp-action="Create" method="post" id="country-form">
+        
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-globe"></i>
+                        @Loc["Admin.Configuration.Countries.AddNew"]                         
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Configuration.Countries.BackToList"], "List")</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                            <vc:admin-widget widget-zone="country_details_buttons" additional-data="null" />
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                   <partial name="_CreateOrUpdate" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

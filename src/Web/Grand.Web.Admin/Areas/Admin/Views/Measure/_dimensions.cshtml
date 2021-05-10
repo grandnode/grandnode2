@@ -1,0 +1,173 @@
+﻿<div class="row">
+    <div class="col-md-12">
+        <div class="panel">
+            <div class="x_content form">
+                <div class="note note-info">
+                    @Loc["Admin.Configuration.Measures.Dimensions.Description"]
+                </div>
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="x_content">
+                            <div id="measuredimension-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        $("#measuredimension-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("Dimensions", "Measure", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    create: {
+                        url: "@Html.Raw(Url.Action("DimensionAdd", "Measure", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    update: {
+                        url: "@Html.Raw(Url.Action("DimensionUpdate", "Measure", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    destroy: {
+                        url: "@Html.Raw(Url.Action("DimensionDelete", "Measure", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    parameterMap: function (data, operation) {
+                        if (operation != "read") {
+                            data.Ratio = kendo.toString(data.Ratio, "n8");
+                            return data;
+                        } else {
+                            return data;
+                        }
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        fields: {
+                            Name: { editable: true, type: "string" },
+                            SystemKeyword: { editable: true, type: "string" },
+                            Ratio: { editable: true, type: "number" },
+                            DisplayOrder: { editable: true, type: "number" },
+                            IsPrimaryDimension: { editable: false, type: "boolean" },
+                            Id: { editable: false, type: "string" }
+                        }
+                    }
+                },
+                requestEnd: function(e) {
+                    if (e.type == "create" || e.type == "update") {
+                        this.read();
+                    }
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                numeric: false,
+                previousNext: false,
+                info: false
+            },
+            toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [
+                {
+                    field: "Name",
+                    title: "@Loc["Admin.Configuration.Measures.Dimensions.Fields.Name"]",
+                    width: 300
+                }, {
+                    field: "SystemKeyword",
+                    title: "@Loc["Admin.Configuration.Measures.Dimensions.Fields.SystemKeyword"]",
+                    width: 200
+                }, {
+                    field: "Ratio",
+                    title: "@Loc["Admin.Configuration.Measures.Dimensions.Fields.Ratio"]",
+                    width: 200,
+                    editor: function(container, options) {
+                        $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoNumericTextBox({
+                                format: "{0:n8}",
+                                decimals: 8
+                            });
+                    }
+                }, {
+                    field: "DisplayOrder",
+                    title: "@Loc["Admin.Configuration.Measures.Dimensions.Fields.DisplayOrder"]",
+                    //integer format
+                    format: "{0:0}",
+                    width: 100
+                }, {
+                    field: "Id",
+                    title: "@Loc["Admin.Configuration.Measures.Dimensions.Fields.IsPrimaryDimension"]",
+                    width: 150,
+                    template: '<a onclick="markAsPrimaryDimension(\'#=Id#\')" class="k-button"># if(IsPrimaryDimension) {# <i class="fa fa-check" aria-hidden="true" style="color:green;margin-right:5px;"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red;margin-right:5px;"></i> #} #@Loc["Admin.Configuration.Measures.Dimensions.Fields.MarkAsPrimaryDimension"]</a>'
+                }, {
+                    command: [
+                        {
+                            name: "edit",
+                            text: {
+                                edit: "@Loc["Admin.Common.Edit"]",
+                                update: "@Loc["Admin.Common.Update"]",
+                                cancel: "@Loc["Admin.Common.Cancel"]"
+                            }
+                        }, {
+                            name: "destroy",
+                            text: "@Loc["Admin.Common.Delete"]"
+                        }
+                    ],
+                    width: 200
+                }
+            ]
+        });
+    });
+</script>
+<script>
+    function markAsPrimaryDimension(id) {
+        if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
+            var postData = {
+                id: id
+            };
+            addAntiForgeryToken(postData);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "@(Url.Action("MarkAsPrimaryDimension", "Measure", new { area = Constants.AreaAdmin }))",
+                data: postData,
+                success: function(data) {
+                    var grid = $("#measuredimension-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    alert('Failed to update dimension');
+                }
+            });
+        }
+    };
+</script>

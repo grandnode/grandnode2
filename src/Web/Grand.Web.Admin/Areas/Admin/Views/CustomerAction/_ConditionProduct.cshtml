@@ -1,0 +1,93 @@
+﻿@model CustomerActionConditionModel
+
+@if (String.IsNullOrEmpty(Model.Id))
+{
+    <div class="note note-info">
+        @Loc["Admin.Customers.CustomerActionCondition.SaveBeforeEdit"]
+    </div>
+}
+
+@if (!String.IsNullOrEmpty(Model.Id))
+{
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div id="products-grid"></div>
+        </div>
+        <div class="panel-footer">
+            <button type="submit" id="btnAddNewProduct" onclick="javascript:OpenWindow('@(Url.Action("ProductAddPopup", "CustomerAction", new { customerActionId = Model.CustomerActionId, conditionId = Model.Id, btnId = "btnRefreshProducts",  formId = "customer-action-condition-form", area = Constants.AreaAdmin }))    ', 800, 800, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.CustomerActionCondition.Products.AddNew"]</button>
+            <input type="submit" id="btnRefreshProducts" style="display: none" />
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("#products-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("ConditionProduct", "CustomerAction", new { customerActionId = Model.CustomerActionId, conditionId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("ConditionDeletePosition", "CustomerAction", new { customerActionId = Model.CustomerActionId, conditionId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [
+                {
+                        field: "ProductName",
+                        title: "@Loc["Admin.Customers.CustomerActionCondition.Fields.ProductName"]",
+                        width: 300,
+                        template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=Id#">#=kendo.htmlEncode(ProductName)#</a>',
+                },
+                {
+                    command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                    title: "@Loc["Admin.Common.Delete"]",
+                    width: 100
+                }]
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#btnRefreshProducts').click(function () {
+                var grid = $("#products-grid").data('kendoGrid');
+                grid.dataSource.read();
+                return false;
+            });
+        });
+    </script>
+}

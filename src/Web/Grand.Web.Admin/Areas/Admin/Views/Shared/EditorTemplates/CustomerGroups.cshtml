@@ -1,0 +1,46 @@
+﻿@model string[]
+@{
+    var warnings = true;
+    if (ViewData["DisableIgnoreAclWarnings"] != null)
+    {
+        warnings = !(bool)ViewData["DisableIgnoreAclWarnings"];
+    }
+}
+@Html.ListBoxFor(model => model, new List<SelectListItem>())
+@if (CommonHelper.IgnoreAcl && warnings)
+{
+    <div class="note note-info">@Loc["Admin.System.Warnings.IgnoreAcl"]</div>
+}
+
+<script>
+    $(document).ready(function() {
+        var multiselect = $("#@Html.IdForModel()").kendoMultiSelect({
+            autobind: false,
+            filter: "startswith",
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("CustomerGroup", "Search", new { area = Constants.AreaAdmin, customerGroups = Model }))"
+                    }
+                },
+                schema: {
+                    data: "Data"
+                },
+                serverFiltering: true
+            },
+            valuePrimitive: true,
+            dataTextField: "Name",
+            dataValueField: "Id",
+        });
+
+
+        @if(Model != null)
+        {
+            <text>
+                 var multiselect = $("#@Html.IdForModel()").data("kendoMultiSelect");
+                 var data = @Html.Raw(Json.Serialize(Model));
+                 multiselect.value(data);
+            </text>
+        }
+    });
+</script>

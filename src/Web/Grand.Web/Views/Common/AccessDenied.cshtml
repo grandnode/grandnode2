@@ -1,0 +1,15 @@
+﻿@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_SingleColumn";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.AccessDenied"]);
+}
+<div class="page text-xs-center not-found-page">
+    <b-alert show class="my-3">
+        <h1 class="h2 generalTitle text-center mb-0">
+            <b-icon icon="exclamation-circle"></b-icon> @Loc["Title.AccessDenied"]
+        </h1>
+    </b-alert>
+    @await Component.InvokeAsync("PageBlock", new { systemName = "AccessDenied" })
+</div>

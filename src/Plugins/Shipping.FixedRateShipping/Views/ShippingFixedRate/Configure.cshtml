@@ -1,0 +1,99 @@
+﻿@{
+    Layout = "_ConfigurePlugin";
+}
+<input id="active-menu-item" type="hidden" value="/Admin/Shipping/Providers" />
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div id="shipping-rate-grid"></div>
+            <script>
+                $(document).ready(function () {
+                    $("#shipping-rate-grid").kendoGrid({
+                        dataSource: {
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("Configure", "ShippingFixedRate"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                },
+                                update: {
+                                    url:"@Html.Raw(Url.Action("ShippingRateUpdate", "ShippingFixedRate"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                },
+                                parameterMap: function (data, operation) {
+                                    if (operation != "read") {
+                                        data.Rate = kendo.toString(data.Rate, "n8");
+                                        return data;
+                                    } else {
+                                        return data;
+                                    }
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors",
+                                model: {
+                                    id: "ShippingMethodId",
+                                    fields: {
+                                        ShippingMethodId: { editable: false, type: "string" },
+                                        ShippingMethodName: { editable: false, type: "string" },
+                                        Rate: { editable: true, type: "number" }
+                                    }
+                                }
+                            },
+                            requestEnd: function (e) {
+                                if (e.type == "update") {
+                                    this.read();
+                                }
+                            },
+                            error: function (e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            numeric: false,
+                            previousNext: false,
+                            info: false
+                        },
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "ShippingMethodName",
+                            title: "@Loc["Plugins.Shipping.FixedRateShipping.Fields.ShippingMethodName"]",
+                            width: 400
+                        }, {
+                            field: "Rate",
+                            title: "@Loc["Plugins.Shipping.FixedRateShipping.Fields.Rate"]",
+                            width: 200,
+                            editor: function (container, options) {
+                                $('<input name="' + options.field + '"/>')
+                                        .appendTo(container)
+                                        .kendoNumericTextBox({
+                                            format: "{0:n4}",
+                                            decimals: 4
+                                        });
+                            }
+                        }, {
+                            command: {name: "edit", text: "@Loc["Admin.Common.Edit"]"},
+                            title: "@Loc["Admin.Common.Edit"]",
+                            width: 150
+                        }]
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>

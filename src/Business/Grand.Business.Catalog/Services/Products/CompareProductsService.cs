@@ -1,0 +1,172 @@
+using Grand.Business.Catalog.Interfaces.Products;
+using Grand.Infrastructure.Caching.Constants;
+using Grand.Domain.Catalog;
+using Grand.SharedKernel.Extensions;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Grand.Business.Catalog.Services.Products
+{
+    /// <summary>
+    /// Compare products service
+    /// </summary>
+    public partial class CompareProductsService : ICompareProductsService
+    {
+        #region Fields
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IProductService _productService;
+        private readonly CatalogSettings _catalogSettings;
+
+        #endregion
+
+        #region Ctor
+
+
+        #region Utilities
+
+        protected virtual void AddCompareProductsCookie(IEnumerable<string> comparedProductIds)
+        {
+            //delete current cookie if exists
+            _httpContextAccessor.HttpContext.Response.Cookies.Delete(CacheKey.PRODUCTS_COMPARE_COOKIE_NAME);
+
+            //create cookie value
+            var comparedProductIdsCookie = string.Join(",", comparedProductIds);
+
+            //create cookie options 
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.UtcNow.AddHours(CommonHelper.CookieAuthExpires),
+                HttpOnly = true
+            };
+
+            //add cookie
+            _httpContextAccessor.HttpContext.Response.Cookies.Append(CacheKey.PRODUCTS_COMPARE_COOKIE_NAME, comparedProductIdsCookie, cookieOptions);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="httpContext">HTTP context</param>
+        /// <param name="productService">Product service</param>
+        /// <param name="catalogSettings">Catalog settings</param>
+        public CompareProductsService(IHttpContextAccessor httpContextAccessor, IProductService productService,
+            CatalogSettings catalogSettings)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            _productService = productService;
+            _catalogSettings = catalogSettings;
+        }
+
+        #endregion
+
+        #region Utilities
+
+        /// <summary>
+        /// Gets a "compare products" identifier list
+        /// </summary>
+        /// <returns>"compare products" identifier list</returns>
+        protected virtual List<string> GetComparedProductIds()
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext == null || httpContext.Request == null)
+                return new List<string>();
+
+            //try to get cookie
+            if (!httpContext.Request.Cookies.TryGetValue(CacheKey.PRODUCTS_COMPARE_COOKIE_NAME, out string productIdsCookie) || string.IsNullOrEmpty(productIdsCookie))
+                return new List<string>();
+
+            //get array of string product identifiers from cookie
+            var productIds = productIdsCookie.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+            //return list of int product identifiers
+            return productIds.Select(productId => productId).Distinct().ToList();
+        }
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Gets a "compare products" list
+        /// </summary>
+        /// <returns>"Compare products" list</returns>
+        public virtual async Task<IList<Product>> GetComparedProducts()
+        {
+            var products = new List<Product>();
+            var productIds = GetComparedProductIds();
+            foreach (string productId in productIds)
+            {
+                var product = await _productService.GetProductById(productId);
+                if (product != null && product.Published)
+                    products.Add(product);
+            }
+            return products;
+        }
+
+        /// <summary>
+        /// Removes a product from a "compare products" list
+        /// </summary>
+        /// <param name="productId">Product identifier</param>
+        public virtual void RemoveProductFromCompareList(string productId)
+        {
+            if (_httpContextAccessor.HttpContext == null || _httpContextAccessor.HttpContext.Response == null)
+                return;
+
+            //get list of compared product identifiers
+            var comparedProductIds = GetComparedProductIds();
+
+            //whether product identifier to remove exists
+            if (!comparedProductIds.Contains(productId))
+                return;
+
+            //it exists, so remove it from list
+            comparedProductIds.Remove(productId);
+
+            //set cookie
+            AddCompareProductsCookie(comparedProductIds);
+        }
+
+        /// <summary>
+        /// Adds a product to a "compare products" list
+        /// </summary>
+        /// <param name="productId">Product identifier</param>
+        public virtual void AddProductToCompareList(string productId)
+        {
+
+            if (_httpContextAccessor.HttpContext == null || _httpContextAccessor.HttpContext.Response == null)
+                return;
+
+            //get list of compared product identifiers
+            var comparedProductIds = GetComparedProductIds();
+
+            //whether product identifier to add already exist
+            if (!comparedProductIds.Contains(productId))
+                comparedProductIds.Insert(0, productId);
+
+            //limit list based on the allowed number of products to be compared
+            comparedProductIds = comparedProductIds.Take(_catalogSettings.CompareProductsNumber).ToList();
+
+            //set cookie
+            AddCompareProductsCookie(comparedProductIds);
+        }
+        /// <summary>
+        /// Clears a "compare products" list
+        /// </summary>
+        public virtual void ClearCompareProducts()
+        {
+            if (_httpContextAccessor.HttpContext == null || _httpContextAccessor.HttpContext.Response == null)
+                return;
+
+            //sets an expired cookie
+            _httpContextAccessor.HttpContext.Response.Cookies.Delete(CacheKey.PRODUCTS_COMPARE_COOKIE_NAME);
+        }
+
+        #endregion
+    }
+}

@@ -1,0 +1,27 @@
+﻿@model ProductTagModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<vc:admin-widget widget-zone="product_details_tag_top" additional-data="Model" />
+
+<admin-tabstrip name="tag-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Catalog.ProductTags.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.ProductTags.Products"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabProducts" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="producttags_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>
+<vc:admin-widget widget-zone="product_details_tag_bottom" additional-data="Model" />

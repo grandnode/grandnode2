@@ -1,0 +1,145 @@
+﻿@model MaintenanceModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.System.Maintenance"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Common" asp-action="Maintenance" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption level-caption">
+                        <i class="fa fa-database"></i>
+                        @Loc["Admin.System.Maintenance"]
+                    </div>
+                    <vc:admin-widget widget-zone="maintenance_buttons" additional-data="null" />
+                </div>
+                <div class="x_content form">
+                    <vc:admin-widget widget-zone="maintenance_top" additional-data="null" />
+                    <div class="form-horizontal">
+                        <div class="form-body panel panel-default">
+                            <div class="form-group">
+                                <div class="note note-info">
+                                    <strong>@Loc["Admin.System.Maintenance.DeleteGuests"]</strong>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="DeleteGuests.StartDate" />
+                                <div class="col-8 col-md-4 col-sm-4">
+                                    <admin-input asp-for="DeleteGuests.StartDate" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="DeleteGuests.EndDate" />
+                                <div class="col-8 col-md-4 col-sm-4">
+                                    <admin-input asp-for="DeleteGuests.EndDate" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="DeleteGuests.OnlyWithoutShoppingCart" />
+                                <div class="col-8 col-md-4 col-sm-4">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="DeleteGuests.OnlyWithoutShoppingCart" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" name="delete-guests" asp-action="MaintenanceDeleteGuests" class="btn red offset-md-3" value="@Loc["Admin.Common.Delete"]" />
+                            </div>
+                            @if (Model.DeleteGuests.NumberOfDeletedCustomers.HasValue)
+                            {
+                                <label class="offset-md-3">@string.Format(Loc["Admin.System.Maintenance.DeleteGuests.TotalDeleted"], Model.DeleteGuests.NumberOfDeletedCustomers.Value)</label>
+                            }
+                        </div>
+                        <div class="form-body panel panel-default">
+                            <div class="form-group">
+                                <div class="note note-info">
+                                    <strong>@Loc["Admin.System.Maintenance.ClearMostViewed"]</strong>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" name="clear-most-view" asp-action="MaintenanceClearMostViewed" class="btn red offset-md-3" value="@Loc["Admin.Common.Delete"]" />
+                            </div>
+                        </div>
+                        <div class="form-body panel panel-default">
+                            <div class="form-group">
+                                <div class="note note-info">
+                                    <strong>@Loc["Admin.System.Maintenance.DeleteExportedFiles"]</strong>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="DeleteExportedFiles.StartDate" />
+                                <div class="col-8 col-md-4 col-sm-4">
+                                    <admin-input asp-for="DeleteExportedFiles.StartDate" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="DeleteExportedFiles.EndDate" />
+                                <div class="col-8 col-md-4 col-sm-4">
+                                    <admin-input asp-for="DeleteExportedFiles.EndDate" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" name="delete-exported-files" asp-action="MaintenanceDeleteFiles" class="btn red offset-md-3" value="@Loc["Admin.Common.Delete"]" />
+                            </div>
+                            @if (Model.DeleteExportedFiles.NumberOfDeletedFiles.HasValue)
+                            {
+                                <label class="offset-md-3">@string.Format(Loc["Admin.System.Maintenance.DeleteExportedFiles.TotalDeleted"], Model.DeleteExportedFiles.NumberOfDeletedFiles.Value)</label>
+                            }
+                        </div>
+                        <div class="form-body panel panel-default">
+                            <div class="note note-info">
+                                <strong>@Loc["Admin.System.Maintenance.DeleteActivityLog"]</strong>
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" name="delete-activitylog" asp-action="MaintenanceDeleteActivitylog" class="btn red offset-md-3" value="@Loc["Admin.Common.Delete"]" />
+                            </div>
+                            @if (Model.DeleteActivityLog)
+                            {
+                                <div class="form-group">
+                                    <label class="offset-md-3">@Loc["Admin.System.Maintenance.DeleteActivityLog.Deleted"]</label>
+                                </div>
+                            }
+                        </div>
+                        <div class="form-body panel panel-default">
+                            <div class="note note-info form-actions">
+                                <strong>@Loc["Admin.System.Maintenance.ConvertPicture"]</strong>
+                            </div>
+                            <div class="form-group">
+                                <button type="button" class="btn btn-danger red offset-md-3" data-toggle="modal" data-target="#convertPicutresConfirmationModal">@Loc["Admin.System.Maintenance.ConvertPicture.Button"]</button>
+                                <div class="modal fade" id="convertPicutresConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">@Loc["Admin.Common.AreYouSure"]</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="@Loc["Common.Close"]">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                @Loc["Admin.Common.UndoneChange"]
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">@Loc["Common.Close"]</button>
+                                                <input type="submit" name="convert-picture-webp" asp-action="MaintenanceConvertPicture" class="btn red offset-md-3" value="@Loc["Admin.Common.SaveChanges"]" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (Model.ConvertedPictureModel.NumberOfConvertItems >= 0)
+                            {
+                                <div class="form-group">
+                                    <label class="offset-md-3">@Loc["Admin.System.Maintenance.ConvertPicture.Number"] : @Model.ConvertedPictureModel.NumberOfConvertItems</label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <vc:admin-widget widget-zone="maintenance_bottom" additional-data="null" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

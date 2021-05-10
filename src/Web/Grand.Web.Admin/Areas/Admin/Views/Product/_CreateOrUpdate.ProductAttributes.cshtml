@@ -1,0 +1,38 @@
+﻿@model ProductModel
+@if (!String.IsNullOrEmpty(Model.Id))
+{
+    if (Model.AvailableProductAttributes.Count > 0)
+    {
+        <admin-tabstrip name="productattribute-edit">
+            <items>
+                <tabstrip-item text="@Loc["Admin.Catalog.Products.ProductAttributes.Attributes"]" tab-index="100" class="k-state-active">
+                    <content>
+                        <div>
+                            <partial name="_CreateOrUpdate.ProductAttributes.TabAttributes" model="Model" />
+                        </div>
+                    </content>
+                </tabstrip-item>
+                <tabstrip-item text="@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations"]" tab-index="101">
+                    <content>
+                        <div>
+                            <partial name="_CreateOrUpdate.ProductAttributes.TabAttributeCombinations" model="Model" />
+                        </div>
+                    </content>
+                </tabstrip-item>
+                <vc:admin-widget widget-zone="product_attribute_details_tabs" additional-data="Model" />
+            </items>
+        </admin-tabstrip>
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["Admin.Catalog.Products.ProductAttributes.NoAttributesAvailable"]
+        </div>
+    }
+}
+else
+{
+    <div class="note note-info">
+        @Loc["Admin.Catalog.Products.ProductAttributes.SaveBeforeEdit"]
+    </div>
+}

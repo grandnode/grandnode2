@@ -1,0 +1,285 @@
+﻿@model DiscountModel
+@using Grand.Domain.Discounts;
+@using Grand.Web.Common.Page;
+
+<script>
+        $(document).ready(function () {
+            $("#@Html.IdFor(model => model.DiscountTypeId)").change(toggleDiscountType);
+            $("#@Html.IdFor(model => model.UsePercentage)").click(toggleUsePercentage);
+            $("#@Html.IdFor(model => model.RequiresCouponCode)").click(toggleRequiresCouponCode);
+            $("#@Html.IdFor(model => model.DiscountLimitationId)").change(toggleLimitation);
+            $("#@Html.IdFor(model => model.CalculateByPlugin)").click(toggleCalculate);
+
+            toggleDiscountType();
+            toggleLimitation();
+            toggleUsePercentage();
+            toggleRequiresCouponCode();
+            toggleCalculate();
+        });
+
+        function toggleCalculate() {
+            var selectedCalculateByPlugin = $("#@Html.IdFor(model => model.CalculateByPlugin)").is(':checked');
+            if (selectedCalculateByPlugin) {
+                $('#pnlUsePercentage').hide();
+                $('#pnlDiscountAmount').hide();
+                $('#pnlDiscountPercentage').hide();
+                $('#pnlMaximumDiscountAmount').hide();
+                $('#pnlDiscountPluginName').show();
+            }
+            else {
+                $('#pnlUsePercentage').show();
+                $('#pnlDiscountPluginName').hide();
+                toggleUsePercentage();
+            }
+        }
+
+
+        function toggleDiscountType() {
+            var selectedDiscountTypeId = $("#@Html.IdFor(model => model.DiscountTypeId)").val();
+            if (selectedDiscountTypeId == @(((int)DiscountType.AssignedToCategories).ToString())) {
+            $('#tab-applied-to-categories').show();
+            $('#tab-applied-to-collections').hide();
+            $('#tab-applied-to-products').hide();
+            $('#pnlMaximumDiscountedQuantity').show();
+            $('#tab-applied-to-vendors').hide();
+            $('#tab-applied-to-brands').hide();
+        }
+        else if (selectedDiscountTypeId == @(((int)DiscountType.AssignedToCollections).ToString())) {
+            $('#tab-applied-to-categories').hide();
+            $('#tab-applied-to-collections').show();
+            $('#tab-applied-to-products').hide();
+            $('#pnlMaximumDiscountedQuantity').show();
+            $('#tab-applied-to-vendors').hide();
+            $('#tab-applied-to-brands').hide();
+        }
+        else if (selectedDiscountTypeId == @(((int)DiscountType.AssignedToSkus).ToString())) {
+            $('#tab-applied-to-categories').hide();
+            $('#tab-applied-to-collections').hide();
+            $('#tab-applied-to-products').show();
+            $('#pnlMaximumDiscountedQuantity').show();
+            $('#tab-applied-to-vendors').hide();
+            $('#tab-applied-to-brands').hide();
+       }
+       else if(selectedDiscountTypeId == @(((int)DiscountType.AssignedToBrands).ToString())){
+            $('#tab-applied-to-categories').hide();
+            $('#tab-applied-to-collections').hide();
+            $('#tab-applied-to-products').hide();
+            $('#pnlMaximumDiscountedQuantity').show();
+            $('#tab-applied-to-vendors').hide();
+            $('#tab-applied-to-brands').show();
+        }
+        else if(selectedDiscountTypeId == @(((int)DiscountType.AssignedToVendors).ToString())){
+            $('#tab-applied-to-categories').hide();
+            $('#tab-applied-to-collections').hide();
+            $('#tab-applied-to-products').hide();
+            $('#pnlMaximumDiscountedQuantity').show();
+            $('#tab-applied-to-vendors').show();
+        }
+        else if(selectedDiscountTypeId == @(((int)DiscountType.AssignedToAllProducts).ToString())){
+            $('#tab-applied-to-categories').hide();
+            $('#tab-applied-to-collections').hide();
+            $('#tab-applied-to-products').hide();
+            $('#pnlMaximumDiscountedQuantity').show();
+            $('#tab-applied-to-vendors').hide();
+            $('#tab-applied-to-brands').hide();
+        }
+        else {
+            $('#tab-applied-to-categories').hide();
+            $('#tab-applied-to-collections').hide();
+            $('#tab-applied-to-products').hide();
+            $('#pnlMaximumDiscountedQuantity').hide();
+            $('#tab-applied-to-vendors').hide();
+            $('#tab-applied-to-brands').hide();
+           }
+        }
+
+        function toggleLimitation() {
+            var selectedDiscountLimitationId = $("#@Html.IdFor(model => model.DiscountLimitationId)").val();
+            if (selectedDiscountLimitationId == @(((int)DiscountLimitationType.NTimes).ToString()) || selectedDiscountLimitationId == @(((int)DiscountLimitationType.NTimesPerUser).ToString())) {
+                //'N Times Only' or 'N Times Per Customer'
+                $('#pnlLimitationTimes').show();
+        }
+        else {
+                $('#pnlLimitationTimes').hide();
+        }
+        }
+
+        function toggleUsePercentage() {
+            if ($('#@Html.IdFor(model => model.UsePercentage)').is(':checked')) {
+                $('#pnlDiscountPercentage').show();
+                $('#pnlDiscountAmount').hide();
+                $('#pnlMaximumDiscountAmount').show();
+            } else {
+                $('#pnlDiscountPercentage').hide();
+                $('#pnlDiscountAmount').show();
+                $('#pnlMaximumDiscountAmount').hide();
+            }
+        }
+
+        function toggleRequiresCouponCode() {
+            if ($('#@Html.IdFor(model => model.RequiresCouponCode)').is(':checked')) {
+                $('#tab-couponcode').show();
+                $('#pnlReused').show();
+            } else {
+                $('#tab-couponcode').hide();
+                $('#pnlReused').hide();
+            }
+        }
+</script>
+<vc:admin-widget widget-zone="discount_details_info_top" additional-data="Model" />
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="Name" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DiscountTypeId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="DiscountTypeId" asp-items="((DiscountType)Model.DiscountTypeId).ToSelectList(Context)" />
+                <span asp-validation-for="DiscountTypeId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlUsePercentage">
+            <admin-label asp-for="UsePercentage" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="UsePercentage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="UsePercentage"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlDiscountAmount">
+            <admin-label asp-for="DiscountAmount" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DiscountAmount" />
+                <span asp-validation-for="DiscountAmount"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlDiscountPercentage">
+            <admin-label asp-for="DiscountPercentage" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DiscountPercentage" />
+                <span asp-validation-for="DiscountPercentage"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CurrencyCode" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="CurrencyCode" asp-items="Model.AvailableCurrencies" />
+                <span asp-validation-for="CurrencyCode"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlMaximumDiscountAmount">
+            <admin-label asp-for="MaximumDiscountAmount" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="MaximumDiscountAmount" />
+                <span asp-validation-for="MaximumDiscountAmount"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlCalculateByPlugin">
+            <admin-label asp-for="CalculateByPlugin" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="CalculateByPlugin" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="CalculateByPlugin"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlDiscountPluginName">
+            <admin-label asp-for="DiscountPluginName" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="DiscountPluginName" asp-items="Model.AvailableDiscountAmountProviders" />
+                <span asp-validation-for="DiscountPluginName"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Stores" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Stores" />
+                <span asp-validation-for="Stores"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="StartDate" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="StartDate" />
+                <span asp-validation-for="StartDate"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="EndDate" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="EndDate" />
+                <span asp-validation-for="EndDate"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="RequiresCouponCode" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="RequiresCouponCode" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="RequiresCouponCode"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlReused">
+            <admin-label asp-for="Reused" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="Reused" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="Reused"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="IsCumulative" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsCumulative" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsCumulative"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DiscountLimitationId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="DiscountLimitationId" asp-items="((DiscountLimitationType)Model.DiscountLimitationId).ToSelectList(Context)" />
+                <span asp-validation-for="DiscountLimitationId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlLimitationTimes">
+            <admin-label asp-for="LimitationTimes" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="LimitationTimes" />
+                <span asp-validation-for="LimitationTimes"></span> @Loc["admin.marketing.Discounts.Fields.LimitationTimes.Times"]
+            </div>
+        </div>
+        <div class="form-group" id="pnlMaximumDiscountedQuantity">
+            <admin-label asp-for="MaximumDiscountedQuantity" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="MaximumDiscountedQuantity" />
+                <span asp-validation-for="MaximumDiscountedQuantity"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="IsEnabled" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsEnabled" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsEnabled"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<vc:admin-widget widget-zone="discount_details_info_bottom" additional-data="Model" />

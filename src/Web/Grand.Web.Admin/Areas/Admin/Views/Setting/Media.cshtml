@@ -1,0 +1,267 @@
+﻿@model MediaSettingsModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Settings.Media"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Setting" asp-action="Media" method="post">
+    
+    <div asp-validation-summary="All"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-fw fa-sliders"></i>
+                        @Loc["Admin.Settings.Media"]
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                        </div>
+                    </div>
+                    <vc:admin-widget widget-zone="media_settings_buttons" additional-data="null" />
+                </div>
+                <div class="x_content form">
+                    <vc:admin-widget widget-zone="media_settings_top" additional-data="null" />
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="PicturesStoredIntoDatabase" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <div class="note note-info">
+                                        @if (Model.PicturesStoredIntoDatabase)
+                                        {
+                                            @Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.Database"]
+                                        }
+                                        else
+                                        {
+                                            @Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.FileSystem"]
+                                        }
+                                    </div>
+                                    <button type="submit" name="change-picture-storage" asp-action="ChangePictureStorage" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');" class="k-button"><span class="k-icon k-i-rotate"></span>&nbsp;@Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.Change"]</button>
+                                    <p>&nbsp;</p>
+                                    <div class="note note-warning">
+                                        <span>@Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.Note"]</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="ProductThumbPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="ProductThumbPictureSize" />
+                                    <span asp-validation-for="ProductThumbPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="ProductDetailsPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="ProductDetailsPictureSize" />
+                                    <span asp-validation-for="ProductDetailsPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="ProductThumbPictureSizeOnProductDetailsPage" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="ProductThumbPictureSizeOnProductDetailsPage" />
+                                    <span asp-validation-for="ProductThumbPictureSizeOnProductDetailsPage"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AssociatedProductPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="AssociatedProductPictureSize" />
+                                    <span asp-validation-for="AssociatedProductPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="CategoryThumbPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="CategoryThumbPictureSize" />
+                                    <span asp-validation-for="CategoryThumbPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="BrandThumbPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="BrandThumbPictureSize" />
+                                    <span asp-validation-for="BrandThumbPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="CollectionThumbPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="CollectionThumbPictureSize" />
+                                    <span asp-validation-for="CollectionThumbPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="VendorThumbPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="VendorThumbPictureSize" />
+                                    <span asp-validation-for="VendorThumbPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="CartThumbPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="CartThumbPictureSize" />
+                                    <span asp-validation-for="CartThumbPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="MiniCartThumbPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="MiniCartThumbPictureSize" />
+                                    <span asp-validation-for="MiniCartThumbPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="MaximumImageSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="MaximumImageSize" />
+                                    <span asp-validation-for="MaximumImageSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="DefaultPictureZoomEnabled" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="DefaultPictureZoomEnabled" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="DefaultPictureZoomEnabled"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddToCartThumbPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="AddToCartThumbPictureSize" />
+                                    <span asp-validation-for="AddToCartThumbPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AutoCompleteSearchThumbPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="AutoCompleteSearchThumbPictureSize" />
+                                    <span asp-validation-for="AutoCompleteSearchThumbPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="BlogThumbPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="BlogThumbPictureSize" />
+                                    <span asp-validation-for="BlogThumbPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="CourseThumbPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="CourseThumbPictureSize" />
+                                    <span asp-validation-for="CourseThumbPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="ImageSquarePictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="ImageSquarePictureSize" />
+                                    <span asp-validation-for="ImageSquarePictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="LessonThumbPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="LessonThumbPictureSize" />
+                                    <span asp-validation-for="LessonThumbPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="NewsListThumbPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="NewsListThumbPictureSize" />
+                                    <span asp-validation-for="NewsListThumbPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="NewsThumbPictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="NewsThumbPictureSize" />
+                                    <span asp-validation-for="NewsThumbPictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="ProductBundlePictureSize" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="ProductBundlePictureSize" />
+                                    <span asp-validation-for="ProductBundlePictureSize"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AllowedFileTypes" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="AllowedFileTypes" />
+                                    <span asp-validation-for="AllowedFileTypes"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="DefaultImageName" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="DefaultImageName" />
+                                    <span asp-validation-for="DefaultImageName"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <vc:admin-widget widget-zone="media_settings_bottom" additional-data="null" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,47 @@
+﻿@model PaymentMethodRestrictionModel
+
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Configuration.Payment.MethodRestrictions"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Payment" asp-action="MethodRestrictions" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-money"></i>
+                        @Loc["Admin.Configuration.Payment.MethodRestrictions"]
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <vc:admin-widget widget-zone="payment_method_restrictions_top" additional-data="Model" />
+                    <admin-tabstrip name="paymentrestriction-edit">
+                        <items>
+                            <tabstrip-item text="@Loc["Admin.Configuration.Payment.MethodRestrictions.Country"]" tab-index="0">
+                                <content>
+                                    <div>
+                                        <partial name="MethodRestrictions.TabCountry" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Configuration.Payment.MethodRestrictions.Shipping"]" tab-index="1">
+                                <content>
+                                    <div>
+                                        <partial name="MethodRestrictions.TabShipping" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <vc:admin-widget widget-zone="methodrestriction_details_tabs" additional-data="Model" />
+                        </items>
+                    </admin-tabstrip>
+                    <vc:admin-widget widget-zone="payment_method_restrictions_bottom" additional-data="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

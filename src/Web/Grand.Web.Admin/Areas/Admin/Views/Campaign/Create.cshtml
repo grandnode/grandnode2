@@ -1,0 +1,31 @@
+﻿@model CampaignModel
+@{
+    //page title
+    ViewBag.Title = Loc["admin.marketing.Campaigns.AddNew"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Campaign" asp-action="Create" method="post" id="campaign-form">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-envelope"></i>
+                        @Loc["admin.marketing.Campaigns.AddNew"]
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["admin.marketing.Campaigns.BackToList"], "List")</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                        </div>
+                    </div>
+                </div>
+                <vc:admin-widget widget-zone="campaign_details_buttons" additional-data="null" />
+                <div class="x_content form">
+                    <partial name="_CreateOrUpdate" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

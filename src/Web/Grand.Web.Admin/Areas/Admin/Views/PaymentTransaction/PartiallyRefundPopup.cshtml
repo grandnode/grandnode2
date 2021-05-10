@@ -1,0 +1,59 @@
+﻿@{
+    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    //page title
+    ViewBag.Title = Loc["Admin.PaymentTransaction.Fields.PartialRefund"];
+}
+@model PaymentTransactionModel
+<form asp-area="@Constants.AreaAdmin" asp-controller="PaymentTransaction" asp-action="PartiallyRefundPopup" method="post"
+      asp-route-OrderId="@Context.Request.Query["Id"]"
+      asp-route-btnId="@Context.Request.Query["btnId"]"
+      asp-route-online="@Context.Request.Query["online"]"
+      asp-route-formId="@Context.Request.Query["formId"]">
+
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="MaxAmountToRefund" type="hidden" />
+    <input asp-for="CurrencyCode" type="hidden" />
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-tag"></i>
+                        @Loc["Admin.PaymentTransaction.Fields.PartialRefund"]
+                    </div>
+                </div>
+                <vc:admin-widget widget-zone="paymentTransaction_partially_refund_buttons" additional-data="Model" />
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <admin-label asp-for="AmountToRefund" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="AmountToRefund" /> &nbsp; <span style="white-space: nowrap">
+                                        @string.Format(Loc["Admin.PaymentTransaction.Fields.PartialRefund.AmountToRefund.Max"], Model.MaxAmountToRefund.ToString("G29"), Model.CurrencyCode)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <input type="submit" name="partialrefundpaymenttransaction" asp-action="PartiallyRefundPopup" value="@Loc["Admin.PaymentTransaction.Fields.Refund"]" id="partialrefundpaymenttransaction" class="btn default" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div asp-validation-summary="All"></div>
+    @if (ViewBag.RefreshPage == true)
+    {
+        <script>
+            try {
+                window.opener.location.href = window.opener.location.href;
+            }
+            catch (e) { }
+            window.close();
+        </script>
+    }
+</form>

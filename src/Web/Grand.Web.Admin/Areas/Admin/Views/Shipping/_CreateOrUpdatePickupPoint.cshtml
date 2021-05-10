@@ -1,0 +1,74 @@
+﻿@model PickupPointModel
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input id="active-menu-item" type="hidden" value="/@Constants.AreaAdmin/Shipping/PickupPoints" />
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="Name" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Description" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Description" />
+                <span asp-validation-for="Description"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AdminComment" />
+            <div class="col-md-9 col-sm-9">
+                <admin-textarea asp-for="AdminComment"></admin-textarea>
+                <span asp-validation-for="AdminComment"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-input asp-for="Address" asp-template="Address" />
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AvailableStores" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="StoreId" asp-items="Model.AvailableStores" />
+                <span asp-validation-for="AvailableStores"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AvailableWarehouses" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="WarehouseId" asp-items="Model.AvailableWarehouses" />
+                <span asp-validation-for="AvailableWarehouses"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="PickupFee" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="PickupFee" />
+                <span asp-validation-for="PickupFee"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Latitude" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Latitude" />
+                <span asp-validation-for="Latitude"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Longitude" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Longitude" />
+                <span asp-validation-for="Longitude"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisplayOrder" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrder" />
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </div>
+    </div>
+</div>

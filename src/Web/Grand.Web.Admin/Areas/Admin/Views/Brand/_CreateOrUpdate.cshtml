@@ -1,0 +1,62 @@
+﻿@model BrandModel
+@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@{
+    //has "Manage Documents" permission?
+    var canManageDocuments = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageDocuments);
+}
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<admin-tabstrip name="brand-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Catalog.Brands.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Common.SEO"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabSeo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Brands.Discounts"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabDiscounts" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (canManageDocuments)
+        {
+            <tabstrip-item text="@Loc["Admin.Catalog.Brands.Documents"]" tab-index="3">
+                <content>
+                    <div>
+                        <partial name="_CreateOrUpdate.TabDocuments" model="Model" />
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="4">
+            <content>
+                <div>
+                    @{
+                        ViewData["ObjectType"] = "Brand";
+                        ViewData["TabIndex"] = 4;
+                    }
+                    <partial name="_UserFields" model="Model" view-data="ViewData" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Collections.ActivityLog"]" tab-index="5">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabActivityLog" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="brand_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

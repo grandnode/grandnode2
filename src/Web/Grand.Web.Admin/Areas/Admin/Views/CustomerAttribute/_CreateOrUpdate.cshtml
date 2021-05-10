@@ -1,0 +1,25 @@
+﻿@model CustomerAttributeModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<input id="active-menu-item" type="hidden" value="/@Constants.AreaAdmin/CustomerAttribute/List" />
+<admin-tabstrip name="customerattribute-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerAttributes.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerAttributes.Values"]" tab-index="1" id="tab-customerattributesvalues">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabValues" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="customerattribute_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

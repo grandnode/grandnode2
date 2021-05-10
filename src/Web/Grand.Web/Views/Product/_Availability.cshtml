@@ -1,0 +1,14 @@
+﻿@model ProductDetailsModel
+<div class="availability generalMarginSupporter">
+    @if (!String.IsNullOrWhiteSpace(Model.StockAvailability))
+    {
+        <div class="stock">
+            <span class="label">@Loc["Products.Availability"]:</span>
+            <span class="value" id="stock-availability-value-@Model.Id">
+                <link itemprop="availability" href="http://schema.org/InStock" />
+                @Model.StockAvailability
+            </span>
+        </div>
+    }
+    <partial name="_OutOfStockSubscription" model="Model" />
+</div>

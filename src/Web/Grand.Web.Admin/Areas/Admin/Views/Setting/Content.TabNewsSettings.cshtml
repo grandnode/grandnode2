@@ -1,0 +1,72 @@
+﻿@model ContentSettingsModel
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="NewsSettings.Enabled" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="NewsSettings.Enabled" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="NewsSettings.Enabled"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="NewsSettings.AllowNotRegisteredUsersToLeaveComments" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="NewsSettings.AllowNotRegisteredUsersToLeaveComments" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="NewsSettings.AllowNotRegisteredUsersToLeaveComments"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="NewsSettings.NotifyAboutNewNewsComments" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="NewsSettings.NotifyAboutNewNewsComments" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="NewsSettings.NotifyAboutNewNewsComments"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="NewsSettings.ShowNewsOnMainPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="NewsSettings.ShowNewsOnMainPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="NewsSettings.ShowNewsOnMainPage"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="NewsSettings.MainPageNewsCount" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="NewsSettings.MainPageNewsCount" />
+                <span asp-validation-for="NewsSettings.MainPageNewsCount"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="NewsSettings.NewsArchivePageSize" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="NewsSettings.NewsArchivePageSize" />
+                <span asp-validation-for="NewsSettings.NewsArchivePageSize"></span>
+            </div>
+        </div>
+    </div>
+</div>

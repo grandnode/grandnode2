@@ -1,0 +1,46 @@
+﻿@model ShippingMethodRestrictionModel
+
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Configuration.Shipping.Restrictions"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Shipping" asp-action="Restrictions" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-truck"></i>
+                        @Loc["Admin.Configuration.Shipping.Restrictions"]
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                        <vc:admin-widget widget-zone="shipping_restriction_list_buttons" additional-data="null" />
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <admin-tabstrip name="shippingrestriction-edit">
+                        <items>
+                            <tabstrip-item text="@Loc["Admin.Configuration.Shipping.Restrictions.Country"]" tab-index="0">
+                                <content>
+                                    <div>
+                                        <partial name="Restrictions.TabCountry" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Configuration.Shipping.Restrictions.Group"]" tab-index="1">
+                                <content>
+                                    <div>
+                                        <partial name="Restrictions.TabGroup" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <vc:admin-widget widget-zone="shipping_details_tabs" additional-data="Model" />
+                        </items>
+                    </admin-tabstrip>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

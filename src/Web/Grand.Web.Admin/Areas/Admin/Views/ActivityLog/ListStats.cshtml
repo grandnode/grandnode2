@@ -1,0 +1,121 @@
+﻿@model ActivityLogSearchModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["admin.reports.activitylog.activitystats"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit popup-window">
+            <div class="x_title">
+                <div class="caption level-caption">
+                    <i class="fa fa-sitemap"></i>
+                    @Loc["admin.reports.activitylog.activitystats"]
+                </div>
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal col-12 px-0">
+                    <div class="form-body row align-items-end">
+                        <div class="form-group mb-0 col-md-3 col-sm-12 col-12">
+                            <admin-label asp-for="CreatedOnFrom" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                            <admin-input asp-for="CreatedOnFrom" />
+                        </div>
+                        <div class="form-group mb-0 col-md-3 col-sm-12 col-12">
+                            <admin-label asp-for="CreatedOnTo" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                            <admin-input asp-for="CreatedOnTo" />
+                        </div>
+                        <div class="form-group mb-0 col-md-3 col-sm-12 col-12">
+                            <admin-label asp-for="ActivityLogTypeId" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                            <admin-select asp-for="ActivityLogTypeId" asp-items="Model.ActivityLogType" />
+                        </div>
+                        <div class="form-actions col-md-3 col-sm-12 col-12">
+                            <button class="btn btn-success filter-submit" id="search-log">
+                                <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="x_content">
+                <div id="activityLog-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#activityLog-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("ListStats", "ActivityLog", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    },
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                    }
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "ActivityLogTypeName",
+                title: "@Loc["admin.reports.activitylog.activitystats.Fields.ActivityLogType"]",
+                width: 250
+            }, {
+                field: "Name",
+                title: "@Loc["admin.reports.activitylog.activitystats.Fields.Name"]"
+            }, {
+                field: "Count",
+                title: "@Loc["admin.reports.activitylog.activitystats.Fields.Count"]",
+                width: 100,
+            }]
+        });
+    });
+</script>
+<script>
+
+    $(document).ready(function () {
+
+        $('#search-log').click(function () {
+            var grid = $('#activityLog-grid').data('kendoGrid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            return false;
+        });
+    });
+
+    function additionalData() {
+        var data = {
+            CreatedOnFrom: $('#@Html.IdFor(model => model.CreatedOnFrom)').val(),
+            CreatedOnTo: $('#@Html.IdFor(model => model.CreatedOnTo)').val(),
+            ActivityLogTypeId: $('#ActivityLogTypeId').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+</script>

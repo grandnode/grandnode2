@@ -1,0 +1,30 @@
+﻿@model NewsItemModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<admin-tabstrip name="news-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Content.News.NewsItems.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Common.SEO"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabSeo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Content.News.NewsItems.Comments"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabComments" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="news_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

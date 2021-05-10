@@ -1,0 +1,107 @@
+﻿@model InteractiveFormAttributeModel
+@{
+
+    if (!string.IsNullOrEmpty(Model.Id))
+    {
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="attributeValues-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <button type="submit" id="btnAddNewValues" onclick="javascript:OpenWindow('@(Url.Action("ValueCreatePopup", "InteractiveForm", new { form = Model.FormId, aId = Model.Id, formId = "attribute-form", btnId = "btnRefreshValues", area = Constants.AreaAdmin }))', 800, 800, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.InteractiveForms.Attribute.Values.AddNew"]</button>
+                <input type="submit" id="btnRefreshValues" style="display: none" />
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                $("#attributeValues-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("AttributeValuesList", "InteractiveForm", new { formId = Model.FormId, aId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("AttributeValuesDelete", "InteractiveForm", new { formId = Model.FormId, aId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken,
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "Id",
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        numeric: false,
+                        previousNext: false,
+                        info: false
+                    },
+                    editable: {
+                        confirmation: true,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [{
+                        field: "Name",
+                        title: "@Loc["admin.marketing.InteractiveForms.Attribute.Values.Fields.Name"]",
+                        template: "<a class='k-link' onclick=\"javascript:OpenWindow('@Url.Action("ValueEditPopup", "InteractiveForm", new { area = Constants.AreaAdmin })/#=Id#?form=@Model.FormId&aId=@Model.Id&btnId=btnRefreshValues&formId=attribute-form', 800, 350, true); return false;\">#=kendo.htmlEncode(Name)#</a>",
+                    },
+                    {
+                        field: "IsPreSelected",
+                        title: "@Loc["admin.marketing.InteractiveForms.Attribute.Values.Fields.IsPreSelected"]",
+                        width: 200,
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        template: '# if(IsPreSelected) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                     },
+                     {
+                         field: "DisplayOrder",
+                         title: "@Loc["admin.marketing.InteractiveForms.Attribute.Values.Fields.DisplayOrder"]",
+                        width: 150
+                    },
+                    {
+                        command: [{
+                            name: "destroy",
+                            text: "@Loc["Admin.Common.Delete"]"
+                        }],
+                        width: 150
+                    }]
+                });
+            });
+        </script>
+        <script>
+                        $(document).ready(function () {
+                            $('#btnRefreshValues').click(function () {
+                                var grid = $("#attributeValues-grid").data('kendoGrid');
+                                grid.dataSource.read();
+                                return false;
+                            });
+                        });
+        </script>
+
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["admin.marketing.InteractiveForms.SaveBeforeEdit"]
+        </div>
+    }
+}

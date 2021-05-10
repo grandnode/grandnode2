@@ -1,0 +1,110 @@
+﻿@model CustomerActionConditionModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="CustomerActionId" type="hidden" />
+
+<admin-tabstrip name="customeractioncondition-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerActionCondition.Info"]" tab-index="0" id="tab-info">
+            <content>
+                <div>
+                    <partial name="_ConditionInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerActionCondition.Products"]" tab-index="1" id="tab-product">
+            <content>
+                <div>
+                    <partial name="_ConditionProduct" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerActionCondition.Categories"]" tab-index="2" id="tab-category">
+            <content>
+                <div>
+                    <partial name="_ConditionCategory" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerActionCondition.Collections"]" tab-index="3" id="tab-collection">
+            <content>
+                <div>
+                    <partial name="_ConditionCollection" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerActionCondition.Vendors"]" tab-index="4" id="tab-vendor">
+            <content>
+                <div>
+                    <partial name="_ConditionVendor" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerActionCondition.ProductAttributes"]" tab-index="5" id="tab-productAttribute">
+            <content>
+                <div>
+                    <partial name="_ConditionProductAttribute" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerActionCondition.ProductSpecifications"]" tab-index="6" id="tab-productSpecification">
+            <content>
+                <div>
+                    <partial name="_ConditionProductSpecification" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerActionCondition.CustomerGroup"]" tab-index="7" id="tab-customerGroup">
+            <content>
+                <div>
+                    <partial name="_ConditionCustomerGroup" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerActionCondition.CustomerTag"]" tab-index="8" id="tab-customerTag">
+            <content>
+                <div>
+                    <partial name="_ConditionCustomerTag" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerActionCondition.CustomerRegister"]" tab-index="9" id="tab-customerRegister">
+            <content>
+                <div>
+                    <partial name="_ConditionCustomerRegister" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerActionCondition.CustomCustomerAttribute"]" tab-index="10" id="tab-customAttribute">
+            <content>
+                <div>
+                    <partial name="_ConditionCustomCustomerAttribute" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerActionCondition.UrlReferrer"]" tab-index="11" id="tab-urlReferrer">
+            <content>
+                <div>
+                    <partial name="_ConditionUrlReferrer" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerActionCondition.UrlCurrent"]" tab-index="12" id="tab-urlCurrent">
+            <content>
+                <div>
+                    <partial name="_ConditionUrlCurrent" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerActionCondition.Store"]" tab-index="13" id="tab-store">
+            <content>
+                <div>
+                    <partial name="_ConditionStore" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="customer_action_condition_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>
+

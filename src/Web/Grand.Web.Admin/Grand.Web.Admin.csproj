@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
+    <Company>UNIT-SOFT Sp. z o.o.</Company>
+    <Authors>UNIT-SOFT Sp. z o.o.</Authors>
+    <Product>grandnode</Product>
+    <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Business\Grand.Business.Authentication\Grand.Business.Authentication.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Catalog\Grand.Business.Catalog.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Checkout\Grand.Business.Checkout.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Cms\Grand.Business.Cms.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Common\Grand.Business.Common.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Customers\Grand.Business.Customers.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Marketing\Grand.Business.Marketing.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Messages\Grand.Business.Messages.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Storage\Grand.Business.Storage.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.System\Grand.Business.System.csproj" />
+    <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />
+    <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
+    <ProjectReference Include="..\Grand.Web.Common\Grand.Web.Common.csproj" />
+  </ItemGroup>
+</Project>

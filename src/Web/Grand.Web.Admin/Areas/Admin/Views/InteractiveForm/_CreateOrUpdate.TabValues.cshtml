@@ -1,0 +1,89 @@
+﻿@model InteractiveFormModel
+
+@{
+    if (!String.IsNullOrEmpty(Model.Id))
+    {
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="interactiveformattributes-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <button type="submit" id="btnAddNewValue" onclick="javascript:setLocation('@(Url.Action("AddAttribute", "InteractiveForm", new { formId = Model.Id, area = Constants.AreaAdmin }))'); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.InteractiveForms.Attribute.AddNew"]</button>
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                $("#interactiveformattributes-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("FormAttributesList", "InteractiveForm", new { formId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("FormAttributesDelete", "InteractiveForm", new { formId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "Id"
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        numeric: false,
+                        previousNext: false,
+                        info: false
+                    },
+                    editable: {
+                        confirmation: true,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [{
+                        field: "Name",
+                        title: "@Loc["admin.marketing.InteractiveForms.Attribute.Fields.Name"]"
+                    }, {
+                        field: "SystemName",
+                        title: "@Loc["admin.marketing.InteractiveForms.Attribute.Fields.SystemName"]",
+                        template: '<a class="k-link" href="@Url.Action("EditAttribute", "InteractiveForm", new { area = Constants.AreaAdmin })/?formId=@(Model.Id)&aid=#=Id#">#=SystemName#</a>',
+                    }, {
+                        field: "Type",
+                        title: "@Loc["admin.marketing.InteractiveForms.Attribute.Fields.FormControlTypeId"]",
+                        width: 200
+                    },
+                    {
+                        command: {name: "destroy", text: "@Loc["Admin.Common.Delete"]"},
+                        title: "@Loc["Admin.Common.Delete"]",
+                        width: 100
+                    }]
+                });
+            });
+        </script>
+
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["admin.marketing.InteractiveForms.SaveBeforeEdit"]
+        </div>
+    }
+}

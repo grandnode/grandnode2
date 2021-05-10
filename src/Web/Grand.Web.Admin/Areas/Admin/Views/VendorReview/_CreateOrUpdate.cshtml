@@ -1,0 +1,74 @@
+﻿@model VendorReviewModel
+@using Grand.Infrastructure
+@inject IWorkContext workContext
+@Html.ValidationSummary(false)
+<input asp-for="Id" type="hidden" />
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="VendorName" />
+            <div class="col-md-9 col-sm-9">
+                <label class="control-label">@Html.ActionLink(Model.VendorName, "Edit", "Vendor", new { id = Model.VendorId }, new { })</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CustomerInfo" />
+            <div class="col-md-9 col-sm-9">
+                <label class="control-label">@Html.ActionLink(Model.CustomerInfo, "Edit", "Customer", new { id = Model.CustomerId }, new { })</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Title" />
+            <div class="col-md-9 col-sm-9">
+                @if (workContext.CurrentVendor == null)
+                {
+                    <admin-input asp-for="Title" />
+                    <span asp-validation-for="Title"></span>
+                }
+                else
+                {
+                    <span class="form-control">@Model.Title</span>
+                }
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ReviewText" />
+            <div class="col-md-9 col-sm-9">
+                @if (workContext.CurrentVendor == null)
+                {
+                    <admin-textarea asp-for="ReviewText" style="height: 100px;"></admin-textarea>
+                    <span asp-validation-for="ReviewText"></span>
+                }
+                else
+                {
+                    <span class="form-control">@Model.ReviewText</span>
+                }
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Rating" />
+            <div class="col-md-9 col-sm-9">
+                <label class="control-label">@Model.Rating</label>
+            </div>
+        </div>
+        @if (workContext.CurrentVendor == null)
+        {
+            <div class="form-group">
+                <admin-label asp-for="IsApproved" />
+                <div class="col-md-9 col-sm-9">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="IsApproved" />
+                         <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="IsApproved"></span>
+                </div>
+            </div>
+        }
+        <div class="form-group">
+            <admin-label asp-for="CreatedOn" />
+            <div class="col-md-9 col-sm-9">
+                <label class="control-label">@Model.CreatedOn)</label>
+            </div>
+        </div>
+    </div>
+</div>

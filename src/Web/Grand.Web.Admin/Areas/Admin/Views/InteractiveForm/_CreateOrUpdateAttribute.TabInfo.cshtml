@@ -1,0 +1,129 @@
+﻿@model InteractiveFormAttributeModel
+@using Microsoft.AspNetCore.Mvc.Razor;
+
+<script>
+$(document).ready(function () {
+            $("#@Html.IdFor(model => model.FormControlTypeId)").change(toggleAttributeControlType);
+
+            toggleAttributeControlType();
+
+            function toggleAttributeControlType() {
+                var selectedAttributeControlTypeId = $("#@Html.IdFor(model => model.FormControlTypeId)").val();
+                if (selectedAttributeControlTypeId == @(((int)Grand.Domain.Messages.FormControlType.TextBox).ToString())) {
+                    $('#pnlValidationMinLength').show();
+                    $('#pnlValidationMaxLength').show();
+                    $('#pnlDefaultValue').show();
+                    $('#pnlRegexValidation').show();
+                    $('#tab-values').hide();
+                } else if (selectedAttributeControlTypeId == @(((int)Grand.Domain.Messages.FormControlType.MultilineTextbox).ToString())) {
+                    $('#pnlValidationMinLength').show();
+                    $('#pnlValidationMaxLength').show();
+                    $('#pnlDefaultValue').show();
+                    $('#pnlRegexValidation').show();
+                    $('#tab-values').hide();
+                } else {
+                    $('#pnlValidationMinLength').hide();
+                    $('#pnlValidationMaxLength').hide();
+                    $('#pnlDefaultValue').hide();
+                    $('#pnlRegexValidation').hide();
+                    $('#tab-values').show();
+                }
+            }
+
+        });
+</script>
+
+@{ Func<int, HelperResult>
+        template = @<div class="form-body">
+    <div class="form-group">
+        <admin-label asp-for="@Model.Locales[item].Name" />
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="@Model.Locales[item].Name" />
+            <span asp-validation-for="@Model.Locales[item].Name"></span>
+        </div>
+    </div>
+    <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
+</div>;
+}
+
+<div class="form-horizontal">
+    <localized-editor localized-template=@template name="attribute-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+        <div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="Name" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Name" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+        </div>
+    </localized-editor>
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="SystemName" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="SystemName" />
+                <span asp-validation-for="SystemName"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Style" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Style" />
+                <span asp-validation-for="Style"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Class" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Class" />
+                <span asp-validation-for="Class"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="IsRequired" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsRequired" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsRequired"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="FormControlTypeId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="FormControlTypeId" asp-items="((Grand.Domain.Messages.FormControlType)Model.FormControlTypeId).ToSelectList(Context)" />
+                <span asp-validation-for="FormControlTypeId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlRegexValidation">
+            <admin-label asp-for="RegexValidation" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="RegexValidation" />
+                <span asp-validation-for="RegexValidation"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlValidationMinLength">
+            <admin-label asp-for="ValidationMinLength" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="ValidationMinLength" />
+                <span asp-validation-for="ValidationMinLength"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlValidationMaxLength">
+            <admin-label asp-for="ValidationMaxLength" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="ValidationMaxLength" />
+                <span asp-validation-for="ValidationMaxLength"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlDefaultValue">
+            <admin-label asp-for="DefaultValue" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DefaultValue" />
+                <span asp-validation-for="DefaultValue"></span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,100 @@
+﻿@model DiscountModel
+@{
+    if (!String.IsNullOrEmpty(Model.Id))
+    {
+
+<div class="panel panel-default">
+    <vc:admin-widget widget-zone="discount_details_applied_to_collections_top" additional-data="Model" />
+    <div class="panel-body">
+        <div id="collections-grid"></div>
+    </div>
+    <div class="panel-footer">
+        <button type="submit" id="btnAddNewCollection" onclick="javascript:OpenWindow('@(Url.Action("CollectionAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshCollections", formId = "discount-form", area = Constants.AreaAdmin }))', 800, 800, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToCollections.AddNew"]</button>
+        <input type="submit" id="btnRefreshCollections" style="display: none" />
+    </div>
+    <vc:admin-widget widget-zone="discount_details_applied_to_collections_bottom" additional-data="Model" />
+</div>
+        <script>
+            $(document).ready(function () {
+                $("#collections-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("CollectionList", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("CollectionDelete", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "CollectionId",
+                                fields: {
+                                    CollectionName: {editable: false, type: "string" },
+                                    CollectionId: {editable: false, type: "string" }
+                                }
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        numeric: false,
+                        previousNext: false,
+                        info: false
+                    },
+                    editable: {
+                        confirmation: false,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [{
+                        field: "CollectionName",
+                        title: "@Loc["admin.marketing.Discounts.AppliedToCollections.Collection"]",
+                        template: '<a class="k-link" href="@Url.Action("Edit", "Collection", new { area = Constants.AreaAdmin })/#=CollectionId#">#=kendo.htmlEncode(CollectionName)#</a>',
+                    }, {
+                        command: [{
+                            name: "destroy",
+                            text: "@Loc["Admin.Common.Delete"]"
+                        }],
+                        width: 150
+                    }]
+                });
+            });
+        </script>
+        <script>
+            $(document).ready(function () {
+                $('#btnRefreshCollections').click(function () {
+                    //refresh grid
+                    var grid = $("#collections-grid").data('kendoGrid');
+                    grid.dataSource.read();
+
+                    //return false to don't reload a page
+                    return false;
+                });
+            });
+        </script>
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["admin.marketing.Discounts.AppliedToCollections.SaveBeforeEdit"]
+        </div>
+    }
+}

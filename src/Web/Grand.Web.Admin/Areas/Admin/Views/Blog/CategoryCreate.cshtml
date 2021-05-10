@@ -1,0 +1,31 @@
+﻿@model BlogCategoryModel
+@{    
+    //page title
+    ViewBag.Title = Loc["Admin.Content.Blog.BlogCategory.AddNew"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Blog" asp-action="CategoryCreate" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-comment"></i>
+                        @Loc["Admin.Content.Blog.BlogCategory.AddNew"]
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Content.Blog.BlogCategory.BackToList"], "List")</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                        </div>
+                    </div>
+                </div>
+                <vc:admin-widget widget-zone="blog_category_buttons" additional-data="null" />
+                <div class="x_content form">
+                    <partial name="_CreateOrUpdateCategory" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

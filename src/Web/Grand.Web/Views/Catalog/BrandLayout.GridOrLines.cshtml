@@ -1,0 +1,86 @@
+﻿@model BrandModel
+@inject SeoSettings seoSettings
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Name);
+    pagebuilder.AddMetaDescriptionParts(Model.MetaDescription);
+    pagebuilder.AddMetaKeywordParts(Model.MetaKeywords);
+
+    var canonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
+    if (canonicalUrlsEnabled)
+    {
+        var collectionUrl = Url.RouteUrl("Brand", new { SeName = Model.SeName }, this.Url.ActionContext.HttpContext.Request.Scheme);
+        pagebuilder.AddCanonicalUrlParts(collectionUrl);
+    }
+}
+
+<div class="page brand-page">
+    <h1 class="generalTitle h2">@Model.Name</h1>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_top", additionalData = Model.Id })
+    @*Rendering description section*@
+    @if (!String.IsNullOrWhiteSpace(Model.Description))
+    {
+        <b-card no-body class="collection-description">
+            @Html.Raw(Model.Description)
+        </b-card>
+    }
+    @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_before_featured_products", additionalData = Model.Id })
+    @*Rendering featured products section*@
+    @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_after_featured_products", additionalData = Model.Id })
+    <div id="catalog-products">
+        @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_before_filters", additionalData = Model.Id })
+        <partial name="_Selectors" />
+        <template v-if="catalog.Model.Products.length > 0">
+            <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
+                <b-col cols="12" class="product-grid px-0">
+                    <b-form-row>
+                        <template v-for="Model in catalog.Model.Products">
+                            <b-col lg="4" sm="6" cols="6" class="product-container mb-2">
+                                <partial name="_CatalogProductViewVue" />
+                            </b-col>
+                        </template>
+                    </b-form-row>
+                </b-col>
+            </template>
+            <template v-else>
+                <div class="product-list">
+                    <b-col cols="12">
+                        <b-row>
+                            <template v-for="Model in catalog.Model.Products">
+                                <partial name="_CatalogProductListViewVue" />
+                            </template>
+                        </b-row>
+                    </b-col>
+                </div>
+            </template>
+            <partial name="_Pagination" />
+        </template>
+        <template v-else>
+            <b-alert variant="info" show class="my-3">
+                @Loc["search.noresultstext"]
+            </b-alert>
+        </template>
+    </div>
+
+    @*Rendering bottom description section*@
+    @if (!String.IsNullOrWhiteSpace(Model.BottomDescription))
+    {
+        <b-card no-body class="brand-description">
+            @Html.Raw(Model.BottomDescription)
+        </b-card>
+    }
+
+    @await Component.InvokeAsync("Widget", new { widgetZone = "branddetails_bottom", additionalData = Model.Id })
+</div>
+
+@section filters
+    {
+    @*Rendering filtering section*@
+    @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
+    {
+        <partial name="_Filtering" />
+    }
+}
+<partial name="_ModelScript" model="@Json.Serialize(Model)" />

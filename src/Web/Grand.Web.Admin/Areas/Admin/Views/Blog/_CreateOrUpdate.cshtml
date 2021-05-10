@@ -1,0 +1,54 @@
+﻿@model BlogPostModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input id="active-menu-item" type="hidden" value="/@Constants.AreaAdmin/Blog/List" />
+
+<admin-tabstrip name="blog-post-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Content.Blog.BlogPosts.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Common.SEO"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabSeo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Content.Blog.BlogPosts.Products"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabProducts" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Content.Blog.BlogPosts.Comments"]" tab-index="3">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabComments" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="4">
+            <content>
+                <div>
+                    @{
+                        ViewData["ObjectType"] = "BlogPost";
+                        ViewData["TabIndex"] = 4;
+                    }
+                    <partial name="_UserFields" model="Model" view-data="ViewData" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="blog_post_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>
+
+<link rel="stylesheet" type="text/css" asp-src="/_content/Grand.Web.Admin/administration/tagEditor/jquery.tag-editor.css" />
+<script asp-location="Footer" asp-src="/_content/Grand.Web.Admin/administration/tagEditor/jquery.tag-editor.min.js"></script>
+<script asp-location="Footer" asp-src="/_content/Grand.Web.Admin/administration/tagEditor/jquery.caret.min.js"></script>

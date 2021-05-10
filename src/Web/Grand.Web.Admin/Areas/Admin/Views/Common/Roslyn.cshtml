@@ -1,0 +1,84 @@
+﻿@model bool
+@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.System.Roslyn"];
+}
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title level-caption">
+                <div class="caption level-caption">
+                    <i class="fa fa-sitemap"></i>
+                    @Loc["Admin.System.Roslyn"]
+                </div>
+                <vc:admin-widget widget-zone="roslyn_buttons" additional-data="null" />
+            </div>
+            @if (!Model)
+            {
+                <div class="note note-success">
+                    @Loc["Admin.System.Roslyn.Disabled"]
+                </div>
+            }
+            <div class="x_content">
+                <vc:admin-widget widget-zone="roslyn_top" additional-data="null" />
+                <div id="roslyn-grid"></div>
+                <vc:admin-widget widget-zone="roslyn_bottom" additional-data="null" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#roslyn-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("Roslyn", "Common", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            scrollable: false,
+            columns: [{
+                field: "FileName",
+                title: "@Loc["Admin.System.Roslyn.FileName"]",
+                width: 100,
+            },{
+                field: "IsCompiled",
+                title: "@Loc["Admin.System.Roslyn.IsCompiled"]",
+                width: 50,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(IsCompiled) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            }, {
+                field: "Errors",
+                title: "@Loc["Admin.System.Roslyn.Errors"]",
+                width: 500
+            }]
+        });
+    });
+</script>

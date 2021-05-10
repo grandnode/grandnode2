@@ -1,0 +1,82 @@
+﻿@model ContactFormModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.System.ContactForm.Details"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="ContactForm" asp-action="Details" method="post">
+    
+    <input asp-for="Id" type="hidden" />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-envelope-o"></i>
+                        @Loc["Admin.System.ContactForm.Details"]
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.System.ContactForm.BackToList"], "List")</small>
+                    </div>
+                    <div class="actions">
+                        <span id="contactform-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <vc:admin-widget widget-zone="contact_form_details_top" additional-data="Model" />
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <admin-label asp-for="CreatedOn" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="control-label">@Model.CreatedOn</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="Email" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="control-label" style="text-align:left">@Model.FullName - @Model.Email</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="Subject" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="control-label" style="text-align:left">@Model.Subject</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="Enquiry" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="control-label" style="text-align:left">@Html.Raw(Model.Enquiry)</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="ContactAttributeDescription" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="control-label" style="text-align:left">@Html.Raw(Model.ContactAttributeDescription)</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="IpAddress" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="control-label">@Model.IpAddress</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="Store" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="control-label">@Model.Store</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="EmailAccountName" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="control-label">@Model.EmailAccountName</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <vc:admin-widget widget-zone="contact_form_details_bottom" additional-data="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<admin-delete-confirmation button-id="contactform-delete"/>

@@ -1,0 +1,24 @@
+﻿@model CountryModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<admin-tabstrip name="country-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Configuration.Countries.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Configuration.Countries.States"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabStates" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="country_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

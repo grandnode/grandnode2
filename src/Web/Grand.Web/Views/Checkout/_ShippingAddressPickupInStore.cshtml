@@ -1,0 +1,86 @@
+﻿@model CheckoutShippingAddressModel
+@using System.Text
+
+@if (Model.AllowPickUpInStore && !Model.PickUpInStoreOnly && Model.PickupPoints.Any())
+{
+    <div class="section pickup-in-store">
+        <p class="selector">
+            <label class="custom-control custom-checkbox">
+                <input asp-for="PickUpInStore" class="custom-control-input" onclick="vmorder.vShipping.togglePickUpInStore(this)" />
+                <span class="custom-control-label"></span>
+                <span class="custom-control-description" for="@Html.IdFor(model => model.PickUpInStore)">
+                    @Loc["Checkout.PickupPoints"]
+                </span>
+            </label>
+        </p>
+        <p class="description">
+            <i>@Loc["Checkout.PickupPoints.Description"]</i>
+        </p>
+    </div>
+}
+
+@if (Model.AllowPickUpInStore)
+{
+    <div class="pickup-points" id="pickup-points-form">
+        @if (Model.PickupPoints.Any())
+        {
+            if (Model.PickUpInStoreOnly)
+            {
+                <input asp-for="PickUpInStore" type="hidden" />
+            }
+            <div class="section select-pickup-points">
+                @if (Model.PickupPoints.Count == 1)
+                {
+                    var point = Model.PickupPoints.First();
+                    @Html.Hidden("pickup-point-id", point.Id)
+                    <div class="section single-pickup-point">
+                        <ul>
+                            <li class="single-pickup-point name">@point.Name</li>
+                            <li class="single-pickup-point address">@(string.Format("{0} {1} {2}", point.Address.City, point.Address.ZipPostalCode, point.Address.Address1))</li>
+                            @if (!string.IsNullOrEmpty(point.PickupFee))
+                            {
+                                <li class="single-pickup-point fee">@point.PickupFee</li>
+                            }
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <label for="pickup-points-select">@Loc["Checkout.PickupPoints.SelectPickupPoint"]</label>
+                    <select name="pickup-point-id" id="pickup-points-select" class="custom-select address-select" title="">
+                        @foreach (var point in Model.PickupPoints)
+                        {
+                            var addressLine = new StringBuilder();
+                            addressLine.Append(point.Name);
+                            if (!string.IsNullOrEmpty(point.Address.City))
+                            {
+                                addressLine.AppendFormat(", {0}", point.Address.City);
+                            }
+                            if (!string.IsNullOrEmpty(point.Address.ZipPostalCode))
+                            {
+                                addressLine.AppendFormat(", {0}", point.Address.ZipPostalCode);
+                            }
+                            if (!string.IsNullOrEmpty(point.Address.Address1))
+                            {
+                                addressLine.AppendFormat(", {0}", point.Address.Address1);
+                            }
+                            if (!string.IsNullOrEmpty(point.PickupFee))
+                            {
+                                addressLine.AppendFormat(", {0}", point.PickupFee);
+                            }
+                            <option value="@point.Id">@(addressLine)</option>
+                        }
+                    </select>
+                }
+            </div>
+        }
+        <div class="section message-error">
+            <ul>
+                @foreach (var warning in Model.Warnings)
+                {
+                    <li>@warning</li>
+                }
+            </ul>
+        </div>
+    </div>
+}

@@ -1,0 +1,199 @@
+﻿@model OrderModel
+<div class="panel panel-default">
+    <vc:admin-widget widget-zone="order_details_notes_top" additional-data="Model" />
+    <div class="panel-body">
+        <div id="ordernotes-grid"></div>
+    </div>
+    <vc:admin-widget widget-zone="order_details_notes_bottom" additional-data="Model" />
+</div>
+<script>
+        $(document).ready(function () {
+            $("#ordernotes-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("OrderNotesSelect", "Order", new { orderId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("OrderNoteDelete", "Order", new { orderId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                //do not implicitly specify all fields
+                                //we do it only for fields which implicitly require it
+                                //otherwise, they'll be formatted wrong way
+                                CreatedOn: {type: "date" }
+                            }
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "CreatedOn",
+                    title: "@Loc["Admin.Orders.OrderNotes.Fields.CreatedOn"]",
+                    width: 180,
+                    type: "date",
+                    format: "{0:G}"
+                }, {
+                    field: "Note",
+                    title: "@Loc["Admin.Orders.OrderNotes.Fields.Note"]",
+                    width: 350,
+                    encoded: false
+                }, {
+                    field: "DownloadId",
+                    title: "@Loc["Admin.Orders.OrderNotes.Fields.Download"]",
+                    width: 100,
+                    template: '# if(DownloadId != "") {# <a href="@Url.Action("DownloadFile", "Download", new { area = Constants.AreaAdmin })/?downloadGuid=#=DownloadGuid#">@Loc["Admin.Orders.OrderNotes.Fields.Download.Link"]</a> #} else {# @Loc["Admin.Orders.OrderNotes.Fields.Download.Link.No"] #} #'
+                }, {
+                    field: "CreatedByCustomer",
+                    title: "@Loc["Admin.Orders.OrderNotes.Fields.CreatedByCustomer"]",
+                    width: 100,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(CreatedByCustomer) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                }, {
+                    field: "DisplayToCustomer",
+                    title: "@Loc["Admin.Orders.OrderNotes.Fields.DisplayToCustomer"]",
+                    width: 100,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(DisplayToCustomer) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                }, {
+                    command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                    title: "@Loc["Admin.Common.Delete"]",
+                    width: 100
+                }]
+            });
+        });
+</script>
+<p>
+    <strong>
+        @Loc["Admin.Orders.OrderNotes.AddTitle"]
+    </strong>
+</p>
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.AddOrderNoteHasDownload)").change(toggleAddOrderNoteHasDownload);
+        toggleAddOrderNoteHasDownload();
+    });
+    function toggleAddOrderNoteHasDownload() {
+        if ($('#@Html.IdFor(model => model.AddOrderNoteHasDownload)').is(':checked')) {
+            $('#pnlAddOrderNoteDownloadId').show();
+        }
+        else {
+            $('#pnlAddOrderNoteDownloadId').hide();
+        }
+    }
+
+</script>
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="AddOrderNoteMessage" />
+            <div class="col-md-9 col-sm-9">
+                <admin-textarea asp-for="AddOrderNoteMessage"></admin-textarea>
+                <span asp-validation-for="AddOrderNoteMessage"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AddOrderNoteDownloadId" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="AddOrderNoteHasDownload" />
+                     <div class="control__indicator"></div>
+                </label>
+                <div id="pnlAddOrderNoteDownloadId">
+                    <admin-input asp-for="AddOrderNoteDownloadId" />
+                    <span asp-validation-for="AddOrderNoteDownloadId"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AddOrderNoteDisplayToCustomer" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="AddOrderNoteDisplayToCustomer" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="AddOrderNoteDisplayToCustomer"></span>
+            </div>
+        </div>
+        <div class="form-actions">
+            <div class="offset-md-3 col-md-9 col-sm-9">
+                <button type="button" id="addOrderNote" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Orders.OrderNotes.AddButton"]</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#addOrderNote').click(function () {
+            var orderNoteMessage = $("#@Html.IdFor(model => model.AddOrderNoteMessage)").val();
+            if (orderNoteMessage.length == 0) {
+                alert('Message text is required');
+                return;
+            }
+            var orderNoteDownloadId = '';
+            if ($('#@Html.IdFor(model => model.AddOrderNoteHasDownload)').is(':checked')) {
+                orderNoteDownloadId = $("#@Html.IdFor(model => model.AddOrderNoteDownloadId)").val();
+            }
+            var orderNoteDisplayToCustomer = $("#@Html.IdFor(model => model.AddOrderNoteDisplayToCustomer)").is(':checked');
+            $('#addOrderNote').attr('disabled', true);
+            var postData = {
+                DisplayToCustomer: orderNoteDisplayToCustomer,
+                message: orderNoteMessage,
+                downloadId: orderNoteDownloadId,
+                orderId: '@Model.Id'
+            };
+            addAntiForgeryToken(postData);
+
+            $.ajax({
+                cache:false,
+                type: "POST",
+                url: "@(Url.Action("OrderNoteAdd", "Order", new { area = Constants.AreaAdmin }))",
+                data: postData,
+                success: function (data) {
+                    var grid = $("#ordernotes-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                    $('#addOrderNote').attr('disabled', false);
+                },
+                error:function (xhr, ajaxOptions, thrownError){
+                    alert('Failed to add order note.');
+                    $('#addOrderNote').attr('disabled', false);
+                }
+            });
+        });
+    });
+</script>

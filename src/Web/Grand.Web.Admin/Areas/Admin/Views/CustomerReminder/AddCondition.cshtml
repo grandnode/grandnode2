@@ -1,0 +1,33 @@
+﻿@model CustomerReminderModel.ConditionModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Customers.CustomerReminder.AddCondition"];
+}
+
+<form asp-area="@Constants.AreaAdmin" asp-controller="CustomerReminder" 
+      asp-action="AddCondition" method="post" id="customer-reminder-condition-form"
+      asp-route-CustomerReminderId="@Context.Request.Query["CustomerReminderId"]">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-sitemap"></i>
+                        @Loc["Admin.Customers.CustomerReminder.AddCondition"] - @Model.Name 
+                        <small>@Html.ActionLink("(" + Loc["Admin.Customers.CustomerReminder.BackToAction"] + ")", "Edit", new { Id = Model.CustomerReminderId })</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                   <partial name="_CreateOrUpdateCondition" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,120 @@
+﻿@model CheckoutAttributeModel
+<vc:admin-widget widget-zone="checkout_attribute_details_values_top" additional-data="Model" />
+@{
+
+    if (!String.IsNullOrEmpty(Model.Id))
+    {
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="checkoutattributevalues-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <button type="submit" id="btnAddNewValue" onclick="javascript:OpenWindow('@(Url.Action("ValueCreatePopup", "CheckoutAttribute", new { checkoutAttributeId = Model.Id, btnId = "btnRefresh", formId = "checkoutattribute-form", area = Constants.AreaAdmin }))', 800, 350, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Orders.CheckoutAttributes.Values.AddNew"]</button>
+                <input type="submit" id="btnRefresh" style="display: none" />
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                $("#checkoutattributevalues-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("ValueList", "CheckoutAttribute", new { checkoutAttributeId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("ValueDelete", "CheckoutAttribute", new { area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "Id"
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        numeric: false,
+                        previousNext: false,
+                        info: false
+                    },
+                    editable: {
+                        confirmation: true,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [{
+                        field: "Name",
+                        title: "@Loc["Admin.Orders.CheckoutAttributes.Values.Fields.Name"]",
+                        template: "<a class='k-link' onclick=\"javascript:OpenWindow('@Url.Action("ValueEditPopup", "CheckoutAttribute", new { area = Constants.AreaAdmin })/#=Id#?checkoutAttributeId=@Model.Id&btnId=btnRefresh&formId=checkoutattribute-form', 800, 350, true); return false;\">#=kendo.htmlEncode(Name)#</a>"
+                    }, {
+                        field: "PriceAdjustment",
+                        title: "@Loc["Admin.Orders.CheckoutAttributes.Values.Fields.PriceAdjustment"]",
+                        width: 150,
+                        minScreenWidth: 750,
+                    }, {
+                        field: "WeightAdjustment",
+                        title: "@Loc["Admin.Orders.CheckoutAttributes.Values.Fields.WeightAdjustment"]",
+                        width: 150,
+                        minScreenWidth: 750,
+                    }, {
+                        field: "IsPreSelected",
+                        title: "@Loc["Admin.Orders.CheckoutAttributes.Values.Fields.IsPreSelected"]",
+                        width: 100,
+                        minScreenWidth: 500,
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        template: '# if(IsPreSelected) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                    }, {
+                        field: "DisplayOrder",
+                        title: "@Loc["Admin.Orders.CheckoutAttributes.Values.Fields.DisplayOrder"]",
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        width: 100
+                    }, {
+                        command: {name: "destroy", text: "@Loc["Admin.Common.Delete"]"},
+                        title: "@Loc["Admin.Common.Delete"]",
+                        width: 100
+                    }]
+                });
+            });
+        </script>
+        <script>
+            $(document).ready(function () {
+                $('#btnRefresh').click(function () {
+                    //refresh grid
+                    var grid = $("#checkoutattributevalues-grid").data('kendoGrid');
+                    grid.dataSource.read();
+
+                    //return false to don't reload a page
+                    return false;
+                });
+            });
+        </script>
+
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["Admin.Orders.CheckoutAttributes.Values.SaveBeforeEdit"]
+        </div>
+    }
+}
+<vc:admin-widget widget-zone="checkout_attribute_details_values_bottom" additional-data="Model" />

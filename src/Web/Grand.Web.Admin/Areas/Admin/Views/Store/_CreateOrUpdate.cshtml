@@ -1,0 +1,186 @@
+﻿@model StoreModel
+@using Microsoft.AspNetCore.Mvc.Razor;
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<script>
+    $(document).ready(function () {
+
+        $("#@Html.IdFor(model => model.SslEnabled)").click(toggleSslEnabled);
+
+        toggleSslEnabled();
+    });
+
+    function toggleSslEnabled() {
+        if ($('#@Html.IdFor(model => model.SslEnabled)').is(':checked')) {
+            $('#pnlSecureUrl').show();
+        }
+        else {
+            $('#pnlSecureUrl').hide();
+        }
+    }
+</script>
+<vc:admin-widget widget-zone="store_details_top" additional-data="Model" />
+
+@{ Func<int, HelperResult>
+         template = @<div class="form-body">
+    <div class="form-group">
+        <admin-label asp-for="@Model.Locales[item].Name" />
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="@Model.Locales[item].Name" />
+            <span asp-validation-for="@Model.Locales[item].Name"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <admin-label asp-for="@Model.Locales[item].Shortcut" />
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="@Model.Locales[item].Shortcut" />
+            <span asp-validation-for="@Model.Locales[item].Shortcut"></span>
+        </div>
+    </div>
+    <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
+</div>;
+}
+<div class="form-horizontal">
+    <localized-editor localized-template=@template name="store-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+        <div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="Name" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Name" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="Shortcut" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Shortcut" />
+                    <span asp-validation-for="Shortcut"></span>
+                </div>
+            </div>
+        </div>
+    </localized-editor>
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="Url" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Url" />
+                <span asp-validation-for="Url"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="SslEnabled" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SslEnabled" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SslEnabled"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="note note-info">
+                <em>@Loc["Admin.Configuration.Stores.Fields.SslEnabled.Hint2"]</em>
+            </div>
+        </div>
+        <div class="form-group" id="pnlSecureUrl">
+            <admin-label asp-for="SecureUrl" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="SecureUrl" />
+                <span asp-validation-for="SecureUrl"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Hosts" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Hosts" />
+                <span asp-validation-for="Hosts"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DefaultAdminTheme " />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DefaultAdminTheme " />
+                <span asp-validation-for="DefaultAdminTheme "></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DefaultLanguageId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="DefaultLanguageId" asp-items="Model.AvailableLanguages" />
+                <span asp-validation-for="DefaultLanguageId"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisplayOrder" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrder" />
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CompanyName" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="CompanyName" />
+                <span asp-validation-for="CompanyName"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CompanyAddress" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="CompanyAddress" />
+                <span asp-validation-for="CompanyAddress"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CompanyPhoneNumber" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="CompanyPhoneNumber" />
+                <span asp-validation-for="CompanyPhoneNumber"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CompanyVat" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="CompanyVat" />
+                <span asp-validation-for="CompanyVat"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CompanyEmail" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="CompanyEmail" />
+                <span asp-validation-for="CompanyEmail"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CompanyHours" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="CompanyHours" />
+                <span asp-validation-for="CompanyHours"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DefaultWarehouseId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="DefaultWarehouseId" asp-items="Model.AvailableWarehouses" />
+                <span asp-validation-for="DefaultWarehouseId"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DefaultCountryId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="DefaultCountryId" asp-items="Model.AvailableCountries" />
+                <span asp-validation-for="DefaultCountryId"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DefaultCurrencyId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="DefaultCurrencyId" asp-items="Model.AvailableCurrencies" />
+                <span asp-validation-for="DefaultCurrencyId"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<vc:admin-widget widget-zone="store_details_bottom" additional-data="Model" />

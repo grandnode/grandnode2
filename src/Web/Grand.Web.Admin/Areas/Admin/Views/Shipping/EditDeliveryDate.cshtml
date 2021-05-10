@@ -1,0 +1,33 @@
+﻿@model DeliveryDateModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Configuration.Shipping.DeliveryDates.EditDeliveryDateDetails"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Shipping" asp-action="EditDeliveryDate" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-list-alt"></i>
+                        @Loc["Admin.Configuration.Shipping.DeliveryDates.EditDeliveryDateDetails"] - @Model.Name
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Configuration.Shipping.DeliveryDates.BackToList"], "DeliveryDates")</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                            <span id="delivery-date-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
+                            <vc:admin-widget widget-zone="delivery_date_details_buttons" additional-data="Model" />
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                   <partial name="_CreateOrUpdateDeliveryDate" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<admin-delete-confirmation button-id="delivery-date-delete" action-name="DeleteDeliveryDate" />

@@ -1,0 +1,39 @@
+﻿<div v-if="vmorder.Confirm" class="checkout-data order-summary-content col-12 px-0">
+    @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_confirm_top" })
+    <div class="order-summary mb-3">
+        <partial name="_ReviewData" model="null" />
+    </div>
+    <div class="confirm-order">
+        <div v-if="vmorder.MinOrderTotalWarning !== null">
+            <div class="alert alert-danger my-3">
+                {{vmorder.MinOrderTotalWarning}}
+            </div>
+        </div>
+        <div v-if="vmorder.ConfirmWarnings !== 'undefined' && vmorder.ConfirmWarnings.length > 0" class="alert alert-danger my-3">
+            <template v-for="warning in vmorder.ConfirmWarnings">
+                <span>{{warning}}</span>
+            </template>
+        </div>
+    </div>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_confirm_bottom" })
+    <div class="confirm-buttons">
+        <template v-if="vmorder.MinOrderTotalWarning == null && vmorder.cart.TermsOfServiceOnOrderConfirmPage">
+            <div class="w-100 mb-3">
+                <b-form-checkbox id="TermsOfService"
+                                 v-model="vmorder.terms"
+                                 name="TermsOfService">
+                    @Loc["Checkout.TermsOfService.PleaseAccept"] <a href="@Url.RouteUrl("Page", new { SeName = PageSeNameConstants.Conditionsofuse })" target="_blank">@Loc["Checkout.TermsOfService.Read"]</a>
+                </b-form-checkbox>
+                <b-alert variant="info" class="my-2" :show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</b-alert>
+            </div>
+            <b-button id="new-back-confirm_order">@Loc["Common.Back"]</b-button>
+            <b-button variant="info" @@click="vmorder.termsCheck()">
+                @Loc["Common.Confirm"]
+            </b-button>
+        </template>
+        <template v-else>
+            <b-button id="new-back-confirm_order">@Loc["Common.Back"]</b-button>
+            <input type="button" class="btn btn-info confirm-order-next-step-button" onclick="vmorder.vConfirmOrder.save()" value="@Loc["Common.Confirm"]" />
+        </template>
+    </div>
+</div>

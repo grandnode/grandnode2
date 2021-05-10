@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
+    <Company>UNIT-SOFT Sp. z o.o.</Company>
+    <Authors>UNIT-SOFT Sp. z o.o.</Authors>
+    <Product>grandnode</Product>
+    <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="5.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.5" />
+    <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="5.0.1" />
+    <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.2.22" />
+    <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" Version="0.13.0" />
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
+    <PackageReference Include="Wangkanai.Detection" Version="3.0.0" />
+    <PackageReference Include="WebEssentials.AspNetCore.PWA" Version="1.0.65" />
+    <PackageReference Include="WebMarkupMin.AspNetCore5" Version="2.9.2" />
+    <PackageReference Include="WebMarkupMin.Core" Version="2.9.0" />
+    <PackageReference Include="WebMarkupMin.NUglify" Version="2.9.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Business\Grand.Business.Authentication\Grand.Business.Authentication.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Cms\Grand.Business.Cms.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Common\Grand.Business.Common.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Customers\Grand.Business.Customers.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Storage\Grand.Business.Storage.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.System\Grand.Business.System.csproj" />
+    <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

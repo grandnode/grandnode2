@@ -1,0 +1,91 @@
+﻿@model EmailAccountModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<div class="form-horizontal">
+    <vc:admin-widget widget-zone="email_account_details_top" additional-data="Model" />
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="Email" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Email" />
+                <span asp-validation-for="Email"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisplayName" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayName" />
+                <span asp-validation-for="DisplayName"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Host" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Host" />
+                <span asp-validation-for="Host"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Port" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Port" />
+                <span asp-validation-for="Port"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Username" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Username" />
+                <span asp-validation-for="Username"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Password" />
+            <div class="col-md-9 col-sm-9">
+                <div class="input-group">
+                    <div class="input-icon">
+                        <i class="fa fa-lock fa-fw"></i>
+                        <admin-input asp-for="Password" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="UseServerCertificateValidation" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="UseServerCertificateValidation" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="UseServerCertificateValidation"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="SecureSocketOptionsId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="SecureSocketOptionsId" asp-items="((MailKit.Security.SecureSocketOptions)Model.SecureSocketOptionsId).ToSelectList(Context)" />
+            </div>
+        </div>
+        @if (!String.IsNullOrEmpty(Model.Id))
+        {
+            <div class="form-group">
+                <div class="note note-info">
+                    @Loc["Admin.Configuration.EmailAccounts.SendTestEmail"]
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="SendTestEmailTo" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="SendTestEmailTo" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-9 col-sm-9 offset-md-3">
+                    <input type="submit" name="sendtestemail" asp-action="SendTestEmail" class="k-button" value="@Loc["Admin.Configuration.EmailAccounts.SendTestEmail.Button"]" />
+                </div>
+            </div>
+        }
+    </div>
+    <vc:admin-widget widget-zone="email_account_details_bottom" additional-data="Model" />
+</div>

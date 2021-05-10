@@ -1,0 +1,151 @@
+﻿@model CustomerModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+<div class="panel panel-default">
+    <vc:admin-widget widget-zone="customer_details_orders_top" additional-data="Model" />
+    <div class="panel-body">
+        <div id="order-grid"></div>
+    </div>
+    <vc:admin-widget widget-zone="customer_details_orders_bottom" additional-data="Model" />
+</div>
+<script>
+        $(document).ready(function () {
+            $("#order-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("OrderList", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                //details grid
+                detailInit: detailInit,
+                scrollable: false,
+                columns: [{
+                    field: "OrderNumber",
+                    title: "@Loc["Admin.Customers.Customers.Orders.ID"]",
+                    width: 90,
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=Id#">#=OrderNumber#</a>'
+                }, {
+                    field: "OrderTotal",
+                    title: "@Loc["Admin.Customers.Customers.Orders.OrderTotal"]",
+                    width: 120,
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=Id#">#=OrderTotal#</a>'
+                }, {
+                    field: "OrderStatus",
+                    title: "@Loc["Admin.Customers.Customers.Orders.OrderStatus"]",
+                    width: 160,
+                    template: '<h4><span class="label label-' +
+                            '# if(OrderStatusId == 10) {#warning #} #' +
+                            '# if(OrderStatusId == 20) {#info #} #' +
+                            '# if(OrderStatusId == 25) {#info #} #' +
+                            '# if(OrderStatusId == 30) {#success #} #' +
+                            '# if(OrderStatusId == 40) {#danger #} #' +
+                            '">#=OrderStatus#</span></h4>'
+                }, {
+                    field: "PaymentStatus",
+                    title: "@Loc["Admin.Customers.Customers.Orders.PaymentStatus"]",
+                    width: 180
+                }, {
+                    field: "ShippingStatus",
+                    title: "@Loc["Admin.Customers.Customers.Orders.ShippingStatus"]",
+                    width: 180
+                }, {
+                    field: "StoreName",
+                    title: "@Loc["Admin.Customers.Customers.Orders.Store"]",
+                    width: 200
+                }, {
+                    field: "CreatedOn",
+                    title: "@Loc["Admin.System.Log.Fields.CreatedOn"]",
+                    width: 220,
+                    type: "date",
+                    format: "{0:G}"
+                }]
+            });
+        });
+        //details grid
+        function detailInit(e) {
+            $("<div/>").appendTo(e.detailCell).kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("OrderDetails", "Customer", new { area = Constants.AreaAdmin }))?orderId="+e.data.Id,
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                scrollable: false,
+                sortable: false,
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                columns: [
+                    {
+                        field: "ProductName",
+                        title: "@Loc["Admin.Orders.Products.ProductName"]",
+                        width: 400,
+                        template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#">#=ProductName#</a>'
+                    },
+                    {
+                        field: "Quantity",
+                        title: "@Loc["Admin.Orders.Products.Quantity"]",
+                        width: 100
+                    },
+                    {
+                        field: "UnitPriceInclTax",
+                        title: "@Loc["Admin.Orders.Products.Price"]",
+                        width: 200
+                    },
+                    {
+                        field: "SubTotalInclTax",
+                        title: "@Loc["Admin.Orders.Products.Total"]",
+                        width: 200
+                    }
+                ]
+            });
+        }
+</script>
+}

@@ -1,0 +1,144 @@
+﻿@model String
+@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@using Grand.SharedKernel.Extensions
+@using Grand.Business.Common.Services.Security
+@{
+    var allowRoxyFileman = await permissionService.Authorize(StandardPermission.HtmlEditorManagePictures);
+    var random = CommonHelper.GenerateRandomInteger();
+    var param = string.IsNullOrEmpty(CommonPath.Param) ? "" : $"/{CommonPath.Param}";
+}
+<style>
+    
+</style>
+<script>
+    $(document).ready(function () {
+        var FileRoxy = function (context) {
+            var ui = $.summernote.ui;
+
+            // create button
+            var button = ui.button({
+                contents: '<i class="note-icon-summernote"/>',
+                tooltip: 'File',
+                click: function () {
+                    $('#m-@(random)-RoxyModal').attr('data-type', 'file');
+                    $('#m-@(random)-RoxyModal').modal('show');
+                    $('#s-@(random)-summernote').addClass('active');
+                }
+            });
+
+            return button.render();   // return button as jquery object
+        }
+        var VideoRoxy = function (context) {
+            var ui = $.summernote.ui;
+
+            // create button
+            var button = ui.button({
+                contents: '<i class="note-icon-video"/>',
+                tooltip: 'Video',
+                click: function () {
+                    $('#m-@(random)-RoxyModal').attr('data-type', 'media');
+                    $('#m-@(random)-RoxyModal').modal('show');
+                    $('#s-@(random)-summernote').addClass('active');
+                }
+            });
+
+            return button.render();   // return button as jquery object
+        }
+        var ImageRoxy = function (context) {
+            var ui = $.summernote.ui;
+
+            // create button
+            var button = ui.button({
+                contents: '<i class="note-icon-picture"/>',
+                tooltip: 'Picture',
+                click: function () {
+                    $('#m-@(random)-RoxyModal').attr('data-type', 'image');
+                    $('#m-@(random)-RoxyModal').modal('show');
+                    $('#s-@(random)-summernote').addClass('active');
+                }
+            });
+
+            return button.render();   // return button as jquery object
+        }
+        $('#s-@(random)-summernote').summernote({
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['fontname', ['fontname']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link'@if (allowRoxyFileman) {<text>, 'fileRoxy', 'videoRoxy','pictureRoxy'</text> }]],
+                ['view', ['fullscreen', 'codeview', 'help']],
+            ],
+            buttons: {
+                fileRoxy: FileRoxy,
+                videoRoxy: VideoRoxy,
+                pictureRoxy: ImageRoxy,
+            },
+            callbacks: {
+                    onChange: function (contents) {
+                            var textarea = this.nextSibling.nextElementSibling;
+                            textarea.value = contents;
+                        },
+            },
+        });
+        $('#m-@(random)-RoxyModal').on('show.bs.modal', function (event) {
+            $('#m-@(random)-RoxyModal').addClass('active');
+            var type = $('#m-@(random)-RoxyModal').attr('data-type');
+            var src = "@Url.Content("/_content/Grand.Web.Admin/administration/roxy_fileman/index.html")";
+            src += "?type=" + type;
+            var iframe = document.createElement('iframe');
+            $('#m-@(random)-RoxyModal .modal-body').append(iframe);
+            iframe.src = src;
+        })
+        $('#m-@(random)-RoxyModal').on('hide.bs.modal', function (event) {
+            $('#m-@(random)-RoxyModal').removeClass('active');
+            var src = $('#s-@(random)-summernote.summernote.active').attr('data-file');
+            src = src.replace('/assets/images/uploaded/uploaded/', '@param/assets/images/uploaded/');
+            if (src !== "null") {
+                if ($('#m-@(random)-RoxyModal').attr("data-type") == "media") {
+                    var node = document.createElement('iframe');
+                    node.src = src;
+                    $('#s-@(random)-summernote.summernote.active').summernote('insertNode', node);
+                }
+                if ($('#m-@(random)-RoxyModal').attr("data-type") == "image") {
+                    $('#s-@(random)-summernote.summernote.active').summernote('insertImage', src);
+                }
+                if ($('#m-@(random)-RoxyModal').attr("data-type") == "file") {
+                    $('#s-@(random)-summernote.summernote.active').summernote('createLink', {
+                        text: $('#s-@(random)-summernote.summernote.active').attr('data-name'),
+                        url: src,
+                        isNewWindow: false
+                    });
+                }
+            }
+        });
+        $('#m-@(random)-RoxyModal').on('hidden.bs.modal', function (event) {
+            document.getElementById('s-@(random)-summernote').dataset.file = 'null';
+            document.getElementById('s-@(random)-summernote').dataset.format = 'null';
+            document.getElementById('s-@(random)-summernote').classList.remove('active');
+            document.querySelector('#m-@(random)-RoxyModal .modal-body').innerHTML = "";
+        });
+    });
+</script>
+<div id="s-@(random)-summernote" class="summernote" data-name="null" data-file="null" data-format="null">
+    @Html.Raw(ViewData.TemplateInfo.FormattedModelValue)
+</div>
+@Html.TextArea(string.Empty, /* Name suffix */
+    ViewData.TemplateInfo.FormattedModelValue /* Initial value */
+)
+<div class="modal fade roxy-modal" id="m-@(random)-RoxyModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header d-flex align-items-center px-2 py-1">
+                <h2>Roxy Fileman</h2>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-2">
+            </div>
+        </div>
+    </div>
+</div>

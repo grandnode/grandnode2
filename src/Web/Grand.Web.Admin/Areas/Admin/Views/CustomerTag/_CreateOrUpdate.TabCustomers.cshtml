@@ -1,0 +1,79 @@
+﻿@model CustomerTagModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+
+    if (String.IsNullOrEmpty(Model.Id))
+    {
+        <div class="note note-info">
+            @Loc["Admin.Customers.CustomerTags.Customers.SaveBeforeEdit"]
+        </div>
+    }
+    if (!String.IsNullOrEmpty(Model.Id))
+    {
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="customers-grid"></div>
+            </div>
+        </div>
+        <script>
+            $(document).ready(function () {
+                $("#customers-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("Customers", "CustomerTag", new {customerTagId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("CustomerDelete", "CustomerTag", new { customerTagId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "Id",
+                            }
+                        },
+                        error: function (e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                    },
+                    editable: {
+                        confirmation: false,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [
+                    {
+                        field: "Email",
+                        title: "@Loc["Admin.Customers.CustomerTags.Fields.Email"]",
+                        width: 300,
+                            template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/#=Id#">#=Email#</a>',
+                    },
+                    {
+                        command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                        title: "@Loc["Admin.Common.Delete"]",
+                        width: 100
+                    }]
+                });
+            });
+        </script>
+    }
+}

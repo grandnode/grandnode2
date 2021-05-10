@@ -1,0 +1,110 @@
+﻿@model CustomerModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+<strong>@Html.Raw(Loc["Admin.Customers.Customers.PersonalizedProduct"])</strong>
+<div class="panel panel-default">
+    <vc:admin-widget widget-zone="customer_details_product_top" additional-data="Model" />
+    <div class="panel-body">
+        <div id="personalizedproduct-grid"></div>
+    </div>
+    <div class="panel-footer">
+        <button type="submit" id="btnAddNewPersonalizedProduct" onclick="javascript:OpenWindow('@(Url.Action("ProductAddPopup", "Customer", new { customerId = Model.Id, btnId = "btnRefreshPersonalizedProducts", formId = "customer-form", personalized = "true", area = Constants.AreaAdmin }))', 1000, 1000, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.Customers.PersonalizedProduct.AddNew"]</button>
+        <input type="submit" id="btnRefreshPersonalizedProducts" style="display: none" />
+    </div>
+    <vc:admin-widget widget-zone="customer_details_product_bottom" additional-data="Model" />
+</div>
+<script>
+        $(document).ready(function () {
+            $("#personalizedproduct-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("PersonalizedProducts", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        update: {
+                            url:"@Html.Raw(Url.Action("UpdatePersonalizedProduct", "Customer", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("DeletePersonalizedProduct", "Customer", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                ProductName: {editable: false, type: "string" },
+                                DisplayOrder: {editable: true, type: "number", format:"{0:n2}" },
+                            }
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "ProductName",
+                    title: "@Loc["Admin.Customers.Customers.PersonalizedProduct.ProductName"]",
+                    width: 300,
+                    template: '<a href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#" target="_blank">#=kendo.htmlEncode(ProductName)#</a>'
+                }, {
+                    field: "DisplayOrder",
+                    title: "@Loc["Admin.Customers.Customers.PersonalizedProduct.DisplayOrder"]",
+                    width: 100,
+                    type: "number",
+
+                }, {
+                command: [{
+                    name: "edit",
+                    text: {
+                        edit: "@Loc["Admin.Common.Edit"]",
+                    update: "@Loc["Admin.Common.Update"]",
+                cancel: "@Loc["Admin.Common.Cancel"]"} }, {
+                    name: "destroy",
+                    text: "@Loc["Admin.Common.Delete"]"
+                    }],
+                width: 200
+                }]
+            });
+        });
+</script>
+    <script>
+            $(document).ready(function () {
+                $('#btnRefreshPersonalizedProducts').click(function () {
+                    //refresh grid
+                    var grid = $("#personalizedproduct-grid").data('kendoGrid');
+                    grid.dataSource.read();
+
+                    //return false to don't reload a page
+                    return false;
+                });
+            });
+    </script>
+
+}

@@ -1,0 +1,90 @@
+﻿@model CustomerActionModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    if (String.IsNullOrEmpty(Model.Id))
+    {
+        <div class="note note-info">
+            @Loc["Admin.Customers.CustomerAction.SaveBeforeEdit"]
+        </div>
+    }
+
+    if (!String.IsNullOrEmpty(Model.Id))
+    {
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="conditions-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <button type="submit" id="btnAddNewCondition" name="btnAddNewCondition" onclick="javascript:setLocation('@(Url.Action("AddCondition", "CustomerAction", new { customerActionId = Model.Id, area = Constants.AreaAdmin }))'); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.CustomerAction.Conditions.AddNew"]</button>
+            </div>
+        </div>
+        <script>
+        $(document).ready(function () {
+            $("#conditions-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("Conditions", "CustomerAction", new { customerActionId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("ConditionDelete", "CustomerAction", new { customerActionId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                        }
+                    },
+                    error: function (e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: true,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [
+                {
+                    field: "Name",
+                    title: "@Loc["Admin.Customers.CustomerAction.Fields.Name"]",
+                    width: 300,
+                    template: '<a class="k-link" href="@Url.Action("EditCondition", "CustomerAction", new { area = Constants.AreaAdmin })/?customerActionId=@(Model.Id)&cid=#=Id#">#=kendo.htmlEncode(Name)#</a>',
+                },
+                {
+                    field: "Condition",
+                    title: "@Loc["Admin.Customers.CustomerAction.Fields.ConditionType"]",
+                    width: 100,
+                },
+                {
+                    command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                    title: "@Loc["Admin.Common.Delete"]",
+                    width: 100
+                }]
+            });
+        });
+        </script>
+
+    }
+
+}

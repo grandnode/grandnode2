@@ -1,0 +1,117 @@
+﻿@{
+    //page title
+    ViewBag.Title = Loc["Admin.Plugins.ExternalAuthenticationMethods"];
+}
+
+<vc:admin-widget widget-zone="external_authentication_list_buttons" additional-data="null" />
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption level-caption"">
+                    <i class="fa fa-facebook"></i>
+                   @Loc["Admin.Plugins.ExternalAuthenticationMethods"]
+                </div>
+            </div>
+            <div class="x_content form">
+                <div id="authenticationmethods-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        $(document).ready(function () {
+            $("#authenticationmethods-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("Methods", "ExternalAuthentication", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        update: {
+                            url:"@Html.Raw(Url.Action("MethodUpdate", "ExternalAuthentication", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "SystemName",
+                            fields: {
+                                FriendlyName: { editable: false, type: "string" },
+                                SystemName: { editable: false, type: "string" },
+                                DisplayOrder: { editable: false, type: "number" },
+                                IsActive: { editable: true, type: "boolean" }
+                            }
+                        }
+                    },
+                    requestEnd: function (e) {
+                        if (e.type == "update") {
+                            this.read();
+                        }
+                    },
+                    error: function (e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "FriendlyName",
+                    title: "@Loc["Admin.Plugins.ExternalAuthenticationMethods.Fields.FriendlyName"]",
+                    width: 250,
+                    template: '<a class="k-link" href="#=ConfigurationUrl#">#=FriendlyName#</a>',
+                }, {
+                    field: "SystemName",
+                    title: "@Loc["Admin.Plugins.ExternalAuthenticationMethods.Fields.SystemName"]",
+                    width: 250,
+                        template: '<a class="k-link" href="#=ConfigurationUrl#">#=SystemName#</a>',
+                }, {
+                    field: "DisplayOrder",
+                    title: "@Loc["Admin.Plugins.ExternalAuthenticationMethods.Fields.DisplayOrder"]",
+                    //integer format
+                    format: "{0:0}",
+                    width: 100
+                }, {
+                    field: "IsActive",
+                    title: "@Loc["Admin.Plugins.ExternalAuthenticationMethods.Fields.IsActive"]",
+                    width: 100,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(IsActive) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                }, {
+                    command: {
+                        name: "edit",
+                        text: {
+                            edit: "@Loc["Admin.Common.Edit"]",
+                            update: "@Loc["Admin.Common.Update"]",
+                            cancel: "@Loc["Admin.Common.Cancel"]"
+                        }
+                    },
+                    title: "@Loc["Admin.Common.Edit"]",
+                    width: 150
+                }]
+            });
+        });
+    </script>

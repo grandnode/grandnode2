@@ -1,0 +1,187 @@
+﻿@model GeneralCommonSettingsModel
+    <script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.SeoSettings.ConvertNonWesternChars)").click(toggleSeoCharField);
+
+        toggleSeoCharField();
+    });
+
+    function toggleSeoCharField() {
+        if ($('#@Html.IdFor(model => model.SeoSettings.ConvertNonWesternChars)').is(':checked')) {
+            $('#SeoCharConversion').show();
+        }
+        else {
+            $('#SeoCharConversion').hide();
+        }
+    }
+    </script>
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SeoSettings.CustomHeadTags" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="SeoSettings.CustomHeadTags" />
+                <span asp-validation-for="SeoSettings.CustomHeadTags"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SeoSettings.PageTitleSeparator" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="SeoSettings.PageTitleSeparator" />
+                <span asp-validation-for="SeoSettings.PageTitleSeparator"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SeoSettings.PageTitleSeoAdjustment" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SeoSettings.PageTitleSeoAdjustment" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SeoSettings.PageTitleSeoAdjustment"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SeoSettings.DefaultTitle" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="SeoSettings.DefaultTitle" />
+                <span asp-validation-for="SeoSettings.DefaultTitle"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SeoSettings.DefaultMetaKeywords" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="SeoSettings.DefaultMetaKeywords" />
+                <span asp-validation-for="SeoSettings.DefaultMetaKeywords"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SeoSettings.DefaultMetaDescription" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="SeoSettings.DefaultMetaDescription" />
+                <span asp-validation-for="SeoSettings.DefaultMetaDescription"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SeoSettings.GenerateProductMetaDescription" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SeoSettings.GenerateProductMetaDescription" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SeoSettings.GenerateProductMetaDescription"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SeoSettings.ConvertNonWesternChars" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SeoSettings.ConvertNonWesternChars" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SeoSettings.ConvertNonWesternChars"></span>
+            </div>
+        </div>
+        <div class="form-group" id="SeoCharConversion">
+            <div class="note note-warning">
+                <span>@Loc["Admin.Settings.GeneralCommon.SeoCharConversion.Note"]</span>
+            </div>
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SeoSettings.SeoCharConversion" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="SeoSettings.SeoCharConversion" />
+                <span asp-validation-for="SeoSettings.SeoCharConversion"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SeoSettings.AllowSlashChar" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SeoSettings.AllowSlashChar" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SeoSettings.AllowSlashChar"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SeoSettings.AllowUnicodeCharsInUrls" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SeoSettings.AllowUnicodeCharsInUrls" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SeoSettings.AllowUnicodeCharsInUrls"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SeoSettings.CanonicalUrlsEnabled" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SeoSettings.CanonicalUrlsEnabled" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SeoSettings.CanonicalUrlsEnabled"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SeoSettings.TwitterMetaTags" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SeoSettings.TwitterMetaTags" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SeoSettings.TwitterMetaTags"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SeoSettings.OpenGraphMetaTags" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SeoSettings.OpenGraphMetaTags" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SeoSettings.OpenGraphMetaTags"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            @{
+                ViewData["Reference"] = "Settings";
+                ViewData["ObjectId"] = "SeoSettings.StorePicture";
+            }
+            <div class="col-xs-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SeoSettings.StorePictureId" class="control-label" />
+            </div>
+            <div class="col-xs-4 col-md-8 col-sm-8">
+                <admin-input asp-for="SeoSettings.StorePictureId" />
+                <span asp-validation-for="SeoSettings.StorePictureId"></span>
+            </div>
+        </div>
+    </div>
+</div>

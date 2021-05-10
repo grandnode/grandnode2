@@ -1,0 +1,60 @@
+﻿@model CustomerAttributeValueModel
+@using Microsoft.AspNetCore.Mvc.Razor;
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="CustomerAttributeId" type="hidden" />
+<vc:admin-widget widget-zone="customer_attribute_values_details_top" additional-data="Model" />
+@if (ViewBag.RefreshPage == true)
+{
+    <script>
+        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
+        catch (e){}
+        window.close();
+    </script>
+}
+
+@{ Func<int, HelperResult>
+        template = @<div class="form-body">
+    <div class="form-group">
+        <admin-label asp-for="@Model.Locales[item].Name" />
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="@Model.Locales[item].Name" />
+            <span asp-validation-for="@Model.Locales[item].Name"></span>
+        </div>
+    </div>
+    <input type="hidden" asp-for="@Model.Locales[item].LanguageId" />
+</div>;
+}
+<div class="form-horizontal">
+    <localized-editor localized-template=@template name="customerattributevalue-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+        <div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="Name" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Name" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+        </div>
+    </localized-editor>
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="IsPreSelected" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsPreSelected" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsPreSelected"></span>
+            </div>
+        </div>
+        <dic class="form-group">
+            <admin-label asp-for="DisplayOrder" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrder" />
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </dic>
+    </div>
+</div>
+<vc:admin-widget widget-zone="customer_attribute_values_details_bottom" additional-data="Model" />

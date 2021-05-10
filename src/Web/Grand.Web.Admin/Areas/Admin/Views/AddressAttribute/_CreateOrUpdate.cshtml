@@ -1,0 +1,24 @@
+﻿@model AddressAttributeModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input id="active-menu-item" type="hidden" value="/@Constants.AreaAdmin/AddressAttribute" />
+<admin-tabstrip name="addressattribute-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Address.AddressAttributes.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Address.AddressAttributes.Values"]" tab-index="1" id="tab-addressattributesvalues">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabValues" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="addressattribute_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

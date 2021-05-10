@@ -1,0 +1,121 @@
+﻿@model CustomerGroupModel
+
+@if (String.IsNullOrEmpty(Model.Id))
+{
+    <div class="note note-info">
+        @Loc["Admin.Customers.CustomerGroups.Products.SaveBeforeEdit"]
+    </div>
+}
+@if (!String.IsNullOrEmpty(Model.Id))
+{
+    <div class="note note-info">
+        @Html.Raw(@Loc["Admin.Customers.CustomerGroups.Products.Info"])
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div id="products-grid"></div>
+        </div>
+        <div class="panel-footer">
+            <button type="submit" id="btnAddNewProduct" onclick="javascript:OpenWindow('@(Url.Action("ProductAddPopup", "CustomerGroup", new { customerGroupId = Model.Id, btnId = "btnRefreshProducts", formId = "customergroup-form", area = Constants.AreaAdmin  }))    ', 1000, 1000, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.CustomerGroups.Products.Fields.AddNew"]</button>
+            <input type="submit" id="btnRefreshProducts" style="display: none" />
+        </div>
+    </div>
+
+        <script>
+                $(document).ready(function () {
+                    $("#products-grid").kendoGrid({
+                        dataSource: {
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("Products", "CustomerGroup", new {customerGroupId = Model.Id, area = Constants.AreaAdmin }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                },
+                                    update: {
+                                    url: "@Html.Raw(Url.Action("ProductUpdate", "CustomerGroup", new { area = Constants.AreaAdmin }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                },
+                                destroy: {
+                                    url: "@Html.Raw(Url.Action("ProductDelete", "CustomerGroup", new { area = Constants.AreaAdmin }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors",
+                                model: {
+                                    id: "Id",
+                                    fields: {
+                                        Name: { editable: false, type: "string" },
+                                        DisplayOrder: { editable: true, type: "number" },
+                                    }
+                                }
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            numeric: false,
+                            previousNext: false,
+                            info: false
+                        },
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [
+                        {
+                                field: "Name",
+                                title: "@Loc["Admin.Customers.CustomerGroups.Products.Fields.Name"]",
+                                width: 300,
+                                template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#">#=kendo.htmlEncode(Name)#</a>',
+                        }, {
+                            field: "DisplayOrder",
+                            title: "@Loc["Admin.Customers.CustomerGroups.Products.Fields.DisplayOrder"]",
+                            width: 100
+                        },{
+                            command: [
+                                {
+                                    name: "edit",
+                                    text: {
+                                        edit: "@Loc["Admin.Common.Edit"]",
+                                        update: "@Loc["Admin.Common.Update"]",
+                                        cancel: "@Loc["Admin.Common.Cancel"]"
+                                    }
+                                }, {
+                                    name: "destroy",
+                                    text: "@Loc["Admin.Common.Delete"]"
+                                }
+                            ],
+                            width: 200,
+                            filterable: false
+                        }]
+                    });
+                });
+        </script>
+
+        <script>
+            $(document).ready(function () {
+                $('#btnRefreshProducts').click(function () {
+                    var grid = $("#products-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                    return false;
+                });
+            });
+        </script>
+}

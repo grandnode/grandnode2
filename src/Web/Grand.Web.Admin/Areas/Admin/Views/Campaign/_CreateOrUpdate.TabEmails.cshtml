@@ -1,0 +1,73 @@
+﻿@model CampaignModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    if (!String.IsNullOrEmpty(Model.Id))
+    {
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="customers-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <a href="@Url.Action("ExportCsv", new { campaignId = Model.Id, area = Constants.AreaAdmin })" class="k-button">
+                    <i class="fa fa-file-excel-o"></i> &nbsp;@Loc["Admin.Common.ExportToCsv"]
+                </a>
+            </div>
+        </div>
+        <script>
+            $(document).ready(function () {
+                $("#customers-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("Customers", "Campaign", new { campaignId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                        },
+                        requestEnd: function(e) {
+                            if(e.type=="update") {
+                                this.read();
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                    },
+                    editable: {
+                        confirmation: false,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [{
+                        field: "Email",
+                        title: "@Loc["admin.marketing.Campaigns.Fields.Email"]"
+                    }]
+                });
+            });
+        </script>
+
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["admin.marketing.Campaigns.SaveBeforeEdit"]
+        </div>
+
+    }
+}

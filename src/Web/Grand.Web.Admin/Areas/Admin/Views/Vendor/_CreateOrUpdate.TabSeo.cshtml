@@ -1,0 +1,73 @@
+﻿@model VendorModel
+@using Microsoft.AspNetCore.Mvc.Razor;
+
+<vc:admin-widget widget-zone="vendor_details_seo_top" additional-data="Model" />
+
+@{ Func<int, HelperResult>
+         template = @<div class="form-body">
+    <div class="form-group">
+        <admin-label asp-for="@Model.Locales[item].MetaKeywords" />
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="@Model.Locales[item].MetaKeywords" />
+            <span asp-validation-for="@Model.Locales[item].MetaKeywords"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <admin-label asp-for="@Model.Locales[item].MetaDescription" />
+        <div class="col-md-9 col-sm-9">
+            <admin-textarea asp-for="@Model.Locales[item].MetaDescription"></admin-textarea>
+            <span asp-validation-for="@Model.Locales[item].MetaDescription"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <admin-label asp-for="@Model.Locales[item].MetaTitle" />
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="@Model.Locales[item].MetaTitle" />
+            <span asp-validation-for="@Model.Locales[item].MetaTitle"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <admin-label asp-for="@Model.Locales[item].SeName" />
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="@Model.Locales[item].SeName" />
+            <span asp-validation-for="@Model.Locales[item].SeName"></span>
+        </div>
+    </div>
+    <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
+</div>;
+}
+<div class="form-horizontal">
+    <localized-editor localized-template=@template name="vendor-seo-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+        <div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="MetaKeywords" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="MetaKeywords" />
+                    <span asp-validation-for="MetaKeywords"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="MetaDescription" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-textarea asp-for="MetaDescription"></admin-textarea>
+                    <span asp-validation-for="MetaDescription"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="MetaTitle" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="MetaTitle" />
+                    <span asp-validation-for="MetaTitle"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="SeName" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="SeName" />
+                    <span asp-validation-for="SeName"></span>
+                </div>
+            </div>
+        </div>
+    </localized-editor>
+</div>
+<vc:admin-widget widget-zone="vendor_details_seo_bottom" additional-data="Model" />

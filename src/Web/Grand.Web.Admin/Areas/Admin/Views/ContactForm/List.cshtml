@@ -1,0 +1,170 @@
+﻿@model ContactFormListModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.System.ContactForm"];
+}
+<form asp-controller="ContactForm" asp-action="List">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit popup-window">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-envelope-o"></i>
+                        @Loc["Admin.System.ContactForm"]
+                    </div>
+                    <div class="actions btn-group btn-group-devided">
+                        <input type="submit" name="delete-all" asp-action="DeleteAll" class="btn red" value="@Loc["Admin.System.ContactForm.DeleteAll"]" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " />
+                        <vc:admin-widget widget-zone="contact_form_list_buttons" additional-data="null" />
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="main-header col-12 px-0">
+                                <div class="row align-items-end">
+                                    <div class="col-md-4 col-ms-12 col-12">
+                                        <div class="form-group mb-0">
+                                            <admin-label asp-for="SearchEmail" class="control-label" />
+                                            <admin-input asp-for="SearchEmail" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-ms-12 col-12">
+                                        <div class="form-group mb-0">
+                                            <admin-label asp-for="StoreId" class="control-label" />
+                                            <admin-select asp-for="StoreId" asp-items="Model.AvailableStores" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-12 col-12">
+                                        <div class="form-actions">
+                                            <div class="btn-group">
+                                                <button class="btn btn-success filter-submit" id="search-contactform">
+                                                    <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                                </button>
+                                                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                    <i class="fa fa-filter"></i>&nbsp; Filters
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="collapse" id="filterCollapse">
+                                <div class="drop-filters-container w-100">
+                                    <div class="form-group">
+                                        <admin-label asp-for="SearchStartDate" />
+                                        <div class="col-md-4 col-sm-6">
+                                            <admin-input asp-for="SearchStartDate" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="SearchEndDate" />
+                                        <div class="col-md-4 col-sm-6">
+                                            <admin-input asp-for="SearchEndDate" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                          
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content">
+                    <div id="contactform-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+$(document).ready(function () {
+    $("#contactform-grid").kendoGrid({
+        dataSource: {
+            transport: {
+                read: {
+                    url: "@Html.Raw(Url.Action("ContactFormList", "ContactForm", new { area = Constants.AreaAdmin }))",
+                    type: "POST",
+                    dataType: "json",
+                    data: additionalData
+                }
+            },
+            schema: {
+                data: "Data",
+                total: "Total",
+                errors: "Errors"
+            },
+            error: function(e) {
+                display_kendoui_grid_error(e);
+                // Cancel the changes
+                this.cancelChanges();
+            },
+            pageSize: @(adminAreaSettings.DefaultGridPageSize),
+            serverPaging: true,
+            serverFiltering: true,
+            serverSorting: true
+        },
+        pageable: {
+            refresh: true,
+            pageSizes: [@(adminAreaSettings.GridPageSizes)]
+        },
+        scrollable: false,
+        columns: [{
+            field: "CreatedOn",
+            title: "@Loc["Admin.System.ContactForm.Fields.CreatedOn"]",
+            width: 100,
+            type: "date",
+            format: "{0:G}"
+        }, {
+            field: "Store",
+            title: "@Loc["Admin.System.ContactForm.Fields.Store"]",
+            width: 100
+        }, {
+            field: "Email",
+            title: "@Loc["Admin.System.ContactForm.Fields.FullName"]",
+            width: 150
+        }, {
+            field: "IpAddress",
+            title: "@Loc["Admin.System.ContactForm.Fields.IpAddress"]",
+            width: 50
+        }, {
+            field: "Subject",
+            title: "@Loc["Admin.System.ContactForm.Fields.Subject"]",
+            width: 300,
+                template: '<a class="k-link" href="Details/#=Id#">#=kendo.htmlEncode(Subject)#</a>',
+        }]
+    });
+});
+</script>
+<script>
+$(document).ready(function () {
+
+    //search button
+    $('#search-contactform').click(function () {
+        //search
+        var grid = $('#contactform-grid').data('kendoGrid');
+        grid.dataSource.page(1); //new search. Set page size to 1
+        //grid.dataSource.read(); we already loaded the grid above using "page" function
+        return false;
+    });
+
+    $("#@Html.IdFor(model => model.SearchEmail)").keydown(function (event) {
+        if (event.keyCode == 13) {
+            $("#search-contactform").click();
+            return false;
+        }
+    });
+
+});
+
+function additionalData() {
+    var data = {
+        SearchStartDate: $('#@Html.IdFor(model => model.SearchStartDate)').val(),
+        SearchEndDate: $('#@Html.IdFor(model => model.SearchEndDate)').val(),
+        SearchEmail: $('#@Html.IdFor(model => model.SearchEmail)').val(),
+        StoreId: $('#@Html.IdFor(model => model.StoreId)').val(),
+    };
+    addAntiForgeryToken(data);
+    return data;
+}
+
+</script>

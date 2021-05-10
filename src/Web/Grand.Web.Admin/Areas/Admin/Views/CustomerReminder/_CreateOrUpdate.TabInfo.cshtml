@@ -1,0 +1,116 @@
+﻿@model CustomerReminderModel
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="Name" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Active" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="Active" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="Active"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="StartDateTime" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="StartDateTime" />
+                <span asp-validation-for="StartDateTime"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="EndDateTime" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="EndDateTime" />
+                <span asp-validation-for="EndDateTime"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="LastUpdateDate" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="LastUpdateDate" />
+                <span asp-validation-for="LastUpdateDate"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisplayOrder" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrder" />
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AllowRenew" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="AllowRenew" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="AllowRenew"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlAllowRenew">
+            <admin-label asp-for="RenewedDay" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="RenewedDay" />
+                <span asp-validation-for="RenewedDay"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ReminderRuleId" />
+            <div class="col-md-9 col-sm-9">
+                @if (Model.ConditionCount > 0)
+                {
+                    <admin-select asp-for="ReminderRuleId" asp-items="((Grand.Domain.Customers.CustomerReminderRuleEnum)Model.ReminderRuleId).ToSelectList(Context)" disabled />
+                }
+                else
+                {
+                    <admin-select asp-for="ReminderRuleId" asp-items="((Grand.Domain.Customers.CustomerReminderRuleEnum)Model.ReminderRuleId).ToSelectList(Context)" />
+                }
+                <span asp-validation-for="ReminderRuleId"></span>
+                <div class="note note-info margin-top-10">
+                    @Loc["admin.customers.customerreminder.text1"]
+                </div>
+                <div class="note note-warning">
+                    @Loc["admin.customers.customerreminder.text2"]
+                </div>
+                <div class="note note-info">
+                    @Loc["admin.customers.customerreminder.text3"]
+                </div>
+                <div class="note note-warning">
+                    @Loc["admin.customers.customerreminder.text4"]
+                </div>
+                <div class="note note-info">
+                    @Loc["admin.customers.customerreminder.text5"]
+                </div>
+                <div class="note note-warning">
+                    @Loc["admin.customers.customerreminder.text6"]
+                </div>
+                <div class="note note-info">
+                    @Loc["admin.customers.customerreminder.text7"]
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ConditionId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="ConditionId" asp-items="((Grand.Domain.Customers.CustomerReminderConditionEnum)Model.ConditionId).ToSelectList(Context)" />
+                <span asp-validation-for="ConditionId"></span>
+                <div class="note note-info margin-top-10">
+                    @Loc["admin.customers.actiontype.helpText.OneOfThem"]
+                </div>
+                <div class="note note-warning">
+                    @Loc["admin.customers.actiontype.helpText.AllOfThem"]
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

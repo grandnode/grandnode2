@@ -1,0 +1,94 @@
+﻿@model ProductModel
+@inject AdminAreaSettings adminAreaSettings
+
+<div class="panel panel-default">
+    <vc:admin-widget widget-zone="product_details_purchased_with_orders_top" additional-data="Model" />
+    <div class="panel-body">
+        <div id="purchased-with-orders-grid"></div>
+    </div>
+    <vc:admin-widget widget-zone="product_details_purchased_with_orders_bottom" additional-data="Model" />
+</div>
+<script>
+        $(document).ready(function () {
+            $("#purchased-with-orders-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("PurchasedWithOrders", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "OrderNumber",
+                    title: "@Loc["Admin.Orders.Fields.ID"]",
+                    width: 80,
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=Id#">#=OrderNumber#</a>',
+                }, {
+                    field: "CustomerEmail",
+                    title: "@Loc["Admin.Orders.Fields.CustomerEmail"]",
+                    width: 200,
+                    minScreenWidth: 500,
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/#=CustomerId#">#:CustomerEmail#</a>'
+                },
+                @if (!Model.IsLoggedInAsVendor)
+                {
+                    <text>{
+                        field: "OrderStatus",
+                        title: "@Loc["Admin.Orders.Fields.OrderStatus"]",
+                        width: 100,
+                        minScreenWidth: 500,
+                        template: '<h4><span class="label label-' +
+                        '# if(OrderStatusId == 10) {#warning #} #' +
+                        '# if(OrderStatusId == 20) {#info #} #' +
+                        '# if(OrderStatusId == 25) {#info #} #' +
+                        '# if(OrderStatusId == 30) {#success #} #' +
+                        '# if(OrderStatusId == 40) {#danger #} #' +
+                        '">#=OrderStatus#</span></h4>'
+                    },{
+                        field: "PaymentStatus",
+                        title: "@Loc["Admin.Orders.Fields.PaymentStatus"]",
+                        width: 100,
+                        minScreenWidth: 500,
+                    },{
+                        field: "ShippingStatus",
+                        title: "@Loc["Admin.Orders.Fields.ShippingStatus"]",
+                        width: 100,
+                        minScreenWidth: 500,
+                    },</text>
+                }
+                {
+                    field: "CreatedOn",
+                    title: "@Loc["Admin.Orders.Fields.CreatedOn"]",
+                    width: 150,
+                    type: "date",
+                    format: "{0:G}"
+                }]
+            });
+        });
+</script>

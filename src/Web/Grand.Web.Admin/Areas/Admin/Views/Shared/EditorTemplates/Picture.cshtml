@@ -1,0 +1,95 @@
+@model string
+@inject Grand.Business.Storage.Interfaces.IPictureService pictureService
+@{
+    var random = CommonHelper.GenerateRandomInteger();
+    var clientId = "picture" + random;
+    var picture = await pictureService.GetPictureById(Model);
+    var targetPictureSize = 100;
+
+}
+<link rel="stylesheet" type="text/css" asp-src="/_content/Grand.Web.Admin/administration/fineuploader/fineuploader-4.2.2.min.css" />
+<script asp-location="Footer" asp-src="/_content/Grand.Web.Admin/administration/fineuploader/jquery.fineuploader-4.2.2.min.js"></script>
+<div id="@(clientId + "value")">
+    <input asp-for="@Model" type="hidden" />
+</div>
+<div id="@(clientId + "image")">
+    <img src="@(await pictureService.GetPictureUrl(Model, targetSize: targetPictureSize, showDefaultPicture: true))" />
+</div>
+@if (picture != null)
+{
+    <span id="@(clientId + "remove")" class="btn red btn-outline margin-top-10">@Loc["Admin.Picture.RemovePicture"]</span>
+}
+else
+{
+    <span id="@(clientId + "remove")" class="btn red btn-outline" style="display:none;">@Loc["Admin.Picture.RemovePicture"]</span>
+}
+<br />
+<div id="@clientId"></div>
+<script type="text/template" id="@(clientId)-qq-template">
+    <div class="qq-uploader-selector qq-uploader">
+        <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
+            <span>@Loc["Common.FileUploader.DropFiles"]</span>
+        </div>
+        <div class="qq-upload-button-selector qq-upload-button btn yellow" style="margin: 10px 0px 10px 0px;">
+            <div>@Loc["Common.FileUploader.Upload"]</div>
+        </div>
+        <span class="qq-drop-processing-selector qq-drop-processing">
+            <span>@Loc["Common.FileUploader.Processing"]</span>
+            <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
+        </span>
+        <ul class="qq-upload-list-selector qq-upload-list">
+            <li>
+                <div class="qq-progress-bar-container-selector">
+                    <div class="qq-progress-bar-selector qq-progress-bar"></div>
+                </div>
+                <span class="qq-upload-spinner-selector qq-upload-spinner"></span>
+                <span class="qq-edit-filename-icon-selector qq-edit-filename-icon"></span>
+                <span class="qq-upload-file-selector qq-upload-file"></span>
+                <input class="qq-edit-filename-selector qq-edit-filename" tabindex="0" type="text">
+                <span class="qq-upload-size-selector qq-upload-size"></span>
+                <a class="qq-upload-cancel-selector qq-upload-cancel" href="#">@Loc["Common.FileUploader.Cancel"]</a>
+                <a class="qq-upload-retry-selector qq-upload-retry" href="#">@Loc["Common.FileUploader.Retry"]</a>
+                <a class="qq-upload-delete-selector qq-upload-delete" href="#">@Loc["Common.FileUploader.Delete"]</a>
+                <span class="qq-upload-status-text-selector qq-upload-status-text"></span>
+                <span class="qq-upload-status-message"></span>
+            </li>
+        </ul>
+    </div>
+</script>
+
+<script>
+    $(document).ready(function() {
+
+        $("#@(clientId)").fineUploader({
+            request: {
+                endpoint: '@(Url.Action("AsyncUpload", "Picture", new { area = Constants.AreaAdmin }))',
+                params: {
+                    Reference: '@ViewData["Reference"]',
+                    ObjectId: '@ViewData["ObjectId"]'
+                }
+            },
+            template: "@(clientId)-qq-template",
+            multiple: false,
+            validation: {
+                itemLimit: 5,
+                acceptFiles: 'image/*',
+            }
+        }).on("complete", function(event, id, name, responseJSON, xhr) {
+            if (responseJSON.success) {
+                $("#@(clientId + "image")").html("<img src='" + responseJSON.imageUrl + "'/>");
+                $("#@(clientId + "value") input").val(responseJSON.pictureId);
+                $("#@(clientId + "remove")").show();
+            }
+            else {
+                $('.qq-upload-status-message').text(responseJSON.message);
+            }
+        });
+
+        $("#@(clientId + "remove")").click(function(e) {
+            $("#@(clientId + "image")").html("<img src='@await pictureService.GetDefaultPictureUrl(targetPictureSize)'/>");
+            $("#@(clientId + "value") input").val('');
+            $(".qq-upload-list").empty();
+            $(this).hide();
+        });
+    });
+</script>

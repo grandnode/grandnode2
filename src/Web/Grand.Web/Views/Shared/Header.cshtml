@@ -1,0 +1,64 @@
+﻿<div class="header-nav">
+    <b-navbar type="light">
+        <b-container :fluid="fluid" id="header-container">
+            <div class="menu-container">
+                <template>
+                    <b-button aria-label="menu-toggler" class="menu-toggler" v-b-toggle.sidebar-menu><span></span><span></span><span></span></b-button>
+                    <b-sidebar id="sidebar-menu"
+                               backdrop
+                               shadow>
+                        <ul class="Menu -vertical">
+                            @await Component.InvokeAsync("Menu")
+                        </ul>
+                    </b-sidebar>
+                </template>
+            </div>
+            <partial name="_Logo"/>
+            <b-navbar-nav class="top-header-items order-3">
+                <template>
+                    <li class="nav-item">
+                        <span class="nav-link">
+                            <template>
+                                <b-form-checkbox size="lg" v-model="darkMode" name="contrast-button" class="contrast-switch" switch>
+                                    <b-icon icon="sun" class="light" variant="info"></b-icon>
+                                    <b-icon icon="moon" class="dark" variant="dark"></b-icon>
+                                </b-form-checkbox>
+                            </template>
+                        </span>
+                    </li>
+                </template>
+                <b-nav-item class="d-lg-block d-none">
+                    <b-icon :variant="[darkMode ? 'white' : 'dark']" icon="aspect-ratio" @@click="fluid = !fluid"></b-icon>
+                </b-nav-item>
+                <b-nav-item>
+                    <b-icon icon="search" :variant="[darkMode ? 'white' : 'dark']" v-b-modal.search-box></b-icon>
+                </b-nav-item>
+                <b-modal id="search-box"
+                         hide-footer hide-header size="xl">
+                    @await Component.InvokeAsync("SearchBox")
+                </b-modal>
+                <template>
+                    <li class="nav-item">
+                        <span class="nav-link">
+                            <b-icon icon="gear" :variant="[darkMode ? 'white' : 'dark']" v-b-toggle.sidebar-right></b-icon>
+                        </span>
+                        <template>
+                            <b-sidebar id="sidebar-right" body-class="user-panel" title="@Loc["Account.MyAccount"]" right backdrop>
+                                <div class="d-inline-flex flex-wrap mb-2">
+                                    <partial name="_Selector_TaxType" />
+                                    <partial name="_Selector_Currency" />
+                                    <partial name="_Selector_Language" />
+                                    <partial name="_Selector_Store" />
+                                    <partial name="_Selector_Theme" />
+                                    @await Component.InvokeAsync("Widget", new { widgetZone = "header_selectors" })
+                                </div>
+                                <partial name="_HeaderLinks" />
+                            </b-sidebar>
+                        </template>
+                    </li>
+                </template>
+                <partial name="_ShoppingCartLinks" />
+            </b-navbar-nav>
+        </b-container>
+    </b-navbar>
+</div>

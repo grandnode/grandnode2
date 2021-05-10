@@ -1,0 +1,305 @@
+﻿@model SalesSettingsModel
+
+<vc:admin-widget widget-zone="shopping_cart_settings_top" additional-data="null" />
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="col-6">
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.DisplayCartAfterAddingProduct" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.DisplayCartAfterAddingProduct" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.DisplayCartAfterAddingProduct"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.DisplayWishlistAfterAddingProduct" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.DisplayWishlistAfterAddingProduct" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.DisplayWishlistAfterAddingProduct"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.MaximumShoppingCartItems" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="ShoppingCartSettings.MaximumShoppingCartItems" />
+                    <span asp-validation-for="ShoppingCartSettings.MaximumShoppingCartItems"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.MaximumWishlistItems" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="ShoppingCartSettings.MaximumWishlistItems" />
+                    <span asp-validation-for="ShoppingCartSettings.MaximumWishlistItems"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.MoveItemsFromWishlistToCart" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.MoveItemsFromWishlistToCart" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.MoveItemsFromWishlistToCart"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.ShowProductImagesOnShoppingCart" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.ShowProductImagesOnShoppingCart" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.ShowProductImagesOnShoppingCart"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.ShowProductImagesOnWishList" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.ShowProductImagesOnWishList" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.ShowProductImagesOnWishList"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.ShowDiscountBox" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.ShowDiscountBox" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.ShowDiscountBox"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.ShowGiftVoucherBox" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.ShowGiftVoucherBox" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.ShowGiftVoucherBox"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.CrossSellsNumber" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="ShoppingCartSettings.CrossSellsNumber" />
+                    <span asp-validation-for="ShoppingCartSettings.CrossSellsNumber"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.EmailWishlistEnabled" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.EmailWishlistEnabled" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.EmailWishlistEnabled"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlAllowAnonymousUsersToEmailWishlist">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.AllowAnonymousUsersToEmailWishlist" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.AllowAnonymousUsersToEmailWishlist" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.AllowAnonymousUsersToEmailWishlist"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.MiniShoppingCartEnabled" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.MiniShoppingCartEnabled" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.MiniShoppingCartEnabled"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlMiniShoppingCartProductNumber">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.MiniCartProductNumber" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="ShoppingCartSettings.MiniCartProductNumber" />
+                    <span asp-validation-for="ShoppingCartSettings.MiniCartProductNumber"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlShowProductImagesInMiniShoppingCart">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.ShowImagesInsidebarCart" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.ShowImagesInsidebarCart" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.ShowImagesInsidebarCart"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.AllowCartItemEditing" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.AllowCartItemEditing" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.AllowCartItemEditing"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.SharedCartBetweenStores" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.SharedCartBetweenStores" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.SharedCartBetweenStores"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.AllowOnHoldCart" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.AllowOnHoldCart" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.AllowOnHoldCart"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.AllowToSelectWarehouse" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.AllowToSelectWarehouse" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.AllowToSelectWarehouse"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.GroupTierPrices" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.GroupTierPrices" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.GroupTierPrices"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.RoundPrices" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShoppingCartSettings.RoundPrices" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShoppingCartSettings.RoundPrices"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShoppingCartSettings.ReservationDateFormat" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="ShoppingCartSettings.ReservationDateFormat" />
+                    <span asp-validation-for="ShoppingCartSettings.ReservationDateFormat"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<vc:admin-widget widget-zone="shopping_cart_settings_bottom" additional-data="null" />
+
+<script>
+        $(document).ready(function () {
+
+            $("#@Html.IdFor(model => model.ShoppingCartSettings.MiniShoppingCartEnabled)").click(toggleMiniShoppingCartEnabled);
+            $("#@Html.IdFor(model => model.ShoppingCartSettings.EmailWishlistEnabled)").click(toggleEmailWishlistEnabled);
+
+            toggleMiniShoppingCartEnabled();
+            toggleEmailWishlistEnabled();
+        });
+
+        function toggleMiniShoppingCartEnabled() {
+            if ($('#@Html.IdFor(model => model.ShoppingCartSettings.MiniShoppingCartEnabled)').is(':checked')) {
+                $('#pnlMiniShoppingCartProductNumber').show();
+                $('#pnlShowProductImagesInMiniShoppingCart').show();
+            }
+            else {
+                $('#pnlMiniShoppingCartProductNumber').hide();
+                $('#pnlShowProductImagesInMiniShoppingCart').hide();
+            }
+        }
+
+        function toggleEmailWishlistEnabled() {
+            if ($('#@Html.IdFor(model => model.ShoppingCartSettings.EmailWishlistEnabled)').is(':checked')) {
+                $('#pnlAllowAnonymousUsersToEmailWishlist').show();
+            }
+            else {
+                $('#pnlAllowAnonymousUsersToEmailWishlist').hide();
+            }
+        }
+
+</script>

@@ -1,0 +1,95 @@
+﻿@model ProductModel
+@inject AdminAreaSettings adminAreaSettings
+@if (!String.IsNullOrEmpty(Model.Id))
+{
+    <input asp-for="AuctionEnded" type="hidden" />
+
+    <div class="panel panel-default">
+        <vc:admin-widget widget-zone="product_details_bids_top" additional-data="Model" />
+        <div class="panel-body">
+            <div id="bids-grid"></div>
+        </div>
+        <vc:admin-widget widget-zone="product_details_bids_bottom" additional-data="Model" />
+    </div>
+    <script>
+        $(document).ready(function () {
+                $("#bids-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("ListBids", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken,
+                        }, destroy: {
+                            url: "@Html.Raw(Url.Action("BidDelete", "Product", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        ProductId: "ProductId"
+                    }
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "Date",
+                title: "@Loc["Admin.Catalog.Products.Bids.Date"]",
+                width: 200,
+                type: "date",
+                format: "{0:G}"
+            }, {
+                field: "CustomerId",
+                title: "@Loc["Admin.Catalog.Products.Bids.CustomerId"]",
+                width: 200,
+                template: '# if(Email) {# <a  href="@Url.Action("Edit", "Customer")/#=CustomerId#">#=Email#</a>  #} #'
+            }, {
+                field: "Amount",
+                title: "@Loc["Admin.Catalog.Products.Bids.Amount"]",
+                width: 200
+            }, {
+                field: "OrderId",
+                title: "@Loc["Admin.Catalog.Products.Bids.OrderId"]",
+                width: 200,
+                template: '# if(OrderId) {# <a class="btn btn-sm btn-default" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=OrderId#"><i class="fa fa-search"></i> @Loc["Admin.Common.View"]</a>  #} #'
+            }, {
+                command: [{
+                    name: "destroy",
+                    text: "@Loc["Admin.Common.Delete"]"
+                }],
+                width: 100
+            }]
+            });
+        });
+    </script>
+}
+else
+{
+    <div class="note note-info">
+        @Loc["Admin.Catalog.Products.Bids.SaveBeforeEdit"]
+    </div>
+}

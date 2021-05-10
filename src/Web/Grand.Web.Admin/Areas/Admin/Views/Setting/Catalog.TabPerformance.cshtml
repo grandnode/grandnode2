@@ -1,0 +1,66 @@
+﻿@model CatalogSettingsModel
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="IgnoreDiscounts" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IgnoreDiscounts" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IgnoreDiscounts"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="IgnoreFeaturedProducts" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IgnoreFeaturedProducts" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IgnoreFeaturedProducts"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="IgnoreFilterableSpecAttributeOption" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IgnoreFilterableSpecAttributeOption" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IgnoreFilterableSpecAttributeOption"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="IgnoreFilterableAvailableStartEndDateTime" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IgnoreFilterableAvailableStartEndDateTime" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IgnoreFilterableAvailableStartEndDateTime"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="CustomerProductPrice" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="CustomerProductPrice" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="CustomerProductPrice"></span>
+            </div>
+        </div>
+    </div>
+</div>

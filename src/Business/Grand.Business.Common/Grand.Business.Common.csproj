@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
+    <Company>UNIT-SOFT Sp. z o.o.</Company>
+    <Authors>UNIT-SOFT Sp. z o.o.</Authors>
+    <Product>grandnode</Product>
+    <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />
+    <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Google.Apis" Version="1.51.0" />
+    <PackageReference Include="Google.Apis.AnalyticsReporting.v4" Version="1.51.0.2197" />
+    <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
+  </ItemGroup>
+</Project>

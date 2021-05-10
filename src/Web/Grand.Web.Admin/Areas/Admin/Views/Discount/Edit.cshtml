@@ -1,0 +1,34 @@
+﻿@model DiscountModel
+@{
+    //page title
+    ViewBag.Title = Loc["admin.marketing.Discounts.EditDiscountDetails"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Discount" asp-action="Edit" method="post" id="discount-form">
+    
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-tags"></i>
+                        @Loc["admin.marketing.Discounts.EditDiscountDetails"] - @Model.Name
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["admin.marketing.Discounts.BackToList"], "List")</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                            <span id="discount-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
+                            <vc:admin-widget widget-zone="discount_details_buttons" additional-data="Model" />
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                   <partial name="_CreateOrUpdate" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<admin-delete-confirmation button-id="discount-delete"/>

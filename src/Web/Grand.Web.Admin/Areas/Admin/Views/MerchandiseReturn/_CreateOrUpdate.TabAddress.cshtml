@@ -1,0 +1,15 @@
+﻿@model MerchandiseReturnModel
+<div class="form-horizontal">
+    <vc:admin-widget widget-zone="merchandisereturn_tab_address_top" additional-data="Model" />
+    <div class="form-body">
+        @if (Model.PickupAddress != null)
+        {
+            <div class="form-group">
+                <admin-label asp-for="PickupAddress" />
+                <br />
+                <admin-input asp-for="PickupAddress" asp-template="Address" />
+            </div>
+        }
+    </div>
+    <vc:admin-widget widget-zone="merchandisereturn_tab_address_bottom" additional-data="Model" />
+</div>

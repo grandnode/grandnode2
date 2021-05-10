@@ -1,0 +1,57 @@
+﻿@model SiteMapNode
+@using Grand.Web.Common.Menu
+
+@{
+    string url = "javascript:;";
+    if (!string.IsNullOrEmpty(Model.ControllerName) && !string.IsNullOrEmpty(Model.ActionName))
+    {
+        url = Url.Action(Model.ActionName, Model.ControllerName, new { area = Constants.AreaAdmin });
+    }
+    else if (!string.IsNullOrEmpty(Model.Url))
+    {
+        url = Model.Url.StartsWith("~/", StringComparison.Ordinal) ? Url.Content(Model.Url) : Model.Url;
+    }
+    var childNodes = Model.ChildNodes.Where(x => x.Visible).ToList();
+
+    <li class="@if (childNodes.Any()) {<text>has-submenu</text>}">
+        @if (childNodes.Any())
+        {
+            <a class="nav-link">
+                @if (!String.IsNullOrEmpty(Model.IconClass))
+                {
+                    <i class="@Model.IconClass"></i>
+                }
+                <span class="title">@Loc[Model.ResourceName]</span>
+            </a>
+        }
+        else
+        {
+            <a href="@url" class="nav-link" @(Model.OpenUrlInNewTab ? Html.Raw(" target=\"_blank\"") : null)>
+                @if (!String.IsNullOrEmpty(Model.IconClass))
+                {
+                    <i class="@Model.IconClass"></i>
+                }
+                <span class="title">@Loc[Model.ResourceName]</span>
+                @if (childNodes.Any())
+                {
+                    <span class="fa fa-chevron-right"></span>
+                }
+
+            </a>
+        }
+
+        @if (childNodes.Any())
+        {
+            <ul class="nav child_menu">
+                <li class="menu-header">
+                    <span class="title">@Loc[Model.ResourceName]</span>
+                    <span class="close-menu" onclick="closeSubMenu(this)"></span>
+                </li>
+                @foreach (var childItem in childNodes)
+                {
+                    <partial name="_MenuItem" model="childItem" />
+                }
+            </ul>
+        }
+    </li>
+}

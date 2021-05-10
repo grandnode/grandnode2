@@ -1,0 +1,20 @@
+﻿@model LanguageSelectorModel
+@if (Model.AvailableLanguages.Count > 1)
+{
+    <li class="dropdown" id="header_inbox_bar" role="presentation">
+        <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
+            <i class="fa fa-language"></i>
+        </a>
+        <ul id="menu1" class="dropdown-menu dropdown-menu-right list-unstyled msg_list overflow-h" role="menu">
+            @foreach (var lang in Model.AvailableLanguages)
+            {
+                <li>
+                    <a href="@Url.Action("SetLanguage", "Home", new { langid = lang.Id, returnUrl = Context?.Request?.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })">
+                        <img src="/assets/images/flags/@(lang.FlagImageFileName)" alt="@lang.Name">
+                        @lang.Name
+                    </a>
+                </li>
+            }
+        </ul>
+    </li>
+}

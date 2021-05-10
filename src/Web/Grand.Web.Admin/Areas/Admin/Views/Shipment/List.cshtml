@@ -1,0 +1,400 @@
+﻿@model ShipmentListModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    ViewBag.Title = Loc["Admin.Orders.Shipments.List"];
+}
+
+<form asp-area="@Constants.AreaAdmin" asp-controller="Shipment" asp-action="List" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit popup-window">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-truck"></i>
+                        @Loc["Admin.Orders.Shipments.List"]
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
+                            <button type="submit" name="exportpackagingslips-all" asp-action="PdfPackagingSlipAll" class="btn purple">
+                                <i class="fa fa-file-pdf-o"></i>
+                                @Loc["Admin.Orders.Shipments.PrintPackagingSlip.All"]
+                            </button>
+                            <button type="submit" id="exportpackagingslips-selected" class="btn blue">
+                                <i class="fa fa-file-pdf-o"></i>
+                                @Loc["Admin.Orders.Shipments.PrintPackagingSlip.Selected"]
+                            </button>
+                            <button class="btn btn-success" type="submit" id="ship-selected"><i class="fa fa-check"></i> @Loc["Admin.Orders.Shipments.ShipSelected"] </button>
+                            <button class="btn btn-success" type="submit" id="deliver-selected"><i class="fa fa-check-circle"></i> @Loc["Admin.Orders.Shipments.DeliverySelected"] </button>
+                            <vc:admin-widget widget-zone="order_shipment_list_buttons" additional-data="null" />
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="main-header col-12 px-0">
+                                <div class="row align-items-end">
+                                    <div class="col-md-8 col-ms-12 col-12">
+                                        <div class="form-group mb-0">
+                                            <admin-label asp-for="TrackingNumber" class="control-label" />
+                                            <admin-input asp-for="TrackingNumber" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-12 col-12">
+                                        <div class="form-actions">
+                                            <div class="btn-group">
+                                                <button class="btn btn-success filter-submit" id="search-shipments">
+                                                    <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                                </button>
+                                                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                    <i class="fa fa-filter"></i>&nbsp; Filters
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="collapse" id="filterCollapse">
+                                <div class="drop-filters-container w-100">
+                                    <div class="form-group">
+                                        <admin-label asp-for="StartDate" class="col-sm-3 control-label" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-input asp-for="StartDate" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="EndDate" class="col-sm-3 control-label" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-input asp-for="EndDate" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="LoadNotShipped" class="col-sm-3 control-label" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                                <admin-input asp-for="LoadNotShipped" />
+                                                <div class="control__indicator"></div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="x_content">
+                            <div id="shipments-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("#shipments-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("ShipmentListSelect", "Shipment", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: additionalData
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                //details grid
+                detailInit: detailInit,
+                scrollable: false,
+                dataBound: onDataBound,
+                columns: [{
+                    field: "Id",
+                    headerTemplate: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input id='mastercheckbox' type='checkbox'/> <div class='control__indicator'></div></label>",
+                    template: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input type='checkbox' value='#=Id#' class='checkboxGroups'/> <div class='control__indicator'></div></label>",
+                    width: 40
+                }, {
+                    field: "ShipmentNumber",
+                    title: "@Loc["Admin.Orders.Shipments.ID"]",
+                    width: 100,
+                    template: '<a class="k-link" href="@Url.Action("ShipmentDetails", "Shipment", new { area = Constants.AreaAdmin })/#=Id#">#=ShipmentNumber#</a>'
+                }, {
+                    field: "OrderNumber",
+                    title: "@Loc["Admin.Orders.Shipments.OrderID"]",
+                    width: 100,
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=OrderId#">#=OrderNumber#</a>'
+                }, {
+                    field: "TrackingNumber",
+                    title: "@Loc["Admin.Orders.Shipments.TrackingNumber"]",
+                    width: 100,
+                    template: '<a class="k-link" href="@Url.Action("ShipmentDetails", "Shipment", new { area = Constants.AreaAdmin })/#=Id#">#=kendo.htmlEncode(TrackingNumber)#</a>'
+                }, {
+                    field: "TotalWeight",
+                    title: "@Loc["Admin.Orders.Shipments.TotalWeight"]",
+                    width: 80,
+                    minScreenWidth: 770,
+                }, {
+                    field: "ShippedDate",
+                    title: "@Loc["Admin.Orders.Shipments.ShippedDate"]",
+                    width: 180,
+                    type: "date",
+                    format: "{0:G}"
+                }, {
+                    field: "DeliveryDate",
+                    title: "@Loc["Admin.Orders.Shipments.DeliveryDate"]",
+                    width: 180,
+                    type: "date",
+                    format: "{0:G}"
+                }]
+            });
+        });
+
+        function detailInit(e) {
+            $("<div/>").appendTo(e.detailCell).kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("ShipmentsItemsByShipmentId", "Shipment", new { area = Constants.AreaAdmin }))?shipmentId="+e.data.Id,
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                scrollable: false,
+                sortable: true,
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                columns: [
+                    {
+                        field: "ProductName",
+                        title: "@Loc["Admin.Orders.Shipments.Products.ProductName"]",
+                        width: 400
+                    },{
+                        field: "ShippedFromWarehouse",
+                        title: "@Loc["Admin.Orders.Shipments.Products.Warehouse"]",
+                        width: 150
+                    },{
+                        field: "QuantityInThisShipment",
+                        title: "@Loc["Admin.Orders.Shipments.Products.QtyShipped"]",
+                        width: 150
+                    },{
+                        field: "ItemWeight",
+                        title: "@Loc["Admin.Orders.Shipments.Products.ItemWeight"]",
+                        width: 150
+                    },{
+                        field: "ItemDimensions",
+                        title: "@Loc["Admin.Orders.Shipments.Products.ItemDimensions"]",
+                        width: 150
+                    }
+                ]
+            });
+        }
+    </script>
+
+
+    <script>
+
+        var selectedIds = [];
+
+        $(document).ready(function () {
+
+            $("#@Html.IdFor(model => model.CountryId)").change(function () {
+                var selectedItem = $(this).val();
+                var ddlStates = $("#@Html.IdFor(model => model.StateProvinceId)");
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "@(Url.Action("GetStatesByCountryId", "Home", new { area = Constants.AreaAdmin }))",
+                    data: { "countryId": selectedItem, "addAsterisk": "true" },
+                    success: function (data) {
+                        ddlStates.html('');
+                        $.each(data, function (id, option) {
+                            ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                        });
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert('Failed to retrieve states.');
+                    }
+                });
+            });
+
+            $("#@Html.IdFor(model => model.TrackingNumber)").keydown(function (event) {
+                if (event.keyCode == 13) {
+                    $("#search-shipments").click();
+                    return false;
+                }
+            });
+            $("#@Html.IdFor(model => model.City)").keydown(function (event) {
+                if (event.keyCode == 13) {
+                    $("#search-shipments").click();
+                    return false;
+                }
+            });
+
+            $('#search-shipments').click(function () {
+                var grid = $('#shipments-grid').data('kendoGrid');
+                grid.dataSource.page(1);
+                $('.checkboxGroups').prop('checked', false).change();
+                selectedIds = [];
+                return false;
+            });
+
+            $('#ship-selected').click(function(e) {
+                e.preventDefault();
+
+                var postData = {
+                    selectedIds: selectedIds
+                };
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.Action("SetAsShippedSelected", "Shipment", new { area = Constants.AreaAdmin }))",
+                    data: postData,
+                    complete: function(data) {
+                        var grid = $('#shipments-grid').data('kendoGrid');
+                        grid.dataSource.read();
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    },
+                    traditional: true
+                });
+                return false;
+            });
+
+            $('#deliver-selected').click(function(e) {
+                e.preventDefault();
+
+                var postData = {
+                    selectedIds: selectedIds
+                };
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.Action("SetAsDeliveredSelected", "Shipment", new { area = Constants.AreaAdmin }))",
+                    data: postData,
+                    complete: function(data) {
+                        var grid = $('#shipments-grid').data('kendoGrid');
+                        grid.dataSource.read();
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    },
+                    traditional: true
+                });
+                return false;
+            });
+
+
+            $('#mastercheckbox').click(function () {
+                $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
+            });
+
+            $('#shipments-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function (e) {
+                var $check = $(this);
+                if ($check.is(":checked") == true) {
+                    var checked = jQuery.inArray($check.val(), selectedIds);
+                    if (checked == -1) {
+                        selectedIds.push($check.val());
+                    }
+                }
+                else {
+                    var checked = jQuery.inArray($check.val(), selectedIds);
+                    if (checked > -1) {
+                        selectedIds = $.grep(selectedIds, function (item, index) {
+                            return item != $check.val();
+                        });
+                    }
+                }
+                updateMasterCheckbox();
+            });
+        });
+
+        function additionalData() {
+            var data = {
+                StartDate: $('#@Html.IdFor(model => model.StartDate)').val(),
+                EndDate: $('#@Html.IdFor(model => model.EndDate)').val(),
+                TrackingNumber: $('#@Html.IdFor(model => model.TrackingNumber)').val(),
+                CountryId: $('#@Html.IdFor(model => model.CountryId)').val(),
+                StateProvinceId: $('#@Html.IdFor(model => model.StateProvinceId)').val(),
+                City: $('#@Html.IdFor(model => model.City)').val(),
+                WarehouseId: $('#@Html.IdFor(model => model.WarehouseId)').val(),
+                LoadNotShipped: $('#@Html.IdFor(model => model.LoadNotShipped)').is(':checked')
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+
+        function onDataBound(e) {
+            $('#shipments-grid input[type=checkbox][id!=mastercheckbox]').each(function () {
+                var currentId = $(this).val();
+                var checked = jQuery.inArray(currentId, selectedIds);
+                $(this).prop('checked', checked > -1);
+            });
+
+            updateMasterCheckbox();
+        }
+
+        function updateMasterCheckbox() {
+            var numChkBoxes = $('#shipments-grid input[type=checkbox][id!=mastercheckbox]').length;
+            var numChkBoxesChecked = $('#shipments-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
+            $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+        }
+    </script>
+
+</form>
+<form asp-area="@Constants.AreaAdmin" asp-controller="Shipment" asp-action="PdfPackagingSlipSelected" method="post" id="pdf-packaging-slip-selected-form">
+    
+    <input type="hidden" id="selectedIds" name="selectedIds" value="" />
+</form>
+
+<script>
+
+    $(document).ready(function () {
+        $('#exportpackagingslips-selected').click(function (e) {
+            e.preventDefault();
+            var ids = selectedIds.join(",");
+            $('#pdf-packaging-slip-selected-form #selectedIds').val(ids);
+            $('#pdf-packaging-slip-selected-form').submit();
+            return false;
+        });
+    });
+
+</script>

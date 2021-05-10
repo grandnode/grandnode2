@@ -1,0 +1,96 @@
+﻿@model CustomerActionConditionModel
+    @if (String.IsNullOrEmpty(Model.Id))
+    {
+        <div class="note note-info">
+            @Loc["Admin.Customers.CustomerActionCondition.SaveBeforeEdit"]
+        </div>
+    }
+
+    @if (!String.IsNullOrEmpty(Model.Id))
+    {
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="collections-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <input type="submit" id="btnAddNewCollection" value="@Loc["Admin.Customers.CustomerActionCondition.Collections.AddNew"]" onclick="javascript:OpenWindow('@(Url.Action("CollectionAddPopup", "CustomerAction", new { customerActionId = Model.CustomerActionId, conditionId = Model.Id, btnId = "btnRefreshCollections", formId = "customer-action-condition-form", area = Constants.AreaAdmin }))', 800, 800, true); return false;" class="btn default" />
+                <input type="submit" id="btnRefreshCollections" style="display: none" />
+            </div>
+        </div>
+    <script>
+            $(document).ready(function () {
+                $("#collections-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("ConditionCollection", "CustomerAction", new { customerActionId = Model.CustomerActionId, conditionId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("ConditionDeletePosition", "CustomerAction", new { customerActionId = Model.CustomerActionId, conditionId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "Id",
+                                fields: {
+                                    CollectionName: {editable: false, type: "string" },
+                                    CollectionId: {editable: false, type: "string" }
+                                }
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        numeric: false,
+                        previousNext: false,
+                        info: false
+                    },
+                    editable: {
+                        confirmation: false,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [{
+                        field: "CollectionName",
+                        title: "@Loc["Admin.Customers.CustomerActionCondition.Fields.Collection"]",
+                        template: '<a class="k-link" href="@Url.Action("Edit", "Collection", new { area = Constants.AreaAdmin })/#=Id#">#=kendo.htmlEncode(CollectionName)#</a>',
+                    }, {
+                        command: [{
+                            name: "destroy",
+                            text: "@Loc["Admin.Common.Delete"]"
+                        }],
+                        width: 150
+                    }]
+                });
+            });
+    </script>
+            
+        <script>
+            $(document).ready(function () {
+                $('#btnRefreshCollections').click(function () {
+                    //refresh grid
+                    var grid = $("#collections-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                    return false;
+                });
+            });
+        </script>
+              
+    }

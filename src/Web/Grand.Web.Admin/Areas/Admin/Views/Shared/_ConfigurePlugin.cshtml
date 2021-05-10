@@ -1,0 +1,33 @@
+﻿@using Microsoft.AspNetCore.Mvc.Controllers
+@using Grand.Infrastructure.Plugins
+@inject IServiceProvider serviceProvider
+@{
+    var plugin = PluginManager.FindPlugin((this.ViewContext.ActionDescriptor as ControllerActionDescriptor).ControllerTypeInfo.AsType()).Instance(serviceProvider);
+    //friendly name
+    var friendlyName = plugin?.PluginInfo.FriendlyName;
+    Layout = "_AdminLayout";
+    //page title
+    ViewBag.Title = friendlyName;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption caption-flex">
+                    <i class="fa fa-tasks"></i>
+                    <div class="captionText">@friendlyName</div>
+                </div>
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="x_content">
+                            @RenderBody()
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

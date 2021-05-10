@@ -1,0 +1,49 @@
+﻿@model Payments.BrainTree.Models.PaymentInfoModel
+@{
+    Layout = "";
+}
+<div class="container">
+    <div class="row align-items-center mb-3">
+        <div class="col-md-4 col-12 text-md-right">
+            <label class="col-form-label" asp-for="CardholderName">@Loc["Payment.CardholderName"]:</label>
+        </div>
+        <div class="col-md-4 col-12 text-right">
+            <input asp-for="CardholderName" class="form-control" autofocus="autofocus" />
+            <span asp-validation-for="CardholderName"></span>
+        </div>
+    </div>
+
+    <div class="row align-items-center mb-3">
+        <div class="col-md-4 col-12 text-md-right">
+            <label class="col-form-label" asp-for="CardNumber">@Loc["Payment.CardNumber"]:</label>
+        </div>
+        <div class="col-md-4 col-12 text-right">
+            <input asp-for="CardNumber" class="form-control" autofocus="autofocus" />
+            <span asp-validation-for="CardNumber"></span>
+        </div>
+    </div>
+
+    <div class="row align-items-center mb-3">
+        <div class="col-md-4 col-12 text-md-right">
+            <label class="col-form-label" asp-for="ExpireMonth">@Loc["Payment.ExpirationDate"]:</label>
+        </div>
+        <div class="col-md-4 col-12 text-right d-md-flex input-group">
+            <select asp-for="ExpireMonth" class="form-control col-md-6 col-12" asp-items="Model.ExpireMonths"></select>
+            <select asp-for="ExpireYear" class="form-control col-md-6 col-12" asp-items="Model.ExpireYears"></select>
+        </div>
+    </div>
+
+    <div class="row align-items-center mb-3">
+        <div class="col-md-4 col-12 text-md-right">
+            <label class="col-form-label" asp-for="CardCode">@Loc["Payment.CardCode"]:</label>
+        </div>
+        <div class="col-md-4 col-12 text-right">
+            <input asp-for="CardCode" class="form-control" autofocus="autofocus" />
+            <span asp-validation-for="CardCode"></span>
+        </div>
+    </div>
+</div>
+@if (!string.IsNullOrEmpty(Model.Errors))
+{
+    <div class="text-danger">@Model.Errors</div>
+}

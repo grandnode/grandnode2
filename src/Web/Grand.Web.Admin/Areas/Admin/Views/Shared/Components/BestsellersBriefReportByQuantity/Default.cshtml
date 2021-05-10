@@ -1,0 +1,54 @@
+﻿@{
+    var gridPageSize = 5;
+}
+<div id="bestsellers-byquantity-grid"></div>
+
+<script>
+    $(document).ready(function () {
+        $("#bestsellers-byquantity-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("BestsellersBriefReportByQuantityList", "Reports", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(gridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "ProductName",
+                title: "@Loc["Admin.Reports.Bestsellers.Fields.Name"]",
+                template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#">#=ProductName#</a>',
+            }, {
+                field: "TotalQuantity",
+                title: "@Loc["Admin.Reports.Bestsellers.Fields.TotalQuantity"]"
+            }, {
+                field: "TotalAmount",
+                title: "@Loc["Admin.Reports.Bestsellers.Fields.TotalAmount"]"
+            }]
+        });
+    });
+</script>

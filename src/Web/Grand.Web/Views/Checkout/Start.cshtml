@@ -1,0 +1,201 @@
+﻿@inject IWorkContext workContext
+@inject IPageHeadBuilder pagebuilder
+
+@model CheckoutModel
+@{
+    Layout = "_SingleColumn";
+
+    var supportRtl = workContext.WorkingLanguage.Rtl;
+    if (supportRtl)
+    {
+        <link rel="stylesheet" type="text/css" asp-src="/theme/css/cart/cart.rtl.css">
+    }
+    else
+    {
+        <link rel="stylesheet" type="text/css" asp-src="/theme/css/cart/cart.css">
+    }
+    <script asp-location="Head" asp-src="/theme/script/public.checkout.js"></script>
+
+    var storeLocation = workContext.CurrentStore.SslEnabled ? workContext.CurrentStore.SecureUrl.TrimEnd('/') : workContext.CurrentStore.Url.TrimEnd('/');
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.Checkout"]);
+}
+@{
+    //step numbers
+    int shippingAddressStepNumber = 1;
+    int billingAddressStepNumber = 2;
+    int shippingMethodStepNumber = 3;
+    int paymentMethodStepNumber = 4;
+    int paymentInfoStepNumber = 5;
+    int confirmOrderStepNumber = 6;
+    if (!Model.ShippingRequired)
+    {
+        billingAddressStepNumber = 1;
+        paymentMethodStepNumber = paymentMethodStepNumber - 2;
+        paymentInfoStepNumber = paymentInfoStepNumber - 2;
+        confirmOrderStepNumber = confirmOrderStepNumber - 2;
+    }
+
+}
+<div class="page checkout-page">
+    <h1 class="generalTitle h2 my-3">@Loc["Checkout"]</h1>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_content_before" })
+    <b-col cols="12" class="px-0">
+        <div class="opc-header">
+            @if (Model.ShippingRequired)
+            {
+                <b-card-header header-tag="div" role="tab">
+                    <b-button block v-b-toggle.opc-shipping id="button-shipping" variant="info">@shippingAddressStepNumber. @Loc["Checkout.ShippingAddress"]</b-button>
+                </b-card-header>
+            }
+            <b-card-header header-tag="div" role="tab">
+                <b-button block v-b-toggle.opc-billing id="button-billing" variant="info" class="allow">@billingAddressStepNumber. @Loc["Checkout.BillingAddress"]</b-button>
+            </b-card-header>
+            @if (Model.ShippingRequired)
+            {
+                <b-card-header header-tag="div" role="tab">
+                    <b-button block v-b-toggle.opc-shipping-method id="button-shipping-method" variant="info">@shippingMethodStepNumber. @Loc["Checkout.ShippingMethod"]</b-button>
+                </b-card-header>
+            }
+            <b-card-header header-tag="div" role="tab">
+                <b-button block v-b-toggle.opc-payment-method id="button-payment-method" variant="info">@paymentMethodStepNumber. @Loc["Checkout.PaymentMethod"]</b-button>
+            </b-card-header>
+            <b-card-header header-tag="div" role="tab">
+                <b-button block v-b-toggle.opc-payment-info id="button-payment-info" variant="info">@paymentInfoStepNumber. @Loc["Checkout.PaymentInfo"]</b-button>
+            </b-card-header>
+            <b-card-header header-tag="div" role="tab">
+                <b-button block v-b-toggle.opc-confirm-order id="button-confirm-order" variant="info">@confirmOrderStepNumber. @Loc["Checkout.ConfirmOrder"]</b-button>
+            </b-card-header>
+        </div>
+        <b-form-row>
+            <b-col xl="7" cols="12">
+                <template>
+                    <div class="accordion opc" id="checkout-steps" role="tablist">
+                        @if (Model.ShippingRequired)
+                        {
+                            <b-card no-body>
+                                <b-collapse id="opc-shipping" visible accordion="my-accordion" role="tabpanel" appear>
+                                    <b-card-body>
+                                        <form action="" id="co-shipping-form">
+                                            <div id="checkout-shipping-load">
+                                                <partial name="_ShippingAddress" model="Model.ShippingAddress" />
+                                            </div>
+                                        </form>
+                                        <div class="col-12 buttons py-1 px-0 mt-3" id="shipping-buttons-container">
+                                            <input type="button" class="btn btn-info new-address-next-step-button" @@click="validateBeforeClick($event)" title="@Loc["Common.Continue"]" onclick="vmorder.vShipping.save()" value="@Loc["Common.Continue"]" />
+                                            <span id="shipping-please-wait" class="please-wait" style="display: none;"> @Loc["Common.LoadingNextStep"]</span>
+                                        </div>
+                                    </b-card-body>
+                                </b-collapse>
+                            </b-card>
+                        }
+                        <b-card no-body>
+                            <b-collapse id="opc-billing" @if (!Model.ShippingRequired) { <text> visible </text> } accordion="my-accordion" role="tabpanel" appear>
+                                <b-card-body>
+                                    <form id="co-billing-form" action="">
+                                        <div id="checkout-billing-load">
+                                            @if (Model.ShippingRequired)
+                                            {
+                                                <partial name="_BillingAddress" model="Model" />
+                                            }
+                                            else
+                                            {
+                                                <partial name="_BillingWithoutShipping" model="Model.BillingAddress" />
+                                            }
+                                        </div>
+                                    </form>
+                                    <div class="col-12 buttons py-1 mt-3 px-0" id="billing-buttons-container">
+                                        <a class="btn btn-secondary" id="back-billing" href="#" onclick="vmorder.Checkout.back(); return false; ">@Loc["Common.Back"]</a>
+                                        <input type="button" title="@Loc["Common.Continue"]" @@click="validateBeforeClick($event)" class="btn btn-info new-address-next-step-button" onclick="vmorder.vBilling.save()" value="@Loc["Common.Continue"]" />
+                                        <span class="please-wait" id="billing-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
+                                    </div>
+                                </b-card-body>
+                            </b-collapse>
+                        </b-card>
+                        @if (Model.ShippingRequired)
+                        {
+                            <b-card no-body>
+                                <b-collapse id="opc-shipping-method" accordion="my-accordion" role="tabpanel" appear>
+                                    <b-card-body>
+                                        <form id="co-shipping-method-form" action="">
+                                            <div id="checkout-shipping-method-load">
+                                                @*In that field all available shipping methods will be loaded*@
+                                                <partial name="_ShippingMethods" model="Model" />
+                                            </div>
+                                            <div class="col-12 buttons py-1 px-0 mt-3" id="shipping-method-buttons-container">
+                                                <a class="btn btn-secondary" href="#" id="back-shipping_method" onclick="vmorder.Checkout.back(); return false;">@Loc["Common.Back"]</a>
+                                                <input type="button" class="btn btn-info shipping-method-next-step-button" onclick="vmorder.vShippingMethod.save()" value="@Loc["Common.Continue"]" />
+                                                <span id="shipping-method-please-wait" class="please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
+                                            </div>
+                                        </form>
+                                    </b-card-body>
+                                </b-collapse>
+                            </b-card>
+
+                        }
+                        <b-card no-body>
+                            <b-collapse id="opc-payment-method" accordion="my-accordion" role="tabpanel" appear>
+                                <b-card-body>
+                                    <form action="" id="co-payment-method-form">
+                                        <div id="checkout-payment-method-load">
+                                            @*In that field all available payment methods will be loaded*@
+                                            <partial name="_PaymentMethods" model="Model" />
+                                        </div>
+                                    </form>
+                                    <div class="col-12 buttons py-1 mt-3 px-0" id="payment-method-buttons-container">
+                                        @if (paymentMethodStepNumber > 1)
+                                        {
+                                            <a class="btn btn-secondary" href="#" id="back-payment_method" onclick="vmorder.Checkout.back(); return false;">@Loc["Common.Back"]</a>
+                                        }
+                                        <input type="button" class="btn btn-info payment-method-next-step-button" onclick="vmorder.vPaymentMethod.save()" value="@Loc["Common.Continue"]" />
+                                        <span class="please-wait" id="payment-method-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
+                                    </div>
+                                </b-card-body>
+                            </b-collapse>
+                        </b-card>
+                        <b-card no-body>
+                            <b-collapse id="opc-payment-info" accordion="my-accordion" role="tabpanel" appear>
+                                <b-card-body>
+                                    <form action="" id="co-payment-info-form">
+                                        <div id="checkout-payment-info-load">
+                                            @*In that field payment info section will be loaded*@
+                                            <partial name="_PaymentInfo" />
+                                        </div>
+                                    </form>
+                                    <div class="col-12 buttons py-1 mt-3 px-0" id="payment-info-buttons-container">
+                                        @if (!Model.HasSinglePaymentMethod || paymentMethodStepNumber > 1)
+                                        {
+                                            <a class="btn btn-secondary" href="#" id="back-payment_info" onclick="vmorder.Checkout.back();return false;">@Loc["Common.Back"]</a>
+                                        }
+                                        <input type="button" class="btn btn-info payment-info-next-step-button" onclick="vmorder.vPaymentInfo.save()" value="@Loc["Common.Continue"]" />
+                                        <span class="please-wait" id="payment-info-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
+                                    </div>
+                                </b-card-body>
+                            </b-collapse>
+                        </b-card>
+                        <b-card no-body>
+                            <b-collapse id="opc-confirm-order" accordion="my-accordion" role="tabpanel" appear>
+                                <b-card-body>
+                                    <div id="checkout-confirm-order-load">
+                                        <partial name="_ConfirmOrder" />
+                                    </div>
+                                    <div id="confirm-order-buttons-container">
+                                        <a class="btn btn-secondary sr-only" href="#" id="back-confirm_order" onclick="vmorder.Checkout.back(); return false;">@Loc["Common.Back"]</a>
+                                        <span class="please-wait" id="confirm-order-please-wait" style="display: none;">@Loc["Checkout.SubmittingOrder"]</span>
+                                    </div>
+                                </b-card-body>
+                            </b-collapse>
+                        </b-card>
+                    </div>
+                </template>
+            </b-col>
+            <b-col xl="5" cols="12">
+                <div class="opc-totals">
+                    <partial name="_Summary" />
+                </div>
+            </b-col>
+        </b-form-row>
+    </b-col>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_content_after" })
+</div>

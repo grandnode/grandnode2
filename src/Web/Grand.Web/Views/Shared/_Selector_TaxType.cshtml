@@ -1,0 +1,26 @@
+﻿@inject TaxSettings taxSettings
+@inject IWorkContext workContext
+@if (taxSettings.AllowCustomersToSelectTaxDisplayType)
+{
+    var text = "";
+    var className = "";
+    var returnUrl = Context?.Request?.GetEncodedPathAndQuery();
+
+    if (workContext.TaxDisplayType == TaxDisplayType.IncludingTax)
+    {
+        text = Loc["Tax.Inclusive"];
+        className = "active";
+    }
+    else
+    {
+        text = Loc["Tax.Exclusive"];
+    }
+    <b-dropdown class="mr-2" text="@text">
+        <b-dropdown-item class="@className" href="@Url.RouteUrl("ChangeTaxType", new { customertaxtype = ((int)TaxDisplayType.IncludingTax), returnUrl })">
+            @Loc["Tax.Inclusive"]
+        </b-dropdown-item>
+        <b-dropdown-item class="@className" href="@Url.RouteUrl("ChangeTaxType", new { customertaxtype = ((int)TaxDisplayType.ExcludingTax), returnUrl })">
+            @Loc["Tax.Exclusive"]
+        </b-dropdown-item>
+    </b-dropdown>
+}

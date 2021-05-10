@@ -1,0 +1,33 @@
+﻿@inject IWorkContext workContext
+
+@model CheckoutCompletedModel
+@{
+    Layout = "_SingleColumn";
+
+    //title
+    var supportRtl = workContext.WorkingLanguage.Rtl;
+    if (supportRtl)
+    {
+        <link rel="stylesheet" type="text/css" asp-src="/theme/css/cart/cart.rtl.css">
+    }
+    else
+    {
+        <link rel="stylesheet" type="text/css" asp-src="/theme/css/cart/cart.css">
+    }
+}
+<div class="page checkout-page order-completed-page text-xs-center">
+    <div class="checkout-data mt-3">
+        @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_completed_top", additionalData = Model.OrderId })
+        <b-jumbotron header="@Loc["Checkout.ThankYou"]" lead="@Loc["Checkout.YourOrderHasBeenSuccessfullyProcessed"]">
+            <div class="h5 mb-0">@Loc["Checkout.OrderNumber"]: <span class="text-info">@Model.OrderNumber</span></div>
+            <hr class="my-4">
+            <div class="buttons">
+                <a class="btn btn-secondary mb-1" href="@Url.RouteUrl("OrderDetails", new { orderId = Model.OrderId })">@Loc["Checkout.PlacedOrderDetails"]</a>
+                <button type="button" class="btn btn-info order-completed-continue-button mb-1" onclick="location=('@Url.RouteUrl("HomePage")')">
+                    @Loc["Checkout.ThankYou.Continue"]
+                </button>
+            </div>
+        </b-jumbotron>
+        @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_completed_bottom", additionalData = Model.OrderId })
+    </div>
+</div>

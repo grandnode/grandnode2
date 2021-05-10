@@ -1,0 +1,46 @@
+﻿@model Grand.Web.Admin.Models.Common.LoginModel
+@{
+    //page title
+    Layout = "";
+}
+@{
+    //page title
+    string adminPageTitle = "";
+    if (!String.IsNullOrWhiteSpace(ViewBag.Title))
+    {
+        adminPageTitle = ViewBag.Title + " / ";
+    }
+    adminPageTitle += Loc["Admin.Login.PageTitle"];
+
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@adminPageTitle</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+    <link rel="stylesheet" type="text/css" href="/_content/Grand.Web.Admin/administration/build/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="/_content/Grand.Web.Admin/administration/simple-line-icons/simple-line-icons.min.css" />
+    <link rel="stylesheet" type="text/css" href="/_content/Grand.Web.Admin/administration/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/_content/Grand.Web.Admin/administration/build/css/custom.css" />
+
+    <script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/build/js/jquery.min.js"></script>
+    <script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/build/js/moment.min.js"></script>
+    <script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/jquery.validate.min.js"></script>
+    <script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/jquery.validate.unobtrusive.min.js"></script>
+    <script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+    <script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/bootstrap/js/popper.min.js"></script>
+    <script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/bootstrap/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+    @Html.AntiForgeryToken()
+    <div class="container body admin-login-layout">
+        <div class="main_container">
+            @RenderBody()
+        </div>
+    </div>
+</body>
+</html>

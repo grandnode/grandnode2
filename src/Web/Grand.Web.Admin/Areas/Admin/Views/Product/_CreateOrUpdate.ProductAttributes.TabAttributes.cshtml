@@ -1,0 +1,154 @@
+﻿@model ProductModel
+
+<div class="panel panel-default">
+    <vc:admin-widget widget-zone="product_details_product_attributes_top" additional-data="Model" />
+    <div class="panel-body">
+        <div id="productattributemappings-grid"></div>
+    </div>
+    <vc:admin-widget widget-zone="product_details_product_attributes_bottom" additional-data="Model" />
+    <div class="panel-footer">
+        <button type="submit" id="btnAddNewAttributes" onclick="javascript:OpenWindow('@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshProductAttributes", formId = "product-form", area = Constants.AreaAdmin }))', 800, 600, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.ProductAttributes.AddNew"]</button>
+    </div>
+</div>
+
+<script>
+        $(document).ready(function() {
+            $("#productattributemappings-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("ProductAttributeMappingList", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        create: {
+                            url: "@Html.Raw(Url.Action("ProductAttributeMappingInsert", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        update: {
+                            url: "@Html.Raw(Url.Action("ProductAttributeMappingUpdate", "Product", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("ProductAttributeMappingDelete", "Product", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                ProductAttribute: { editable: true, type: "string" },
+                                ProductAttributeId: { editable: true, type: "string" },
+                                TextPrompt: { editable: true, type: "string" },
+                                IsRequired: { editable: true, type: "boolean" },
+                                AttributeControlType: { editable: true, type: "string" },
+                                AttributeControlTypeId: { editable: true, type: "number" },
+                                DisplayOrder: { editable: true, type: "number" },
+                                ShouldHaveValues: { editable: false, type: "boolean" },
+                                TotalValues: { editable: false, type: "number" },
+                                ValidationRulesAllowed: { editable: false, type: "boolean" },
+                                ConditionAllowed: { editable: false, type: "boolean" },
+                                Id: { editable: false, type: "string" }
+                            }
+                        }
+                    },
+                    requestEnd: function(e) {
+                        if (e.type == "create" || e.type == "update") {
+                            this.read();
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [
+                    {
+                        field: "ProductAttributeId",
+                        title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute"]",
+                        width: 190,
+                        template: "<a class='k-link' href='javascript:OpenWindow(\"@Url.Action("ProductAttributeMappingPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#&btnId=btnRefreshProductAttributes&formId=product-form\", 800, 600, true);'>#=kendo.htmlEncode(ProductAttribute)#<br /></a>"
+                    }, {
+                        field: "TextPrompt",
+                        title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Fields.TextPrompt"]",
+                        width: 120
+                    }, {
+                        field: "IsRequired",
+                        title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Fields.IsRequired"]",
+                        width: 50,
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        template: '# if(IsRequired) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                    },
+                    {
+                        field: "AttributeControlTypeId",
+                        title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Fields.AttributeControlType"]",
+                        width: 140,
+                        template: "#:AttributeControlType# <br> # if(ValidationRulesAllowed) {# <a href='javascript:OpenWindow(\"@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form\", 800, 300, true);'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.ViewLink"]</a><br />#=ValidationRulesString# #}  #"
+                    },
+                    {
+                        field: "ShouldHaveValues",
+                        title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values"]",
+                        width: 60,
+                        template: '# if(ShouldHaveValues) {# <a href="@Url.Action("EditAttributeValues", "Product", new { area = Constants.AreaAdmin })/?productAttributeMappingId=#=Id#&productId=@(Model.Id)">@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.ViewLink"]</a><br />@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.TotalValues"] #=TotalValues# #}  #'
+                    },
+                    {
+                        field: "ConditionAllowed",
+                        title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Condition"]",
+                        width: 80,
+                        template: "# if(ConditionAllowed) {# <a href='javascript:OpenWindow(\"@Url.Action("ProductAttributeConditionPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#&btnId=btnRefreshProductAttributes&formId=product-form\", 800, 400, true);'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Condition.ViewLink"]</a><br /> #}  #"
+                    },
+                    {
+                        command: [
+                            {
+                                name: "destroy",
+                                text: "@Loc["Admin.Common.Delete"]"
+                            }
+                        ],
+                        width: 50
+                    }
+                ]
+            });
+        });
+
+
+</script>
+<input type="submit" id="btnRefreshProductAttributes" style="display: none" />
+<script>
+        $(document).ready(function () {
+            $('#btnRefreshProductAttributes').click(function () {
+                //refresh grid
+                var grid = $("#productattributemappings-grid").data('kendoGrid');
+                grid.dataSource.read();
+
+                //return false to don't reload a page
+                return false;
+            });
+        });
+</script>

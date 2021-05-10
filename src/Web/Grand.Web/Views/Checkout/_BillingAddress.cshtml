@@ -1,0 +1,45 @@
+﻿<div class="checkout-data" v-if="vmorder.BillingAddress">
+    @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_billing_address_top" })
+   
+    <div class="section select-billing-address">
+        <label for="billing-address-select">@Loc["Checkout.SelectBillingAddressOrEnterNewOne"]</label>
+        <div>
+            <select name="billing_address_id" id="billing-address-select" class="custom-select address-select" title="" onchange="vmorder.vBilling.newAddress(!this.value)">
+                <template v-for="address in vmorder.BillingExistingAddresses">
+                    <option :value="address.Id">
+                        {{address.FirstName}}
+                        {{address.LastName}}
+                        <template v-if="address.StreetAddressEnabled && address.Address1 !== null">
+                            , {{address.Address1}}
+                        </template>
+                        <template v-if="address.CityEnabled && address.City !== null">
+                            , {{address.City}}
+                        </template>
+                        <template v-if="address.StateProvinceEnabled && address.StateProvinceName !== null">
+                            , {{address.StateProvinceName}}
+                        </template>
+                        <template v-if="address.ZipPostalCodeEnabled && address.ZipPostalCode !== null">
+                            , {{address.ZipPostalCode}}
+                        </template>
+                        <template v-if="address.CountryEnabled && address.CountryName !== null">
+                            , {{address.CountryName}}
+                        </template>
+                    </option>
+                </template>
+                <option value="" :selected="vmorder.BillingNewAddressPreselected">@Loc["Checkout.NewAddress"]</option>
+            </select>
+        </div>
+    </div>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_billing_address_middle" })
+    <div class="section new-billing-address" id="billing-new-address-form" v-if="vmorder.BillingNewAddressPreselected">
+        <div class="enter-address">
+            <div asp-validation-summary="ModelOnly" class="message-error"></div>
+            @{
+                var dataDictAddress = new ViewDataDictionary(ViewData);
+                dataDictAddress.TemplateInfo.HtmlFieldPrefix = "BillingNewAddress";
+                <partial name="_CreateOrUpdateAddress" model="Model.BillingAddress.NewAddress" view-data="dataDictAddress" />
+            }
+        </div>
+    </div>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_billing_address_bottom" })
+</div>

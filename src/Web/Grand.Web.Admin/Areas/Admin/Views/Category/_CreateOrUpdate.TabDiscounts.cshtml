@@ -1,0 +1,22 @@
+﻿@model CategoryModel
+<vc:admin-widget widget-zone="category_details_discounts_top" additional-data="Model" />
+@if (Model.AvailableDiscounts != null && Model.AvailableDiscounts.Count > 0)
+{
+    <div class="mt-checkbox-list">
+        @foreach (var discount in Model.AvailableDiscounts)
+        {
+            <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                <input type="checkbox" name="SelectedDiscountIds" value="@discount.Id"
+                       @if (Model.SelectedDiscountIds != null && Model.SelectedDiscountIds.Contains(discount.Id)) { <text> checked="checked" </text>         } />@discount.Name
+                     <div class="control__indicator"></div>
+                </label>
+        }
+    </div>
+}
+else
+{
+    <div class="note note-info">
+        @Html.Raw(@Loc["Admin.Catalog.Categories.Discounts.NoDiscounts"])
+    </div>
+}
+<vc:admin-widget widget-zone="category_details_discounts_bottom" additional-data="Model" />

@@ -1,0 +1,207 @@
+﻿@model MerchandiseReturnListModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Orders.MerchandiseReturns"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="MerchandiseReturn" asp-action="List" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit popup-window">
+                <div class="x_title">
+                    <div class="caption level-caption">
+                        <i class="fa fa-truck"></i>
+                        @Loc["Admin.Orders.MerchandiseReturns"]
+                    </div>
+                    <vc:admin-widget widget-zone="merchandisereturn_list_buttons" additional-data="null" />
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="main-header col-12 px-0">
+                                <div class="row align-items-end">
+                                    <div class="col-md-4 col-ms-12 col-12">
+                                        <div class="form-group mb-0">
+                                            <admin-label asp-for="SearchCustomerEmail" class="control-label" />
+                                            <admin-input asp-for="SearchCustomerEmail" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-ms-12 col-12">
+                                        <div class="form-group mb-0">
+                                            <admin-label asp-for="GoDirectlyToId" class="control-label" />
+                                            <div class="input-group mb-0" style="text-align:left">
+                                                <admin-input asp-for="GoDirectlyToId" />
+                                                <span class="input-group-append">
+                                                    <input type="submit" id="go-to-merchandisereturn" asp-action="GoToId" name="go-to-merchandisereturn" class="btn default" value="@Loc["Admin.Common.Go"]" />
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-12 col-12">
+                                        <div class="form-actions">
+                                            <div class="btn-group">
+                                                <button class="btn btn-success filter-submit" id="search-returnreqest">
+                                                    <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                                </button>
+                                                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                    <i class="fa fa-filter"></i>&nbsp; Filters
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse" id="filterCollapse">
+                            <div class="drop-filters-container w-100">
+                                <div class="form-group">
+                                    <admin-label asp-for="StartDate" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="StartDate" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="EndDate" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="EndDate" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="SearchCustomerEmail" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="SearchCustomerEmail" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="SearchMerchandiseReturnStatusId" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-select asp-for="SearchMerchandiseReturnStatusId" asp-items="Model.MerchandiseReturnStatus" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="x_content">
+                        <div id="merchandisereturns-grid"></div>
+                    </div>     
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+    <script>
+    $(document).ready(function() {
+        $("#merchandisereturns-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("List", "MerchandiseReturn", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [
+                {
+                    field: "ReturnNumber",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.ID"]",
+                    width: 50,
+                    template: '<a class="k-link" href="Edit/#=Id#">#=ReturnNumber#</a>'
+                }, {
+                    field: "Quantity",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Quantity"]",
+                    width: 80,
+                    template: '<a class="k-link" href="Edit/#=Id#">#=Quantity#</a>'
+                }, {
+                    field: "Total",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Total"]",
+                    width: 100,
+                    template: '<a class="k-link" href="Edit/#=Id#">#=Total#</a>'
+                } , {
+                    field: "CustomerId",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Customer"]",
+                    width: 200,
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/#=CustomerId#">#:kendo.htmlEncode(CustomerInfo)#</a>'
+                }, {
+                    field: "OrderId",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Order"]",
+                    width: 80,
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=OrderId#">#:OrderNumber#</a>'
+                }, {
+                    field: "MerchandiseReturnStatusStr",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Status"]",
+                    width: 130,
+                    template: '<a class="k-link" href="Edit/#=Id#">#=MerchandiseReturnStatusStr#</a>'
+                }, {
+                    field: "CreatedOn",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.CreatedOn"]",
+                    width: 100,
+                    type: "date",
+                    format: "{0:G}"
+                }
+            ]
+        });
+    });
+    </script>
+
+    <script>
+    function additionalData() {
+        var data = {
+            SearchMerchandiseReturnStatusId: $('#@Html.IdFor(model => model.SearchMerchandiseReturnStatusId)').val(),
+            SearchCustomerEmail: $('#@Html.IdFor(model => model.SearchCustomerEmail)').val(),
+            StartDate: $('#@Html.IdFor(model => model.StartDate)').val(),
+            EndDate: $('#@Html.IdFor(model => model.EndDate)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+    $(document).ready(function () {
+        $('#search-returnreqest').click(function () {
+            //search
+            var grid = $('#merchandisereturns-grid').data('kendoGrid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            return false;
+        });
+
+        $("#@Html.IdFor(model => model.SearchCustomerEmail)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-returnreqest").click();
+                return false;
+            }
+        });
+        $("#@Html.IdFor(model => model.GoDirectlyToId)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#go-to-merchandisereturn").click();
+                return false;
+            }
+        });
+    });
+    </script>

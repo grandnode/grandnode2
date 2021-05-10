@@ -1,0 +1,147 @@
+﻿@model MerchandiseReturnModel
+@inject AdminAreaSettings adminAreaSettings
+@inject OrderSettings orderSettings
+
+<div class="form-horizontal">
+    <vc:admin-widget widget-zone="merchandisereturn_tab_info_top" additional-data="Model" />
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="ReturnNumber" />
+            <div class="col-md-9 col-sm-9">
+                <label class="control-label">@Model.ReturnNumber</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ExternalId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="ExternalId" />
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="OrderId" />
+            <div class="col-md-9 col-sm-9">
+                <label class="control-label">@Html.ActionLink(Loc["Admin.Common.View"], "Edit", "Order", new { id = Model.OrderId }, new { })</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CustomerId" />
+            <div class="col-md-9 col-sm-9">
+                <label class="control-label"> @Html.ActionLink(Model.CustomerInfo, "Edit", "Customer", new { id = Model.CustomerId }, new { }) </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="MerchandiseReturnStatusId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="MerchandiseReturnStatusId" asp-items="((MerchandiseReturnStatus)Model.MerchandiseReturnStatusId).ToSelectList(Context)" />
+                <span asp-validation-for="MerchandiseReturnStatusId"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CustomerComments" />
+            <div class="col-md-9 col-sm-9">
+                <admin-textarea asp-for="CustomerComments"></admin-textarea>
+                <span asp-validation-for="CustomerComments"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="StaffNotes" />
+            <div class="col-md-9 col-sm-9">
+                <admin-textarea asp-for="StaffNotes"></admin-textarea>
+                <span asp-validation-for="StaffNotes"></span>
+            </div>
+        </div>
+        @if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate)
+        {
+            <div class="form-group">
+                <admin-label asp-for="PickupDate" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="PickupDate" />
+                </div>
+            </div>
+        }
+        <div class="form-group">
+            <admin-label asp-for="CreatedOn" />
+            <div class="col-md-9 col-sm-9">
+                <label class="control-label">@Html.DisplayFor(model => model.CreatedOn)</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="NotifyCustomer" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="NotifyCustomer" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="NotifyCustomer"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div id="products-grid"></div>
+        </div>
+    </div>
+    <vc:admin-widget widget-zone="merchandisereturn_tab_info_bottom" additional-data="Model" />
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        var data = { merchandiseReturnId: "@Model.Id" };
+        addAntiForgeryToken(data);
+
+        $("#products-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("ProductsForMerchandiseReturn", "MerchandiseReturn", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: data
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [
+                {
+                    field: "ProductName",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Item"]",
+                    width: 200,
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>'
+                }, {
+                    field: "Quantity",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.Quantity"]",
+                    width: 80
+                }, {
+                    field: "UnitPrice",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.UnitPrice"]",
+                    width: 100
+                }, {
+                    field: "ReasonForReturn",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.ReturnReason"]",
+                    width: 200
+                }, {
+                    field: "RequestedAction",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.Fields.ReturnAction"]",
+                    width: 200,
+                }
+            ]
+        });
+    });
+</script>

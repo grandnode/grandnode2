@@ -1,0 +1,129 @@
+﻿@model CurrencyModel
+@using Microsoft.AspNetCore.Mvc.Razor;
+
+@{ Func<int, HelperResult>
+         template = @<div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="@Model.Locales[item].Name" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="@Model.Locales[item].Name" />
+                <span asp-validation-for="@Model.Locales[item].Name"></span>
+            </div>
+        </div>
+        <input type="hidden" asp-for="@Model.Locales[item].LanguageId" />
+        </div>;
+}
+
+<div class="form-horizontal">
+    <localized-editor localized-template=@template name="currency-info-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="Name" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+    </div>
+    </localized-editor>
+
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="CurrencyCode" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="CurrencyCode" />
+                <span asp-validation-for="CurrencyCode"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Rate" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Rate" />
+                <span asp-validation-for="Rate"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisplayLocale" />
+            <div class="col-md-9 col-sm-9">
+                @{
+                    var cultures = System.Globalization.CultureInfo.GetCultures(System.Globalization.CultureTypes.SpecificCultures)
+                        .OrderBy(x => x.EnglishName)
+                        .Select(x => new SelectListItem
+                        {
+                            Value = x.IetfLanguageTag,
+                            Text = string.Format("{0}. {1}", x.EnglishName, x.IetfLanguageTag)
+                        })
+                        .ToList();
+                    cultures.Insert(0, new SelectListItem
+                    {
+                        Value = "",
+                        Text = Loc["Admin.Configuration.Currencies.Fields.DisplayLocale.Select"]
+                    });
+                }
+                <admin-select asp-for="DisplayLocale" asp-items="cultures" />
+                <span asp-validation-for="DisplayLocale"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CustomFormatting" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="CustomFormatting" />
+                <span asp-validation-for="CustomFormatting"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Published" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="Published" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="Published"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisplayOrder" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrder" />
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="RoundingTypeId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="RoundingTypeId" asp-items="((RoundingType)Model.RoundingTypeId).ToSelectList(Context)" />
+                <span asp-validation-for="RoundingTypeId"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="MidpointRoundId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="MidpointRoundId" asp-items="((MidpointRounding)Model.MidpointRoundId).ToSelectList(Context)" />
+                <span asp-validation-for="MidpointRoundId"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="NumberDecimal" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="NumberDecimal" />
+                <span asp-validation-for="NumberDecimal"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Stores" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Stores" />
+                <span asp-validation-for="Stores"></span>
+            </div>
+        </div>
+        @if (!String.IsNullOrEmpty(Model.Id))
+        {
+            <div class="form-group">
+                <admin-label asp-for="CreatedOn" />
+                <div class="col-md-9 col-sm-9">
+                    <label class="control-label">@Model.CreatedOn</label>
+                </div>
+            </div>
+        }
+    </div>
+</div>

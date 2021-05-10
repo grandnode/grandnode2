@@ -1,0 +1,200 @@
+﻿@model MerchandiseReturnModel
+<div class="panel panel-default">
+    <vc:admin-widget widget-zone="merchandisereturn_details_notes_top" additional-data="Model" />
+    <div class="panel-body">
+        <div id="merchandisereturnnotes-grid"></div>
+    </div>
+    <vc:admin-widget widget-zone="merchandisereturn_details_notes_bottom" additional-data="Model" />
+</div>
+<script>
+        $(document).ready(function () {
+            $("#merchandisereturnnotes-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("MerchandiseReturnNotesSelect", "MerchandiseReturn", new { merchandisereturnId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("MerchandiseReturnNoteDelete", "MerchandiseReturn", new { merchandisereturnId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                //do not implicitly specify all fields
+                                //we do it only for fields which implicitly require it
+                                //otherwise, they'll be formatted wrong way
+                                CreatedOn: {type: "date" }
+                            }
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "CreatedOn",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.CreatedOn"]",
+                    width: 180,
+                    type: "date",
+                    format: "{0:G}"
+                }, {
+                    field: "Note",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Note"]",
+                    width: 350,
+                    encoded: false
+                }, {
+                    field: "DownloadId",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Download"]",
+                    width: 100,
+                    template: '# if(DownloadId != "") {# <a href="@Url.Action("DownloadFile", "Download", new { area = Constants.AreaAdmin })/?downloadGuid=#=DownloadGuid#">@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Download.Link"]</a> #} else {# @Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.Download.Link.No"] #} #'
+                }, {
+                    field: "CreatedByCustomer",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.CreatedByCustomer"]",
+                    width: 100,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(CreatedByCustomer) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                }, {
+                    field: "DisplayToCustomer",
+                    title: "@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.DisplayToCustomer"]",
+                    width: 100,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(DisplayToCustomer) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                }, {
+                    command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                    title: "@Loc["Admin.Common.Delete"]",
+                    width: 100
+                }]
+            });
+        });
+</script>
+<p>
+    <strong>
+        @Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.AddTitle"]
+    </strong>
+</p>
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.AddMerchandiseReturnNoteHasDownload)").change(toggleAddMerchandiseReturnNoteHasDownload);
+        toggleAddMerchandiseReturnNoteHasDownload();
+    });
+    function toggleAddMerchandiseReturnNoteHasDownload() {
+        if ($('#@Html.IdFor(model => model.AddMerchandiseReturnNoteHasDownload)').is(':checked')) {
+            $('#pnlAddMerchandiseReturnNoteDownloadId').show();
+        }
+        else {
+            $('#pnlAddMerchandiseReturnNoteDownloadId').hide();
+        }
+    }
+
+</script>
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="AddMerchandiseReturnNoteMessage" />
+            <div class="col-md-9 col-sm-9">
+                <admin-textarea asp-for="AddMerchandiseReturnNoteMessage"></admin-textarea>
+                <span asp-validation-for="AddMerchandiseReturnNoteMessage"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AddMerchandiseReturnNoteDownloadId" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="AddMerchandiseReturnNoteHasDownload" />
+                    <div class="control__indicator"></div>
+                </label>
+                <div id="pnlAddMerchandiseReturnNoteDownloadId">
+                    <admin-input asp-for="AddMerchandiseReturnNoteDownloadId" />
+                    <span asp-validation-for="AddMerchandiseReturnNoteDownloadId"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AddMerchandiseReturnNoteDisplayToCustomer" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="AddMerchandiseReturnNoteDisplayToCustomer" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="AddMerchandiseReturnNoteDisplayToCustomer"></span>
+            </div>
+        </div>
+        <div class="form-actions">
+            <div class="offset-md-3 col-md-9 col-sm-9">
+                <button type="button" id="addMerchandiseReturnNote" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.AddButton"]</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#addMerchandiseReturnNote').click(function () {
+            var merchandisereturnNoteMessage = $("#@Html.IdFor(model => model.AddMerchandiseReturnNoteMessage)").val();
+            if (merchandisereturnNoteMessage.length == 0) {
+                alert('Message text is required');
+                return;
+            }
+            var merchandisereturnNoteDownloadId = '';
+            if ($('#@Html.IdFor(model => model.AddMerchandiseReturnNoteHasDownload)').is(':checked')) {
+                merchandisereturnNoteDownloadId = $("#@Html.IdFor(model => model.AddMerchandiseReturnNoteDownloadId)").val();
+            }
+            var merchandisereturnNoteDisplayToCustomer = $("#@Html.IdFor(model => model.AddMerchandiseReturnNoteDisplayToCustomer)").is(':checked');
+            $('#addMerchandiseReturnNote').attr('disabled', true);
+            var postData = {
+                DisplayToCustomer: merchandisereturnNoteDisplayToCustomer,
+                message: merchandisereturnNoteMessage,
+                downloadId: merchandisereturnNoteDownloadId,
+                merchandisereturnId: '@Model.Id',
+                orderId: '@Model.OrderId'
+            };
+            addAntiForgeryToken(postData);
+
+            $.ajax({
+                cache:false,
+                type: "POST",
+                url: "@(Url.Action("MerchandiseReturnNoteAdd", "MerchandiseReturn", new { area = Constants.AreaAdmin }))",
+                data: postData,
+                success: function (data) {
+                    var grid = $("#merchandisereturnnotes-grid").data('kendoGrid');
+                    grid.dataSource.read();
+                    $('#addMerchandiseReturnNote').attr('disabled', false);
+                },
+                error:function (xhr, ajaxOptions, thrownError){
+                    alert('Failed to add merchandise return note.');
+                    $('#addMerchandiseReturnNote').attr('disabled', false);
+                }
+            });
+        });
+    });
+</script>

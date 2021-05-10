@@ -1,0 +1,679 @@
+﻿@model CatalogSettingsModel
+
+<script>
+    $(document).ready(function () {
+
+        $("#@Html.IdFor(model => model.ShowCategoryProductNumber)").click(toggleShowCategoryProductNumberIncludingSubcategories);
+        $("#@Html.IdFor(model => model.EmailAFriendEnabled)").click(toggleEmailAFriend);
+        $("#@Html.IdFor(model => model.RecentlyViewedProductsEnabled)").click(toggleRecentlyViewedProducts);
+        $("#@Html.IdFor(model => model.SuggestedProductsEnabled)").click(toggleSuggestedProducts);
+        $("#@Html.IdFor(model => model.PersonalizedProductsEnabled)").click(togglePersonalizedProducts);
+        $("#@Html.IdFor(model => model.NewProductsEnabled)").click(toggleNewProducts);
+        $("#@Html.IdFor(model => model.NewProductsOnHomePage)").click(toggleNewProductsHomePage);
+        $("#@Html.IdFor(model => model.ShowBestsellersOnHomepage)").click(toggleBestsellersOnHomepage);
+        $("#@Html.IdFor(model => model.ProductsAlsoPurchasedEnabled)").click(toggleProductsAlsoPurchasedNumber);
+        $("#@Html.IdFor(model => model.ProductsByTagAllowCustomersToSelectPageSize)").click(toggleProductsByTagPageSize);
+
+        toggleShowCategoryProductNumberIncludingSubcategories();
+        toggleEmailAFriend();
+        toggleRecentlyViewedProducts();
+        toggleSuggestedProducts();
+        togglePersonalizedProducts();
+        toggleNewProducts();
+        toggleNewProductsHomePage();
+        toggleBestsellersOnHomepage();
+        toggleProductsAlsoPurchasedNumber();
+        toggleProductsByTagPageSize();
+    });
+
+    function toggleShowCategoryProductNumberIncludingSubcategories() {
+        if ($('#@Html.IdFor(model => model.ShowCategoryProductNumber)').is(':checked')) {
+            $('#pnlShowCategoryProductNumberIncludingSubcategories').show();
+        }
+        else {
+            $('#pnlShowCategoryProductNumberIncludingSubcategories').hide();
+        }
+    }
+
+    function toggleEmailAFriend() {
+        if ($('#@Html.IdFor(model => model.EmailAFriendEnabled)').is(':checked')) {
+            $('#pnlAllowAnonymousUsersToEmailAFriend').show();
+        }
+        else {
+            $('#pnlAllowAnonymousUsersToEmailAFriend').hide();
+        }
+    }
+
+    function toggleRecentlyViewedProducts() {
+        if ($('#@Html.IdFor(model => model.RecentlyViewedProductsEnabled)').is(':checked')) {
+            $('#pnlRecentlyViewedProductsNumber').show();
+        }
+        else {
+            $('#pnlRecentlyViewedProductsNumber').hide();
+        }
+    }
+
+    function toggleSuggestedProducts() {
+        if ($('#@Html.IdFor(model => model.SuggestedProductsEnabled)').is(':checked')) {
+            $('#pnlSuggestedProductsNumber').show();
+        }
+        else {
+            $('#pnlSuggestedProductsNumber').hide();
+        }
+    }
+
+    function togglePersonalizedProducts() {
+        if ($('#@Html.IdFor(model => model.PersonalizedProductsEnabled)').is(':checked')) {
+            $('#pnlPersonalizedProductsNumber').show();
+        }
+        else {
+            $('#pnlPersonalizedProductsNumber').hide();
+        }
+    }
+
+    function toggleNewProducts() {
+        if ($('#@Html.IdFor(model => model.NewProductsEnabled)').is(':checked')) {
+            $('#pnlNewProductsNumber').show();
+        }
+        else {
+            $('#pnlNewProductsNumber').hide();
+        }
+    }
+
+    function toggleNewProductsHomePage() {
+        if ($('#@Html.IdFor(model => model.NewProductsOnHomePage)').is(':checked')) {
+            $('#pnlNewProductsNumberOnHomePage').show();
+        }
+        else {
+            $('#pnlNewProductsNumberOnHomePage').hide();
+        }
+    }
+    function toggleBestsellersOnHomepage() {
+        if ($('#@Html.IdFor(model => model.ShowBestsellersOnHomepage)').is(':checked')) {
+            $('#pnlNumberOfBestsellersOnHomepage').show();
+        }
+        else {
+            $('#pnlNumberOfBestsellersOnHomepage').hide();
+        }
+    }
+
+    function toggleProductsAlsoPurchasedNumber() {
+        if ($('#@Html.IdFor(model => model.ProductsAlsoPurchasedEnabled)').is(':checked')) {
+            $('#pnlProductsAlsoPurchasedNumber').show();
+        }
+        else {
+            $('#pnlProductsAlsoPurchasedNumber').hide();
+        }
+    }
+
+    function toggleProductsByTagPageSize() {
+        if ($('#@Html.IdFor(model => model.ProductsByTagAllowCustomersToSelectPageSize)').is(':checked')) {
+            $('#pnlProductsByTagPageSize').hide();
+            $('#pnlProductsByTagPageSizeOptions').show();
+        } else {
+            $('#pnlProductsByTagPageSize').show();
+            $('#pnlProductsByTagPageSizeOptions').hide();
+        }
+    }
+</script>
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="col-md-6">
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="AllowViewUnpublishedProductPage" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="AllowViewUnpublishedProductPage" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="AllowViewUnpublishedProductPage"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="DisplayDiscontinuedMessageForUnpublishedProducts" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="DisplayDiscontinuedMessageForUnpublishedProducts" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="DisplayDiscontinuedMessageForUnpublishedProducts"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShowSkuOnProductDetailsPage" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShowSkuOnProductDetailsPage" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShowSkuOnProductDetailsPage"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShowSkuOnCatalogPages" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShowSkuOnCatalogPages" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShowSkuOnCatalogPages"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShowMpn" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShowMpn" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShowMpn"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShowGtin" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShowGtin" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShowGtin"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShowFreeShippingNotification" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShowFreeShippingNotification" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShowFreeShippingNotification"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="AllowProductSorting" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="AllowProductSorting" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="AllowProductSorting"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="AllowProductViewModeChanging" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="AllowProductViewModeChanging" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="AllowProductViewModeChanging"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShowProductsFromSubcategories" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShowProductsFromSubcategories" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShowProductsFromSubcategories"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShowCategoryProductNumber" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShowCategoryProductNumber" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShowCategoryProductNumber"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlShowCategoryProductNumberIncludingSubcategories">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShowCategoryProductNumberIncludingSubcategories" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShowCategoryProductNumberIncludingSubcategories" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShowCategoryProductNumberIncludingSubcategories"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CategoryBreadcrumbEnabled" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="CategoryBreadcrumbEnabled" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="CategoryBreadcrumbEnabled"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="AskQuestionEnabled" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="AskQuestionEnabled" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="AskQuestionEnabled"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="AskQuestionOnProduct" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="AskQuestionOnProduct" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="AskQuestionOnProduct"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="EmailAFriendEnabled" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="EmailAFriendEnabled" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="EmailAFriendEnabled"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlAllowAnonymousUsersToEmailAFriend">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="AllowAnonymousUsersToEmailAFriend" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="AllowAnonymousUsersToEmailAFriend" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="AllowAnonymousUsersToEmailAFriend"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="RecentlyViewedProductsEnabled" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="RecentlyViewedProductsEnabled" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="RecentlyViewedProductsEnabled"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlRecentlyViewedProductsNumber">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="RecentlyViewedProductsNumber" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="RecentlyViewedProductsNumber" />
+                    <span asp-validation-for="RecentlyViewedProductsNumber"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="RecommendedProductsEnabled" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="RecommendedProductsEnabled" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="RecommendedProductsEnabled"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="SuggestedProductsEnabled" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="SuggestedProductsEnabled" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="SuggestedProductsEnabled"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlSuggestedProductsNumber">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="SuggestedProductsNumber" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="SuggestedProductsNumber" />
+                    <span asp-validation-for="SuggestedProductsNumber"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="PersonalizedProductsEnabled" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="PersonalizedProductsEnabled" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="PersonalizedProductsEnabled"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlPersonalizedProductsNumber">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="PersonalizedProductsNumber" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="PersonalizedProductsNumber" />
+                    <span asp-validation-for="PersonalizedProductsNumber"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="NewProductsEnabled" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="NewProductsEnabled" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="NewProductsEnabled"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlNewProductsNumber">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="NewProductsNumber" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="NewProductsNumber" />
+                    <span asp-validation-for="NewProductsNumber"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="NewProductsOnHomePage" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="NewProductsOnHomePage" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="NewProductsOnHomePage"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlNewProductsNumberOnHomePage">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="NewProductsNumberOnHomePage" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="NewProductsNumberOnHomePage" />
+                    <span asp-validation-for="NewProductsNumberOnHomePage"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="PeriodBestsellers" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="PeriodBestsellers" />
+                    <span asp-validation-for="PeriodBestsellers"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShowBestsellersOnHomepage" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShowBestsellersOnHomepage" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShowBestsellersOnHomepage"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlNumberOfBestsellersOnHomepage">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="NumberOfBestsellersOnHomepage" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="NumberOfBestsellersOnHomepage" />
+                    <span asp-validation-for="NumberOfBestsellersOnHomepage"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ProductsAlsoPurchasedEnabled" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ProductsAlsoPurchasedEnabled" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ProductsAlsoPurchasedEnabled"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlProductsAlsoPurchasedNumber">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ProductsAlsoPurchasedNumber" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="ProductsAlsoPurchasedNumber" />
+                    <span asp-validation-for="ProductsAlsoPurchasedNumber"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="NumberOfProductTags" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="NumberOfProductTags" />
+                    <span asp-validation-for="NumberOfProductTags"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ProductsByTagAllowCustomersToSelectPageSize" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ProductsByTagAllowCustomersToSelectPageSize" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ProductsByTagAllowCustomersToSelectPageSize"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlProductsByTagPageSize">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ProductsByTagPageSize" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="ProductsByTagPageSize" />
+                    <span asp-validation-for="ProductsByTagPageSize"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlProductsByTagPageSizeOptions">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ProductsByTagPageSizeOptions" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="ProductsByTagPageSizeOptions" />
+                    <span asp-validation-for="ProductsByTagPageSizeOptions"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="CollectionsBlockItemsToDisplay" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="CollectionsBlockItemsToDisplay" />
+                    <span asp-validation-for="CollectionsBlockItemsToDisplay"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShowSpecAttributeOnCatalogPages" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShowSpecAttributeOnCatalogPages" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShowSpecAttributeOnCatalogPages"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="SecondPictureOnCatalogPages" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="SecondPictureOnCatalogPages" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="SecondPictureOnCatalogPages"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="IncludeFeaturedProductsInNormalLists" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="IncludeFeaturedProductsInNormalLists" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="IncludeFeaturedProductsInNormalLists"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="DisplayTierPricesWithDiscounts" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="DisplayTierPricesWithDiscounts" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="DisplayTierPricesWithDiscounts"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="DisplayQuantityOnCatalogPages" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="DisplayQuantityOnCatalogPages" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="DisplayQuantityOnCatalogPages"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="PublishBackProductWhenCancellingOrders" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="PublishBackProductWhenCancellingOrders" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="PublishBackProductWhenCancellingOrders"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="ShowProductsFromSubcategoriesInSearchBox" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="ShowProductsFromSubcategoriesInSearchBox" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="ShowProductsFromSubcategoriesInSearchBox"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlProductsByTagPageSizeOptions">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="DefaultCollectionPageSize" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="DefaultCollectionPageSize" />
+                    <span asp-validation-for="DefaultCollectionPageSize"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlProductsByTagPageSizeOptions">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="DefaultViewMode" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="DefaultViewMode" />
+                    <span asp-validation-for="DefaultViewMode"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlProductsByTagPageSizeOptions">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="NumberOfReview" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="NumberOfReview" />
+                    <span asp-validation-for="NumberOfReview"></span>
+                </div>
+            </div>
+            <div class="form-group" id="pnlProductsByTagPageSizeOptions">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="LimitOfFeaturedProducts" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-input asp-for="LimitOfFeaturedProducts" />
+                    <span asp-validation-for="LimitOfFeaturedProducts"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="SortingByAvailability" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="SortingByAvailability" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="SortingByAvailability"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

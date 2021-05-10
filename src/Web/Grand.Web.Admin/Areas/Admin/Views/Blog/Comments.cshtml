@@ -1,0 +1,120 @@
+﻿@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Content.Blog.Comments"];
+    string filterByBlogPostId = ViewBag.FilterByBlogPostId;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption level-caption">
+                    <i class="fa fa-comment"></i>
+                    @Loc["Admin.Content.Blog.Comments"]
+                </div>
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="x_content">
+                            <div id="comments-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@{
+    string readUrl = "";
+    if (!string.IsNullOrEmpty(filterByBlogPostId))
+    {
+        readUrl = Url.Action("Comments", "Blog", new { filterByBlogPostId = filterByBlogPostId, area = Constants.AreaAdmin });
+    }
+    else
+    {
+        readUrl = Url.Action("Comments", "Blog", new { area = Constants.AreaAdmin });
+    }
+}
+<script>
+    $(document).ready(function () {
+        $("#comments-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@readUrl",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    destroy: {
+                        url: "@Html.Raw(Url.Action("CommentDelete", "Blog", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        fields: {
+                            //do not implicitly specify all fields
+                            //we do it only for fields which implicitly require it
+                            //otherwise, they'll be formatted wrong way
+                            CreatedOn: {type: "date" }
+                        }
+                    }
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            editable: {
+                confirmation: true,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "BlogPostTitle",
+                title: "@Loc["Admin.Content.Blog.Comments.Fields.BlogPost"]",
+                width: 200,
+                encoded: false,
+                template: '<a class="k-link" href="@Url.Action("Edit", "Blog", new { area = Constants.AreaAdmin })/#=BlogPostId#">#:kendo.htmlEncode(BlogPostTitle)#</a>'
+            }, {
+                field: "CustomerId",
+                title: "@Loc["Admin.Content.Blog.Comments.Fields.Customer"]",
+                width: 200,
+                template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/#=CustomerId#">#:kendo.htmlEncode(CustomerInfo)#</a>'
+            }, {
+                field: "Comment",
+                title: "@Loc["Admin.Content.Blog.Comments.Fields.Comment"]",
+                encoded: false
+            }, {
+                field: "CreatedOn",
+                title: "@Loc["Admin.Content.Blog.Comments.Fields.CreatedOn"]",
+                width: 200,
+                type: "date",
+                format: "{0:G}"
+            }, {
+                command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                title: "@Loc["Admin.Common.Delete"]",
+                width: 100
+            }]
+        });
+    });
+</script>

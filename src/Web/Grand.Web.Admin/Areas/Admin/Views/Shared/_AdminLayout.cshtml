@@ -1,0 +1,301 @@
+﻿@inject IWorkContext workContext
+@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@inject CommonSettings commonSettings
+@inject CustomerSettings customerSettings
+@inject LanguageSettings languageSettings
+@inject AdminAreaSettings adminAreaSettings
+@inject Grand.Infrastructure.Configuration.AppConfig appConfig
+@inject Grand.Business.Common.Interfaces.Directory.IGroupService groupService
+
+@using System.Text.Encodings.Web
+@using Grand.Domain.Customers
+@using Grand.Infrastructure;
+@using Grand.Domain.Localization
+@using Grand.Business.Common.Services.Security;
+@using Grand.Domain.Common;
+@{
+    var currentCustomer = workContext.CurrentCustomer;
+    var usernamesEnabled = customerSettings.UsernamesEnabled;
+    var currentVersion = GrandVersion.FullVersion;
+    var supportRtl = workContext.WorkingLanguage.Rtl &&
+        !languageSettings.IgnoreRtlPropertyForAdminArea;
+
+    //page title
+    string adminPageTitle = "";
+    if (!String.IsNullOrWhiteSpace(ViewBag.Title))
+    {
+        adminPageTitle = ViewBag.Title + " / ";
+    }
+    adminPageTitle += Loc["Admin.PageTitle"];
+
+    //has "Manage Maintenance" permission?
+    var canManageMaintenance = await permissionService.Authorize(StandardPermission.ManageMaintenance);
+
+}
+<!DOCTYPE html>
+<html @if (supportRtl) { <text> dir="rtl" </text> }>
+<head>
+    <title>@adminPageTitle</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <head-custom>
+        <partial name="HeadAdmin" />
+        <resources asp-type="HeadLink" />
+        <resources asp-type="HeadScript" />
+</head>
+<body class="nav-sm @if (IsSectionDefined("popupwindow")) { @RenderSection("popupwindow") <text>no-sidebar</text> }">
+    @Html.AntiForgeryToken()
+    <script>
+        if (document.readyState == "loading") {
+            $(".site_title").css("padding-left", "26px");
+            if ($('body').hasClass('nav-sm')) {
+                $('#sidebar-menu').find('li.active').addClass('active-sm').removeClass('active');
+                $('#sidebar-menu').find('li.active-sm ul').hide();
+            }
+        }
+
+    </script>
+    <div class="container body">
+        <div class="main_container">
+            <vc:admin-widget widget-zone="admin_header_before" additional-data="null" />
+            @if (IsSectionDefined("headermenu"))
+            {
+                @RenderSection("headermenu")
+            }
+            else
+            {
+                <partial name="Menu" />
+            }
+            <vc:admin-widget widget-zone="admin_header_after" additional-data="null" />
+            @if (IsSectionDefined("statusbar"))
+            {
+                @RenderSection("statusbar")
+            }
+            @if (IsSectionDefined("header"))
+            {
+                @RenderSection("header")
+            }
+            else
+            {
+                <vc:admin-widget widget-zone="header_before" additional-data="null" />
+                <div class="top_nav">
+                    <div class="nav_menu">
+                        <nav>
+                            @*<div class="nav toggle">
+                                    <a id="menu_toggle">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </a>
+                                </div>*@
+
+                            @if (await groupService.IsAdmin(currentCustomer))
+                            {
+                                <div class="admin-search-input-container">
+                                    <input id="searchInput" type="text" class="form-control" placeholder="@Loc["Admin.AdminSearch.Placeholder"]">
+                                    <script>
+                                      $(document).ready(function () {
+                                        Admin.Search.init("@(Url.Action("Index", "Search", new { area = Constants.AreaAdmin }))");
+                                      });
+                                    </script>
+                                </div>
+                            }
+                            <vc:admin-widget widget-zone="header_toggle_after" additional-data="null" />
+                            <ul class="nav navbar-nav navbar-right">
+
+                                <li class="dropdown" role="presentation">
+                                    <a href="@Url.Action("Index", "Home", new { area = "" })" class="dropdown-toggle">
+                                        <i class="icon-home"></i>
+                                    </a>
+                                </li>
+                                <li role="presentation" class="dropdown">
+                                    <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
+                                        <i class="icon-info"></i>
+                                    </a>
+                                    <ul id="menu1" class="dropdown-menu dropdown-menu-right list-unstyled msg_list overflow-h" role="menu">
+                                        <li>
+                                            <a href="http://docs.grandnode.com/" target="_blank">
+                                                <i class="icon-book-open"></i>
+                                                @Loc["Admin.Header.Documentation"]
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://grandnode.com/boards" target="_blank">
+                                                <i class="icon-bubbles"></i>
+                                                @Loc["Admin.Header.Community"]
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://grandnode.com/release-notes" target="_blank">
+                                                <i class="fa fa-dot-circle-o"></i>
+                                                grandnode @currentVersion
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                @if (canManageMaintenance)
+                                {
+                                    <li role="presentation" class="dropdown">
+                                        <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
+                                            <i class="icon-settings"></i>
+                                        </a>
+                                        <ul id="menu1" class="dropdown-menu dropdown-menu-right list-unstyled msg_list overflow-h" role="menu">
+                                            <li>
+                                                <a href="@Url.Action("ClearCache", "Common", new { memory = true, returnurl = this.Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })">
+                                                    <i class="icon-refresh"></i>
+                                                    @Loc["Admin.Header.ClearCacheMemory"]
+                                                </a>
+                                            </li>
+
+                                            <li>
+                                                <a href="@Url.Action("RestartApplication", "Common", new { returnurl = this.Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })" id="restart-application">
+                                                    <i class="icon-reload"></i>
+                                                    @Loc["Admin.Header.RestartApplication"]
+                                                </a>
+                                            </li>
+
+                                        </ul>
+                                    </li>
+                                }
+                                <li>
+                                    <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                        <img src="/_content/Grand.Web.Admin/administration/build/images/avatar.png" alt="">
+
+                                        @if (currentCustomer != null && await groupService.IsRegistered(currentCustomer))
+                                        {
+                                            <div class="username-hide-on-mobile">
+                                                @(usernamesEnabled ? currentCustomer.Username : currentCustomer.Email)
+                                            </div>
+
+                                        }
+                                        <span class="fa fa-angle-down"></span>
+                                    </a>
+
+                                    <ul class="dropdown-menu dropdown-menu-right dropdown-menu-default">
+                                        @if (await groupService.IsAdmin(currentCustomer))
+                                        {
+                                            <li>
+                                                <a href="@Url.Action("Edit", "Customer", new { id = currentCustomer.Id, area = Constants.AreaAdmin })">
+                                                    <i class="icon-user"></i> @Loc["Admin.Header.Profile"]
+                                                </a>
+                                            </li>
+                                        }
+                                        <li>
+                                            <a href="@Url.Action("Logout", "Home", new { area = Constants.AreaAdmin }, null)">
+                                                <i class="icon-logout"></i> @Loc["Admin.Header.Logout"]
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+
+                                @await Component.InvokeAsync("AdminLanguageSelector")
+                                <li class="dropdown" role="presentation">
+                                    <span id="searchIcon" class="searchIcon dropdown-toggle">
+                                        <i class="icon-magnifier"></i>
+                                    </span>
+                                </li>
+                                <li class="dropdown version-check" role="presentation" id="version_check">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                        <i class="icon-bell"></i>
+                                    </a>
+                                    <script>
+                                        $.getJSON("https://grandnode.com/version.json", function (data) {
+                                            var items = [];
+
+                                            if (data == '@currentVersion') {
+                                                items.push("<li><a><span class='badge badge-success'>The application is up to date<span></a></li>");
+                                                $("<span class='success info-indicator'></span>").appendTo("#version_check .dropdown-toggle");
+                                            } else {
+                                                items.push("<li><a><span class='badge badge-danger'>There is a new version of the application<span></a></li>");
+                                                $("<span class='danger info-indicator'></span>").appendTo("#version_check .dropdown-toggle");
+                                            }
+
+                                            $("<ul/>", {
+                                                "class": "dropdown-menu dropdown-menu-right dropdown-menu-default",
+                                                html: items.join("")
+                                            }).appendTo("#version_check");
+                                        });
+                                    </script>
+                                </li>
+                                <li role="presentation">
+                                    <a>
+                                        <div class="custom-control custom-switch light-dark-switch">
+                                            <input type="checkbox" class="custom-control-input" id="DarkLight">
+                                            <label class="custom-control-label" for="DarkLight">Enable Dark Mode</label>
+                                        </div>
+                                    </a>
+                                    <script>
+                                        const toggleSwitch = document.querySelector('.light-dark-switch input[type="checkbox"]');
+                                        const currentTheme = localStorage.getItem('theme');
+
+                                        if (currentTheme) {
+                                            document.documentElement.setAttribute('data-theme', currentTheme);
+
+                                            if (currentTheme === 'dark') {
+                                                toggleSwitch.checked = true;
+                                                $('#DarkLight ~ label').text('Disable Dark Mode');
+                                            }
+                                        }
+
+                                        function switchTheme(e) {
+                                            if (e.target.checked) {
+                                                document.documentElement.setAttribute('data-theme', 'dark');
+                                                localStorage.setItem('theme', 'dark');
+                                                $('#DarkLight ~ label').text('Disable Dark Mode');
+
+                                            }
+                                            else {
+                                                document.documentElement.setAttribute('data-theme', 'light');
+                                                localStorage.setItem('theme', 'light');
+                                                $('#DarkLight ~ label').text('Enable Dark Mode');
+                                            }
+                                        }
+
+                                        toggleSwitch.addEventListener('change', switchTheme, false);
+                                    </script>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+                <vc:admin-widget widget-zone="header_navbar_after" additional-data="null" />
+            }
+
+            <div class="right_col" role="main">
+                <partial name="Notifications" />
+                @RenderBody()
+            </div>
+            <div class="throbber">
+                <div class="curtain">
+                </div>
+                <div class="curtain-content">
+                    <div>
+                        <h1 class="throbber-header">Wait...</h1>
+                        <div class="spinner active">
+                            <svg style="width:100px; height:100px" viewBox="0 0 64 64">
+                                <circle cx="32" cy="32" r="29" fill="none" stroke-width="3" stroke-miterlimit="10"></circle>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <resources asp-type="ScriptFooter" />
+    <script>
+        $(document).ready(function () {
+            $("#restart-application").click(function (e) {
+                event.preventDefault();
+                showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Header.RestartApplication.Progress"]))');
+                $("html, body").animate({ scrollTop: 0 }, 400);
+                $.get($(this).attr("href"), function (data) { });
+                setTimeout(function () {
+                    location.reload();
+                }, 10000);
+            });
+        });
+    </script>
+</body>
+</html>

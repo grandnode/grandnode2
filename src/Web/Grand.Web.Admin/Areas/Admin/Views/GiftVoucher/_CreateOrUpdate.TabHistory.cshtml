@@ -1,0 +1,62 @@
+﻿@model GiftVoucherModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    <vc:admin-widget widget-zone="gift_card_details_history_top" additional-data="Model" />
+    <div id="usagehistory-grid"></div>
+    <vc:admin-widget widget-zone="gift_card_details_history_bottom" additional-data="Model" />
+    <script>
+        $(document).ready(function () {
+            $("#usagehistory-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("UsageHistoryList", "GiftVoucher", new { giftVoucherId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "CreatedOn",
+                    title: "@Loc["Admin.GiftVouchers.History.CreatedOn"]",
+                    width: 200,
+                    type: "date",
+                    format: "{0:G}"
+                }, {
+                    field: "OrderId",
+                    title: "@Loc["Admin.GiftVouchers.History.Order"]",
+                    width: 200,
+                        template: '<a href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=OrderId#" class="k-button"><span class="k-icon k-i-eye"></span>&nbsp;@Loc["Admin.Common.View"] #=OrderNumber#</a>'
+                }, {
+                    field: "UsedValue",
+                    title: "@Loc["Admin.GiftVouchers.History.UsedValue"]",
+                    width: 200
+                }]
+            });
+        });
+    </script>
+}

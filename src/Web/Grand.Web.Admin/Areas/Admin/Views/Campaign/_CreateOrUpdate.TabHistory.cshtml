@@ -1,0 +1,72 @@
+﻿@model CampaignModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    if (!String.IsNullOrEmpty(Model.Id))
+    {
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="history-grid"></div>
+            </div>
+        </div>
+        <script>
+            $(document).ready(function () {
+                $("#history-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("History", "Campaign", new { campaignId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                        },
+                        requestEnd: function(e) {
+                            if(e.type=="update") {
+                                this.read();
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                    },
+                    editable: {
+                        confirmation: false,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [{
+                        field: "Email",
+                        title: "@Loc["admin.marketing.Campaigns.Fields.Email"]"
+                    },{
+                        field: "SentDate",
+                        title: "@Loc["admin.marketing.Campaigns.Fields.SentDate"]",
+                        type: "date",
+                        format: "{0:G}",
+                    }]
+                });
+            });
+        </script>
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["admin.marketing.Campaigns.SaveBeforeEdit"]
+        </div>
+
+    }
+}

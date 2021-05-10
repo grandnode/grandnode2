@@ -1,0 +1,42 @@
+﻿@model CatalogSettingsModel
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="CompareProductsEnabled" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="CompareProductsEnabled" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="CompareProductsEnabled"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="IncludeShortDescriptionInCompareProducts" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IncludeShortDescriptionInCompareProducts" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IncludeShortDescriptionInCompareProducts"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="IncludeFullDescriptionInCompareProducts" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IncludeFullDescriptionInCompareProducts" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IncludeFullDescriptionInCompareProducts"></span>
+            </div>
+        </div>
+    </div>
+</div>

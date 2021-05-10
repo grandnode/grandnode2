@@ -1,0 +1,58 @@
+﻿@model CustomerOrderListModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.Account"]);
+}
+@section left
+{
+    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Orders })
+}
+<div class="page account-page order-list-page pl-lg-3 pt-lg-0 pt-3">
+    <h1 class="generalTitle h2">@Loc["Account.CustomerOrders"]</h1>
+    @if (Model.Orders.Any())
+    {
+        <div class="account-order">
+            <b-row class="row">
+                @foreach (var order in Model.Orders)
+                {
+                    <b-col lg="4" md="6" cols="12" class="mb-3">
+                        <b-card>
+                            <template v-slot:header>
+                                <span class="h6">
+                                    @Loc["Account.CustomerOrders.OrderNumber"]: @order.OrderNumber
+                                </span>
+                            </template>
+                            <div class="small">
+                                <ul class="info mb-0 px-0">
+                                    <li><span>@Loc["Account.CustomerOrders.OrderStatus"]:</span> <span class="order-status">@order.OrderStatus</span></li>
+                                    <li><span class="order-date"><span>@Loc["Account.CustomerOrders.OrderDate"]:</span> <span>@order.CreatedOn.ToString()</span></span></li>
+                                    <li><span>@Loc["Account.CustomerOrders.OrderTotal"]:</span> <span class="order-total">@order.OrderTotal</span></li>
+                                </ul>
+                            </div>
+                            <template v-slot:footer>
+                                <div class="buttons">
+                                    <input type="button" value="@Loc["Account.CustomerOrders.OrderDetails"]" class="btn btn-sm btn-info order-details-button" onclick="location = ('@Url.RouteUrl("OrderDetails", new { orderId = order.Id })')" />
+
+                                    @if (order.IsMerchandiseReturnAllowed)
+                                    {
+                                        <input type="button" value="@Loc["Account.CustomerOrders.ReturnItems"]" class="btn btn-sm btn-warning text-white return-items-button" onclick="location = ('@Url.RouteUrl("MerchandiseReturn", new { orderId = order.Id })')" />
+                                    }
+                                </div>
+                            </template>
+                        </b-card>
+                    </b-col>
+                }
+            </b-row>
+        </div>
+        <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingContext" />
+    }
+    else
+    {
+        <div class="no-data alert alert-info">
+            @Loc["Account.CustomerOrders.NoOrders"]
+        </div>
+    }
+</div>

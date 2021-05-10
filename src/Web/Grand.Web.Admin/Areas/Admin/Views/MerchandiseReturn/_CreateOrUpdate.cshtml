@@ -1,0 +1,67 @@
+﻿@model MerchandiseReturnModel
+@inject AdminAreaSettings adminAreaSettings
+@inject OrderSettings orderSettings
+@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@{
+    //has "Manage Documents" permission?
+    var canManageDocuments = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageDocuments);
+    //has "Manage User fields" permission?
+    var canManageUserFields = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageUserFields);
+}
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<admin-tabstrip name="merchandisereturn-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Orders.MerchandiseReturns.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
+        {
+            <tabstrip-item text="@Loc["Admin.Orders.MerchandiseReturns.Address"]" tab-index="1">
+                <content>
+                    <div>
+                        <partial name="_CreateOrUpdate.TabAddress" model="Model" />
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        @if (canManageDocuments)
+        {
+            <tabstrip-item text="@Loc["Admin.Orders.MerchandiseReturns.Documents"]" tab-index="2">
+                <content>
+                    <div>
+                        <partial name="_CreateOrUpdate.TabDocuments" model="Model" />
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        <tabstrip-item text="@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes"]" tab-index="3">
+            <content>
+                <div>
+                    <partial name="_MerchandiseReturnNotes" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (canManageUserFields)
+        {
+            <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="4">
+                <content>
+                    <div>
+                        <div class="form-horizontal">
+                            @{
+                                ViewData["ObjectType"] = "MerchandiseReturn";
+                                ViewData["TabIndex"] = 4;
+                            }
+                            <partial name="_UserFields" model="Model" view-data="ViewData" />
+                        </div>
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        <vc:admin-widget widget-zone="merchandisereturn_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

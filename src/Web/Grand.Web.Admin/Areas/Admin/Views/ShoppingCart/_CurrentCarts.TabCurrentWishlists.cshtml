@@ -1,0 +1,123 @@
+﻿@inject AdminAreaSettings adminAreaSettings
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div id="wishlist-grid"></div>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        $("#wishlist-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("CurrentWishlists", "ShoppingCart", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            //details grid
+            detailInit: detailInitWish,
+            scrollable: false,
+            columns: [
+                {
+                    field: "CustomerId",
+                    title: "@Loc["Admin.CurrentCarts.Customer"]",
+                    template: '<a href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/#=CustomerId#">#:CustomerEmail#</a>'
+                }, {
+                    field: "TotalItems",
+                    title: "@Loc["Admin.CurrentCarts.TotalItems"]",
+                    width: 150
+                }
+            ]
+        });
+    });
+
+    //details grid
+    function detailInitWish(e) {
+        $("<div/>").appendTo(e.detailCell).kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("GetWishlistDetails", "ShoppingCart", new { area = Constants.AreaAdmin }))?customerId="+e.data.CustomerId,
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            scrollable: false,
+            sortable: true,
+            pageable: {
+                refresh: true,
+                numeric: false,
+                previousNext: false,
+                info: false
+            },
+            columns: [
+                {
+                    field: "ProductName",
+                    title: "@Loc["Admin.CurrentCarts.Product"]",
+                    template: '<a href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#">#:ProductName#</a>' +
+                        '# if(AttributeInfo && AttributeInfo.length > 0) {# <br />#=AttributeInfo# #} #',
+                    width: 400
+                },{
+                    field: "Quantity",
+                    title: "@Loc["Admin.CurrentCarts.Quantity"]",
+                    width: 150
+                },{
+                    field: "UnitPrice",
+                    title: "@Loc["Admin.CurrentCarts.UnitPrice"]",
+                    width: 150
+                },{
+                    field: "Total",
+                    title: "@Loc["Admin.CurrentCarts.Total"]",
+                    width: 150
+                },{
+                    field: "Store",
+                    title: "@Loc["Admin.CurrentCarts.Store"]",
+                    width: 150
+                },{
+                    field: "UpdatedOn",
+                    title: "@Loc["Admin.CurrentCarts.UpdatedOn"]",
+                    width: 150,
+                    type: "date",
+                    format: "{0:G}"
+                }
+            ]
+        });
+    }
+</script>

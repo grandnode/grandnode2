@@ -1,0 +1,154 @@
+﻿@model CountryReportModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Reports.Country"];
+}
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit popup-window">
+            <div class="x_title">
+                <div class="caption level-caption">
+                    <i class="fa fa-list-alt"></i>
+                    @Loc["Admin.Reports.Country"]
+                </div>
+
+            </div>
+            <div class="x_content form">
+                <vc:admin-widget widget-zone="country_report" additional-data="Model" />
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="x_content">
+                            <div class="form-horizontal">
+                                <div class="form-body">
+                                    <div class="main-header col-12 px-0">
+                                        <div class="row align-items-end">
+                                            <div class="col-md-4 col-ms-12 col-12">
+                                                <div class="form-group mb-0">
+                                                    <admin-label asp-for="StartDate" class="control-label" />
+                                                    <admin-input asp-for="StartDate" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 col-ms-12 col-12">
+                                                <div class="form-group mb-0">
+                                                    <admin-label asp-for="EndDate" class="control-label" />
+                                                    <admin-input asp-for="EndDate" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 col-sm-12 col-12">
+                                                <div class="form-actions">
+                                                    <div class="btn-group">
+                                                        <button class="btn btn-success filter-submit" id="search-countryreport">
+                                                            <i class="fa fa-search"></i> @Loc["Admin.Reports.Country.RunReport"]
+                                                        </button>
+                                                        <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                            <i class="fa fa-filter"></i>&nbsp; Filters
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="collapse" id="filterCollapse">
+                                        <div class="drop-filters-container w-100">
+                                            <div class="form-group">
+                                                <admin-label asp-for="OrderStatusId" class="control-label col-md-3 col-sm-3" />
+                                                <div class="col-md-9 col-sm-9">
+                                                    <admin-select asp-for="OrderStatusId" asp-items="Model.AvailableOrderStatuses" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <admin-label asp-for="PaymentStatusId" class="control-label col-md-3 col-sm-3" />
+                                                <div class="col-md-9 col-sm-9">
+                                                    <admin-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="x_content">
+                                    <div id="countryreport-grid"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <script>
+        $(document).ready(function () {
+            $("#countryreport-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("CountryReportList", "Reports", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: additionalData
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                scrollable: false,
+                columns: [{
+                    field: "CountryName",
+                    title: "@Loc["Admin.Reports.Country.Fields.CountryName"]"
+                }, {
+                    field: "TotalOrders",
+                    title: "@Loc["Admin.Reports.Country.Fields.TotalOrders"]"
+                },{
+                    field: "SumOrders",
+                    title: "@Loc["Admin.Reports.Country.Fields.SumOrders"]"
+                }]
+            });
+        });
+    </script>
+
+    <script>
+
+        $(document).ready(function () {
+
+            $('#search-countryreport').click(function () {
+                var grid = $('#countryreport-grid').data('kendoGrid');
+                grid.dataSource.read();
+                return false;
+            });
+
+        });
+
+        function additionalData() {
+            var data = {
+                StartDate: $('#@Html.IdFor(model => model.StartDate)').val(),
+                EndDate: $('#@Html.IdFor(model => model.EndDate)').val(),
+                OrderStatusId: $('#OrderStatusId').val(),
+                PaymentStatusId: $('#PaymentStatusId').val()
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+
+    </script>

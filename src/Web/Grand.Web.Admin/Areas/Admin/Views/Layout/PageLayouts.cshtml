@@ -1,0 +1,129 @@
+﻿@{
+    //page title
+    ViewBag.Title = Loc["Admin.Configuration.Layouts.Page"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption level-caption">
+                    <i class="fa fa-tasks"></i>
+                    @Loc["Admin.Configuration.Layouts.Page"]
+                </div>
+                <vc:admin-widget widget-zone="page_layout_list_buttons" additional-data="null" />
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="x_content">
+                            <div id="layout-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#layout-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("PageLayouts", "Layout", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    create: {
+                        url: "@Html.Raw(Url.Action("PageLayoutAdd", "Layout", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    update: {
+                        url:"@Html.Raw(Url.Action("PageLayoutUpdate", "Layout", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    destroy: {
+                        url: "@Html.Raw(Url.Action("PageLayoutDelete", "Layout", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        fields: {
+                            Name: { editable: true, type: "string" },
+                            ViewPath: { editable: true, type: "string" },
+                            DisplayOrder: { editable: true, type: "number" },
+                            Id: { editable: false, type: "string" }
+                        }
+                    }
+                },
+                requestEnd: function (e) {
+                    if (e.type == "create" || e.type == "update") {
+                        this.read();
+                    }
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                numeric: false,
+                previousNext: false,
+                info: false
+            },
+            toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "Name",
+                title: "@Loc["Admin.Configuration.Layouts.Page.Name"]",
+                width: 300
+            }, {
+                field: "ViewPath",
+                title: "@Loc["Admin.Configuration.Layouts.Page.ViewPath"]",
+                width: 300
+            }, {
+                field: "DisplayOrder",
+                title: "@Loc["Admin.Configuration.Layouts.Page.DisplayOrder"]",
+                //integer format
+                format: "{0:0}",
+                width: 100
+            }, {
+                command: [{
+                    name: "edit",
+                    text: {
+                        edit: "@Loc["Admin.Common.Edit"]",
+                        update: "@Loc["Admin.Common.Update"]",
+                        cancel: "@Loc["Admin.Common.Cancel"]"
+                    }
+                }, {
+                    name: "destroy",
+                    text: "@Loc["Admin.Common.Delete"]"
+                }],
+                width: 200
+            }]
+        });
+    });
+</script>

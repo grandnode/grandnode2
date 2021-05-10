@@ -1,0 +1,34 @@
+﻿@model ProductDetailsModel.GiftVoucherModel
+<div class="giftvoucher generalMarginSupporter">
+    <fieldset>
+        <legend class="sr-only">@Loc["Products.GiftVoucher.RecipientName"]</legend>
+        <label asp-for="RecipientName" class="col-form-label">@Loc["Products.GiftVoucher.RecipientName"]:</label>
+        <input asp-for="RecipientName" class="form-control recipient-name" />
+    </fieldset>
+    @if (Model.GiftVoucherType == Grand.Domain.Catalog.GiftVoucherType.Virtual)
+    {
+        <fieldset>
+            <legend class="sr-only">@Loc["Products.GiftVoucher.RecipientEmail"]</legend>
+            <label asp-for="RecipientEmail" class="col-form-label">@Loc["Products.GiftVoucher.RecipientEmail"]:</label>
+            <input asp-for="RecipientEmail" class="form-control recipient-email" />
+        </fieldset>
+    }
+    <fieldset>
+        <legend class="sr-only">@Loc["Products.GiftVoucher.SenderName"]</legend>
+        <label asp-for="SenderName" class="col-form-label">@Loc["Products.GiftVoucher.SenderName"]:</label>
+        <input asp-for="SenderName" class="form-control sender-name" />
+    </fieldset>
+    @if (Model.GiftVoucherType == Grand.Domain.Catalog.GiftVoucherType.Virtual)
+    {
+        <fieldset>
+            <legend class="sr-only">@Loc["Products.GiftVoucher.SenderEmail"]</legend>
+            <label asp-for="SenderEmail" class="col-form-label">@Loc["Products.GiftVoucher.SenderEmail"]:</label>
+            <input asp-for="SenderEmail" class="form-control sender-email" />
+        </fieldset>
+    }
+    <fieldset>
+        <legend class="sr-only">@Loc["Products.GiftVoucher.Message"]</legend>
+        <label asp-for="Message" class="col-form-label">@Loc["Products.GiftVoucher.Message"]:</label>
+        <textarea asp-for="Message" class="form-control message"></textarea>
+    </fieldset>
+</div>

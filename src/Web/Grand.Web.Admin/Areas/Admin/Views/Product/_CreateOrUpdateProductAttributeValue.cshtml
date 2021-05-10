@@ -1,0 +1,204 @@
+﻿@using Grand.Domain.Catalog
+@using Microsoft.AspNetCore.Mvc.Razor;
+@model ProductModel.ProductAttributeValueModel
+
+<link rel="stylesheet" type="text/css" asp-src="/_content/Grand.Web.Admin/administration/farbtastic/farbtastic.css" />
+<script asp-location="Footer" asp-src="/_content/Grand.Web.Admin/administration/farbtastic/farbtastic.js"></script>
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="ProductAttributeMappingId" type="hidden" />
+<input asp-for="DisplayColorSquaresRgb" type="hidden" />
+<input asp-for="DisplayImageSquaresPicture" type="hidden" />
+
+@if (ViewBag.RefreshPage == true)
+{
+    <script>
+        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
+        catch (e){}
+        window.close();
+    </script>
+}
+<script>
+    $(document).ready(function () {
+
+        $("#@Html.IdFor(model => model.AttributeValueTypeId)").change(toggleProductType);
+
+        toggleProductType();
+    });
+
+    function toggleProductType() {
+        var selectedProductTypeId = $("#@Html.IdFor(model => model.AttributeValueTypeId)").val();
+        if (selectedProductTypeId == @(((int)AttributeValueType.Simple).ToString())) {
+            $('#group-associated-product').hide();
+            $('#group-quantity').hide();
+            $('#group-weight-adjustment').show();
+            $('#group-cost').show();
+        } else if (selectedProductTypeId == @(((int)AttributeValueType.AssociatedToProduct).ToString())) {
+            $('#group-associated-product').show();
+            $('#group-quantity').show();
+            $('#group-weight-adjustment').hide();
+            $('#group-cost').hide();
+        }
+    }
+</script>
+<!-- #region languages template -->
+@{ Func<int, HelperResult>
+            template = @<div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="@Model.Locales[item].Name" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="@Model.Locales[item].Name" />
+                <span asp-validation-for="@Model.Locales[item].Name"></span>
+            </div>
+        </div>
+        <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
+    </div>;
+}
+<!-- #endregion -->
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="AttributeValueTypeId" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="AttributeValueTypeId" asp-items="((AttributeValueType)Model.AttributeValueTypeId).ToSelectList(Context)" />
+                <span asp-validation-for="AttributeValueTypeId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="group-associated-product">
+            <admin-label asp-for="AssociatedProductId" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <input asp-for="AssociatedProductId" type="hidden" />
+                <span id="associate-product-name">@Model.AssociatedProductName</span>
+                <span asp-validation-for="AssociatedProductId"></span>
+                <input type="submit" value=@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"] onclick="javascript:OpenWindow('@(Url.Action("AssociateProductToAttributeValuePopup", "Product", new { productIdInput = Html.IdFor(model => model.AssociatedProductId), productNameInput = "associate-product-name", area = Constants.AreaAdmin }))', 800, 800, true); return false;" class="k-button" />
+            </div>
+        </div>
+        <div class="form-group" id="group-quantity">
+            <admin-label asp-for="Quantity" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Quantity" />
+                <span asp-validation-for="Quantity"></span>
+            </div>
+        </div>
+    </div>
+
+    <localized-editor localized-template=@template name="productattributevalue-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+        <div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="Name" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Name" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+        </div>
+    </localized-editor>
+
+    <div class="form-body">
+        @if (Model.DisplayColorSquaresRgb)
+        {
+            <div class="form-group">
+                <admin-label asp-for="ColorSquaresRgb" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="ColorSquaresRgb" />
+                    <div id="color-picker"></div>
+                    <script>
+                        $(document).ready(function(){
+                            $('#color-picker').farbtastic('#@Html.IdFor(model => model.ColorSquaresRgb)');
+                        });
+                    </script>
+                    <span asp-validation-for="ColorSquaresRgb"></span>
+                </div>
+            </div>
+        }
+        @if (Model.DisplayImageSquaresPicture)
+        {
+            <div class="form-group">
+                @{
+                    ViewData["Reference"] = "Product";
+                    ViewData["ObjectId"] = Model.ProductId;
+                }
+                <admin-label asp-for="ImageSquaresPictureId" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="ImageSquaresPictureId" />
+                    <span asp-validation-for="ImageSquaresPictureId"></span>
+                </div>
+            </div>
+        }
+        <div class="form-group" id="group-price-adjustment">
+            <admin-label asp-for="PriceAdjustment" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="PriceAdjustment" /> [@Model.PrimaryStoreCurrencyCode]
+                <span asp-validation-for="PriceAdjustment"></span>
+            </div>
+        </div>
+        <div class="form-group" id="group-weight-adjustment">
+            <admin-label asp-for="WeightAdjustment" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="WeightAdjustment" />
+                <span asp-validation-for="WeightAdjustment"></span>
+            </div>
+        </div>
+        <div class="form-group" id="group-cost">
+            <admin-label asp-for="Cost" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Cost" /> [@Model.PrimaryStoreCurrencyCode]
+                <span asp-validation-for="Cost"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="IsPreSelected" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsPreSelected" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsPreSelected"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisplayOrder" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrder" />
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="PictureId" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <ul style="list-style: none;">
+                    <li style="float: left; width: 110px;">
+                        <p style="float: left; padding-top: 20px;">
+                            <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="0" id="id_image_0"
+                                   @if (!String.IsNullOrEmpty(Model.PictureId)) { <text> checked="checked" </text> }>
+                        </p>
+                        <p style="float: left; padding-top: 20px;">
+                            <label for="id_image_0">
+                                @Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Picture.NoPicture"]
+                            </label>
+                        </p>
+                    </li>
+                    @foreach (var picture in Model.ProductPictureModels)
+                    {
+                        <li style="float: left; width: 110px;">
+                            <p style="float: left; padding-top: 20px;">
+                                <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="@picture.PictureId" id="id_image_@picture.PictureId"
+                                       @if (picture.PictureId == Model.PictureId) { <text> checked="checked" </text> }>
+                            </p>
+                            <p style="float: left;">
+                                <label for="id_image_@picture.PictureId">
+                                    <img src="@picture.PictureUrl" alt="" title="" width="75">
+                                </label>
+                            </p>
+                        </li>
+                    }
+                </ul>
+                <span asp-validation-for="PictureId"></span>
+            </div>
+        </div>
+    </div>
+
+</div>
+

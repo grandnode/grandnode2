@@ -1,0 +1,91 @@
+﻿@{
+    //page title
+    ViewBag.Title = Loc["Admin.Address.AddressAttributes"];
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-list-alt"></i>
+                    @Loc["Admin.Address.AddressAttributes"]
+                </div>
+                <div class="actions btn-group btn-group-devided">
+                    <a href="@Url.Action("Create", "AddressAttribute", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
+                    <vc:admin-widget widget-zone="contact_attribute_list_buttons" additional-data="null" />
+                </div>
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="x_content">
+                            <div id="addressattributes-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#addressattributes-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("List", "AddressAttribute", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                numeric: false,
+                previousNext: false,
+                info: false
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "Name",
+                title: "@Loc["Admin.Address.AddressAttributes.Fields.Name"]",
+                width: 300,
+                template: '<a class="k-link" href="@Url.Action("Edit", "AddressAttribute", new { area = Constants.AreaAdmin })/#=Id#">#=kendo.htmlEncode(Name)#</a>',
+            }, {
+                field: "AttributeControlTypeName",
+                title: "@Loc["Admin.Address.AddressAttributes.Fields.AttributeControlType"]",
+                width: 200
+            },{
+                field: "IsRequired",
+                title: "@Loc["Admin.Address.AddressAttributes.Fields.IsRequired"]",
+                width: 100,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(IsRequired) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            }, {
+                field: "DisplayOrder",
+                title: "@Loc["Admin.Address.AddressAttributes.Fields.DisplayOrder"]",
+                width: 100
+            }]
+        });
+    });
+</script>

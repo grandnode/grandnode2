@@ -1,0 +1,73 @@
+﻿@model SalesSettingsModel
+
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Settings.Sales"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Setting" asp-action="Sales" method="post">
+    
+    <div asp-validation-summary="All"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-fw fa-sliders"></i>
+                        @Loc["Admin.Settings.Sales"]
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                        </div>
+                    </div>
+                    <vc:admin-widget widget-zone="sales_settings_buttons" additional-data="null" />
+                </div>
+                <div class="x_content">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            @await Component.InvokeAsync("StoreScope")
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <vc:admin-widget widget-zone="sales_settings_top" additional-data="null" />
+                    <admin-tabstrip name="salessettings-edit">
+                        <items>
+                            <tabstrip-item text="@Loc["Admin.Settings.Order"]" tab-index="0">
+                                <content>
+                                    <div>
+                                        <partial name="Sales.TabOrderSettings" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.Order.MerchandiseReturnSettings"]" tab-index="1">
+                                <content>
+                                    <div>
+                                        <partial name="Sales.TabMerchandiseReturn" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.ShoppingCart"]" tab-index="2">
+                                <content>
+                                    <div>
+                                        <partial name="Sales.TabShoppingCart" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.LoyaltyPoints"]" tab-index="3">
+                                <content>
+                                    <div>
+                                        <partial name="Sales.TabLoyaltyPoints" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <vc:admin-widget widget-zone="setting_content_details_tabs" additional-data="Model" />
+                        </items>
+                    </admin-tabstrip>
+                    <vc:admin-widget widget-zone="setting_settings_bottom" additional-data="null" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+

@@ -1,0 +1,142 @@
+﻿@{
+    //page title
+    ViewBag.Title = Loc["Admin.System.ScheduleTasks"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption level-caption">
+                    <i class="fa fa-tasks"></i>
+                    @Loc["Admin.System.ScheduleTasks"]
+                </div>
+                <vc:admin-widget widget-zone="schedule_task_list_buttons" additional-data="null" />
+            </div>
+            <div class="note note-info">
+                <strong>@Loc["Admin.System.ScheduleTasks.RestartApplication"]</strong>
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="x_content">
+                            <div id="schedule-tasks-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#schedule-tasks-grid").on("click", ".run-now", function (e) {
+            showThrobber('@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Loc["Admin.System.ScheduleTasks.RunNow.Progress"]))');
+        });
+    });
+</script>
+<div id="schedule-tasks-grid"></div>
+
+<script>
+    $(document).ready(function () {
+        $("#schedule-tasks-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("List", "ScheduleTask", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    update: {
+                        url: "@Html.Raw(Url.Action("TaskUpdate", "ScheduleTask", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        fields: {
+                            Id: { editable: false, type: "string" },
+                            ScheduleTaskName: { editable: true, type: "string" },
+                            Enabled: { editable: true, type: "boolean" },
+                            StopOnError: { editable: true, type: "boolean" },
+                            LastStartUtc: { editable: false, type: "date" },
+                            LastEndUtc: { editable: false, type: "date" },
+                            LastSuccessUtc: { editable: false, type: "date" }
+                        }
+                    }
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                numeric: false,
+                previousNext: false,
+                info: false
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [
+                    {
+                        field: "ScheduleTaskName",
+                        title: "@Loc["Admin.System.ScheduleTasks.Name"]",
+                        width: 300,
+                        template: '<a class="k-link" href="EditScheduler/#=Id#">#=ScheduleTaskName#</a>',
+                    },
+                    {
+                        field: "Enabled",
+                        title: "@Loc["Admin.System.ScheduleTasks.Enabled"]",
+                        width: 100,
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        template: '# if(Enabled) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                    }, {
+                        field: "StopOnError",
+                        title: "@Loc["Admin.System.ScheduleTasks.StopOnError"]",
+                        width: 100,
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        template: '# if(StopOnError) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                    }, {
+                        field: "LastStartUtc",
+                        title: "@Loc["Admin.System.ScheduleTasks.LastStart"]",
+                        width: 200,
+                        type: "date",
+                        format: "{0:G}"
+                    }, {
+                        field: "LastSuccessUtc",
+                        title: "@Loc["Admin.System.ScheduleTasks.LastSuccess"]",
+                        width: 200,
+                        type: "date",
+                        format: "{0:G}"
+                    }, {
+                        field: "LastEndUtc",
+                        title: "@Loc["Admin.System.ScheduleTasks.LastEnd"]",
+                        width: 200,
+                        type: "date",
+                        format: "{0:G}"
+                    }, {
+                        field: "Id",
+                        title: "@Loc["Admin.System.ScheduleTasks.RunNow"]",
+                        width: 100,
+                        template: '<a href="@Url.Action("RunNow", "ScheduleTask", new { area = Constants.AreaAdmin })/#=Id#" class="k-button run-now k-button-icontext"><i class="fa fa-forward"></i> @Loc["Admin.System.ScheduleTasks.RunNow"]</a>'
+                }]
+        });
+    });
+</script>

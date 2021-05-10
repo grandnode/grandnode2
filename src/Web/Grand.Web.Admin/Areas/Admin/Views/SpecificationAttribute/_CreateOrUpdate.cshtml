@@ -1,0 +1,34 @@
+﻿@model SpecificationAttributeModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<admin-tabstrip name="specificationattribute-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabOptions" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="2">
+            <content>
+                <div>
+                    @{
+                        ViewData["ObjectType"] = "SpecificationAttribute";
+                        ViewData["TabIndex"] = 2;
+                    }
+                    <partial name="_UserFields" model="Model" view-data="ViewData" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="specificationattribute_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

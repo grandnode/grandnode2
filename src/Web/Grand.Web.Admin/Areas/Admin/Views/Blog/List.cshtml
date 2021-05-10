@@ -1,0 +1,99 @@
+﻿@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Content.Blog.BlogPosts"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-comment"></i>
+                    @Loc["Admin.Content.Blog.BlogPosts"]
+                </div>
+                <div class="actions btn-group btn-group-devided">
+                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
+                </div>
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="x_content">
+                            <div id="blogpost-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#blogpost-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("List", "Blog", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "Title",
+                title: "@Loc["Admin.Content.Blog.BlogPosts.Fields.Title"]",
+                width: 400,
+                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Title)#</a>',
+            }, {
+                field: "Comments",
+                title: "@Loc["Admin.Content.Blog.BlogPosts.Fields.Comments"]",
+                width: 200,
+                template: '<a class="k-link" href="Comments?filterByBlogPostId=#=Id#">@Loc["Admin.Content.Blog.BlogPosts.Fields.Comments"] - #=Comments# </a>'
+            }, {
+                field: "StartDate",
+                title: "@Loc["Admin.Content.Blog.BlogPosts.Fields.StartDate"]",
+                width: 150,
+                type: "date",
+                format: "{0:G}"
+            }, {
+                field: "EndDate",
+                title: "@Loc["Admin.Content.Blog.BlogPosts.Fields.EndDate"]",
+                width: 150,
+                type: "date",
+                format: "{0:G}"
+            },  {
+                field: "CreatedOn",
+                title: "@Loc["Admin.Content.Blog.BlogPosts.Fields.CreatedOn"]",
+                width: 200,
+                type: "date",
+                format: "{0:G}"
+            }]
+        });
+    });
+</script>

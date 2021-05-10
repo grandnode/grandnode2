@@ -1,0 +1,164 @@
+﻿@model GiftVoucherListModel
+@inject AdminAreaSettings adminAreaSettings
+
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.GiftVouchers"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-gift"></i>
+                    @Loc["Admin.GiftVouchers"]
+                </div>
+                <div class="actions btn-group btn-group-devided">
+                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
+                    <vc:admin-widget widget-zone="gift_card_list_buttons" additional-data="null" />
+                </div>
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="row align-items-end">
+                            <div class="col-md-3 col-sm-12 col-12">
+                                <div class="form-group mb-0">
+                                    <admin-label asp-for="ActivatedId" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                                    <admin-select asp-for="ActivatedId" asp-items="Model.ActivatedList" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12 col-12">
+                                <div class="form-group mb-0">
+                                    <admin-label asp-for="CouponCode" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                                    <admin-input asp-for="CouponCode" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12 col-12">
+                                <div class="form-group mb-0">
+                                    <admin-label asp-for="RecipientName" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                                    <admin-input asp-for="RecipientName" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
+                                <div class="form-actions">
+                                    <button class="btn btn-success filter-submit" id="search-giftvouchers">
+                                        <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="x_content">
+                <div id="giftvouchers-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+        $(document).ready(function () {
+            $("#giftvouchers-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("GiftVoucherList", "GiftVoucher", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: additionalData
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "AmountStr",
+                    title: "@Loc["Admin.GiftVouchers.Fields.Amount"]",
+                    template: '<a class="k-link" href="Edit/#=Id#">#=AmountStr#</a>',
+                    width: 100,
+                }, {
+                    field: "RemainingAmountStr",
+                    title: "@Loc["Admin.GiftVouchers.Fields.RemainingAmount"]",
+                    template: '<a class="k-link" href="Edit/#=Id#">#=RemainingAmountStr#</a>',
+                    width: 100,
+                }, {
+                    field: "Code",
+                    title: "@Loc["Admin.GiftVouchers.Fields.Code"]",
+                    template: '<a class="k-link" href="Edit/#=Id#">#=Code#</a>',
+                    width: 120,
+                }, {
+                    field: "RecipientName",
+                    title: "@Loc["Admin.GiftVouchers.Fields.RecipientName"]",
+                    minScreenWidth: 750,
+                    width: 150,
+                }, {
+                    field: "IsGiftVoucherActivated",
+                    title: "@Loc["Admin.GiftVouchers.Fields.IsGiftVoucherActivated"]",
+                    width: 100,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(IsGiftVoucherActivated) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                }, {
+                    field: "CreatedOn",
+                    title: "@Loc["Admin.GiftVouchers.Fields.CreatedOn"]",
+                    width: 180,
+                    type: "date",
+                    format: "{0:G}"
+                }]
+            });
+        });
+</script>
+<script>
+
+        $(document).ready(function () {
+
+            $('#search-giftvouchers').click(function () {
+                var grid = $('#giftvouchers-grid').data('kendoGrid');
+                grid.dataSource.page(1); //new search. Set page size to 1
+                //grid.dataSource.read(); we already loaded the grid above using "page" function
+                return false;
+            });
+        });
+
+        $("#@Html.IdFor(model => model.CouponCode)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-giftvouchers").click();
+                return false;
+            }
+        });
+
+        function additionalData() {
+            var data = {
+                ActivatedId: $('#@Html.IdFor(model => model.ActivatedId)').val(),
+                CouponCode: $('#@Html.IdFor(model => model.CouponCode)').val(),
+                RecipientName: $('#@Html.IdFor(model => model.RecipientName)').val()
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+
+</script>

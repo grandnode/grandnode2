@@ -1,0 +1,30 @@
+﻿@model InteractiveFormAttributeModel
+@{
+    //page title
+    ViewBag.Title = Loc["admin.marketing.InteractiveForms.AddAttribute"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="InteractiveForm" asp-action="AddAttribute" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-sitemap"></i>
+                        @Loc["admin.marketing.InteractiveForms.AddAttribute"] - @Model.Name
+                        <small>@Html.ActionLink("(" + Loc["admin.marketing.InteractiveForms.BackToForm"] + ")", "Edit", new { Id = Model.FormId })</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                   <partial name="_CreateOrUpdateAttribute" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,31 @@
+﻿@model BrandModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Catalog.Brands.AddNew"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Brand" asp-action="Create" method="post" id="brand-form">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-building-o"></i>
+                        @Loc["Admin.Catalog.Brands.AddNew"]
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Catalog.Brands.BackToList"], "List")</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                            <vc:admin-widget widget-zone="brand_details_buttons" additional-data="null" />
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                   <partial name="_CreateOrUpdate" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

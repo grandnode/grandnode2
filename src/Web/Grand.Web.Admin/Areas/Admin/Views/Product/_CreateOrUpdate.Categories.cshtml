@@ -1,0 +1,175 @@
+﻿@model ProductModel
+
+
+@if (!String.IsNullOrEmpty(Model.Id))
+{
+    <div class="panel panel-default">
+        <vc:admin-widget widget-zone="product_details_categories_top" additional-data="Model" />
+        <div class="panel-heading">
+            @Loc["Admin.Catalog.Products.Categories.Fields.Category"]
+        </div>
+        <div class="panel-body">
+            <div id="productcategories-grid"></div>
+        </div>
+        <vc:admin-widget widget-zone="product_details_categories_bottom" additional-data="Model" />
+    </div>
+    <script>
+            $(document).ready(function () {
+                $("#productcategories-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("ProductCategoryList", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            create: {
+                                url: "@Html.Raw(Url.Action("ProductCategoryInsert", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            update: {
+                                url:"@Html.Raw(Url.Action("ProductCategoryUpdate", "Product", new { area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("ProductCategoryDelete", "Product", new { area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "Id",
+                                fields: {
+                                    Category: { editable: true, type: "string" },
+                                    CategoryId: { editable: true, type: "string" },
+                                    IsFeaturedProduct: { editable: true, type: "boolean" },
+                                    DisplayOrder: { editable: true, type: "number" },
+                                    Id: { editable: false, type: "string" }
+                                }
+                            }
+                        },
+                        requestEnd: function (e) {
+                            if (e.type == "create" || e.type == "update") {
+                                this.read();
+                            }
+                        },
+                        error: function (e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        numeric: false,
+                        previousNext: false,
+                        info: false
+                    },
+                    toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
+                    edit: function(e) {
+                        if (e.model.isNew()) {
+                            e.model.CategoryId = "";
+                        }
+                    },
+                    editable: {
+                        confirmation: true,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [{
+                            field: "CategoryId",
+                            title: "@Loc["Admin.Catalog.Products.Categories.Fields.Category"]",
+                            width: 200,
+                            editor: categoryDropDownEditor,
+                            template: '<a class="k-link" href="@Url.Action("Edit", "Category", new { area = Constants.AreaAdmin })/#=CategoryId#">#:Category#</a>'
+                        },
+                        @if (!Model.IsLoggedInAsVendor)
+                        {
+                            //vendor cannot edit this field
+                            <text>{
+                            field: "IsFeaturedProduct",
+                            title: "@Loc["Admin.Catalog.Products.Categories.Fields.IsFeaturedProduct"]",
+                            width: 100,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            template: '# if(IsFeaturedProduct) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                    },</text>
+                        }
+
+                    {
+                        field: "DisplayOrder",
+                        title: "@Loc["Admin.Catalog.Products.Categories.Fields.DisplayOrder"]",
+                        width: 100,
+                        minScreenWidth: 500,
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        //integer format
+                        format: "{0:0}"
+                    }, {
+                        command: [{
+                            name: "edit",
+                            text: {
+                                edit: "@Loc["Admin.Common.Edit"]",
+                                update: "@Loc["Admin.Common.Update"]",
+                                cancel: "@Loc["Admin.Common.Cancel"]"
+                            }
+                        }, {
+                            name: "destroy",
+                            text: "@Loc["Admin.Common.Delete"]"
+                        }],
+                        width: 200
+                    }]
+                });
+            });
+
+            function categoryDropDownEditor(container, options) {
+                $('<input required data-text-field="Name" data-value-field="Id" data-bind="value:CategoryId"/>')
+                    .appendTo(container)
+                    .kendoDropDownList({
+                        autobind: false,
+                        optionLabel: "Select category...",
+                        filter: "startswith",
+                        filtering: function (e) {
+                            var filter = e.filter;
+                            if (!filter.value) {
+                                //prevent filtering if the filter does not value
+                                e.preventDefault();
+                            }
+                        },
+                        dataSource: {
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("Category", "Search", new { area = Constants.AreaAdmin }))"
+                                }
+                            },
+                            schema: {
+                                data: "Data"
+                            },
+                            serverFiltering: true
+                        },
+                        dataTextField: "Name",
+                        dataValueField: "Id",
+                    });
+            }
+    </script>
+}
+else
+{
+    <div class="note note-info">
+        @Loc["Admin.Catalog.Products.Categories.SaveBeforeEdit"]
+    </div>
+}
+

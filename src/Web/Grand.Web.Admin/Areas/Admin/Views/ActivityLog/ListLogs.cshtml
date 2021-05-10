@@ -1,0 +1,189 @@
+﻿@model ActivityLogSearchModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Configuration.ActivityLog.ActivityLog"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit popup-window">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-sitemap"></i>
+                    @Loc["Admin.Configuration.ActivityLog.ActivityLog"]
+                </div>
+                <div class="actions btn-group btn-group-devided">
+                    <a asp-action="ClearAll" class="btn red" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');">
+                        <i class="fa fa-trash-o"></i>
+                        @Loc["Admin.Common.Clear"]
+                    </a>
+                    <vc:admin-widget widget-zone="activity_log_list_buttons" additional-data="null" />
+                </div>
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="main-header col-12 px-0">
+                            <div class="row align-items-end">
+                                <div class="col-md-8 col-ms-12 col-12">
+                                    <div class="form-group mb-0">
+                                        <admin-label asp-for="Comment" class="control-label" />
+                                        <admin-input asp-for="Comment" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-sm-12 col-12">
+                                    <div class="form-actions">
+                                        <div class="btn-group">
+                                            <button class="btn btn-success filter-submit" id="search-log">
+                                                <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                            </button>
+                                            <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                <i class="fa fa-filter"></i>&nbsp; Filters
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse" id="filterCollapse">
+                            <div class="drop-filters-container">
+                                <div class="form-group">
+                                    <admin-label asp-for="CreatedOnFrom" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="CreatedOnFrom" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="CreatedOnTo" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="CreatedOnTo" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="IpAddress" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="IpAddress" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="ActivityLogTypeId" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-select asp-for="ActivityLogTypeId" asp-items="Model.ActivityLogType" />
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+            <div class="x_content">
+                <div id="activityLog-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#activityLog-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("ListLogs", "ActivityLog", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    },
+                    destroy: {
+                        url: "@Html.Raw(Url.Action("ActivityLogDelete", "ActivityLog", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        fields: {
+                            //do not implicitly specify all fields
+                            //we do it only for fields which implicitly require it
+                            //otherwise, they'll be formatted wrong way
+                            CreatedOn: {type: "date" }
+                        }
+                    }
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "ActivityLogTypeName",
+                title: "@Loc["Admin.Configuration.ActivityLog.ActivityLog.Fields.ActivityLogType"]",
+                width: 150
+            }, {
+                field: "CustomerId",
+                title: "@Loc["Admin.Configuration.ActivityLog.ActivityLog.Fields.Customer"]",
+                width: 100,
+                template: '<a href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/#=CustomerId#">#:CustomerEmail#</a>'
+            }, {
+                field: "IpAddress",
+                title: "@Loc["Admin.Configuration.ActivityLog.ActivityLog.Fields.IpAddress"]"
+            }, {
+                field: "Comment",
+                title: "@Loc["Admin.Configuration.ActivityLog.ActivityLog.Fields.Comment"]"
+            }, {
+                field: "CreatedOn",
+                title: "@Loc["Admin.System.Log.Fields.CreatedOn"]",
+                width: 200,
+                type: "date",
+                format: "{0:G}"
+            }, {
+                command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                title: "@Loc["Admin.Common.Delete"]",
+                width: 100
+            }]
+        });
+    });
+</script>
+<script>
+
+    $(document).ready(function () {
+
+        $('#search-log').click(function () {
+            var grid = $('#activityLog-grid').data('kendoGrid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            return false;
+        });
+    });
+
+    function additionalData() {
+        var data = {
+            Comment: $('#@Html.IdFor(model => model.Comment)').val(),
+            CreatedOnFrom: $('#@Html.IdFor(model => model.CreatedOnFrom)').val(),
+            CreatedOnTo: $('#@Html.IdFor(model => model.CreatedOnTo)').val(),
+            IpAddress: $('#@Html.IdFor(model => model.IpAddress)').val(),
+            ActivityLogTypeId: $('#ActivityLogTypeId').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+</script>

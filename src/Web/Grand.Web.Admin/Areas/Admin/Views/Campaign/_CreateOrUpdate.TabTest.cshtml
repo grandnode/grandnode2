@@ -1,0 +1,35 @@
+﻿@model CampaignModel
+@{
+    if (!String.IsNullOrEmpty(Model.Id))
+    {
+        <div class="form-horizontal">
+            <div class="form-body">
+                <div class="note note-danger">
+                    <strong>
+                        @Loc["admin.marketing.Campaigns.Warning"]
+                    </strong>
+                    <br />
+                </div>
+                <div class="form-group">
+                    <admin-label asp-for="TestEmail" />
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="TestEmail" />
+                        <span asp-validation-for="TestEmail"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
+                    <input type="submit" name="send-test-email" asp-action="SendTestEmail" class="k-button margin-top-10" value="@Loc["admin.marketing.Campaigns.SendTestEmail"]" />
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["admin.marketing.Campaigns.SaveBeforeEdit"]
+        </div>
+
+    }
+}

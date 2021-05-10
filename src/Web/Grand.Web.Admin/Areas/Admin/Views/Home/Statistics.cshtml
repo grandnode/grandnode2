@@ -1,0 +1,152 @@
+﻿@model DashboardModel
+@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Dashboard.Statistics"];
+    var canManageOrders = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageOrders);
+    var canManageCustomers = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageCustomers);
+    var canManageProducts = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageProducts);
+}
+
+<div class="page-bar" style="height:43px;">
+    <div class="page-toolbar">
+        <div id="dashboard-report-range" class="pull-right btn btn-sm">
+            <i class="icon-calendar"></i>&nbsp;
+            <span class="thin uppercase">@DateTime.Now.ToLocalTime().ToString()</span>&nbsp;
+        </div>
+    </div>
+</div>
+<div class="content-header">
+    <h3 class="page-title">
+        <i class="icon-bulb"></i>
+        @Loc["Admin.Dashboard"]
+        <small>@Loc["Admin.Dashboard.Statistics"]</small>
+    </h3>
+</div>
+
+<div class="content">
+    <div class="row">
+        <div class="col-md-12">
+            @if (!Model.IsLoggedInAsVendor && canManageOrders)
+            {
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <div class="caption level-caption">
+                                    <span class="caption-subject font-dark bold uppercase">@Loc["Admin.Reports.Average"]</span>
+                                </div>
+                            </div>
+                            <div class="x_content">
+                                @await Component.InvokeAsync("OrderAverageReport")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            @if (!Model.IsLoggedInAsVendor)
+            {
+                if (canManageOrders || canManageCustomers || canManageProducts)
+                {
+                    <div class="row">
+                        @if (canManageOrders)
+                        {
+                            <div class="col-md-6">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <div class="caption level-caption">
+                                            <span class="caption-subject font-dark bold uppercase">@Loc["Admin.Reports.Incomplete"]</span>
+                                        </div>
+                                    </div>
+                                    <div class="x_content">
+                                        @await Component.InvokeAsync("OrderIncompleteReport")
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (canManageOrders)
+                        {
+                            <div class="col-md-6">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <div class="caption level-caption">
+                                            <span class="caption-subject font-dark bold uppercase">@Loc["Admin.Reports.Customers.RegisteredCustomers"]</span>
+                                        </div>
+                                    </div>
+                                    <div class="x_content">
+                                        @await Component.InvokeAsync("CustomerReportRegistered")
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="row">
+                        @if (canManageProducts)
+                        {
+                            <div class="col-md-6">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <div class="caption level-caption">
+                                            <span class="caption-subject font-dark bold uppercase">@Loc["Admin.SearchTermReport"]</span>
+                                        </div>
+                                    </div>
+                                    <div class="x_content">
+                                        @await Component.InvokeAsync("PopularSearchTermsReport")
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        @if (canManageOrders)
+                        {
+                            <div class="col-md-6">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <div class="caption level-caption">
+                                            <span class="caption-subject font-dark bold uppercase">@Loc["Admin.Reports.Period"]</span>
+                                        </div>
+                                    </div>
+                                    <div class="x_content">
+                                        @await Component.InvokeAsync("OrderPeriodReport")
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                }
+            }
+
+            @if (canManageOrders)
+            {
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <div class="caption level-caption">
+                                    <span class="caption-subject font-dark bold uppercase">@Loc["Admin.Reports.BestSellers.ByQuantity"]</span>
+                                </div>
+                            </div>
+                            <div class="x_content">
+                                @await Component.InvokeAsync("BestsellersBriefReportByQuantity")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <div class="caption level-caption">
+                                    <span class="caption-subject font-dark bold uppercase">@Loc["Admin.Reports.BestSellers.ByAmount"]</span>
+                                </div>
+                            </div>
+                            <div class="x_content">
+                                @await Component.InvokeAsync("BestsellersBriefReportByAmount")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

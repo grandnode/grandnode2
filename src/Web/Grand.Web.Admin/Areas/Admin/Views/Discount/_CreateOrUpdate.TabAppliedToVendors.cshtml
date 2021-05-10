@@ -1,0 +1,100 @@
+﻿@model DiscountModel
+@{
+    if (!String.IsNullOrEmpty(Model.Id))
+    {
+<div class="panel panel-default">
+    <vc:admin-widget widget-zone="discount_details_applied_to_vendors_top" additional-data="Model" />
+    <div class="panel-body">
+        <div id="vendors-grid"></div>
+    </div>
+    <div class="panel-footer">
+        <button type="submit" id="btnAddNewVendor" onclick="javascript:OpenWindow('@(Url.Action("VendorAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshVendors", formId = "discount-form", area = Constants.AreaAdmin }))', 800, 800, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToVendors.AddNew"]</button>
+        <input type="button" id="btnRefreshVendors" style="display: none" />
+    </div>
+    <vc:admin-widget widget-zone="discount_details_applied_to_vendors_bottom" additional-data="Model" />
+</div>
+
+<script>
+            $(document).ready(function () {
+                $("#vendors-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("VendorList", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("VendorDelete", "Discount", new { discountId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "VendorId",
+                                fields: {
+                                    VendorName: {editable: false, type: "string" },
+                                    VendorId: {editable: false, type: "string" }
+                                }
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        numeric: false,
+                        previousNext: false,
+                        info: false
+                    },
+                    editable: {
+                        confirmation: false,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [{
+                        field: "VendorName",
+                        title: "@Loc["admin.marketing.Discounts.AppliedToVendors.Vendor"]",
+                        template: '<a class="k-link" href="@Url.Action("Edit", "Vendor", new { area = Constants.AreaAdmin })/#=VendorId#">#=kendo.htmlEncode(VendorName)#</a>',
+                    }, {
+                        command: [{
+                            name: "destroy",
+                            text: "@Loc["Admin.Common.Delete"]"
+                        }],
+                        width: 150
+                    }]
+                });
+            });
+</script>
+        <script>
+            $(document).ready(function () {
+                $('#btnRefreshVendors').click(function () {
+                    //refresh grid
+                    var grid = $("#vendors-grid").data('kendoGrid');
+                    grid.dataSource.read();
+
+                    //return false to don't reload a page
+                    return false;
+                });
+            });
+        </script>
+    }
+    else
+    {
+        <div class="note note-info">
+            @Loc["admin.marketing.Discounts.AppliedToVendors.SaveBeforeEdit"]
+        </div>
+    }
+}

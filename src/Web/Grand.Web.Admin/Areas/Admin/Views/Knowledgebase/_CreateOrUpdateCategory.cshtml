@@ -1,0 +1,37 @@
+﻿@model KnowledgebaseCategoryModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<admin-tabstrip name="knowledgebasecategory-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Content.Knowledgebase.KnowledgebaseCategory.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdateCategory.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Content.Knowledgebase.KnowledgebaseCategory.Articles"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdateCategory.TabArticles" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Content.Knowledgebase.KnowledgebaseCategory.Seo"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdateCategory.TabSeo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Content.Knowledgebase.KnowledgebaseCategory.ActivityLog"]" tab-index="3">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdateCategory.TabActivityLog" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="knowledgebase_category_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

@@ -1,0 +1,160 @@
+﻿@model ProductModel
+@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@{
+    //has "Manage Documents" permission?
+    var canManageDocuments = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageDocuments);
+}
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="Ticks" type="hidden" />
+<admin-tabstrip name="product-edit" SetTabPos="true">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Catalog.Products.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.Info" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Products.Prices"]" tab-index="1" id="tab-price-product">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.Prices" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Products.Additional"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.Additional" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Common.SEO"]" tab-index="3">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.SEO" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Products.Pictures"]" tab-index="4">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.Pictures" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Products.Mappings"]" tab-index="5">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.Categories" model="Model" />
+                    <partial name="_CreateOrUpdate.Collections" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Products.Inventory"]" tab-index="6" id="tab-inventory-product">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.Inventory" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Products.SpecificationAttributes"]" tab-index="7">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.SpecificationAttributes" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Products.ProductAttributes"]" tab-index="8" id="tab-attributes-product">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.ProductAttributes" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Products.BundleProducts"]" tab-index="9" id="tab-bundle-products">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.BundleProducts" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Products.Calendar"]" tab-index="10" id="tab-calendar">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.Calendar" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Products.Bids"]" tab-index="11" id="tab-bids">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.Bids" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Products.LinkedProducts"]" tab-index="12">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.RelatedProducts" model="Model" />
+                    <partial name="_CreateOrUpdate.CrossSells" model="Model" />
+                    <partial name="_CreateOrUpdate.SimilarProducts" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Catalog.Products.AssociatedProducts"]" tab-index="13" id="tab-associated-products">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.AssociatedProducts" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (!String.IsNullOrEmpty(Model.Id))
+        {
+            <tabstrip-item text="@Loc["Admin.Catalog.Products.ActivityLog"]" tab-index="14">
+                <content>
+                    <div>
+                        <partial name="_CreateOrUpdate.Activitylog" model="Model" />
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Catalog.Products.PurchasedWithOrders"]" tab-index="15" id="tab-purchased-product">
+                <content>
+                    <div>
+                        <partial name="_CreateOrUpdate.PurchasedWithOrders" model="Model" />
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Catalog.Products.Reviews"]" tab-index="16">
+                <content>
+                    <div>
+                        <partial name="_CreateOrUpdate.Reviews" model="Model" />
+                    </div>
+                </content>
+            </tabstrip-item>
+            if (canManageDocuments)
+            {
+                <tabstrip-item text="@Loc["Admin.Catalog.Products.Documents"]" tab-index="17">
+                    <content>
+                        <div>
+                            <partial name="_CreateOrUpdate.Documents" model="Model" />
+                        </div>
+                    </content>
+                </tabstrip-item>
+            }
+            <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="18">
+                <content>
+                    <div>
+                        @{
+                            ViewData["ObjectType"] = "Product";
+                            ViewData["TabIndex"] = 18;
+                         }
+                        <partial name="_UserFields" model="Model" view-data="ViewData" />
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        <vc:admin-widget widget-zone="product_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

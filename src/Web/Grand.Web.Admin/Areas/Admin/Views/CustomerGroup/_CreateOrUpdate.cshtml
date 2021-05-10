@@ -1,0 +1,49 @@
+﻿@model CustomerGroupModel
+@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@{ 
+    var access = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageAcl);
+}
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<vc:admin-widget widget-zone="customer_role_details_top" additional-data="Model" />
+<admin-tabstrip name="customergroup-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerGroups.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerGroups.Products"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabProducts" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (access)
+        {
+            <tabstrip-item text="@Loc["Admin.Customers.CustomerGroups.Acl"]" tab-index="2">
+                <content>
+                    <div>
+                        <partial name="_CreateOrUpdate.TabAcl" model="Model" />
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="3">
+            <content>
+                <div>
+                    @{
+                        ViewData["ObjectType"] = "CustomerGroup";
+                        ViewData["TabIndex"] = 3;
+                    }
+                    <partial name="_UserFields" model="Model" view-data="ViewData" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="customergroup_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>
+<vc:admin-widget widget-zone="customer_role_details_bottom" additional-data="Model" />

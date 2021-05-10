@@ -1,0 +1,113 @@
+﻿@model CustomerModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Customers.Customers.EditCustomerDetails"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Customer" asp-action="Edit" method="post" id = "customer-form">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-user"></i>
+                        @Loc["Admin.Customers.Customers.EditCustomerDetails"] - @Model.LastName @Model.FirstName
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Customers.Customers.BackToList"], "List")</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                            <button class="btn btn-info" type="submit" id="sendemail"><i class="fa fa-paper-plane" aria-hidden="true"></i> &nbsp;@Loc["Admin.Customers.Customers.SendEmail"] </button>
+                            <button class="btn btn-info" type="submit" name="impersonate" asp-action="Impersonate"><i class="fa fa-shopping-cart" aria-hidden="true"></i>&nbsp;@Loc["Admin.Customers.Customers.Impersonate.Button"]</button>
+                                @if (Model.AllowSendingOfWelcomeMessage)
+                                {
+                                    <button class="btn btn-primary" type="submit" name="send-welcome-message" asp-action="SendWelcomeMessage" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"><span class="k-icon k-i-rotate"></span> &nbsp;@Loc["Admin.Customers.Customers.SendWelcomeMessage"] </button>
+                                }
+                                @if (Model.AllowReSendingOfActivationMessage)
+                                {
+                                    <button class="btn btn-primary" type="submit" name="resend-activation-message" asp-action="ReSendActivationMessage" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');"><span class="k-icon k-i-rotate"></span> &nbsp;@Loc["Admin.Customers.Customers.ReSendActivationMessage"] </button>
+                                }
+                                <span id="customer-delete" class="btn red"><i class="fa fa-trash-o"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.Delete"]</span></span>
+                                <vc:admin-widget widget-zone="customer_details_buttons" additional-data="Model" />
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                   <partial name="_CreateOrUpdate" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<admin-delete-confirmation button-id="customer-delete"/>
+
+<div id="sendemail-window" style="display:none;">
+    <form asp-area="@Constants.AreaAdmin" asp-controller="Customer" asp-action="SendEmail" method="post" asp-route-id="Id">
+
+        <input type="hidden" asp-for="Id" id="sendemail_customerId" />
+        <div class="form-horizontal">
+            <div class="form-body">
+                <div class="form-group">
+                    <admin-label asp-for="SendEmail.Subject" />
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="SendEmail.Subject" />
+                        <span asp-validation-for="SendEmail.Subject"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <admin-label asp-for="SendEmail.Body" />
+                    <div class="col-md-9 col-sm-9">
+                        <admin-textarea asp-for="SendEmail.Body"></admin-textarea>
+                        <span asp-validation-for="SendEmail.Body"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <admin-label asp-for="SendEmail.SendImmediately" />
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="SendEmail.SendImmediately" />
+                        <span asp-validation-for="SendEmail.SendImmediately"></span>
+                    </div>
+                </div>
+                <div class="form-group" id="pnl-send-date">
+                    <admin-label asp-for="SendEmail.DontSendBeforeDate" />
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="SendEmail.DontSendBeforeDate" />
+                        <span asp-validation-for="SendEmail.DontSendBeforeDate"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <div class="offset-md-3 offset-sm-3 col-md-6 col-sm-6">
+                    <button type="submit" class="k-button"><span class="k-icon k-i-email"></span>&nbsp;@Loc["Admin.Customers.Customers.SendEmail"]</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#sendemail").click(function (e) {
+            e.preventDefault();
+            var window = $("#sendemail-window");
+            if (!window.data("kendoWindow")) {
+                window.kendoWindow({
+                    modal: true,
+                    width: "650px",
+                    title: "@Loc["Admin.Customers.Customers.SendEmail"]",
+                    actions: ["Close"]
+                });
+            }
+            window.data('kendoWindow').center().open();
+        });
+
+
+        //timing of send email section
+        $("#pnl-send-date").hide();
+        
+        $("#sendemail-window .check-box").click(function () {
+            $("#pnl-send-date").toggle();
+        });
+
+    });
+</script>

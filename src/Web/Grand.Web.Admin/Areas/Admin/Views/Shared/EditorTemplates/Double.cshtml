@@ -1,0 +1,11 @@
+@model double
+@Html.TextBoxFor(model => model)
+
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdForModel()").kendoNumericTextBox({
+            format: "0.############",
+            decimals: 12,
+        });
+    });
+</script>

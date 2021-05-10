@@ -1,0 +1,110 @@
+﻿@using Grand.Domain.Catalog
+@model OrderModel.AddOrderProductModel.ProductDetailsModel
+@{
+    ViewBag.Title = string.Format(Loc["Admin.Orders.Products.AddNew.Title2"], Model.Name, Model.OrderNumber);
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="AddProductToOrderDetails" asp-route-orderId="@Model.OrderId"
+      asp-route-productId="@Model.ProductId" enctype="multipart/form-data" method="post" id="product-details-form">
+
+    
+    <div asp-validation-summary="All"></div>
+    <vc:admin-widget widget-zone="order_add_products_details_top" additional-data="Model" />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cubes"></i>
+                        @string.Format(Loc["Admin.Orders.Products.AddNew.Title2"], Model.Name, Model.OrderNumber)
+                        @Html.ActionLink("(" + Loc["Admin.Orders.Products.AddNew.BackToList"] + ")", "AddProductToOrder", new { orderId = Model.OrderId })
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="offset-md-1 col-md-11 col-sm-11">
+                        @if (Model.Warnings.Count > 0)
+                        {
+                            <div class="note note-danger">
+                                @foreach (var warning in Model.Warnings)
+                                {
+                                    @warning
+                                    <br />
+                                }
+                            </div>
+                        }
+                    </div>
+                    @if (Model.ProductType == ProductType.SimpleProduct)
+                    {
+                        <div class="form-horizontal">
+                            <div class="form-body">
+                                <div class="form-group">
+                                    <admin-label asp-for="UnitPriceInclTax" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="UnitPriceInclTax" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="UnitPriceExclTax" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="UnitPriceExclTax" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="Quantity" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="Quantity" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="TaxRate" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="TaxRate" />
+                                    </div>
+                                </div>
+                                @{
+                                    var dataDict = new ViewDataDictionary(ViewData) { new KeyValuePair<string, object>("productId", Model.ProductId) };
+                                    <partial name="_ProductAddAttributes" model="Model.ProductAttributes" view-data="dataDict" />
+                                }
+                                @{
+
+                                    var dataDictGiftVoucher = new ViewDataDictionary(ViewData);
+                                    dataDictGiftVoucher.TemplateInfo.HtmlFieldPrefix = "giftvoucher";
+                                    <partial name="_ProductAddGiftVoucherInfo" model="Model.GiftVoucher" view-data="dataDictGiftVoucher" />
+                                }
+                                <div class="form-actions">
+                                    <div class="row">
+                                        <div class="offset-md-3 col-md-9 col-sm-9">
+                                            <input type="submit" class="k-button" value="@Loc["Admin.Orders.Products.AddNew"]" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else if (Model.ProductType == ProductType.GroupedProduct)
+                    {
+                        <div>
+                            <div class="note note-info">
+                                Grouped products are not currently supported for adding to an existing order
+                            </div>
+                        </div>
+                    }
+                    else if (Model.ProductType == ProductType.Reservation)
+                    {
+                        <div>
+                            <div class="note note-info">
+                                Reservation products are not currently supported for adding to an existing order
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="note note-info">
+                            This product type (unknown) is not currently supported for adding to an existing order
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <vc:admin-widget widget-zone="order_add_products_details_bottom" additional-data="Model" />
+</form>

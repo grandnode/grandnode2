@@ -1,0 +1,85 @@
+﻿@model PredefinedProductAttributeValueModel
+@using Microsoft.AspNetCore.Mvc.Razor;
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="ProductAttributeId" type="hidden" />
+
+@if (ViewBag.RefreshPage == true)
+{
+    <script>
+        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
+        catch (e){}
+        window.close();
+    </script>
+}
+<vc:admin-widget widget-zone="product_attribute_predefined_values_details_top" additional-data="Model" />
+
+@{ Func<int, HelperResult>
+          template = @<div class="form-body">
+    <div class="form-group">
+        <admin-label asp-for="@Model.Locales[item].Name" class="col-sm-3" />
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="@Model.Locales[item].Name" />
+            <span asp-validation-for="@Model.Locales[item].Name"></span>
+        </div>
+    </div>
+    <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
+</div>;
+}
+
+<div class="form-horizontal">
+    <localized-editor localized-template=@template name="productattributevalue-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+        <div class="form-group">
+            <div class="form-group">
+                <admin-label asp-for="Name" class="col-sm-3" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Name" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+        </div>
+    </localized-editor>
+
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="PriceAdjustment" class="col-sm-3" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="PriceAdjustment" />
+                <span asp-validation-for="PriceAdjustment"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="WeightAdjustment" class="col-sm-3" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="WeightAdjustment" />
+                <span asp-validation-for="WeightAdjustment"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Cost" class="col-sm-3" />
+            <div class="col-sm-9 col-md-9">
+                <admin-input asp-for="Cost" />
+                <span asp-validation-for="Cost"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="IsPreSelected" class="col-sm-3" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsPreSelected" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsPreSelected"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisplayOrder" class="col-sm-3" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrder" />
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<vc:admin-widget widget-zone="product_attribute_predefined_values_details_bottom" additional-data="Model" />

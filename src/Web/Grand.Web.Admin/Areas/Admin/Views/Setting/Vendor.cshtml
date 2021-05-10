@@ -1,0 +1,506 @@
+﻿@model VendorSettingsModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Settings.Vendor"];
+}
+<script>
+    $(document).ready(function () {
+
+        $("#@Html.IdFor(model => model.AddressSettings.CountryEnabled)").click(toggleVendorCountryFormField);
+        $("#@Html.IdFor(model => model.AddressSettings.StateProvinceEnabled)").click(toggleVendorStateProvinceFormField);
+        $("#@Html.IdFor(model => model.AddressSettings.CompanyEnabled)").click(toggleVendorRequiredFormField);
+        $("#@Html.IdFor(model => model.AddressSettings.StreetAddressEnabled)").click(toggleVendorRequiredFormField);
+        $("#@Html.IdFor(model => model.AddressSettings.StreetAddress2Enabled)").click(toggleVendorRequiredFormField);
+        $("#@Html.IdFor(model => model.AddressSettings.ZipPostalCodeEnabled)").click(toggleVendorRequiredFormField);
+        $("#@Html.IdFor(model => model.AddressSettings.CityEnabled)").click(toggleVendorRequiredFormField);
+        $("#@Html.IdFor(model => model.AddressSettings.PhoneEnabled)").click(toggleVendorRequiredFormField);
+        $("#@Html.IdFor(model => model.AddressSettings.FaxEnabled)").click(toggleVendorRequiredFormField);
+
+
+        toggleVendorCountryFormField();
+        toggleVendorStateProvinceFormField();
+        toggleVendorRequiredFormField();
+    });
+
+    function toggleVendorCountryFormField() {
+        if ($('#@Html.IdFor(model => model.AddressSettings.CountryEnabled)').is(':checked')) {
+            $('#pnlVendorCountryRequired').show();
+            $('#pnlVendorStateProvinceEnabled').show();
+            toggleVendorStateProvinceFormField();
+        } else {
+            $('#pnlVendorCountryRequired').hide();
+            $('#pnlVendorStateProvinceEnabled').hide();
+            toggleVendorStateProvinceFormField();
+        }
+    }
+
+    function toggleVendorStateProvinceFormField() {
+        if ($('#@Html.IdFor(model => model.AddressSettings.CountryEnabled)').is(':checked') &&
+            $('#@Html.IdFor(model => model.AddressSettings.StateProvinceEnabled)').is(':checked')) {
+            $('#pnlVendorStateProvinceRequired').show();
+        } else {
+            $('#pnlVendorStateProvinceRequired').hide();
+        }
+    }
+
+    function toggleVendorRequiredFormField() {
+        if ($('#@Html.IdFor(model => model.AddressSettings.CompanyEnabled)').is(':checked')) {
+            $('#pnlVendorCompanyRequired').show();
+        } else {
+            $('#pnlVendorCompanyRequired').hide();
+        }
+
+        if ($('#@Html.IdFor(model => model.AddressSettings.StreetAddressEnabled)').is(':checked')) {
+            $('#pnlVendorStreetAddressRequired').show();
+        } else {
+            $('#pnlVendorStreetAddressRequired').hide();
+        }
+
+        if ($('#@Html.IdFor(model => model.AddressSettings.StreetAddress2Enabled)').is(':checked')) {
+            $('#pnlVendorStreetAddress2Required').show();
+        } else {
+            $('#pnlVendorStreetAddress2Required').hide();
+        }
+
+        if ($('#@Html.IdFor(model => model.AddressSettings.ZipPostalCodeEnabled)').is(':checked')) {
+            $('#pnlVendorZipPostalCodeRequired').show();
+        } else {
+            $('#pnlVendorZipPostalCodeRequired').hide();
+        }
+
+        if ($('#@Html.IdFor(model => model.AddressSettings.CityEnabled)').is(':checked')) {
+            $('#pnlVendorCityRequired').show();
+        } else {
+            $('#pnlVendorCityRequired').hide();
+        }
+
+        if ($('#@Html.IdFor(model => model.AddressSettings.PhoneEnabled)').is(':checked')) {
+            $('#pnlVendorPhoneRequired').show();
+        } else {
+            $('#pnlVendorPhoneRequired').hide();
+        }
+
+        if ($('#@Html.IdFor(model => model.AddressSettings.FaxEnabled)').is(':checked')) {
+            $('#pnlVendorFaxRequired').show();
+        } else {
+            $('#pnlVendorFaxRequired').hide();
+        }
+    }
+</script>
+<form asp-area="@Constants.AreaAdmin" asp-controller="Setting" asp-action="Vendor" method="post">
+    
+    <div asp-validation-summary="All"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-fw fa-sliders"></i>
+                        @Loc["Admin.Settings.Vendor"]
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                        </div>
+                    </div>
+                    <vc:admin-widget widget-zone="vendor_settings_buttons" additional-data="null" />
+                </div>
+                <div class="x_content">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            @await Component.InvokeAsync("StoreScope")
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <vc:admin-widget widget-zone="vendor_settings_top" additional-data="null" />
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="VendorsBlockItemsToDisplay" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="VendorsBlockItemsToDisplay" />
+                                    <span asp-validation-for="VendorsBlockItemsToDisplay"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="ShowVendorOnProductDetailsPage" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="ShowVendorOnProductDetailsPage" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="ShowVendorOnProductDetailsPage"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AllowCustomersToContactVendors" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AllowCustomersToContactVendors" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AllowCustomersToContactVendors"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AllowCustomersToApplyForVendorAccount" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AllowCustomersToApplyForVendorAccount" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AllowCustomersToApplyForVendorAccount"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AllowSearchByVendor" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AllowSearchByVendor" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AllowSearchByVendor"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AllowVendorsToEditInfo" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AllowVendorsToEditInfo" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AllowVendorsToEditInfo"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="NotifyStoreOwnerAboutVendorInformationChange" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="NotifyStoreOwnerAboutVendorInformationChange" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="NotifyStoreOwnerAboutVendorInformationChange"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="TermsOfServiceEnabled" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="TermsOfServiceEnabled" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="TermsOfServiceEnabled"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="VendorReviewsMustBeApproved" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="VendorReviewsMustBeApproved" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="VendorReviewsMustBeApproved"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AllowAnonymousUsersToReviewVendor" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AllowAnonymousUsersToReviewVendor" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AllowAnonymousUsersToReviewVendor"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="VendorReviewPossibleOnlyAfterPurchasing" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="VendorReviewPossibleOnlyAfterPurchasing" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="VendorReviewPossibleOnlyAfterPurchasing"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="NotifyVendorAboutNewVendorReviews" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="NotifyVendorAboutNewVendorReviews" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="NotifyVendorAboutNewVendorReviews"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="DefaultAdminTheme" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="DefaultAdminTheme" />
+                                    <span asp-validation-for="DefaultAdminTheme"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="DefaultAllowCustomerReview" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="DefaultAllowCustomerReview" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="DefaultAllowCustomerReview"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="DefaultVendorRatingValue" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="DefaultVendorRatingValue" />
+                                    <span asp-validation-for="DefaultVendorRatingValue"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="DefaultVendorPageSizeOptions" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <admin-input asp-for="DefaultVendorPageSizeOptions" />
+                                    <span asp-validation-for="DefaultVendorPageSizeOptions"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            @Loc["Admin.Settings.Vendor.Address"]
+                        </div>
+                        <div class="form-horizontal panel-body">
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.CompanyEnabled" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.CompanyEnabled" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.CompanyEnabled"></span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="pnlVendorCompanyRequired">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.CompanyRequired" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.CompanyRequired" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.CompanyRequired"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.StreetAddressEnabled" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.StreetAddressEnabled" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.StreetAddressEnabled"></span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="pnlVendorStreetAddressRequired">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.StreetAddressRequired" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.StreetAddressRequired" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.StreetAddressRequired"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.StreetAddress2Enabled" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.StreetAddress2Enabled" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.StreetAddress2Enabled"></span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="pnlVendorStreetAddress2Required">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.StreetAddress2Required" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.StreetAddress2Required" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.StreetAddress2Required"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.ZipPostalCodeEnabled" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.ZipPostalCodeEnabled" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.ZipPostalCodeEnabled"></span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="pnlVendorZipPostalCodeRequired">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.ZipPostalCodeRequired" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.ZipPostalCodeRequired" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.ZipPostalCodeRequired"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.CityEnabled" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.CityEnabled" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.CityEnabled"></span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="pnlVendorCityRequired">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.CityRequired" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.CityRequired" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.CityRequired"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.CountryEnabled" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.CountryEnabled" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.CountryEnabled"></span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="pnlVendorStateProvinceEnabled">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.StateProvinceEnabled" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.StateProvinceEnabled" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.StateProvinceEnabled"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.PhoneEnabled" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.PhoneEnabled" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.PhoneEnabled"></span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="pnlVendorPhoneRequired">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.PhoneRequired" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.PhoneRequired" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.PhoneRequired"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.FaxEnabled" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.FaxEnabled" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.FaxEnabled"></span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="pnlVendorFaxRequired">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AddressSettings.FaxRequired" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AddressSettings.FaxRequired" />
+                                         <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AddressSettings.FaxRequired"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <vc:admin-widget widget-zone="vendor_settings_bottom" additional-data="null" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

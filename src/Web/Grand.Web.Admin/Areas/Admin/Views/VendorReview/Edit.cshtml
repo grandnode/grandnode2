@@ -1,0 +1,38 @@
+﻿@model VendorReviewModel
+@using Grand.Infrastructure
+@inject IWorkContext workContext
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.VendorReviews.EditVendorReviewDetails"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="VendorReview" asp-action="Edit" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cube"></i>
+                        @Loc["Admin.VendorReviews.EditVendorReviewDetails"]
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.VendorReviews.BackToList"], "List")</small>
+                    </div>
+                    @if (workContext.CurrentVendor == null)
+                    {
+                        <div class="actions">
+                            <div class="btn-group btn-group-devided">
+                                <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                                <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                                <span id="vendorreview-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
+                                <vc:admin-widget widget-zone="vendor_review_details_buttons" additional-data="Model" />
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="x_content form">
+                   <partial name="_CreateOrUpdate" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<admin-delete-confirmation button-id="vendorreview-delete"/>

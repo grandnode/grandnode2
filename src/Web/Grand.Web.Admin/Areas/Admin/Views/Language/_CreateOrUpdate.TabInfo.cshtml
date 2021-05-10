@@ -1,0 +1,113 @@
+﻿@model LanguageModel
+
+<div class="form-horizontal">
+    <vc:admin-widget widget-zone="language_details_info_top" additional-data="Model" />
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="Name" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="LanguageCulture" />
+            <div class="col-md-9 col-sm-9">
+                @{
+                    var cultures = System.Globalization.CultureInfo.GetCultures(System.Globalization.CultureTypes.SpecificCultures)
+                        .OrderBy(x => x.EnglishName)
+                        .Select(x => new SelectListItem
+                        {
+                            Value = x.IetfLanguageTag,
+                            Text = string.Format("{0}. {1}", x.EnglishName, x.IetfLanguageTag)
+                        });
+                }
+                <admin-select asp-for="LanguageCulture" asp-items="cultures" />
+                <span asp-validation-for="LanguageCulture"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="UniqueSeoCode" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="UniqueSeoCode" />
+                <span asp-validation-for="UniqueSeoCode"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <admin-label asp-for="FlagImageFileName" />
+            <div class="col-md-3 col-sm-3">
+                <select id="FlagImageFileName" class="form-control" Name="FlagImageFileName">
+                    @foreach (var fileName in Model.FlagFileNames.OrderBy(x => x))
+                    {
+                        <option value="@fileName" img="@Url.Content("~/assets/images/flags/" + fileName)">
+                            @fileName
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="FlagImageFileName"></span>
+                <br />
+            </div>
+            <div class="col-md-1"><img id="FlagDisplay" style="width:50%" /></div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Rtl" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="Rtl" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="Rtl"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DefaultCurrencyId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="DefaultCurrencyId" asp-items="Model.AvailableCurrencies" />
+                <span asp-validation-for="DefaultCurrencyId"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Published" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="Published" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="Published"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisplayOrder" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrder" />
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Stores" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Stores" />
+                <span asp-validation-for="Stores"></span>
+            </div>
+        </div>
+    </div>
+    <vc:admin-widget widget-zone="language_details_info_bottom" additional-data="Model" />
+</div>
+<script>
+    $().ready(function () {
+        $("#@Html.IdFor(x=>x.FlagImageFileName)").change(function (e) {
+            var img = $(e.target).find(":selected").attr("img");
+            $("#FlagDisplay").attr("src", img);
+        }).val('@Model.FlagImageFileName').change();
+        $("#@Html.IdFor(x=>x.LanguageCulture)").change(function (e) {
+            var val = $(e.target).find(":selected").val();
+            var parts = val.split("-");
+            if (parts.length > 1) {
+                $("#@Html.IdFor(x=>x.UniqueSeoCode)").val(parts[1]);
+            }
+
+        });
+
+    })
+</script>

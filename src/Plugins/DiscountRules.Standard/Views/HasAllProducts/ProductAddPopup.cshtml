@@ -1,0 +1,177 @@
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminPopupLayout.cshtml";
+}
+@model DiscountRules.HasAllProducts.Models.RequirementModel.AddProductModel
+@using Grand.Domain.Common;
+@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["Plugins.DiscountRules.HasAllProducts.Fields.Products.Choose"];
+}
+<form asp-controller="HasAllProducts" asp-action="ProductAddPopup" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cubes"></i>
+                        @Loc["Plugins.DiscountRules.HasAllProducts.Fields.Products.Choose"]
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <admin-label asp-for="SearchProductName" class="col-sm-3" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="SearchProductName" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="SearchCategoryId" class="col-sm-3" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="SearchCategoryId" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="SearchCollectionId" class="col-sm-3" />
+                                <div class="col-md-9  col-sm-9">
+                                    <admin-input asp-for="SearchCollectionId" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="SearchStoreId" class="col-sm-3" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="SearchVendorId" class="col-sm-3" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-select asp-for="SearchVendorId" asp-items="Model.AvailableVendors" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="SearchProductTypeId" class="col-sm-3" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-select asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes" />
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <div class="row">
+                                    <div class="col-md-offset-1 col-md-11 col-sm-11 btn-group btn-group-devided">
+                                        <input type="button" id="search-products" class="btn default" value="@Loc["Admin.Common.Search"]" />
+                                        <input type="submit" name="save" class="btn green" value="@Loc["Admin.Common.Save"]" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="products-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="products-grid"></div>
+    <script>
+        $(document).ready(function () {
+            $("#products-grid").kendoGrid({
+                dataSource: {
+                    type: "json",
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.RouteUrl("Plugin.DiscountRules.HasAllProducts.ProductAddPopupList"))",
+                            type: "POST",
+                            dataType: "json",
+                            data: additionalData
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "Name",
+                    title: "@Loc["Admin.Common.Select"]",
+                    width: 50,
+                    template: '<input type="button" value="@Loc["Admin.Common.Select"]" onclick="selectRequiredProduct(\'#=Id#\')" class="k-button" />'
+                },{
+                    field: "Name",
+                    title: "@Loc["Admin.Catalog.Products.Fields.Name"]"
+                }, {
+                    field: "Published",
+                    title: "@Loc["Admin.Catalog.Products.Fields.Published"]",
+                    width: 100,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                }]
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#search-products').click(function () {
+                var grid = $('#products-grid').data('kendoGrid');
+                grid.dataSource.page(1); //new search. Set page size to 1
+                //grid.dataSource.read(); we already loaded the grid above using "page" function
+                return false;
+            });
+        });
+
+        $("#@Html.IdFor(model => model.SearchProductName)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-products").click();
+                return false;
+            }
+        });
+
+        function additionalData() {
+            var data = {
+                SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
+                SearchCategoryId: $('#SearchCategoryId').val(),
+                SearchCollectionId: $('#SearchCollectionId').val(),
+                SearchStoreId: $('#SearchStoreId').val(),
+                SearchVendorId: $('#SearchVendorId').val(),
+                SearchProductTypeId: $('#SearchProductTypeId').val()
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+
+        function selectRequiredProduct(productid) {
+            try {
+                var currentValue = window.opener.document.getElementById('@(ViewBag.productIdsInput)').value;
+                if (currentValue) {
+                    //add comma
+                    window.opener.document.getElementById('@(ViewBag.productIdsInput)').value += ', ';
+                }
+                window.opener.document.getElementById('@(ViewBag.productIdsInput)').value += productid;
+                window.opener.document.getElementById('@(ViewBag.btnId)').click();
+            }
+            catch (e){}
+            window.close();
+        }
+    </script>
+</form>

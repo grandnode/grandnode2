@@ -1,0 +1,34 @@
+﻿@model CheckoutAttributeModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<admin-tabstrip name="checkoutattribute-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Orders.CheckoutAttributes.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Orders.CheckoutAttributes.Values"]" tab-index="1" id="tab-checkoutAttributesValues">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabValues" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (Model.ConditionAllowed)
+        {
+            <tabstrip-item text="@Loc["Admin.Orders.CheckoutAttributes.Condition"]" tab-index="2">
+                <content>
+                    <div>
+                        <partial name="_CreateOrUpdate.TabCondition" model="Model" />
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        <vc:admin-widget widget-zone="checkoutattribute_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

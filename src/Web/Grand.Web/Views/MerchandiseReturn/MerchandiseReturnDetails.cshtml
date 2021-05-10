@@ -1,0 +1,242 @@
+﻿@model MerchandiseReturnDetailsModel
+@using Grand.Web.Models.Orders
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.MerchandiseReturnDetails"]);
+}
+@section left
+{
+    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.MerchandiseReturns })
+}
+<div class="page account-page px-3">
+    <h1 class="h2 generalTitle">@string.Format(Loc["Account.CustomerMerchandiseReturns.Title"], Model.ReturnNumber, Model.MerchandiseReturnStatus)</h1>
+    <b-row class="flex-column">
+        <div class="return-product-container">
+            <div class="details alert alert-info date">
+                <label>@Loc["Account.CustomerMerchandiseReturns.Date"]</label>
+                <span>@Model.CreatedOnUtc.ToString()</span>
+            </div>
+            <div class="products">
+                <h5 class="generalTitle">@Loc["Order.Product(s)"]</h5>
+                <div class="mt-1">
+                    <div class="return-request-table">
+                        <table class="table">
+                            <colgroup>
+                                <col width="1">
+                                <col width="1">
+                                <col width="1">
+                                <col width="1">
+                                <col width="1">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th class="product text-center">
+                                        @Loc["Account.CustomerMerchandiseReturns.Item"]
+                                    </th>
+                                    <th class="quantity text-center">
+                                        @Loc["Account.CustomerMerchandiseReturns.Quantity"]
+                                    </th>
+                                    <th class="text-center">
+                                        @Loc["Account.CustomerMerchandiseReturns.UnitPrice"]
+                                    </th>
+                                    <th class="reason text-center">
+                                        @Loc["Account.CustomerMerchandiseReturns.Reason"]
+                                    </th>
+                                    <th class="text-center">
+                                        @Loc["Account.CustomerMerchandiseReturns.Action"]
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.MerchandiseReturnItems)
+                                {
+                                    <tr class="item-container">
+                                        <td class="product">
+                                            <em><a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a></em>
+                                        </td>
+
+                                        <td class="quantity text-center">
+                                            @item.Quantity
+                                        </td>
+
+                                        <td class="quantity text-center">
+                                            @item.ProductPrice
+                                        </td>
+
+                                        <td class="text-center">
+                                            <span>@item.ReasonForReturn</span>
+                                        </td>
+
+                                        <td class="text-center">
+                                            <span>@item.RequestedAction</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            @if (!String.IsNullOrEmpty(Model.Comments))
+            {
+                <div class="comments">
+                    <label class="col-form-label">@Loc["Account.CustomerMerchandiseReturns.Comments"] </label>
+                    <b-card>@Model.Comments</b-card>
+                </div>
+            }
+
+            @if (Model.ShowPickupDate)
+            {
+                @if (Model.PickupDate != default(DateTime))
+                {
+                    <div class="d-inline-flex align-items-center w-100 my-3">
+                        <b-icon class="mx-2" icon="calendar2-check" variant="info"></b-icon>
+                        <small class="text-muted">
+                            <label class="mb-0">@Loc["Account.CustomerMerchandiseReturns.PickupDate"]: </label>
+                            <span>@Model.PickupDate.ToShortDateString()</span>
+                        </small>
+                    </div>
+                }
+            }
+
+            @if (Model.ShowPickupAddress)
+            {
+                <b-card class="mt-3">
+                    <b-card-text>
+                        <ul class="billing-info px-0">
+                            <li class="title">
+                                <h5 class="generalTitle">@Loc["Account.CustomerMerchandiseReturns.PickupAddress"]</h5>
+                            </li>
+                            <li class="name">
+                                @Model.PickupAddress.FirstName @Model.PickupAddress.LastName
+                            </li>
+                            <li class="email">
+                                @Loc["Order.Email"]: @Model.PickupAddress.Email
+                            </li>
+                            @if (Model.PickupAddress.PhoneEnabled)
+                            {
+                                <li class="phone">
+                                    @Loc["Order.Phone"]: @Model.PickupAddress.PhoneNumber
+                                </li>
+                            }
+                            @if (Model.PickupAddress.FaxEnabled)
+                            {
+                                <li class="fax">
+                                    @Loc["Order.Fax"]: @Model.PickupAddress.FaxNumber
+                                </li>
+                            }
+                            @if (Model.PickupAddress.CompanyEnabled && !String.IsNullOrEmpty(Model.PickupAddress.Company))
+                            {
+                                <li class="company">
+                                    @Model.PickupAddress.Company
+                                </li>
+                            }
+                            @if (Model.PickupAddress.VatNumberEnabled && !String.IsNullOrEmpty(Model.PickupAddress.VatNumber))
+                            {
+                                <li class="company">
+                                    @Model.PickupAddress.VatNumber
+                                </li>
+                            }
+                            @if (Model.PickupAddress.StreetAddressEnabled)
+                            {
+                                <li class="address1">
+                                    @Model.PickupAddress.Address1
+                                </li>
+                            }
+                            @if (Model.PickupAddress.StreetAddress2Enabled && !String.IsNullOrEmpty(Model.PickupAddress.Address2))
+                            {
+                                <li class="address2">
+                                    @Model.PickupAddress.Address2
+                                </li>
+                            }
+                            @if (Model.PickupAddress.CityEnabled || Model.PickupAddress.StateProvinceEnabled || Model.PickupAddress.ZipPostalCodeEnabled)
+                            {
+                                <li class="city-state-zip">
+                                    @if (Model.PickupAddress.CityEnabled)
+                                    {
+                                        @Model.PickupAddress.City
+                                    }
+                                    @if (Model.PickupAddress.CityEnabled && (Model.PickupAddress.StateProvinceEnabled || Model.PickupAddress.ZipPostalCodeEnabled))
+                                    {
+                                        <text>,</text>
+                                    }
+                                    @if (Model.PickupAddress.StateProvinceEnabled)
+                                    {
+                                        @Model.PickupAddress.StateProvinceName
+                                    }
+                                    @if (Model.PickupAddress.ZipPostalCodeEnabled)
+                                    {
+                                        @Model.PickupAddress.ZipPostalCode
+                                    }
+                                </li>
+                            }
+                            @if (Model.PickupAddress.CountryEnabled && !String.IsNullOrEmpty(Model.PickupAddress.CountryName))
+                            {
+                                <li class="country">
+                                    @Model.PickupAddress.CountryName
+                                </li>
+                            }
+
+                            @if (!String.IsNullOrEmpty(Model.PickupAddress.FormattedCustomAddressAttributes))
+                            {
+                                <li class="custom-attributes-view">
+                                    @Html.Raw(Model.PickupAddress.FormattedCustomAddressAttributes)
+                                </li>
+                            }
+                        </ul>
+                    </b-card-text>
+                </b-card>
+            }
+
+            @if (Model.MerchandiseReturnNotes.Any())
+            {
+                <div class="merchandisereturn-notes">
+                    <h5>
+                        @Loc["MerchandiseReturns.Notes"]
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover data-table">
+                            <colgroup>
+                                <col />
+                                <col />
+                            </colgroup>
+                            <thead class="table-inverse">
+                                <tr class="row mx-0">
+                                    <th class="created-on col-4">
+                                        @Loc["MerchandiseReturns.Notes.CreatedOn"]
+                                    </th>
+                                    <th class="note col-8">
+                                        @Loc["MerchandiseReturns.Notes.Note"]
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.MerchandiseReturnNotes)
+                                {
+                                    <tr class="row mx-0">
+                                        <td class="created-on col-4">
+                                            @item.CreatedOn.ToString()
+                                        </td>
+                                        <td class="note col-8">
+                                            @Html.Raw(item.Note)
+                                            @if (item.HasDownload)
+                                            {
+                                                <p class="download">
+                                                    <a href="@Url.RouteUrl("GetMerchandiseReturnNoteFile", new { merchandisereturnnoteid = item.Id })">@Loc["MerchandiseReturns.Notes.Download"]</a>
+                                                </p>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    </b-row>
+</div>

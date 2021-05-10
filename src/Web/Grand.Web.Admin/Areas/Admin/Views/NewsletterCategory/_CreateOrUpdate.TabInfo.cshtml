@@ -1,0 +1,69 @@
+﻿@model NewsletterCategoryModel
+@using Microsoft.AspNetCore.Mvc.Razor;
+
+@{ Func<int, HelperResult>
+         template = @<div class="form-body">
+    <div class="form-group">
+        <admin-label asp-for="@Model.Locales[item].Name" />
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="@Model.Locales[item].Name" />
+            <span asp-validation-for="@Model.Locales[item].Name"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <admin-label asp-for="@Model.Locales[item].Description" />
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="@Model.Locales[item].Description" asp-template="Editor" />
+            <span asp-validation-for="@Model.Locales[item].Description"></span>
+        </div>
+    </div>
+    <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
+</div>;
+}
+
+<div class="form-horizontal">
+    <localized-editor localized-template=@template name="newslettercategory-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+        <div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="Name" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Name" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="Description" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Description" asp-template="Editor" />
+                    <span asp-validation-for="Description"></span>
+                </div>
+            </div>
+        </div>
+    </localized-editor>
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="Selected" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="Selected" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="Selected"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Stores" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Stores" />
+                <span asp-validation-for="Stores"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisplayOrder" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrder" />
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </div>
+    </div>
+</div>

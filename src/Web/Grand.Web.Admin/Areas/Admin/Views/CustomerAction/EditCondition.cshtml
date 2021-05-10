@@ -1,0 +1,34 @@
+﻿@model CustomerActionConditionModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Customers.CustomerAction.EditCustomerActionCondition"];
+}
+
+<form asp-area="@Constants.AreaAdmin" asp-controller="CustomerAction" asp-action="EditCondition" 
+      asp-route-customerActionId="@Context.Request.Query["CustomerActionId"]"
+      asp-route-cid="@Context.Request.Query["cid"]"
+      method="post" id="customer-action-condition-form">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-sitemap"></i>
+                        @Loc["Admin.Customers.CustomerAction.EditCustomerActionCondition"] - @Model.Name
+                        <small>@Html.ActionLink("(" + Loc["Admin.Customers.CustomerAction.BackToAction"] + ")", "Edit", new { Id = Model.CustomerActionId })                    </small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                   <partial name="_CreateOrUpdateCondition" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

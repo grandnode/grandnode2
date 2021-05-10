@@ -1,0 +1,51 @@
+﻿@model CustomerReminderModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.AllowRenew)").change(toggleAllowRenew);
+        toggleAllowRenew();
+        function toggleAllowRenew() {
+            if ($('#@Html.IdFor(model => model.AllowRenew)').is(':checked')) {
+                $('#pnlAllowRenew').show();
+            } else {
+                $('#pnlAllowRenew').hide();
+            }
+        }
+    });
+</script>
+
+<admin-tabstrip name="customerreminder-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerReminder.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerReminder.Conditions"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabConditions" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerReminder.Levels"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabLevels" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Customers.CustomerReminder.History"]" tab-index="3">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabHistory" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="customer_reminder_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

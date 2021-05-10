@@ -1,0 +1,12 @@
+﻿@model Grand.Web.Common.Models.DeleteConfirmationModel
+<form asp-area="@Constants.AreaAdmin" asp-controller="@Model.ControllerName" asp-action="@Model.ActionName" method="post" asp-route-id="@Model.Id">
+    <div>
+        <p>
+            @Loc["Admin.Common.DeleteConfirmation"]
+        </p>
+        <div class="form-actions">
+            <span id="" class="k-button" onclick="$('#@Model.WindowId').data('kendoWindow').close();">@Loc["Admin.Common.NoCancel"]</span>
+            <input type="submit" class="k-button" value="@Loc["Admin.Common.Delete"]" />
+        </div>
+    </div>
+</form>

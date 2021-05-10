@@ -1,0 +1,463 @@
+﻿@using Grand.Domain.Catalog
+@model ProductListModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Catalog.Products.Manage"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="List" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit popup-window">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cubes"></i>
+                        @Loc["Admin.Catalog.Products.Manage"]
+                    </div>
+                    <div class="actions btn-group btn-group-devided util-btn-margin-bottom-5">
+                        <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
+                        <div class="btn-group btn-group-devided">
+                            <a class="btn default" href="javascript:;" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                                <i class="fa fa-download"></i>
+                                @Loc["Admin.Common.Export"]
+                                <i class="fa fa-angle-down"></i>
+                            </a>
+                            <ul class="dropdown-menu pull-right">
+                                <li>
+                                    <input type="submit" name="exportexcel-all" asp-action="ExportExcelAll" class="btn default" style="width: 100%;" value="@Loc["Admin.Common.ExportToExcel.All"]" />
+                                </li>
+                                <li>
+                                    <input type="button" id="exportexcel-selected" class="btn default" style="width: 100%;" value="@Loc["Admin.Common.ExportToExcel.Selected"]" />
+                                </li>
+                            </ul>
+                        </div>
+                        @if (!Model.IsLoggedInAsVendor)
+                        {
+                            //a vendor cannot import products
+                            <button type="button" id="importexcel" name="importexcel" class="btn default">
+                                <i class="fa fa-upload"></i>
+                                @Loc["Admin.Common.ImportFromExcel"]
+                            </button>
+
+                        }
+                        <button type="button" name="delete-selected" id="delete-selected" class="btn red">
+                            <i class="fa fa-trash-o"></i>
+                            @Loc["Admin.Common.Delete.Selected"]
+                        </button>
+                        <vc:admin-widget widget-zone="product_list_buttons" additional-data="null" />
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="main-header col-12 px-0">
+                                <div class="row align-items-end">
+                                    <div class="col-md-8 col-ms-12 col-12">
+                                        <div class="form-group mb-0">
+                                            <admin-label asp-for="SearchProductName" class="control-label" />
+                                            <admin-input asp-for="SearchProductName" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-12 col-12">
+                                        <div class="form-actions">
+                                            <div class="btn-group">
+                                                <button class="btn btn-success filter-submit" id="search-products">
+                                                    <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                                </button>
+                                                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                    <i class="fa fa-filter"></i>&nbsp; Filters
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse" id="filterCollapse">
+                            <div class="drop-filters-container w-100">
+                                <div class="form-group">
+                                    <admin-label asp-for="SearchProductTypeId" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-select asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="SearchPublishedId" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-select asp-for="SearchPublishedId" asp-items="Model.AvailablePublishedOptions" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="SearchWarehouseId" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-select asp-for="SearchWarehouseId" asp-items="Model.AvailableWarehouses" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="GoDirectlyToSku" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <div class="input-group" style="text-align:left">
+                                            <admin-input asp-for="GoDirectlyToSku" />
+                                            <span class="input-group-append">
+                                                <input type="submit" id="go-to-product-by-sku" asp-action="GoToSku" name="go-to-product-by-sku" class="btn default" value="@Loc["Admin.Common.Go"]" />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="SearchCategoryId" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="SearchCategoryId" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="SearchIncludeSubCategories" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                            <admin-input asp-for="SearchIncludeSubCategories" />
+                                            <div class="control__indicator"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="SearchBrandId" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="SearchBrandId" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="SearchCollectionId" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="SearchCollectionId" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="SearchStoreId" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores" />
+                                    </div>
+                                </div>
+                                <div class="form-group" @(Model.IsLoggedInAsVendor ? Html.Raw("style='display: none;'") : null)>
+                                    <admin-label asp-for="SearchVendorId" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="SearchVendorId" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="x_content">
+                            <div id="products-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('.extend-collapse').hide();
+            $('.filter-text-open').hide();
+            $('.filter-extend-button').click(function () {
+                $('.extend-collapse').toggle("slow");
+                $('.filter-text-open').toggle();
+                $('.filter-text-close').toggle();
+            });
+            
+            $("#products-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("ProductList", "Product", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: additionalData
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true,
+                    requestStart: function () {
+                        kendo.ui.progress($('#products-grid'), true);
+                    },
+                    requestEnd: function () {
+                        kendo.ui.progress($('#products-grid'), false);
+
+                    },
+                },
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                dataBound: onDataBound,
+                columns: [
+                    {
+                        field: "Id",
+                        headerTemplate: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox mt-NoMargin'><input id='mastercheckbox' type='checkbox'/><div class='control__indicator control__indicator_custom mt-top2 rtlabel'></div></label>",
+                        template: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox mt-NoMargin'><input type='checkbox' value='#=Id#' class='checkboxGroups'/><div class='control__indicator control__indicator_custom mt-top2'></div></label>",
+                        width: 50
+                    },
+                    {
+                        field: "PictureThumbnailUrl",
+                        title: "@Loc["Admin.Catalog.Products.Fields.PictureThumbnailUrl"]",
+                        template: '<a class="k-link" href="Edit/#=Id#"><img src="#=PictureThumbnailUrl#" /></a>',
+                        width: 92
+                    },
+                    {
+                        field: "Name",
+                        title: "@Loc["Admin.Catalog.Products.Fields.Name"]",
+                        encoded: false,
+                        template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Name)#</a>',
+                        width: 270
+                    }, {
+                        field: "Sku",
+                        title: "@Loc["Admin.Catalog.Products.Fields.Sku"]",
+						headerAttributes: { style: "text-align:center" },
+						attributes: { style: "text-align:center" },
+                        width: 80
+                    }, {
+                        field: "Price",
+                        title: "@Loc["Admin.Catalog.Products.Fields.Price"]",
+						headerAttributes: { style: "text-align:right" },
+						attributes: { style: "text-align:right" },
+                        width: 100,
+                        //if not a grouped product, then display
+                        template: "# if(ProductTypeId != @((int)ProductType.GroupedProduct)) {# #:Price# #}  #"
+                    }, {
+                        field: "StockQuantityStr",
+                        title: "@Loc["Admin.Catalog.Products.Fields.StockQuantity"]",
+						headerAttributes: { style: "text-align:right" },
+						attributes: { style: "text-align:right" },
+						minScreenWidth: 750,
+                        width: 80
+                    }, {
+                        field: "ProductTypeName",
+                        title: "@Loc["Admin.Catalog.Products.Fields.ProductType"]",
+						headerAttributes: { style: "text-align:center" },
+						attributes: { style: "text-align:center" },
+                        width: 100,
+						minScreenWidth: 1050
+                    }, {
+                        field: "Published",
+                        title: "@Loc["Admin.Catalog.Products.Fields.Published"]",
+                        width: 85,
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                    }
+                ]
+            });
+
+        });
+    </script>
+
+    <script>
+
+        var selectedIds = [];
+
+        $(document).ready(function () {
+
+            //search button
+            $('#search-products').click(function () {
+                //search
+                var grid = $('#products-grid').data('kendoGrid');
+                grid.dataSource.page(1);
+                $('.checkboxGroups').prop('checked', false).change();
+                selectedIds = [];
+                return false;
+            });
+
+            $("#@Html.IdFor(model => model.SearchProductName)").keydown(function (event) {
+                if (event.keyCode == 13) {
+                    $("#search-products").click();
+                    return false;
+                }
+            });
+            $("#@Html.IdFor(model => model.GoDirectlyToSku)").keydown(function (event) {
+                if (event.keyCode == 13) {
+                    $("#go-to-product-by-sku").click();
+                    return false;
+                }
+            });
+
+            $('#delete-selected').click(function(e) {
+
+                e.preventDefault();
+
+                var postData = {
+                    selectedIds: selectedIds
+                };
+                addAntiForgeryToken(postData);
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@(Url.Action("DeleteSelected", "Product", new { area = Constants.AreaAdmin }))",
+                    data: postData,
+                    complete: function(data) {
+                        var grid = $('#products-grid').data('kendoGrid');
+                        grid.dataSource.read();
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert(thrownError);
+                    },
+                    traditional: true
+                });
+                return false;
+            });
+
+            $('#mastercheckbox').click(function () {
+                $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
+            });
+            $('#products-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function (e) {
+                var $check = $(this);
+                if ($check.is(":checked") == true) {
+                    var checked = jQuery.inArray($check.val(), selectedIds);
+                    if (checked == -1) {
+                        selectedIds.push($check.val());
+                    }
+                }
+                else {
+                    var checked = jQuery.inArray($check.val(), selectedIds);
+                    if (checked > -1) {
+                        selectedIds = $.grep(selectedIds, function (item, index) {
+                            return item != $check.val();
+                        });
+                    }
+                }
+                updateMasterCheckbox();
+            });
+        });
+
+        function additionalData() {
+            var data = {
+                SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
+                SearchCategoryId: $('#SearchCategoryId').val(),
+                SearchIncludeSubCategories: $('#@Html.IdFor(model => model.SearchIncludeSubCategories)').is(':checked'),
+                SearchBrandId: $('#SearchBrandId').val(),
+                SearchCollectionId: $('#SearchCollectionId').val(),
+                SearchStoreId: $('#SearchStoreId').val(),
+                SearchWarehouseId: $('#SearchWarehouseId').val(),
+                SearchVendorId: $('#SearchVendorId').val(),
+                SearchProductTypeId: $('#SearchProductTypeId').val(),
+                SearchPublishedId: $('#SearchPublishedId').val()
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+
+        function onDataBound(e) {
+            $('#products-grid input[type=checkbox][id!=mastercheckbox]').each(function () {
+                var currentId = $(this).val();
+                var checked = jQuery.inArray(currentId, selectedIds);
+                $(this).prop('checked', checked > -1);
+            });
+
+            updateMasterCheckbox();
+        }
+
+        function updateMasterCheckbox() {
+            var numChkBoxes = $('#products-grid input[type=checkbox][id!=mastercheckbox]').length;
+            var numChkBoxesChecked = $('#products-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
+            $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+        }
+    </script>
+</form>
+@*import products form*@
+<div class="modal-dialog" id="importexcel-window" style="display:none; padding: 0 10px;">
+    <form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ImportExcel" method="post" enctype="multipart/form-data">
+        
+        <em>@Loc["Admin.Catalog.Products.List.ImportFromExcelTip"]</em>
+        <div class="form-group">
+            &nbsp;
+        </div>
+        <div class="form-group">
+            <div class="col-md-2" style="margin-top: 2px; height: 34px; padding-left: 25px;">
+                <label class="control-label">
+                    @Loc["Admin.Common.ExcelFile"]
+                </label>
+            </div>
+            <div class="col-md-10">
+                <input type="file" id="importexcelfile" name="importexcelfile" />
+            </div>
+        </div>
+        <div class="form-group">
+            &nbsp;
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+                &nbsp;
+            </div>
+            <div class="col-md-10 text-right mt-10">
+                <input type="submit" class="k-button" value="@Loc["Admin.Common.ImportFromExcel"]" />
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+        $(document).ready(function () {
+            $("#importexcel").click(function (e) {
+                e.preventDefault();
+                var window = $("#importexcel-window");
+                if (!window.data("kendoWindow")) {
+                    window.kendoWindow({
+                        modal: true,
+                        title: "@Loc["Admin.Common.ImportFromExcel"]",
+                        actions: ["Close"]
+                    });
+                }
+                window.data('kendoWindow').center().open();
+            });
+        });
+</script>
+<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ExportXmlSelected" method="post" id="export-xml-selected-form">
+    
+    <input type="hidden" id="selectedIds" name="selectedIds" value="" />
+</form>
+
+<script>
+
+    $(document).ready(function () {
+        $('#exportxml-selected').click(function (e) {
+            e.preventDefault();
+            var ids = selectedIds.join(",");
+            $('#export-xml-selected-form #selectedIds').val(ids);
+            $('#export-xml-selected-form').submit();
+            return false;
+        });
+    });
+
+</script>
+<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ExportExcelSelected" method="post" id="export-excel-selected-form">
+    
+    <input type="hidden" id="selectedIds" name="selectedIds" value="" />
+</form>
+<script>
+    $(document).ready(function () {
+        $('#exportexcel-selected').click(function (e) {
+            e.preventDefault();
+            var ids = selectedIds.join(",");
+            $('#export-excel-selected-form #selectedIds').val(ids);
+            $('#export-excel-selected-form').submit();
+            return false;
+        });
+    });
+</script>

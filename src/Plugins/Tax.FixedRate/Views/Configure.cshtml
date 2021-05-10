@@ -1,0 +1,93 @@
+﻿@{
+    Layout = "_ConfigurePlugin";
+}
+<input id="active-menu-item" type="hidden" value="/Admin/Tax/Providers" />
+<div id="tax-categories-grid"></div>
+<script>
+    $(document).ready(function () {
+        $("#tax-categories-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("Configure", "TaxFixedRate"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    update: {
+                        url:"@Html.Raw(Url.Action("TaxRateUpdate", "TaxFixedRate"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    parameterMap: function (data, operation) {
+                        if (operation != "read") {
+                            data.Rate = kendo.toString(data.Rate, "n8");
+                            return data;
+                        } else {
+                            return data;
+                        }
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "TaxCategoryId",
+                        fields: {
+                            TaxCategoryId: { editable: false, type: "string" },
+                            TaxCategoryName: { editable: false, type: "string" },
+                            Rate: { editable: true, type: "number" }
+                        }
+                    }
+                },
+                requestEnd: function (e) {
+                    if (e.type == "update") {
+                        this.read();
+                    }
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                numeric: false,
+                previousNext: false,
+                info: false
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "TaxCategoryName",
+                title: "@Loc["Plugins.Tax.FixedRate.Fields.TaxCategoryName"]",
+                width: 400
+            }, {
+                field: "Rate",
+                title: "@Loc["Plugins.Tax.FixedRate.Fields.Rate"]",
+                width: 200,
+                editor: function (container, options) {
+                    $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoNumericTextBox({
+                                format: "{0:n4}",
+                                decimals: 4
+                            });
+                }
+            }, {
+                command: {name: "edit", text: "@Loc["Admin.Common.Edit"]"},
+                title: "@Loc["Admin.Common.Edit"]",
+                width: 150
+            }]
+        });
+    });
+</script>

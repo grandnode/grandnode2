@@ -1,0 +1,57 @@
+﻿@inject IWorkContext workContext
+@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@inject ShoppingCartSettings shoppingCartSettings
+@using Grand.Business.Common.Services.Security
+@using Grand.Business.Checkout.Extensions
+@{
+
+    var shoppingCartTypes = new List<ShoppingCartType>();
+    shoppingCartTypes.Add(ShoppingCartType.ShoppingCart);
+    shoppingCartTypes.Add(ShoppingCartType.Auctions);
+    if (shoppingCartSettings.AllowOnHoldCart)
+        shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
+
+    var shoppingCartEnabled = await permissionService.Authorize(StandardPermission.EnableShoppingCart);
+    var wishlistEnabled = await permissionService.Authorize(StandardPermission.EnableWishlist);
+    var miniShoppingCartEnabled = shoppingCartSettings.MiniShoppingCartEnabled;
+    var shoppingCartItems = workContext.CurrentCustomer.ShoppingCartItems.Any() ? workContext.CurrentCustomer.ShoppingCartItems
+                .Where(sci => shoppingCartTypes.Contains(sci.ShoppingCartTypeId))
+                .LimitPerStore(shoppingCartSettings.SharedCartBetweenStores, workContext.CurrentStore.Id)
+                .Sum(x => x.Quantity) : 0;
+
+
+    var wishlistItems = workContext.CurrentCustomer.ShoppingCartItems.Any() ? workContext.CurrentCustomer.ShoppingCartItems
+                .Where(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist)
+                .LimitPerStore(shoppingCartSettings.SharedCartBetweenStores, workContext.CurrentStore.Id)
+                .Sum(x => x.Quantity) : 0;
+
+}
+
+@if (wishlistEnabled || shoppingCartEnabled)
+{
+    @if (miniShoppingCartEnabled)
+    {
+        if (wishlistEnabled)
+        {
+            <partial name="SidebarWishlist" model="wishlistItems" />
+        }
+        <partial name="SidebarShoppingCart" model="shoppingCartItems" />
+    }
+    else
+    {
+        if (wishlistEnabled)
+        {
+            <b-nav-item href="@Url.RouteUrl("Wishlist")">
+                <b-icon icon="heart" :variant="[darkMode ? 'white' : 'dark']"></b-icon>
+                <div class="qty-indicator wishlist-qty">@Loc["Wishlist.HeaderQuantity", wishlistItems]</div>
+            </b-nav-item>
+        }
+        if (shoppingCartEnabled)
+        {
+            <b-nav-item href="@Url.RouteUrl("ShoppingCart")">
+                <b-icon icon="cart" :variant="[darkMode ? 'white' : 'dark']"></b-icon>
+                <div class="qty-indicator cart-qty">@Loc["ShoppingCart.HeaderQuantity", shoppingCartItems]</div>
+            </b-nav-item>
+        }
+    }
+}

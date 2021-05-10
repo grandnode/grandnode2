@@ -1,0 +1,80 @@
+﻿@model AddressAttributeModel
+@using Microsoft.AspNetCore.Mvc.Razor;
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.AttributeControlTypeId)").change(toggleAttributeControlType);
+        toggleAttributeControlType();
+
+    });
+    function toggleAttributeControlType() {
+        var selectedAttributeControlTypeId = $("#@Html.IdFor(model => model.AttributeControlTypeId)").val();
+        if (selectedAttributeControlTypeId == @(((int) AttributeControlType.TextBox).ToString())) {
+            $('#tab-addressattributesvalues').hide();
+        } else if (selectedAttributeControlTypeId == @(((int) AttributeControlType.MultilineTextbox).ToString())) {
+            $('#tab-addressattributesvalues').hide();
+        } else {
+            $('#tab-addressattributesvalues').show();
+        }
+    }
+
+</script>
+<vc:admin-widget widget-zone="address_attribute_details_info_top" additional-data="Model" />
+@{ Func<int, HelperResult>
+         template = @<div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="@Model.Locales[item].Name" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="@Model.Locales[item].Name" />
+                <span asp-validation-for="@Model.Locales[item].Name"></span>
+            </div>
+        </div>
+        <input type="hidden" asp-for="@Model.Locales[item].LanguageId" />
+    </div>;
+}
+
+<div class="form-horizontal">
+    <localized-editor localized-template=@template name="addressattribute-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+        <div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="Name" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Name" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+        </div>
+    </localized-editor>
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="IsRequired" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsRequired" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsRequired"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AttributeControlTypeId" />
+            <div class="col-md-9 col-sm-9">
+                @{
+                    var attributeControlTypes = ((AttributeControlType)Model.AttributeControlTypeId)
+                    .ToSelectList(Context, valuesToExclude:
+                    //custom address attributes don't support some attribute control types
+                    new[] { (int)AttributeControlType.Hidden, (int)AttributeControlType.FileUpload, (int)AttributeControlType.Datepicker, (int)AttributeControlType.ColorSquares, (int)AttributeControlType.ImageSquares });
+                }
+                <admin-select asp-for="AttributeControlTypeId" asp-items="attributeControlTypes" />
+                <span asp-validation-for="AttributeControlTypeId"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisplayOrder" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrder" />
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<vc:admin-widget widget-zone="address_attribute_details_info_bottom" additional-data="Model" />

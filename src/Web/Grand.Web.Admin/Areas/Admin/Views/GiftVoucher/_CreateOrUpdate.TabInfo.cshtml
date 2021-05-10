@@ -1,0 +1,181 @@
+﻿@model GiftVoucherModel
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.GiftVoucherTypeId)").change(toggleGiftVoucherType);
+        toggleGiftVoucherType();
+    });
+
+    function toggleGiftVoucherType() {
+        var selectedGiftVoucherTypeId = $("#@Html.IdFor(model => model.GiftVoucherTypeId)").val();
+        if (selectedGiftVoucherTypeId == @(((int)GiftVoucherType.Virtual).ToString())) {
+            $('#pnlRecipientEmail').show();
+            $('#pnlSenderEmail').show();
+            $('#pnlNotifyRecipient').show();
+        }
+        else {
+            $('#pnlRecipientEmail').hide();
+            $('#pnlSenderEmail').hide();
+            $('#pnlNotifyRecipient').hide();
+        }
+    }
+</script>
+<div class="form-horizontal">
+    <vc:admin-widget widget-zone="gift_card_details_info_top" additional-data="Model" />
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="GiftVoucherTypeId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="GiftVoucherTypeId" asp-items="((GiftVoucherType)Model.GiftVoucherTypeId).ToSelectList(Context)" />
+                <span asp-validation-for="GiftVoucherTypeId"></span>
+            </div>
+        </div>
+        @if (!String.IsNullOrEmpty(Model.PurchasedWithOrderId))
+        {
+            <div class="form-group">
+                <admin-label asp-for="PurchasedWithOrderId" />
+                <div class="col-md-9 col-sm-9">
+                    <label class="control-label"><a href="@Url.Action("Edit", "Order", new { Id = Model.PurchasedWithOrderId, area = Constants.AreaAdmin })" class="k-button"><span class="k-icon k-i-eye"></span>&nbsp;@Loc["Admin.Common.View"] #@Model.PurchasedWithOrderNumber</a></label>
+                </div>
+            </div>
+        }
+        <div class="form-group">
+            <admin-label asp-for="Amount" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Amount" />
+                @if (!String.IsNullOrEmpty(Model.Id))
+                {
+                    <text>[@Model.CurrencyCode]</text>
+                }
+                <span asp-validation-for="Amount"></span>
+            </div>
+        </div>
+        @if (String.IsNullOrEmpty(Model.Id))
+        {
+            <div class="form-group">
+                <admin-label asp-for="CurrencyCode" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-select asp-for="CurrencyCode" asp-items="Model.AvailableCurrencies" />
+                    <span asp-validation-for="CurrencyCode"></span>
+                </div>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.Id))
+        {
+            <div class="form-group">
+                <admin-label asp-for="RemainingAmountStr" />
+                <div class="col-md-9 col-sm-9">
+                    <label class="control-label">@Model.RemainingAmountStr</label>
+                </div>
+            </div>
+        }
+        <div class="form-group">
+            <admin-label asp-for="IsGiftVoucherActivated" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsGiftVoucherActivated" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsGiftVoucherActivated"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Code" />
+            <div class="col-md-4 col-sm-6">
+                <div class="input-group">
+                    <div class="input-group-control">
+                        <admin-input asp-for="Code" />
+                    </div>
+                    <div class="input-group-append">
+                        <input type="button" id="generateCouponCode" class="btn default" value="@Loc["Admin.GiftVouchers.Fields.Code.Generate"]" />
+                    </div>
+                </div>
+                <span asp-validation-for="Code"></span>
+                <script>
+                        $(document).ready(function () {
+                            $('#generateCouponCode').click(function () {
+
+                                var postData = {
+                                };
+                                addAntiForgeryToken(postData);
+
+                                $.ajax({
+                                    cache:false,
+                                    type: "POST",
+                                    url: "@(Url.Action("GenerateCouponCode", "GiftVoucher", new { area = Constants.AreaAdmin }))",
+                                    data: postData,
+                                    success: function (data) {
+                                        $('#@Html.IdFor(model => model.Code)').val(data.CouponCode);
+                                    },
+                                    error:function (xhr, ajaxOptions, thrownError){
+                                        alert('Failed to generate code.');
+                                    }
+                                });
+                            });
+                        });
+                </script>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="RecipientName" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="RecipientName" />
+                <span asp-validation-for="RecipientName"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlRecipientEmail">
+            <admin-label asp-for="RecipientEmail" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="RecipientEmail" />
+                <span asp-validation-for="RecipientEmail"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="SenderName" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="SenderName" />
+                <span asp-validation-for="SenderName"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlSenderEmail">
+            <admin-label asp-for="SenderEmail" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="SenderEmail" />
+                <span asp-validation-for="SenderEmail"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Message" />
+            <div class="col-md-9 col-sm-9">
+                <admin-textarea asp-for="Message"></admin-textarea>
+                <span asp-validation-for="Message"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ValidTo" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="ValidTo" />
+                <span asp-validation-for="ValidTo"></span>
+            </div>
+        </div>
+        @if (!String.IsNullOrEmpty(Model.Id))
+        {
+            <div class="form-group" id="pnlNotifyRecipient">
+                <admin-label asp-for="IsRecipientNotified" />
+                <div class="col-md-9 col-sm-9">
+                    <label class="control-label">@Model.IsRecipientNotified.ToString()</label>
+                    <button type="submit" name="notifyRecipient" asp-action="NotifyRecipient" class="k-button"><span class="k-icon k-i-notification"></span>&nbsp;@Loc["Admin.GiftVouchers.Fields.IsRecipientNotified.Notify"]</button>
+                </div>
+            </div>
+        }
+        @if (!String.IsNullOrEmpty(Model.Id))
+        {
+            <div class="form-group">
+                <admin-label asp-for="CreatedOn" />
+                <div class="col-md-9 col-sm-9">
+                    <label class="control-label"> @Model.CreatedOn</label>
+                </div>
+            </div>
+        }
+    </div>
+    <vc:admin-widget widget-zone="gift_card_details_info_bottom" additional-data="Model" />
+</div>

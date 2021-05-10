@@ -1,0 +1,134 @@
+﻿@model ProductModel
+
+
+@if (!String.IsNullOrEmpty(Model.Id))
+{
+<div class="panel panel-default">
+    <vc:admin-widget widget-zone="product_details_bundle_products_top" additional-data="Model" />
+    <div class="panel-body">
+        <div id="bundleproducts-grid"></div>
+    </div>
+    <div class="panel-footer">
+        <input type="submit" id="btnAddNewBundleProduct" value="@Loc["Admin.Catalog.Products.BundleProducts.AddNew"]" onclick="javascript:OpenWindow('@(Url.Action("BundleProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshBundleProducts", formId = "product-form", area = Constants.AreaAdmin }))    ', 1000, 1000, true); return false;" class="k-button" />
+        <input type="submit" id="btnRefreshBundleProducts" style="display: none" />
+    </div>
+    <vc:admin-widget widget-zone="product_details_bundle_products_bottom" additional-data="Model" />
+</div>
+
+    <script>
+        $(document).ready(function () {
+            $("#bundleproducts-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("BundleProductList", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        update: {
+                            url:"@Html.Raw(Url.Action("BundleProductUpdate", "Product", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("BundleProductDelete", "Product", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                ProductName: { editable: false, type: "string" },
+                                DisplayOrder: {editable: true, type: "number" },
+                                Quantity: { editable: true, type: "number" },
+                                ProductId: { editable: false, type: "string" }
+                            }
+                        }
+                    },
+                    requestEnd: function(e) {
+                        if(e.type=="update") {
+                            this.read();
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "ProductName",
+                    title: "@Loc["Admin.Catalog.Products.BundleProducts.Fields.Product"]",
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = Constants.AreaAdmin })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>',
+                },{
+                    field: "Quantity",
+                    title: "@Loc["Admin.Catalog.Products.BundleProducts.Fields.Quantity"]",
+                    format: "{0:0}",
+                },{
+                    field: "DisplayOrder",
+                    title: "@Loc["Admin.Catalog.Products.BundleProducts.Fields.DisplayOrder"]",
+                    format: "{0:0}",
+                    width: 120,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                    minScreenWidth: 750,
+
+                }, {
+                    command: [{
+                        name: "edit",
+                        text: {
+                            edit: "@Loc["Admin.Common.Edit"]",
+                            update: "@Loc["Admin.Common.Update"]",
+                            cancel: "@Loc["Admin.Common.Cancel"]"
+                        }
+                    }, {
+                        name: "destroy",
+                        text: "@Loc["Admin.Common.Delete"]"
+                    }]
+                }]
+            });
+        });
+    </script>
+           
+    <script>
+        $(document).ready(function () {
+            $('#btnRefreshBundleProducts').click(function () {
+                //refresh grid
+                var grid = $("#bundleproducts-grid").data('kendoGrid');
+                grid.dataSource.read();
+
+                //return false to don't reload a page
+                return false;
+            });
+        });
+    </script>
+
+}
+else
+{
+    <div class="note note-info">
+        @Loc["Admin.Catalog.Products.BundleProducts.SaveBeforeEdit"]
+    </div>
+}

@@ -1,0 +1,107 @@
+﻿@model SitemapModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_SingleColumn";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.Sitemap"]);
+}
+<div class="sitemap-page generalMarginSupporter">
+    <h1 class="generalTitle h2">@Loc["Sitemap"]</h1>
+    <div class="description">
+        @Loc["Sitemap.Description"]
+    </div>
+</div>
+<div class="d-flex justify-content-between row">
+    @if (Model.Categories.Any())
+    {
+        <b-col lg="4" md="6">
+            <h2 class="generalTitle">@Loc["Sitemap.Categories"]</h2>
+            <div class="list-group">
+                @foreach (var category in Model.Categories)
+                {
+                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Category", new { SeName = category.SeName })">@category.Name</a>
+                }
+            </div>
+        </b-col>
+    }
+    @await Component.InvokeAsync("Widget", new { widgetZone = "sitemap_before" })
+    <b-col lg="4" md="6">
+        <h2 class="generalTitle">@Loc["Sitemap.General"]</h2>
+        <div class="list-group">
+            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("HomePage")">@Loc["HomePage"]</a>
+            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("ProductSearch")">@Loc["Search"]</a>
+            @if (Model.NewsEnabled)
+            {
+                <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("NewsArchive")">@Loc["News"]</a>
+            }
+            @if (Model.BlogEnabled)
+            {
+                <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Blog")">@Loc["Blog"]</a>
+            }
+            @if (Model.KnowledgebaseEnabled)
+            {
+                <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Knowledgebase")">@Loc["Knowledgebase"]</a>
+            }
+            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("ContactUs")">@Loc["ContactUs"]</a>
+            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("CustomerInfo")">@Loc["Account.MyAccount"]</a>
+            @if (Model.Pages.Any())
+            {
+                foreach (var item in Model.Pages)
+                {
+                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new {Sename = item.SystemName})">@item.Title</a>
+                }
+            }
+        </div>
+    </b-col>
+    @if (Model.BlogPosts.Any())
+    {
+        <b-col lg="4" md="6">
+            <h2 class="generalTitle">@Loc["Sitemap.BlogPosts"]</h2>
+            <div class="list-group">
+                @foreach (var item in Model.BlogPosts)
+                {
+                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})">@item.Title</a>
+                }
+            </div>
+        </b-col>
+    }
+    @if (Model.KnowledgebaseArticles.Any())
+    {
+        <b-col lg="4" md="6">
+            <h2 class="generalTitle">@Loc["Sitemap.KnowledgebaseArticles"]</h2>
+            <div class="list-group">
+                @foreach (var item in Model.KnowledgebaseArticles)
+                {
+                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("KnowledgebaseArticle", new {SeName = item.SeName})">@item.Name</a>
+                }
+            </div>
+        </b-col>
+    }
+    @if (Model.Brands.Any())
+    {
+        <b-col lg="4" md="6">
+            <h2 class="generalTitle">@Loc["Sitemap.Brands"]</h2>
+            <div class="list-group">
+                @foreach (var brand in Model.Brands)
+                {
+                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Brand", new { SeName = brand.SeName })">@brand.Name</a>
+                }
+            </div>
+        </b-col>
+    }
+    @if (Model.Products.Any())
+    {
+        <b-col cols="12">
+            <h2 class="generalTitle">@Loc["Sitemap.Products"]</h2>
+            <div class="list-group sitemap-products-group">
+                @foreach (var product in Model.Products)
+                {
+                    <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Product", new { SeName = product.SeName })">@product.Name</a>
+                }
+            </div>
+        </b-col>
+    }
+    @await Component.InvokeAsync("Widget", new { widgetZone = "sitemap_after" })
+</div>
+

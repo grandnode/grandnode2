@@ -1,0 +1,139 @@
+﻿@model MessageTemplateListModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Content.MessageTemplates"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-envelope-o"></i>
+                    @Loc["Admin.Content.MessageTemplates"]
+                </div>
+                <div class="actions btn-group btn-group-devided">
+                    <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
+                    <vc:admin-widget widget-zone="message_template_list_buttons" additional-data="null" />
+                </div>
+
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="row align-items-end mb-1">
+                            <div class="col-md-3 col-sm-12 col-12">
+                                <div class="form-group mb-0">
+                                    <admin-label asp-for="SearchStoreId" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                                    <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores" />
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-12 col-12">
+                                <div class="form-group mb-0">
+                                    <admin-label asp-for="Name" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                                    <admin-input asp-for="Name" />
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12 col-12 mt-md-0 mt-3">
+                                <div class="form-actions">
+                                    <button class="btn btn-success filter-submit" id="search-templates">
+                                        <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="x_content">
+                        <div id="templates-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#templates-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("List", "MessageTemplate", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                numeric: false,
+                previousNext: false,
+                info: false
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "Name",
+                title: "@Loc["Admin.Content.MessageTemplates.Fields.Name"]",
+                width: 200,
+                template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Name)#</a>',
+            }, {
+                field: "Subject",
+                title: "@Loc["Admin.Content.MessageTemplates.Fields.Subject"]",
+                width: 100,
+            }, {
+                field: "IsActive",
+                title: "@Loc["Admin.Content.MessageTemplates.Fields.IsActive"]",
+                width: 50,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(IsActive) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            }]
+        });
+    });
+</script>
+
+<script>
+
+    $(document).ready(function () {
+        //search button
+        $('#search-templates').click(function () {
+            //search
+            var grid = $('#templates-grid').data('kendoGrid');
+            grid.dataSource.read();
+        });
+
+        $("#@Html.IdFor(model => model.Name)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-templates").click();
+                return false;
+            }
+        });
+
+    });
+
+    function additionalData() {
+        var data = {
+            SearchStoreId: $('#SearchStoreId').val(),
+            Name: $('#@Html.IdFor(model => model.Name)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+</script>

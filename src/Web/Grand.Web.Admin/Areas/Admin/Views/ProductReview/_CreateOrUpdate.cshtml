@@ -1,0 +1,78 @@
+﻿@model ProductReviewModel
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<input asp-for="ProductId" type="hidden" />
+<div class="form-horizontal">
+    <vc:admin-widget widget-zone="product_review_details_top" additional-data="Model" />
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="ProductName" />
+            <div class="col-md-9 col-sm-9">
+                <label class="control-label">@Html.ActionLink(Model.ProductName, "Edit", "Product", new { id = Model.ProductId }, new { })</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="StoreName" />
+            <div class="col-md-9 col-sm-9">
+                <span class="form-control">@Model.StoreName</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CustomerInfo" />
+            <div class="col-md-9 col-sm-9">
+                <label class="control-label">@Html.ActionLink(Model.CustomerInfo, "Edit", "Customer", new { id = Model.CustomerId }, new { })</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Title" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Title" />
+                <span asp-validation-for="Title"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ReviewText" />
+            <div class="col-md-9 col-sm-9">
+                <admin-textarea asp-for="ReviewText"></admin-textarea>
+                <span asp-validation-for="ReviewText"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ReplyText" />
+            <div class="col-md-9 col-sm-9">
+                <admin-textarea asp-for="ReplyText"></admin-textarea>
+                <span asp-validation-for="ReplyText"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Signature" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Signature" />
+                <span asp-validation-for="Signature"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Rating" />
+            <div class="col-md-9 col-sm-9">
+                <label class="control-label">@Model.Rating</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="IsApproved" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsApproved" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsApproved"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CreatedOn" />
+            <div class="col-md-9 col-sm-9">
+                <label class="control-label">@Model.CreatedOn</label>
+            </div>
+        </div>
+    </div>
+    <vc:admin-widget widget-zone="product_review_details_bottom" additional-data="Model" />
+</div>

@@ -1,0 +1,125 @@
+﻿@model NeverSoldReportModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Reports.NeverSold"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption level-caption">
+                    <i class="fa fa-list-alt"></i>
+                    @Loc["Admin.Reports.NeverSold"]
+                </div>
+            </div>
+            <div class="x_content form">
+                <vc:admin-widget widget-zone="never_sold_report" additional-data="Model" />
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="x_content">
+                            <div class="form-horizontal">
+                                <div class="form-body">
+                                    <div class="row align-items-end mb-3">
+                                        <div class="col-md-3 col-sm-12 col-12">
+                                            <div class="form-group mb-0">
+                                                <admin-label asp-for="StartDate" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                                                <admin-input asp-for="StartDate" class="w-100" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-12 col-12">
+                                            <div class="form-group mb-0">
+                                                <admin-label asp-for="EndDate" class="d-flex flex-column align-items-start mw-100 px-0 text-left" />
+                                                <admin-input asp-for="EndDate" class="w-100" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5 col-sm-12 col-12 mt-md-0 mt-3">
+                                            <div class="form-actions">
+                                                <button class="btn btn-success filter-submit" id="search-neversoldreport">
+                                                    <i class="fa fa-search"></i> @Loc["Admin.Reports.NeverSold.RunReport"]
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="x_content">
+                                    <div id="neversoldreport-grid"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        $("#neversoldreport-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("NeverSoldReportList", "Reports", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "ProductName",
+                title: "@Loc["Admin.Reports.NeverSold.Fields.Name"]",
+                template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#">#=kendo.htmlEncode(ProductName)#</a>'
+            }]
+        });
+    });
+</script>
+<script>
+
+    $(document).ready(function () {
+
+        $('#search-neversoldreport').click(function () {
+            var grid = $('#neversoldreport-grid').data('kendoGrid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            return false;
+        });
+
+    });
+
+    function additionalData() {
+        var data = {
+            StartDate: $('#@Html.IdFor(model => model.StartDate)').val(),
+            EndDate: $('#@Html.IdFor(model => model.EndDate)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+
+</script>

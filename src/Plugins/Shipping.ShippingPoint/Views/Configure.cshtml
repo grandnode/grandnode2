@@ -1,0 +1,109 @@
+﻿@{
+    Layout = "_ConfigurePlugin";
+
+}
+<input id="active-menu-item" type="hidden" value="/Admin/Shipping/Providers" />
+<form asp-controller="ShippingPoint" asp-action="Configure" method="post" id="shipping-instore-form">
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="shipping-points-grid"></div>
+                <script>
+                    $(document).ready(function() {
+                        $("#shipping-points-grid").kendoGrid({
+                            dataSource: {
+                                type: "json",
+                                transport: {
+                                    read: {
+                                        url: "@Html.Raw(Url.Action("List", "ShippingPoint"))",
+                                        type: "POST",
+                                        dataType: "json",
+                                        data: addAntiForgeryToken
+                                    },
+                                    destroy: {
+                                        url: "@Html.Raw(Url.Action("Delete", "ShippingPoint"))",
+                                        type: "POST",
+                                        dataType: "json",
+                                        data: addAntiForgeryToken
+                                    }
+                                },
+                                schema: {
+                                    data: "Data",
+                                    total: "Total",
+                                    errors: "Errors",
+                                    model: {
+                                        id: "Id"
+                                    }
+                                },
+                                requestEnd: function (e) {
+                                    if (e.type == "update") {
+                                        this.read();
+                                    }
+                                },
+                                error: function(e) {
+                                    display_kendoui_grid_error(e);
+                                    this.cancelChanges();
+                                },
+                                serverPaging: true,
+                                serverFiltering: true,
+                                serverSorting: true
+                            },
+                            pageable: {
+                                refresh: true,
+                                numeric: false,
+                                previousNext: false,
+                                info: false
+                            },
+                            editable: {
+                                confirmation: "@Loc["Admin.Common.DeleteConfirmation"]",
+                                mode: "inline"
+                            },
+                            scrollable: false,
+                            columns: [ {
+                                field: "ShippingPointName",
+                                width: 200,
+                                title: "@Loc["Shipping.ShippingPoint.Fields.ShippingPointName"]"
+                            }, {
+                                field: "OpeningHours",
+                                width: 200,
+                                title: "@Loc["Shipping.ShippingPoint.Fields.OpeningHours"]"
+                            }, {
+                                field: "PickupFee",
+                                width: 150,
+                                title: "@Loc["Shipping.ShippingPoint.Fields.PickupFee"]"
+                            },{
+                                field: "StoreName",
+                                width: 100,
+                                title: "@Loc["Shipping.ShippingPoint.Fields.Store"]"
+                            }, {
+                                field: "Id",
+                                title: "@Loc["Admin.Common.Edit"]",
+                                width: 100,
+                                template: "<input type='submit' value='@Loc["Admin.Common.Edit"]' onclick=\"javascript:OpenWindow('@Url.Action("Edit", "ShippingPoint")?id=#=Id#&btnId=btnRefresh&formId=shipping-instore-form', 800, 800, true); return false;\" class='k-button k-button-icontext' />"
+                            }, {
+                                command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                                title: "@Loc["Admin.Common.Delete"]",
+                                width: 100
+                            }]
+                        });
+                    });
+                </script>
+            </div>
+            <div class="panel-footer">
+                <input type="submit" id="btnAddNewOption" class="btn btn-primary" value="@Loc["Admin.Common.AddNew"]" onclick="javascript:OpenWindow('@(Url.Action("Create", "ShippingPoint") + "?btnId=btnRefresh&formId=shipping-instore-form")', 800, 800, true); return false;" />
+                <input type="submit" id="btnRefresh" class="btn btn-default" style="display: none" />
+            </div>
+
+            <script>
+                $(document).ready(function () {
+                    $('#btnRefresh').click(function () {
+                        var grid = $("#shipping-points-grid").data('kendoGrid');
+                        grid.dataSource.read();
+                        return false;
+                    });
+                });
+            </script>
+
+        </div>
+    </div>
+</form>

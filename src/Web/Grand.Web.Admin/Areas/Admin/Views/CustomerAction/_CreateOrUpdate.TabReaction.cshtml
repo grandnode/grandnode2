@@ -1,0 +1,55 @@
+﻿@model CustomerActionModel
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="ReactionTypeId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="ReactionTypeId" asp-items="((Grand.Domain.Customers.CustomerReactionTypeEnum)Model.ReactionTypeId).ToSelectList(Context)" />
+                <span asp-validation-for="ReactionTypeId"></span>
+                <div class="note note-info margin-top-10">
+                    <p>@Loc["admin.customers.actiontype.helpText.Banner"]</p>
+                    <p>@Loc["admin.customers.actiontype.helpText.InteractiveForm"]</p>
+                    <p>@Loc["admin.customers.actiontype.helpText.Email"]</p>
+                    <p>@Loc["admin.customers.actiontype.helpText.Customergroup"]</p>
+                    <p>@Loc["admin.customers.actiontype.helpText.Customertag"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" id="plnBanner">
+            <admin-label asp-for="BannerId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="BannerId" asp-items="Model.Banners" />
+                <span asp-validation-for="BannerId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="plnInteractiveForm">
+            <admin-label asp-for="InteractiveFormId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="InteractiveFormId" asp-items="Model.InteractiveForms" />
+                <span asp-validation-for="InteractiveFormId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="plnMessage">
+            <admin-label asp-for="MessageTemplateId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="MessageTemplateId" asp-items="Model.MessageTemplates" />
+                <span asp-validation-for="MessageTemplateId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="plnRole">
+            <admin-label asp-for="CustomerGroupId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="CustomerGroupId" asp-items="Model.CustomerGroups" />
+                <span asp-validation-for="CustomerGroupId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="plnTag">
+            <admin-label asp-for="CustomerTagId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="CustomerTagId" asp-items="Model.CustomerTags" />
+                <span asp-validation-for="CustomerTagId"></span>
+            </div>
+        </div>
+    </div>
+</div>

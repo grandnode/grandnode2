@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html use-lang="true">
+<head>
+    <title asp-default-title="true"></title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta-description>
+    <meta-keywords>
+    <head-custom>
+    <partial name="Head" />
+    <canonical-urls> 
+    @*Favicon - upload favicon.ico file to the wwwroot directory*@
+    <partial name="_Favicons" />
+    <vc:widget widget-zone="head_html_tag" additional-data="null"></vc:widget>
+    <resources asp-type="HeadLink" />
+    <resources asp-type="HeadScript" />
+</head>
+<body class="popup-window text-center px-3">
+    <resources asp-type="ScriptHeader" />
+    <vc:widget widget-zone="body_start_html_tag_after" additional-data="null"></vc:widget>
+    @RenderBody()
+    <vc:widget widget-zone="body_end_html_tag_before" additional-data="null"></vc:widget>
+    <resources asp-type="ScriptFooter" />
+</body>
+</html>

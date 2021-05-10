@@ -1,0 +1,34 @@
+﻿@model VendorReviewListModel
+
+<div class="form-group">
+    <admin-label asp-for="SearchVendorId" />
+    <div class="col-md-4 col-sm-6">
+        <input type="text" class="form-control text-box single-line" id="search-vendor-name" autocomplete="on" />
+        <span id="search-vendor-friendly-name"></span>
+        <input type="button" id="search-vendor-clear" class="k-button" style="display: none;" value="@Loc["Admin.Common.Clear"]" />
+        @Html.TextBoxFor(model => model.SearchVendorId, new { autocomplete = "on", style = "display:none;" })
+        <script>
+            $(document).ready(function() {
+                $('#search-vendor-name').autocomplete({
+                    delay: 500,
+                    minLength: 3,
+                    source: '@(Url.Action("VendorSearchAutoComplete", new { area = Constants.AreaAdmin }))',
+                    select: function(event, ui) {
+                        $('#@Html.IdFor(model => model.SearchVendorId)').val(ui.item.vendorid);
+                        $('#search-vendor-friendly-name').text(ui.item.label);
+                        $('#search-vendor-clear').show();
+                        return false;
+                    }
+                });
+
+                //remove button
+                $('#search-vendor-clear').click(function() {
+                    $('#@Html.IdFor(model => model.SearchVendorId)').val('');
+                    $('#search-vendor-friendly-name').text('');
+                    $('#search-vendor-clear').hide();
+                    return false;
+                });
+            });
+        </script>
+    </div>
+</div>

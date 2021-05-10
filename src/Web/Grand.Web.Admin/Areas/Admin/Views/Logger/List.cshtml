@@ -1,0 +1,253 @@
+﻿@model LogListModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.System.Log"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Logger" asp-action="List" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit popup-window">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-bolt"></i>
+                        @Loc["Admin.System.Log"]
+                    </div>
+                    <div class="actions btn-group btn-group-devided">
+                        <input type="button" name="delete-selected" id="delete-selected" class="btn green" value="@Loc["Admin.System.Log.DeleteSelected"]" />
+                        <input type="submit" name="clearall" asp-action="ClearAll" class="btn red" value="@Loc["Admin.System.Log.ClearLog"]" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]'); " />
+                        <vc:admin-widget widget-zone="log_list_buttons" additional-data="null" />
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="main-header col-12 px-0">
+                                <div class="row align-items-end">
+                                    <div class="col-md-4 col-ms-12 col-12">
+                                        <div class="form-group mb-0">
+                                            <admin-label asp-for="Message" class="control-label" />
+                                            <admin-input asp-for="Message" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-ms-12 col-12">
+                                        <div class="form-group mb-0">
+                                            <admin-label asp-for="LogLevelId" class="control-label" />
+                                            <admin-select asp-for="LogLevelId" asp-items="Model.AvailableLogLevels" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-12 col-12">
+                                        <div class="form-actions">
+                                            <div class="btn-group">
+                                                <button class="btn btn-success filter-submit" id="search-log">
+                                                    <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                                </button>
+                                                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                    <i class="fa fa-filter"></i>&nbsp; Filters
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="collapse" id="filterCollapse">
+                                <div class="drop-filters-container w-100">
+                                    <div class="form-group">
+                                        <admin-label asp-for="CreatedOnFrom" class="col-sm-3 control-label" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-input asp-for="CreatedOnFrom" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="CreatedOnTo" class="col-sm-3 control-label" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-input asp-for="CreatedOnTo" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content">
+                    <div id="log-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    $(document).ready(function () {
+        $("#log-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("LogList", "Logger", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            scrollable: false,
+            dataBound: onDataBound,
+            columns: [{
+                field: "Id",
+                headerTemplate: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input id='mastercheckbox' type='checkbox'/> <div class='control__indicator'></div></label>",
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input type='checkbox' value='#=Id#' class='checkboxGroups'/> <div class='control__indicator'></div></label>",
+                width: 60
+            }, {
+                field: "LogLevel",
+                title: "@Loc["Admin.System.Log.Fields.LogLevel"]",
+                width: 100
+            }, {
+                field: "ShortMessage",
+                title: "@Loc["Admin.System.Log.Fields.ShortMessage"]",
+                template: '<a class="k-link" href="View/#=Id#">#=kendo.htmlEncode(ShortMessage)#</a>'
+            }, {
+                field: "CreatedOn",
+                title: "@Loc["Admin.System.Log.Fields.CreatedOn"]",
+                width: 200,
+                type: "date",
+                format: "{0:G}"
+            }]
+        });
+    });
+    </script>
+
+
+    <script>
+
+    var selectedIds = [];
+
+    $(document).ready(function () {
+
+        //search button
+        $('#search-log').click(function () {
+            //search
+            var grid = $('#log-grid').data('kendoGrid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            //clear selected checkboxes
+            $('.checkboxGroups').prop('checked', false).change();
+            selectedIds = [];
+            return false;
+        });
+
+        $("#@Html.IdFor(model => model.Message)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-log").click();
+                return false;
+            }
+        });
+
+        //"delete selected" button
+        $('#delete-selected').click(function (e) {
+            e.preventDefault();
+
+            var postData = {
+                selectedIds: selectedIds
+            };
+            addAntiForgeryToken(postData);
+
+            $.ajax({
+                cache:false,
+                type: "POST",
+                url: "@(Url.Action("DeleteSelected", "Logger", new { area = Constants.AreaAdmin }))",
+                data: postData,
+                complete: function (data) {
+                    //reload grid
+                    var grid = $('#log-grid').data('kendoGrid');
+                    grid.dataSource.page(1); //new search. Set page size to 1
+                    //grid.dataSource.read(); we already loaded the grid above using "page" function
+                    //clear selected checkboxes
+                    $('.checkboxGroups').prop('checked', false).change();
+                    selectedIds = [];
+                },
+                error:function (xhr, ajaxOptions, thrownError){
+                    alert(thrownError);
+                },
+                traditional: true
+            });
+            return false;
+        });
+
+
+        $('#mastercheckbox').click(function () {
+            $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
+        });
+
+        //wire up checkboxes.
+        $('#log-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function (e) {
+            var $check = $(this);
+            if ($check.is(":checked") == true) {
+                var checked = jQuery.inArray($check.val(), selectedIds);
+                if (checked == -1) {
+                    //add id to selectedIds.
+                    selectedIds.push($check.val());
+                }
+            }
+            else {
+                var checked = jQuery.inArray($check.val(), selectedIds);
+                if (checked > -1) {
+                    //remove id from selectedIds.
+                    selectedIds = $.grep(selectedIds, function (item, index) {
+                        return item != $check.val();
+                    });
+                }
+            }
+            updateMasterCheckbox();
+        });
+    });
+
+    function additionalData() {
+        var data = {
+            CreatedOnFrom: $('#@Html.IdFor(model => model.CreatedOnFrom)').val(),
+            CreatedOnTo: $('#@Html.IdFor(model => model.CreatedOnTo)').val(),
+            Message: $('#@Html.IdFor(model => model.Message)').val(),
+            LogLevelId: $('#@Html.IdFor(model => model.LogLevelId)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+
+
+    function onDataBound(e) {
+        $('#log-grid input[type=checkbox][id!=mastercheckbox]').each(function () {
+            var currentId = $(this).val();
+            var checked = jQuery.inArray(currentId, selectedIds);
+            //set checked based on if current checkbox's value is in selectedIds.
+            $(this).prop('checked', checked > -1);
+        });
+
+        updateMasterCheckbox();
+    }
+
+    function updateMasterCheckbox() {
+        var numChkBoxes = $('#log-grid input[type=checkbox][id!=mastercheckbox]').length;
+        var numChkBoxesChecked = $('#log-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
+        $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+    }
+    </script>
+</form>

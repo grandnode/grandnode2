@@ -1,0 +1,41 @@
+﻿@inject AdminAreaSettings adminAreaSettings
+@model ShoppingCartModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.CurrentCartWishlists"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption level-caption">
+                    <i class="fa fa-cart-plus"></i>
+                    @Loc["Admin.CurrentCartWishlists"]
+                </div>
+                <vc:admin-widget widget-zone="current_shopping_cart_list_buttons" additional-data="null" />
+            </div>
+            <div class="x_content form">
+                <admin-tabstrip name="shoppingcarts-list">
+                    <items>
+                        <tabstrip-item text="@Loc["Admin.CurrentCarts"]" tab-index="0">
+                            <content>
+                                <div>
+                                    <partial name="_CurrentCarts.TabCurrentCarts" model="Model" />
+                                </div>
+                            </content>
+                        </tabstrip-item>
+                        <tabstrip-item text="@Loc["Admin.CurrentWishlists"]" tab-index="1">
+                            <content>
+                                <div>
+                                    <partial name="_CurrentCarts.TabCurrentWishlists" model="Model" />
+                                </div>
+                            </content>
+                        </tabstrip-item>
+                        <vc:admin-widget widget-zone="shoppingcart_details_tabs" additional-data="Model" />
+                    </items>
+                </admin-tabstrip>
+            </div>
+        </div>
+    </div>
+</div>

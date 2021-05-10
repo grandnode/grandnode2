@@ -1,0 +1,104 @@
+﻿@model CustomerModel
+<div class="panel panel-default">
+    <div class="panel-heading">
+        @Loc["Admin.Customers.Customers.CurrentWishlist"]
+    </div>
+    <div class="panel-body">
+        <vc:admin-widget widget-zone="customer_details_wishlist_top" additional-data="Model" />
+        <div id="currentwishlist-grid"></div>
+        <vc:admin-widget widget-zone="customer_details_wishlist_bottom" additional-data="Model" />
+    </div>
+</div>
+<script>
+$(document).ready(function () {
+    $("#currentwishlist-grid").kendoGrid({
+        dataSource: {
+            transport: {
+                read: {
+                    url: "@Html.Raw(Url.Action("GetCartList", "Customer", new { customerId = Model.Id, cartTypeId = (int)ShoppingCartType.Wishlist, area = Constants.AreaAdmin }))",
+                    type: "POST",
+                    dataType: "json",
+                    data: addAntiForgeryToken
+                },
+                destroy: {
+                    url: "@Html.Raw(Url.Action("DeleteCart", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin }))",
+                    type: "POST",
+                    dataType: "json",
+                    data: addAntiForgeryToken
+                }
+            },
+            schema: {
+                data: "Data",
+                total: "Total",
+                errors: "Errors",
+                model: {
+                    id: "Id",
+                    fields: {
+                        ProductName: { editable: false, type: "string" },
+                        Quantity: { editable: false, type: "number" },
+                        UnitPrice: { editable: false, type: "string" },
+                        Total: { editable: false, type: "string" },
+                        Store: { editable: false, type: "string" },
+                        UpdatedOn: { editable: false, type: "date" },
+                    }
+                }
+            },
+            error: function(e) {
+                display_kendoui_grid_error(e);
+                // Cancel the changes
+                this.cancelChanges();
+            },
+            serverPaging: true,
+            serverFiltering: true,
+            serverSorting: true
+        },
+        pageable: {
+            refresh: true,
+            numeric: false,
+            previousNext: false,
+            info: false
+        },
+        editable: {
+            confirmation: true,
+            mode: "inline"
+        },
+        scrollable: false,
+        columns: [{
+            field: "ProductName",
+            title: "@Loc["Admin.CurrentCarts.Product"]",
+            width:500,
+            template: '<a href="@Url.Action("Edit", "Product", new { area = Constants.AreaAdmin })/#=ProductId#">#:kendo.htmlEncode(ProductName)#</a>' +
+                '# if(AttributeInfo && AttributeInfo.length > 0) {# <br />#=AttributeInfo# #} #'
+        }, {
+            field: "Quantity",
+            title: "@Loc["Admin.CurrentCarts.Quantity"]",
+            width:200
+        },{
+            field: "UnitPrice",
+            title: "@Loc["Admin.CurrentCarts.UnitPrice"]",
+            width:200
+        },{
+            field: "Total",
+            title: "@Loc["Admin.CurrentCarts.Total"]",
+            width:200
+        },{
+            field: "Store",
+            title: "@Loc["Admin.CurrentCarts.Store"]",
+            width:200
+        },{
+            field: "UpdatedOn",
+            title: "@Loc["Admin.CurrentCarts.UpdatedOn"]",
+            width: 200,
+            type: "date",
+            format: "{0:G}"
+        }, {
+            command: [
+                {
+                name: "destroy",
+                text: "@Loc["Admin.Common.Delete"]"
+            }],
+            width: 200
+        }]
+    });
+});
+</script>

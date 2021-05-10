@@ -1,0 +1,92 @@
+﻿@model ProductModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Catalog.Products.EditProductDetails"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="Edit" method="post" id="product-form">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cube"></i>
+                        @Loc["Admin.Catalog.Products.EditProductDetails"] - @Model.Name
+                        <small><i class="fa fa-arrow-circle-left"></i>@Html.ActionLink(Loc["Admin.Catalog.Products.BackToList"], "List")</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided util-btn-margin-bottom-5">
+                            <button type="button" onclick="javascript:OpenWindow('@Url.RouteUrl("Product", new {SeName = Model.SeName})', 800, 600, true); return false;" class="btn purple">
+                                <i class="fa fa-eye"></i>
+                                @Loc["Admin.Common.Preview"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                            <button type="button" name="copyproduct" class="btn blue" id="copyproduct">
+                                <i class="fa fa-clone"></i>
+                                @Loc["Admin.Catalog.Products.Copy"]
+                            </button>
+                            <span id="product-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
+                            <vc:admin-widget widget-zone="product_details_buttons" additional-data="Model" />
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                   <partial name="_CreateOrUpdate" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<admin-delete-confirmation button-id="product-delete"/>
+    <div id="copyproduct-window" style="display:none;">
+        <form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="CopyProduct" method="post">
+            
+            <input asp-for="CopyProductModel.Id" type="hidden" />
+            <div class="form-horizontal">
+                <div class="form-body">
+                    <div class="form-group">
+                        <admin-label asp-for="CopyProductModel.Name" class="control-label col-8 col-md-4 col-sm-4" />
+                        <div class="col-4 col-md-8 col-sm-8">
+                            <admin-input asp-for="CopyProductModel.Name" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <admin-label asp-for="CopyProductModel.Published" class="control-label col-8 col-md-4 col-sm-4" />
+                        <div class="col-4 col-md-8 col-sm-8">
+                            <admin-input asp-for="CopyProductModel.Published" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <admin-label asp-for="CopyProductModel.CopyImages" class="control-label col-8 col-md-4 col-sm-4" />
+                        <div class="col-4 col-md-8 col-sm-8">
+                            <admin-input asp-for="CopyProductModel.CopyImages" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <div class="offset-md-3 offset-sm-3 col-md-6 col-sm-6">
+                        <input type="submit" class="btn green" value="@Loc["Admin.Catalog.Products.Copy"]" />
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+    $(document).ready(function () {
+        $("#copyproduct").click(function (e) {
+            e.preventDefault();
+            var window = $("#copyproduct-window");
+            if (!window.data("kendoWindow")) {
+                window.kendoWindow({
+                    modal: true,
+                    width: "400px",
+                    title: "@Loc["Admin.Catalog.Products.Copy"]",
+                    actions: ["Close"]
+                });
+            }
+            window.data('kendoWindow').center().open();
+        });
+    });
+    </script>

@@ -1,0 +1,14 @@
+﻿@model SlideModel
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<admin-tabstrip name="slide-edit">
+    <items>
+        <tabstrip-item text="@Loc["Widgets.Slider.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo.cshtml" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>        
+    </items>
+</admin-tabstrip>

@@ -1,0 +1,108 @@
+﻿@model object
+<script asp-location="Header">
+    var Catalog = Vue.extend({
+        data: function () {
+            return {
+                Model: null,
+                pager: []
+            }
+        },
+        methods: {
+            loadProducts(url) {
+                if (url == undefined) {
+                    url = window.location.href;
+                }
+                var addurl = '';
+                var state = null;
+
+                if ((!(url.includes('updated')) && url.includes('?'))) {
+                    addurl = '&updated=1';
+                    state = { 'updated': 1 };
+                }
+
+                window.history.pushState(state, null, url + addurl);
+                catalog.getResponse(url);
+            },
+            getResponse(url) {
+                axios({
+                    baseURL: url,
+                    method: 'get',
+                    data: null,
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Response-View': 'Json'
+                    }
+                }).then(function (response) {
+                    catalog.Model = response.data;
+                });
+            },
+            goToPage(page) {
+
+                let urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('pagenumber', page);
+
+                urlParams.delete('updated');
+
+                let exitUrl = document.location.origin + document.location.pathname + "?" + urlParams.toString();
+
+                catalog.loadProducts(exitUrl);
+
+            },
+            historyWatch() {
+                window.addEventListener('popstate', function (e) {
+                    var url = document.location.href;
+                    catalog.getResponse(url);
+                })
+            }
+        },
+        watch: {
+            Model: function(val) {
+                if (val) {
+                    catalog.pager = [];
+                    function getValMin() {
+                        var i;
+                        if ((catalog.Model.PagingFilteringContext.PageNumber - 4) < 1) {
+                            i = 1;
+                        } else {
+                            i = catalog.Model.PagingFilteringContext.PageNumber - 4;
+                        }
+                        return i;
+                    }
+                    function getValMax() {
+                        var i;
+                        if ((catalog.Model.PagingFilteringContext.PageNumber + 4) < catalog.Model.PagingFilteringContext.TotalPages) {
+                            i = catalog.Model.PagingFilteringContext.PageNumber + 4;
+                        } else {
+                            i = catalog.Model.PagingFilteringContext.TotalPages;
+                        }
+                        return i;
+                    }
+                    for (var i = getValMin(); i <= getValMax(); i++) {
+                        catalog.pager.push(i);
+                    }
+
+                    var notFilteredList = catalog.Model.PagingFilteringContext.SpecificationFilter.NotFilteredItems;
+                    var filteredList = catalog.Model.PagingFilteringContext.SpecificationFilter.AlreadyFilteredItems;
+                    var filterName = 'SpecificationAttributeName';
+
+                    var groupBy = function (xs, key) {
+                        return xs.reduce(function (rv, x) {
+                            (rv[x[key]] = rv[x[key]] || []).push(x);
+                            return rv;
+                        }, {});
+                    };
+
+                    catalog.Model.PagingFilteringContext.SpecificationFilter.NotFilteredItems = groupBy(notFilteredList, filterName);
+                    catalog.Model.PagingFilteringContext.SpecificationFilter.AlreadyFilteredItems = groupBy(filteredList, filterName);
+                }
+            }
+        },
+        mounted() {
+            this.Model = @Model;
+            this.historyWatch();
+        }
+    });
+    var catalog = new Catalog().$mount('#catalog-products');
+</script>

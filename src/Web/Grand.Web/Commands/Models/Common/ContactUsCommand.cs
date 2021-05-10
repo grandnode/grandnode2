@@ -1,0 +1,18 @@
+﻿using Grand.Domain.Customers;
+using Grand.Domain.Localization;
+using Grand.Domain.Stores;
+using Grand.Web.Models.Common;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+
+namespace Grand.Web.Commands.Models.Common
+{
+    public class ContactUsCommand : IRequest<ContactUsModel>
+    {
+        public Customer Customer { get; set; }
+        public Store Store { get; set; }
+        public Language Language { get; set; }
+        public ContactUsModel Model { get; set; }
+        public IFormCollection Form { get; set; }
+    }
+}

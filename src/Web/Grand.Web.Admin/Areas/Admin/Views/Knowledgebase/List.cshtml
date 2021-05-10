@@ -1,0 +1,78 @@
+﻿@{
+    //page title
+    ViewBag.Title = Loc["Admin.Content.Knowledgebase.Manage"];
+}
+<script asp-location="Footer" asp-src="/_content/Grand.Web.Admin/administration/bootstrap-treeview.js"></script>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-forumbee"></i>
+                    @Loc["Admin.Content.Knowledgebase.Manage"]
+                </div>
+                <div class="actions btn-group btn-group-devided">
+                    <a href="@Url.Action("CreateCategory", new { area = Constants.AreaAdmin })" class="btn blue">@Loc["Admin.Content.Knowledgebase.CreateKnowledgebaseCategory"]</a>
+                    <a href="@Url.Action("CreateArticle", new { area = Constants.AreaAdmin })" class="btn yellow">@Loc["Admin.Content.Knowledgebase.CreateKnowledgebaseArticle"]</a>
+                </div>
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="x_content">
+                            <div id="tree"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            cache: false,
+            url: "@(Url.Action("NodeList", "Knowledgebase", new { area = Constants.AreaAdmin }))",
+            dataType: 'json',
+            success: function (data) {
+                $('#tree').treeview({
+                    data: createTree(data),
+                    collapseIcon: "fa fa-folder-open",
+                    expandIcon: "fa fa-folder",
+                    emptyIcon: "fa fa-folder-open",
+                    backColor: "#e9ecef",
+                    showTags: true,
+                    levels: 0,
+                    enableLinks: true
+                });
+            },
+            error: function () {
+                alert('Error');
+            }
+        });
+    });
+
+    function createTree(data) {
+        markAsArticle(data);
+        return data;
+    }
+
+    function markAsArticle(nodes) {
+        for (var i = 0; i < nodes.length; i++){
+            if (!nodes[i].isCategory) {
+                nodes[i].backColor = "#ffffff";
+                nodes[i].tags = ['@Url.Action("EditArticle", new { area = Constants.AreaAdmin })' + '/' + nodes[i].id];
+            } else {
+                nodes[i].tags = ['@Url.Action("EditCategory", new { area = Constants.AreaAdmin })' + '/' + nodes[i].id];
+            }
+
+            nodes[i].selectable = false;
+
+            if (nodes[i].nodes.length > 0) {
+                markAsArticle(nodes[i].nodes);
+            }
+        }
+    }
+</script>

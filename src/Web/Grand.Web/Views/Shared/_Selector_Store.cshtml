@@ -1,0 +1,36 @@
+﻿@inject CommonSettings commonSettings
+@using Grand.Business.Common.Extensions
+@inject Grand.Business.Common.Interfaces.Stores.IStoreService storeService
+@inject IWorkContext workContext
+@{
+    if (commonSettings.AllowToSelectStore)
+    {
+        var availableStores = storeService.GetAll()
+            .Select(x =>
+            {
+        //model
+        var storeModel = new StoreModel
+                {
+                    Id = x.Id,
+                    Name = x.GetTranslation(y => y.Name, workContext.WorkingLanguage.Id),
+                    Shortcut = x.Shortcut
+                };
+                return storeModel;
+            }).ToList();
+
+        if (availableStores.Count > 1)
+        {
+            var returnUrl = Context?.Request?.GetEncodedPathAndQuery();
+
+            <b-dropdown class="mr-2" text="@availableStores.FirstOrDefault(x => x.Id == workContext.CurrentStore.Id).Name">
+                @foreach (var store in availableStores)
+                {
+                    var className = store.Id == workContext.CurrentStore.Id ? "active" : "";
+                    <b-dropdown-item class="@className" href="@Url.RouteUrl("ChangeStore", new { store = store.Id, returnUrl })">
+                        @store.Name
+                    </b-dropdown-item>
+                }
+            </b-dropdown>
+        }
+    }
+}

@@ -1,0 +1,57 @@
+﻿@model VendorInfoModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.Vendorinfo"]);
+}
+@section left
+{
+    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.VendorInfo })
+}
+<div class="page vendorinfo-page">
+    <h1 class="text-center generalTitle h2">@Loc["Account.MyAccount"] - @Loc["Account.VendorInfo"]</h1>
+    <form asp-controller="Vendor" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="message-error alert alert-danger" my-3></div>
+        <div class="form-fields">
+            <div class="form-group">
+                <label asp-for="Name" class="col-form-label">@Loc["Account.VendorInfo.Name"]:</label>
+                <input asp-for="Name" class="form-control name" v-validate="'required'" placeholder="@Loc["Account.VendorInfo.Name.Hint"]" />
+                <span class="field-validation-error">{{veeErrors.first('Name')}}</span>
+                <span asp-validation-for="Name"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="col-form-label">@Loc["Account.VendorInfo.Email"]:</label>
+                <input asp-for="Email" class="form-control name" v-validate="'required|email'" placeholder="@Loc["Account.VendorInfo.Email.Hint"]" />
+                <span class="field-validation-error">{{veeErrors.first('Email')}}</span>
+                <span asp-validation-for="Email"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="col-form-label">@Loc["Account.VendorInfo.Description"]:</label>
+                <textarea asp-for="Description" class="form-control description"></textarea>
+            </div>
+            <div class="form-group">
+                <label asp-for="PictureUrl" class="col-form-label">@Loc["Account.VendorInfo.Picture"]:</label>
+                <input class="form-control-file" name="uploadedFile" type="file" accept="image/*" />
+                @if (!String.IsNullOrEmpty(Model.PictureUrl))
+                {
+                    <div class="vendor-picture">
+                        <img src="@(Model.PictureUrl)" alt="picture" style="width:100px; display:block"/>
+                        <input type="submit" asp-action="RemovePicture" name="remove-picture" class="btn btn-danger remove-picture-button" value="@Loc["Account.VendorInfo.Picture.Remove"]" />
+                    </div>
+                }
+            </div>
+            @{
+                var dataDictAddress = new ViewDataDictionary(ViewData);
+                dataDictAddress.TemplateInfo.HtmlFieldPrefix = "Address";
+                <partial name="_CreateOrUpdateVendorAddress" model="Model.Address" view-data="dataDictAddress" />
+            }
+        </div>
+        <div class="row">
+            <div class="col-12 buttons pt-1 pb-1">
+                <input type="submit" asp-action="Info" name="save-info-button" class="btn btn-info apply-vendor-button" value="@Loc["Common.Save"]" />
+            </div>
+        </div>
+    </form>
+</div>

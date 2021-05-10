@@ -1,0 +1,15 @@
+﻿@{
+    Layout = "_SingleColumn";
+}
+@model Authentication.Facebook.Models.FailedModel
+<div class="page facebook-login">
+    <div class="page-title">
+        <h1>@Loc["Authentication.Facebook.Failed"]</h1>
+    </div>
+    <div class="page-body">
+        <div class="alert alert-danger">
+            @Loc["Authentication.Facebook.Failed.ErrorCode"]: @Model.ErrorCode <br>
+            @Loc["Authentication.Facebook.Failed.ErrorMessage"]: @Model.ErrorMessage
+        </div>
+    </div>
+</div>

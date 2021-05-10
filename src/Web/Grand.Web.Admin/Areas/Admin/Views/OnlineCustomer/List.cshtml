@@ -1,0 +1,85 @@
+﻿@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Dashboards.OnlineCustomers"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit">
+            <div class="x_title">
+                <div class="caption level-caption">
+                    <i class="fa fa-users"></i>
+                    @Loc["Admin.Dashboards.OnlineCustomers"]
+                </div>
+                <vc:admin-widget widget-zone="online_customer_list" additional-data="null" />
+            </div>
+            <div class="x_content form">
+                <div id="onlinecustomers-grid"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#onlinecustomers-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("List", "OnlineCustomer"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: true,
+            columns: [{
+                field: "Id",
+                title: "@Loc["Admin.Dashboards.OnlineCustomers.Fields.CustomerInfo"]",
+                template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/#=Id#">#:kendo.htmlEncode(CustomerInfo)#</a>',
+                width: 220,
+            }, {
+                field: "LastIpAddress",
+                title: "@Loc["Admin.Dashboards.OnlineCustomers.Fields.IPAddress"]",
+                width: 100,
+            }, {
+                field: "Location",
+                title: "@Loc["Admin.Dashboards.OnlineCustomers.Fields.Location"]",
+                width: 150,
+            }, {
+                field: "LastActivityDate",
+                title: "@Loc["Admin.Dashboards.OnlineCustomers.Fields.LastActivityDate"]",
+                width: 200,
+                type: "date",
+                format: "{0:G}"
+            }, {
+                field: "LastVisitedPage",
+                title: "@Loc["Admin.Dashboards.OnlineCustomers.Fields.LastVisitedPage"]",
+                width: 400,
+            }]
+        });
+    });
+</script>

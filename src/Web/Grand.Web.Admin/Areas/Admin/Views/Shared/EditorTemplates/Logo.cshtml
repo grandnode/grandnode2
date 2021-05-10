@@ -1,0 +1,77 @@
+@model string
+@inject Grand.Business.Storage.Interfaces.IMediaFileStore mediaFileStore 
+@{
+    var random = CommonHelper.GenerateRandomInteger();
+    var clientId = "picture" + random;
+
+    var defaultFile = $"/assets/images/no-image.png";
+    var param = string.IsNullOrEmpty(CommonPath.Param) ? "" : $"{CommonPath.Param}/";
+    string logoFile = !string.IsNullOrEmpty(Model) ? (await mediaFileStore.GetFileInfo(string.IsNullOrEmpty(CommonPath.Param) ? Model : Model.Replace(CommonPath.Param, ""))) != null ? $"{Model}" : defaultFile : defaultFile;
+
+}
+<link rel="stylesheet" type="text/css" asp-src="/_content/Grand.Web.Admin/administration/fineuploader/fineuploader-4.2.2.min.css" />
+<script asp-location="Footer" asp-src="/_content/Grand.Web.Admin/administration/fineuploader/jquery.fineuploader-4.2.2.min.js"></script>
+<div id="@(clientId + "value")">
+    <input asp-for="@Model" type="text" class="form-control mb-3" />
+</div>
+<div id="@(clientId + "image")">
+    <img src="/@logoFile" style="width:100px" />
+</div>
+<br />
+<div id="@clientId"></div>
+<script type="text/template" id="@(clientId)-qq-template">
+    <div class="qq-uploader-selector qq-uploader">
+        <div class="qq-upload-drop-area-selector qq-upload-drop-area" qq-hide-dropzone>
+            <span>@Loc["Common.FileUploader.DropFiles"]</span>
+        </div>
+        <div class="qq-upload-button-selector qq-upload-button btn yellow" style="margin: 10px 0px 10px 0px;">
+            <div>@Loc["Common.FileUploader.Upload"]</div>
+        </div>
+        <span class="qq-drop-processing-selector qq-drop-processing">
+            <span>@Loc["Common.FileUploader.Processing"]</span>
+            <span class="qq-drop-processing-spinner-selector qq-drop-processing-spinner"></span>
+        </span>
+        <ul class="qq-upload-list-selector qq-upload-list">
+            <li>
+                <div class="qq-progress-bar-container-selector">
+                    <div class="qq-progress-bar-selector qq-progress-bar"></div>
+                </div>
+                <span class="qq-upload-spinner-selector qq-upload-spinner"></span>
+                <span class="qq-edit-filename-icon-selector qq-edit-filename-icon"></span>
+                <span class="qq-upload-file-selector qq-upload-file"></span>
+                <input class="qq-edit-filename-selector qq-edit-filename" tabindex="0" type="text">
+                <span class="qq-upload-size-selector qq-upload-size"></span>
+                <a class="qq-upload-cancel-selector qq-upload-cancel" href="#">@Loc["Common.FileUploader.Cancel"]</a>
+                <a class="qq-upload-retry-selector qq-upload-retry" href="#">@Loc["Common.FileUploader.Retry"]</a>
+                <a class="qq-upload-delete-selector qq-upload-delete" href="#">@Loc["Common.FileUploader.Delete"]</a>
+                <span class="qq-upload-status-text-selector qq-upload-status-text"></span>
+            </li>
+        </ul>
+    </div>
+</script>
+
+<script>
+    $(document).ready(function() {
+
+        $("#@(clientId)").fineUploader({
+            request: {
+                endpoint: '@(Url.Action("AsyncLogoUpload", "Picture", new { area = Constants.AreaAdmin }))'
+            },
+            template: "@(clientId)-qq-template",
+            multiple: false,
+            validation: {
+                itemLimit: 1,
+                acceptFiles: 'image/*',
+            }
+        }).on("complete", function(event, id, name, responseJSON, xhr) {
+            if (responseJSON.success) {
+                $("#@(clientId + "image")").html("<img src='/@param"+ responseJSON.imageUrl + "'/>");
+                $("#@(clientId + "value") input").val('@param'+responseJSON.imageUrl);
+                $("#@Html.IdFor(model => model)").val('@param'+responseJSON.imageUrl);
+            }
+            else {
+                alert(responseJSON.message);
+            }
+        });
+    });
+</script>

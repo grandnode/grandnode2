@@ -1,0 +1,187 @@
+﻿@model QueuedEmailModel
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<div class="form-horizontal">
+    <vc:admin-widget widget-zone="queued_email_details_top" additional-data="Model" />
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="PriorityName" />
+            <div class="col-md-9 col-sm-9">
+                <label class="control-label">@Model.PriorityName</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="From" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="From" />
+                <span asp-validation-for="From"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="FromName" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="FromName" />
+                <span asp-validation-for="FromName"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="To" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="To" />
+                <span asp-validation-for="To"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ToName" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="ToName" />
+                <span asp-validation-for="ToName"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ReplyTo" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="ReplyTo" />
+                <span asp-validation-for="ReplyTo"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ReplyToName" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="ReplyToName" />
+                <span asp-validation-for="ReplyToName"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CC" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="CC" />
+                <span asp-validation-for="CC"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Bcc" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Bcc" />
+                <span asp-validation-for="Bcc"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Subject" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Subject" />
+                <span asp-validation-for="Subject"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Body" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Body" asp-template="Editor" />
+                <span asp-validation-for="Body"></span>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.AttachmentFilePath))
+        {
+            <div class="form-group">
+                <admin-label asp-for="AttachmentFilePath" />
+                <div class="col-md-9 col-sm-9">
+                    <label class="control-label">@Model.AttachmentFilePath</label>
+                </div>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.AttachedDownloadId))
+        {
+            <div class="form-group">
+                <admin-label asp-for="AttachedDownloadId" />
+                <div class="col-md-9 col-sm-9">
+                    @{
+                        //Static file attachments do not support URLs yet
+                        //A store owner have to upload a file
+                        //we store a value into "ViewData" and then use it in the Download.cshtml file
+                        ViewData["Grand.DownloadEditor.DisableUrl"] = true;
+                    }
+                    <div>
+                        <admin-input asp-for="AttachedDownloadId" />
+                        <span asp-validation-for="AttachedDownloadId"></span>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="form-group">
+            <admin-label asp-for="CreatedOn" />
+            <div class="col-md-9 col-sm-9">
+                <label class="control-label">@Model.CreatedOn</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="SendImmediately" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SendImmediately" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SendImmediately"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnl-send-date">
+            <admin-label asp-for="DontSendBeforeDate" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DontSendBeforeDate" />
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="SentTries" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="SentTries" />
+                <span asp-validation-for="SentTries"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="SentOn" />
+            <div class="col-md-9 col-sm-9">
+                @if (Model.SentOn.HasValue)
+                {
+                    <label class="control-label">@Model.SentOn</label>
+                }
+                else
+                {
+                    <label class="control-label">@Loc["Admin.System.QueuedEmails.Fields.SentOn.NotSent"]</label>
+                }
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ReadOn" />
+            <div class="col-md-9 col-sm-9">
+                @if (Model.ReadOn.HasValue)
+                {
+                    <label class="control-label">@Model.ReadOn</label>
+                }
+                else
+                {
+                    <label class="control-label">@Loc["Admin.System.QueuedEmails.Fields.ReadOn.NotRead"]</label>
+                }
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="EmailAccountName" />
+            <div class="col-md-9 col-sm-9">
+                <label class="control-label">@Model.EmailAccountName</label>
+            </div>
+        </div>
+    </div>
+    <vc:admin-widget widget-zone="queued_email_details_bottom" additional-data="Model" />
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.SendImmediately)").click(sendImmediately);
+        sendImmediately();
+    });
+
+    function sendImmediately() {
+        if ($('#@Html.IdFor(model => model.SendImmediately)').is(':checked'))
+            $('#pnl-send-date').hide();
+        else
+            $('#pnl-send-date').show();
+    }
+</script>

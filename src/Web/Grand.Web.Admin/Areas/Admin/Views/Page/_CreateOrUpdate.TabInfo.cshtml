@@ -1,0 +1,206 @@
+﻿@model PageModel
+@using Microsoft.AspNetCore.Mvc.Razor;
+
+<script>
+$(document).ready(function() {
+    $("#@Html.IdFor(model => model.IsPasswordProtected)").click(togglePassword);
+    togglePassword();
+});
+
+function togglePassword() {
+    if ($('#@Html.IdFor(model => model.IsPasswordProtected)').is(':checked')) {
+        $('#pnlPasswordEnabled').show();
+    } else {
+        $('#pnlPasswordEnabled').hide();
+    }
+}
+</script>
+<vc:admin-widget widget-zone="page_details_info_top" additional-data="Model" />
+
+@{ Func<int, HelperResult>
+         template = @<div class="form-body">
+    <div class="form-group">
+        <admin-label asp-for="@Model.Locales[item].Title" />
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="@Model.Locales[item].Title" />
+            <span asp-validation-for="@Model.Locales[item].Title"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <admin-label asp-for="@Model.Locales[item].Body" />
+        <div class="col-md-9 col-sm-9">
+            <admin-input asp-for="@Model.Locales[item].Body" asp-template="Editor" />
+            <span asp-validation-for="@Model.Locales[item].Body"></span>
+        </div>
+    </div>
+    <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
+</div>;
+}
+
+<div class="form-horizontal">
+    <localized-editor localized-template=@template name="page-info-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+        <div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="Title" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Title" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="Body" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Body" asp-template="Editor" />
+                    <span asp-validation-for="Body"></span>
+                </div>
+            </div>
+        </div>
+    </localized-editor>
+    
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="SystemName" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="SystemName" />
+                <span asp-validation-for="SystemName"></span>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.Id))
+        {
+            <div class="form-group">
+                <admin-label asp-for="Url" />
+                <div class="col-md-9 col-sm-9">
+                    <label class="control-label"><a href="@Model.Url">@Model.Url</a></label>
+                </div>
+            </div>
+        }
+        <div class="form-group">
+            <admin-label asp-for="IsPasswordProtected" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsPasswordProtected" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsPasswordProtected"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlPasswordEnabled">
+            <admin-label asp-for="Password" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Password" />
+                <span asp-validation-for="Password"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="IncludeInSitemap" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IncludeInSitemap" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IncludeInSitemap"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="IncludeInMenu" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IncludeInMenu" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IncludeInMenu"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="IncludeInFooterRow1" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IncludeInFooterRow1" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IncludeInFooterRow1"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="IncludeInFooterRow2" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IncludeInFooterRow2" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IncludeInFooterRow2"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="IncludeInFooterRow3" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IncludeInFooterRow3" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IncludeInFooterRow3"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisplayOrder" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrder" />
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CustomerGroups" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="CustomerGroups" />
+                <span asp-validation-for="CustomerGroups"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Stores" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Stores" />
+                <span asp-validation-for="Stores"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AccessibleWhenStoreClosed" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="AccessibleWhenStoreClosed" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="AccessibleWhenStoreClosed"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="PageLayoutId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="PageLayoutId" asp-items="Model.AvailablePageLayouts" />
+                <span asp-validation-for="PageLayoutId"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="Published" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="Published" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="Published"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="StartDateUtc" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="StartDateUtc" />
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="EndDateUtc" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="EndDateUtc" />
+            </div>
+        </div>
+    </div>
+</div>
+<vc:admin-widget widget-zone="page_details_info_bottom" additional-data="Model" />

@@ -1,0 +1,32 @@
+﻿@{
+    Layout = "_AdminPopupLayout";
+}
+@model Shipping.ShippingPoint.Models.ShippingPointModel
+
+<form asp-controller="ShippingPoint" asp-action="Create" method="post"
+      asp-route-ShippingPointId="@Context.Request.Query["ShippingPointId"]"
+      asp-route-btnId="@Context.Request.Query["btnId"]"
+      asp-route-formId="@Context.Request.Query["formId"]">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        @Loc["Admin.Common.AddNew"]
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        <div class="form-horizontal">
+            <partial name="~/Plugins/Shipping.ShippingPoint/Views/_CreateOrUpdate.cshtml" model="Model" />
+        </div>
+    </div>
+</form>

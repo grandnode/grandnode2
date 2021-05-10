@@ -1,0 +1,106 @@
+﻿@inject AdminAreaSettings adminAreaSettings
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Catalog.ProductTags"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="ProductTags" method="post" id = "product-tags-form">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption level-caption">
+                        <i class="fa fa-cubes"></i>
+                        @Loc["Admin.Catalog.ProductTags"]
+                    </div>
+                    <vc:admin-widget widget-zone="product_tag_list_buttons" additional-data="null" />
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="x_content">
+                            <div id="product-tags-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        $(document).ready(function () {
+            $("#product-tags-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("List", "ProductTags", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("Delete", "ProductTags", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                Name: { editable: true, type: "string" },
+                                Value: { editable: true, type: "string" },
+                                Store: { editable: true, type: "string" },
+                                StoreId: { editable: true, type: "string" },
+                                Id: { editable: false, type: "string" }
+                            }
+                        }
+                    },
+                    requestEnd: function (e) {
+                        if (e.type == "create" || e.type == "update") {
+                            this.read();
+                        }
+                    },
+                    error: function (e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: true,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "Name",
+                    title: "@Loc["Admin.Catalog.ProductTags.Fields.Name"]",
+                    width: 300,
+                    template: '<a class="k-link" href="Edit/#=Id#">#=kendo.htmlEncode(Name)#</a>',
+                }, {
+                    field: "ProductCount",
+                    title: "@Loc["Admin.Catalog.ProductTags.Fields.ProductCount"]",
+                    width: 100,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                }, {
+                    command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                    title: "@Loc["Admin.Common.Delete"]",
+                    width: 100
+                }]
+            });
+        });
+    </script>
+</form>

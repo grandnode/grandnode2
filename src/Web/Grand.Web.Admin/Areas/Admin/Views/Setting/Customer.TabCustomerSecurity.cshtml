@@ -1,0 +1,145 @@
+﻿@model CustomerSettingsModel
+@using Grand.Domain.Customers;
+
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.CustomerSettings.TwoFactorAuthenticationEnabled)").click(toggleTwoFactor);
+        toggleTwoFactor();
+    });
+
+    function toggleTwoFactor() {
+        if ($('#@Html.IdFor(model => model.CustomerSettings.TwoFactorAuthenticationEnabled)').is(':checked')) {
+            $('#twofactortype').show();
+        }
+        else {
+            $('#twofactortype').hide();
+        }
+    }
+</script>
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="CustomerSettings.TwoFactorAuthenticationEnabled" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="CustomerSettings.TwoFactorAuthenticationEnabled" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="CustomerSettings.TwoFactorAuthenticationEnabled"></span>
+            </div>
+        </div>
+        <div class="form-group" id="twofactortype">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="CustomerSettings.TwoFactorAuthenticationType" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-select asp-for="CustomerSettings.TwoFactorAuthenticationType" asp-items="((TwoFactorAuthenticationType)Model.CustomerSettings.TwoFactorAuthenticationType).ToSelectList(Context)" />
+                <span asp-validation-for="CustomerSettings.TwoFactorAuthenticationType"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="CustomerSettings.DefaultPasswordFormat" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-select asp-for="CustomerSettings.DefaultPasswordFormat" asp-items="((PasswordFormat)Model.CustomerSettings.DefaultPasswordFormat).ToSelectList(Context)" />
+                <span asp-validation-for="CustomerSettings.DefaultPasswordFormat"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="CustomerSettings.HashedPasswordFormat" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-select asp-for="CustomerSettings.HashedPasswordFormat" asp-items="((HashedPasswordFormat)Model.CustomerSettings.HashedPasswordFormat).ToSelectList(Context)" />
+                <span asp-validation-for="CustomerSettings.HashedPasswordFormat"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="CustomerSettings.PasswordRegularExpression" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="CustomerSettings.PasswordRegularExpression" />
+                <span asp-validation-for="CustomerSettings.PasswordRegularExpression"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="note note-info">
+                You can use this regex: <br>
+                ^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@@$%^&*-]).{8,}$<br>
+                This regex will enforce these rules:<br>
+                • At least one upper case english letter<br>
+                • At least one lower case english letter<br>
+                • At least one digit<br>
+                • At least one special character<br>
+                • Minimum 8 in length
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="CustomerSettings.PasswordLifetime" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="CustomerSettings.PasswordLifetime" />
+                <span asp-validation-for="CustomerSettings.PasswordLifetime"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="CustomerSettings.UnduplicatedPasswordsNumber" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="CustomerSettings.UnduplicatedPasswordsNumber" />
+                <span asp-validation-for="CustomerSettings.UnduplicatedPasswordsNumber"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="CustomerSettings.PasswordRecoveryLinkDaysValid" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="CustomerSettings.PasswordRecoveryLinkDaysValid" />
+                <span asp-validation-for="CustomerSettings.PasswordRecoveryLinkDaysValid"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="CustomerSettings.FailedPasswordAllowedAttempts" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="CustomerSettings.FailedPasswordAllowedAttempts" />
+                <span asp-validation-for="CustomerSettings.FailedPasswordAllowedAttempts"></span>
+                <script>
+	                $(document).ready(function () {
+	                    $("#@Html.IdFor(model => model.CustomerSettings.FailedPasswordAllowedAttempts)").blur(toggleFailedPasswordAllowedAttempts);
+			                toggleFailedPasswordAllowedAttempts();
+		                });
+
+		                function toggleFailedPasswordAllowedAttempts() {
+		                    var failedPasswordAllowedAttempts = $("#@Html.IdFor(model => model.CustomerSettings.FailedPasswordAllowedAttempts)").data("kendoNumericTextBox");
+			                if (failedPasswordAllowedAttempts.value($("#value").val()) > 0) {
+				                $('#pnlFailedPasswordLockoutMinutes').show();
+			                } else {
+				                $('#pnlFailedPasswordLockoutMinutes').hide();
+			                }
+		                }
+                </script>
+            </div>
+        </div>
+        <div class="form-group" id="pnlFailedPasswordLockoutMinutes">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="CustomerSettings.FailedPasswordLockoutMinutes" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="CustomerSettings.FailedPasswordLockoutMinutes" />
+                <span asp-validation-for="CustomerSettings.FailedPasswordLockoutMinutes"></span>
+            </div>
+        </div>
+    </div>
+</div>

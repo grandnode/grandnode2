@@ -1,0 +1,31 @@
+﻿@model List<SelectListItem>
+<div class="script-tag">
+    <script>
+        function renderShippingOptionInfo(param) {
+            if (param != "") {
+                var _url = '/SelectedShippingPoint/Get?shippingOptionId=' + param;
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("GET", _url, true);
+                xhttp.send();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        document.getElementById("shippingOptionInfo").innerHTML = this.responseText;
+                    }
+                };
+            }
+            else {
+                document.getElementById("shippingOptionInfo").innerHTML = "";
+            }
+        }
+    </script>
+</div>
+
+<h6>@Loc["Shipping.ShippingPoint.ChooseShippingPoint"]</h6>
+<select class="form-control" name="selectedShippingOption" onchange="renderShippingOptionInfo(value)">
+    @foreach (var shippingOption in Model)
+    {
+        <option value="@shippingOption.Value">@shippingOption.Text</option>
+    }
+</select>
+
+<div id="shippingOptionInfo"></div>

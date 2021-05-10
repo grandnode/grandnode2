@@ -1,0 +1,174 @@
+﻿@model LanguageModel
+@inject AdminAreaSettings adminAreaSettings
+<vc:admin-widget widget-zone="language_details_resources_top" additional-data="Model" />
+<div class="panel panel-default">
+    @if (String.IsNullOrEmpty(Model.Id))
+    {
+        <div class="note note-info">
+            @Loc["Admin.Configuration.Languages.Resources.SaveBeforeEdit"]
+        </div>
+    }
+    <div class="form-horizontal">
+        <div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="Search.ResourceName" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Search.ResourceName" />
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="Search.ResourceValue" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Search.ResourceValue" />
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-9 offset-md-3">
+                    <button type="button" id="search-resources" class="btn btn-primary btn-search">
+                        <i class="fa fa-search"></i>
+                        @Loc["Admin.Common.Search"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div id="resources-grid"></div>
+    </div>
+</div>
+<vc:admin-widget widget-zone="language_details_resources_bottom" additional-data="Model" />
+@if (!String.IsNullOrEmpty(Model.Id))
+{
+    <script>
+            $(document).ready(function() {
+                $("#resources-grid").kendoGrid({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("Resources", "Language", new {languageId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                //contentType: "application/json",
+                                data: additionalData
+                            },
+                            create: {
+                                url: "@Html.Raw(Url.Action("ResourceAdd", "Language", new {languageId = Model.Id, area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            update: {
+                                url: "@Html.Raw(Url.Action("ResourceUpdate", "Language", new { area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("ResourceDelete", "Language", new { area = Constants.AreaAdmin }))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "Id",
+                                fields: {
+                                    Name: { editable: true, type: "string" },
+                                    Value: { editable: true, type: "string" },
+                                    Id: { editable: false, type: "string" }
+                                }
+                            }
+                        },
+                        requestEnd: function(e) {
+                            if (e.type == "create" || e.type == "update") {
+                                this.read();
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                        serverPaging: true,
+                        serverFiltering: false,
+                        serverSorting: false
+                    },
+                    pageable: {
+                        refresh: true,
+                        pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                    },
+                    toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
+                    editable: {
+                        confirmation: false,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [
+                        {
+                            field: "Name",
+                            title: "@Loc["Admin.Configuration.Languages.Resources.Fields.Name"]",
+                            width: 300,
+                            filterable: true,
+                            sortable: true
+                        }, {
+                            field: "Value",
+                            title: "@Loc["Admin.Configuration.Languages.Resources.Fields.Value"]",
+                            width: 300,
+                            filterable: true,
+                            sortable: true
+
+                        }, {
+                            command: [
+                                {
+                                    name: "edit",
+                                    text: {
+                                        edit: "@Loc["Admin.Common.Edit"]",
+                                        update: "@Loc["Admin.Common.Update"]",
+                                        cancel: "@Loc["Admin.Common.Cancel"]"
+                                    }
+                                }, {
+                                    name: "destroy",
+                                    text: "@Loc["Admin.Common.Delete"]"
+                                }
+                            ],
+                            width: 200,
+                            filterable: false
+                        }
+                    ]
+                });
+            });
+
+    </script>
+    <script>
+            $(document).ready(function() {
+                $('#search-resources').click(function() {
+                    var grid = $('#resources-grid').data('kendoGrid');
+                    grid.dataSource.page(1);
+                    return false;
+                });
+            });
+
+            function additionalData() {
+                var data = {
+                    ResourceName: $('#@Html.IdFor(model => model.Search.ResourceName)').val(),
+                    ResourceValue: $('#@Html.IdFor(model => model.Search.ResourceValue)').val()
+                };
+                addAntiForgeryToken(data);
+                return data;
+            }
+
+            $("".concat("#@Html.IdFor(model => model.Search.ResourceName),",
+                "#@Html.IdFor(model => model.Search.ResourceValue)")).keydown(function(event) {
+                if (event.keyCode === 13) {
+                    $("#search-resources").click();
+                    return false;
+                }
+            });
+    </script>
+
+}

@@ -1,0 +1,142 @@
+﻿@model AffiliatedOrderListModel
+@inject AdminAreaSettings adminAreaSettings
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="StartDate" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="StartDate" />
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="EndDate" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="EndDate" />
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="OrderStatusId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="OrderStatusId" asp-items="Model.AvailableOrderStatuses" />
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="PaymentStatusId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses" />
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ShippingStatusId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="ShippingStatusId" asp-items="Model.AvailableShippingStatuses" />
+            </div>
+        </div>
+    </div>
+    <div class="form-actions">
+        <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
+            <button class="btn btn-success filter-submit" id="search-orders">
+                <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+            </button>
+        </div>
+    </div>
+</div>
+<div class="x_content">
+    <div id="orders-grid"></div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#orders-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("AffiliatedOrderList", "Affiliate", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "OrderNumber",
+                title: "@Loc["Admin.Affiliates.Orders.Order"]",
+                width: 80,
+                template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=Id#">#=OrderNumber#</a>'
+            }, {
+                field: "OrderStatus",
+                title: "@Loc["Admin.Affiliates.Orders.OrderStatus"]",
+                template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=Id#">#=OrderStatus#</a>'
+            }, {
+                field: "PaymentStatus",
+                title: "@Loc["Admin.Affiliates.Orders.PaymentStatus"]",
+                template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=Id#">#=PaymentStatus#</a>'
+            },{
+                field: "ShippingStatus",
+                title: "@Loc["Admin.Affiliates.Orders.ShippingStatus"]",
+                template: '<a class="k-link" href="@Url.Action("Edit", "Order", new { area = Constants.AreaAdmin })/#=Id#">#=ShippingStatus#</a>'
+            },{
+                field: "OrderTotal",
+                title: "@Loc["Admin.Affiliates.Orders.OrderTotal"]"
+            },{
+                field: "CreatedOn",
+                title: "@Loc["Admin.Affiliates.Orders.CreatedOn"]",
+                type: "date",
+                format: "{0:G}"
+            }]
+        });
+    });
+</script>
+<script>
+
+    var selectedIds = [];
+    var reportAggregates = "";
+
+    $(document).ready(function () {
+
+        //search button
+        $('#search-orders').click(function () {
+            //search
+            var grid = $('#orders-grid').data('kendoGrid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+            //grid.dataSource.read(); we already loaded the grid above using "page" function
+            return false;
+        });
+    });
+
+    function additionalData() {
+        var data = {
+            AffliateId: '@(Model.AffliateId)',
+            StartDate: $('#@Html.IdFor(model => model.StartDate)').val(),
+            EndDate: $('#@Html.IdFor(model => model.EndDate)').val(),
+            OrderStatusId: $('#@Html.IdFor(model => model.OrderStatusId)').val(),
+            PaymentStatusId: $('#@Html.IdFor(model => model.PaymentStatusId)').val(),
+            ShippingStatusId: $('#@Html.IdFor(model => model.ShippingStatusId)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+</script>

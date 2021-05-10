@@ -1,0 +1,136 @@
+﻿@model BestCustomersReportModel
+@inject AdminAreaSettings adminAreaSettings
+
+<vc:admin-widget widget-zone="customer_details_report_by_number_of_orders_top" additional-data="Model" />
+<div class="popup-window">
+    <div class="form-horizontal">
+        <div class="form-body">
+            <div class="main-header col-12 px-0">
+                <div class="row align-items-end">
+                    <div class="col-md-4 col-ms-12 col-12">
+                        <div class="form-group mb-0">
+                            <admin-label asp-for="StartDate" class="control-label" />
+                            <admin-input asp-for="StartDate" />
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-ms-12 col-12">
+                        <div class="form-group mb-0">
+                            <admin-label asp-for="EndDate" class="control-label" />
+                            <admin-input asp-for="EndDate" />
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-12 col-12">
+                        <div class="form-actions">
+                            <div class="btn-group">
+                                <button class="btn btn-success filter-submit" id="search-best-customers-numberoforders-grid">
+                                    <i class="fa fa-search"></i> @Loc["Admin.Reports.Customers.RunReport"]
+                                </button>
+                                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                    <i class="fa fa-filter"></i>&nbsp; Filters
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="collapse" id="filterCollapse">
+                <div class="drop-filters-container w-100">
+                    <div class="form-group">
+                        <admin-label asp-for="OrderStatusId" class="control-label col-md-3 col-sm-3" />
+                        <div class="col-md-9 col-sm-9">
+                            <admin-select asp-for="OrderStatusId" asp-items="Model.AvailableOrderStatuses" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <admin-label asp-for="PaymentStatusId" class="control-label col-md-3 col-sm-3" />
+                        <div class="col-md-9 col-sm-9">
+                            <admin-select asp-for="PaymentStatusId" asp-items="Model.AvailablePaymentStatuses" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <admin-label asp-for="ShippingStatusId" class="control-label col-md-3 col-sm-3" />
+                        <div class="col-md-9 col-sm-9">
+                            <admin-select asp-for="ShippingStatusId" asp-items="Model.AvailableShippingStatuses" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="best-customers-numberoforders-grid"></div>
+</div>
+<vc:admin-widget widget-zone="customer_details_report_by_number_of_orders_bottom" additional-data="Model" />
+<script>
+$(document).ready(function () {
+    $("#best-customers-numberoforders-grid").kendoGrid({
+        dataSource: {
+            transport: {
+                read: {
+                    url: "@Html.Raw(Url.Action("ReportBestCustomersByNumberOfOrdersList", "Reports", new { area = Constants.AreaAdmin }))",
+                    type: "POST",
+                    dataType: "json",
+                    data: bestCustomersNumberOfOrdersAdditionalData
+                }
+            },
+            schema: {
+                data: "Data",
+                total: "Total",
+                errors: "Errors"
+            },
+            error: function (e) {
+                display_kendoui_grid_error(e);
+                // Cancel the changes
+                this.cancelChanges();
+            },
+            pageSize: @(adminAreaSettings.DefaultGridPageSize),
+            serverPaging: true,
+            serverFiltering: true,
+            serverSorting: true
+        },
+        pageable: {
+            refresh: true,
+            pageSizes: [@(adminAreaSettings.GridPageSizes)]
+        },
+        editable: {
+            confirmation: false,
+            mode: "inline"
+        },
+        scrollable: false,
+        columns: [{
+            field: "CustomerName",
+            title: "@Loc["Admin.Reports.Customers.BestBy.Fields.Customer"]",
+            template: '<a class="k-link" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/#=CustomerId#">#:CustomerName#</a>',
+        }, {
+            field: "OrderTotal",
+            title: "@Loc["Admin.Reports.Customers.BestBy.Fields.OrderTotal"]"
+        }, {
+            field: "OrderCount",
+            title: "@Loc["Admin.Reports.Customers.BestBy.Fields.OrderCount"]"
+        }]
+    });
+});
+</script>
+<script>
+$(document).ready(function () {
+
+    $('#search-best-customers-numberoforders-grid').click(function () {
+        var grid = $('#best-customers-numberoforders-grid').data('kendoGrid');
+        grid.dataSource.page(1); //new search. Set page size to 1
+        //grid.dataSource.read(); we already loaded the grid above using "page" function
+        return false;
+    });
+
+});
+function bestCustomersNumberOfOrdersAdditionalData(e) {
+    var data = {
+        StartDate: $('#@Html.IdFor(model => model.StartDate)').val(),
+        EndDate: $('#@Html.IdFor(model => model.EndDate)').val(),
+        OrderStatusId: $('#@Html.IdFor(model => model.OrderStatusId)').val(),
+        PaymentStatusId: $('#@Html.IdFor(model => model.PaymentStatusId)').val(),
+        ShippingStatusId: $('#@Html.IdFor(model => model.ShippingStatusId)').val()
+    };
+    addAntiForgeryToken(data);
+    return data;
+}
+</script>
+

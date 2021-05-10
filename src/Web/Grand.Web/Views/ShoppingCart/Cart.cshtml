@@ -1,0 +1,25 @@
+﻿@inject IWorkContext workContext
+@inject IPageHeadBuilder pagebuilder
+@model ShoppingCartModel
+@{
+    Layout = "_SingleColumn";
+
+    var supportRtl = workContext.WorkingLanguage.Rtl;
+    if (supportRtl)
+    {
+        <link rel="stylesheet" type="text/css" asp-src="/theme/css/cart/cart.rtl.css">
+    }
+    else
+    {
+        <link rel="stylesheet" type="text/css" asp-src="/theme/css/cart/cart.css">
+    }
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.ShoppingCart"]);
+}
+<div class="page shopping-cart-page">
+    <h2 class="generalTitle text-center mt-3">@Loc["ShoppingCart"]</h2>
+    <div class="page-body">
+        <partial name="CartSummary" model="Model" />
+    </div>
+</div>

@@ -1,0 +1,36 @@
+﻿@model KnowledgebaseArticleModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Content.Knowledgebase.KnowgledgebaseArticle.EditKnowgledgebaseArticle"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Knowledgebase" asp-action="EditArticle" method="post" id="article-form">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-forumbee"></i>
+                        @Loc["Admin.Content.Knowledgebase.KnowgledgebaseArticle.EditKnowgledgebaseArticle"]
+                        <small><i class="fa fa-arrow-circle-left"></i> @Html.ActionLink(Loc["Admin.Content.Knowledgebase.KnowgledgebaseArticle.BackToList"], "List")</small>
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button type="button" onclick="javascript:OpenWindow('@Url.RouteUrl("KnowledgebaseArticle", new { SeName = Model.SeName })', 800, 600, true); return false;" class="btn purple">
+                                <i class="fa fa-eye"></i>
+                                @Loc["Admin.Common.Preview"]
+                            </button>
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <button class="btn btn-success" type="submit" name="save-continue"><i class="fa fa-check-circle"></i> @Loc["Admin.Common.SaveContinue"] </button>
+                            <span id="knowledgebasearticle-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                   <partial name="_CreateOrUpdateArticle" model="Model" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<admin-delete-confirmation button-id="knowledgebasearticle-delete" action-name="DeleteArticle" />

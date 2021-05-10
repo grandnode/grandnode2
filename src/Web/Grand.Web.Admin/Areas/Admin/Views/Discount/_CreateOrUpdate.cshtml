@@ -1,0 +1,78 @@
+﻿@model DiscountModel
+
+
+<script asp-location="Footer" asp-src="/_content/Grand.Web.Admin/administration/jquery.tmpl.min.js"></script>
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<admin-tabstrip name="discount-edit">
+    <items>
+        <tabstrip-item text="@Loc["admin.marketing.Discounts.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["admin.marketing.Discounts.CouponCodes"]" tab-index="1" id="tab-couponcode">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabCouponCodes" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["admin.marketing.Discounts.Requirements"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabRequirements" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["admin.marketing.Discounts.AppliedToProducts"]" tab-index="3" id="tab-applied-to-products">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabAppliedToProducts" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["admin.marketing.Discounts.AppliedToCategories"]" tab-index="4" id="tab-applied-to-categories">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabAppliedToCategories" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["admin.marketing.Discounts.AppliedToBrands"]" tab-index="5" id="tab-applied-to-brands">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabAppliedToBrands" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["admin.marketing.Discounts.AppliedToCollections"]" tab-index="6" id="tab-applied-to-collections">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabAppliedToCollections" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["admin.marketing.Discounts.AppliedToVendors"]" tab-index="7" id="tab-applied-to-vendors">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabAppliedToVendors" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (!String.IsNullOrEmpty(Model.Id))
+        {
+            <tabstrip-item text="@Loc["admin.marketing.Discounts.History"]" tab-index="8">
+                <content>
+                    <div>
+                        <partial name="_CreateOrUpdate.TabHistory" model="Model" />
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        <vc:admin-widget widget-zone="discount_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

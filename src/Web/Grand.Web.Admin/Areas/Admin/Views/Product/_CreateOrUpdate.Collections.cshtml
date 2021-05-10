@@ -1,0 +1,174 @@
+﻿@model ProductModel
+@if (!String.IsNullOrEmpty(Model.Id))
+{
+    <div class="panel panel-default">
+        <vc:admin-widget widget-zone="product_details_collections_top" additional-data="Model" />
+        <div class="panel-heading">
+            @Loc["Admin.Catalog.Products.Collections.Fields.Collection"]
+        </div>
+        <div class="panel-body">
+            <div id="productcollections-grid"></div>
+        </div>
+        <vc:admin-widget widget-zone="product_details_collections_bottom" additional-data="Model" />
+    </div>
+
+
+    <script>
+                $(document).ready(function () {
+                    $("#productcollections-grid").kendoGrid({
+                        dataSource: {
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("ProductCollectionList", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                },
+                                create: {
+                                    url: "@Html.Raw(Url.Action("ProductCollectionInsert", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                },
+                                update: {
+                                    url:"@Html.Raw(Url.Action("ProductCollectionUpdate", "Product", new { area = Constants.AreaAdmin }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                },
+                                destroy: {
+                                    url: "@Html.Raw(Url.Action("ProductCollectionDelete", "Product", new { area = Constants.AreaAdmin }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors",
+                                model: {
+                                    id: "Id",
+                                    fields: {
+                                        Collection: { editable: true, type: "string" },
+                                        CollectionId: { editable: true, type: "string" },
+                                        IsFeaturedProduct: { editable: true, type: "boolean" },
+                                        DisplayOrder: { editable: true, type: "number" },
+                                        Id: { editable: false, type: "string" }
+                                    }
+                                }
+                            },
+                            requestEnd: function (e) {
+                                if (e.type == "create" || e.type == "update") {
+                                    this.read();
+                                }
+                            },
+                            error: function (e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            numeric: false,
+                            previousNext: false,
+                            info: false
+                        },
+                        toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
+                        edit: function(e) {
+                            if (e.model.isNew()) {
+                                e.model.CollectionId = "";
+                            }
+                        },
+                        editable: {
+                            confirmation: true,
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "CollectionId",
+                                title: "@Loc["Admin.Catalog.Products.Collections.Fields.Collection"]",
+                                width: 200,
+                                editor: collectionDropDownEditor,
+                                template: '<a class="k-link" href="@Url.Action("Edit", "Collection", new { area = Constants.AreaAdmin })/#=CollectionId#">#:Collection#</a>'
+                            },
+                            @if (!Model.IsLoggedInAsVendor)
+                            {
+                                //vendor cannot edit this field
+                                <text>{
+                                field: "IsFeaturedProduct",
+                                title: "@Loc["Admin.Catalog.Products.Collections.Fields.IsFeaturedProduct"]",
+                                width: 100,
+                                headerAttributes: { style: "text-align:center" },
+                                attributes: { style: "text-align:center" },
+                                template: '# if(IsFeaturedProduct) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                    },</text>
+                            }
+
+                        {
+                            field: "DisplayOrder",
+                            title: "@Loc["Admin.Catalog.Products.Collections.Fields.DisplayOrder"]",
+                            width: 100,
+                            minScreenWidth: 500,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            //integer format
+                            format: "{0:0}"
+                        }, {
+                            command: [{
+                                name: "edit",
+                                text: {
+                                    edit: "@Loc["Admin.Common.Edit"]",
+                                    update: "@Loc["Admin.Common.Update"]",
+                                    cancel: "@Loc["Admin.Common.Cancel"]"
+                                }
+                            }, {
+                                name: "destroy",
+                                text: "@Loc["Admin.Common.Delete"]"
+                            }],
+                            width: 200
+                        }]
+                    });
+                });
+
+                function collectionDropDownEditor(container, options) {
+                    $('<input required data-text-field="Name" data-value-field="Id" data-bind="value:CollectionId"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            autobind: false,
+                            optionLabel: "Select collection...",
+                            filter: "startswith",
+                            filtering: function (e) {
+                                var filter = e.filter;
+                                if (!filter.value) {
+                                    //prevent filtering if the filter does not value
+                                    e.preventDefault();
+                                }
+                            },
+                            dataSource: {
+                                transport: {
+                                    read: {
+                                        url: "@Html.Raw(Url.Action("Collection", "Search", new { area = Constants.AreaAdmin }))"
+                                    }
+                                },
+                                schema: {
+                                    data: "Data"
+                                },
+                                serverFiltering: true
+                            },
+                            dataTextField: "Name",
+                            dataValueField: "Id",
+                        });
+                }
+    </script>
+}
+else
+{
+    <div class="note note-info">
+        @Loc["Admin.Catalog.Products.Collections.SaveBeforeEdit"]
+    </div>
+}

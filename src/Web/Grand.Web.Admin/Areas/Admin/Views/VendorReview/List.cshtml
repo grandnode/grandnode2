@@ -1,0 +1,288 @@
+﻿@model VendorReviewListModel
+@inject IWorkContext workContext
+@inject AdminAreaSettings adminAreaSettings
+@{
+
+    //page title
+    ViewBag.Title = Loc["Admin.VendorReviews"];
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="x_panel light form-fit popup-window">
+            <div class="x_title">
+                <div class="caption">
+                    <i class="fa fa-cubes"></i>
+                    @Loc["Admin.VendorReviews"]
+                </div>
+                <div class="actions btn-group btn-group-devided">
+                    <button type="button" id="approve-selected" class="k-button"><span class="k-icon k-i-check-outline"></span>&nbsp;@Loc["Admin.VendorReviews.ApproveSelected"]</button>
+                    <button type="button" id="disapprove-selected" class="k-button"><span class="k-icon k-i-close-outline"></span>&nbsp;@Loc["Admin.VendorReviews.DisapproveSelected"]</button>
+                    <vc:admin-widget widget-zone="vendor_review_list_buttons" additional-data="Model" />
+                </div>
+            </div>
+            <div class="x_content form">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="main-header col-12 px-0">
+                            <div class="row align-items-end">
+                                <div class="col-md-8 col-ms-12 col-12">
+                                    <div class="form-group mb-0">
+                                        <admin-label asp-for="SearchText" class="control-labe" />
+                                        <admin-input asp-for="SearchText" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-sm-12 col-12">
+                                    <div class="form-actions">
+                                        <div class="btn-group">
+                                            <button class="btn btn-success filter-submit" id="search-vendorreviews">
+                                                <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                            </button>
+                                            <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                <i class="fa fa-filter"></i>&nbsp; Filters
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse" id="filterCollapse">
+                            <div class="drop-filters-container w-100">
+                                <div class="form-group">
+                                    <admin-label asp-for="CreatedOnFrom" />
+                                    <div class="col-md-4 col-sm-6">
+                                        <admin-input asp-for="CreatedOnFrom" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="CreatedOnTo" />
+                                    <div class="col-md-4 col-sm-6">
+                                        <admin-input asp-for="CreatedOnTo" />
+                                    </div>
+                                </div>
+                                @if (workContext.CurrentVendor == null)
+                                {
+                                    <partial name="_SearchVendor" model="Model" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="x_content">
+                        <div id="vendorreviews-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+$(document).ready(function () {
+    $("#vendorreviews-grid").kendoGrid({
+        dataSource: {
+            transport: {
+                read: {
+                    url: "@Html.Raw(Url.Action("List", "VendorReview", new { area = Constants.AreaAdmin }))",
+                    type: "POST",
+                    dataType: "json",
+                    data: additionalData
+                }
+            },
+            schema: {
+                data: "Data",
+                total: "Total",
+                errors: "Errors"
+            },
+            error: function(e) {
+                display_kendoui_grid_error(e);
+                // Cancel the changes
+                this.cancelChanges();
+            },
+            pageSize: @(adminAreaSettings.DefaultGridPageSize),
+            serverPaging: true,
+            serverFiltering: true,
+            serverSorting: true
+        },
+        pageable: {
+            refresh: true,
+            pageSizes: [@(adminAreaSettings.GridPageSizes)]
+        },
+        scrollable: false,
+        dataBound: onDataBound,
+        columns: [{
+            field: "Ids",
+            headerTemplate: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input id='mastercheckbox' type='checkbox'/> <div class='control__indicator'></div></label>",
+            headerAttributes: { style: "text-align:center" },
+            attributes: { style: "text-align:center" },
+            template: "<label class='mt-checkbox mt-checkbox-outline control control-checkbox'><input type='checkbox' value='#=Ids#' class='checkboxGroups'/> <div class='control__indicator'></div></label>",
+            width: 50
+        },
+        {
+            field: "VendorName",
+            title: "@Loc["Admin.VendorReviews.Fields.Vendor"]",
+            width: 200,
+            template: '<a href="@Url.Action("Edit", "Vendor", new { area = Constants.AreaAdmin })/#=VendorId#">#:VendorName#</a>'
+        }, {
+            field: "CustomerId",
+            title: "@Loc["Admin.VendorReviews.Fields.Customer"]",
+            width: 200,
+            template: '<a href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin })/#=CustomerId#">#:CustomerInfo#</a>'
+        }, {
+            field: "Title",
+            title: "@Loc["Admin.VendorReviews.Fields.Title"]",
+            width: 200,
+            template: '<a class="k-link" href="Edit/#=Id#?VendorId=#=VendorId#">#=kendo.htmlEncode(Title)#</a>',
+        }, {
+            field: "Rating",
+            title: "@Loc["Admin.VendorReviews.Fields.Rating"]",
+            width: 100
+        }, {
+            field: "IsApproved",
+            title: "@Loc["Admin.VendorReviews.Fields.IsApproved"]",
+            width: 100,
+            headerAttributes: { style: "text-align:center" },
+            attributes: { style: "text-align:center" },
+            template: '# if(IsApproved) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+        }, {
+            field: "CreatedOn",
+            title: "@Loc["Admin.VendorReviews.Fields.CreatedOn"]",
+            width: 200,
+            type: "date",
+            format: "{0:G}"
+        }]
+    });
+});
+</script>
+
+
+<script>
+
+                var selectedIds = [];
+
+                $(document).ready(function () {
+
+                    //search button
+                    $('#search-vendorreviews').click(function () {
+                        //search
+                        var grid = $('#vendorreviews-grid').data('kendoGrid');
+                        grid.dataSource.page(1); //new search. Set page size to 1
+                        //grid.dataSource.read(); we already loaded the grid above using "page" function
+                        //clear selected checkboxes
+                        $('.checkboxGroups').prop('checked', false).change();
+                        selectedIds = [];
+                        return false;
+                    });
+
+                    //"approve selected" button
+                    $('#approve-selected').click(function (e) {
+                        e.preventDefault();
+
+                        var postData = {
+                            selectedIds: selectedIds,
+                        };
+                        addAntiForgeryToken(postData);
+
+                        $.ajax({
+                            cache:false,
+                            type: "POST",
+                            url: "@(Url.Action("ApproveSelected", "VendorReview", new { area = Constants.AreaAdmin }))",
+                            data: postData,
+                            complete: function (data) {
+                                //reload grid
+                                var grid = $('#vendorreviews-grid').data('kendoGrid');
+                                grid.dataSource.read();
+                            },
+                            error:function (xhr, ajaxOptions, thrownError){
+                                alert(thrownError);
+                            },
+                            traditional: true
+                        });
+                        return false;
+                    });
+
+                    //"disapprove selected" button
+                    $('#disapprove-selected').click(function (e) {
+                        e.preventDefault();
+
+                        var postData = {
+                            selectedIds: selectedIds,
+                        };
+                        addAntiForgeryToken(postData);
+
+                        $.ajax({
+                            cache:false,
+                            type: "POST",
+                            url: "@(Url.Action("DisapproveSelected", "VendorReview", new { area = Constants.AreaAdmin }))",
+                            data: postData,
+                            complete: function (data) {
+                                //reload grid
+                                var grid = $('#vendorreviews-grid').data('kendoGrid');
+                                grid.dataSource.read();
+                            },
+                            error:function (xhr, ajaxOptions, thrownError){
+                                alert(thrownError);
+                            },
+                            traditional: true
+                        });
+                        return false;
+                    });
+
+
+                    $('#mastercheckbox').click(function () {
+                        $('.checkboxGroups').prop('checked', $(this).is(':checked')).change();
+                    });
+
+                    //wire up checkboxes.
+                    $('#vendorreviews-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function (e) {
+                        var $check = $(this);
+                        if ($check.is(":checked") == true) {
+                            var checked = jQuery.inArray($check.val(), selectedIds);
+                            if (checked == -1) {
+                                //add id to selectedIds.
+                                selectedIds.push($check.val());
+                            }
+                        }
+                        else {
+                            var checked = jQuery.inArray($check.val(), selectedIds);
+                            if (checked > -1) {
+                                //remove id from selectedIds.
+                                selectedIds = $.grep(selectedIds, function (item, index) {
+                                    return item != $check.val();
+                                });
+                            }
+                        }
+                        updateMasterCheckbox();
+                    });
+                });
+
+                function additionalData() {
+                    var data = {
+                        CreatedOnFrom: $('#@Html.IdFor(model => model.CreatedOnFrom)').val(),
+                        CreatedOnTo: $('#@Html.IdFor(model => model.CreatedOnTo)').val(),
+                        SearchText: $('#@Html.IdFor(model => model.SearchText)').val(),
+                        SearchVendorId: $('#@Html.IdFor(model => model.SearchVendorId)').val()
+                    };
+                    addAntiForgeryToken(data);
+                    return data;
+                }
+
+                function onDataBound(e) {
+
+                    $('#vendorreviews-grid input[type=checkbox][id!=mastercheckbox]').each(function () {
+                        var currentId = $(this).val();
+                        var checked = jQuery.inArray(currentId, selectedIds);
+                        //set checked based on if current checkbox's value is in selectedIds.
+                        $(this).prop('checked', checked > -1);
+                    });
+
+                    updateMasterCheckbox();
+                }
+
+                function updateMasterCheckbox() {
+                    var numChkBoxes = $('#vendorreviews-grid input[type=checkbox][id!=mastercheckbox]').length;
+                    var numChkBoxesChecked = $('#vendorreviews-grid input[type=checkbox][id!=mastercheckbox]:checked').length;
+                    $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+                }
+
+</script>

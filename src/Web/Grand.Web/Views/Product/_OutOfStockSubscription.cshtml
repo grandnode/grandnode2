@@ -1,0 +1,35 @@
+﻿@model ProductDetailsModel
+@if (Model.DisplayOutOfStockSubscription)
+{
+    <input type="button" id="out-of-stock-subscribe-@Model.Id" @@click="showModalOutOfStock" class="btn btn-secondary btn-sm subscribe-button" style="display:none;" value="@Loc["OutOfStockSubscriptions.NotifyMeWhenAvailable"]" />
+    <script asp-location="Footer">
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("out-of-stock-subscribe-@Model.Id").addEventListener('click', function (event) {
+                var form = document.querySelector('#product-details-form');
+                var data = new FormData(form);
+                axios({
+                    url: '@Url.RouteUrl("OutOfStockSubscribePopup", new { productId = Model.Id })',
+                    data: data,
+                    method: 'post',
+                }).then(function (response) {
+                    document.getElementById('modal-subscribe').innerHTML = response.data.resource;
+                    document.querySelector('.subscribe-button').value = response.data.buttontext;
+                });
+            });
+            axios({
+                url: '@Url.RouteUrl("OutOfStockSubscribeButton", new { productId = Model.Id, warehouseId = "" })',
+                method: 'get',
+            }).then(function (response) {
+                document.querySelector('.subscribe-button').value = response.data;
+                document.querySelector('.subscribe-button').style.display = "inline-block";
+            })
+        });
+    </script>
+
+    <b-modal id="subscribe-modal-form" ref="out-of-stock" hide-footer centered  title="@Loc["OutOfStockSubscriptions.Title"]">
+        <div id="modal-subscribe" class="alert-info alert mb-0">
+            @Loc["OutOfStockSubscriptions.PleaseWait"]
+        </div>
+    </b-modal>
+
+}

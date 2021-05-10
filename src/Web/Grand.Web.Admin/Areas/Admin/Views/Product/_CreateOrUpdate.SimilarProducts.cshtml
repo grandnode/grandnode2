@@ -1,0 +1,129 @@
+﻿@model ProductModel
+
+
+@if (!String.IsNullOrEmpty(Model.Id))
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            @Loc["Admin.Catalog.Products.SimilarProducts"]
+        </div>
+        <div class="panel-body">
+            <div id="similarproducts-grid"></div>
+        </div>
+        <div class="panel-footer">
+            <button type="submit" id="btnAddNewSimilarProduct" onclick="javascript:OpenWindow('@(Url.Action("SimilarProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshSimilarProducts", formId = "product-form", area = Constants.AreaAdmin }))    ', 1000, 1000, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.SimilarProducts.AddNew"]</button>
+            <input type="submit" id="btnRefreshSimilarProducts" style="display: none" />
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $("#similarproducts-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("SimilarProductList", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        update: {
+                            url:"@Html.Raw(Url.Action("SimilarProductUpdate", "Product", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("SimilarProductDelete", "Product", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                Product2Name: { editable: false, type: "string" },
+                                DisplayOrder: {editable: true, type: "number" },
+                                ProductId2: { editable: false, type: "string" }
+                            }
+                        }
+                    },
+                    requestEnd: function(e) {
+                        if(e.type=="update") {
+                            this.read();
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "Product2Name",
+                    title: "@Loc["Admin.Catalog.Products.SimilarProducts.Fields.Product"]",
+                    template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = Constants.AreaAdmin })/#=ProductId2#">#=kendo.htmlEncode(Product2Name)#</a>',
+                }, {
+                    field: "DisplayOrder",
+                    title: "@Loc["Admin.Catalog.Products.SimilarProducts.Fields.DisplayOrder"]",
+                    //integer format
+                    format: "{0:0}",
+                    width: 100,
+                    headerAttributes: { style: "text-align:center" },
+                    attributes: { style: "text-align:center" },
+                }, {
+                    command: [{
+                        name: "edit",
+                        text: {
+                            edit: "@Loc["Admin.Common.Edit"]",
+                            update: "@Loc["Admin.Common.Update"]",
+                            cancel: "@Loc["Admin.Common.Cancel"]"
+                        }
+                    }, {
+                        name: "destroy",
+                        text: "@Loc["Admin.Common.Delete"]"
+                    }]
+                }]
+            });
+        });
+    </script>
+           
+    <script>
+        $(document).ready(function () {
+            $('#btnRefreshSimilarProducts').click(function () {
+                //refresh grid
+                var grid = $("#similarproducts-grid").data('kendoGrid');
+                grid.dataSource.read();
+
+                //return false to don't reload a page
+                return false;
+            });
+        });
+    </script>
+
+}
+else
+{
+    <div class="note note-info">
+        @Loc["Admin.Catalog.Products.SimilarProducts.SaveBeforeEdit"]
+    </div>
+}

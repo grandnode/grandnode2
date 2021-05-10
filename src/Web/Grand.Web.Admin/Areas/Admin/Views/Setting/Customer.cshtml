@@ -1,0 +1,71 @@
+﻿@model CustomerSettingsModel
+
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Settings.Customer"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Setting" asp-action="Customer" method="post">
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-fw fa-sliders"></i>
+                        @Loc["Admin.Settings.Customer"]
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                        </div>
+                    </div>
+                    <vc:admin-widget widget-zone="customer_user_settings_buttons" additional-data="null" />
+                </div>
+                <div class="x_content">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            @await Component.InvokeAsync("StoreScope")
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <admin-tabstrip name="customersettings-edit">
+                        <items>
+                            <tabstrip-item text="@Loc["Admin.Settings.Customer.CustomerSettings"]" tab-index="0">
+                                <content>
+                                    <div>
+                                        <partial name="Customer.TabCustomerSettings" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.Customer.CustomerSecurity"]" tab-index="1">
+                                <content>
+                                    <div>
+                                        <partial name="Customer.TabCustomerSecurity" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.Customer.CustomerFormFields"]" tab-index="2">
+                                <content>
+                                    <div>
+                                        <partial name="Customer.TabCustomerFormFields" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <tabstrip-item text="@Loc["Admin.Settings.Customer.AddressFormFields"]" tab-index="3">
+                                <content>
+                                    <div>
+                                        <partial name="Customer.TabAddressFormFields" model="Model" />
+                                    </div>
+                                </content>
+                            </tabstrip-item>
+                            <vc:admin-widget widget-zone="setting_customer_details_tabs" additional-data="Model" />
+                        </items>
+                    </admin-tabstrip>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div asp-validation-summary="All"></div>
+</form>

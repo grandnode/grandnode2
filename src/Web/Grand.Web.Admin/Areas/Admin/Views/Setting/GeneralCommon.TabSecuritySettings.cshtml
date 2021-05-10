@@ -1,0 +1,251 @@
+﻿@model GeneralCommonSettingsModel
+
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.SecuritySettings.CaptchaEnabled)").click(toggleReCaptcha);
+        toggleReCaptcha();
+    });
+
+    function toggleReCaptcha() {
+        if ($('#@Html.IdFor(model => model.SecuritySettings.CaptchaEnabled)').is(':checked')) {
+            $('#ssCaptchaShowOnLoginPagepnl').show();
+            $('#ssCaptchaShowOnRegistrationPagepnl').show();
+            $('#ssCaptchaShowOnPasswordRecoverPagepnl').show();
+            $('#ssCaptchaShowOnContactUsPagepnl').show();
+            $('#ssCaptchaShowOnEmailWishlistToFriendPagepnl').show();
+            $('#ssCaptchaShowOnEmailProductToFriendPagepnl').show();
+            $('#ssCaptchaShowOnAskQuestionPagepnl').show();
+            $('#ssCaptchaShowOnBlogCommentPagepnl').show();
+            $('#ssCaptchaShowOnArticleCommentPagepnl').show();
+            $('#ssCaptchaShowOnNewsCommentPagepnl').show();
+            $('#ssCaptchaShowOnProductReviewPagepnl').show();
+            $('#ssReCaptchaPublicKeypnl').show();
+            $('#ssCaptchaShowOnApplyVendorPagepnl').show();
+            $('#ssReCaptchaPrivateKeypnl').show();
+            $('#ssReCaptchaVersionpnl').show();
+        }
+        else {
+            $('#ssCaptchaShowOnLoginPagepnl').hide();
+            $('#ssCaptchaShowOnRegistrationPagepnl').hide();
+            $('#ssCaptchaShowOnPasswordRecoverPagepnl').hide();
+            $('#ssCaptchaShowOnContactUsPagepnl').hide();
+            $('#ssCaptchaShowOnEmailWishlistToFriendPagepnl').hide();
+            $('#ssCaptchaShowOnEmailProductToFriendPagepnl').hide();
+            $('#ssCaptchaShowOnAskQuestionPagepnl').hide();
+            $('#ssCaptchaShowOnBlogCommentPagepnl').hide();
+            $('#ssCaptchaShowOnArticleCommentPagepnl').hide();
+            $('#ssCaptchaShowOnNewsCommentPagepnl').hide();
+            $('#ssCaptchaShowOnProductReviewPagepnl').hide();
+            $('#ssReCaptchaPublicKeypnl').hide();
+            $('#ssCaptchaShowOnApplyVendorPagepnl').hide();
+            $('#ssReCaptchaPrivateKeypnl').hide();
+            $('#ssReCaptchaVersionpnl').hide();
+        }
+    }
+</script>
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.AdminAreaAllowedIpAddresses" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="SecuritySettings.AdminAreaAllowedIpAddresses" />
+                <span asp-validation-for="SecuritySettings.AdminAreaAllowedIpAddresses"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="note note-info">
+                A CAPTCHA is a program that can tell whether its user is a human or a computer.
+                You've probably seen them — colorful images with distorted text at the bottom of
+                Web registration forms. CAPTCHAs are used by many websites to prevent abuse from
+                "bots," or automated programs usually written to generate spam. No computer program
+                can read distorted text as well as humans can, so bots cannot navigate sites protected
+                by CAPTCHAs. <a href="http://www.google.com/recaptcha" target="_blank">reCAPTCHA</a>.
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.CaptchaEnabled" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SecuritySettings.CaptchaEnabled" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SecuritySettings.CaptchaEnabled"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssCaptchaShowOnLoginPagepnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.CaptchaShowOnLoginPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SecuritySettings.CaptchaShowOnLoginPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SecuritySettings.CaptchaShowOnLoginPage"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssCaptchaShowOnRegistrationPagepnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.CaptchaShowOnRegistrationPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SecuritySettings.CaptchaShowOnRegistrationPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SecuritySettings.CaptchaShowOnRegistrationPage"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssCaptchaShowOnPasswordRecoverPagepnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.CaptchaShowOnPasswordRecoveryPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SecuritySettings.CaptchaShowOnPasswordRecoveryPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SecuritySettings.CaptchaShowOnPasswordRecoveryPage"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssCaptchaShowOnContactUsPagepnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.CaptchaShowOnContactUsPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SecuritySettings.CaptchaShowOnContactUsPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SecuritySettings.CaptchaShowOnContactUsPage"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssCaptchaShowOnEmailWishlistToFriendPagepnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.CaptchaShowOnEmailWishlistToFriendPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SecuritySettings.CaptchaShowOnEmailWishlistToFriendPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SecuritySettings.CaptchaShowOnEmailWishlistToFriendPage"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssCaptchaShowOnEmailProductToFriendPagepnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.CaptchaShowOnEmailProductToFriendPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SecuritySettings.CaptchaShowOnEmailProductToFriendPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SecuritySettings.CaptchaShowOnEmailProductToFriendPage"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssCaptchaShowOnAskQuestionPagepnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.CaptchaShowOnAskQuestionPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SecuritySettings.CaptchaShowOnAskQuestionPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SecuritySettings.CaptchaShowOnAskQuestionPage"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssCaptchaShowOnBlogCommentPagepnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.CaptchaShowOnBlogCommentPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SecuritySettings.CaptchaShowOnBlogCommentPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SecuritySettings.CaptchaShowOnBlogCommentPage"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssCaptchaShowOnArticleCommentPagepnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.CaptchaShowOnArticleCommentPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SecuritySettings.CaptchaShowOnArticleCommentPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SecuritySettings.CaptchaShowOnArticleCommentPage"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssCaptchaShowOnNewsCommentPagepnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.CaptchaShowOnNewsCommentPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SecuritySettings.CaptchaShowOnNewsCommentPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SecuritySettings.CaptchaShowOnNewsCommentPage"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssCaptchaShowOnProductReviewPagepnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.CaptchaShowOnProductReviewPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SecuritySettings.CaptchaShowOnProductReviewPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SecuritySettings.CaptchaShowOnProductReviewPage"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssCaptchaShowOnApplyVendorPagepnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.CaptchaShowOnApplyVendorPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SecuritySettings.CaptchaShowOnApplyVendorPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SecuritySettings.CaptchaShowOnApplyVendorPage"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssReCaptchaVersionpnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.ReCaptchaVersion" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-select asp-for="SecuritySettings.ReCaptchaVersion" asp-items="Model.SecuritySettings.AvailableReCaptchaVersions" />
+                <span asp-validation-for="SecuritySettings.ReCaptchaVersion"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssReCaptchaPublicKeypnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.ReCaptchaPublicKey" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="SecuritySettings.ReCaptchaPublicKey" />
+                <span asp-validation-for="SecuritySettings.ReCaptchaPublicKey"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssReCaptchaPrivateKeypnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.ReCaptchaPrivateKey" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="SecuritySettings.ReCaptchaPrivateKey" />
+                <span asp-validation-for="SecuritySettings.ReCaptchaPrivateKey"></span>
+            </div>
+        </div>
+    </div>
+</div>

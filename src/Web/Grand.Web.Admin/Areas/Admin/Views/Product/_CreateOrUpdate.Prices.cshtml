@@ -1,0 +1,335 @@
+﻿@model ProductModel
+<vc:admin-widget widget-zone="product_details_prices_top" additional-data="Model" />
+<div class="form-horizontal portlet bg-inverse form-fit" id="group-prices">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="Price" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Price" /> [@Model.PrimaryStoreCurrencyCode]
+                <span asp-validation-for="Price"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <partial name="_CreateOrUpdate.ProductPrices" model="Model" />
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="OldPrice" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="OldPrice" /> [@Model.PrimaryStoreCurrencyCode]
+                <span asp-validation-for="OldPrice"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CatalogPrice" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="CatalogPrice" /> [@Model.PrimaryStoreCurrencyCode]
+                <span asp-validation-for="CatalogPrice"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlStartPrice">
+            <admin-label asp-for="StartPrice" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="StartPrice" /> [@Model.PrimaryStoreCurrencyCode]
+                <span asp-validation-for="StartPrice"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="ProductCost" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="ProductCost" /> [@Model.PrimaryStoreCurrencyCode]
+                <span asp-validation-for="ProductCost"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisableBuyButton" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="DisableBuyButton" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="DisableBuyButton"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="DisableWishlistButton" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="DisableWishlistButton" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="DisableWishlistButton"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="AvailableForPreOrder" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="AvailableForPreOrder" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="AvailableForPreOrder"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlPreOrderDateTime">
+            <admin-label asp-for="PreOrderDateTime" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="PreOrderDateTime" />
+                <span asp-validation-for="PreOrderDateTime"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CallForPrice" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="CallForPrice" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="CallForPrice"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="EnteredPrice" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="EnteredPrice" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="EnteredPrice"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlMinEnteredPrice">
+            <admin-label asp-for="MinEnteredPrice" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="MinEnteredPrice" /> [@Model.PrimaryStoreCurrencyCode]
+                <span asp-validation-for="MinEnteredPrice"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlMaxEnteredPrice">
+            <admin-label asp-for="MaxEnteredPrice" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="MaxEnteredPrice" /> [@Model.PrimaryStoreCurrencyCode]
+                <span asp-validation-for="MaxEnteredPrice"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="BasepriceEnabled" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="BasepriceEnabled" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="BasepriceEnabled"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlBasepriceAmount">
+            <admin-label asp-for="BasepriceAmount" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="BasepriceAmount" />
+                <span asp-validation-for="BasepriceAmount"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlBasepriceUnit">
+            <admin-label asp-for="BasepriceUnitId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="BasepriceUnitId" asp-items="Model.AvailableBasepriceUnits" />
+                <span asp-validation-for="BasepriceUnitId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlBasepriceBaseAmount">
+            <admin-label asp-for="BasepriceBaseAmount" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="BasepriceBaseAmount" />
+                <span asp-validation-for="BasepriceBaseAmount"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlBasepriceBaseUnit">
+            <admin-label asp-for="BasepriceBaseUnitId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="BasepriceBaseUnitId" asp-items="Model.AvailableBasepriceBaseUnits" />
+                <span asp-validation-for="BasepriceBaseUnitId"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="IsTaxExempt" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="IsTaxExempt" />
+                     <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsTaxExempt"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlTaxCategory">
+            <admin-label asp-for="TaxCategoryId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="TaxCategoryId" asp-items="Model.AvailableTaxCategories" />
+                <span asp-validation-for="TaxCategoryId"></span>
+            </div>
+        </div>
+        <div class="form-group" id="pnlIsTelecommunicationsOrBroadcastingOrElectronicServices">
+            <admin-label asp-for="IsTele" />
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox white-bg">
+                    <admin-input asp-for="IsTele" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="IsTele"></span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@if (!String.IsNullOrEmpty(Model.Id))
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            @Loc["Admin.Catalog.Products.TierPrices"]
+        </div>
+        <div class="panel-body">
+            <div id="tierprices-grid"></div>
+        </div>
+        <div class="panel-footer">
+            <button type="submit" id="btnAddNewTierPrice" onclick="javascript:OpenWindow('@(Url.Action("TierPriceCreatePopup", "Product", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaAdmin }))', 800, 600, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.TierPrices.AddNew"]</button>
+            <input type="submit" id="btnRefreshTierPrices" style="display: none" />
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $("#tierprices-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("TierPriceList", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("TierPriceDelete", "Product", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                ProductId: { editable: false, type: "string" },
+                                Store: { editable: true, type: "string" },
+                                StoreId: { editable: true, type: "string" },
+                                CustomerGroup: { editable: true, type: "string" },
+                                CustomerGroupId: { editable: true, type: "string" },
+                                Quantity: { editable: true, type: "number" },
+                                Price: { editable: true, type: "number" },
+                                //StartDateTime: { editable: false, type: "date" },
+                                //EndDateTime: { editable: false, type: "date" },
+                                Id: { editable: false, type: "string" }
+                            }
+                        }
+                    },
+                    error: function (e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [{
+                    field: "StoreId",
+                    title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.Store"]",
+                    template: "#:Store#"
+                },
+                {
+                    field: "CustomerGroupId",
+                    title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.CustomerGroup"]",
+                    template: "#:CustomerGroup#"
+                },
+                {
+                    field: "Quantity",
+                    title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.Quantity"]",
+                    //integer format
+                    format: "{0:0}"
+                }, {
+                    field: "Price",
+                    title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.Price"]",
+                    template: "#:Price# [#:CurrencyCode#]"
+                }, {
+                    field: "StartDateTime",
+                    title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.StartDateTime"]",
+                }, {
+                    field: "EndDateTime",
+                    title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.EndDateTime"]",
+                }, {
+                    field: "Id",
+                    title: "@Loc["Admin.Common.Edit"]",
+                    template: "<button type=\"button\" onclick=\"javascript:OpenWindow('@Url.Action("TierPriceEditPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?productId=@(Model.Id)&btnId=btnRefreshTierPrices&formId=product-form', 800, 600, true); return false;\" class=\"k-button\"><span class=\"k-icon k-i-edit\"></span>&nbsp;@Loc["Admin.Common.Edit"]</button>"
+                }, {
+                    command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                    title: "@Loc["Admin.Common.Delete"]"
+                }]
+            });
+        });
+
+        $(document).ready(function () {
+            $('#btnRefreshTierPrices').click(function () {
+                $("#tierprices-grid").data('kendoGrid').dataSource.read();
+                return false;
+            });
+        });
+    </script>
+}
+else
+{
+    <div class="note note-info">
+        @Loc["Admin.Catalog.Products.TierPrices.SaveBeforeEdit"]
+    </div>
+}
+
+
+@if (Model.AvailableDiscounts != null && Model.AvailableDiscounts.Count > 0)
+{
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            @Loc["Admin.Catalog.Products.AvailableDiscounts"]
+        </div>
+        <div class="panel-body">
+            <div class="mt-checkbox-list">
+                @foreach (var discount in Model.AvailableDiscounts)
+                {
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <input type="checkbox" name="SelectedDiscountIds" value="@discount.Id"
+                               @if (Model.SelectedDiscountIds != null && Model.SelectedDiscountIds.Contains(discount.Id)) { <text> checked="checked" </text>     } />@discount.Name
+                             <div class="control__indicator"></div>
+                        </label>
+                }
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="note note-info">
+        @Html.Raw(@Loc["Admin.Catalog.Collections.Discounts.NoDiscounts"])
+    </div>
+}
+    <vc:admin-widget widget-zone="product_details_prices_bottom" additional-data="Model" />

@@ -1,0 +1,33 @@
+﻿@model AffiliateModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<admin-tabstrip name="affiliate-edit">
+    <items>
+        <tabstrip-item text="@Loc["Admin.Affiliates.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        @if (!String.IsNullOrEmpty(Model.Id))
+        {
+            <tabstrip-item text="@Loc["Admin.Affiliates.Customers"]" tab-index="1">
+                <content>
+                    <div>
+                        <partial name="_CreateOrUpdate.TabCustomers" model="Model" />
+                    </div>
+                </content>
+            </tabstrip-item>
+            <tabstrip-item text="@Loc["Admin.Affiliates.Orders"]" tab-index="2">
+                <content>
+                    <div>
+                        @await Component.InvokeAsync("Affiliate", new { affiliateId = Model.Id })
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
+        <vc:admin-widget widget-zone="affiliate_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>

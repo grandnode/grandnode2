@@ -1,0 +1,61 @@
+﻿@using Microsoft.AspNetCore.Http.Extensions
+@inject Grand.Business.Storage.Interfaces.IPictureService pictureService
+@inject SeoSettings seoSettings
+@{
+    Layout = "_SingleColumn";
+}
+
+@section meta {
+    @if (seoSettings.OpenGraphMetaTags)
+    {
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="@seoSettings.DefaultTitle" />
+        <meta property="og:description" content="@Html.Encode(seoSettings.DefaultMetaDescription)" />
+        @if (!String.IsNullOrWhiteSpace(seoSettings.StorePictureId))
+        {
+            var picture = await pictureService.GetPictureUrl(seoSettings.StorePictureId);
+            <meta property="og:image" content="@picture" />
+        }
+        <meta property="og:url" content="@this.Url.ActionContext.HttpContext.Request.GetEncodedUrl()" />
+    }
+    @if (seoSettings.TwitterMetaTags)
+    {
+        <meta property="twitter:card" content="summary" />
+        <meta property="twitter:site" content="@seoSettings.DefaultTitle" />
+        <meta property="twitter:title" content="@seoSettings.DefaultTitle" />
+        <meta property="twitter:description" content="@Html.Encode(seoSettings.DefaultMetaDescription)" />
+        @if (!String.IsNullOrWhiteSpace(seoSettings.StorePictureId))
+        {
+            var picture = await pictureService.GetPictureUrl(seoSettings.StorePictureId);
+            <meta property="twitter:image" content="@picture" />
+        }
+
+        <meta property="twitter:url" content="@this.Url.ActionContext.HttpContext.Request.GetEncodedUrl()" />
+    }
+}
+
+<div class="page home-page custom-container d-flex flex-column mt-0">
+    @await Component.InvokeAsync("PushNotificationsRegistration")
+    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_top" })
+    @await Component.InvokeAsync("PageBlock", new { systemName = "HomePageText" })
+    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_categories" })
+    @await Component.InvokeAsync("HomePageCategories")
+    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_products" })
+    @await Component.InvokeAsync("PersonalizedProducts")
+    @await Component.InvokeAsync("RecommendedProducts")
+    @await Component.InvokeAsync("SuggestedProducts")
+    @await Component.InvokeAsync("HomePageProducts")
+    @await Component.InvokeAsync("HomePageNewProducts")
+    @await Component.InvokeAsync("CategoryFeaturedProducts")
+    @await Component.InvokeAsync("HomePageBrands")
+    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_best_sellers" })
+    @await Component.InvokeAsync("HomePageBestSellers")
+    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_collections" })
+    @await Component.InvokeAsync("HomePageCollections")
+    @await Component.InvokeAsync("CollectionFeaturedProducts")
+    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_news" })
+    @await Component.InvokeAsync("HomePageNews")
+    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_blog" })
+    @await Component.InvokeAsync("HomePageBlog")
+    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_bottom" })
+</div>

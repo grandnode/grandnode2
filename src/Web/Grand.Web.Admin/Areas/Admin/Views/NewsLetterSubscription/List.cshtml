@@ -1,0 +1,259 @@
+﻿@model NewsLetterSubscriptionListModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    ViewBag.Title = Loc["admin.marketing.newsLetterSubscriptions"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="NewsletterSubscription" asp-action="List" method="post">
+    
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit popup-window">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-envelope"></i>
+                        @Loc["admin.marketing.NewsLetterSubscriptions"]
+                    </div>
+                    <div class="actions btn-group btn-group-devided">
+                        <input type="submit" name="exportcsv" asp-action="ExportCsv" class="btn default" value="@Loc["Admin.Common.ExportToCsv"]" />
+                        <input type="submit" id="importcsv" name="importcsv" class="btn default" value="@Loc["Admin.Common.ImportFromCsv"]" />
+                        <vc:admin-widget widget-zone="newsletter_subscription_list_buttons" additional-data="null" />
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="main-header col-12 px-0">
+                                <div class="row align-items-end">
+                                    <div class="col-md-8 col-ms-12 col-12">
+                                        <div class="form-group mb-0">
+                                            <admin-label asp-for="SearchEmail" class="control-label" />
+                                            <admin-input asp-for="SearchEmail" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-12 col-12">
+                                        <div class="form-actions">
+                                            <div class="btn-group">
+                                                <button class="btn btn-success filter-submit" id="search-subscriptions">
+                                                    <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                                </button>
+                                                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                    <i class="fa fa-filter"></i>&nbsp; Filters
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse" id="filterCollapse">
+                            <div class="drop-filters-container w-100">
+                                <div class="form-group">
+                                    <admin-label asp-for="ActiveId" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-select asp-for="ActiveId" asp-items="Model.ActiveList" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="StoreId" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-select asp-for="StoreId" asp-items="Model.AvailableStores" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="SearchCategoryIds" class="col-sm-3 control-label" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="SearchCategoryIds" asp-template="MultiSelect" asp-selectitem="Model.AvailableCategories" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="x_content">
+                    <div id="newsletter-subscriptions-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        $(document).ready(function() {
+            $("#newsletter-subscriptions-grid").kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("SubscriptionList", "NewsLetterSubscription", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: additionalData
+                        },
+                        update: {
+                            url: "@Html.Raw(Url.Action("SubscriptionUpdate", "NewsLetterSubscription", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("SubscriptionDelete", "NewsLetterSubscription", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                            fields: {
+                                Email: { editable: true, type: "string" },
+                                Active: { editable: true, type: "boolean" },
+                                StoreName: { editable: false, type: "string" },
+                                CreatedOn: { editable: false, type: "string" },
+                                Categories: { editable: false, type: "string"}
+                            }
+                        }
+                    },
+                    requestEnd: function(e) {
+                        if (e.type == "update") {
+                            this.read();
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        this.cancelChanges();
+                    },
+                    pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                pageable: {
+                    refresh: true,
+                    pageSizes: [@(adminAreaSettings.GridPageSizes)]
+                },
+                editable: {
+                    confirmation: false,
+                    mode: "inline"
+                },
+                scrollable: false,
+                columns: [
+                    {
+                        field: "Email",
+                        title: "@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Email"]",
+                        width: 300
+                    }, {
+                        field: "Active",
+                        title: "@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Active"]",
+                        width: 100,
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        template: '# if(Active) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                    }, {
+                        field: "StoreName",
+                        title: "@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Store"]",
+                        width: 150
+                    }, {
+                        field: "Categories",
+                         title: "@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Categories"]",
+                         width: 300
+                    }, {
+                        field: "CreatedOn",
+                        title: "@Loc["admin.marketing.NewsLetterSubscriptions.Fields.CreatedOn"]",
+                        width: 150,
+                        type: "string"
+                    }, {
+                        command: [
+                            {
+                                name: "edit",
+                                text: {
+                                    edit: "@Loc["Admin.Common.Edit"]",
+                                    update: "@Loc["Admin.Common.Update"]",
+                                    cancel: "@Loc["Admin.Common.Cancel"]"
+                                }
+                            }, {
+                                name: "destroy",
+                                text: "@Loc["Admin.Common.Delete"]"
+                            }
+                        ],
+                        width: 200
+                    }
+                ]
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('#search-subscriptions').click(function() {
+                var grid = $('#newsletter-subscriptions-grid').data('kendoGrid');
+                grid.dataSource.page(1);
+                return false;
+            });
+
+            $("#@Html.IdFor(model => model.SearchEmail)").keydown(function(event) {
+                if (event.keyCode == 13) {
+                    $("#search-subscriptions").click();
+                    return false;
+                }
+            });
+        });
+
+        function additionalData() {
+            var categoryIds = [];
+            if($('#@Html.IdFor(model => model.SearchCategoryIds)').val()!=null){
+                categoryIds = $('#@Html.IdFor(model => model.SearchCategoryIds)').val();
+            }
+
+
+            var data = {
+                SearchCategoryIds: categoryIds,
+                ActiveId: $('#@Html.IdFor(model => model.ActiveId)').val(),
+                StoreId: $('#@Html.IdFor(model => model.StoreId)').val(),
+                SearchEmail: $('#@Html.IdFor(model => model.SearchEmail)').val()
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+    </script>
+</form>
+    <div id="importcsv-window" style="display:none;">
+        <form asp-area="@Constants.AreaAdmin" asp-controller="NewsLetterSubscription" asp-action="ImportCsv" method="post" enctype="multipart/form-data">
+            
+            <table style="text-align:left;">
+                <tr>
+                    <td>
+                        @Loc["Admin.Common.CsvFile"]:
+                    </td>
+                    <td>
+                        <input type="file" id="importcsvfile" name="importcsvfile" />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <input type="submit" class="k-button" value="@Loc["Admin.Common.ImportFromCsv"]" />
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <script>
+    $(document).ready(function () {
+        $("#importcsv").click(function (e) {
+            e.preventDefault();
+            var window = $("#importcsv-window");
+            if (!window.data("kendoWindow")) {
+                window.kendoWindow({
+                    modal: true,
+                    width: "400px",
+                    title: "@Loc["Admin.Common.ImportFromCsv"]",
+                    actions: ["Close"]
+                });
+            }
+            window.data('kendoWindow').center().open();
+        });
+    });
+    </script>

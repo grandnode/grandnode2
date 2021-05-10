@@ -1,0 +1,48 @@
+﻿@model CampaignModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+<vc:admin-widget widget-zone="campaign_details_top" additional-data="Model" />
+
+<admin-tabstrip name="campaign-edit">
+    <items>
+        <tabstrip-item text="@Loc["admin.marketing.Campaigns.Info"]" tab-index="0">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabInfo" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["admin.marketing.Campaigns.Conditions"]" tab-index="1">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabConditions" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["admin.marketing.Campaigns.Emails"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabEmails" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["admin.marketing.Campaigns.History"]" tab-index="3">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabHistory" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <tabstrip-item text="@Loc["admin.marketing.Campaigns.Test"]" tab-index="4">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabTest" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
+        <vc:admin-widget widget-zone="campaign_details_tabs" additional-data="Model" />
+    </items>
+</admin-tabstrip>
+
+<vc:admin-widget widget-zone="campaign_details_bottom" additional-data="Model" />

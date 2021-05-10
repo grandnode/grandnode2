@@ -1,0 +1,212 @@
+﻿@model ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel
+@inject AdminAreaSettings adminAreaSettings
+@{
+    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    //page title
+    ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"];
+}
+
+<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="AssociateProductToAttributeValuePopup"
+     asp-route-productIdInput="@Context.Request.Query["productIdInput"]"
+      asp-route-productNameInput="@Context.Request.Query["productNameInput"]" id="associateproduct">
+
+    
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit popup-window">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cubes"></i>
+                        @Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"]
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="main-header col-12 px-0">
+                                <div class="row align-items-end">
+                                    <div class="col-md-8 col-ms-12 col-12">
+                                        <div class="form-group mb-0">
+                                            <admin-label asp-for="SearchProductName" class="control-label" />
+                                            <admin-input asp-for="SearchProductName" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-12 col-12">
+                                        <div class="form-actions">
+                                            <div class="btn-group">
+                                                <button class="btn btn-success filter-submit" id="search-products">
+                                                    <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
+                                                </button>
+                                                <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                                                    <i class="fa fa-filter"></i>&nbsp; Filters
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="collapse" id="filterCollapse">
+                                <div class="drop-filters-container w-100">
+                                    <div class="form-group">
+                                        <admin-label asp-for="SearchCategoryId" class="col-sm-3 control-label" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-input asp-for="SearchCategoryId" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="SearchBrandId" class="col-sm-3 control-label" />
+                                        <div class="col-md-9  col-sm-9">
+                                            <admin-input asp-for="SearchBrandId" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="SearchCollectionId" class="col-sm-3 control-label" />
+                                        <div class="col-md-9  col-sm-9">
+                                            <admin-input asp-for="SearchCollectionId" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="SearchStoreId" class="col-sm-3 control-label" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-select asp-for="SearchStoreId" asp-items="Model.AvailableStores" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="SearchVendorId" class="col-sm-3 control-label" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-select asp-for="SearchVendorId" asp-items="Model.AvailableVendors" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="SearchProductTypeId" class="col-sm-3 control-label" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-select asp-for="SearchProductTypeId" asp-items="Model.AvailableProductTypes" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> 
+                            <div id="products-grid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (ViewBag.RefreshPage == true)
+    {
+    <script>
+            try {
+                //window.opener.document.getElementById('@(ViewBag.productIdInput)').value = '@(ViewBag.productId)';
+                //window.opener.document.getElementById('@(ViewBag.productNameInput)').innerHTML = '@(ViewBag.productName)';
+                window.opener.$('#@(Context.Request.Query["productIdInput"])').val('@(ViewBag.productId)');
+                window.opener.document.getElementById('@(Context.Request.Query["productNameInput"])').innerHTML = '@(ViewBag.productName)';
+            }
+            catch (e){}
+            window.close();
+    </script>
+    }
+
+    <input asp-for="AssociatedToProductId" type="hidden" />
+
+    <script>
+    $(document).ready(function () {
+        $("#products-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("AssociateProductToAttributeValuePopupList", "Product", new { area = Constants.AreaAdmin }))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        fields: {
+                            Name: { editable: false, type: "string" },
+                        }
+                    }
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(adminAreaSettings.DefaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(adminAreaSettings.GridPageSizes)]
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            columns: [{
+                field: "Name",
+                title: "@Loc["Admin.Common.Select"]",
+                width: 50,
+                template: '<input type="button" value="@Loc["Admin.Common.Select"]" onclick="selectAssociatedProduct(\'#=Id#\')" class="k-button" />'
+            },{
+                field: "Name",
+                title: "@Loc["Admin.Catalog.Products.Fields.Name"]"
+            }, {
+                field: "Published",
+                title: "@Loc["Admin.Catalog.Products.Fields.Published"]",
+                width: 100,
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+            }]
+        });
+    });
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+            $('#search-products').click(function () {
+                var grid = $('#products-grid').data('kendoGrid');
+                grid.dataSource.page(1); //new search. Set page size to 1
+                //grid.dataSource.read(); we already loaded the grid above using "page" function
+                return false;
+            });
+        });
+
+        $("#@Html.IdFor(model => model.SearchProductName)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-products").click();
+                return false;
+            }
+        });
+
+        function additionalData() {
+            var data = {
+                SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
+                SearchCategoryId: $('#SearchCategoryId').val(),
+                SearchBrandId: $('#SearchBrandId').val(),
+                SearchCollectionId: $('#SearchCollectionId').val(),
+                SearchStoreId: $('#SearchStoreId').val(),
+                SearchVendorId: $('#SearchVendorId').val(),
+                SearchProductTypeId: $('#SearchProductTypeId').val()
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+
+        function selectAssociatedProduct(productid) {
+            $("#@Html.IdFor(model => model.AssociatedToProductId)").val(productid);
+            $('#associateproduct').submit();
+        }
+    </script>
+</form>

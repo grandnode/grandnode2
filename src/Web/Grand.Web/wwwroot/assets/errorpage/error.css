@@ -1,0 +1,28 @@
+﻿.container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.error-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 15px;
+    padding: 15px 30px;
+    border: 2px solid #ddd;
+    border-radius: 15px;
+}
+.error-card h1 {
+    font-size: 28px;
+    text-align: center;
+}
+.error-card h2 {
+    font-size: 22px;
+    text-align: center;
+}
+.error-card blockquote {
+    margin: 0;
+}

@@ -1,0 +1,47 @@
+﻿@model string[]
+@{
+    var warnings = true;
+    if (ViewData["DisableIgnoreStoreWarnings"] != null)
+    {
+        warnings = !(bool)ViewData["DisableIgnoreStoreWarnings"];
+    }
+}
+@Html.ListBoxFor(model => model, new List<SelectListItem>())
+
+@if (CommonHelper.IgnoreStoreLimitations && warnings)
+{
+    <div class="note note-info">@Loc["Admin.System.Warnings.IgnoreStoreLimitations"]</div>
+}
+
+<script>
+    $(document).ready(function() {
+        var multiselect = $("#@Html.IdForModel()").kendoMultiSelect({
+            autobind: false,
+            filter: "startswith",
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("Stores", "Search", new { area = Constants.AreaAdmin, stores = Model }))"
+                    }
+                },
+                schema: {
+                    data: "Data"
+                },
+                serverFiltering: true
+            },
+            valuePrimitive: true,
+            dataTextField: "Name",
+            dataValueField: "Id",
+        });
+
+
+        @if(Model != null)
+        {
+            <text>
+                 var multiselect = $("#@Html.IdForModel()").data("kendoMultiSelect");
+                 var data = @Html.Raw(Json.Serialize(Model));
+                 multiselect.value(data);
+            </text>
+        }
+    });
+</script>
