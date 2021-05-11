@@ -299,7 +299,7 @@ namespace Grand.Web.Common.Infrastructure
                     builder.AddConnectSrc().From("*");
                     builder.AddFontSrc().From("*");
                     builder.AddFrameAncestors().From("*");
-                    builder.AddFrameSource().From("*");
+                    builder.AddFrameSrc().From("*");
                     builder.AddMediaSrc().From("*");
                     builder.AddImgSrc().From("*").Data();
                     builder.AddObjectSrc().From("*");
