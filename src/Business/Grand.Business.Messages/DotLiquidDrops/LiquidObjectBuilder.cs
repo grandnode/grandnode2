@@ -33,6 +33,13 @@ namespace Grand.Business.Messages.DotLiquidDrops
             _mediator = mediator;
         }
 
+        public LiquidObjectBuilder(IMediator mediator, LiquidObject liquidObject)
+        {
+            _object = liquidObject;
+            _chain = new List<Func<LiquidObject, Task>>();
+            _mediator = mediator;
+        }
+
         public LiquidObjectBuilder AddStoreTokens(Store store, Language language, EmailAccount emailAccount)
         {
             _chain.Add(async liquidObject =>
@@ -44,12 +51,11 @@ namespace Grand.Business.Messages.DotLiquidDrops
             return this;
         }
 
-        public  LiquidObjectBuilder AddOrderTokens(Order order, Customer customer, Store store, OrderNote orderNote = null, Vendor vendor = null, decimal refundedAmount = 0)
+        public LiquidObjectBuilder AddOrderTokens(Order order, Customer customer, Store store, OrderNote orderNote = null, Vendor vendor = null, decimal refundedAmount = 0)
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidOrder = await _mediator.Send(new GetOrderTokensCommand()
-                {
+                var liquidOrder = await _mediator.Send(new GetOrderTokensCommand() {
                     Order = order,
                     Customer = customer,
                     Vendor = vendor,
@@ -116,8 +122,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidShoppingCart = await _mediator.Send(new GetShoppingCartTokensCommand()
-                {
+                var liquidShoppingCart = await _mediator.Send(new GetShoppingCartTokensCommand() {
                     Customer = customer,
                     CustomerEmail = customerEmail,
                     Language = language,
@@ -175,7 +180,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             return this;
         }
 
-        public LiquidObjectBuilder AddBlogCommentTokens( BlogPost blogPost, BlogComment blogComment, Store store, Language language)
+        public LiquidObjectBuilder AddBlogCommentTokens(BlogPost blogPost, BlogComment blogComment, Store store, Language language)
         {
             _chain.Add(async liquidObject =>
             {
@@ -208,7 +213,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             return this;
         }
 
-        public LiquidObjectBuilder AddProductTokens( Product product, Language language, Store store)
+        public LiquidObjectBuilder AddProductTokens(Product product, Language language, Store store)
         {
             _chain.Add(async liquidObject =>
             {
@@ -231,7 +236,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             return this;
         }
 
-        public LiquidObjectBuilder AddOutOfStockTokens( Product product, OutOfStockSubscription subscription, Store store, Language language)
+        public LiquidObjectBuilder AddOutOfStockTokens(Product product, OutOfStockSubscription subscription, Store store, Language language)
         {
             _chain.Add(async liquidObject =>
             {
@@ -253,8 +258,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             return this;
         }
 
-
-        public async  Task<LiquidObject> BuildAsync()
+        public async Task<LiquidObject> BuildAsync()
         {
             foreach (var f in _chain)
             {

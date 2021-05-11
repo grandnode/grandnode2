@@ -322,13 +322,13 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddOrderTokens(liquidObject, order, customer, store, refundedAmount: refundedAmount);
-
+            var liquidBuilder = new LiquidObjectBuilder(_mediator);
+            liquidBuilder.AddStoreTokens(store, language, emailAccount)
+                         .AddOrderTokens(order, customer, store);
             if (customer != null)
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+                liquidBuilder.AddCustomerTokens(customer, store, language);
 
+            LiquidObject liquidObject = await liquidBuilder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -440,13 +440,14 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddOrderTokens(liquidObject, order, customer, store, refundedAmount: refundedAmount);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddOrderTokens(order, customer, store);
 
             if (customer != null)
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+                builder.AddCustomerTokens(customer, store, language);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -524,12 +525,14 @@ namespace Grand.Business.Messages.Services
 
             var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = order.CustomerId });
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddOrderTokens(liquidObject, order, customer, store, vendor: vendor);
-            if (customer != null)
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddOrderTokens(order, customer, store, vendor: vendor);
 
+            if (customer != null)
+                builder.AddCustomerTokens(customer, store, language);
+
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -590,14 +593,15 @@ namespace Grand.Business.Messages.Services
 
             var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = order.CustomerId });
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddShipmentTokens(liquidObject, shipment, order, store, language);
-            await _messageTokenProvider.AddOrderTokens(liquidObject, order, customer, store);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddShipmentTokens(shipment, order, store, language)
+                   .AddOrderTokens(order, customer, store);
 
             if (customer != null)
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+                builder.AddCustomerTokens(customer, store, language);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -635,12 +639,13 @@ namespace Grand.Business.Messages.Services
 
             var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = order.CustomerId });
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddOrderTokens(liquidObject, order, customer, store, orderNote);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddOrderTokens(order, customer, store, orderNote);
             if (customer != null)
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+                builder.AddCustomerTokens(customer, store, language);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -702,10 +707,11 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddNewsLetterSubscriptionTokens(liquidObject, subscription, store);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddNewsLetterSubscriptionTokens(subscription, store);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -748,11 +754,11 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
-            await _messageTokenProvider.AddProductTokens(liquidObject, product, language, store);
-            liquidObject.EmailAFriend = new LiquidEmailAFriend(personalMessage, customerEmail);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddCustomerTokens(customer, store, language)
+                   .AddProductTokens(product, language, store);
+            LiquidObject liquidObject = await builder.BuildAsync();
 
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -789,10 +795,13 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
-            await _messageTokenProvider.AddShoppingCartTokens(liquidObject, customer, store, language, personalMessage, customerEmail);
+
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                    .AddCustomerTokens(customer, store, language)
+                    .AddShoppingCartTokens(customer, store, language, personalMessage, customerEmail);
+
+            LiquidObject liquidObject = await builder.BuildAsync();
 
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -834,10 +843,11 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
-            await _messageTokenProvider.AddProductTokens(liquidObject, product, language, store);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                    .AddCustomerTokens(customer, store, language)
+                    .AddProductTokens(product, language, store);
+            LiquidObject liquidObject = await builder.BuildAsync();
             liquidObject.AskQuestion = new LiquidAskQuestion(message, customerEmail, fullName, phone);
 
             //event notification
@@ -910,12 +920,15 @@ namespace Grand.Business.Messages.Services
 
             var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = merchandiseReturn.CustomerId });
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            if (customer != null)
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount);
 
-            await _messageTokenProvider.AddMerchandiseReturnTokens(liquidObject, merchandiseReturn, store, order, language);
+            if (customer != null)
+                builder.AddCustomerTokens(customer, store, language);
+
+            builder.AddMerchandiseReturnTokens(merchandiseReturn, store, order, language);
+
+            LiquidObject liquidObject = await builder.BuildAsync();
 
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -963,13 +976,14 @@ namespace Grand.Business.Messages.Services
 
             var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = merchandiseReturn.CustomerId });
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
+
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount);
             if (customer != null)
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+                builder.AddCustomerTokens(customer, store, language);
 
-            await _messageTokenProvider.AddMerchandiseReturnTokens(liquidObject, merchandiseReturn, store, order, language);
-
+            builder.AddMerchandiseReturnTokens(merchandiseReturn, store, order, language);
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1008,13 +1022,13 @@ namespace Grand.Business.Messages.Services
 
             var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = merchandiseReturn.CustomerId });
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount);
             if (customer != null)
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+                builder.AddCustomerTokens(customer, store, language);
 
-            await _messageTokenProvider.AddMerchandiseReturnTokens(liquidObject, merchandiseReturn, store, order, language);
-
+            builder.AddMerchandiseReturnTokens(merchandiseReturn, store, order, language);
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1056,13 +1070,13 @@ namespace Grand.Business.Messages.Services
 
             var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = merchandiseReturn.CustomerId });
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount);
             if (customer != null)
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+                builder.AddCustomerTokens(customer, store, language);
 
-            await _messageTokenProvider.AddMerchandiseReturnTokens(liquidObject, merchandiseReturn, store, order, language, merchandiseReturnNote);
-
+            builder.AddMerchandiseReturnTokens(merchandiseReturn, store, order, language, merchandiseReturnNote);
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1106,11 +1120,11 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
-            await _messageTokenProvider.AddVendorTokens(liquidObject, vendor, language);
+            var builder = new LiquidObjectBuilder(_mediator).AddStoreTokens(store, language, emailAccount)
+                                                     .AddCustomerTokens(customer, store, language)
+                                                     .AddVendorTokens(vendor, language);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1142,10 +1156,10 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddVendorTokens(liquidObject, vendor, language);
-
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddVendorTokens(vendor, language);
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1183,10 +1197,10 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddGiftVoucherTokens(liquidObject, giftVoucher, language);
-
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                    .AddGiftVoucherTokens(giftVoucher, language);
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
             var toEmail = giftVoucher.RecipientEmail;
@@ -1221,12 +1235,14 @@ namespace Grand.Business.Messages.Services
 
             var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = productReview.CustomerId });
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddProductReviewTokens(liquidObject, product, productReview);
-            if (customer != null)
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddProductReviewTokens(product, productReview);
 
+            if (customer != null)
+                builder.AddCustomerTokens(customer, store, language);
+
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1264,14 +1280,15 @@ namespace Grand.Business.Messages.Services
             //vendor
             var vendor = await _mediator.Send(new GetVendorByIdQuery() { Id = vendorReview.VendorId });
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddVendorReviewTokens(liquidObject, vendor, vendorReview);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                    .AddVendorReviewTokens(vendor, vendorReview);
 
             if (customer != null)
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+                builder.AddCustomerTokens(customer, store, language);
 
-            await _messageTokenProvider.AddVendorTokens(liquidObject, vendor, language);
+            builder.AddVendorTokens(vendor, language);
+            LiquidObject liquidObject = await builder.BuildAsync();
 
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
@@ -1304,10 +1321,10 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddProductTokens(liquidObject, product, language, store);
-
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddProductTokens(product, language, store);
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1339,11 +1356,11 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddProductTokens(liquidObject, product, language, store);
-            await _messageTokenProvider.AddAttributeCombinationTokens(liquidObject, product, combination);
-
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                    .AddProductTokens(product, language, store)
+                    .AddAttributeCombinationTokens(product, combination);
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1377,10 +1394,11 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                    .AddCustomerTokens(customer, store, language);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
 
             var toEmail = emailAccount.Email;
             var toName = emailAccount.DisplayName;
@@ -1410,14 +1428,15 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddBlogCommentTokens(liquidObject, blogPost, blogComment, store, language);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddBlogCommentTokens(blogPost, blogComment, store, language);
 
             var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = blogComment.CustomerId });
             if (customer != null && await _groupService.IsRegistered(customer))
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+                builder.AddCustomerTokens(customer, store, language);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1449,14 +1468,14 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddArticleCommentTokens(liquidObject, article, articleComment, store, language);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddArticleCommentTokens(article, articleComment, store, language);
 
             var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = articleComment.CustomerId });
             if (customer != null && await _groupService.IsRegistered(customer))
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
-
+                builder.AddCustomerTokens(customer, store, language);
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1488,13 +1507,14 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddNewsCommentTokens(liquidObject, newsItem, newsComment, store, language);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddNewsCommentTokens(newsItem, newsComment, store, language);
             var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = newsComment.CustomerId });
             if (customer != null)
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+                builder.AddCustomerTokens(customer, store, language);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1528,13 +1548,13 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount);
             if (customer != null)
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+                builder.AddCustomerTokens(customer, store, language);
 
-            await _messageTokenProvider.AddOutOfStockTokens(liquidObject, product, subscription, store, language);
-
+            builder.AddOutOfStockTokens(product, subscription, store, language);
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1585,11 +1605,12 @@ namespace Grand.Business.Messages.Services
                 fromName = senderName;
             }
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
-            liquidObject.ContactUs = new LiquidContactUs(senderEmail, senderName, body, attrInfo);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddCustomerTokens(customer, store, language);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
+            liquidObject.ContactUs = new LiquidContactUs(senderEmail, senderName, body, attrInfo);
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1665,11 +1686,11 @@ namespace Grand.Business.Messages.Services
                 fromName = senderName;
             }
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddCustomerTokens(customer, store, language);
+            LiquidObject liquidObject = await builder.BuildAsync();
             liquidObject.ContactUs = new LiquidContactUs(senderEmail, senderName, body, "");
-
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1725,13 +1746,13 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount);
             //product
             var product = await _mediator.Send(new GetProductByIdQuery() { Id = cartItem.ProductId });
-            await _messageTokenProvider.AddProductTokens(liquidObject, product, language, store);
+            builder.AddProductTokens(product, language, store);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1769,11 +1790,12 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddOrderTokens(liquidObject, order, customer, store);
-            await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddOrderTokens(order, customer, store)
+                   .AddCustomerTokens(customer, store, language);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1824,12 +1846,13 @@ namespace Grand.Business.Messages.Services
 
                 var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-                LiquidObject liquidObject = new LiquidObject();
-                await _messageTokenProvider.AddAuctionTokens(liquidObject, product, bid);
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
-                await _messageTokenProvider.AddProductTokens(liquidObject, product, language, store);
-                await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
+                var builder = new LiquidObjectBuilder(_mediator);
+                builder.AddAuctionTokens(product, bid)
+                       .AddCustomerTokens(customer, store, language)
+                       .AddProductTokens(product, language, store)
+                       .AddStoreTokens(store, language, emailAccount);
 
+                LiquidObject liquidObject = await builder.BuildAsync();
                 //event notification
                 await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -1860,29 +1883,31 @@ namespace Grand.Business.Messages.Services
 
                 var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-                LiquidObject liquidObject = new LiquidObject();
-                await _messageTokenProvider.AddAuctionTokens(liquidObject, product, bid);
-                await _messageTokenProvider.AddProductTokens(liquidObject, product, language, store);
-                await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
+                var builder = new LiquidObjectBuilder(_mediator);
+                builder.AddAuctionTokens(product, bid)
+                       .AddProductTokens(product, language, store)
+                       .AddStoreTokens(store, language, emailAccount);
+                LiquidObject liquidObject = await builder.BuildAsync();
 
                 var bids = (await _mediator.Send(new GetBidsByProductIdQuery() { ProductId = bid.ProductId })).Where(x => x.CustomerId != bid.CustomerId).GroupBy(x => x.CustomerId);
                 foreach (var item in bids)
                 {
+                    var builder2 = new LiquidObjectBuilder(_mediator, liquidObject);
                     var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = item.Key });
                     if (string.IsNullOrEmpty(languageId))
                     {
                         languageId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId);
                     }
-
-                    await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+                    builder2.AddCustomerTokens(customer, store, language);
+                    LiquidObject liquidObject2 = await builder2.BuildAsync();
 
                     //event notification
-                    await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
+                    await _mediator.MessageTokensAdded(messageTemplate, liquidObject2);
 
                     var toEmail = customer.Email;
                     var toName = customer.GetFullName();
                     await SendNotification(messageTemplate, emailAccount,
-                        languageId, liquidObject,
+                        languageId, liquidObject2,
                         toEmail, toName);
                 }
             }
@@ -1903,13 +1928,15 @@ namespace Grand.Business.Messages.Services
             var language = await EnsureLanguageIsActive(languageId, store.Id);
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddProductTokens(liquidObject, product, language, store);
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddProductTokens(product, language, store)
+                   .AddStoreTokens(store, language, emailAccount);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
             var bids = (await _mediator.Send(new GetBidsByProductIdQuery() { ProductId = product.Id })).Where(x => x.CustomerId != customerId).GroupBy(x => x.CustomerId);
             foreach (var item in bids)
             {
+                var builder2 = new LiquidObjectBuilder(_mediator, liquidObject);
                 var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = item.Key });
                 if (customer != null)
                 {
@@ -1918,15 +1945,15 @@ namespace Grand.Business.Messages.Services
                         languageId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId);
                     }
 
-                    await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
-
+                    builder2.AddCustomerTokens(customer, store, language);
+                    LiquidObject liquidObject2 = await builder2.BuildAsync();
                     //event notification
-                    await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
+                    await _mediator.MessageTokensAdded(messageTemplate, liquidObject2);
 
                     var toEmail = customer.Email;
                     var toName = customer.GetFullName();
                     await SendNotification(messageTemplate, emailAccount,
-                        languageId, liquidObject,
+                        languageId, liquidObject2,
                         toEmail, toName);
                 }
             }
@@ -1938,7 +1965,7 @@ namespace Grand.Business.Messages.Services
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
-            LiquidObject liquidObject = new LiquidObject();
+            var builder = new LiquidObjectBuilder(_mediator);
             MessageTemplate messageTemplate = null;
             EmailAccount emailAccount = null;
 
@@ -1959,9 +1986,9 @@ namespace Grand.Business.Messages.Services
                     return 0;
 
                 emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
-                await _messageTokenProvider.AddAuctionTokens(liquidObject, product, bid);
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
-                await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
+                builder.AddAuctionTokens(product, bid)
+                        .AddCustomerTokens(customer, store, language)
+                        .AddStoreTokens(store, language, emailAccount);
             }
             else
             {
@@ -1972,9 +1999,9 @@ namespace Grand.Business.Messages.Services
                     return 0;
 
                 emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
-                await _messageTokenProvider.AddProductTokens(liquidObject, product, language, store);
+                builder.AddProductTokens(product, language, store);
             }
-
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -2015,11 +2042,12 @@ namespace Grand.Business.Messages.Services
 
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddAuctionTokens(liquidObject, product, bid);
-            await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddAuctionTokens(product, bid)
+                   .AddCustomerTokens(customer, store, language)
+                   .AddStoreTokens(store, language, emailAccount);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
@@ -2052,10 +2080,11 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddCustomerTokens(customer, store, language);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
