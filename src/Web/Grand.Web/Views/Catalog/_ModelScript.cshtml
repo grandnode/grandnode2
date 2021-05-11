@@ -9,9 +9,6 @@
         },
         methods: {
             loadProducts(url) {
-                if (url == undefined) {
-                    url = window.location.href;
-                }
                 var addurl = '';
                 var state = null;
 
@@ -20,16 +17,25 @@
                     state = { 'updated': 1 };
                 }
 
-                window.history.pushState(state, null, url + addurl);
-                catalog.getResponse(url);
+                const Url = new URL(url);
+                Url.searchParams.delete('updated');
+
+                if (addurl == '' && Url.searchParams.get('updated') == null) {
+                    addurl = '&updated=1';
+                }
+
+                window.history.pushState(state, null, Url + addurl);
+
+                catalog.getResponse(Url);
             },
             getResponse(url) {
                 axios({
-                    baseURL: url,
+                    url: url,
                     method: 'get',
                     data: null,
                     headers: {
-                        'Cache-Control': 'no-cache',
+                        'Cache-Control': 'no-cache, no-store',
+                        'Vary': 'Accept',
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
                         'X-Response-View': 'Json'
