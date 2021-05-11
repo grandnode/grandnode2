@@ -13879,7 +13879,7 @@
     <Value>Pending</Value>
   </Resource>
   <Resource Name="Enums.Grand.Domain.Shipping.ShippingStatus.PreparedToShipped">
-    <Value>Prepare to shipped</Value>
+    <Value>Prepared to ship</Value>
   </Resource>
   <Resource Name="Enums.Grand.Domain.Shipping.ShippingStatus.Shipped">
     <Value>Shipped</Value>
