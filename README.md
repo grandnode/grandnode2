@@ -13,9 +13,9 @@
     <br />
     <a href="https://demo.grandnode.com/?utm_source=github&utm_medium=link&utm_campaign=readme">View Demo</a>
     ·
-    <a href="https://github.com/grandnode/grandnode/issues">Report Bug</a>
+    <a href="https://github.com/grandnode/grandnode2/issues">Report Bug</a>
     ·
-    <a href="https://github.com/grandnode/grandnode/issues">Request Feature</a>
+    <a href="https://github.com/grandnode/grandnode2/issues">Request Feature</a>
     ·
     <a href="https://grandnode.com/boards/?utm_source=github&utm_medium=link&utm_campaign=readme">Visit forum</a>
     ·
@@ -169,7 +169,7 @@ Have you done something great with GrandNode? Let us know and get listed!
 
 ## Roadmap
 
-We have a clear vision in which direction we would like to develop GrandNode. Ready roadmaps with milestones for future versions of GrandNode can be found in the [projects tab](https://github.com/grandnode/grandnode/projects).
+We have a clear vision in which direction we would like to develop GrandNode. Ready roadmaps with milestones for future versions of GrandNode can be found in the [projects tab](https://github.com/grandnode/grandnode2/projects).
 
 
 ## Contributing
