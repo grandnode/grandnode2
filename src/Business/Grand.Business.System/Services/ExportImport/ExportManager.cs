@@ -400,7 +400,7 @@ namespace Grand.Business.System.Services.ExportImport
                 sb.Append(separator);
                 sb.Append(subscription.Active);
                 sb.Append(separator);
-                sb.Append(subscription.CreatedOnUtc.ToString("dd/MM/yyyy HH:mm:ss"));
+                sb.Append(subscription.CreatedOnUtc.ToString("dd.MM.yyyy HH:mm:ss"));
                 sb.Append(separator);
                 sb.Append(subscription.StoreId);
                 sb.Append(separator);
