@@ -1,0 +1,41 @@
+name: ASP.NET Core CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.202
+    - name: Restore
+      run: dotnet restore ./GrandNode.sln
+    - name: Build with dotnet
+      run: dotnet build ./GrandNode.sln --configuration Release
+    - name: Start Docker for Mongodb
+      run: docker run -d -p 27017:27017 mongo
+    - name: Grand.Business.Authentication Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Authentication.Tests/Grand.Business.Authentication.Tests.csproj
+    - name: Grand.Business.Catalog Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Catalog.Tests/Grand.Business.Catalog.Tests.csproj
+    - name: Grand.Business.Checkout Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Checkout.Tests/Grand.Business.Checkout.Tests.csproj
+    - name: Grand.Business.Cms Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Cms.Tests/Grand.Business.Cms.Tests.csproj
+    - name: Grand.Business.Common Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Common.Tests/Grand.Business.Common.Tests.csproj
+    - name: Grand.Business.Customers Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Customers.Tests/Grand.Business.Customers.Tests.csproj
+    - name: Grand.Business.Marketing Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Marketing.Tests/Grand.Business.Marketing.Tests.csproj
+    - name: Grand.Business.Messages Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Messages.Tests/Grand.Business.Messages.Tests.csproj
+    - name: Grand.Business.Storage Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Storage.Tests/Grand.Business.Storage.Tests.csproj
+    - name: Grand.Business.System Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.System.Tests/Grand.Business.System.Tests.csproj
