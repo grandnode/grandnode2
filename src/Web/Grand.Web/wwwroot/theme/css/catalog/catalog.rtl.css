@@ -181,6 +181,6 @@
 [dark-theme="true"] .block-recently-viewed-products .card .card-body h5 a {
     color: #fff;
 }
-[dark-theme="true"] .block-recently-viewed-products .card .card-body h5 a:hover {
-    color: #1FB0C7;
-}
+    [dark-theme="true"] .block-recently-viewed-products .card .card-body h5 a:hover, [dark-theme="true"] .generalLeftSide li.active.last > a, [dark-theme="true"] .generalLeftSide .block-category-navigation li.active .sublist > li.last > a {
+        color: #1FB0C7;
+    }

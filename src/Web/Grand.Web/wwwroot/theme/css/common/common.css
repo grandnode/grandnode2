@@ -1301,6 +1301,9 @@ footer .list-group-item span:last-child {
     -webkit-box-shadow: none;
     background-color: #555;
 }
+[dark-theme="true"] .border-bottom {
+    border-bottom: 1px solid #555 !important;
+}
 
 @media (max-width: 991px) {
     [dark-theme="true"] .header-nav .top-header-items.navbar-nav {
