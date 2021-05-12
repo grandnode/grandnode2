@@ -102,11 +102,12 @@ namespace Grand.Business.Marketing.Services.Customers
             if (language == null)
                 language = languages.FirstOrDefault();
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
-            await _messageTokenProvider.AddShoppingCartTokens(liquidObject, customer, store, language);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddCustomerTokens(customer, store, language)
+                   .AddShoppingCartTokens(customer, store, language);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
             var body = LiquidExtensions.Render(liquidObject, reminderLevel.Body);
             var subject = LiquidExtensions.Render(liquidObject, reminderLevel.Subject);
 
@@ -171,12 +172,13 @@ namespace Grand.Business.Marketing.Services.Customers
                 language = (await _languageService.GetAllLanguages()).FirstOrDefault();
             }
 
-            var liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
-            await _messageTokenProvider.AddShoppingCartTokens(liquidObject, customer, store, language);
-            await _messageTokenProvider.AddOrderTokens(liquidObject, order, customer, await _storeService.GetStoreById(order.StoreId));
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddCustomerTokens(customer, store, language)
+                   .AddShoppingCartTokens(customer, store, language)
+                   .AddOrderTokens(order, customer, await _storeService.GetStoreById(order.StoreId));
 
+            var liquidObject = await builder.BuildAsync();
             var body = LiquidExtensions.Render(liquidObject, reminderLevel.Body);
             var subject = LiquidExtensions.Render(liquidObject, reminderLevel.Subject);
 

@@ -322,19 +322,20 @@ namespace Grand.Business.Marketing.Services.Campaigns
                 if (customer != null && (!customer.Active || customer.Deleted))
                     continue;
 
-                var liquidObject = new LiquidObject();
+                var builder = new LiquidObjectBuilder(_mediator);
                 var store = await _storeService.GetStoreById(campaign.StoreId);
                 if (store == null)
                     store = (await _storeService.GetAllStores()).FirstOrDefault();
 
-                await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-                await _messageTokenProvider.AddNewsLetterSubscriptionTokens(liquidObject, subscription, store);
+                builder.AddStoreTokens(store, language, emailAccount)
+                       .AddNewsLetterSubscriptionTokens(subscription, store);
                 if (customer != null)
                 {
-                    await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
-                    await _messageTokenProvider.AddShoppingCartTokens(liquidObject, customer, store, language);
+                    builder.AddCustomerTokens(customer, store, language)
+                           .AddShoppingCartTokens(customer, store, language);
                 }
 
+                var liquidObject = await builder.BuildAsync();
                 var body = LiquidExtensions.Render(liquidObject, campaign.Body);
                 var subject = LiquidExtensions.Render(liquidObject, campaign.Subject);
 
@@ -385,15 +386,16 @@ namespace Grand.Business.Marketing.Services.Campaigns
             if (store == null)
                 store = (await _storeService.GetAllStores()).FirstOrDefault();
 
-            var liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount);
             var customer = await _customerService.GetCustomerByEmail(email);
             if (customer != null)
             {
-                await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language);
-                await _messageTokenProvider.AddShoppingCartTokens(liquidObject, customer, store, language);
+                builder.AddCustomerTokens(customer, store, language)
+                       .AddShoppingCartTokens(customer, store, language);
             }
 
+            var liquidObject = await builder.BuildAsync();
             var body = LiquidExtensions.Render(liquidObject, campaign.Body);
             var subject = LiquidExtensions.Render(liquidObject, campaign.Subject);
 
