@@ -762,7 +762,6 @@ var a, l;
                                 BIconPersonPlus: iu,
                                 BIconHandbag: TM,
                                 BIconLock: Dp,
-                                BIconShieldLock: Pm,
                                 BIconCartX: lo,
                                 BIconCart2: Xv,
                                 BIconLayoutSidebarInset: ip,

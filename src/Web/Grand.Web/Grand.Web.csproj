@@ -27,12 +27,15 @@
     <ProjectReference Include="..\..\Business\Grand.Business.Messages\Grand.Business.Messages.csproj" />
     <ProjectReference Include="..\..\Business\Grand.Business.Storage\Grand.Business.Storage.csproj" />
     <ProjectReference Include="..\..\Business\Grand.Business.System\Grand.Business.System.csproj" />
-    
+
     <ProjectReference Include="..\Grand.Web.Common\Grand.Web.Common.csproj" />
     <ProjectReference Include="..\Grand.Web.Admin\Grand.Web.Admin.csproj" />
     
-  <ProjectReference Include="..\..\API\Grand.Api\Grand.Api.csproj" />
-  </ItemGroup>    
+    <ProjectReference Include="..\..\API\Grand.Api\Grand.Api.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\**" CopyToPublishDirectory="PreserveNewest" Exclude="App_Data\appsettings.json;App_Data\DataProtectionKeys\*.xml;" />   
     <Content Include="Themes\**" CopyToPublishDirectory="PreserveNewest" Exclude="Themes\**\*.cfg;Themes\**\*.cshtml" />

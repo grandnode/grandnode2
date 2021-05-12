@@ -1,0 +1,32 @@
+﻿[
+  {
+    "outputFileName": "wwwroot/bundles/site.min.css",
+    "inputFiles": [
+      "wwwroot/theme/bootstrap-vue/bootstrap.min.css",
+      "wwwroot/theme/bootstrap-vue/bootstrap-vue.min.css",
+      "wwwroot/theme/css/animate.min.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/bundles/site.min.js",
+    "inputFiles": [
+      "wwwroot/theme/lib/vue.min.js",
+      "wwwroot/theme/lib/portal-vue.umd.min.js",
+      "wwwroot/theme/lib/bootstrap-vue.min.js",
+      "wwwroot/theme/lib/bootstrap-vue-icons-slim.min.js",
+      "wwwroot/theme/lib/axios.min.js",
+      "wwwroot/theme/lib/vue-awesome-countdown.umd.min.js",
+      "wwwroot/theme/lib/vee-validate.minimal.min.js"
+    ],
+    "minify": {
+      "enabled": false,
+      "renameLocals": false
+    },
+    "sourceMap": false
+  }
+]
