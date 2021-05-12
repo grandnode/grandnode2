@@ -39,11 +39,9 @@ namespace Grand.Web.ViewComponents
                 foreach (var widget in widgets)
                 {
                     var viewComponentName = await widget.GetPublicViewComponentName(widgetZone);
-                    var widgetModel = new WidgetModel
-                    {
+                    var widgetModel = new WidgetModel {
                         ViewComponentName = viewComponentName,
-                        WidgetZone = widgetZone,
-                        AdditionalData = additionalData
+                        WidgetZone = widgetZone
                     };
 
                     model.Add(widgetModel);
@@ -53,6 +51,12 @@ namespace Grand.Web.ViewComponents
 
             if (!cachedModel.Any())
                 return Content("");
+
+            if (additionalData != null)
+                foreach (var item in cachedModel)
+                {
+                    item.AdditionalData = additionalData;
+                }
 
             return View(cachedModel);
         }

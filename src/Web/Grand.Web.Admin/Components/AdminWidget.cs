@@ -38,11 +38,9 @@ namespace Grand.Web.Admin.Components
             foreach (var item in widgets)
             {
                 var viewComponentName = await item.GetPublicViewComponentName(widgetZone);
-                var widgetModel = new AdminWidgetModel
-                {
+                var widgetModel = new AdminWidgetModel {
                     WidgetZone = widgetZone,
                     ViewComponentName = viewComponentName,
-                    AdditionalData = additionalData
                 };
                 model.Add(widgetModel);
             }
@@ -50,6 +48,11 @@ namespace Grand.Web.Admin.Components
             if (!model.Any())
                 return Content("");
 
+            if (additionalData != null)
+                foreach (var item in model)
+                {
+                    item.AdditionalData = additionalData;
+                }
             return View(model);
         }
 
