@@ -160,10 +160,11 @@ namespace Grand.Business.Messages.Services
             //email account
             var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-            LiquidObject liquidObject = new LiquidObject();
-            await _messageTokenProvider.AddStoreTokens(liquidObject, store, language, emailAccount);
-            await _messageTokenProvider.AddCustomerTokens(liquidObject, customer, store, language, customerNote);
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddStoreTokens(store, language, emailAccount)
+                   .AddCustomerTokens(customer, store, language, customerNote);
 
+            LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
             await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
