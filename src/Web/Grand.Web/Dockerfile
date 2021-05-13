@@ -42,26 +42,26 @@ COPY ["src/Plugins/Widgets.FacebookPixel/Widgets.FacebookPixel.csproj", "src/Plu
 COPY ["src/Plugins/Widgets.GoogleAnalytics/Widgets.GoogleAnalytics.csproj", "src/Plugins/Widgets.GoogleAnalytics/"]
 COPY ["src/Plugins/Widgets.Slider/Widgets.Slider.csproj", "src/Plugins/Widgets.Slider/"]
 
+RUN dotnet build "src/src/Plugins/Authentication.Facebook/Authentication.Facebook.csproj"
+RUN dotnet build "src/src/Plugins/Authentication.Google/Authentication.Google.csproj"
+RUN dotnet build "src/src/Plugins/DiscountRules.Standard/DiscountRules.Standard.csproj""
+RUN dotnet build "src/src/Plugins/ExchangeRate.McExchange/ExchangeRate.McExchange.csproj"
+RUN dotnet build "src/src/Plugins/Payments.BrainTree/Payments.BrainTree.csproj"
+RUN dotnet build "src/src/Plugins/Payments.CashOnDelivery/Payments.CashOnDelivery.csproj"
+RUN dotnet build "src/src/Plugins/Payments.PayPalStandard/Payments.PayPalStandard.csproj"
+RUN dotnet build "src/src/Plugins/Shipping.ByWeight/Shipping.ByWeight.csproj"
+RUN dotnet build "src/src/Plugins/Shipping.FixedRateShipping/Shipping.FixedRateShipping.csproj"
+RUN dotnet build "src/src/Plugins/Shipping.ShippingPoint/Shipping.ShippingPoint.csproj"
+RUN dotnet build "src/src/Plugins/Tax.CountryStateZip/Tax.CountryStateZip.csproj"
+RUN dotnet build "src/src/Plugins/Tax.FixedRate/Tax.FixedRate.csproj"
+RUN dotnet build "src/src/Plugins/Widgets.FacebookPixel/Widgets.FacebookPixel.csproj"
+RUN dotnet build "src/src/Plugins/Widgets.GoogleAnalytics/Widgets.GoogleAnalytics.csproj"
+RUN dotnet build "src/src/Plugins/Widgets.Slider/Widgets.Slider.csproj"
+
 RUN dotnet restore "src/Web/Grand.Web/Grand.Web.csproj"
 COPY . .
 WORKDIR "/src/src/Web/Grand.Web"
 RUN dotnet build "Grand.Web.csproj" -c Release -o /app/build
-
-RUN dotnet build "src/Plugins/Authentication.Facebook/"
-RUN dotnet build "src/Plugins/Authentication.Google/"
-RUN dotnet build "src/Plugins/DiscountRules.Standard/"
-RUN dotnet build "src/Plugins/ExchangeRate.McExchange/"
-RUN dotnet build "src/Plugins/Payments.BrainTree/"
-RUN dotnet build "src/Plugins/Payments.CashOnDelivery/"
-RUN dotnet build "src/Plugins/Payments.PayPalStandard/"
-RUN dotnet build "src/Plugins/Shipping.ByWeight/"
-RUN dotnet build "src/Plugins/Shipping.FixedRateShipping/"
-RUN dotnet build "src/Plugins/Shipping.ShippingPoint/"
-RUN dotnet build "src/Plugins/Tax.CountryStateZip/"
-RUN dotnet build "src/Plugins/Tax.FixedRate/"
-RUN dotnet build "src/Plugins/Widgets.FacebookPixel/"
-RUN dotnet build "src/Plugins/Widgets.GoogleAnalytics/"
-RUN dotnet build "src/Plugins/Widgets.Slider/"
 
 FROM build AS publish
 RUN dotnet publish "Grand.Web.csproj" -c Release -o /app/publish
