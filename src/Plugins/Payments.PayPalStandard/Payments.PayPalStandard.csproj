@@ -25,16 +25,6 @@
   </Target>
   
   <ItemGroup>
-    <Content Include="Views\PaymentPayPalStandard\_ViewImports.cshtml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Components\PaymentPayPalStandardViewComponent.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\Business\Grand.Business.Authentication\Grand.Business.Authentication.csproj">
       <Private>false</Private>
     </ProjectReference>
@@ -88,6 +78,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Views\PaymentPayPalStandard\PaymentInfo.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Views\PaymentPayPalStandard\_ViewImports.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
