@@ -44,7 +44,7 @@
                     </ul>
                 </div>
             }
-            <form asp-route="Wishlist" method="post">
+            <form asp-controller="Wishlist" asp-action="Index" method="post">
                 @if (!Model.IsEditable && Model.Items.Any())
                 {
                     <input type="hidden" asp-for="@Model.CustomerGuid" />

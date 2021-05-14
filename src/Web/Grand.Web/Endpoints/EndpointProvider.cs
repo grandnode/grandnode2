@@ -599,6 +599,15 @@ namespace Grand.Web.Endpoints
             endpointRouteBuilder.MapControllerRoute("EmailWishlist",
                             pattern + "emailwishlist",
                             new { controller = "Wishlist", action = "EmailWishlist" });
+
+            //email wishlist
+            endpointRouteBuilder.MapControllerRoute("UpdateWishlist",
+                            pattern + "updatewishlist",
+                            new { controller = "Wishlist", action = "UpdateWishlist" });
+            //email wishlist
+            endpointRouteBuilder.MapControllerRoute("AddItemsToCartFromWishlist",
+                            pattern + "additemstocartwishlist",
+                            new { controller = "Wishlist", action = "AddItemsToCartFromWishlist" });
         }
 
         private void RegisterOrderRoute(IEndpointRouteBuilder endpointRouteBuilder, string pattern)
