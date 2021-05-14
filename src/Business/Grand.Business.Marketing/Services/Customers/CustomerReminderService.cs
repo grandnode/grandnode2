@@ -102,36 +102,38 @@ namespace Grand.Business.Marketing.Services.Customers
             if (language == null)
                 language = languages.FirstOrDefault();
 
+            var email = new QueuedEmail();
+
             var builder = new LiquidObjectBuilder(_mediator);
             builder.AddStoreTokens(store, language, emailAccount)
                    .AddCustomerTokens(customer, store, language)
                    .AddShoppingCartTokens(customer, store, language);
 
             LiquidObject liquidObject = await builder.BuildAsync();
+            liquidObject.Email = new LiquidEmail(email.Id);
+
             var body = LiquidExtensions.Render(liquidObject, reminderLevel.Body);
             var subject = LiquidExtensions.Render(liquidObject, reminderLevel.Subject);
 
             //limit name length
             var toName = CommonHelper.EnsureMaximumLength(customer.GetFullName(), 300);
-            var email = new QueuedEmail
-            {
-                PriorityId = QueuedEmailPriority.High,
-                From = emailAccount.Email,
-                FromName = emailAccount.DisplayName,
-                To = customer.Email,
-                ToName = toName,
-                ReplyTo = string.Empty,
-                ReplyToName = string.Empty,
-                CC = string.Empty,
-                Bcc = bcc,
-                Subject = subject,
-                Body = body,
-                AttachmentFilePath = "",
-                AttachmentFileName = "",
-                AttachedDownloads = null,
-                CreatedOnUtc = DateTime.UtcNow,
-                EmailAccountId = emailAccount.Id,
-            };
+
+            email.PriorityId = QueuedEmailPriority.High;
+            email.From = emailAccount.Email;
+            email.FromName = emailAccount.DisplayName;
+            email.To = customer.Email;
+            email.ToName = toName;
+            email.ReplyTo = string.Empty;
+            email.ReplyToName = string.Empty;
+            email.CC = string.Empty;
+            email.Bcc = bcc;
+            email.Subject = subject;
+            email.Body = body;
+            email.AttachmentFilePath = "";
+            email.AttachmentFileName = "";
+            email.AttachedDownloads = null;
+            email.CreatedOnUtc = DateTime.UtcNow;
+            email.EmailAccountId = emailAccount.Id;
 
             await _queuedEmailService.InsertQueuedEmail(email);
             //activity log
