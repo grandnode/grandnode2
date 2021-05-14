@@ -46,7 +46,7 @@
                                 <div class="d-inline-flex flex-wrap w-100">
                                     <template v-for="spec in group">
                            
-                                        <b-link class="d-flex align-items-center mr-2 mb-2 pb-0" @@click="catalog.loadProducts(spec.FilterUrl)">{{spec.SpecificationAttributeOptionName}}<b-icon class="ml-2 text-danger" icon="x-circle-fill"></b-icon></b-link>
+                                        <b-link class="d-flex align-items-center mr-2 mb-2 pb-0" @@click="catalog.loadProducts(spec.FilterUrl, true)">{{spec.SpecificationAttributeOptionName}}<b-icon class="ml-2 text-danger" icon="x-circle-fill"></b-icon></b-link>
                             
                                     </template>
                                 </div>
@@ -54,7 +54,7 @@
                         </template>
                     </ul>
                     <div class="remove-filter">
-                        <b-button size="sm" variant="danger" @@click="catalog.loadProducts(catalog.Model.PagingFilteringContext.SpecificationFilter.RemoveFilterUrl)">
+                        <b-button size="sm" variant="danger" @@click="catalog.loadProducts(catalog.Model.PagingFilteringContext.SpecificationFilter.RemoveFilterUrl, true)">
                             @Loc["Filtering.SpecificationFilter.Remove"]
                         </b-button>
                     </div>

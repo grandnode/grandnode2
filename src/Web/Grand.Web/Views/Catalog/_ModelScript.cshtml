@@ -8,7 +8,7 @@
             }
         },
         methods: {
-            loadProducts(url) {
+            loadProducts(url, remove) {
                 var addurl = '';
                 var state = null;
 
@@ -22,6 +22,10 @@
 
                 if (addurl == '' && Url.searchParams.get('updated') == null) {
                     addurl = '&updated=1';
+                }
+
+                if (remove == true) {
+                    addurl = '?updated=1';
                 }
 
                 window.history.pushState(state, null, Url + addurl);
