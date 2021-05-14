@@ -16455,6 +16455,9 @@
   <Resource Name="Wishlist.EmailAFriend.FriendEmail">
     <Value>Friend's email</Value>
   </Resource>
+  <Resource Name="Wishlist.EmailAFriend.FriendEmail.Hint">
+    <Value>Friend's email</Value>
+  </Resource>  
   <Resource Name="Wishlist.EmailAFriend.FriendEmail.Required">
     <Value>Enter friend's email</Value>
   </Resource>
@@ -16464,6 +16467,9 @@
   <Resource Name="Wishlist.EmailAFriend.PersonalMessage">
     <Value>Personal message</Value>
   </Resource>
+  <Resource Name="Wishlist.EmailAFriend.PersonalMessage.Hint">
+    <Value>Personal message</Value>
+  </Resource>
   <Resource Name="Wishlist.EmailAFriend.SuccessfullySent">
     <Value>Your message has been sent.</Value>
   </Resource>
@@ -16471,6 +16477,9 @@
     <Value>Email your wishlist to a friend</Value>
   </Resource>
   <Resource Name="Wishlist.EmailAFriend.YourEmailAddress">
+    <Value>Your email address</Value>
+  </Resource>
+  <Resource Name="Wishlist.EmailAFriend.YourEmailAddress.Hint">
     <Value>Your email address</Value>
   </Resource>
   <Resource Name="Wishlist.EmailAFriend.YourEmailAddress.Required">
