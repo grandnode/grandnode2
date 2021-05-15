@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Grand.Web.Components
 {
@@ -54,17 +55,29 @@ namespace Grand.Web.Components
             if (!_catalogSettings.ShowBestsellersOnHomepage || _catalogSettings.NumberOfBestsellersOnHomepage == 0)
                 return Content("");
 
-            //load and cache report
-            var fromdate = DateTime.UtcNow.AddMonths(_catalogSettings.PeriodBestsellers > 0 ? -_catalogSettings.PeriodBestsellers : -12);
-            var report = await _cacheBase.GetAsync(string.Format(CacheKeyConst.HOMEPAGE_BESTSELLERS_IDS_KEY, _workContext.CurrentStore.Id), async () =>
-                                await _orderReportService.BestSellersReport(
-                                    createdFromUtc: fromdate,
-                                    ps: Domain.Payments.PaymentStatus.Paid,
-                                    storeId: _workContext.CurrentStore.Id,
-                                    pageSize: _catalogSettings.NumberOfBestsellersOnHomepage));
+            var productIds = new List<string>();
 
+            //load and cache report
+            if (_catalogSettings.BestsellersFromReports)
+            {
+                var fromdate = DateTime.UtcNow.AddMonths(_catalogSettings.PeriodBestsellers > 0 ? -_catalogSettings.PeriodBestsellers : -12);
+                var report = await _cacheBase.GetAsync(string.Format(CacheKeyConst.HOMEPAGE_BESTSELLERS_IDS_KEY, _workContext.CurrentStore.Id), async () =>
+                                    await _orderReportService.BestSellersReport(
+                                        createdFromUtc: fromdate,
+                                        ps: Domain.Payments.PaymentStatus.Paid,
+                                        storeId: _workContext.CurrentStore.Id,
+                                        pageSize: _catalogSettings.NumberOfBestsellersOnHomepage));
+
+                productIds = report.Select(x => x.ProductId).ToList();
+            }
+            else
+            {
+                productIds = await _cacheBase.GetAsync(CacheKeyConst.BESTSELLER_PRODUCTS_MODEL_KEY,
+                    async () => (await _productService.GetAllProductsDisplayedOnBestSeller()).ToList());
+
+            }
             //load products
-            var products = await _productService.GetProductsByIds(report.Select(x => x.ProductId).ToArray());
+            var products = await _productService.GetProductsByIds(productIds.ToArray());
 
             if (!products.Any())
                 return Content("");

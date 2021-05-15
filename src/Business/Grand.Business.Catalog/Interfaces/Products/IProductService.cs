@@ -21,6 +21,12 @@ namespace Grand.Business.Catalog.Interfaces.Products
         Task<IList<string>> GetAllProductsDisplayedOnHomePage();
 
         /// <summary>
+        /// Gets all products displayed on the best seller
+        /// </summary>
+        /// <returns>Products</returns>
+        Task<IList<string>> GetAllProductsDisplayedOnBestSeller();
+
+        /// <summary>
         /// Gets product
         /// </summary>
         /// <param name="productId">Product identifier</param>

@@ -162,6 +162,7 @@ namespace Grand.Business.System.Services.ExportImport
                 new PropertyByName<Product>("VendorId", p => p.VendorId),
                 new PropertyByName<Product>("ProductLayoutId", p => p.ProductLayoutId),
                 new PropertyByName<Product>("ShowOnHomePage", p => p.ShowOnHomePage),
+                new PropertyByName<Product>("BestSeller", p => p.BestSeller),
                 new PropertyByName<Product>("MetaKeywords", p => p.MetaKeywords),
                 new PropertyByName<Product>("MetaDescription", p => p.MetaDescription),
                 new PropertyByName<Product>("MetaTitle", p => p.MetaTitle),

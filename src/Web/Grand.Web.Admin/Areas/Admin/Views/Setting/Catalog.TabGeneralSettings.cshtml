@@ -473,6 +473,18 @@
                     <span asp-validation-for="NumberOfBestsellersOnHomepage"></span>
                 </div>
             </div>
+            <div class="form-group" id="pnlNumberOfBestsellersOnHomepage">
+                <div class="col-6 col-md-6 col-sm-6">
+                    <admin-label asp-for="BestsellersFromReports" class="control-label" />
+                </div>
+                <div class="col-6 col-md-6 col-sm-6">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="BestsellersFromReports" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="BestsellersFromReports"></span>
+                </div>
+            </div>
             <div class="form-group">
                 <div class="col-6 col-md-6 col-sm-6">
                     <admin-label asp-for="ProductsAlsoPurchasedEnabled" class="control-label" />

@@ -255,6 +255,13 @@ namespace Grand.Web.Events.Cache
         public const string HOMEPAGE_PRODUCTS_MODEL_KEY = "Grand.product.homepage";
 
         /// <summary>
+        /// Key for Show best seller product model caching
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        public const string BESTSELLER_PRODUCTS_MODEL_KEY = "Grand.product.homepage.bestseller";
+
+        /// <summary>
         /// Key for "also purchased" product identifiers displayed on the product details page
         /// </summary>
         /// <remarks>

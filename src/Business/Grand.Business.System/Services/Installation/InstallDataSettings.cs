@@ -221,6 +221,7 @@ namespace Grand.Business.System.Services.Installation
                 ShowProductImagesInSearchAutoComplete = true,
                 ShowBestsellersOnHomepage = false,
                 NumberOfBestsellersOnHomepage = 4,
+                BestsellersFromReports = false,
                 PeriodBestsellers = 6,
                 NumberOfReview = 10,
                 SearchPageProductsPerPage = 6,

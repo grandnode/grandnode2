@@ -83,6 +83,25 @@ namespace Grand.Business.Catalog.Services.Products
         }
 
         /// <summary>
+        /// Gets all products displayed on the best seller
+        /// </summary>
+        /// <returns>Products</returns>
+        public virtual async Task<IList<string>> GetAllProductsDisplayedOnBestSeller()
+        {
+            var builder = Builders<Product>.Filter;
+            var filter = builder.Eq(x => x.Published, true);
+            filter &= builder.Eq(x => x.BestSeller, true);
+            filter &= builder.Eq(x => x.VisibleIndividually, true);
+            var query = _productRepository.Collection.Find(filter).
+                        SortBy(x => x.DisplayOrder).ThenBy(x => x.Name).
+                        Project(x => x.Id);
+
+            var products = await query.ToListAsync();
+
+            return products;
+        }
+
+        /// <summary>
         /// Gets product
         /// </summary>
         /// <param name="productId">Product identifier</param>
@@ -278,6 +297,7 @@ namespace Grand.Business.Catalog.Services.Products
                 .Set(x => x.ShipSeparately, product.ShipSeparately)
                 .Set(x => x.ShortDescription, product.ShortDescription)
                 .Set(x => x.ShowOnHomePage, product.ShowOnHomePage)
+                .Set(x => x.BestSeller, product.BestSeller)
                 .Set(x => x.Sku, product.Sku)
                 .Set(x => x.StartPrice, product.StartPrice)
                 .Set(x => x.StockQuantity, product.StockQuantity)

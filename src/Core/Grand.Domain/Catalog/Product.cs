@@ -94,6 +94,11 @@ namespace Grand.Domain.Catalog
         public bool ShowOnHomePage { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to show the product on the bestseller section
+        /// </summary>
+        public bool BestSeller { get; set; }
+
+        /// <summary>
         /// Gets or sets the meta keywords
         /// </summary>
         public string MetaKeywords { get; set; }

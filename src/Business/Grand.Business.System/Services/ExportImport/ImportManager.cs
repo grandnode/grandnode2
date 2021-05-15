@@ -197,6 +197,9 @@ namespace Grand.Business.System.Services.ExportImport
                     case "showonhomepage":
                         product.ShowOnHomePage = property.BooleanValue;
                         break;
+                    case "bestseller":
+                        product.BestSeller = property.BooleanValue;
+                        break;
                     case "metakeywords":
                         product.MetaKeywords = property.StringValue;
                         break;

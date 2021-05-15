@@ -119,6 +119,9 @@ namespace Grand.Web.Admin.Models.Settings
         [GrandResourceDisplayName("Admin.Settings.Catalog.NumberOfBestsellersOnHomepage")]
         public int NumberOfBestsellersOnHomepage { get; set; }
 
+        [GrandResourceDisplayName("Admin.Settings.Catalog.BestsellersFromReports")]
+        public bool BestsellersFromReports { get; set; }
+
         [GrandResourceDisplayName("Admin.Settings.Catalog.SearchPageProductsPerPage")]
         public int SearchPageProductsPerPage { get; set; }
 

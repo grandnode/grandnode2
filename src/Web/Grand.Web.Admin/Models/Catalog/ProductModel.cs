@@ -83,6 +83,9 @@ namespace Grand.Web.Admin.Models.Catalog
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.ShowOnHomePage")]
         public bool ShowOnHomePage { get; set; }
 
+        [GrandResourceDisplayName("Admin.Catalog.Products.Fields.BestSeller")]
+        public bool BestSeller { get; set; }
+
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MetaKeywords")]
 
         public string MetaKeywords { get; set; }

@@ -267,6 +267,11 @@ namespace Grand.Domain.Catalog
         public int NumberOfBestsellersOnHomepage { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to use bestsellers from reports
+        /// </summary>
+        public bool BestsellersFromReports { get; set; }
+
+        /// <summary>
         /// Gets or sets a number of time period for bestsellers on home page
         /// </summary>
         public int PeriodBestsellers { get; set; }

@@ -127,6 +127,7 @@ namespace Grand.Business.Catalog.Services.Products
                 ProductLayoutId = product.ProductLayoutId,
                 AdminComment = product.AdminComment,
                 ShowOnHomePage = product.ShowOnHomePage,
+                BestSeller = product.BestSeller,
                 MetaKeywords = product.MetaKeywords,
                 MetaDescription = product.MetaDescription,
                 MetaTitle = product.MetaTitle,

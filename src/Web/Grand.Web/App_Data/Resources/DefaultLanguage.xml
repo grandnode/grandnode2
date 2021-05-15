@@ -2829,6 +2829,9 @@
   <Resource Name="Admin.Catalog.Products.Fields.BasepriceUnit">
     <Value>Unit of the product being sold</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.Products.Fields.BestSeller">
+    <Value>Best seller</Value>
+  </Resource>
   <Resource Name="Admin.Catalog.Products.Fields.Brand">
     <Value>Brand</Value>
   </Resource>
@@ -10473,6 +10476,9 @@
   </Resource>
   <Resource Name="Admin.Settings.Catalog.AskQuestionOnProduct">
     <Value>'Ask question on the product page' enabled</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.Catalog.BestsellersFromReports">
+    <Value>Best seller products get from report</Value>
   </Resource>
   <Resource Name="Admin.Settings.Catalog.CategoryBreadcrumbEnabled">
     <Value>Category breadcrumb enabled</Value>

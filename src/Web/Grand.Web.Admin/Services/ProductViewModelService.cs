@@ -894,9 +894,10 @@ namespace Grand.Web.Admin.Services
             }
 
             //vendors cannot edit "Show on home page" property
-            if (_workContext.CurrentVendor != null && model.ShowOnHomePage)
+            if (_workContext.CurrentVendor != null && (model.ShowOnHomePage || model.BestSeller))
             {
                 model.ShowOnHomePage = false;
+                model.BestSeller = false;
             }
 
             //product
@@ -948,6 +949,11 @@ namespace Grand.Web.Admin.Services
             if (_workContext.CurrentVendor != null && model.ShowOnHomePage != product.ShowOnHomePage)
             {
                 model.ShowOnHomePage = product.ShowOnHomePage;
+            }
+            //vendors cannot edit "Best seller" property
+            if (_workContext.CurrentVendor != null && model.BestSeller != product.BestSeller)
+            {
+                model.BestSeller = product.BestSeller;
             }
 
             //a staff should have access only to his products
