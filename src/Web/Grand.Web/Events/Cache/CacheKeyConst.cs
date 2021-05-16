@@ -238,13 +238,12 @@ namespace Grand.Web.Events.Cache
         public const string PRODUCT_COLLECTIONS_MODEL_KEY = "Grand.product.id-{0}-{1}-{2}-{3}.collections";
                
         /// <summary>
-        /// Key for bestsellers identifiers displayed on the home page
+        /// Key for bestsellers identifiers displayed on the home page - best seller
         /// </summary>
         /// <remarks>
         /// {0} : current store ID
         /// </remarks>
         public const string HOMEPAGE_BESTSELLERS_IDS_KEY = "Grand.pres.bestsellers.homepage-{0}";
-        public const string HOMEPAGE_BESTSELLERS_IDS_PATTERN_KEY = "Grand.pres.bestsellers.homepage";
 
 
         /// <summary>
