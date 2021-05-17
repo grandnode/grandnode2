@@ -11,8 +11,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -139,7 +137,7 @@ namespace Grand.Business.Catalog.Services.Categories
                             select p;
                 }
             }
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>
@@ -157,29 +155,30 @@ namespace Grand.Business.Catalog.Services.Categories
             string key = string.Format(CacheKey.CATEGORIES_BY_PARENT_CATEGORY_ID_KEY, parentCategoryId, showHidden, customer.Id, storeId, includeAllLevels);
             return await _cacheBase.GetAsync(key, async () =>
             {
-                var builder = Builders<Category>.Filter;
-                var filter = builder.Where(c => c.ParentCategoryId == parentCategoryId);
+                var query = _categoryRepository.Table.Where(c => c.ParentCategoryId == parentCategoryId);
                 if (!showHidden)
-                    filter &= builder.Where(c => c.Published);
+                    query = query.Where(c => c.Published);
 
                 if (!showHidden && (!CommonHelper.IgnoreAcl || !CommonHelper.IgnoreStoreLimitations))
                 {
                     if (!showHidden && !CommonHelper.IgnoreAcl)
                     {
-                        //Limited to customer group (access control list)
-                        var allowedCustomerGroupsIds = customer.GetCustomerGroupIds();
-                        filter &= (builder.AnyIn(x => x.CustomerGroups, allowedCustomerGroupsIds) | builder.Where(x => !x.LimitedToGroups));
-
+                        //Limited to customer groups rules
+                        var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
+                        query = from p in query
+                                where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                                select p;
                     }
                     if (!CommonHelper.IgnoreStoreLimitations)
                     {
-                        //Limited to stores rule
-                        var currentStoreId = new List<string> { storeId };
-                        filter &= (builder.AnyIn(x => x.Stores, currentStoreId) | builder.Where(x => !x.LimitedToStores));
+                        //Limited to stores rules
+                        query = from p in query
+                                where !p.LimitedToStores || p.Stores.Contains(storeId)
+                                select p;
                     }
 
                 }
-                var categories = _categoryRepository.Collection.Find(filter).SortBy(x => x.DisplayOrder).ToList();
+                var categories = query.OrderBy(x => x.DisplayOrder).ToList();
                 if (includeAllLevels)
                 {
                     var childCategories = new List<Category>();
@@ -201,12 +200,10 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <returns>Categories</returns>
         public virtual async Task<IList<Category>> GetAllCategoriesDisplayedOnHomePage(bool showHidden = false)
         {
-            var builder = Builders<Category>.Filter;
-            var filter = builder.Eq(x => x.Published, true);
-            filter &= builder.Eq(x => x.ShowOnHomePage, true);
-            var query = _categoryRepository.Collection.Find(filter).SortBy(x => x.DisplayOrder);
-
-            var categories = await query.ToListAsync();
+            var query = _categoryRepository.Table
+                .Where(x => x.Published && x.ShowOnHomePage)
+                .OrderBy(x => x.DisplayOrder);
+            var categories = await query.ToListAsync2();
             if (!showHidden)
             {
                 categories = categories
@@ -224,12 +221,11 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <returns>Categories</returns>
         public virtual async Task<IList<Category>> GetAllCategoriesFeaturedProductsOnHomePage(bool showHidden = false)
         {
-            var builder = Builders<Category>.Filter;
-            var filter = builder.Eq(x => x.Published, true);
-            filter &= builder.Eq(x => x.FeaturedProductsOnHomePage, true);
-            var query = _categoryRepository.Collection.Find(filter).SortBy(x => x.DisplayOrder);
+            var query = _categoryRepository.Table
+                    .Where(x => x.Published && x.FeaturedProductsOnHomePage)
+                    .OrderBy(x => x.DisplayOrder);
 
-            var categories = await query.ToListAsync();
+            var categories = await query.ToListAsync2();
             if (!showHidden)
             {
                 categories = categories
@@ -246,11 +242,11 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <returns>Categories</returns>
         public virtual async Task<IList<Category>> GetAllCategoriesSearchBox()
         {
-            var builder = Builders<Category>.Filter;
-            var filter = builder.Eq(x => x.Published, true);
-            filter &= builder.Eq(x => x.ShowOnSearchBox, true);
-            var query = _categoryRepository.Collection.Find(filter).SortBy(x => x.SearchBoxDisplayOrder);
-            var categories = (await query.ToListAsync())
+            var query = _categoryRepository.Table
+                .Where(x => x.Published && x.ShowOnSearchBox)
+                .OrderBy(x => x.SearchBoxDisplayOrder);
+
+            var categories = (await query.ToListAsync2())
                 .Where(c => _aclService.Authorize(c, _workContext.CurrentCustomer) && _aclService.Authorize(c, _workContext.CurrentStore.Id))
                 .ToList();
 
@@ -380,7 +376,7 @@ namespace Grand.Business.Catalog.Services.Categories
                         where c.AppliedDiscounts.Any(x => x == discountId)
                         select c;
 
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>

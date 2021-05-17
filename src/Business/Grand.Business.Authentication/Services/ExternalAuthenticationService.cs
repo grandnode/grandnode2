@@ -15,8 +15,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -322,7 +320,7 @@ namespace Grand.Business.Authentication.Services
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
 
-            var associationRecord = await _externalAuthenticationRecordRepository.Table.FirstOrDefaultAsync(record =>
+            var associationRecord = await _externalAuthenticationRecordRepository.FirstOrDefaultAsync(record =>
                 record.ExternalIdentifier.Equals(parameters.Identifier) && record.ProviderSystemName.Equals(parameters.ProviderSystemName));
 
             if (associationRecord == null)
@@ -338,7 +336,7 @@ namespace Grand.Business.Authentication.Services
             var query = from p in _externalAuthenticationRecordRepository.Table
                         where p.CustomerId == customer.Id
                         select p;
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>

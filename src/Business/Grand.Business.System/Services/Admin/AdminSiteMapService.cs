@@ -3,8 +3,6 @@ using Grand.Business.System.Utilities;
 using Grand.Infrastructure.Caching;
 using Grand.Domain.Admin;
 using Grand.Domain.Data;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,7 +29,7 @@ namespace Grand.Business.System.Services.Admin
                 var query = from c in _adminSiteMapRepository.Table
                             select c;
 
-                var list = await query.ToListAsync();
+                var list = await query.ToListAsync2();
                 if (list.Any())
                     return list;
                 else

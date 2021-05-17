@@ -6,8 +6,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -44,7 +42,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
                             orderby cr.DisplayOrder
                             select cr.ProductId;
 
-                var productIds = await query.Take(request.ProductsNumber).ToListAsync();
+                var productIds = await query.Take(request.ProductsNumber).ToListAsync2();
 
                 var products = new List<Product>();
                 var ids = await _productService.GetProductsByIds(productIds.Distinct().ToArray());

@@ -5,8 +5,6 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,7 +57,7 @@ namespace Grand.Business.Catalog.Services.Brands
                 var query = from pt in _brandLayoutRepository.Table
                             orderby pt.DisplayOrder
                             select pt;
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
         }
 
