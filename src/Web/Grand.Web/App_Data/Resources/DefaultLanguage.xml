@@ -2830,7 +2830,7 @@
     <Value>Unit of the product being sold</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.Fields.BestSeller">
-    <Value>Best seller</Value>
+    <Value>Mark as a bestseller</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.Fields.Brand">
     <Value>Brand</Value>
@@ -10481,7 +10481,7 @@
     <Value>Best seller products get from report</Value>
   </Resource>
   <Resource Name="Admin.Settings.Catalog.BestsellersFromReports.hint">
-    <Value>Reports data are cached, refreshing will be after the expiration time.</Value>
+    <Value>Report data is cached, refreshing will be after the expiration time.</Value>
   </Resource>
   <Resource Name="Admin.Settings.Catalog.CategoryBreadcrumbEnabled">
     <Value>Category breadcrumb enabled</Value>
