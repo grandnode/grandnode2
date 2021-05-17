@@ -172,7 +172,6 @@ namespace Grand.Web.Events.Cache
         /// {3} : language ID
         /// </remarks>
         public const string KNOWLEDGEBASE_CATEGORY_BREADCRUMB_KEY = "Grand.knowledgebase.category.breadcrumb-{0}-{1}-{2}-{3}";
-        public const string KNOWLEDGEBASE_CATEGORY_BREADCRUMB_PATTERN_KEY = "Grand.knowledgebase.category.breadcrumb";
 
         /// <summary>
         /// Key for caching of categories displayed on home page
@@ -183,7 +182,6 @@ namespace Grand.Web.Events.Cache
         /// {2} : language ID
         /// </remarks>
         public const string CATEGORY_HOMEPAGE_KEY = "Grand.category.homepage-{0}-{1}-{2}";
-        public const string CATEGORY_HOMEPAGE_PATTERN_KEY = "Grand.category.homepage";
         public const string CATEGORY_FEATURED_PRODUCTS_HOMEPAGE_KEY = "Grand.category.homepage-fp-{0}-{1}-{2}";
 
         /// <summary>
@@ -276,8 +274,7 @@ namespace Grand.Web.Events.Cache
         /// {0} : current product id
         /// {1} : current store ID
         /// </remarks>
-        public const string PRODUCTS_RELATED_IDS_KEY = "Grand.product.id-{0}-{1}.pres.related";
-        public const string PRODUCTS_RELATED_IDS_PATTERN_KEY = "Grand.product.id-{0}.pres.related";
+        public const string PRODUCTS_RELATED_IDS_KEY = "Grand.product.id-{0}-{1}.pres.related";        
 
         /// <summary>
         /// Key for "similar" product identifiers displayed on the product details page
@@ -287,8 +284,7 @@ namespace Grand.Web.Events.Cache
         /// {1} : current store ID
         /// </remarks>
         public const string PRODUCTS_SIMILAR_IDS_KEY = "Grand.product.id-{0}-{1}.pres.similar";
-        public const string PRODUCTS_SIMILAR_IDS_PATTERN_KEY = "Grand.product.id-{0}.pres.similar";
-       
+              
         /// <summary>
         /// Key for blog tag list model
         /// </summary>
