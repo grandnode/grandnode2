@@ -1,8 +1,6 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -24,7 +22,7 @@ namespace Grand.Business.Messages.Queries.Models.Handlers
             return await _bidRepository
                 .Table.Where(x => x.ProductId == request.ProductId)
                 .OrderByDescending(x => x.Date)
-                .ToListAsync();
+                .ToListAsync2();
         }
     }
 }
