@@ -1,7 +1,9 @@
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace Grand.Domain.Data
@@ -106,6 +108,16 @@ namespace Grand.Domain.Data
             if (filter == null)
                 return _collection.AsQueryable().FirstOrDefaultAsync();
 
+            return _collection.Find(filter).FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// get first item in query as async
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public virtual Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> filter)
+        {
             return _collection.Find(filter).FirstOrDefaultAsync();
         }
 

@@ -1,6 +1,8 @@
 ﻿using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace Grand.Domain.Data
@@ -47,6 +49,13 @@ namespace Grand.Domain.Data
         /// <param name="filter">filter definition</param>
         /// <returns>entity of <typeparamref name="T"/></returns>
         Task<T> FirstOrDefaultAsync(FilterDefinition<T> filter = null);
+
+        /// <summary>
+        /// get first item in query as async
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> filter);
 
         /// <summary>
         /// Insert entity
