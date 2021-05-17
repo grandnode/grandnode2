@@ -294,26 +294,28 @@ function newsletter_subscribe_category(url) {
 }
 
 function newsletterBox() {
-    var el = document.getElementById('newsletter-subscribe-button');
-    el.onclick = function () {
-        var allowToUnsubscribe = document.getElementById("newsletterbox").getAttribute('data-allowtounsubscribe').toLowerCase();
-        if (allowToUnsubscribe == 'true') {
-            if (document.getElementById('newsletter_subscribe').checked) {
-                newsletter_subscribe('true');
+    if (document.getElementById('newsletter-subscribe-button')) {
+        var el = document.getElementById('newsletter-subscribe-button');
+        el.onclick = function () {
+            var allowToUnsubscribe = document.getElementById("newsletterbox").getAttribute('data-allowtounsubscribe').toLowerCase();
+            if (allowToUnsubscribe == 'true') {
+                if (document.getElementById('newsletter_subscribe').checked) {
+                    newsletter_subscribe('true');
+                }
+                else {
+                    newsletter_subscribe('false');
+                }
             }
             else {
-                newsletter_subscribe('false');
+                newsletter_subscribe('true');
             }
-        }
-        else {
-            newsletter_subscribe('true');
-        }
-    };
-    document.getElementById("newsletter-email").addEventListener("keyup", function (event) {
-        if (event.keyCode == 13) {
-            document.getElementById("newsletter-subscribe-button").click();
-        }
-    });
+        };
+        document.getElementById("newsletter-email").addEventListener("keyup", function (event) {
+            if (event.keyCode == 13) {
+                document.getElementById("newsletter-subscribe-button").click();
+            }
+        });
+    }
 }
 
 // runs an array of async functions in sequential order
