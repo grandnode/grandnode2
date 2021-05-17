@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
-using System;
 
 namespace Grand.Infrastructure.Data
 {
@@ -17,7 +16,7 @@ namespace Grand.Infrastructure.Data
 
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
-            
+
         }
 
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
