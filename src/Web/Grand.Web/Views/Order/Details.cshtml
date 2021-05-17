@@ -17,8 +17,10 @@
 }
 @if (Model.PrintMode)
 {
-    <script asp-location="Footer">
-        window.print();
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            window.print();
+        });
     </script>
 }
 <div class="page order-details-page mb-3">

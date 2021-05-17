@@ -2,10 +2,20 @@
 <html>
 <head>
     <title asp-default-title="true"></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
     <link href="/theme/css/print.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="/theme/bootstrap-vue/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/theme/bootstrap-vue/bootstrap-vue.min.css">
+    <script src="/theme/lib/vue.min.js"></script>
+    <script src="/theme/lib/bootstrap-vue.min.js"></script>
 </head>
 <body>
     @RenderBody()
+    <script asp-location="Footer" asp-src="/theme/script/menu.js"></script>
+    <script asp-location="Footer" asp-src="/theme/lib/popper.min.js"></script>
+    <script asp-location="Footer" asp-src="/theme/script/app.js"></script>
+
 </body>
 </html>
