@@ -96,6 +96,19 @@ namespace Grand.Domain
             await pagelist.InitializeAsync(source, filterdefinition, sortdefinition, pageIndex, pageSize, findOptions);
             return pagelist;
         }
+        public static async Task<PagedList<T>> Create(IQueryable<T> source, FilterDefinition<T> filterdefinition, SortDefinition<T> sortdefinition, int pageIndex, int pageSize, FindOptions findOptions = null)
+        {
+            var pagelist = new PagedList<T>();
+            await pagelist.InitializeAsync((IMongoCollection<T>)source, filterdefinition, sortdefinition, pageIndex, pageSize, findOptions);
+            return pagelist;
+        }
+
+        public static async Task<PagedList<T>> Create(IQueryable<T> source, int pageIndex, int pageSize, FindOptions findOptions = null)
+        {
+            var pagelist = new PagedList<T>();
+            await pagelist.InitializeAsync((IMongoQueryable<T>)source, pageIndex, pageSize);
+            return pagelist;
+        }
 
         public static async Task<PagedList<T>> Create(IMongoQueryable<T> source, int pageIndex, int pageSize)
         {
