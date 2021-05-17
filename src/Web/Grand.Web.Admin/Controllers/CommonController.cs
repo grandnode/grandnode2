@@ -30,16 +30,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Hosting;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.Operations;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Controllers
@@ -116,30 +111,6 @@ namespace Grand.Web.Admin.Controllers
 
         #endregion
 
-        protected virtual IEnumerable<Dictionary<string, object>> Serialize(List<BsonValue> collection)
-        {
-            var results = new List<Dictionary<string, object>>();
-            var columns = new List<string>();
-            var document = collection.FirstOrDefault()?.AsBsonDocument;
-            if (document != null)
-            {
-                foreach (var item in document.Names)
-                {
-                    columns.Add(item);
-                }
-                foreach (var row in collection)
-                {
-                    var myObject = new Dictionary<string, object>();
-                    foreach (var col in columns)
-                    {
-                        myObject.Add(col, row[col].ToString());
-                    }
-                    results.Add(myObject);
-                }
-            }
-            return results;
-        }
-
         #region Methods
 
         public async Task<IActionResult> SystemInfo()
@@ -165,30 +136,26 @@ namespace Grand.Web.Admin.Controllers
             model.UtcTime = DateTime.UtcNow;
             foreach (var header in HttpContext.Request.Headers)
             {
-                model.ServerVariables.Add(new SystemInfoModel.ServerVariableModel
-                {
+                model.ServerVariables.Add(new SystemInfoModel.ServerVariableModel {
                     Name = header.Key,
                     Value = header.Value
                 });
             }
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().ToList().OrderBy(x => x.FullName))
             {
-                model.LoadedAssemblies.Add(new SystemInfoModel.LoadedAssembly
-                {
+                model.LoadedAssemblies.Add(new SystemInfoModel.LoadedAssembly {
                     FullName = assembly.FullName,
                 });
             }
             //store URL
             var currentStoreUrl = _workContext.CurrentStore.Url;
             if (!String.IsNullOrEmpty(currentStoreUrl) && (currentStoreUrl.Equals(HttpContext.Request.Host.Host, StringComparison.OrdinalIgnoreCase)))
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass,
                     Text = _translationService.GetResource("Admin.System.Warnings.URL.Match")
                 });
             else
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Warning,
                     Text = string.Format(_translationService.GetResource("Admin.System.Warnings.URL.NoMatch"), currentStoreUrl, HttpContext.Request.Host.Host)
                 });
@@ -198,15 +165,13 @@ namespace Grand.Web.Admin.Controllers
             var perCurrency = await _currencyService.GetCurrencyById(_currencySettings.PrimaryExchangeRateCurrencyId);
             if (perCurrency != null)
             {
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass,
                     Text = _translationService.GetResource("Admin.System.Warnings.ExchangeCurrency.Set"),
                 });
                 if (perCurrency.Rate != 1)
                 {
-                    model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                    {
+                    model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                         Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Fail,
                         Text = _translationService.GetResource("Admin.System.Warnings.ExchangeCurrency.Rate1")
                     });
@@ -214,8 +179,7 @@ namespace Grand.Web.Admin.Controllers
             }
             else
             {
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Fail,
                     Text = _translationService.GetResource("Admin.System.Warnings.ExchangeCurrency.NotSet")
                 });
@@ -225,16 +189,14 @@ namespace Grand.Web.Admin.Controllers
             var pscCurrency = await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
             if (pscCurrency != null)
             {
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass,
                     Text = _translationService.GetResource("Admin.System.Warnings.PrimaryCurrency.Set"),
                 });
             }
             else
             {
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Fail,
                     Text = _translationService.GetResource("Admin.System.Warnings.PrimaryCurrency.NotSet")
                 });
@@ -245,16 +207,14 @@ namespace Grand.Web.Admin.Controllers
             var bWeight = await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId);
             if (bWeight != null)
             {
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass,
                     Text = _translationService.GetResource("Admin.System.Warnings.DefaultWeight.Set"),
                 });
 
                 if (bWeight.Ratio != 1)
                 {
-                    model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                    {
+                    model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                         Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Fail,
                         Text = _translationService.GetResource("Admin.System.Warnings.DefaultWeight.Ratio1")
                     });
@@ -262,8 +222,7 @@ namespace Grand.Web.Admin.Controllers
             }
             else
             {
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Fail,
                     Text = _translationService.GetResource("Admin.System.Warnings.DefaultWeight.NotSet")
                 });
@@ -274,16 +233,14 @@ namespace Grand.Web.Admin.Controllers
             var bDimension = await _measureService.GetMeasureDimensionById(_measureSettings.BaseDimensionId);
             if (bDimension != null)
             {
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass,
                     Text = _translationService.GetResource("Admin.System.Warnings.DefaultDimension.Set"),
                 });
 
                 if (bDimension.Ratio != 1)
                 {
-                    model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                    {
+                    model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                         Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Fail,
                         Text = _translationService.GetResource("Admin.System.Warnings.DefaultDimension.Ratio1")
                     });
@@ -291,8 +248,7 @@ namespace Grand.Web.Admin.Controllers
             }
             else
             {
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Fail,
                     Text = _translationService.GetResource("Admin.System.Warnings.DefaultDimension.NotSet")
                 });
@@ -301,28 +257,24 @@ namespace Grand.Web.Admin.Controllers
             //shipping rate coputation methods
             var srcMethods = await _shippingService.LoadActiveShippingRateCalculationProviders();
             if (srcMethods.Count == 0)
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Fail,
                     Text = _translationService.GetResource("Admin.System.Warnings.Shipping.NoComputationMethods")
                 });
             if (srcMethods.Count(x => x.ShippingRateCalculationType == ShippingRateCalculationType.Off) > 1)
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Warning,
                     Text = _translationService.GetResource("Admin.System.Warnings.Shipping.OnlyOneOffline")
                 });
 
             //payment methods
             if ((await _paymentService.LoadActivePaymentMethods()).Any())
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass,
                     Text = _translationService.GetResource("Admin.System.Warnings.PaymentMethods.OK")
                 });
             else
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Fail,
                     Text = _translationService.GetResource("Admin.System.Warnings.PaymentMethods.NoActive")
                 });
@@ -330,16 +282,14 @@ namespace Grand.Web.Admin.Controllers
             //performance settings
             if (!CommonHelper.IgnoreStoreLimitations && (await _storeService.GetAllStores()).Count == 1)
             {
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Warning,
                     Text = _translationService.GetResource("Admin.System.Warnings.Performance.IgnoreStoreLimitations")
                 });
             }
             if (!CommonHelper.IgnoreAcl)
             {
-                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel
-                {
+                model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Warning,
                     Text = _translationService.GetResource("Admin.System.Warnings.Performance.IgnoreAcl")
                 });
@@ -459,8 +409,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var scripts = RoslynCompiler.ReferencedScripts != null ? RoslynCompiler.ReferencedScripts.ToList() : new List<ResultCompiler>();
 
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = scripts.Select(x =>
                 {
                     return new
@@ -489,15 +438,14 @@ namespace Grand.Web.Admin.Controllers
                 return ErrorForKendoGridJson("Empty query");
             try
             {
-                var result = _mongoDBContext.RunCommand<BsonDocument>(query);
+                var result = _mongoDBContext.RunCommand(query);
                 var ok = result.Where(x => x.Name == "ok").FirstOrDefault().Value.ToBoolean();
                 var gridModel = new DataSourceResult();
                 if (result.Where(x => x.Name == "cursor").ToList().Any())
                 {
                     var resultCollection = result["cursor"]["firstBatch"].AsBsonArray.ToList();
-                    var response = Serialize(resultCollection);
-                    gridModel = new DataSourceResult
-                    {
+                    var response = _mongoDBContext.Serialize(resultCollection);
+                    gridModel = new DataSourceResult {
                         Data = response,
                         Total = response.Count()
                     };
@@ -507,8 +455,7 @@ namespace Grand.Web.Admin.Controllers
                     List<dynamic> n = new List<dynamic>();
                     var number = result["n"].ToInt64();
                     n.Add(new { Number = number });
-                    gridModel = new DataSourceResult
-                    {
+                    gridModel = new DataSourceResult {
                         Data = n
                     };
                 }
@@ -519,6 +466,7 @@ namespace Grand.Web.Admin.Controllers
                 return ErrorForKendoGridJson(ex.Message);
             }
         }
+
         [HttpPost]
         public IActionResult RunScript(string query)
         {
@@ -527,18 +475,15 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                var bscript = new BsonJavaScript(query);
-                var operation = new EvalOperation(_mongoDBContext.Database().DatabaseNamespace, bscript, null);
-                var writeBinding = new WritableServerBinding(_mongoDBContext.Database().Client.Cluster, NoCoreSession.NewHandle());
-                var result = operation.Execute(writeBinding, CancellationToken.None);
-                var xx = result["_ns"];
-                return Json(new { Result = true, Message = result.ToString() });
+                var result = _mongoDBContext.ExecuteScript(query);
+                return Json(new { Result = true, Message = result });
             }
             catch (Exception ex)
             {
                 return Json(new { Result = false, Message = ex.Message });
             }
         }
+
         public IActionResult SeNames()
         {
             var model = new UrlEntityListModel();
@@ -622,8 +567,7 @@ namespace Grand.Web.Admin.Controllers
                         break;
                 }
 
-                items.Add(new UrlEntityModel
-                {
+                items.Add(new UrlEntityModel {
                     Id = x.Id,
                     Name = x.Slug,
                     EntityId = x.EntityId,
@@ -634,8 +578,7 @@ namespace Grand.Web.Admin.Controllers
                 });
 
             }
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = items,
                 Total = entityUrls.TotalCount
             };
