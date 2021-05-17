@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Bson.Serialization;
+using Serilog;
+using System;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Authentication.Google.Infrastructure
@@ -33,18 +35,18 @@ namespace Authentication.Google.Infrastructure
                     var gSettings = new Repository<Setting>(DataSettingsHelper.ConnectionString()).Table.Where(x => x.Name.StartsWith("googleexternalauthsettings"));
                     if (gSettings.Any())
                     {
-                        settings = BsonSerializer.Deserialize<GoogleExternalAuthSettings>(gSettings.FirstOrDefault().Metadata);
+                        var metadata = gSettings.FirstOrDefault().Metadata.ToString();
+                        settings = JsonSerializer.Deserialize<GoogleExternalAuthSettings>(metadata);
                     }
                 }
-                catch { };
+                catch (Exception ex) { Log.Error(ex, "AddGoogle"); };
 
                 options.ClientId = !string.IsNullOrWhiteSpace(settings.ClientKeyIdentifier) ? settings.ClientKeyIdentifier : "000";
                 options.ClientSecret = !string.IsNullOrWhiteSpace(settings.ClientSecret) ? settings.ClientSecret : "000";
                 options.SaveTokens = true;
 
                 //handles exception thrown by external auth provider
-                options.Events = new OAuthEvents()
-                {
+                options.Events = new OAuthEvents() {
                     OnRemoteFailure = ctx =>
                     {
                         ctx.HandleResponse();

@@ -2,8 +2,6 @@
 using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +31,7 @@ namespace Widgets.Slider.Services
         public const string SLIDERS_PATTERN_KEY = "Grand.slider";
 
         #endregion
+        
         public SliderService(IRepository<PictureSlider> reporistoryPictureSlider,
             IWorkContext workContext, IAclService aclService,
             ICacheBase cacheManager)
@@ -63,7 +62,7 @@ namespace Widgets.Slider.Services
         /// <returns>Picture Sliders</returns>
         public virtual async Task<IList<PictureSlider>> GetPictureSliders()
         {
-            return await _reporistoryPictureSlider.Table.OrderBy(x => x.SliderTypeId).ThenBy(x => x.DisplayOrder).ToListAsync();
+            return await Task.FromResult(_reporistoryPictureSlider.Table.OrderBy(x => x.SliderTypeId).ThenBy(x => x.DisplayOrder).ToList());
         }
 
         /// <summary>
@@ -76,14 +75,14 @@ namespace Widgets.Slider.Services
             return await _cacheBase.GetAsync(cacheKey, async () =>
             {
                 var query = from s in _reporistoryPictureSlider.Table
-                            where s.SliderTypeId == (int)sliderType && s.Published
+                            where s.SliderTypeId == sliderType && s.Published
                             select s;
 
                 if (!string.IsNullOrEmpty(objectEntry))
                     query = query.Where(x => x.ObjectEntry == objectEntry);
 
-                var items = await query.ToListAsync();
-                return items.Where(c => _aclService.Authorize(c, _workContext.CurrentStore.Id)).ToList();
+                var items = query.ToList();
+                return await Task.FromResult(items.Where(c => _aclService.Authorize(c, _workContext.CurrentStore.Id)).ToList());
             });
         }
 
@@ -95,7 +94,7 @@ namespace Widgets.Slider.Services
         /// <returns>Tax rate</returns>
         public virtual Task<PictureSlider> GetById(string slideId)
         {
-            return _reporistoryPictureSlider.Table.FirstOrDefaultAsync(x => x.Id == slideId);
+            return _reporistoryPictureSlider.FirstOrDefaultAsync(x => x.Id == slideId);
         }
 
         /// <summary>

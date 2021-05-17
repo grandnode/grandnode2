@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Bson.Serialization;
+using Serilog;
+using System;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Authentication.Facebook.Infrastructure
@@ -33,18 +35,18 @@ namespace Authentication.Facebook.Infrastructure
                     var fbSettings = new Repository<Setting>(DataSettingsHelper.ConnectionString()).Table.Where(x => x.Name.StartsWith("facebookexternalauthsettings"));
                     if (fbSettings.Any())
                     {
-                        settings = BsonSerializer.Deserialize<FacebookExternalAuthSettings>(fbSettings.FirstOrDefault().Metadata);
+                        var metadata = fbSettings.FirstOrDefault().Metadata.ToString();
+                        settings = JsonSerializer.Deserialize<FacebookExternalAuthSettings>(metadata);
                     }
                 }
-                catch { };
+                catch (Exception ex) { Log.Error(ex, "AddFacebook"); };
 
                 //no empty values allowed. otherwise, an exception could be thrown on application startup
                 options.AppId = !string.IsNullOrWhiteSpace(settings.ClientKeyIdentifier) ? settings.ClientKeyIdentifier : "000";
                 options.AppSecret = !string.IsNullOrWhiteSpace(settings.ClientSecret) ? settings.ClientSecret : "000";
                 options.SaveTokens = true;
                 //handles exception thrown by external auth provider
-                options.Events = new OAuthEvents()
-                {
+                options.Events = new OAuthEvents() {
                     OnRemoteFailure = ctx =>
                     {
                         ctx.HandleResponse();

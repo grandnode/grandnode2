@@ -19,17 +19,8 @@ namespace Widgets.Slider.Domain
         public int DisplayOrder { get; set; }
         public bool FullWidth { get; set; }
         public bool Published { get; set; }
-        public int SliderTypeId { get; set; }
         public string ObjectEntry { get; set; }
-        public SliderType SliderType {
-            get {
-                return (SliderType)SliderTypeId;
-            }
-            set {
-                SliderTypeId = (int)value;
-            }
-
-        }
+        public SliderType SliderTypeId { get; set; }
         public bool LimitedToStores { get; set; }
         public IList<string> Stores { get; set; }
         public IList<TranslationEntity> Locales { get; set; }

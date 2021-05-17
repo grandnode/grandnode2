@@ -22,7 +22,7 @@ namespace Widgets.Slider.Infrastructure.Mapper
         }
         protected string GetCategoryId(PictureSlider pictureSlider)
         {
-            if (pictureSlider.SliderType == SliderType.Category)
+            if (pictureSlider.SliderTypeId == SliderType.Category)
                 return pictureSlider.ObjectEntry;
 
             return "";
@@ -30,7 +30,7 @@ namespace Widgets.Slider.Infrastructure.Mapper
 
         protected string GetCollectionId(PictureSlider pictureSlider)
         {
-            if (pictureSlider.SliderType == SliderType.Collection)
+            if (pictureSlider.SliderTypeId == SliderType.Collection)
                 return pictureSlider.ObjectEntry;
 
             return "";
@@ -53,8 +53,7 @@ namespace Widgets.Slider.Infrastructure.Mapper
 
             CreateMap<PictureSlider, SlideListModel>()
                 .ForMember(dest => dest.UserFields, mo => mo.Ignore())
-                .ForMember(dest => dest.PictureUrl, mo => mo.Ignore())
-                .ForMember(dest => dest.ObjectType, mo => mo.MapFrom(y => y.SliderType.ToString()));
+                .ForMember(dest => dest.PictureUrl, mo => mo.Ignore());
         }
         public int Order
         {

@@ -1,8 +1,6 @@
 ﻿using Grand.Domain;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using Shipping.ShippingPoint.Domain;
 using System;
 using System.Linq;
@@ -56,7 +54,7 @@ namespace Shipping.ShippingPoint.Services
                         where (gp.StoreId == storeId || string.IsNullOrEmpty(gp.StoreId)) || storeId == ""
                         select gp;
 
-            var records = await query.ToListAsync();
+            var records = query.ToList();
 
             //paging
             return await Task.FromResult(new PagedList<ShippingPoints>(records, pageIndex, pageSize));
@@ -69,9 +67,9 @@ namespace Shipping.ShippingPoint.Services
         /// <returns></returns>
         public virtual Task<ShippingPoints> GetStoreShippingPointByPointName(string pointName)
         {
-            return (from shippingOoint in _shippingPointRepository.Table
+            return Task.FromResult((from shippingOoint in _shippingPointRepository.Table
                     where shippingOoint.ShippingPointName == pointName
-                    select shippingOoint).FirstOrDefaultAsync();
+                    select shippingOoint).FirstOrDefault());
         }
 
         /// <summary>

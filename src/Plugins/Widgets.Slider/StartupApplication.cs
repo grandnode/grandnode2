@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using MongoDB.Bson.Serialization;
 using Widgets.Slider.Domain;
 using Widgets.Slider.Services;
 
@@ -17,12 +16,6 @@ namespace Widgets.Slider
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IWidgetProvider, SliderWidgetProvider>();
-
-            BsonClassMap.RegisterClassMap<PictureSlider>(cm =>
-            {
-                cm.AutoMap();
-                cm.UnmapMember(c => c.SliderType);
-            });
             services.AddScoped<ISliderService, SliderService>();
 
             services.Configure<MvcRazorRuntimeCompilationOptions>(options =>
