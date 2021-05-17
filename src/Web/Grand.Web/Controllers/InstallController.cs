@@ -14,8 +14,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -139,15 +137,8 @@ namespace Grand.Web.Controllers
             {
                 try
                 {
-                    var client = new MongoClient(connectionString);
-                    var databaseName = new MongoUrl(connectionString).DatabaseName;
-                    var database = client.GetDatabase(databaseName);
-                    await database.RunCommandAsync((Command<BsonDocument>)"{ping:1}");
-
-                    var filter = new BsonDocument("name", "GrandNodeVersion");
-                    var found = database.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter }).Result;
-
-                    if (found.Any())
+                    var mdb = new MongoDBContext();
+                    if(await mdb.DatabaseExist(connectionString))
                         ModelState.AddModelError("", locService.GetResource("AlreadyInstalled"));
                 }
                 catch (Exception ex)

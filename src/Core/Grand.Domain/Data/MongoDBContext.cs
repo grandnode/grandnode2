@@ -27,6 +27,21 @@ namespace Grand.Domain.Data
             return _database;
         }
 
+        public async Task<bool> DatabaseExist(string connectionString)
+        {
+            var client = new MongoClient(connectionString);
+            var databaseName = new MongoUrl(connectionString).DatabaseName;
+            var database = client.GetDatabase(databaseName);
+            await database.RunCommandAsync((Command<BsonDocument>)"{ping:1}");
+
+            var filter = new BsonDocument("name", "GrandNodeVersion");
+            var found = database.ListCollectionsAsync(new ListCollectionsOptions { Filter = filter }).Result;
+            if (found.Any())
+                return true;
+            else
+                return false;
+        }
+
         public TResult RunCommand<TResult>(string command)
         {
             return _database.RunCommand<TResult>(command);

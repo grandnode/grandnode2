@@ -9,6 +9,7 @@ namespace Grand.Domain.Data
     public interface IMongoDBContext
     {
         IMongoDatabase Database();
+        Task<bool> DatabaseExist(string connectionString);
         TResult RunCommand<TResult>(string command);
         BsonDocument RunCommand(string command);
         TResult RunCommand<TResult>(string command, ReadPreference readpreference);
