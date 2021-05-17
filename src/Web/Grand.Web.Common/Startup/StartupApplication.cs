@@ -1,5 +1,4 @@
 using FluentValidation;
-using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Message;
@@ -11,16 +10,15 @@ using Grand.Infrastructure.TypeSearchers;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Middleware;
+using Grand.Web.Common.Page;
 using Grand.Web.Common.Routing;
 using Grand.Web.Common.TagHelpers;
 using Grand.Web.Common.Themes;
-using Grand.Web.Common.Page;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
-using MongoDB.Driver;
 using StackExchange.Redis;
 using System;
 using System.Linq;
@@ -42,9 +40,8 @@ namespace Grand.Web.Common.Startup
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
 
-            RegisterDataLayer(services);
+            configuration.GetSection("Application").Bind(config);
 
             RegisterCache(services, config);
 
@@ -62,32 +59,6 @@ namespace Grand.Web.Common.Startup
         public int Priority => 0;
         public bool BeforeConfigure => false;
 
-        private void RegisterDataLayer(IServiceCollection serviceCollection)
-        {
-            var dataSettingsManager = new DataSettingsManager();
-            var dataProviderSettings = dataSettingsManager.LoadSettings();
-            if (string.IsNullOrEmpty(dataProviderSettings.DataConnectionString))
-            {
-                serviceCollection.AddTransient(c => dataSettingsManager.LoadSettings());
-                serviceCollection.AddTransient<BaseDataProviderManager>(c => new MongoDBDataProviderManager(c.GetRequiredService<DataSettings>()));
-                serviceCollection.AddTransient<IDataProvider>(x => x.GetRequiredService<BaseDataProviderManager>().LoadDataProvider());
-            }
-            if (dataProviderSettings != null && dataProviderSettings.IsValid())
-            {
-                var connectionString = dataProviderSettings.DataConnectionString;
-                var mongourl = new MongoUrl(connectionString);
-                var databaseName = mongourl.DatabaseName;
-                serviceCollection.AddScoped(c => new MongoClient(mongourl).GetDatabase(databaseName));
-
-            }
-
-            serviceCollection.AddScoped<IMongoDBContext, MongoDBContext>();
-            //MongoDbRepository
-
-            serviceCollection.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
-        }
-
         private void RegisterCache(IServiceCollection serviceCollection, AppConfig config)
         {
             serviceCollection.AddSingleton<ICacheBase, MemoryCacheBase>();
@@ -100,7 +71,7 @@ namespace Grand.Web.Common.Startup
                 serviceCollection.AddSingleton<ICacheBase, RedisMessageCacheManager>();
                 return;
             }
-            if (config.RabbitCachePubSubEnabled&&config.RabbitEnabled)
+            if (config.RabbitCachePubSubEnabled && config.RabbitEnabled)
             {
                 serviceCollection.AddSingleton<ICacheBase, RabbitMqMessageCacheManager>();
             }
