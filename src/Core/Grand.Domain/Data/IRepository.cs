@@ -36,6 +36,19 @@ namespace Grand.Domain.Data
         Task<T> GetByIdAsync(string id);
 
         /// <summary>
+        /// Get all entities in collection
+        /// </summary>
+        /// <returns>collection of entities</returns>
+        Task<List<T>> GetAllAsync();
+
+        /// <summary>
+        /// Get first entity in query as async with filterdefinition
+        /// </summary>
+        /// <param name="filter">filter definition</param>
+        /// <returns>entity of <typeparamref name="T"/></returns>
+        Task<T> FirstOrDefaultAsync(FilterDefinition<T> filter = null);
+
+        /// <summary>
         /// Insert entity
         /// </summary>
         /// <param name="entity">Entity</param>

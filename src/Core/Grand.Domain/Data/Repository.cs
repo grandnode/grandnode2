@@ -77,9 +77,8 @@ namespace Grand.Domain.Data
         {
             return _collection.Find(e => e.Id == id).FirstOrDefault();
         }
-
         /// <summary>
-        /// Get entity by identifier async
+        /// Get async entity by identifier 
         /// </summary>
         /// <param name="id">Identifier</param>
         /// <returns>Entity</returns>
@@ -87,6 +86,29 @@ namespace Grand.Domain.Data
         {
             return _collection.Find(e => e.Id == id).FirstOrDefaultAsync();
         }
+
+        /// <summary>
+        /// Get all entities in collection
+        /// </summary>
+        /// <returns>collection of entities</returns>
+        public virtual Task<List<T>> GetAllAsync()
+        {
+            return _collection.AsQueryable().ToListAsync();
+        }
+
+        /// <summary>
+        /// get first item in query as async with filterdefinition
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns>entity of <typeparamref name="T"/></returns>
+        public virtual Task<T> FirstOrDefaultAsync(FilterDefinition<T> filter = null)
+        {
+            if (filter == null)
+                return _collection.AsQueryable().FirstOrDefaultAsync();
+
+            return _collection.Find(filter).FirstOrDefaultAsync();
+        }
+
         /// <summary>
         /// Insert entity
         /// </summary>

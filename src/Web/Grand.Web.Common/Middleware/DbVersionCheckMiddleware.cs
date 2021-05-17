@@ -4,8 +4,6 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Microsoft.AspNetCore.Http;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System.Threading.Tasks;
 
 namespace Grand.Web.Common.Middleware
@@ -27,7 +25,7 @@ namespace Grand.Web.Common.Middleware
                 return;
             }
 
-            var version = await cacheBase.GetAsync(CacheKey.GRAND_NODE_VERSION, () => repository.Table.FirstOrDefaultAsync());
+            var version = await cacheBase.GetAsync(CacheKey.GRAND_NODE_VERSION, async () => await repository.FirstOrDefaultAsync());
             if (version == null)
             {
                 await context.Response.WriteAsync($"The database does not exist.");
