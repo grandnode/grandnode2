@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Grand.Domain.Data
@@ -221,6 +222,63 @@ namespace Grand.Domain.Data
             await _collection.UpdateOneAsync(filter, update);
         }
 
+        // <summary>
+        /// Add to set - add subdocument
+        /// </summary>
+        /// <typeparam name="U"></typeparam>
+        /// <param name="id"></param>
+        /// <param name="field"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public virtual async Task AddToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, U value)
+        {
+            var builder = Builders<T>.Filter;
+            var filter = builder.Eq(x => x.Id, id);
+            var update = Builders<T>.Update.AddToSet(field, value);
+
+            await _collection.UpdateOneAsync(filter, update);
+
+        }
+
+        /// <summary>
+        /// Update subdocument
+        /// </summary>
+        /// <typeparam name="U">Document</typeparam>
+        /// <typeparam name="Z">Subdocuments</typeparam>
+        /// <param name="id">Ident of entitie</param>
+        /// <param name="field"></param>
+        /// <param name="elemFieldMatch">Subdocument field to match</param>
+        /// <param name="elemMatch">Subdocument ident value</param>
+        /// <param name="value">Subdocument - to update (all values)</param>
+        public virtual async Task UpdateToSet<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, U value)
+        {
+            var filter = Builders<T>.Filter.Eq(x => x.Id, id) 
+                & Builders<T>.Filter.ElemMatch(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
+
+            MemberExpression me = field.Body as MemberExpression;
+            MemberInfo minfo = me.Member;
+            var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
+
+            var result = await _collection.UpdateOneAsync(filter, update);
+        }
+
+        /// <summary>
+        /// Delete subdocument
+        /// </summary>
+        /// <typeparam name="U"></typeparam>
+        /// <typeparam name="Z"></typeparam>
+        /// <param name="id"></param>
+        /// <param name="field"></param>
+        /// <param name="elemFieldMatch"></param>
+        /// <param name="elemMatch"></param>
+        /// <returns></returns>
+        public virtual async Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch)
+        {
+            var filter = Builders<T>.Filter.Eq(x => x.Id, id);
+            var update = Builders<T>.Update.PullFilter(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
+            var result = await _collection.UpdateOneAsync(filter, update);
+
+        }
 
         /// <summary>
         /// Async Update entities

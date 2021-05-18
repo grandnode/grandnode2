@@ -115,6 +115,42 @@ namespace Grand.Domain.Data
         Task UpdateField<U>(string id, Expression<Func<T, U>> expression, U value);
 
         /// <summary>
+        /// Add to set - add subdocument
+        /// </summary>
+        /// <typeparam name="U"></typeparam>
+        /// <param name="id"></param>
+        /// <param name="field"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        Task AddToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, U value);
+
+        /// <summary>
+        /// Update subdocument
+        /// </summary>
+        /// <typeparam name="U">Document</typeparam>
+        /// <typeparam name="Z">Subdocuments</typeparam>
+        /// <param name="id">Ident of entitie</param>
+        /// <param name="field"></param>
+        /// <param name="elemFieldMatch">Subdocument field to match</param>
+        /// <param name="elemMatch">Subdocument ident value</param>
+        /// <param name="value">Subdocument - to update (all values)</param>
+        /// <returns></returns>
+        Task UpdateToSet<U,Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, U value);
+
+        /// <summary>
+        /// Delete subdocument
+        /// </summary>
+        /// <typeparam name="U"></typeparam>
+        /// <typeparam name="Z"></typeparam>
+        /// <param name="id"></param>
+        /// <param name="field"></param>
+        /// <param name="elemFieldMatch"></param>
+        /// <param name="elemMatch"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch);
+
+        /// <summary>
         /// Async Update entities
         /// </summary>
         /// <param name="entities">Entities</param>
