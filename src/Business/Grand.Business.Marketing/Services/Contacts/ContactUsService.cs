@@ -47,7 +47,7 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// </summary>
         public virtual async Task ClearTable()
         {
-            await _contactusRepository.Collection.DeleteManyAsync(new MongoDB.Bson.BsonDocument());
+            await _contactusRepository.ClearAsync();
         }
 
         /// <summary>

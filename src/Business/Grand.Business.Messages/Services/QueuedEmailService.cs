@@ -187,7 +187,7 @@ namespace Grand.Business.Messages.Services
         /// </summary>
         public virtual async Task DeleteAllEmails()
         {
-            await _queuedEmailRepository.Collection.DeleteManyAsync(new MongoDB.Bson.BsonDocument());
+            await _queuedEmailRepository.ClearAsync();
         }
     }
 }

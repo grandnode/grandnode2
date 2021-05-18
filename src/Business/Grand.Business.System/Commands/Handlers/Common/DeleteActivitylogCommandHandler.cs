@@ -19,7 +19,7 @@ namespace Grand.Business.System.Commands.Handlers.Common
 
         public async Task<bool> Handle(DeleteActivitylogCommand request, CancellationToken cancellationToken)
         {
-            await _repositoryActivityLog.Collection.DeleteManyAsync(new BsonDocument());
+            await _repositoryActivityLog.ClearAsync();
             return true;
         }
     }
