@@ -5,8 +5,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Data;
 using Grand.Domain.Tax;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,7 +58,7 @@ namespace Grand.Business.Catalog.Services.Tax
                 var query = from tc in _taxCategoryRepository.Table
                             orderby tc.DisplayOrder
                             select tc;
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
         }
 

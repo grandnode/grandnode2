@@ -2,9 +2,9 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Courses;
 using Grand.Domain.Data;
-using MongoDB.Driver;
 using System;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Grand.Business.Catalog.Services.Products
 {
@@ -21,22 +21,12 @@ namespace Grand.Business.Catalog.Services.Products
 
         public virtual async Task<Course> GetCourseByProductId(string productId)
         {
-            var builder = Builders<Course>.Filter;
-            var filter = FilterDefinition<Course>.Empty;
-
-            filter = filter & builder.Where(p => p.ProductId == productId);
-
-            return await _courseRepository.Collection.Find(filter).FirstOrDefaultAsync();
+            return await _courseRepository.Table.Where(p => p.ProductId == productId).FirstOrDefaultAsync2();
         }
 
         public virtual async Task<Product> GetProductByCourseId(string courseId)
         {
-            var builder = Builders<Product>.Filter;
-            var filter = FilterDefinition<Product>.Empty;
-
-            filter = filter & builder.Where(p => p.CourseId == courseId);
-
-            return await _productRepository.Collection.Find(filter).FirstOrDefaultAsync();
+            return await _productRepository.Table.Where(p => p.CourseId == courseId).FirstOrDefaultAsync2();
         }
 
         public virtual async Task UpdateCourseOnProduct(string productId, string courseId)
@@ -44,13 +34,8 @@ namespace Grand.Business.Catalog.Services.Products
             if (string.IsNullOrEmpty(productId))
                 throw new ArgumentNullException("productId");
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, productId);
-            var update = Builders<Product>.Update
-                .Set(x => x.CourseId, courseId)
-                .CurrentDate("UpdatedOnUtc");
-
-            await _productRepository.Collection.UpdateOneAsync(filter, update);
+            await _productRepository.UpdateField(productId, x => x.CourseId, courseId);
+            await _productRepository.UpdateField(productId, x => x.UpdatedOnUtc, DateTime.UtcNow);
         }
     }
 }
