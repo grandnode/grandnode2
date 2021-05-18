@@ -106,6 +106,15 @@ namespace Grand.Domain.Data
         void Update(IEnumerable<T> entities);
 
         /// <summary>
+        /// Update field for entity
+        /// </summary>
+        /// <typeparam name="U">Value</typeparam>
+        /// <param name="id">Ident record</param>
+        /// <param name="expression">Linq Expression</param>
+        /// <param name="value">value</param>
+        Task UpdateField<U>(string id, Expression<Func<T, U>> expression, U value);
+
+        /// <summary>
         /// Async Update entities
         /// </summary>
         /// <param name="entities">Entities</param>

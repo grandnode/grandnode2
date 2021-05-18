@@ -205,6 +205,24 @@ namespace Grand.Domain.Data
         }
 
         /// <summary>
+        /// Update field for entity
+        /// </summary>
+        /// <typeparam name="U">Value</typeparam>
+        /// <param name="id">Ident record</param>
+        /// <param name="expression">Linq Expression</param>
+        /// <param name="value">value</param>
+        public virtual async Task UpdateField<U>(string id, Expression<Func<T, U>> expression, U value)
+        {
+            var builder = Builders<T>.Filter;
+            var filter = builder.Eq(x => x.Id, id);
+            var update = Builders<T>.Update
+                .Set(expression, value);
+
+            await _collection.UpdateOneAsync(filter, update);
+        }
+
+
+        /// <summary>
         /// Async Update entities
         /// </summary>
         /// <param name="entities">Entities</param>
