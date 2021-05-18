@@ -7,8 +7,6 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,7 +65,8 @@ namespace Grand.Business.Cms.Services
         public virtual async Task<IPagedList<NewsItem>> GetAllNews(string storeId = "",
             int pageIndex = 0, int pageSize = int.MaxValue, bool ignorAcl = false, bool showHidden = false, string newsTitle = "")
         {
-            var query = _newsItemRepository.Table;
+            var query = from p in _newsItemRepository.Table
+                        select p;
 
             if (!String.IsNullOrWhiteSpace(newsTitle))
                 query = query.Where(n => n.Title != null && n.Title.ToLower().Contains(newsTitle.ToLower()));
@@ -162,7 +161,7 @@ namespace Grand.Business.Cms.Services
                          where (customerId == "" || c.CustomerId == customerId)
                          select c;
 
-            return await query2.ToListAsync();
+            return await query2.ToListAsync2();
         }
 
         #endregion

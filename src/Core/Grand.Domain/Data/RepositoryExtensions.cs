@@ -27,5 +27,9 @@ namespace Grand.Domain.Data
         {
             return ((IMongoQueryable<T>)query).FirstOrDefaultAsync();
         }
+        public static Task<T> FirstOrDefaultAsync2<T>(this IQueryable<T> query)
+        {
+            return ((IMongoQueryable<T>)query).FirstOrDefaultAsync();
+        }
     }
 }
