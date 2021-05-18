@@ -144,6 +144,11 @@ namespace Grand.Domain.Data
         Task<IEnumerable<T>> DeleteAsync(IEnumerable<T> entities);
 
         /// <summary>
+        /// Clear entities
+        /// </summary>
+        Task ClearAsync();
+
+        /// <summary>
         /// Gets a table
         /// </summary>
         IMongoQueryable<T> Table { get; }

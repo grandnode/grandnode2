@@ -279,6 +279,13 @@ namespace Grand.Domain.Data
             return entities;
         }
 
+        /// <summary>
+        /// Clear entities
+        /// </summary>
+        public Task ClearAsync()
+        {
+            return _collection.DeleteManyAsync(Builders<T>.Filter.Empty);
+        }
 
         #endregion
 
