@@ -3,9 +3,6 @@ using Grand.Domain.Data;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -59,7 +56,7 @@ namespace Grand.Business.Storage.Services
             return _download;
         }
 
-        protected virtual async Task<byte[]> DownloadAsBytes(ObjectId objectId)
+        protected virtual async Task<byte[]> DownloadAsBytes(MongoDB.Bson.ObjectId objectId)
         {
             var bucket = new MongoDB.Driver.GridFS.GridFSBucket(_downloadRepository.Database);
             var binary = await bucket.DownloadAsBytesAsync(objectId, new MongoDB.Driver.GridFS.GridFSDownloadOptions() { CheckMD5 = true, Seekable = true });
@@ -78,7 +75,8 @@ namespace Grand.Business.Storage.Services
             var query = from o in _downloadRepository.Table
                         where o.DownloadGuid == downloadGuid
                         select o;
-            var order = await query.FirstOrDefaultAsync();
+
+            var order = (await query.ToListAsync2()).FirstOrDefault();
             if (!order.UseDownloadUrl)
                 order.DownloadBinary = await DownloadAsBytes(order.DownloadObjectId);
 
