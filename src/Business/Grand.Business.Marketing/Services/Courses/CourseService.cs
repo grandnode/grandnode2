@@ -7,8 +7,6 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,15 +75,15 @@ namespace Grand.Business.Marketing.Services.Courses
             }
 
             //courses without assigned product
-            var q1 = await query.Where(x => string.IsNullOrEmpty(x.ProductId)).ToListAsync();
+            var q1 = await query.Where(x => string.IsNullOrEmpty(x.ProductId)).ToListAsync2();
 
             //get products from orders - paid/not deleted/for customer/store
             var pl = await _orderRepository.Table.Where(x => x.CustomerId == customer.Id && !x.Deleted
                             && x.PaymentStatusId == Domain.Payments.PaymentStatus.Paid
-                            && x.StoreId == storeId).SelectMany(x => x.OrderItems, (p, pr) => pr.ProductId).Distinct().ToListAsync();
+                            && x.StoreId == storeId).SelectMany(x => x.OrderItems, (p, pr) => pr.ProductId).Distinct().ToListAsync2();
 
             //courses assigned to products
-            var q2 = await query.Where(x => pl.Contains(x.ProductId)).ToListAsync();
+            var q2 = await query.Where(x => pl.Contains(x.ProductId)).ToListAsync2();
 
             return q1.Concat(q2).ToList();
         }

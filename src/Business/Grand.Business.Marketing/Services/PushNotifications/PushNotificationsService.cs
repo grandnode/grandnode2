@@ -7,8 +7,6 @@ using Grand.Domain;
 using Grand.Domain.Data;
 using Grand.Domain.PushNotifications;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -67,7 +65,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         /// <param name="CustomerId"></param>
         public virtual async Task<PushRegistration> GetPushReceiverByCustomerId(string CustomerId)
         {
-            return await _pushRegistratiosnRepository.Table.Where(x => x.CustomerId == CustomerId).FirstOrDefaultAsync();
+            return await _pushRegistratiosnRepository.Table.Where(x => x.CustomerId == CustomerId).FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -85,23 +83,23 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         /// </summary>
         public virtual async Task<List<PushRegistration>> GetPushReceivers()
         {
-            return await _pushRegistratiosnRepository.Table.Where(x => x.Allowed).ToListAsync();
+            return await _pushRegistratiosnRepository.Table.Where(x => x.Allowed).ToListAsync2();
         }
 
         /// <summary>
         /// Gets number of customers that accepted push notifications permission popup
         /// </summary>
-        public virtual Task<int> GetAllowedReceivers()
+        public virtual async Task<int> GetAllowedReceivers()
         {
-            return _pushRegistratiosnRepository.Table.Where(x => x.Allowed).CountAsync();
+            return await Task.FromResult(_pushRegistratiosnRepository.Table.Where(x => x.Allowed).Count());
         }
 
         /// <summary>
         /// Gets number of customers that denied push notifications permission popup
         /// </summary>
-        public virtual Task<int> GetDeniedReceivers()
+        public virtual async Task<int> GetDeniedReceivers()
         {
-            return _pushRegistratiosnRepository.Table.Where(x => !x.Allowed).CountAsync();
+            return await Task.FromResult(_pushRegistratiosnRepository.Table.Where(x => !x.Allowed).Count());
         }
 
         /// <summary>
@@ -119,7 +117,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         /// </summary>
         public virtual async Task<IPagedList<PushMessage>> GetPushMessages(int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var allMessages = await _pushMessagesRepository.Table.OrderByDescending(x => x.SentOn).ToListAsync();
+            var allMessages = await _pushMessagesRepository.Table.OrderByDescending(x => x.SentOn).ToListAsync2();
             return new PagedList<PushMessage>(allMessages.Skip(pageIndex * pageSize).Take(pageSize).ToList(), pageIndex, pageSize, allMessages.Count);
         }
 
@@ -128,7 +126,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         /// </summary>
         public virtual async Task<IPagedList<PushRegistration>> GetPushReceivers(int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var allReceivers = await _pushRegistratiosnRepository.Table.OrderByDescending(x => x.RegisteredOn).ToListAsync();
+            var allReceivers = await _pushRegistratiosnRepository.Table.OrderByDescending(x => x.RegisteredOn).ToListAsync2();
             return new PagedList<PushRegistration>(allReceivers.Skip(pageIndex * pageSize).Take(pageSize).ToList(), pageIndex, pageSize, allReceivers.Count);
         }
 
@@ -249,7 +247,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         /// <param name="Id"></param>
         public virtual Task<PushRegistration> GetPushReceiver(string Id)
         {
-            return _pushRegistratiosnRepository.Table.Where(x => x.Id == Id).FirstOrDefaultAsync();
+            return _pushRegistratiosnRepository.Table.Where(x => x.Id == Id).FirstOrDefaultAsync2();
         }
     }
 }

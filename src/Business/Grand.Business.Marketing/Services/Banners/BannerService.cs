@@ -3,8 +3,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,7 +92,7 @@ namespace Grand.Business.Marketing.Services.Banners
             var query = from c in _bannerRepository.Table
                         orderby c.CreatedOnUtc
                         select c;
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
     }

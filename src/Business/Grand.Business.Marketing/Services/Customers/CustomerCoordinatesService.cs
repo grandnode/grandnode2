@@ -4,7 +4,6 @@ using Grand.Infrastructure;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
 using System;
 using System.Threading.Tasks;
 
@@ -49,13 +48,8 @@ namespace Grand.Business.Marketing.Services.Customers
             var coordinates = new MongoDB.Driver.GeoJsonObjectModel.GeoJson2DCoordinates(longitude, latitude);
             customer.Coordinates = coordinates;
 
-            var builder = Builders<Customer>.Filter;
-            var filter = builder.Eq(x => x.Id, customer.Id);
-            var update = Builders<Customer>.Update
-                .Set(x => x.Coordinates, coordinates);
-
             //update customer
-            await _customerRepository.Collection.UpdateOneAsync(filter, update);
+            await _customerRepository.UpdateField(customer.Id, x => x.Coordinates, coordinates);
 
             //raise event       
             await _mediator.Publish(new CustomerCoordinatesEvent(customer));

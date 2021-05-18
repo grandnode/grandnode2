@@ -11,8 +11,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,7 +56,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         /// <param name="id"></param>
         public virtual async Task DeleteKnowledgebaseCategory(KnowledgebaseCategory kc)
         {
-            var children = await _knowledgebaseCategoryRepository.Table.Where(x => x.ParentCategoryId == kc.Id).ToListAsync();
+            var children = await _knowledgebaseCategoryRepository.Table.Where(x => x.ParentCategoryId == kc.Id).ToListAsync2();
             await _knowledgebaseCategoryRepository.DeleteAsync(kc);
             foreach (var child in children)
             {
@@ -92,7 +90,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         /// <returns>knowledgebase category</returns>
         public virtual Task<KnowledgebaseCategory> GetKnowledgebaseCategory(string id)
         {
-            return _knowledgebaseCategoryRepository.Table.Where(x => x.Id == id).FirstOrDefaultAsync();
+            return _knowledgebaseCategoryRepository.Table.Where(x => x.Id == id).FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -104,28 +102,33 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         {
             string key = string.Format(CacheKey.KNOWLEDGEBASE_CATEGORY_BY_ID, id, _workContext.CurrentCustomer.GetCustomerGroupIds(),
                 _workContext.CurrentStore.Id);
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
-                var builder = Builders<KnowledgebaseCategory>.Filter;
-                var filter = FilterDefinition<KnowledgebaseCategory>.Empty;
-                filter &= builder.Where(x => x.Published);
-                filter &= builder.Where(x => x.Id == id);
+                var query = from p in _knowledgebaseCategoryRepository.Table
+                            select p;
+
+                query = query.Where(x => x.Published);
+                query = query.Where(x => x.Id == id);
 
                 if (!CommonHelper.IgnoreAcl)
                 {
+                    //Limited to customer groups rules
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
-                    filter &= (builder.AnyIn(x => x.CustomerGroups, allowedCustomerGroupsIds) | builder.Where(x => !x.LimitedToGroups));
+                    query = from p in query
+                            where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                            select p;
                 }
 
                 if (!CommonHelper.IgnoreStoreLimitations)
                 {
                     //Store acl
-                    var currentStoreId = new List<string> { _workContext.CurrentStore.Id };
-                    filter &= (builder.AnyIn(x => x.Stores, currentStoreId) | builder.Where(x => !x.LimitedToStores));
+                    query = from p in query
+                            where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                            select p;
                 }
 
-                var toReturn = _knowledgebaseCategoryRepository.Collection.Find(filter);
-                return toReturn.FirstOrDefaultAsync();
+                var toReturn = await query.FirstOrDefaultAsync2();
+                return toReturn;
             });
         }
 
@@ -152,7 +155,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         /// <returns>List of knowledgebase categories</returns>
         public virtual async Task<List<KnowledgebaseCategory>> GetKnowledgebaseCategories()
         {
-            var categories = await _knowledgebaseCategoryRepository.Table.OrderBy(x => x.ParentCategoryId).ThenBy(x => x.DisplayOrder).ToListAsync();
+            var categories = await _knowledgebaseCategoryRepository.Table.OrderBy(x => x.ParentCategoryId).ThenBy(x => x.DisplayOrder).ToListAsync2();
             return categories.SortCategoriesForTree();
         }
 
@@ -163,7 +166,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         /// <returns>knowledgebase article</returns>
         public virtual Task<KnowledgebaseArticle> GetKnowledgebaseArticle(string id)
         {
-            return _knowledgebaseArticleRepository.Table.Where(x => x.Id == id).FirstOrDefaultAsync();
+            return _knowledgebaseArticleRepository.Table.Where(x => x.Id == id).FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -173,26 +176,28 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         /// <param name="storeId">Store ident</param>
         public virtual async Task<List<KnowledgebaseArticle>> GetKnowledgebaseArticles(string storeId = "")
         {
-            var builder = Builders<KnowledgebaseArticle>.Filter;
-            var filter = FilterDefinition<KnowledgebaseArticle>.Empty;
+            var query = from p in _knowledgebaseArticleRepository.Table
+                        select p;
+
             var customer = _workContext.CurrentCustomer;
 
             if (!CommonHelper.IgnoreAcl)
             {
                 var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
-                filter &= (builder.AnyIn(x => x.CustomerGroups, allowedCustomerGroupsIds) | builder.Where(x => !x.LimitedToGroups));
+                query = from p in query
+                        where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                        select p;
             }
 
             if (!CommonHelper.IgnoreStoreLimitations && !string.IsNullOrEmpty(storeId))
             {
-                //Store acl
-                var currentStoreId = new List<string> { storeId };
-                filter &= (builder.AnyIn(x => x.Stores, currentStoreId) | builder.Where(x => !x.LimitedToStores));
+                //Limited to stores rules
+                query = from p in query
+                        where !p.LimitedToStores || p.Stores.Contains(storeId)
+                        select p;
             }
-
-            var builderSort = Builders<KnowledgebaseArticle>.Sort.Ascending(x => x.DisplayOrder);
-            var toReturn = _knowledgebaseArticleRepository.Collection.Find(filter).Sort(builderSort);
-            return await toReturn.ToListAsync();
+            query = query.OrderBy(x => x.DisplayOrder);
+            return await query.ToListAsync2();
         }
 
         /// <summary>
@@ -241,7 +246,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         /// <returns>IPagedList<KnowledgebaseArticle></returns>
         public virtual async Task<IPagedList<KnowledgebaseArticle>> GetKnowledgebaseArticlesByCategoryId(string id, int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var articles = await _knowledgebaseArticleRepository.Table.Where(x => x.ParentCategoryId == id).OrderBy(x => x.DisplayOrder).ToListAsync();
+            var articles = await _knowledgebaseArticleRepository.Table.Where(x => x.ParentCategoryId == id).OrderBy(x => x.DisplayOrder).ToListAsync2();
             return new PagedList<KnowledgebaseArticle>(articles, pageIndex, pageSize);
         }
 
@@ -253,28 +258,31 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         {
             var key = string.Format(CacheKey.KNOWLEDGEBASE_CATEGORIES, string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
                 _workContext.CurrentStore.Id);
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
-                var builder = Builders<KnowledgebaseCategory>.Filter;
-                var filter = FilterDefinition<KnowledgebaseCategory>.Empty;
-                filter = filter & builder.Where(x => x.Published);
+                var query = from p in _knowledgebaseCategoryRepository.Table
+                            select p;
+
+                query = query.Where(x => x.Published);
 
                 if (!CommonHelper.IgnoreAcl)
                 {
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
-                    filter = filter & (builder.AnyIn(x => x.CustomerGroups, allowedCustomerGroupsIds) | builder.Where(x => !x.LimitedToGroups));
+                    query = from p in query
+                            where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                            select p;
                 }
 
                 if (!CommonHelper.IgnoreStoreLimitations)
                 {
                     //Store acl
-                    var currentStoreId = new List<string> { _workContext.CurrentStore.Id };
-                    filter = filter & (builder.AnyIn(x => x.Stores, currentStoreId) | builder.Where(x => !x.LimitedToStores));
+                    query = from p in query
+                            where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                            select p;
                 }
+                query = query.OrderBy(x => x.DisplayOrder);
+                return await query.ToListAsync2();
 
-                var builderSort = Builders<KnowledgebaseCategory>.Sort.Ascending(x => x.DisplayOrder);
-                var toReturn = _knowledgebaseCategoryRepository.Collection.Find(filter).Sort(builderSort);
-                return toReturn.ToListAsync();
             });
         }
 
@@ -287,28 +295,31 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
             var key = string.Format(CacheKey.ARTICLES, string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
                 _workContext.CurrentStore.Id);
 
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
-                var builder = Builders<KnowledgebaseArticle>.Filter;
-                var filter = FilterDefinition<KnowledgebaseArticle>.Empty;
-                filter = filter & builder.Where(x => x.Published);
+                var query = from p in _knowledgebaseArticleRepository.Table
+                            select p;
+
+                query = query.Where(x => x.Published);
 
                 if (!CommonHelper.IgnoreAcl)
                 {
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
-                    filter = filter & (builder.AnyIn(x => x.CustomerGroups, allowedCustomerGroupsIds) | builder.Where(x => !x.LimitedToGroups));
+                    query = from p in query
+                            where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                            select p;
                 }
 
                 if (!CommonHelper.IgnoreStoreLimitations)
                 {
                     //Store acl
-                    var currentStoreId = new List<string> { _workContext.CurrentStore.Id };
-                    filter = filter & (builder.AnyIn(x => x.Stores, currentStoreId) | builder.Where(x => !x.LimitedToStores));
+                    query = from p in query
+                            where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                            select p;
                 }
 
-                var builderSort = Builders<KnowledgebaseArticle>.Sort.Ascending(x => x.DisplayOrder);
-                var toReturn = _knowledgebaseArticleRepository.Collection.Find(filter).Sort(builderSort);
-                return toReturn.ToListAsync();
+                query = query.OrderBy(x => x.DisplayOrder);
+                return await query.ToListAsync2();
             });
         }
 
@@ -322,25 +333,29 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                 _workContext.CurrentStore.Id);
             return await _cacheBase.GetAsync(key, () =>
             {
-                var builder = Builders<KnowledgebaseArticle>.Filter;
-                var filter = FilterDefinition<KnowledgebaseArticle>.Empty;
-                filter = filter & builder.Where(x => x.Published);
-                filter = filter & builder.Where(x => x.Id == id);
+                var query = from p in _knowledgebaseArticleRepository.Table
+                            select p;
+
+                query = query.Where(x => x.Published);
+                query = query.Where(x => x.Id == id);
 
                 if (!CommonHelper.IgnoreAcl)
                 {
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
-                    filter = filter & (builder.AnyIn(x => x.CustomerGroups, allowedCustomerGroupsIds) | builder.Where(x => !x.LimitedToGroups));
+                    query = from p in query
+                            where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                            select p;
                 }
 
                 if (!CommonHelper.IgnoreStoreLimitations)
                 {
                     //Store acl
-                    var currentStoreId = new List<string> { _workContext.CurrentStore.Id };
-                    filter = filter & (builder.AnyIn(x => x.Stores, currentStoreId) | builder.Where(x => !x.LimitedToStores));
+                    query = from p in query
+                            where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                            select p; 
                 }
 
-                return _knowledgebaseArticleRepository.Collection.Find(filter).FirstOrDefaultAsync();
+                return query.FirstOrDefaultAsync2();
             });
         }
 
@@ -352,29 +367,32 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         {
             var key = string.Format(CacheKey.ARTICLES_BY_CATEGORY_ID, categoryId, string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
                 _workContext.CurrentStore.Id);
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
-                var builder = Builders<KnowledgebaseArticle>.Filter;
-                var filter = FilterDefinition<KnowledgebaseArticle>.Empty;
-                filter = filter & builder.Where(x => x.Published);
-                filter = filter & builder.Where(x => x.ParentCategoryId == categoryId);
+                var query = from p in _knowledgebaseArticleRepository.Table
+                            select p;
+
+                query = query.Where(x => x.Published);
+                query = query.Where(x => x.ParentCategoryId == categoryId);
 
                 if (!CommonHelper.IgnoreAcl)
                 {
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
-                    filter = filter & (builder.AnyIn(x => x.CustomerGroups, allowedCustomerGroupsIds) | builder.Where(x => !x.LimitedToGroups));
+                    query = from p in query
+                            where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                            select p;
                 }
 
                 if (!CommonHelper.IgnoreStoreLimitations)
                 {
                     //Store acl
                     var currentStoreId = new List<string> { _workContext.CurrentStore.Id };
-                    filter = filter & (builder.AnyIn(x => x.Stores, currentStoreId) | builder.Where(x => !x.LimitedToStores));
+                    query = from p in query
+                            where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                            select p;
                 }
-
-                var builderSort = Builders<KnowledgebaseArticle>.Sort.Ascending(x => x.DisplayOrder);
-                var toReturn = _knowledgebaseArticleRepository.Collection.Find(filter).Sort(builderSort);
-                return toReturn.ToListAsync();
+                query = query.OrderBy(x => x.DisplayOrder);
+                return await query.ToListAsync2();
             });
         }
 
@@ -386,41 +404,35 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         {
             var key = string.Format(CacheKey.ARTICLES_BY_KEYWORD, keyword, string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
                 _workContext.CurrentStore.Id);
-            return await _cacheBase.GetAsync(key, () =>
-            {
-                var builder = Builders<KnowledgebaseArticle>.Filter;
-                var filter = FilterDefinition<KnowledgebaseArticle>.Empty;
-                filter = filter & builder.Where(x => x.Published);
 
-                if (_fullTextSettings.UseFullTextSearch)
-                {
-                    keyword = "\"" + keyword + "\"";
-                    keyword = keyword.Replace("+", "\" \"");
-                    keyword = keyword.Replace(" ", "\" \"");
-                    filter = filter & builder.Text(keyword);
-                }
-                else
-                {
-                    filter = filter & builder.Where(p => p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(keyword.ToLower()))
+            return await _cacheBase.GetAsync(key, async () =>
+            {
+                var query = from p in _knowledgebaseArticleRepository.Table
+                            select p;
+
+                query = query.Where(x => x.Published);
+
+                query = query.Where(p => p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(keyword.ToLower()))
                     || p.Name.ToLower().Contains(keyword.ToLower()) || p.Content.ToLower().Contains(keyword.ToLower()));
-                }
 
                 if (!CommonHelper.IgnoreAcl)
                 {
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
-                    filter = filter & (builder.AnyIn(x => x.CustomerGroups, allowedCustomerGroupsIds) | builder.Where(x => !x.LimitedToGroups));
+                    query = from p in query
+                            where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                            select p;
                 }
 
                 if (!CommonHelper.IgnoreStoreLimitations)
                 {
                     //Store acl
                     var currentStoreId = new List<string> { _workContext.CurrentStore.Id };
-                    filter = filter & (builder.AnyIn(x => x.Stores, currentStoreId) | builder.Where(x => !x.LimitedToStores));
+                    query = from p in query
+                            where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                            select p;
                 }
-
-                var builderSort = Builders<KnowledgebaseArticle>.Sort.Ascending(x => x.DisplayOrder);
-                var toReturn = _knowledgebaseArticleRepository.Collection.Find(filter).Sort(builderSort);
-                return toReturn.ToListAsync();
+                query = query.OrderBy(x => x.DisplayOrder);
+                return await query.ToListAsync2();
             });
         }
 
@@ -432,41 +444,34 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         {
             var key = string.Format(CacheKey.KNOWLEDGEBASE_CATEGORIES_BY_KEYWORD, keyword, string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
                 _workContext.CurrentStore.Id);
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
-                var builder = Builders<KnowledgebaseCategory>.Filter;
-                var filter = FilterDefinition<KnowledgebaseCategory>.Empty;
-                filter = filter & builder.Where(x => x.Published);
+                var query = from p in _knowledgebaseCategoryRepository.Table
+                            select p;
 
-                if (_fullTextSettings.UseFullTextSearch)
-                {
-                    keyword = "\"" + keyword + "\"";
-                    keyword = keyword.Replace("+", "\" \"");
-                    keyword = keyword.Replace(" ", "\" \"");
-                    filter = filter & builder.Text(keyword);
-                }
-                else
-                {
-                    filter = filter & builder.Where(p => p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(keyword.ToLower()))
+                query = query.Where(x => x.Published);
+
+                query = query.Where(p => p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(keyword.ToLower()))
                     || p.Name.ToLower().Contains(keyword.ToLower()) || p.Description.ToLower().Contains(keyword.ToLower()));
-                }
 
                 if (!CommonHelper.IgnoreAcl)
                 {
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
-                    filter = filter & (builder.AnyIn(x => x.CustomerGroups, allowedCustomerGroupsIds) | builder.Where(x => !x.LimitedToGroups));
+                    query = from p in query
+                            where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                            select p;
                 }
 
                 if (!CommonHelper.IgnoreStoreLimitations)
                 {
                     //Store acl
-                    var currentStoreId = new List<string> { _workContext.CurrentStore.Id };
-                    filter = filter & (builder.AnyIn(x => x.Stores, currentStoreId) | builder.Where(x => !x.LimitedToStores));
+                    query = from p in query
+                            where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                            select p; ;
                 }
+                query = query.OrderBy(x => x.DisplayOrder);
+                return await query.ToListAsync2();
 
-                var builderSort = Builders<KnowledgebaseCategory>.Sort.Ascending(x => x.DisplayOrder);
-                var toReturn = _knowledgebaseCategoryRepository.Collection.Find(filter).Sort(builderSort);
-                return toReturn.ToListAsync();
             });
         }
 
@@ -478,29 +483,32 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         {
             var key = string.Format(CacheKey.HOMEPAGE_ARTICLES, string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
                 _workContext.CurrentStore.Id);
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
-                var builder = Builders<KnowledgebaseArticle>.Filter;
-                var filter = FilterDefinition<KnowledgebaseArticle>.Empty;
-                filter = filter & builder.Where(x => x.Published);
-                filter = filter & builder.Where(x => x.ShowOnHomepage);
+                var query = from p in _knowledgebaseArticleRepository.Table
+                            select p;
+
+                query = query.Where(x => x.Published);
+                query = query.Where(x => x.ShowOnHomepage);
 
                 if (!CommonHelper.IgnoreAcl)
                 {
                     var allowedCustomerGroupsIds = _workContext.CurrentCustomer.GetCustomerGroupIds();
-                    filter = filter & (builder.AnyIn(x => x.CustomerGroups, allowedCustomerGroupsIds) | builder.Where(x => !x.LimitedToGroups));
+                    query = from p in query
+                            where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                            select p;
                 }
 
                 if (!CommonHelper.IgnoreStoreLimitations)
                 {
                     //Store acl
-                    var currentStoreId = new List<string> { _workContext.CurrentStore.Id };
-                    filter = filter & (builder.AnyIn(x => x.Stores, currentStoreId) | builder.Where(x => !x.LimitedToStores));
+                    query = from p in query
+                            where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
+                            select p;
                 }
+                query = query.OrderBy(x => x.DisplayOrder);
+                return await query.ToListAsync2();
 
-                var builderSort = Builders<KnowledgebaseArticle>.Sort.Ascending(x => x.DisplayOrder);
-                var toReturn = _knowledgebaseArticleRepository.Collection.Find(filter).Sort(builderSort);
-                return toReturn.ToListAsync();
             });
         }
 
@@ -511,29 +519,22 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         /// <returns>IPagedList<KnowledgebaseArticle></returns>
         public virtual async Task<IPagedList<KnowledgebaseArticle>> GetKnowledgebaseArticlesByName(string name, int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var builder = Builders<KnowledgebaseArticle>.Filter;
-            var filter = FilterDefinition<KnowledgebaseArticle>.Empty;
-            filter = filter & builder.Where(x => x.Published);
+            var query = from p in _knowledgebaseArticleRepository.Table
+                        select p;
+
+
+            query = query.Where(x => x.Published);
 
             if (!string.IsNullOrEmpty(name))
             {
-                if (_fullTextSettings.UseFullTextSearch)
-                {
-                    name = "\"" + name + "\"";
-                    name = name.Replace("+", "\" \"");
-                    name = name.Replace(" ", "\" \"");
-                    filter = filter & builder.Text(name);
-                }
-                else
-                {
-                    filter = filter & builder.Where(p => p.Locales.Any(x => x.LocaleKey == "Name" && x.LocaleValue != null && x.LocaleValue.ToLower().
-                        Contains(name.ToLower()))
+
+                query = query.Where(p => p.Locales.Any(x => x.LocaleKey == "Name" && x.LocaleValue != null && x.LocaleValue.ToLower().Contains(name.ToLower()))
                     || p.Name.ToLower().Contains(name.ToLower()));
-                }
+                
             }
 
-            var builderSort = Builders<KnowledgebaseArticle>.Sort.Ascending(x => x.DisplayOrder);
-            var toReturn = await _knowledgebaseArticleRepository.Collection.Find(filter).Sort(builderSort).ToListAsync();
+            query = query.OrderBy(x => x.DisplayOrder);
+            var toReturn  = await query.ToListAsync2();
 
             return new PagedList<KnowledgebaseArticle>(toReturn, pageIndex, pageSize);
         }
@@ -584,7 +585,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                         orderby c.CreatedOnUtc
                         where (customerId == "" || c.CustomerId == customerId)
                         select c;
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>
@@ -610,7 +611,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
             var query = from bc in _articleCommentRepository.Table
                         where commentIds.Contains(bc.Id)
                         select bc;
-            var comments = await query.ToListAsync();
+            var comments = await query.ToListAsync2();
             //sort by passed identifiers
             var sortedComments = new List<KnowledgebaseArticleComment>();
             foreach (string id in commentIds)
@@ -628,7 +629,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                         where c.ArticleId == articleId
                         orderby c.CreatedOnUtc
                         select c;
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         public virtual async Task DeleteArticleComment(KnowledgebaseArticleComment articleComment)

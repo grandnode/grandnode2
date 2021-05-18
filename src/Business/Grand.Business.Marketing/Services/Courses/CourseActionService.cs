@@ -3,10 +3,9 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Courses;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Grand.Business.Marketing.Services.Courses
 {
@@ -31,14 +30,14 @@ namespace Grand.Business.Marketing.Services.Courses
                         where a.CustomerId == customerId && a.LessonId == lessonId
                         select a;
 
-            return await query.FirstOrDefaultAsync();
+            return await query.FirstOrDefaultAsync2();
         }
 
         public virtual async Task<bool> CustomerLessonCompleted(string customerId, string lessonId)
         {
             var query = await (from a in _courseActionRepository.Table
                                where a.CustomerId == customerId && a.LessonId == lessonId
-                               select a).FirstOrDefaultAsync();
+                               select a).FirstOrDefaultAsync2();
 
             return query != null ? query.Finished : false;
         }

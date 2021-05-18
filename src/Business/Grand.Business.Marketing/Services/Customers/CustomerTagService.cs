@@ -6,9 +6,6 @@ using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,9 +70,9 @@ namespace Grand.Business.Marketing.Services.Customers
             if (customerTag == null)
                 throw new ArgumentNullException(nameof(customerTag));
 
-            var builder = Builders<Customer>.Update;
+            var builder = MongoDB.Driver.Builders<Customer>.Update;
             var updatefilter = builder.Pull(x => x.CustomerTags, customerTag.Id);
-            await _customerRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilter);
+            await _customerRepository.Collection.UpdateManyAsync(new MongoDB.Bson.BsonDocument(), updatefilter);
 
             await _customerTagRepository.DeleteAsync(customerTag);
 
@@ -90,7 +87,7 @@ namespace Grand.Business.Marketing.Services.Customers
         public virtual async Task<IList<CustomerTag>> GetAllCustomerTags()
         {
             var query = _customerTagRepository.Table;
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>
@@ -114,7 +111,7 @@ namespace Grand.Business.Marketing.Services.Customers
                         where pt.Name == name
                         select pt;
 
-            return query.FirstOrDefaultAsync();
+            return query.FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -127,7 +124,7 @@ namespace Grand.Business.Marketing.Services.Customers
             var query = from pt in _customerTagRepository.Table
                         where pt.Name.ToLower().Contains(name.ToLower())
                         select pt;
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>
@@ -150,9 +147,9 @@ namespace Grand.Business.Marketing.Services.Customers
         /// </summary>
         public virtual async Task InsertTagToCustomer(string customerTagId, string customerId)
         {
-            var updatebuilder = Builders<Customer>.Update;
+            var updatebuilder = MongoDB.Driver.Builders<Customer>.Update;
             var update = updatebuilder.AddToSet(p => p.CustomerTags, customerTagId);
-            await _customerRepository.Collection.UpdateOneAsync(new BsonDocument("_id", customerId), update);
+            await _customerRepository.Collection.UpdateOneAsync(new MongoDB.Bson.BsonDocument("_id", customerId), update);
         }
 
         /// <summary>
@@ -160,9 +157,9 @@ namespace Grand.Business.Marketing.Services.Customers
         /// </summary>
         public virtual async Task DeleteTagFromCustomer(string customerTagId, string customerId)
         {
-            var updatebuilder = Builders<Customer>.Update;
+            var updatebuilder = MongoDB.Driver.Builders<Customer>.Update;
             var update = updatebuilder.Pull(p => p.CustomerTags, customerTagId);
-            await _customerRepository.Collection.UpdateOneAsync(new BsonDocument("_id", customerId), update);
+            await _customerRepository.Collection.UpdateOneAsync(new MongoDB.Bson.BsonDocument("_id", customerId), update);
         }
 
         /// <summary>
@@ -189,7 +186,7 @@ namespace Grand.Business.Marketing.Services.Customers
         {
             var query = await _customerRepository.Table.
                 Where(x => x.CustomerTags.Contains(customerTagId)).
-                GroupBy(p => p, (k, s) => new { Counter = s.Count() }).ToListAsync();
+                GroupBy(p => p, (k, s) => new { Counter = s.Count() }).ToListAsync2();
             if (query.Count > 0)
                 return query.FirstOrDefault().Counter;
             return 0;
@@ -212,7 +209,7 @@ namespace Grand.Business.Marketing.Services.Customers
                             where (cr.CustomerTagId == customerTagId)
                             orderby cr.DisplayOrder
                             select cr;
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
         }
 
@@ -228,7 +225,7 @@ namespace Grand.Business.Marketing.Services.Customers
                         where cr.CustomerTagId == customerTagId && cr.ProductId == productId
                         orderby cr.DisplayOrder
                         select cr;
-            return query.FirstOrDefaultAsync();
+            return query.FirstOrDefaultAsync2();
         }
 
         /// <summary>
