@@ -1,11 +1,11 @@
 ﻿using Grand.Domain.Payments;
 using MediatR;
-using MongoDB.Driver.Linq;
 using System;
+using System.Linq;
 
 namespace Grand.Business.Checkout.Queries.Models.Orders
 {
-    public class GetPaymentTransactionQuery : IRequest<IMongoQueryable<PaymentTransaction>>
+    public class GetPaymentTransactionQuery : IRequest<IQueryable<PaymentTransaction>>
     {
         public string StoreId { get; set; } = "";
         public string CustomerEmail { get; set; } = "";

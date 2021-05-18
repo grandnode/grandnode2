@@ -2,14 +2,13 @@
 using Grand.Domain.Data;
 using Grand.Domain.Orders;
 using MediatR;
-using MongoDB.Driver.Linq;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders
 {
-    public class GetGiftVoucherQueryHandler : IRequestHandler<GetGiftVoucherQuery, IMongoQueryable<GiftVoucher>>
+    public class GetGiftVoucherQueryHandler : IRequestHandler<GetGiftVoucherQuery, IQueryable<GiftVoucher>>
     {
         private readonly IRepository<GiftVoucher> _giftVoucherRepository;
 
@@ -18,9 +17,10 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             _giftVoucherRepository = giftVoucherRepository;
         }
 
-        public Task<IMongoQueryable<GiftVoucher>> Handle(GetGiftVoucherQuery request, CancellationToken cancellationToken)
+        public Task<IQueryable<GiftVoucher>> Handle(GetGiftVoucherQuery request, CancellationToken cancellationToken)
         {
-            var query = _giftVoucherRepository.Table;
+            var query = from p in _giftVoucherRepository.Table
+                        select p;
 
             if (!string.IsNullOrEmpty(request.GiftVoucherId))
                 query = query.Where(gc => gc.Id == request.GiftVoucherId);

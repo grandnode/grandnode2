@@ -2,14 +2,13 @@
 using Grand.Domain.Data;
 using Grand.Domain.Orders;
 using MediatR;
-using MongoDB.Driver.Linq;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders
 {
-    public class GetMerchandiseReturnQueryHandler : IRequestHandler<GetMerchandiseReturnQuery, IMongoQueryable<MerchandiseReturn>>
+    public class GetMerchandiseReturnQueryHandler : IRequestHandler<GetMerchandiseReturnQuery, IQueryable<MerchandiseReturn>>
     {
         private readonly IRepository<MerchandiseReturn> _merchandiseReturnRepository;
 
@@ -18,9 +17,11 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             _merchandiseReturnRepository = merchandiseReturnRepository;
         }
 
-        public Task<IMongoQueryable<MerchandiseReturn>> Handle(GetMerchandiseReturnQuery request, CancellationToken cancellationToken)
+        public Task<IQueryable<MerchandiseReturn>> Handle(GetMerchandiseReturnQuery request, CancellationToken cancellationToken)
         {
-            var query = _merchandiseReturnRepository.Table;
+            var query = from p in _merchandiseReturnRepository.Table
+                        select p;
+
             if (!string.IsNullOrEmpty(request.StoreId))
                 query = query.Where(rr => request.StoreId == rr.StoreId);
 

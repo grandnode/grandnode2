@@ -7,8 +7,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Shipping;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,7 +87,7 @@ namespace Grand.Business.Checkout.Services.Shipping
                 var query = from sm in _shippingMethodRepository.Table
                             orderby sm.DisplayOrder
                             select sm;
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
 
             if (!string.IsNullOrEmpty(filterByCountryId))

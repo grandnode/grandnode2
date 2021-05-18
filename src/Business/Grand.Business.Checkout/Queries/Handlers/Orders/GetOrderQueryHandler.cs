@@ -2,8 +2,6 @@
 using Grand.Domain.Data;
 using Grand.Domain.Orders;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Linq;
 using System.Threading;
@@ -11,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders
 {
-    public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, IMongoQueryable<Order>>
+    public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, IQueryable<Order>>
     {
         private readonly IRepository<Order> _orderRepository;
 
@@ -20,9 +18,11 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             _orderRepository = orderRepository;
         }
 
-        public Task<IMongoQueryable<Order>> Handle(GetOrderQuery request, CancellationToken cancellationToken)
+        public Task<IQueryable<Order>> Handle(GetOrderQuery request, CancellationToken cancellationToken)
         {
-            var query = _orderRepository.Table;
+            var query = from p in _orderRepository.Table
+                        select p;
+
             if (!string.IsNullOrEmpty(request.OrderId))
                 query = query.Where(o => o.Id == request.OrderId);
 

@@ -6,8 +6,6 @@ using Grand.Domain.Common;
 using Grand.Domain.Data;
 using Grand.Domain.Shipping;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,32 +71,29 @@ namespace Grand.Business.Checkout.Services.Shipping
             DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
             int pageIndex = 0, int pageSize = int.MaxValue)
         {
-
-            var builder = Builders<Shipment>.Filter;
-            var filter = builder.Where(s => s.OrderId != "");
+            var query = from p in _shipmentRepository.Table
+                        select p;
 
             if (!string.IsNullOrEmpty(storeId))
             {
-                filter = filter & builder.Where(x => x.StoreId == storeId);
+                query = query.Where(x => x.StoreId == storeId);
             }
             if (!string.IsNullOrEmpty(vendorId))
             {
-                filter = filter & builder.Where(x => x.VendorId == vendorId);
+                query = query.Where(x => x.VendorId == vendorId);
             }
             if (!string.IsNullOrEmpty(trackingNumber))
-                filter = filter & builder.Where(s => s.TrackingNumber.Contains(trackingNumber));
+                query = query.Where(s => s.TrackingNumber.Contains(trackingNumber));
 
             if (loadNotShipped)
-                filter = filter & builder.Where(s => !s.ShippedDateUtc.HasValue);
+                query = query.Where(s => !s.ShippedDateUtc.HasValue);
             if (createdFromUtc.HasValue)
-                filter = filter & builder.Where(s => createdFromUtc.Value <= s.CreatedOnUtc);
+                query = query.Where(s => createdFromUtc.Value <= s.CreatedOnUtc);
             if (createdToUtc.HasValue)
-                filter = filter & builder.Where(s => createdToUtc.Value >= s.CreatedOnUtc);
+                query = query.Where(s => createdToUtc.Value >= s.CreatedOnUtc);
 
-            var builderSort = Builders<Shipment>.Sort.Descending(x => x.CreatedOnUtc);
-
-            var query = _shipmentRepository.Collection;
-            var shipments = await PagedList<Shipment>.Create(query, filter, builderSort, pageIndex, pageSize);
+            query = query.OrderByDescending(x => x.CreatedOnUtc);
+            var shipments = await PagedList<Shipment>.Create(query, pageIndex, pageSize);
             return shipments;
 
         }
@@ -116,7 +111,7 @@ namespace Grand.Business.Checkout.Services.Shipping
             var query = from o in _shipmentRepository.Table
                         where shipmentIds.Contains(o.Id)
                         select o;
-            var shipments = await query.ToListAsync();
+            var shipments = await query.ToListAsync2();
 
             //sort by passed identifiers
             var sortedOrders = new List<Shipment>();
@@ -132,7 +127,7 @@ namespace Grand.Business.Checkout.Services.Shipping
 
         public virtual async Task<IList<Shipment>> GetShipmentsByOrder(string orderId)
         {
-            return await _shipmentRepository.Collection.Find(x => x.OrderId == orderId).ToListAsync();
+            return await _shipmentRepository.Table.Where(x => x.OrderId == orderId).ToListAsync2();
         }
 
         /// <summary>
@@ -212,7 +207,9 @@ namespace Grand.Business.Checkout.Services.Shipping
             if (!product.UseMultipleWarehouses)
                 return 0;
 
-            var query = _shipmentRepository.Table;
+            var query = from p in _shipmentRepository.Table
+                        select p;
+
             if (!String.IsNullOrEmpty(warehouseId))
                 query = query.Where(si => si.ShipmentItems.Any(x => x.WarehouseId == warehouseId));
             if (ignoreShipped)
@@ -228,7 +225,7 @@ namespace Grand.Business.Checkout.Services.Shipping
             if (!String.IsNullOrEmpty(warehouseId))
                 result = result.Where(x => x.WarehouseId == warehouseId);
 
-            return await result.SumAsync(x => x.Quantity);
+            return await Task.FromResult(result.Sum(x => x.Quantity));
 
         }
 
@@ -271,7 +268,7 @@ namespace Grand.Business.Checkout.Services.Shipping
                         orderby shipmentNote.CreatedOnUtc descending
                         select shipmentNote;
 
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>
@@ -281,7 +278,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <returns>shipmentNote</returns>
         public virtual Task<ShipmentNote> GetShipmentNote(string shipmentnoteId)
         {
-            return _shipmentNoteRepository.Table.Where(x => x.Id == shipmentnoteId).FirstOrDefaultAsync();
+            return _shipmentNoteRepository.Table.Where(x => x.Id == shipmentnoteId).FirstOrDefaultAsync2();
         }
 
 

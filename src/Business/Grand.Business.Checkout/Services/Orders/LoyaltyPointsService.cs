@@ -3,8 +3,6 @@ using Grand.Domain.Data;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,14 +51,16 @@ namespace Grand.Business.Checkout.Services.Orders
 
         public virtual async Task<int> GetLoyaltyPointsBalance(string customerId, string storeId)
         {
-            var query = _rphRepository.Table;
+            var query = from p in _rphRepository.Table
+                        select p;
+
             if (!String.IsNullOrEmpty(customerId))
                 query = query.Where(rph => rph.CustomerId == customerId);
             if (!_loyaltyPointsSettings.PointsAccumulatedForAllStores)
                 query = query.Where(rph => rph.StoreId == storeId);
             query = query.OrderByDescending(rph => rph.CreatedOnUtc).ThenByDescending(rph => rph.Id);
 
-            var lastRph = await query.FirstOrDefaultAsync();
+            var lastRph = await query.FirstOrDefaultAsync2();
             return lastRph != null ? lastRph.PointsBalance : 0;
 
         }
@@ -100,7 +100,9 @@ namespace Grand.Business.Checkout.Services.Orders
 
         public virtual async Task<IList<LoyaltyPointsHistory>> GetLoyaltyPointsHistory(string customerId = "", string storeId = "", bool showAll = false)
         {
-            var query = _rphRepository.Table;
+            var query = from p in _rphRepository.Table
+                        select p;
+
             if (!string.IsNullOrEmpty(customerId))
                 query = query.Where(rph => rph.CustomerId == customerId);
             if (!showAll && !_loyaltyPointsSettings.PointsAccumulatedForAllStores)
@@ -111,7 +113,7 @@ namespace Grand.Business.Checkout.Services.Orders
             }
             query = query.OrderByDescending(rph => rph.CreatedOnUtc).ThenByDescending(rph => rph.Id);
 
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         #endregion

@@ -1,11 +1,11 @@
 ﻿using Grand.Domain.Orders;
 using MediatR;
-using MongoDB.Driver.Linq;
 using System;
+using System.Linq;
 
 namespace Grand.Business.Checkout.Queries.Models.Orders
 {
-    public class GetMerchandiseReturnQuery : IRequest<IMongoQueryable<MerchandiseReturn>>
+    public class GetMerchandiseReturnQuery : IRequest<IQueryable<MerchandiseReturn>>
     {
         public string StoreId { get; set; } = "";
         public string CustomerId { get; set; } = "";
