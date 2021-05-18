@@ -7,8 +7,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -111,7 +109,7 @@ namespace Grand.Business.Common.Services.Directory
                 var query = from q in _currencyRepository.Table
                             where q.CurrencyCode.ToLowerInvariant() == currencyCode.ToLower()
                             select q;
-                return query.FirstOrDefaultAsync();
+                return query.FirstOrDefaultAsync2();
             });
         }
 
@@ -126,12 +124,13 @@ namespace Grand.Business.Common.Services.Directory
             string key = string.Format(CacheKey.CURRENCIES_ALL_KEY, showHidden);
             var currencies = await _cacheBase.GetAsync(key, () =>
             {
-                var query = _currencyRepository.Table;
+                var query = from p in _currencyRepository.Table
+                            select p;
 
                 if (!showHidden)
                     query = query.Where(c => c.Published);
                 query = query.OrderBy(c => c.DisplayOrder);
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
 
             //store acl

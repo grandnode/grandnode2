@@ -6,8 +6,6 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -85,7 +83,7 @@ namespace Grand.Business.Common.Services.Localization
                         orderby lsr.Name
                         where lsr.LanguageId == languageId && lsr.Name == name
                         select lsr;
-            var translateResource = query.FirstOrDefaultAsync();
+            var translateResource = query.FirstOrDefaultAsync2();
             return translateResource;
         }
 
@@ -96,8 +94,7 @@ namespace Grand.Business.Common.Services.Localization
         /// <returns>Translate resources</returns>
         public virtual IList<TranslationResource> GetAllResources(string languageId)
         {
-            var filter = Builders<TranslationResource>.Filter.Eq(x => x.LanguageId, languageId);
-            return _translationRepository.Collection.Find(filter).ToList();
+            return _translationRepository.Table.Where(x=>x.LanguageId == languageId).ToList();
         }
 
         /// <summary>
@@ -301,7 +298,7 @@ namespace Grand.Business.Common.Services.Localization
                 //bulk insert
                 var resource = await (from l in _translationRepository.Table
                                       where l.Name == name.ToLowerInvariant() && l.LanguageId == language.Id
-                                      select l).FirstOrDefaultAsync();
+                                      select l).FirstOrDefaultAsync2();
 
                 if (resource != null)
                 {

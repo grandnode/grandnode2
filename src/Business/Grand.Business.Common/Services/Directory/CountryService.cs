@@ -8,8 +8,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,18 +66,21 @@ namespace Grand.Business.Common.Services.Directory
 
             return await _cacheBase.GetAsync(key, async () =>
             {
-                var builder = Builders<Country>.Filter;
-                var filter = builder.Empty;
+                var query = from p in _countryRepository.Table
+                            select p;
 
                 if (!showHidden)
-                    filter &= builder.Where(c => c.Published);
+                    query = query.Where(c => c.Published);
 
                 if (!showHidden && !CommonHelper.IgnoreStoreLimitations && string.IsNullOrEmpty(storeId))
                 {
                     //Store acl
-                    filter &= (builder.AnyIn(x => x.Stores, new List<string> { storeId }) | builder.Where(x => !x.LimitedToStores));
+                    query = from p in query
+                            where !p.LimitedToStores || p.Stores.Contains(storeId)
+                            select p;
                 }
-                var countries = await _countryRepository.Collection.Find(filter).SortBy(x => x.DisplayOrder).ThenBy(x => x.Name).ToListAsync();
+
+                var countries = await query.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).ToListAsync2();
                 if (!string.IsNullOrEmpty(languageId))
                 {
                     countries = countries
@@ -144,7 +145,7 @@ namespace Grand.Business.Common.Services.Directory
             var query = from c in _countryRepository.Table
                         where countryIds.Contains(c.Id)
                         select c;
-            var countries = await query.ToListAsync();
+            var countries = await query.ToListAsync2();
             //sort by passed identifiers
             var sortedCountries = new List<Country>();
             foreach (string id in countryIds)
@@ -166,8 +167,7 @@ namespace Grand.Business.Common.Services.Directory
             var key = string.Format(CacheKey.COUNTRIES_BY_TWOLETTER, twoLetterIsoCode);
             return _cacheBase.GetAsync(key, () =>
             {
-                var filter = Builders<Country>.Filter.Eq(x => x.TwoLetterIsoCode, twoLetterIsoCode);
-                return _countryRepository.Collection.Find(filter).FirstOrDefaultAsync();
+                return _countryRepository.Table.Where(x => x.TwoLetterIsoCode == twoLetterIsoCode).FirstOrDefaultAsync2();
             });
         }
 
@@ -181,8 +181,7 @@ namespace Grand.Business.Common.Services.Directory
             var key = string.Format(CacheKey.COUNTRIES_BY_THREELETTER, threeLetterIsoCode);
             return _cacheBase.GetAsync(key, () =>
             {
-                var filter = Builders<Country>.Filter.Eq(x => x.ThreeLetterIsoCode, threeLetterIsoCode);
-                return _countryRepository.Collection.Find(filter).FirstOrDefaultAsync();
+                return _countryRepository.Table.Where(x => x.ThreeLetterIsoCode == threeLetterIsoCode).FirstOrDefaultAsync2();
             });
         }
 

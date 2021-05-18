@@ -7,8 +7,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,7 +66,7 @@ namespace Grand.Business.System.Commands.Handlers.Catalog
         {
             var query = await _outOfStockSubscriptionRepository.Table
                 .Where(biss => biss.ProductId == productId)
-                .OrderByDescending(biss => biss.CreatedOnUtc).ToListAsync();
+                .OrderByDescending(biss => biss.CreatedOnUtc).ToListAsync2();
 
             //warehouse
             if (!string.IsNullOrEmpty(warehouseId))

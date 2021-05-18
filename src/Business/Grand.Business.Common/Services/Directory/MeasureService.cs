@@ -6,8 +6,6 @@ using Grand.Domain.Data;
 using Grand.Domain.Directory;
 using Grand.SharedKernel;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,8 +18,6 @@ namespace Grand.Business.Common.Services.Directory
     /// </summary>
     public partial class MeasureService : IMeasureService
     {
-
-
         #region Fields
 
         private readonly IRepository<MeasureDimension> _measureDimensionRepository;
@@ -105,7 +101,7 @@ namespace Grand.Business.Common.Services.Directory
                 var query = from md in _measureDimensionRepository.Table
                             orderby md.DisplayOrder
                             select md;
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
         }
 
@@ -280,7 +276,7 @@ namespace Grand.Business.Common.Services.Directory
                 var query = from mw in _measureWeightRepository.Table
                             orderby mw.DisplayOrder
                             select mw;
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
         }
 
@@ -439,7 +435,7 @@ namespace Grand.Business.Common.Services.Directory
                 var query = from md in _measureUnitRepository.Table
                             orderby md.DisplayOrder
                             select md;
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
         }
 

@@ -5,8 +5,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Permissions;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,7 +70,7 @@ namespace Grand.Business.Common.Services.Security
             string key = string.Format(CacheKey.PERMISSIONS_ALLOWED_KEY, customerGroup.Id, permissionSystemName);
             return await _cacheBase.GetAsync(key, async () =>
             {
-                var permissionRecord = await _permissionRepository.Table.FirstOrDefaultAsync(x => x.SystemName == permissionSystemName);
+                var permissionRecord = await _permissionRepository.Table.Where(x => x.SystemName == permissionSystemName).FirstOrDefaultAsync2();
                 return permissionRecord?.CustomerGroups.Contains(customerGroup.Id) ?? false;
             });
         }
@@ -120,7 +118,7 @@ namespace Grand.Business.Common.Services.Security
                         orderby pr.Id
                         select pr;
 
-            return await query.FirstOrDefaultAsync();
+            return await query.FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -132,7 +130,7 @@ namespace Grand.Business.Common.Services.Security
             var query = from pr in _permissionRepository.Table
                         orderby pr.Name
                         select pr;
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>
@@ -230,7 +228,7 @@ namespace Grand.Business.Common.Services.Security
         public virtual async Task<IList<PermissionAction>> GetPermissionActions(string systemName, string customeroleId)
         {
             return await _permissionActionRepository.Table
-                    .Where(x => x.SystemName == systemName && x.CustomerGroupId == customeroleId).ToListAsync();
+                    .Where(x => x.SystemName == systemName && x.CustomerGroupId == customeroleId).ToListAsync2();
         }
 
         /// <summary>
@@ -286,8 +284,8 @@ namespace Grand.Business.Common.Services.Security
                 var key = string.Format(CacheKey.PERMISSIONS_ALLOWED_ACTION_KEY, group.Id, permissionSystemName, permissionActionName);
                 var permissionAction = await _cacheBase.GetAsync(key, async () =>
                 {
-                    return await _permissionActionRepository.Table
-                        .FirstOrDefaultAsync(x => x.SystemName == permissionSystemName && x.CustomerGroupId == group.Id && x.Action == permissionActionName);
+                    return await _permissionActionRepository.Table.Where(x => x.SystemName == permissionSystemName && x.CustomerGroupId == group.Id && x.Action == permissionActionName)
+                                .FirstOrDefaultAsync2();
                 });
                 if (permissionAction != null)
                     return false;

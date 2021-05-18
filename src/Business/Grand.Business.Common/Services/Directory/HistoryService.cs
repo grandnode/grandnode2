@@ -2,8 +2,6 @@ using Grand.Business.Common.Interfaces.Directory;
 using Grand.Domain;
 using Grand.Domain.Data;
 using Grand.Domain.History;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +38,7 @@ namespace Grand.Business.Common.Services.Directory
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            var history = await _historyRepository.Table.Where(x => x.Object.Id == entity.Id).Select(x => (T)x.Object).ToListAsync();
+            var history = await _historyRepository.Table.Where(x => x.Object.Id == entity.Id).Select(x => (T)x.Object).ToListAsync2();
             return history;
         }
 
@@ -49,7 +47,7 @@ namespace Grand.Business.Common.Services.Directory
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            var history = await _historyRepository.Table.Where(x => x.Object.Id == entity.Id).ToListAsync();
+            var history = await _historyRepository.Table.Where(x => x.Object.Id == entity.Id).ToListAsync2();
             return history;
         }
     }

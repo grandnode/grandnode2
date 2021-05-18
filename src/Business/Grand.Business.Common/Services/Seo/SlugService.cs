@@ -5,8 +5,6 @@ using Grand.Domain.Seo;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,7 +56,7 @@ namespace Grand.Business.Common.Services.Seo
             return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = _urlEntityRepository.Table;
-                return await query.ToListAsync();
+                return await query.ToListAsync2();
             });
         }
 
@@ -135,7 +133,7 @@ namespace Grand.Business.Common.Services.Seo
                         where ur.Slug == slug
                         orderby ur.IsActive
                         select ur;
-            return await query.FirstOrDefaultAsync();
+            return await query.FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -183,7 +181,8 @@ namespace Grand.Business.Common.Services.Seo
         public virtual async Task<IPagedList<EntityUrl>> GetAllEntityUrl(string slug = "", bool? active = null, int pageIndex = 0, int pageSize = int.MaxValue)
         {
 
-            var query = _urlEntityRepository.Table;
+            var query = from p in _urlEntityRepository.Table
+                        select p;
 
             if (!string.IsNullOrWhiteSpace(slug))
                 query = query.Where(ur => ur.Slug.Contains(slug.ToLowerInvariant()));
@@ -235,7 +234,7 @@ namespace Grand.Business.Common.Services.Seo
                                 ur.LanguageId == languageId &&
                                 ur.IsActive
                                 select ur.Slug;
-                    var slug = await query.FirstOrDefaultAsync();
+                    var slug = await query.FirstOrDefaultAsync2();
                     if (slug == null)
                         slug = "";
                     return slug;
@@ -264,7 +263,7 @@ namespace Grand.Business.Common.Services.Seo
                         ur.LanguageId == languageId
                         select ur;
 
-            var allUrlEntity = await query.ToListAsync();
+            var allUrlEntity = await query.ToListAsync2();
             var activeUrlEntity = allUrlEntity.FirstOrDefault(x => x.IsActive);
 
             if (!string.IsNullOrWhiteSpace(slug))
