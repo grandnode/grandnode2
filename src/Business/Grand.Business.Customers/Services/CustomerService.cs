@@ -346,12 +346,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException("customerId");
 
-            var builder = Builders<Customer>.Filter;
-            var filter = builder.Eq(x => x.Id, customerId);
-            var update = Builders<Customer>.Update
-                .Set(expression, value);
-
-            await _customerRepository.Collection.UpdateOneAsync(filter, update);
+            await _customerRepository.UpdateField<T>(customerId, expression, value);
 
         }
         /// <summary>
