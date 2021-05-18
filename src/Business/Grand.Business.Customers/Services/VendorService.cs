@@ -4,13 +4,12 @@ using Grand.Domain;
 using Grand.Domain.Data;
 using Grand.Domain.Vendors;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MongoDB.Driver;
+using MongoDB.Bson;
 
 namespace Grand.Business.Customers.Services
 {
@@ -67,7 +66,8 @@ namespace Grand.Business.Customers.Services
         public virtual async Task<IPagedList<Vendor>> GetAllVendors(string name = "",
             int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
         {
-            var query = _vendorRepository.Table;
+            var query = from p in _vendorRepository.Table
+                        select p;
 
             if (!String.IsNullOrWhiteSpace(name))
                 query = query.Where(v => v.Name.ToLower().Contains(name.ToLower()));
@@ -184,7 +184,7 @@ namespace Grand.Business.Customers.Services
             var query = from c in _vendorRepository.Table
                         where c.AppliedDiscounts.Any(x => x == discountId)
                         select c;
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         #region Vendor reviews

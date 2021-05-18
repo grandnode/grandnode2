@@ -3,8 +3,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +34,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrWhiteSpace(id))
                 return Task.FromResult<CustomerNote>(null);
 
-            return _customerNoteRepository.Table.Where(x => x.Id == id).FirstOrDefaultAsync();
+            return _customerNoteRepository.Table.Where(x => x.Id == id).FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -86,7 +84,7 @@ namespace Grand.Business.Customers.Services
 
             query = query.OrderByDescending(x => x.CreatedOnUtc);
 
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         #endregion

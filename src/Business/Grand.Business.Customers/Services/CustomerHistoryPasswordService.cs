@@ -3,10 +3,10 @@ using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Grand.Business.Customers.Services
 {
@@ -54,11 +54,10 @@ namespace Grand.Business.Customers.Services
         /// <returns>List of customer passwords</returns>
         public virtual async Task<IList<CustomerHistoryPassword>> GetPasswords(string customerId, int passwordsToReturn)
         {
-            var filter = Builders<CustomerHistoryPassword>.Filter.Eq(x => x.CustomerId, customerId);
-            return await _customerHistoryPasswordProductRepository.Collection.Find(filter)
-                    .SortByDescending(password => password.CreatedOnUtc)
-                    .Limit(passwordsToReturn)
-                    .ToListAsync();
+            return await _customerHistoryPasswordProductRepository.Table.Where(x=>x.CustomerId == customerId)
+                    .OrderByDescending(password => password.CreatedOnUtc)
+                    .Take(passwordsToReturn)
+                    .ToListAsync2();
         }
 
     }

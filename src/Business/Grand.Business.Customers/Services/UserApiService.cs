@@ -4,7 +4,6 @@ using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver.Linq;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -39,7 +38,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="id">id</param>
         public virtual Task<UserApi> GetUserByEmail(string email)
         {
-            return _userRepository.Table.Where(x => x.Email == email.ToLowerInvariant()).FirstOrDefaultAsync();
+            return _userRepository.Table.Where(x => x.Email == email.ToLowerInvariant()).FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -88,7 +87,9 @@ namespace Grand.Business.Customers.Services
         /// <returns>PagedList<UserApi></returns>
         public virtual async Task<IPagedList<UserApi>> GetUsers(string email = "", int pageIndex = 0, int pageSize = 2147483647)
         {
-            var query = _userRepository.Table;
+            var query = from p in _userRepository.Table
+                        select p;
+
             if (!string.IsNullOrEmpty(email))
                 query = query.Where(x => x.Email.Contains(email.ToLowerInvariant()));
 

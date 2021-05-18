@@ -11,14 +11,13 @@ using Grand.Domain.Stores;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using MongoDB.Driver;
+using MongoDB.Bson;
 
 namespace Grand.Business.Customers.Services
 {
@@ -121,10 +120,12 @@ namespace Grand.Business.Customers.Services
         /// <returns>Customers</returns>
         public virtual async Task<IList<Customer>> GetAllCustomersByPasswordFormat(PasswordFormat passwordFormat)
         {
-            var query = _customerRepository.Table;
+            var query = from p in _customerRepository.Table
+                        select p;
+
             query = query.Where(c => c.PasswordFormatId == passwordFormat);
             query = query.OrderByDescending(c => c.CreatedOnUtc);
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>
@@ -141,7 +142,9 @@ namespace Grand.Business.Customers.Services
         public virtual async Task<IPagedList<Customer>> GetOnlineCustomers(DateTime lastActivityFromUtc,
             string[] customerGroupIds, string storeId = "", string salesEmployeeId = "", int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var query = _customerRepository.Table;
+            var query = from p in _customerRepository.Table
+                        select p;
+
             query = query.Where(c => lastActivityFromUtc <= c.LastActivityDateUtc);
             query = query.Where(c => !c.Deleted);
 
@@ -167,7 +170,9 @@ namespace Grand.Business.Customers.Services
         /// <returns>Int</returns>
         public virtual Task<int> GetCountOnlineShoppingCart(DateTime lastActivityFromUtc, string storeId = "", string salesEmployeeId = "")
         {
-            var query = _customerRepository.Table;
+            var query = from p in _customerRepository.Table
+                        select p;
+
             query = query.Where(c => c.Active);
             query = query.Where(c => lastActivityFromUtc <= c.LastUpdateCartDateUtc);
             query = query.Where(c => c.ShoppingCartItems.Any(y => y.ShoppingCartTypeId == ShoppingCartType.ShoppingCart));
@@ -178,7 +183,7 @@ namespace Grand.Business.Customers.Services
             if (!string.IsNullOrEmpty(salesEmployeeId))
                 query = query.Where(c => c.SeId == salesEmployeeId);
 
-            return query.CountAsync();
+            return query.CountAsync2();
         }
 
         /// <summary>
@@ -207,7 +212,7 @@ namespace Grand.Business.Customers.Services
             var query = from c in _customerRepository.Table
                         where customerIds.Contains(c.Id)
                         select c;
-            var customers = await query.ToListAsync();
+            var customers = await query.ToListAsync2();
             //sort by passed identifiers
             var sortedCustomers = new List<Customer>();
             foreach (var id in customerIds)
@@ -226,8 +231,7 @@ namespace Grand.Business.Customers.Services
         /// <returns>A customer</returns>
         public virtual Task<Customer> GetCustomerByGuid(Guid customerGuid)
         {
-            var filter = Builders<Customer>.Filter.Eq(x => x.CustomerGuid, customerGuid);
-            return _customerRepository.Collection.Find(filter).FirstOrDefaultAsync();
+            return _customerRepository.Table.Where(x => x.CustomerGuid == customerGuid).FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -240,8 +244,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrWhiteSpace(email))
                 return Task.FromResult<Customer>(null);
 
-            var filter = Builders<Customer>.Filter.Eq(x => x.Email, email.ToLowerInvariant());
-            return _customerRepository.Collection.Find(filter).FirstOrDefaultAsync();
+            return _customerRepository.Table.Where(x => x.Email == email.ToLowerInvariant()).FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -254,8 +257,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrWhiteSpace(systemName))
                 return Task.FromResult<Customer>(null);
 
-            var filter = Builders<Customer>.Filter.Eq(x => x.SystemName, systemName);
-            return _customerRepository.Collection.Find(filter).FirstOrDefaultAsync();
+            return _customerRepository.Table.Where(x => x.SystemName == systemName).FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -268,8 +270,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrWhiteSpace(username))
                 return Task.FromResult<Customer>(null);
 
-            var filter = Builders<Customer>.Filter.Eq(x => x.Username, username.ToLowerInvariant());
-            return _customerRepository.Collection.Find(filter).FirstOrDefaultAsync();
+            return _customerRepository.Table.Where(x => x.Username == username.ToLowerInvariant()).FirstOrDefaultAsync2();
         }
 
         /// <summary>

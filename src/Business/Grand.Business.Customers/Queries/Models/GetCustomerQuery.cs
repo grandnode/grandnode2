@@ -1,13 +1,13 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using MediatR;
-using MongoDB.Driver.Linq;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace Grand.Business.Customers.Queries.Models
 {
-    public class GetCustomerQuery : IRequest<IMongoQueryable<Customer>>
+    public class GetCustomerQuery : IRequest<IQueryable<Customer>>
     {
         public DateTime? CreatedFromUtc { get; set; } = null;
 

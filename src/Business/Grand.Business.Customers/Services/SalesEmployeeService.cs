@@ -5,8 +5,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,7 +54,7 @@ namespace Grand.Business.Customers.Services
                 var query = from se in _salesEmployeeRepository.Table
                             orderby se.DisplayOrder
                             select se;
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
         }
 

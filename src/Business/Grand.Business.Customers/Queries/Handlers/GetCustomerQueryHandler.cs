@@ -2,7 +2,6 @@
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver.Linq;
 using System;
 using System.Linq;
 using System.Threading;
@@ -10,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Grand.Business.Customers.Queries.Handlers
 {
-    public class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, IMongoQueryable<Customer>>
+    public class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, IQueryable<Customer>>
     {
         private readonly IRepository<Customer> _customerRepository;
 
@@ -18,9 +17,10 @@ namespace Grand.Business.Customers.Queries.Handlers
         {
             _customerRepository = customerRepository;
         }
-        public Task<IMongoQueryable<Customer>> Handle(GetCustomerQuery request, CancellationToken cancellationToken)
+        public Task<IQueryable<Customer>> Handle(GetCustomerQuery request, CancellationToken cancellationToken)
         {
-            var query = _customerRepository.Table;
+            var query = from p in _customerRepository.Table
+                        select p;
 
             if (request.CreatedFromUtc.HasValue)
                 query = query.Where(c => request.CreatedFromUtc.Value <= c.CreatedOnUtc);

@@ -5,7 +5,6 @@ using Grand.Domain.Affiliates;
 using Grand.Domain.Data;
 using Grand.Domain.Orders;
 using MediatR;
-using MongoDB.Driver.Linq;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -67,7 +66,7 @@ namespace Grand.Business.Customers.Services
                         orderby a.Id
                         where a.FriendlyUrlName.Contains(friendlyUrlName.ToLowerInvariant())
                         select a;
-            var affiliate = query.FirstOrDefaultAsync();
+            var affiliate = query.FirstOrDefaultAsync2();
             return affiliate;
         }
 
@@ -82,7 +81,8 @@ namespace Grand.Business.Customers.Services
             int pageIndex = 0, int pageSize = int.MaxValue,
             bool showHidden = false)
         {
-            var query = _affiliateRepository.Table;
+            var query = from p in _affiliateRepository.Table
+                        select p;
 
             if (!String.IsNullOrWhiteSpace(friendlyUrlName))
                 query = query.Where(a => a.FriendlyUrlName != null && a.FriendlyUrlName.Contains(friendlyUrlName.ToLowerInvariant()));
@@ -95,7 +95,9 @@ namespace Grand.Business.Customers.Services
 
             if (loadOnlyWithOrders)
             {
-                var ordersQuery = _orderRepository.Table;
+                var ordersQuery = from p in _orderRepository.Table
+                                  select p;
+
                 if (ordersCreatedFromUtc.HasValue)
                     ordersQuery = ordersQuery.Where(o => ordersCreatedFromUtc.Value <= o.CreatedOnUtc);
                 if (ordersCreatedToUtc.HasValue)

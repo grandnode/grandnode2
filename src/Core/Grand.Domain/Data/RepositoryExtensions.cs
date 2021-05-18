@@ -32,6 +32,9 @@ namespace Grand.Domain.Data
             return ((IMongoQueryable<T>)query).FirstOrDefaultAsync();
         }
 
-        
+        public static Task<int> CountAsync2<T>(this IQueryable<T> query)
+        {
+            return ((IMongoQueryable<T>)query).CountAsync();
+        }
     }
 }

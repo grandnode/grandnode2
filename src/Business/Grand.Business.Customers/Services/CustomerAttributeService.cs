@@ -5,9 +5,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,7 +58,7 @@ namespace Grand.Business.Customers.Services
                 var query = from ca in _customerAttributeRepository.Table
                             orderby ca.DisplayOrder
                             select ca;
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
         }
 
@@ -140,9 +137,10 @@ namespace Grand.Business.Customers.Services
             if (customerAttributeValue == null)
                 throw new ArgumentNullException(nameof(customerAttributeValue));
 
-            var updatebuilder = Builders<CustomerAttribute>.Update;
-            var update = updatebuilder.AddToSet(p => p.CustomerAttributeValues, customerAttributeValue);
-            await _customerAttributeRepository.Collection.UpdateOneAsync(new BsonDocument("_id", customerAttributeValue.CustomerAttributeId), update);
+            var ca = await _customerAttributeRepository.GetByIdAsync(customerAttributeValue.CustomerAttributeId);
+            ca.CustomerAttributeValues.Add(customerAttributeValue);
+
+            await _customerAttributeRepository.UpdateAsync(ca);
 
             await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTES_PATTERN_KEY);
             await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTEVALUES_PATTERN_KEY);
@@ -160,16 +158,11 @@ namespace Grand.Business.Customers.Services
             if (customerAttributeValue == null)
                 throw new ArgumentNullException(nameof(customerAttributeValue));
 
-            var builder = Builders<CustomerAttribute>.Filter;
-            var filter = builder.Eq(x => x.Id, customerAttributeValue.CustomerAttributeId);
-            filter = filter & builder.ElemMatch(x => x.CustomerAttributeValues, y => y.Id == customerAttributeValue.Id);
-            var update = Builders<CustomerAttribute>.Update
-                .Set(x => x.CustomerAttributeValues.ElementAt(-1).DisplayOrder, customerAttributeValue.DisplayOrder)
-                .Set(x => x.CustomerAttributeValues.ElementAt(-1).IsPreSelected, customerAttributeValue.IsPreSelected)
-                .Set(x => x.CustomerAttributeValues.ElementAt(-1).Locales, customerAttributeValue.Locales)
-                .Set(x => x.CustomerAttributeValues.ElementAt(-1).Name, customerAttributeValue.Name);
+            var ca = await _customerAttributeRepository.GetByIdAsync(customerAttributeValue.CustomerAttributeId);
+            ca.CustomerAttributeValues.Remove(ca.CustomerAttributeValues.FirstOrDefault(c => c.Id == customerAttributeValue.Id));
+            ca.CustomerAttributeValues.Add(customerAttributeValue);
 
-            await _customerAttributeRepository.Collection.UpdateManyAsync(filter, update);
+            await _customerAttributeRepository.UpdateAsync(ca);
 
             await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTES_PATTERN_KEY);
             await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTEVALUES_PATTERN_KEY);
@@ -187,9 +180,9 @@ namespace Grand.Business.Customers.Services
             if (customerAttributeValue == null)
                 throw new ArgumentNullException(nameof(customerAttributeValue));
 
-            var updatebuilder = Builders<CustomerAttribute>.Update;
-            var update = updatebuilder.Pull(p => p.CustomerAttributeValues, customerAttributeValue);
-            await _customerAttributeRepository.Collection.UpdateOneAsync(new BsonDocument("_id", customerAttributeValue.CustomerAttributeId), update);
+            var ca = await _customerAttributeRepository.GetByIdAsync(customerAttributeValue.CustomerAttributeId);
+            ca.CustomerAttributeValues.Remove(ca.CustomerAttributeValues.FirstOrDefault(c => c.Id == customerAttributeValue.Id));
+            await _customerAttributeRepository.UpdateAsync(ca);
 
             await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTES_PATTERN_KEY);
             await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTEVALUES_PATTERN_KEY);
