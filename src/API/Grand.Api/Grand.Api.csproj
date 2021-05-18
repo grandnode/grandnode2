@@ -18,7 +18,6 @@
     <ProjectReference Include="..\..\Business\Grand.Business.System\Grand.Business.System.csproj" />
     <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
-    <ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="7.5.8" />

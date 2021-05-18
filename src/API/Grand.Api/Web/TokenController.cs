@@ -2,7 +2,6 @@
 using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
-using Grand.Web.Common.Controllers;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
@@ -15,20 +14,19 @@ using System.Threading.Tasks;
 
 namespace Grand.Api.Web
 {
-
-    public class TokenController : BaseController
+    public class TokenController : Controller
     {
         private readonly ICustomerService _customerService;
-        private readonly IWorkContext _workContext;
         private readonly ICustomerManagerService _customerManagerService;
         private readonly IMediator _mediator;
+        private readonly IStoreHelper _storeHelper;
 
-        public TokenController(ICustomerService customerService,IWorkContext workContext,ICustomerManagerService customerManagerService,IMediator mediator)
+        public TokenController(ICustomerService customerService,ICustomerManagerService customerManagerService,IMediator mediator,IStoreHelper storeHelper)
         {
             _customerService = customerService;
-            _workContext = workContext;
             _customerManagerService = customerManagerService;
             _mediator = mediator;
+            _storeHelper = storeHelper;
         }
 
         [AllowAnonymous]
@@ -36,9 +34,9 @@ namespace Grand.Api.Web
         [HttpPost]
         public async Task<IActionResult> Guest()
         {
-            var customer=await _customerService.InsertGuestCustomer(_workContext.CurrentStore);
+            var customer=await _customerService.InsertGuestCustomer(_storeHelper.HostStore);
             var claims = new Dictionary<string, string> {
-                { "Id", customer.Id}
+                { "Guid", customer.CustomerGuid.ToString()}
             };
 
             var token = await _mediator.Send(new GenerateGrandWebTokenCommand() { Claims = claims });

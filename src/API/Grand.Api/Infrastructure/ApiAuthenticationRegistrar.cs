@@ -102,11 +102,9 @@ namespace Grand.Api.Infrastructure
                             if (config.Enabled)
                             {
                                 var jwtAuthentication = context.HttpContext.RequestServices.GetRequiredService<IJwtBearerCustomerAuthenticationService>();
-                                var (isValid, customer) = await jwtAuthentication.Valid(context);
+                                var isValid = await jwtAuthentication.Valid(context);
                                 if (!isValid)
                                     throw new Exception(await jwtAuthentication.ErrorMessage());
-                                context.Success();
-                                context.Result.Properties.Parameters.Add("Customer", customer);
                             }
                             else
                                 throw new Exception("API is disable");

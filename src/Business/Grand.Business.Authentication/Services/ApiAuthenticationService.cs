@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -85,9 +86,16 @@ namespace Grand.Business.Authentication.Services
             if (!authResult.Succeeded)
                 return null;
 
-            if(authResult.Properties.Parameters.TryGetValue("Customer", out var c))
+            var email = authResult.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
+            if (email is null)
             {
-                customer = c as Customer;
+                //guest
+                var id = authResult.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Guid")?.Value;
+                customer = await _customerService.GetCustomerByGuid(Guid.Parse(id));
+            }
+            else
+            {
+                customer = await _customerService.GetCustomerByEmail(email);
             }
 
             return customer;

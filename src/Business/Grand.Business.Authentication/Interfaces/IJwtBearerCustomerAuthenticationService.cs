@@ -10,7 +10,7 @@ namespace Grand.Business.Authentication.Interfaces
 {
     public interface IJwtBearerCustomerAuthenticationService
     {
-        Task<(bool, Customer)> Valid(TokenValidatedContext context);
+        Task<bool> Valid(TokenValidatedContext context);
         Task<string> ErrorMessage();
     }
 }
