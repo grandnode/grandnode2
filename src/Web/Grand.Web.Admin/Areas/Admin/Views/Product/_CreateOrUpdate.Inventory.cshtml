@@ -49,9 +49,6 @@
                                 <th align="center">
                                     @Loc["Admin.Catalog.Products.ProductWarehouseInventory.Fields.ReservedQuantity"]
                                 </th>
-                                <th align="center">
-                                    @Loc["Admin.Catalog.Products.ProductWarehouseInventory.Fields.PlannedQuantity"]
-                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -76,9 +73,7 @@
                                     <td align="center" style="width: 20%;">
                                         <admin-input asp-for="@Model.ProductWarehouseInventoryModels[i].ReservedQuantity" />
                                     </td>
-                                    <td align="center" style="width: 10%;">
-                                        @item.PlannedQuantity
-                                    </td>
+                                    
                                 </tr>
                             }
                         </tbody>

@@ -59,7 +59,6 @@ namespace Grand.Web.Admin.Services
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
         private readonly IWarehouseService _warehouseService;
-        private readonly IShipmentService _shipmentService;
         private readonly IDeliveryDateService _deliveryDateService;
         private readonly ITaxCategoryService _taxCategoryService;
         private readonly IDiscountService _discountService;
@@ -99,7 +98,6 @@ namespace Grand.Web.Admin.Services
                IGroupService groupService,
                IWarehouseService warehouseService,
                IDeliveryDateService deliveryDateService,
-               IShipmentService shipmentService,
                ITaxCategoryService taxCategoryService,
                IDiscountService discountService,
                ICustomerService customerService,
@@ -137,7 +135,6 @@ namespace Grand.Web.Admin.Services
             _groupService = groupService;
             _warehouseService = warehouseService;
             _deliveryDateService = deliveryDateService;
-            _shipmentService = shipmentService;
             _taxCategoryService = taxCategoryService;
             _discountService = discountService;
             _customerService = customerService;
@@ -558,7 +555,6 @@ namespace Grand.Web.Admin.Services
                         pwiModel.WarehouseUsed = true;
                         pwiModel.StockQuantity = pwi.StockQuantity;
                         pwiModel.ReservedQuantity = pwi.ReservedQuantity;
-                        pwiModel.PlannedQuantity = await _shipmentService.GetQuantityInShipments(product, null, pwi.WarehouseId, true, true);
                     }
                 }
                 model.ProductWarehouseInventoryModels.Add(pwiModel);
@@ -2528,7 +2524,6 @@ namespace Grand.Web.Admin.Services
                                 warehouseInventoryModel.Id = _winv.Id;
                                 warehouseInventoryModel.StockQuantity = _winv.StockQuantity;
                                 warehouseInventoryModel.ReservedQuantity = _winv.ReservedQuantity;
-                                warehouseInventoryModel.PlannedQuantity = await _shipmentService.GetQuantityInShipments(product, combination.Attributes, _winv.WarehouseId, true, true);
                             }
                         }
                     }

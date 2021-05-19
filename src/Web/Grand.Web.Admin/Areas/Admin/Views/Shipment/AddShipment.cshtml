@@ -176,9 +176,8 @@
                                                     var selected = warehouse.WarehouseId == item.WarehouseId ? true : false;
                                                     <option value="@(warehouse.WarehouseId)" data-stock-qty="@(warehouse.StockQuantity)"
                                                             data-reserved-qty="@(warehouse.ReservedQuantity)"
-                                                            data-planned-qty="@(warehouse.PlannedQuantity)"
                                                             selected="@selected">
-                                                        @Loc["Admin.Orders.Shipments.Products.Warehouse.ChooseQty", warehouse.WarehouseName, warehouse.StockQuantity, warehouse.ReservedQuantity, warehouse.PlannedQuantity]
+                                                        @Loc["Admin.Orders.Shipments.Products.Warehouse.ChooseQty", warehouse.WarehouseName, warehouse.StockQuantity, warehouse.ReservedQuantity]
                                                     </option>
                                                 }
                                             </select>

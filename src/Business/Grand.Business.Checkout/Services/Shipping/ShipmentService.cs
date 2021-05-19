@@ -1,10 +1,8 @@
 using Grand.Business.Checkout.Interfaces.Shipping;
-using Grand.Infrastructure.Extensions;
 using Grand.Domain;
-using Grand.Domain.Catalog;
-using Grand.Domain.Common;
 using Grand.Domain.Data;
 using Grand.Domain.Shipping;
+using Grand.Infrastructure.Extensions;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -184,49 +182,6 @@ namespace Grand.Business.Checkout.Services.Shipping
 
             //event notification
             await _mediator.EntityDeleted(shipment);
-        }
-
-        /// <summary>
-        /// Get quantity in shipments. For example, get planned quantity to be shipped
-        /// </summary>
-        /// <param name="product">Product</param>
-        /// <param name="customAttributes">Attributes</param>
-        /// <param name="warehouseId">Warehouse identifier</param>
-        /// <param name="ignoreShipped">Ignore already shipped shipments</param>
-        /// <param name="ignoreDelivered">Ignore already delivered shipments</param>
-        /// <returns>Quantity</returns>
-        public virtual async Task<int> GetQuantityInShipments(Product product, IList<CustomAttribute> customAttributes, string warehouseId,
-            bool ignoreShipped, bool ignoreDelivered)
-        {
-            if (product == null)
-                throw new ArgumentNullException(nameof(product));
-
-            //only products with "use multiple warehouses" are handled this way
-            if (product.ManageInventoryMethodId == ManageInventoryMethod.DontManageStock)
-                return 0;
-            if (!product.UseMultipleWarehouses)
-                return 0;
-
-            var query = from p in _shipmentRepository.Table
-                        select p;
-
-            if (!String.IsNullOrEmpty(warehouseId))
-                query = query.Where(si => si.ShipmentItems.Any(x => x.WarehouseId == warehouseId));
-            if (ignoreShipped)
-                query = query.Where(si => !si.ShippedDateUtc.HasValue);
-            if (ignoreDelivered)
-                query = query.Where(si => !si.DeliveryDateUtc.HasValue);
-
-            query = query.Where(si => si.ShipmentItems.Any(x => x.ProductId == product.Id));
-            if (customAttributes != null && customAttributes.Any())
-                query = query.Where(si => si.ShipmentItems.Any(x => x.Attributes == customAttributes));
-
-            var result = query.SelectMany(x => x.ShipmentItems).Where(x => x.ProductId == product.Id);
-            if (!String.IsNullOrEmpty(warehouseId))
-                result = result.Where(x => x.WarehouseId == warehouseId);
-
-            return await Task.FromResult(result.Sum(x => x.Quantity));
-
         }
 
         #region Shipment notes

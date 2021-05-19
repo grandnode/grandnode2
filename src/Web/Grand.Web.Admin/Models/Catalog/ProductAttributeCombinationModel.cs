@@ -102,9 +102,6 @@ namespace Grand.Web.Admin.Models.Catalog
 
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombination.WarehouseInventory.Fields.ReservedQuantity")]
             public int ReservedQuantity { get; set; }
-
-            [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombination.WarehouseInventory.Fields.PlannedQuantity")]
-            public int PlannedQuantity { get; set; }
         }
 
         #endregion

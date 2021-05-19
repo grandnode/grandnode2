@@ -3573,9 +3573,6 @@
   <Resource Name="Admin.Catalog.Products.ProductWarehouseInventory.Description3">
     <Value>"Planned qty" is product quantity that is ordered and already added to a shipment but not shipped yet.</Value>
   </Resource>
-  <Resource Name="Admin.Catalog.Products.ProductWarehouseInventory.Fields.PlannedQuantity">
-    <Value>Planned qty</Value>
-  </Resource>
   <Resource Name="Admin.Catalog.Products.ProductWarehouseInventory.Fields.ReservedQuantity">
     <Value>Reserved qty</Value>
   </Resource>
@@ -9617,7 +9614,7 @@
     <Value>Warehouse</Value>
   </Resource>
   <Resource Name="Admin.Orders.Shipments.Products.Warehouse.ChooseQty">
-    <Value>{0} ({1} qty in stock, {2} qty reserved, {3} qty planned)</Value>
+    <Value>{0} ({1} qty in stock, {2} qty reserved</Value>
   </Resource>
   <Resource Name="Admin.Orders.Shipments.Products.Warehouse.NotAvailabe">
     <Value>No warehouses available. You cannot ship this product.</Value>
