@@ -405,11 +405,14 @@ namespace Grand.Business.Checkout.Services.Orders
                     if (!found)
                     {
                         var paa = await _productAttributeService.GetProductAttributeById(a2.ProductAttributeId);
-                        var notFoundWarning = !string.IsNullOrEmpty(a2.TextPrompt) ?
-                            a2.TextPrompt :
-                            string.Format(_translationService.GetResource("ShoppingCart.SelectAttribute"), paa.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id));
+                        if (paa != null)
+                        {
+                            var notFoundWarning = !string.IsNullOrEmpty(a2.TextPrompt) ?
+                                a2.TextPrompt :
+                                string.Format(_translationService.GetResource("ShoppingCart.SelectAttribute"), paa.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id));
 
-                        warnings.Add(notFoundWarning);
+                            warnings.Add(notFoundWarning);
+                        }
                     }
                 }
 

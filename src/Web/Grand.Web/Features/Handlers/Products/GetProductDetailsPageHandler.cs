@@ -809,6 +809,9 @@ namespace Grand.Web.Features.Handlers.Products
             foreach (var attribute in productAttributeMapping.OrderBy(x => x.DisplayOrder))
             {
                 var productAttribute = await _productAttributeService.GetProductAttributeById(attribute.ProductAttributeId);
+                if (productAttribute == null)
+                    continue;
+
                 var attributeModel = new ProductDetailsModel.ProductAttributeModel
                 {
                     Id = attribute.Id,
