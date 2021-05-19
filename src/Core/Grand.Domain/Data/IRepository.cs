@@ -156,7 +156,7 @@ namespace Grand.Domain.Data
         /// <param name="elemMatch"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch);
+        Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, bool updateMany = false);
 
         /// <summary>
         /// Async Update entities

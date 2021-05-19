@@ -284,12 +284,18 @@ namespace Grand.Domain.Data
         /// <param name="elemFieldMatch"></param>
         /// <param name="elemMatch"></param>
         /// <returns></returns>
-        public virtual async Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch)
+        public virtual async Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, bool updateMany = false)
         {
-            var filter = Builders<T>.Filter.Eq(x => x.Id, id);
+            var filter = string.IsNullOrEmpty(id) ? Builders<T>.Filter.Where(x => true) : Builders<T>.Filter.Eq(x => x.Id, id);
             var update = Builders<T>.Update.PullFilter(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
-            var result = await _collection.UpdateOneAsync(filter, update);
-
+            if (updateMany)
+            {
+                var result = await _collection.UpdateManyAsync(filter, update);
+            }
+            else
+            {
+                var result = await _collection.UpdateOneAsync(filter, update);
+            }
         }
 
         /// <summary>
