@@ -309,7 +309,26 @@ namespace Grand.Domain.Data
                 var result = await _collection.UpdateOneAsync(filter, update);
             }
         }
-
+        /// <summary>
+        /// Delete subdocument
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="field"></param>
+        /// <param name="elemMatch"></param>
+        /// <returns></returns>
+        public virtual async Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element, bool updateMany = false)
+        {
+            var filter = string.IsNullOrEmpty(id) ? Builders<T>.Filter.Where(x => true) : Builders<T>.Filter.Eq(x => x.Id, id);
+            var update = Builders<T>.Update.Pull(field, element);
+            if (updateMany)
+            {
+                var result = await _collection.UpdateManyAsync(filter, update);
+            }
+            else
+            {
+                var result = await _collection.UpdateOneAsync(filter, update);
+            }
+        }
         /// <summary>
         /// Async Update entities
         /// </summary>
@@ -365,6 +384,15 @@ namespace Grand.Domain.Data
                 await DeleteAsync(entity);
             }
             return entities;
+        }
+        /// <summary>
+        /// Delete a many entities
+        /// </summary>
+        /// <param name="filterexpression"></param>
+        /// <returns></returns>
+        public virtual async Task DeleteManyAsync(Expression<Func<T, bool>> filterexpression)
+        {
+            await _collection.DeleteManyAsync(filterexpression);
         }
 
         /// <summary>

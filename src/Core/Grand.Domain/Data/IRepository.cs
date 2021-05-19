@@ -162,9 +162,17 @@ namespace Grand.Domain.Data
         /// <param name="field"></param>
         /// <param name="elemFieldMatch"></param>
         /// <param name="elemMatch"></param>
-        /// <param name="value"></param>
         /// <returns></returns>
         Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, bool updateMany = false);
+
+        /// <summary>
+        /// Delete subdocument
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="field"></param>
+        /// <param name="elemMatch"></param>
+        /// <returns></returns>
+        Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element, bool updateMany = false);
 
         /// <summary>
         /// Async Update entities
@@ -194,6 +202,13 @@ namespace Grand.Domain.Data
         /// </summary>
         /// <param name="entities">Entities</param>
         Task<IEnumerable<T>> DeleteAsync(IEnumerable<T> entities);
+
+        /// <summary>
+        /// Delete a many entities
+        /// </summary>
+        /// <param name="filterexpression"></param>
+        /// <returns></returns>
+        Task DeleteManyAsync(Expression<Func<T, bool>> filterexpression);
 
         /// <summary>
         /// Clear entities
