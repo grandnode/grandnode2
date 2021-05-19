@@ -5,9 +5,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,7 +74,7 @@ namespace Grand.Business.Catalog.Services.Products
                              select pt;
 
                  var dictionary = new Dictionary<string, int>();
-                 foreach (var item in await query.ToListAsync())
+                 foreach (var item in await query.ToListAsync2())
                      dictionary.Add(item.Id, item.Count);
                  return dictionary;
              });
@@ -87,7 +84,7 @@ namespace Grand.Business.Catalog.Services.Products
 
         #region Methods
 
-       
+
         /// <summary>
         /// Gets all product tags
         /// </summary>
@@ -97,7 +94,7 @@ namespace Grand.Business.Catalog.Services.Products
             return await _cacheBase.GetAsync(CacheKey.PRODUCTTAG_ALL_KEY, async () =>
             {
                 var query = _productTagRepository.Table;
-                return await query.ToListAsync();
+                return await query.ToListAsync2();
             });
         }
 
@@ -122,7 +119,7 @@ namespace Grand.Business.Catalog.Services.Products
                         where pt.Name == name
                         select pt;
 
-            return query.FirstOrDefaultAsync();
+            return query.FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -135,7 +132,7 @@ namespace Grand.Business.Catalog.Services.Products
             var query = from pt in _productTagRepository.Table
                         where pt.SeName == sename
                         select pt;
-            return query.FirstOrDefaultAsync();
+            return query.FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -170,11 +167,11 @@ namespace Grand.Business.Catalog.Services.Products
             await _productTagRepository.UpdateAsync(productTag);
 
             //update name on products
-            var filter = new BsonDocument
+            var filter = new MongoDB.Bson.BsonDocument
             {
-                new BsonElement("ProductTags", previouse.Name)
+                new MongoDB.Bson.BsonElement("ProductTags", previouse.Name)
             };
-            var update = Builders<Product>.Update
+            var update = MongoDB.Driver.Builders<Product>.Update
                 .Set(x => x.ProductTags.ElementAt(-1), productTag.Name);
             await _productRepository.Collection.UpdateManyAsync(filter, update);
 
@@ -193,10 +190,10 @@ namespace Grand.Business.Catalog.Services.Products
             if (productTag == null)
                 throw new ArgumentNullException(nameof(productTag));
 
-            var builder = Builders<Product>.Update;
-            var updatefilter = builder.Pull(x => x.ProductTags, productTag.Name);
-            await _productRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilter);
+            //update product
+            await _productRepository.Pull(string.Empty, x => x.ProductTags, productTag.Name, true);
 
+            //delete tag
             await _productTagRepository.DeleteAsync(productTag);
 
             //cache
@@ -217,15 +214,11 @@ namespace Grand.Business.Catalog.Services.Products
             if (productTag == null)
                 throw new ArgumentNullException(nameof(productTag));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.ProductTags, productTag.Name);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            //assign to product
+            await _productRepository.AddToSet(productId, x => x.ProductTags, productTag.Name);
 
-            var builder = Builders<ProductTag>.Filter;
-            var filter = builder.Eq(x => x.Id, productTag.Id);
-            var updateTag = Builders<ProductTag>.Update
-                .Inc(x => x.Count, 1);
-            await _productTagRepository.Collection.UpdateManyAsync(filter, updateTag);
+            //update product tag
+            await _productTagRepository.UpdateField(productTag.Id, x => x.Count, productTag.Count+1);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -245,15 +238,11 @@ namespace Grand.Business.Catalog.Services.Products
             if (productTag == null)
                 throw new ArgumentNullException(nameof(productTag));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.Pull(p => p.ProductTags, productTag.Name);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
 
-            var builder = Builders<ProductTag>.Filter;
-            var filter = builder.Eq(x => x.Id, productTag.Id);
-            var updateTag = Builders<ProductTag>.Update
-                .Inc(x => x.Count, -1);
-            await _productTagRepository.Collection.UpdateManyAsync(filter, updateTag);
+            await _productRepository.Pull(productId, x => x.ProductTags, productTag.Name);
+
+            //update product tag
+            await _productTagRepository.UpdateField(productTag.Id, x => x.Count, productTag.Count-1);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));

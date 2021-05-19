@@ -66,7 +66,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Products</returns>
         public virtual async Task<IList<string>> GetAllProductsDisplayedOnHomePage()
         {
-            var query = _productRepository.Table.Where(x=>x.Published && x.ShowOnHomePage && x.VisibleIndividually)
+            var query = _productRepository.Table.Where(x => x.Published && x.ShowOnHomePage && x.VisibleIndividually)
                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).Select(x => x.Id);
 
             var products = await query.ToListAsync2();
@@ -80,7 +80,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Products</returns>
         public virtual async Task<IList<string>> GetAllProductsDisplayedOnBestSeller()
         {
-            var query = _productRepository.Table.Where(x=>x.Published && x.BestSeller && x.VisibleIndividually)
+            var query = _productRepository.Table.Where(x => x.Published && x.BestSeller && x.VisibleIndividually)
                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                         .Select(x => x.Id);
 
@@ -302,7 +302,7 @@ namespace Grand.Business.Catalog.Services.Products
                 .Set(x => x.Weight, product.Weight)
                 .Set(x => x.Width, product.Width)
                 .Set(x => x.UserFields, product.UserFields)
-                .Set(x=>x.UpdatedOnUtc, DateTime.UtcNow);
+                .Set(x => x.UpdatedOnUtc, DateTime.UtcNow);
 
             await _productRepository.UpdateOneAsync(x => x.Id == product.Id, update);
 
@@ -357,21 +357,21 @@ namespace Grand.Business.Catalog.Services.Products
 
         public virtual async Task UpdateMostView(Product product)
         {
-            await _productRepository.UpdateField(product.Id, x => x.Viewed, product.Viewed = +1);
+            await _productRepository.UpdateField(product.Id, x => x.Viewed, product.Viewed + 1);
         }
 
         public virtual async Task UpdateSold(Product product, int qty)
         {
-            await _productRepository.UpdateField(product.Id, x => x.Sold, product.Sold = qty);
+            await _productRepository.UpdateField(product.Id, x => x.Sold, product.Sold + qty);
         }
 
         public virtual async Task UnpublishProduct(Product product)
         {
             var update = UpdateBuilder<Product>.Create()
                     .Set(x => x.Published, false)
-                    .Set(x=>x.UpdatedOnUtc, DateTime.UtcNow);
+                    .Set(x => x.UpdatedOnUtc, DateTime.UtcNow);
 
-            await _productRepository.UpdateOneAsync(x=>x.Id == product.Id, update);
+            await _productRepository.UpdateOneAsync(x => x.Id == product.Id, update);
 
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
 
@@ -602,7 +602,7 @@ namespace Grand.Business.Catalog.Services.Products
                 return null;
 
             sku = sku.Trim();
-            return await _productRepository.Table.Where(x=>x.Sku == sku).FirstOrDefaultAsync2();
+            return await _productRepository.Table.Where(x => x.Sku == sku).FirstOrDefaultAsync2();
         }
 
         public virtual async Task UpdateAssociatedProduct(Product product)
@@ -911,7 +911,7 @@ namespace Grand.Business.Catalog.Services.Products
                 throw new ArgumentNullException(nameof(tierPrice));
 
             await _productRepository.AddToSet(productId, x => x.TierPrices, tierPrice);
-           
+
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
 
@@ -947,7 +947,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (tierPrice == null)
                 throw new ArgumentNullException(nameof(tierPrice));
 
-            await _productRepository.PullFilter(productId, x => x.TierPrices, x=>x.Id, tierPrice.Id);
+            await _productRepository.PullFilter(productId, x => x.TierPrices, x => x.Id, tierPrice.Id);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));

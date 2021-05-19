@@ -70,10 +70,10 @@ namespace Grand.Business.Marketing.Services.Customers
             if (customerTag == null)
                 throw new ArgumentNullException(nameof(customerTag));
 
-            var builder = MongoDB.Driver.Builders<Customer>.Update;
-            var updatefilter = builder.Pull(x => x.CustomerTags, customerTag.Id);
-            await _customerRepository.Collection.UpdateManyAsync(new MongoDB.Bson.BsonDocument(), updatefilter);
+            //update customer
+            await _customerRepository.Pull(string.Empty, x => x.CustomerTags, customerTag.Id, true);
 
+            //delete
             await _customerTagRepository.DeleteAsync(customerTag);
 
             //event notification

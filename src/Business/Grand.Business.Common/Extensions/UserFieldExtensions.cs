@@ -1,8 +1,6 @@
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Domain;
-using Grand.SharedKernel.Extensions;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Extensions

@@ -2,7 +2,6 @@
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,27 +22,19 @@ namespace Grand.Business.Marketing.Commands.Handlers
 
         public async Task<bool> Handle(UpdateCustomerReminderHistoryCommand request, CancellationToken cancellationToken)
         {
-            var builder = Builders<CustomerReminderHistory>.Filter;
-            var filter = builder.Eq(x => x.CustomerId, request.CustomerId);
-
-            //update started reminders
-            filter &= builder.Eq(x => x.Status, CustomerReminderHistoryStatusEnum.Started);
-            var update = Builders<CustomerReminderHistory>.Update
+            var update = UpdateBuilder<CustomerReminderHistory>.Create()
                 .Set(x => x.EndDate, DateTime.UtcNow)
                 .Set(x => x.Status, CustomerReminderHistoryStatusEnum.CompletedOrdered)
                 .Set(x => x.OrderId, request.OrderId);
-            await _customerReminderHistory.Collection.UpdateManyAsync(filter, update);
 
-            //update Ended reminders
-            filter = builder.Eq(x => x.CustomerId, request.CustomerId);
-            filter &= builder.Eq(x => x.Status, CustomerReminderHistoryStatusEnum.CompletedReminder);
-            filter &= builder.Gt(x => x.EndDate, DateTime.UtcNow.AddHours(-36));
+            await _customerReminderHistory.UpdateManyAsync(x => x.CustomerId == request.CustomerId && x.Status == CustomerReminderHistoryStatusEnum.Started, update);
 
-            update = Builders<CustomerReminderHistory>.Update
+            update = UpdateBuilder<CustomerReminderHistory>.Create()
                 .Set(x => x.Status, CustomerReminderHistoryStatusEnum.CompletedOrdered)
                 .Set(x => x.OrderId, request.OrderId);
 
-            await _customerReminderHistory.Collection.UpdateManyAsync(filter, update);
+            await _customerReminderHistory.UpdateManyAsync(x => x.CustomerId == request.CustomerId 
+                    && x.Status == CustomerReminderHistoryStatusEnum.CompletedOrdered && x.EndDate == DateTime.UtcNow.AddHours(-36), update);
 
             return true;
         }

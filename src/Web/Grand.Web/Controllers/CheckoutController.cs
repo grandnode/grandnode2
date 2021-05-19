@@ -291,7 +291,7 @@ namespace Grand.Web.Controllers
                 Store = _workContext.CurrentStore
             });
 
-            var selectedPickupPoint = await _userFieldService.GetFieldsForEntity<string>(_workContext.CurrentCustomer, SystemCustomerFieldNames.SelectedPickupPoint, _workContext.CurrentStore.Id);
+            var selectedPickupPoint = _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.SelectedPickupPoint, _workContext.CurrentStore.Id);
 
             if ((_shippingSettings.SkipShippingMethodSelectionIfOnlyOne &&
                 shippingMethodModel.ShippingMethods.Count == 1) ||

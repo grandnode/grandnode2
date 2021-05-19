@@ -2,8 +2,6 @@
 using Grand.Domain.Data;
 using Grand.Infrastructure.Events;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,9 +18,8 @@ namespace Grand.Business.Common.Events
 
         public async Task Handle(EntityDeleted<CustomerGroup> notification, CancellationToken cancellationToken)
         {
-            var builder = Builders<Customer>.Update;
-            var update = builder.Pull(p => p.Groups, notification.Entity.Id);
-            await _customerRepository.Collection.UpdateManyAsync(new BsonDocument(), update);
+            //delete from customers
+            await _customerRepository.Pull(string.Empty, x => x.Groups, notification.Entity.Id, true);
         }
     }
 }

@@ -147,10 +147,10 @@ namespace Grand.Business.Checkout.Services.Orders
             if (orderTag == null)
                 throw new ArgumentNullException(nameof(orderTag));
 
-            var builder = MongoDB.Driver.Builders<Order>.Update;
-            var updatefilter = builder.Pull(x => x.OrderTags, orderTag.Id);
-            await _orderRepository.Collection.UpdateManyAsync(new MongoDB.Bson.BsonDocument(), updatefilter);
+            //update orders
+            await _orderRepository.Pull(string.Empty, x => x.OrderTags, orderTag.Id, true);
 
+            //delete tag
             await _orderTagRepository.DeleteAsync(orderTag);
 
             //cache
@@ -167,16 +167,12 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="orderTag">Order's identification</param>
         public virtual async Task AttachOrderTag(string orderTagId, string orderId)
         {
-            var updateBuilder = MongoDB.Driver.Builders<Order>.Update;
-            var update = updateBuilder.AddToSet(p => p.OrderTags, orderTagId);
-            await _orderRepository.Collection.UpdateOneAsync(new MongoDB.Bson.BsonDocument("_id", orderId), update);
+            //assign to product
+            await _orderRepository.AddToSet(orderId, x => x.OrderTags, orderTagId);
 
-            // update ordertag with count's order and new order id
-            var updateBuilderTag = MongoDB.Driver.Builders<OrderTag>.Update
-                .Inc(x => x.Count, 1);
-
-            await _orderTagRepository.Collection.UpdateOneAsync(new MongoDB.Bson.BsonDocument("_id", orderTagId), updateBuilderTag);
-            var orderTag = await _orderTagRepository.GetByIdAsync(orderTagId);
+            var orderTag = await GetOrderTagById(orderTagId);
+            //update product tag
+            await _orderTagRepository.UpdateField(orderTagId, x => x.Count, orderTag.Count + 1);
 
             //cache
             await _cacheBase.RemoveAsync(string.Format(CacheKey.ORDERS_BY_ID_KEY, orderId));
@@ -192,13 +188,11 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="orderTag">Order Tag</param>
         public virtual async Task DetachOrderTag(string orderTagId, string orderId)
         {
-            var updateBuilder = MongoDB.Driver.Builders<Order>.Update;
-            var update = updateBuilder.Pull(p => p.OrderTags, orderTagId);
-            await _orderRepository.Collection.UpdateOneAsync(new MongoDB.Bson.BsonDocument("_id", orderId), update);
+            await _orderRepository.Pull(orderId, x => x.OrderTags, orderTagId);
 
-            var updateTag = MongoDB.Driver.Builders<OrderTag>.Update
-                .Inc(x => x.Count, -1);
-            await _orderTagRepository.Collection.UpdateManyAsync(new MongoDB.Bson.BsonDocument("_id", orderTagId), updateTag);
+            var orderTag = await GetOrderTagById(orderTagId);
+            //update product tag
+            await _orderTagRepository.UpdateField(orderTagId, x => x.Count, orderTag.Count - 1);
 
             //cache
             await _cacheBase.RemoveAsync(string.Format(CacheKey.ORDERS_BY_ID_KEY, orderId));
