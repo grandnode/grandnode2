@@ -3,8 +3,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Events;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,17 +19,10 @@ namespace Grand.Business.Catalog.Events.Handlers
 
         public async Task Handle(EntityDeleted<Warehouse> notification, CancellationToken cancellationToken)
         {
-            var builder = Builders<Product>.Update;
-            var updatefilter = builder.PullFilter(x => x.ProductWarehouseInventory, y => y.WarehouseId == notification.Entity.Id);
+            await _productRepository.PullFilter(string.Empty, x => x.ProductWarehouseInventory, z => z.WarehouseId, notification.Entity.Id, true);
 
-            await _productRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilter);
-
-            var builder2 = Builders<Product>.Filter;
-            var filter2 = builder2.Eq(x => x.WarehouseId, notification.Entity.Id);
-            var update2 = Builders<Product>.Update
-                .Set(x => x.WarehouseId, "");
-
-            await _productRepository.Collection.UpdateManyAsync(filter2, update2);
+            await _productRepository.UpdateManyAsync(x => x.WarehouseId == notification.Entity.Id,
+                UpdateBuilder<Product>.Create().Set(x => x.WarehouseId, ""));
 
         }
     }

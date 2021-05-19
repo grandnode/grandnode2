@@ -1,14 +1,12 @@
-﻿using Grand.Domain.Data;
-using Grand.Domain.Catalog;
+﻿using Grand.Domain.Catalog;
+using Grand.Domain.Data;
 using Grand.Domain.Seo;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Events;
 using MediatR;
-using MongoDB.Driver;
 using System.Threading;
 using System.Threading.Tasks;
-using MongoDB.Bson;
-using Grand.Infrastructure.Caching.Constants;
-using Grand.Infrastructure.Caching;
 
 namespace Grand.Business.Catalog.Events.Handlers
 {
@@ -33,15 +31,10 @@ namespace Grand.Business.Catalog.Events.Handlers
         public async Task Handle(EntityDeleted<Category> notification, CancellationToken cancellationToken)
         {
             //delete url
-            var filters = Builders<EntityUrl>.Filter;
-            var filter = filters.Eq(x => x.EntityId, notification.Entity.Id);
-            filter &= filters.Eq(x => x.EntityName, "Category");
-            await _entityUrlRepository.Collection.DeleteManyAsync(filter);
+            await _entityUrlRepository.DeleteManyAsync(x => x.EntityId == notification.Entity.Id && x.EntityName == "Category");
 
             //delete on the product
-            var builder = Builders<Product>.Update;
-            var updatefilter = builder.PullFilter(x => x.ProductCategories, y => y.CategoryId == notification.Entity.Id);
-            await _productRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilter);
+            await _productRepository.PullFilter(string.Empty, x => x.ProductCategories, z => z.CategoryId, notification.Entity.Id, true);
 
             //clear cache
             await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);

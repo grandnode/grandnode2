@@ -5,8 +5,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Seo;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,41 +47,25 @@ namespace Grand.Business.Catalog.Events.Handlers
         public async Task Handle(EntityDeleted<Product> notification, CancellationToken cancellationToken)
         {
             //delete related product
-            var builderRelated = Builders<Product>.Update;
-            var updatefilterRelated = builderRelated.PullFilter(x => x.RelatedProducts, y => y.ProductId2 == notification.Entity.Id);
-            await _productRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilterRelated);
+            await _productRepository.PullFilter(string.Empty, x => x.RelatedProducts, z => z.ProductId2, notification.Entity.Id, true);
 
             //delete similar product
-            var builderSimilar = Builders<Product>.Update;
-            var updatefilterSimilar = builderSimilar.PullFilter(x => x.SimilarProducts, y => y.ProductId2 == notification.Entity.Id);
-            await _productRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilterSimilar);
+            await _productRepository.PullFilter(string.Empty, x => x.SimilarProducts, z => z.ProductId2, notification.Entity.Id, true);
 
             //delete cross sales product
-            var builderCross = Builders<Product>.Update;
-            var updatefilterCross = builderCross.Pull(x => x.CrossSellProduct, notification.Entity.Id);
-            await _productRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilterCross);
-
+            await _productRepository.Pull(string.Empty, x => x.CrossSellProduct, notification.Entity.Id, true);
 
             //delete review
-            var filtersProductReview = Builders<ProductReview>.Filter;
-            var filterProdReview = filtersProductReview.Eq(x => x.ProductId, notification.Entity.Id);
-            await _productReviewRepository.Collection.DeleteManyAsync(filterProdReview);
+            await _productReviewRepository.DeleteManyAsync(x=>x.ProductId == notification.Entity.Id);
 
             //delete from shopping cart
-            var builder = Builders<Customer>.Update;
-            var updatefilter = builder.PullFilter(x => x.ShoppingCartItems, y => y.ProductId == notification.Entity.Id);
-            await _customerRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilter);
+            await _customerRepository.PullFilter(string.Empty, x => x.ShoppingCartItems, z => z.ProductId, notification.Entity.Id, true);
 
             //delete customer group product
-            var filtersCrp = Builders<CustomerGroupProduct>.Filter;
-            var filterCrp = filtersCrp.Eq(x => x.ProductId, notification.Entity.Id);
-            await _customerGroupProductRepository.Collection.DeleteManyAsync(filterCrp);
+            await _customerGroupProductRepository.DeleteManyAsync(x => x.ProductId == notification.Entity.Id);
 
             //delete url
-            var filters = Builders<EntityUrl>.Filter;
-            var filter = filters.Eq(x => x.EntityId, notification.Entity.Id);
-            filter = filter & filters.Eq(x => x.EntityName, "Product");
-            await _entityUrlRepository.Collection.DeleteManyAsync(filter);
+            await _entityUrlRepository.DeleteManyAsync(x => x.EntityId == notification.Entity.Id && x.EntityName == "Product");
 
             //delete product tags
             var existingProductTags = _productTagRepository.Table.Where(x => notification.Entity.ProductTags.ToList().Contains(x.Name)).ToList();

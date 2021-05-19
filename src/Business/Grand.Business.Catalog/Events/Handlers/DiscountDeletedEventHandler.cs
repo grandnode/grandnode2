@@ -1,21 +1,19 @@
-﻿using Grand.Infrastructure.Caching;
+﻿using Grand.Domain.Catalog;
 using Grand.Domain.Data;
-using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Domain.Vendors;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Events;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using System.Threading;
 using System.Threading.Tasks;
-using Grand.Infrastructure.Caching.Constants;
 
 namespace Grand.Business.Catalog.Events.Handlers
 {
     public class DiscountDeletedEventHandler : INotificationHandler<EntityDeleted<Discount>>
     {
-        
+
         #region Fields
 
         private readonly IRepository<Product> _productRepository;
@@ -52,49 +50,45 @@ namespace Grand.Business.Catalog.Events.Handlers
         {
             var discount = notification.Entity;
 
-            var builder = Builders<BsonDocument>.Filter;
             if (discount.DiscountTypeId == DiscountType.AssignedToSkus)
             {
-                var builderproduct = Builders<Product>.Update;
-                var updatefilter = builderproduct.Pull(x => x.AppliedDiscounts, discount.Id);
-                await _productRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilter);
+                //delete on the product
+                await _productRepository.Pull(string.Empty, x => x.AppliedDiscounts, discount.Id, true);
+
                 await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
             }
 
             if (discount.DiscountTypeId == DiscountType.AssignedToCategories)
             {
-                var buildercategory = Builders<Category>.Update;
-                var updatefilter = buildercategory.Pull(x => x.AppliedDiscounts, discount.Id);
-                await _categoryRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilter);
+                //delete on the category
+                await _categoryRepository.Pull(string.Empty, x => x.AppliedDiscounts, discount.Id, true);
+                //clear cache
                 await _cacheBase.RemoveByPrefix(CacheKey.CATEGORIES_PATTERN_KEY);
             }
             if (discount.DiscountTypeId == DiscountType.AssignedToBrands)
             {
-                var builderbrand = Builders<Brand>.Update;
-                var updatefilter = builderbrand.Pull(x => x.AppliedDiscounts, discount.Id);
-                await _brandRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilter);
+                //delete on the brand
+                await _brandRepository.Pull(string.Empty, x => x.AppliedDiscounts, discount.Id, true);
+                //clear cache
                 await _cacheBase.RemoveByPrefix(CacheKey.BRANDS_PATTERN_KEY);
             }
             if (discount.DiscountTypeId == DiscountType.AssignedToCollections)
             {
-                var buildercollection = Builders<Collection>.Update;
-                var updatefilter = buildercollection.Pull(x => x.AppliedDiscounts, discount.Id);
-                await _collectionRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilter);
+                //delete on the collection
+                await _collectionRepository.Pull(string.Empty, x => x.AppliedDiscounts, discount.Id, true);
+                //clear cache
                 await _cacheBase.RemoveByPrefix(CacheKey.COLLECTIONS_PATTERN_KEY);
             }
             if (discount.DiscountTypeId == DiscountType.AssignedToVendors)
             {
-                var buildervendor = Builders<Vendor>.Update;
-                var updatefilter = buildervendor.Pull(x => x.AppliedDiscounts, discount.Id);
-                await _vendorRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilter);
+                //delete on the vendor
+                await _vendorRepository.Pull(string.Empty, x => x.AppliedDiscounts, discount.Id, true);
+                //clear cache
                 await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
             }
-            
-            //remove coupon codes
-            var filtersCoupon = Builders<DiscountCoupon>.Filter;
-            var filterCrp = filtersCoupon.Eq(x => x.DiscountId, discount.Id);
 
-            await _discountCouponRepository.Collection.DeleteManyAsync(filterCrp);
+            //remove coupon codes
+            await _discountCouponRepository.DeleteManyAsync(x => x.DiscountId == discount.Id);
         }
     }
 }

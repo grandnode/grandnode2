@@ -26,16 +26,13 @@ namespace Grand.Business.Catalog.Events.Handlers
             {
                 foreach (var item in cs.ShoppingCartItems.Where(x => x.ProductId == notification.Product.Id))
                 {
-                    var updateCustomer = Builders<Customer>.Update
-                        .Set(x => x.ShoppingCartItems.ElementAt(-1).AdditionalShippingChargeProduct, notification.Product.AdditionalShippingCharge)
-                        .Set(x => x.ShoppingCartItems.ElementAt(-1).IsFreeShipping, notification.Product.IsFreeShipping)
-                        .Set(x => x.ShoppingCartItems.ElementAt(-1).IsGiftVoucher, notification.Product.IsGiftVoucher)
-                        .Set(x => x.ShoppingCartItems.ElementAt(-1).IsShipEnabled, notification.Product.IsShipEnabled)
-                        .Set(x => x.ShoppingCartItems.ElementAt(-1).IsTaxExempt, notification.Product.IsTaxExempt);
+                    item.AdditionalShippingChargeProduct = notification.Product.AdditionalShippingCharge;
+                    item.IsFreeShipping = notification.Product.IsFreeShipping;
+                    item.IsGiftVoucher = notification.Product.IsGiftVoucher;
+                    item.IsShipEnabled = notification.Product.IsShipEnabled;
+                    item.IsTaxExempt = notification.Product.IsTaxExempt;
 
-                    var _builderCustomer = Builders<Customer>.Filter;
-                    var _filterCustomer = _builderCustomer.ElemMatch(x => x.ShoppingCartItems, y => y.Id == item.Id);
-                    await _customerRepository.Collection.UpdateManyAsync(_filterCustomer, updateCustomer);
+                    await _customerRepository.UpdateToSet(cs.Id, x => x.ShoppingCartItems, z => z.Id, item.Id, item);
                 }
             }
             );
