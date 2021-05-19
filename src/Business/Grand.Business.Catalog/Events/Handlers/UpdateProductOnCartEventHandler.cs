@@ -2,7 +2,6 @@
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,9 +19,8 @@ namespace Grand.Business.Catalog.Events.Handlers
 
         public async Task Handle(UpdateProductOnCartEvent notification, CancellationToken cancellationToken)
         {
-            var builderCustomer = Builders<Customer>.Filter;
-            var filterCustomer = builderCustomer.ElemMatch(x => x.ShoppingCartItems, y => y.ProductId == notification.Product.Id);
-            await _customerRepository.Collection.Find(filterCustomer).ForEachAsync(async (cs) =>
+            var customers = await _customerRepository.Table.Where(x => x.ShoppingCartItems.Any(y => y.ProductId == notification.Product.Id)).ToListAsync2();
+            foreach (var cs in customers)
             {
                 foreach (var item in cs.ShoppingCartItems.Where(x => x.ProductId == notification.Product.Id))
                 {
@@ -35,7 +33,6 @@ namespace Grand.Business.Catalog.Events.Handlers
                     await _customerRepository.UpdateToSet(cs.Id, x => x.ShoppingCartItems, z => z.Id, item.Id, item);
                 }
             }
-            );
         }
     }
 }

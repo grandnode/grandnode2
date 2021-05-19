@@ -2,7 +2,6 @@
 using Grand.Domain.Data;
 using Grand.Domain.Logging;
 using MediatR;
-using MongoDB.Bson;
 using System.Threading;
 using System.Threading.Tasks;
 

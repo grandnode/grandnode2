@@ -9,7 +9,6 @@ using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -69,7 +68,8 @@ namespace Grand.Business.System.Services.Reports
         public virtual async Task<IList<OrderByCountryReportLine>> GetCountryReport(string storeId, int? os,
             PaymentStatus? ps, ShippingStatus? ss, DateTime? startTimeUtc, DateTime? endTimeUtc)
         {
-            var query = _orderRepository.Table;
+            var query = from p in _orderRepository.Table
+                        select p;
 
             query = query.Where(o => !o.Deleted);
             if (!String.IsNullOrEmpty(storeId))
@@ -102,7 +102,7 @@ namespace Grand.Business.System.Services.Reports
                            SumOrders = r.SumOrders
                        });
 
-            return await report.ToListAsync();
+            return await report.ToListAsync2();
         }
 
 
@@ -467,7 +467,7 @@ namespace Grand.Business.System.Services.Reports
                         && (string.IsNullOrEmpty(salesEmployeeId) || o.SeId == salesEmployeeId)
                         group o by 1 into g
                         select new ReportPeriodOrder() { Amount = g.Sum(x => x.OrderTotal / x.CurrencyRate), Count = g.Count() };
-            var report = (await query.ToListAsync())?.FirstOrDefault();
+            var report = (await query.ToListAsync2())?.FirstOrDefault();
             if (report == null)
                 report = new ReportPeriodOrder();
             report.Date = date;
@@ -499,7 +499,7 @@ namespace Grand.Business.System.Services.Reports
             if (recordsToReturn > 0)
                 product = product.Take(recordsToReturn);
 
-            var report = await product.ToListAsync();
+            var report = await product.ToListAsync2();
             var ids = new List<string>();
             foreach (var reportLine in report)
                 ids.Add(reportLine.ProductId);
@@ -533,7 +533,7 @@ namespace Grand.Business.System.Services.Reports
                                 (createdToUtc.Value >= order.CreatedOnUtc) &&
                                 (!order.Deleted)
                                 from orderItem in order.OrderItems
-                                select new { orderItem.ProductId }).ToListAsync()).Distinct().Select(x => x.ProductId);
+                                select new { orderItem.ProductId }).ToListAsync2()).Distinct().Select(x => x.ProductId);
 
             var qproducts = from p in _productRepository.Table
                             orderby p.Name
@@ -572,7 +572,8 @@ namespace Grand.Business.System.Services.Reports
             DateTime? startTimeUtc = null, DateTime? endTimeUtc = null,
             string billingEmail = null, string billingLastName = "", string tagid = null)
         {
-            var query = _orderRepository.Table;
+            var query = from p in _orderRepository.Table
+                        select p;
 
             query = query.Where(o => !o.Deleted);
 
@@ -626,7 +627,7 @@ namespace Grand.Business.System.Services.Reports
                          select p;
 
 
-            var productCost = await query2.SumAsync(orderItem => orderItem.OriginalProductCost * orderItem.Quantity);
+            var productCost = query2.Sum(orderItem => orderItem.OriginalProductCost * orderItem.Quantity);
 
             var reportSummary = await GetOrderAverageReportLine(
                 storeId: storeId,

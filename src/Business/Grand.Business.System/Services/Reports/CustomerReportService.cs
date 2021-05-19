@@ -9,7 +9,6 @@ using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,8 +75,10 @@ namespace Grand.Business.System.Services.Reports
             DateTime? createdToUtc, int? os, PaymentStatus? ps, ShippingStatus? ss, int orderBy,
             int pageIndex = 0, int pageSize = 214748364)
         {
-            
-            var query = _orderRepository.Table;
+
+            var query = from p in _orderRepository.Table
+                        select p;
+
             query = query.Where(o => !o.Deleted);
             if (os.HasValue)
                 query = query.Where(o => o.OrderStatusId == os.Value);
@@ -174,10 +175,10 @@ namespace Grand.Business.System.Services.Reports
             var customergroup = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered);
             var customerGroupRegister = customergroup.Id;
             var filter = builder.Where(o => !o.Deleted);
-            filter = filter & builder.Where(o => o.CreatedOnUtc >= startTimeUtc.Value && o.CreatedOnUtc <= endTime);
-            filter = filter & builder.Where(o => o.Groups.Any(y => y == customerGroupRegister));
+            filter &= builder.Where(o => o.CreatedOnUtc >= startTimeUtc.Value && o.CreatedOnUtc <= endTime);
+            filter &= builder.Where(o => o.Groups.Any(y => y == customerGroupRegister));
             if (!string.IsNullOrEmpty(storeId))
-                filter = filter & builder.Where(o => o.StoreId == storeId);
+                filter &= builder.Where(o => o.StoreId == storeId);
 
             var daydiff = (endTimeUtc.Value - startTimeUtc.Value).TotalDays;
             if (daydiff > 31)

@@ -2,10 +2,9 @@
 using Grand.Business.System.Utilities;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Grand.Business.System.Services.Reports
 {
@@ -51,7 +50,7 @@ namespace Grand.Business.System.Services.Reports
             if (!string.IsNullOrEmpty(storeId))
                 query_simple_products = query_simple_products.Where(x => x.Stores.Contains(storeId));
 
-            var products = await query_simple_products.ToListAsync();
+            var products = await query_simple_products.ToListAsync2();
 
             //Track inventory for product by product attributes
             var query2_1 = from p in _productRepository.Table
@@ -78,7 +77,7 @@ namespace Grand.Business.System.Services.Reports
                            where c.StockQuantity <= 0
                            select c;
 
-            var combinations = await query2_2.ToListAsync();
+            var combinations = await query2_2.ToListAsync2();
 
             return (products, combinations);
         }
