@@ -188,6 +188,9 @@ namespace Grand.Business.Catalog.Services.Products
             for (int i = 0; i < attributes.Count; i++)
             {
                 var productAttribute = await _productAttributeService.GetProductAttributeById(attributes[i].ProductAttributeId);
+                if (productAttribute == null)
+                    continue;
+
                 var attribute = attributes[i];
                 var valuesStr = _productAttributeParser.ParseValues(customAttributes, attribute.Id);
                 for (int j = 0; j < valuesStr.Count; j++)
