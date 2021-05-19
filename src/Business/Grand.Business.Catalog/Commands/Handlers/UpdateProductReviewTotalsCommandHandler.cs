@@ -5,7 +5,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,14 +60,13 @@ namespace Grand.Business.Catalog.Commands.Handlers
             request.Product.ApprovedTotalReviews = approvedTotalReviews;
             request.Product.NotApprovedTotalReviews = notApprovedTotalReviews;
 
-            var filter = Builders<Product>.Filter.Eq("Id", request.Product.Id);
-            var update = Builders<Product>.Update
-                    .Set(x => x.ApprovedRatingSum, request.Product.ApprovedRatingSum)
-                    .Set(x => x.NotApprovedRatingSum, request.Product.NotApprovedRatingSum)
-                    .Set(x => x.ApprovedTotalReviews, request.Product.ApprovedTotalReviews)
-                    .Set(x => x.NotApprovedTotalReviews, request.Product.NotApprovedTotalReviews);
+            var update = UpdateBuilder<Product>.Create()
+            .Set(x => x.ApprovedRatingSum, request.Product.ApprovedRatingSum)
+            .Set(x => x.NotApprovedRatingSum, request.Product.NotApprovedRatingSum)
+            .Set(x => x.ApprovedTotalReviews, request.Product.ApprovedTotalReviews)
+            .Set(x => x.NotApprovedTotalReviews, request.Product.NotApprovedTotalReviews);
 
-            await _productRepository.Collection.UpdateOneAsync(filter, update);
+            await _productRepository.UpdateOneAsync(x=>x.Id == request.Product.Id, update);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, request.Product.Id));

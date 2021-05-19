@@ -6,8 +6,6 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -136,9 +134,10 @@ namespace Grand.Business.Catalog.Services.Products
             if (productAttribute == null)
                 throw new ArgumentNullException(nameof(productAttribute));
 
-            var builder = Builders<Product>.Update;
-            var updatefilter = builder.PullFilter(x => x.ProductAttributeMappings, y => y.ProductAttributeId == productAttribute.Id);
-            await _productRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilter);
+            //delete from all product collections
+            await _productRepository.PullFilter(string.Empty, x => x.ProductAttributeMappings, z => z.ProductAttributeId, productAttribute.Id, true);
+
+            //delete from productAttribute collection
             await _productAttributeRepository.DeleteAsync(productAttribute);
 
             //cache
@@ -166,9 +165,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (productAttributeMapping == null)
                 throw new ArgumentNullException(nameof(productAttributeMapping));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.PullFilter(p => p.ProductAttributeMappings, y => y.Id == productAttributeMapping.Id);
-            await _productRepository.Collection.UpdateManyAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.PullFilter(productId, x => x.ProductAttributeMappings, z => z.Id, productAttributeMapping.Id);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -187,9 +184,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (productAttributeMapping == null)
                 throw new ArgumentNullException(nameof(productAttributeMapping));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.ProductAttributeMappings, productAttributeMapping);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.AddToSet(productId, x => x.ProductAttributeMappings, productAttributeMapping);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -209,30 +204,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (productAttributeMapping == null)
                 throw new ArgumentNullException(nameof(productAttributeMapping));
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, productId);
-            filter &= builder.ElemMatch(x => x.ProductAttributeMappings, y => y.Id == productAttributeMapping.Id);
-            var update = Builders<Product>.Update
-                .Set(x => x.ProductAttributeMappings.ElementAt(-1).ProductAttributeId, productAttributeMapping.ProductAttributeId)
-                .Set(x => x.ProductAttributeMappings.ElementAt(-1).TextPrompt, productAttributeMapping.TextPrompt)
-                .Set(x => x.ProductAttributeMappings.ElementAt(-1).IsRequired, productAttributeMapping.IsRequired)
-                .Set(x => x.ProductAttributeMappings.ElementAt(-1).ShowOnCatalogPage, productAttributeMapping.ShowOnCatalogPage)
-                .Set(x => x.ProductAttributeMappings.ElementAt(-1).AttributeControlTypeId, productAttributeMapping.AttributeControlTypeId)
-                .Set(x => x.ProductAttributeMappings.ElementAt(-1).DisplayOrder, productAttributeMapping.DisplayOrder)
-                .Set(x => x.ProductAttributeMappings.ElementAt(-1).Combination, productAttributeMapping.Combination)
-                .Set(x => x.ProductAttributeMappings.ElementAt(-1).ValidationMinLength, productAttributeMapping.ValidationMinLength)
-                .Set(x => x.ProductAttributeMappings.ElementAt(-1).ValidationMaxLength, productAttributeMapping.ValidationMaxLength)
-                .Set(x => x.ProductAttributeMappings.ElementAt(-1).ValidationFileAllowedExtensions, productAttributeMapping.ValidationFileAllowedExtensions)
-                .Set(x => x.ProductAttributeMappings.ElementAt(-1).ValidationFileMaximumSize, productAttributeMapping.ValidationFileMaximumSize)
-                .Set(x => x.ProductAttributeMappings.ElementAt(-1).DefaultValue, productAttributeMapping.DefaultValue)
-                .Set(x => x.ProductAttributeMappings.ElementAt(-1).ConditionAttribute, productAttributeMapping.ConditionAttribute);
-
-            if (values)
-            {
-                update = update.Set(x => x.ProductAttributeMappings.ElementAt(-1).ProductAttributeValues, productAttributeMapping.ProductAttributeValues);
-            }
-
-            await _productRepository.Collection.UpdateManyAsync(filter, update);
+            await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id, productAttributeMapping.Id, productAttributeMapping);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -256,9 +228,6 @@ namespace Grand.Business.Catalog.Services.Products
             if (productAttributeValue == null)
                 throw new ArgumentNullException(nameof(productAttributeValue));
 
-            var filter = Builders<Product>.Filter.And(Builders<Product>.Filter.Eq(x => x.Id, productId),
-            Builders<Product>.Filter.ElemMatch(x => x.ProductAttributeMappings, x => x.Id == productAttributeMappingId));
-
             var p = await _productRepository.GetByIdAsync(productId);
             if (p != null)
             {
@@ -269,8 +238,7 @@ namespace Grand.Business.Catalog.Services.Products
                     if (pav != null)
                     {
                         pavs.ProductAttributeValues.Remove(pav);
-                        var update = Builders<Product>.Update.Set("ProductAttributeMappings.$", pavs);
-                        await _productRepository.Collection.UpdateOneAsync(filter, update);
+                        await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id, productAttributeMappingId, pavs);
                     }
                 }
             }
@@ -294,14 +262,16 @@ namespace Grand.Business.Catalog.Services.Products
             if (productAttributeValue == null)
                 throw new ArgumentNullException(nameof(productAttributeValue));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.ProductAttributeMappings.ElementAt(-1).ProductAttributeValues, productAttributeValue);
+            var p = await _productRepository.GetByIdAsync(productId);
+            if (p == null)
+                throw new ArgumentNullException(nameof(p));
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, productId);
-            filter = filter & builder.Where(x => x.ProductAttributeMappings.Any(y => y.Id == productAttributeMappingId));
+            var pam = p.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
+            if (pam == null)
+                throw new ArgumentNullException(nameof(pam));
 
-            await _productRepository.Collection.UpdateOneAsync(filter, update);
+            pam.ProductAttributeValues.Add(productAttributeValue);
+            await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id, productAttributeMappingId, pam);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -320,10 +290,6 @@ namespace Grand.Business.Catalog.Services.Products
         {
             if (productAttributeValue == null)
                 throw new ArgumentNullException(nameof(productAttributeValue));
-
-
-            var filter = Builders<Product>.Filter.And(Builders<Product>.Filter.Eq(x => x.Id, productId),
-            Builders<Product>.Filter.ElemMatch(x => x.ProductAttributeMappings, x => x.Id == productAttributeMappingId));
 
             var p = await _productRepository.GetByIdAsync(productId);
             if (p != null)
@@ -348,8 +314,7 @@ namespace Grand.Business.Catalog.Services.Products
                         pav.PictureId = productAttributeValue.PictureId;
                         pav.Locales = productAttributeValue.Locales;
 
-                        var update = Builders<Product>.Update.Set("ProductAttributeMappings.$", pavs);
-                        await _productRepository.Collection.UpdateOneAsync(filter, update);
+                        await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id, productAttributeMappingId, pavs);
                     }
                 }
             }
@@ -372,11 +337,8 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Product attribute mapping collection</returns>
         public virtual async Task<IList<PredefinedProductAttributeValue>> GetPredefinedProductAttributeValues(string productAttributeId)
         {
-            var builder = Builders<ProductAttribute>.Filter;
-            var filter = FilterDefinition<ProductAttribute>.Empty;
-            filter = filter & builder.Where(x => x.Id == productAttributeId);
-            var pa = await _productAttributeRepository.Collection
-                .Find(filter).FirstOrDefaultAsync();
+            var pa = await _productAttributeRepository.Table.Where(x => x.Id == productAttributeId)
+                .FirstOrDefaultAsync2();
 
             return pa.PredefinedProductAttributeValues.OrderBy(x => x.DisplayOrder).ToList();
         }
@@ -396,12 +358,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (combination == null)
                 throw new ArgumentNullException(nameof(combination));
 
-            var updatebuilder = Builders<Product>.Update;
-
-            var update = Builders<Product>.Update.PullFilter(p => p.ProductAttributeCombinations, Builders<ProductAttributeCombination>.Filter.Eq(per => per.Id, combination.Id));
-
-            var result = await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
-
+            await _productRepository.PullFilter(productId, x => x.ProductAttributeCombinations, z => z.Id, combination.Id);
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
 
@@ -419,9 +376,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (combination == null)
                 throw new ArgumentNullException(nameof(combination));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.ProductAttributeCombinations, combination);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.AddToSet(productId, x => x.ProductAttributeCombinations, combination);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -440,24 +395,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (combination == null)
                 throw new ArgumentNullException(nameof(combination));
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, productId);
-            filter &= builder.ElemMatch(x => x.ProductAttributeCombinations, y => y.Id == combination.Id);
-            var update = Builders<Product>.Update
-                .Set("ProductAttributeCombinations.$.StockQuantity", combination.StockQuantity)
-                .Set("ProductAttributeCombinations.$.ReservedQuantity", combination.ReservedQuantity)
-                .Set("ProductAttributeCombinations.$.AllowOutOfStockOrders", combination.AllowOutOfStockOrders)
-                .Set("ProductAttributeCombinations.$.Sku", combination.Sku)
-                .Set("ProductAttributeCombinations.$.Text", combination.Text)
-                .Set("ProductAttributeCombinations.$.Mpn", combination.Mpn)
-                .Set("ProductAttributeCombinations.$.Gtin", combination.Gtin)
-                .Set("ProductAttributeCombinations.$.OverriddenPrice", combination.OverriddenPrice)
-                .Set("ProductAttributeCombinations.$.NotifyAdminForQuantityBelow", combination.NotifyAdminForQuantityBelow)
-                .Set("ProductAttributeCombinations.$.WarehouseInventory", combination.WarehouseInventory)
-                .Set("ProductAttributeCombinations.$.PictureId", combination.PictureId)
-                .Set("ProductAttributeCombinations.$.TierPrices", combination.TierPrices);
-
-            await _productRepository.Collection.UpdateManyAsync(filter, update);
+            await _productRepository.UpdateToSet(productId, x => x.ProductAttributeCombinations, z => z.Id, combination.Id, combination);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
