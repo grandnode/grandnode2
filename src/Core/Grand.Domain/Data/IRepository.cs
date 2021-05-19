@@ -115,12 +115,20 @@ namespace Grand.Domain.Data
         Task UpdateField<U>(string id, Expression<Func<T, U>> expression, U value);
 
         /// <summary>
-        /// Updates a single entity.
+        /// Updates a single entity
         /// </summary>
         /// <param name="filterexpression"></param>
         /// <param name="updateBuilder"></param>
         /// <returns></returns>
         Task UpdateOneAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder);
+
+        /// <summary>
+        /// Updates a many entities
+        /// </summary>
+        /// <param name="filterexpression"></param>
+        /// <param name="updateBuilder"></param>
+        /// <returns></returns>
+        Task UpdateManyAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder);
 
         /// <summary>
         /// Add to set - add subdocument

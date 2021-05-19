@@ -234,6 +234,18 @@ namespace Grand.Domain.Data
             var result = await _collection.UpdateOneAsync(filterexpression, update);
         }
 
+        /// <summary>
+        /// Updates a many entities
+        /// </summary>
+        /// <param name="filterexpression"></param>
+        /// <param name="updateBuilder"></param>
+        /// <returns></returns>
+        public virtual async Task UpdateManyAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder)
+        {
+            var update = Builders<T>.Update.Combine(updateBuilder.Fields);
+            var result = await _collection.UpdateManyAsync(filterexpression, update);
+        }
+
         // <summary>
         /// Add to set - add subdocument
         /// </summary>
