@@ -115,6 +115,14 @@ namespace Grand.Domain.Data
         Task UpdateField<U>(string id, Expression<Func<T, U>> expression, U value);
 
         /// <summary>
+        /// Updates a single entity.
+        /// </summary>
+        /// <param name="filterexpression"></param>
+        /// <param name="updateBuilder"></param>
+        /// <returns></returns>
+        Task UpdateOneAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder);
+
+        /// <summary>
         /// Add to set - add subdocument
         /// </summary>
         /// <typeparam name="U"></typeparam>
@@ -135,7 +143,7 @@ namespace Grand.Domain.Data
         /// <param name="elemMatch">Subdocument ident value</param>
         /// <param name="value">Subdocument - to update (all values)</param>
         /// <returns></returns>
-        Task UpdateToSet<U,Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, U value);
+        Task UpdateToSet<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, U value);
 
         /// <summary>
         /// Delete subdocument
