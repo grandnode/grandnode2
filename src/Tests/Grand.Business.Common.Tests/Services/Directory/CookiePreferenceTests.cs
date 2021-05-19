@@ -5,10 +5,8 @@ using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Services.Directory
@@ -42,19 +40,18 @@ namespace Grand.Business.Common.Tests.Services.Directory
         }
 
         [TestMethod()]
-        public async Task  IsEnable_ReturnExpectedValue()
+        public async Task IsEnable_ReturnExpectedValue()
         {
-            //TODO
-            //var dic = new Dictionary<string, bool>();
-            //dic.Add("cookie1", true);
-            //dic.Add("cookie2", false);
-            ////_userFieldServiceMock.Setup(c => c.GetFieldsForEntity<Dictionary<string, bool>>(It.IsAny<BaseEntity>(), It.IsAny<string>(), It.IsAny<string>()))
-            ////    .Returns(Task.FromResult(dic));
+            var dic = new Dictionary<string, bool>();
+            dic.Add("cookie1", true);
+            dic.Add("cookie2", false);
+            _userFieldServiceMock.Setup(c => c.GetFieldsForEntity<Dictionary<string, bool>>(It.IsAny<BaseEntity>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(dic));
 
-            //var result1 = await _cookiePreferences.IsEnable(new Customer(), new Store(), "cookie1");
-            //var result2 = await _cookiePreferences.IsEnable(new Customer(), new Store(), "cookie2");
-            //Assert.IsTrue(result1.Value);
-            //Assert.IsFalse(result2.Value);
+            var result1 = await _cookiePreferences.IsEnable(new Customer(), new Store(), "cookie1");
+            var result2 = await _cookiePreferences.IsEnable(new Customer(), new Store(), "cookie2");
+            Assert.IsTrue(result1.Value);
+            Assert.IsFalse(result2.Value);
         }
     }
 }
