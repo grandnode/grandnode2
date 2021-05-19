@@ -1,8 +1,6 @@
 ﻿using Grand.Domain.Common;
 using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 
@@ -129,13 +127,11 @@ namespace Grand.Domain.Documents
         /// <summary>
         /// Gets or sets the total amount
         /// </summary>
-        [BsonRepresentation(BsonType.Decimal128, AllowTruncation = true)]
         public decimal TotalAmount { get; set; }
 
         /// <summary>
         /// Gets or sets the outstand amount
         /// </summary>
-        [BsonRepresentation(BsonType.Decimal128, AllowTruncation = true)]
         public decimal OutstandAmount { get; set; }
 
         /// <summary>

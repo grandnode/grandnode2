@@ -1,6 +1,4 @@
 ﻿using Grand.Domain.Configuration;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.Options;
 using System.Collections.Generic;
 
 namespace Grand.Domain.Catalog
@@ -10,7 +8,7 @@ namespace Grand.Domain.Catalog
         public CatalogSettings()
         {
             ProductSortingEnumDisabled = new List<int>();
-            ProductSortingEnumDisplayOrder= new Dictionary<int, int>();
+            ProductSortingEnumDisplayOrder = new Dictionary<int, int>();
         }
 
         /// <summary>
@@ -101,7 +99,7 @@ namespace Grand.Domain.Catalog
         /// Gets or sets a value indicating whether category breadcrumb is enabled
         /// </summary>
         public bool CategoryBreadcrumbEnabled { get; set; }
-        
+
         /// <summary>
         /// Gets or sets a value indicating whether a 'Share button' is enabled
         /// </summary>
@@ -204,7 +202,7 @@ namespace Grand.Domain.Catalog
         /// Gets or sets a value indicating whether "New products" is show on home page
         /// </summary>
         public bool NewProductsOnHomePage { get; set; }
-        
+
         /// <summary>
         /// Gets or sets a number of products on the "New products" on home page
         /// </summary>
@@ -245,7 +243,7 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public bool ShowProductImagesInSearchAutoComplete { get; set; }
 
-       
+
         /// <summary>
         /// Gets or sets a minimum search term length
         /// </summary>
@@ -255,7 +253,7 @@ namespace Grand.Domain.Catalog
         /// Gets or sets save search autocomplete
         /// </summary>
         public bool SaveSearchAutoComplete { get; set; }
-        
+
         /// <summary>
         /// Gets or sets a value indicating whether to show bestsellers on home page
         /// </summary>
@@ -333,17 +331,17 @@ namespace Grand.Domain.Catalog
         /// Gets or sets a value indicating whether to include "Full description" in compare products
         /// </summary>
         public bool IncludeFullDescriptionInCompareProducts { get; set; }
-        
+
         /// <summary>
         /// An option indicating whether products on category and collection pages should include featured products as well
         /// </summary>
         public bool IncludeFeaturedProductsInNormalLists { get; set; }
-        
+
         /// <summary>
         /// Gets or sets a value indicating whether tier prices should be displayed with applied discounts (if available)
         /// </summary>
         public bool DisplayTierPricesWithDiscounts { get; set; }
-        
+
         /// <summary>
         /// Gets or sets a value indicating whether to ignore discounts (side-wide). It can significantly improve performance when enabled.
         /// </summary>
@@ -353,7 +351,7 @@ namespace Grand.Domain.Catalog
         /// Gets or sets a value indicating whether to ignore featured products (side-wide). It can significantly improve performance when enabled.
         /// </summary>
         public bool IgnoreFeaturedProducts { get; set; }
-        
+
         /// <summary>
         /// Gets or sets a value indicating whether to use customer product prices. It can significantly improve performance when disable.
         /// </summary>
@@ -405,7 +403,6 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets a display order of ProductSortingEnum values 
         /// </summary>
-        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
         public Dictionary<int, int> ProductSortingEnumDisplayOrder { get; set; }
 
         /// <summary>

@@ -1,8 +1,11 @@
-﻿using MongoDB.Bson;
+﻿using Grand.Domain.Catalog;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using System;
+using System.Collections.Generic;
 
 namespace Grand.Domain.MongoDB
 {
@@ -14,13 +17,17 @@ namespace Grand.Domain.MongoDB
         /// </summary>
         public static void RegisterMongoDBMappings()
         {
-            BsonSerializer.RegisterSerializer(typeof(decimal), new DecimalSerializer(BsonType.Decimal128));
+            BsonSerializer.RegisterSerializer(new DecimalSerializer(BsonType.Decimal128));
             BsonSerializer.RegisterSerializer(typeof(decimal?), new NullableSerializer<decimal>(new DecimalSerializer(BsonType.Decimal128)));
             BsonSerializer.RegisterSerializer(typeof(DateTime), new BsonUtcDateTimeSerializer());
 
+            BsonSerializer.RegisterSerializer(typeof(Dictionary<int, int>),
+                new DictionaryInterfaceImplementerSerializer<Dictionary<int, int>>(DictionaryRepresentation.ArrayOfArrays));
+
             //global set an equivalent of [BsonIgnoreExtraElements] for every Domain Model
-            var cp = new ConventionPack();
-            cp.Add(new IgnoreExtraElementsConvention(true));
+            var cp = new ConventionPack {
+                new IgnoreExtraElementsConvention(true)
+            };
             ConventionRegistry.Register("ApplicationConventions", cp, t => true);
 
         }
