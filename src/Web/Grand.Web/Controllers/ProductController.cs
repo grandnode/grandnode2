@@ -180,7 +180,7 @@ namespace Grand.Web.Controllers
             //activity log
             await _customerActivityService.InsertActivity("PublicStore.ViewProduct", product.Id, _translationService.GetResource("ActivityLog.PublicStore.ViewProduct"), product.Name);
             await _customerActionEventService.Viewed(customer, this.HttpContext.Request.Path.ToString(), this.Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers[HeaderNames.Referer].ToString() : "");
-            await _productService.UpdateMostView(productId);
+            await _productService.UpdateMostView(product);
 
             return View(productLayoutViewPath, model);
         }
@@ -429,7 +429,7 @@ namespace Grand.Web.Controllers
             //activity log
             await _customerActivityService.InsertActivity("PublicStore.ViewProduct", product.Id, _translationService.GetResource("ActivityLog.PublicStore.ViewProduct"), product.Name);
             await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers[HeaderNames.Referer].ToString() : "");
-            await _productService.UpdateMostView(productId);
+            await _productService.UpdateMostView(product);
             var qhtml = await this.RenderPartialViewToString(productLayoutViewPath + ".QuickView", model);
             return Json(new
             {
