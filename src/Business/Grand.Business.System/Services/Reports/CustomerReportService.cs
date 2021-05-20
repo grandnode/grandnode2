@@ -41,7 +41,7 @@ namespace Grand.Business.System.Services.Reports
         /// <param name="dateTimeService">Date time helper</param>
         /// <param name="groupService">group service</param>
         public CustomerReportService(IRepository<Customer> customerRepository,
-            IRepository<Order> orderRepository, 
+            IRepository<Order> orderRepository,
             ICustomerService customerService,
             IGroupService groupService,
             IDateTimeService dateTimeService)
@@ -117,8 +117,7 @@ namespace Grand.Business.System.Services.Reports
             }
 
             var tmp = new PagedList<dynamic>(query2, pageIndex, pageSize);
-            return new PagedList<BestCustomerReportLine>(tmp.Select(x => new BestCustomerReportLine
-            {
+            return new PagedList<BestCustomerReportLine>(tmp.Select(x => new BestCustomerReportLine {
                 CustomerId = x.CustomerId,
                 OrderTotal = x.OrderTotal,
                 OrderCount = x.OrderCount
@@ -183,8 +182,8 @@ namespace Grand.Business.System.Services.Reports
             var daydiff = (endTimeUtc.Value - startTimeUtc.Value).TotalDays;
             if (daydiff > 31)
             {
-                var query = builderquery.GroupBy(x => new 
-                        { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month })
+                var query = builderquery.GroupBy(x => new
+                { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month })
                     .Select(g => new CustomerStats {
                         Year = g.Key.Year,
                         Month = g.Key.Month,
@@ -192,9 +191,8 @@ namespace Grand.Business.System.Services.Reports
                     }).ToList();
                 foreach (var item in query)
                 {
-                    report.Add(new CustomerByTimeReportLine()
-                    {
-                        Time = item.Year.ToString() + "-" + item.Month.ToString(),
+                    report.Add(new CustomerByTimeReportLine() {
+                        Time = item.Year.ToString() + "-" + item.Month.ToString().PadLeft(2, '0'),
                         Registered = item.Count,
                     });
                 }
@@ -204,16 +202,15 @@ namespace Grand.Business.System.Services.Reports
                 var query = builderquery.GroupBy(x =>
                     new { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month, Day = x.CreatedOnUtc.Day })
                     .Select(g => new CustomerStats {
-                         Year = g.Key.Year,
-                         Month = g.Key.Month,
-                         Day = g.Key.Day,
-                         Count = g.Count(),
-                     }).ToList();
+                        Year = g.Key.Year,
+                        Month = g.Key.Month,
+                        Day = g.Key.Day,
+                        Count = g.Count(),
+                    }).ToList();
                 foreach (var item in query)
                 {
-                    report.Add(new CustomerByTimeReportLine()
-                    {
-                        Time = item.Year.ToString() + "-" + item.Month.ToString() + "-" + item.Day.ToString(),
+                    report.Add(new CustomerByTimeReportLine() {
+                        Time = item.Year.ToString() + "-" + item.Month.ToString().PadLeft(2, '0') + "-" + item.Day.ToString().PadLeft(2, '0'),
                         Registered = item.Count,
                     });
                 }
@@ -221,7 +218,7 @@ namespace Grand.Business.System.Services.Reports
 
 
 
-            return report;
+            return report.OrderBy(x => x.Time).ToList();
         }
 
         #endregion
