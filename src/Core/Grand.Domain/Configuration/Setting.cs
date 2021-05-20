@@ -1,4 +1,3 @@
-using MongoDB.Bson;
 
 namespace Grand.Domain.Configuration
 {
@@ -25,7 +24,7 @@ namespace Grand.Domain.Configuration
         /// <summary>
         /// Gets or sets the metadata settings
         /// </summary>
-        public BsonDocument Metadata { get; set; }
+        public string Metadata { get; set; }
 
     }
 }

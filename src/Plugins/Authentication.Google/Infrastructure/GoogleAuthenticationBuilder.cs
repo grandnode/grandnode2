@@ -35,7 +35,7 @@ namespace Authentication.Google.Infrastructure
                     var gSettings = new Repository<Setting>(DataSettingsHelper.ConnectionString()).Table.Where(x => x.Name.StartsWith("googleexternalauthsettings"));
                     if (gSettings.Any())
                     {
-                        var metadata = gSettings.FirstOrDefault().Metadata.ToString();
+                        var metadata = gSettings.FirstOrDefault().Metadata;
                         settings = JsonSerializer.Deserialize<GoogleExternalAuthSettings>(metadata);
                     }
                 }
