@@ -1,4 +1,4 @@
-using MongoDB.Bson;
+using Grand.Domain.Data;
 
 namespace Grand.Domain
 {
@@ -6,7 +6,7 @@ namespace Grand.Domain
     {
         protected ParentEntity()
         {
-            _id = ObjectId.GenerateNewId().ToString();
+            _id = UniqueIdentifier.New;
         }
 
         public string Id
@@ -15,7 +15,7 @@ namespace Grand.Domain
             set
             {
                 if (string.IsNullOrEmpty(value))
-                    _id = ObjectId.GenerateNewId().ToString();
+                    _id = UniqueIdentifier.New;
                 else
                     _id = value;
             }

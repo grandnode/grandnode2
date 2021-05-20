@@ -6,7 +6,7 @@ namespace Grand.Domain
     /// <summary>
     /// Base class for entities
     /// </summary>
-    public abstract partial class BaseEntity: ParentEntity
+    public abstract partial class BaseEntity : ParentEntity
     {
         protected BaseEntity()
         {
@@ -14,6 +14,6 @@ namespace Grand.Domain
         }
 
         public IList<UserField> UserFields { get; set; }
-        
+
     }
 }
