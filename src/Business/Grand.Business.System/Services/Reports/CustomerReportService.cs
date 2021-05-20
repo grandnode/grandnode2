@@ -8,7 +8,6 @@ using Grand.Domain.Data;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
-using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -170,41 +169,51 @@ namespace Grand.Business.System.Services.Reports
                 endTimeUtc = DateTime.UtcNow;
 
             var endTime = new DateTime(endTimeUtc.Value.Year, endTimeUtc.Value.Month, endTimeUtc.Value.Day, 23, 59, 00);
+            var builderquery = from p in _customerRepository.Table
+                               select p;
 
-            var builder = Builders<Customer>.Filter;
             var customergroup = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered);
             var customerGroupRegister = customergroup.Id;
-            var filter = builder.Where(o => !o.Deleted);
-            filter &= builder.Where(o => o.CreatedOnUtc >= startTimeUtc.Value && o.CreatedOnUtc <= endTime);
-            filter &= builder.Where(o => o.Groups.Any(y => y == customerGroupRegister));
+            builderquery = builderquery.Where(o => !o.Deleted);
+            builderquery = builderquery.Where(o => o.CreatedOnUtc >= startTimeUtc.Value && o.CreatedOnUtc <= endTime);
+            builderquery = builderquery.Where(o => o.Groups.Any(y => y == customerGroupRegister));
             if (!string.IsNullOrEmpty(storeId))
-                filter &= builder.Where(o => o.StoreId == storeId);
+                builderquery = builderquery.Where(o => o.StoreId == storeId);
 
             var daydiff = (endTimeUtc.Value - startTimeUtc.Value).TotalDays;
             if (daydiff > 31)
             {
-                var query = _customerRepository.Collection.Aggregate().Match(filter).Group(x =>
-                    new { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month },
-                    g => new { Period = g.Key, Count = g.Count() }).SortBy(x => x.Period).ToList();
+                var query = builderquery.GroupBy(x => new 
+                        { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month })
+                    .Select(g => new CustomerStats {
+                        Year = g.Key.Year,
+                        Month = g.Key.Month,
+                        Count = g.Count(),
+                    }).ToList();
                 foreach (var item in query)
                 {
                     report.Add(new CustomerByTimeReportLine()
                     {
-                        Time = item.Period.Year.ToString() + "-" + item.Period.Month.ToString(),
+                        Time = item.Year.ToString() + "-" + item.Month.ToString(),
                         Registered = item.Count,
                     });
                 }
             }
             else
             {
-                var query = _customerRepository.Collection.Aggregate().Match(filter).Group(x =>
-                    new { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month, Day = x.CreatedOnUtc.Day },
-                    g => new { Period = g.Key, Count = g.Count() }).SortBy(x => x.Period).ToList();
+                var query = builderquery.GroupBy(x =>
+                    new { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month, Day = x.CreatedOnUtc.Day })
+                    .Select(g => new CustomerStats {
+                         Year = g.Key.Year,
+                         Month = g.Key.Month,
+                         Day = g.Key.Day,
+                         Count = g.Count(),
+                     }).ToList();
                 foreach (var item in query)
                 {
                     report.Add(new CustomerByTimeReportLine()
                     {
-                        Time = item.Period.Year.ToString() + "-" + item.Period.Month.ToString() + "-" + item.Period.Day.ToString(),
+                        Time = item.Year.ToString() + "-" + item.Month.ToString() + "-" + item.Day.ToString(),
                         Registered = item.Count,
                     });
                 }
@@ -216,5 +225,13 @@ namespace Grand.Business.System.Services.Reports
         }
 
         #endregion
+    }
+
+    public class CustomerStats
+    {
+        public int Year { get; set; }
+        public int Month { get; set; }
+        public int Day { get; set; }
+        public int Count { get; set; }
     }
 }
