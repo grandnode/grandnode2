@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.Common.Services.Security;
+using Grand.Domain.Data;
 using Grand.Domain.Security;
-using Grand.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;

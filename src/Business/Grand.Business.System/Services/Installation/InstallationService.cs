@@ -463,7 +463,7 @@ namespace Grand.Business.System.Services.Installation
                 var databaseName = mongourl.DatabaseName;
                 var mongodb = new MongoClient(connectionString).GetDatabase(databaseName);
                 var mongoDBContext = new MongoDBContext(mongodb);
-
+                
                 var typeSearcher = _serviceProvider.GetRequiredService<ITypeSearcher>();
                 var q = typeSearcher.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "Grand.Domain");
                 foreach (var item in q.GetTypes())

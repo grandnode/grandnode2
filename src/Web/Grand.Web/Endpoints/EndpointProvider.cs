@@ -1,5 +1,5 @@
-﻿using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Data;
+﻿using Grand.Domain.Data;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;

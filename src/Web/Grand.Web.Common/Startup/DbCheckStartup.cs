@@ -1,6 +1,6 @@
-﻿using Grand.Web.Common.Middleware;
+﻿using Grand.Domain.Data;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Data;
+using Grand.Web.Common.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

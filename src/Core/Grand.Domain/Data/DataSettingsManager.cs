@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Grand.Infrastructure.Data
+namespace Grand.Domain.Data
 {
     /// <summary>
     /// Manager of data settings (connection string)

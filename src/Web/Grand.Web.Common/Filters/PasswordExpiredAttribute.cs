@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Customers.Queries.Models;
+using Grand.Domain.Data;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Data;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;

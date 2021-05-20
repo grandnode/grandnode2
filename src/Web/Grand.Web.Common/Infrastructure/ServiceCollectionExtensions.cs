@@ -3,16 +3,16 @@ using Grand.Business.Authentication.Utilities;
 using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.Common.Services.Security;
-using Grand.Web.Common.Extensions;
-using Grand.Web.Common.Routing;
-using Grand.Web.Common.Themes;
 using Grand.Domain.Configuration;
+using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Data;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearchers;
 using Grand.SharedKernel.Extensions;
+using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Routing;
+using Grand.Web.Common.Themes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
@@ -28,17 +28,17 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using WebMarkupMin.AspNet.Common.Compressors;
 using WebMarkupMin.AspNet.Common.UrlMatchers;
 using WebMarkupMin.AspNetCore5;
+using WebMarkupMin.NUglify;
 
 using IWmmLogger = WebMarkupMin.Core.Loggers.ILogger;
 using WmmThrowExceptionLogger = WebMarkupMin.Core.Loggers.ThrowExceptionLogger;
-using WebMarkupMin.NUglify;
-using WebMarkupMin.AspNet.Common.Compressors;
-using System.IO.Compression;
 
 namespace Grand.Web.Common.Infrastructure
 {
@@ -57,8 +57,7 @@ namespace Grand.Web.Common.Infrastructure
             //override cookie name
             services.AddAntiforgery(options =>
             {
-                options.Cookie = new CookieBuilder()
-                {
+                options.Cookie = new CookieBuilder() {
                     Name = $"{config.CookiePrefix}Antiforgery"
                 };
                 if (DataSettingsHelper.DatabaseIsInstalled())
@@ -78,8 +77,7 @@ namespace Grand.Web.Common.Infrastructure
         {
             services.AddSession(options =>
             {
-                options.Cookie = new CookieBuilder()
-                {
+                options.Cookie = new CookieBuilder() {
                     Name = $"{config.CookiePrefix}Session",
                     HttpOnly = true,
                 };
@@ -393,8 +391,7 @@ namespace Grand.Web.Common.Infrastructure
             configuration.GetSection("Application").Bind(config);
             if (config.EnableProgressiveWebApp)
             {
-                var options = new WebEssentials.AspNetCore.Pwa.PwaOptions
-                {
+                var options = new WebEssentials.AspNetCore.Pwa.PwaOptions {
                     Strategy = (WebEssentials.AspNetCore.Pwa.ServiceWorkerStrategy)config.ServiceWorkerStrategy,
                     RoutesToIgnore = "/admin/*"
                 };

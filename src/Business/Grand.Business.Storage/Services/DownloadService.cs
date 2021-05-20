@@ -17,6 +17,7 @@ namespace Grand.Business.Storage.Services
         #region Fields
 
         private readonly IRepository<Download> _downloadRepository;
+        private readonly IMongoDBContext _mongoDBContext;
         private readonly IMediator _mediator;
 
         #endregion
@@ -27,11 +28,14 @@ namespace Grand.Business.Storage.Services
         /// Ctor
         /// </summary>
         /// <param name="downloadRepository">Download repository</param>
+        /// <param name="mongoDBContext">DbContext</param>
         /// <param name="mediator">Mediator</param>
         public DownloadService(IRepository<Download> downloadRepository,
+            IMongoDBContext mongoDBContext,
             IMediator mediator)
         {
             _downloadRepository = downloadRepository;
+            _mongoDBContext = mongoDBContext;
             _mediator = mediator;
         }
 
@@ -58,8 +62,7 @@ namespace Grand.Business.Storage.Services
 
         protected virtual async Task<byte[]> DownloadAsBytes(string objectId)
         {
-            var bucket = new MongoDB.Driver.GridFS.GridFSBucket(_downloadRepository.Database);
-            var binary = await bucket.DownloadAsBytesAsync(new MongoDB.Bson.ObjectId(objectId), new MongoDB.Driver.GridFS.GridFSDownloadOptions() { CheckMD5 = true, Seekable = true });
+            var binary = await _mongoDBContext.GridFSBucketDownload(objectId);
             return binary;
         }
         /// <summary>
@@ -93,9 +96,7 @@ namespace Grand.Business.Storage.Services
                 throw new ArgumentNullException(nameof(download));
             if (!download.UseDownloadUrl)
             {
-                var bucket = new MongoDB.Driver.GridFS.GridFSBucket(_downloadRepository.Database);
-                var id = await bucket.UploadFromBytesAsync(download.Filename, download.DownloadBinary);
-                download.DownloadObjectId = id.ToString();
+                download.DownloadObjectId = await _mongoDBContext.GridFSBucketUploadFromBytesAsync(download.Filename, download.DownloadBinary);
             }
 
             download.DownloadBinary = null;

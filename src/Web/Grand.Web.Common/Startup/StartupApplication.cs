@@ -1,4 +1,5 @@
 using FluentValidation;
+using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Message;

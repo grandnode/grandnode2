@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Common.Interfaces.Directory;
+using Grand.Domain.Data;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;

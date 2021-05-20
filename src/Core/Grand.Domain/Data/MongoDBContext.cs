@@ -27,6 +27,31 @@ namespace Grand.Domain.Data
             return _database;
         }
 
+        protected IMongoDatabase TryReadMongoDatabase()
+        {
+            var dataSettingsManager = new DataSettingsManager();
+            var connectionString = dataSettingsManager.LoadSettings().DataConnectionString;
+
+            var mongourl = new MongoUrl(connectionString);
+            var databaseName = mongourl.DatabaseName;
+            var mongodb = new MongoClient(connectionString).GetDatabase(databaseName);
+            return mongodb;
+        }
+
+        public async Task<byte[]> GridFSBucketDownload(string id)
+        {
+            var bucket = new MongoDB.Driver.GridFS.GridFSBucket(_database);
+            var binary = await bucket.DownloadAsBytesAsync(new ObjectId(id), new MongoDB.Driver.GridFS.GridFSDownloadOptions() { CheckMD5 = true, Seekable = true });
+            return binary;
+
+        }
+        public async Task<string> GridFSBucketUploadFromBytesAsync(string filename, byte[] source)
+        {
+            var database = _database ?? TryReadMongoDatabase();
+            var bucket = new MongoDB.Driver.GridFS.GridFSBucket(database);
+            var id = await bucket.UploadFromBytesAsync(filename, source);
+            return id.ToString();
+        }
         public async Task<bool> DatabaseExist(string connectionString)
         {
             var client = new MongoClient(connectionString);
