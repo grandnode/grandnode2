@@ -18,5 +18,6 @@ namespace Grand.Infrastructure.Configuration
         public bool ValidateLifetime { get; set; }
         public bool ValidateIssuerSigningKey { get; set; }
         public int ExpiryInMinutes { get; set; }
+        public int RefreshTokenExpiryInMinutes { get; set; }
     }
 }
