@@ -20,10 +20,20 @@ namespace Grand.Domain.Data
         /// Gets the collection
         /// </summary>
         protected IMongoCollection<T> _collection;
+
         public IMongoCollection<T> Collection {
             get {
                 return _collection;
             }
+        }
+
+        /// <summary>
+        /// Sets a collection
+        /// </summary>
+        public bool SetCollection(string collectionName)
+        {
+            _collection = _collection.Database.GetCollection<T>(collectionName);
+            return true;
         }
 
         /// <summary>
@@ -287,6 +297,27 @@ namespace Grand.Domain.Data
         }
 
         /// <summary>
+        /// Update subdocument
+        /// </summary>
+        /// <typeparam name="U">Document</typeparam>
+        /// <param name="id">Ident of entitie</param>
+        /// <param name="field"></param>
+        /// <param name="elemFieldMatch">Subdocument field to match</param>
+        /// <param name="elemMatch">Subdocument ident value</param>
+        /// <param name="value">Subdocument - to update (all values)</param>
+        public virtual async Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch, U value)
+        {
+            var filter = Builders<T>.Filter.Eq(x => x.Id, id)
+                & Builders<T>.Filter.ElemMatch(field, elemFieldMatch);
+
+            MemberExpression me = field.Body as MemberExpression;
+            MemberInfo minfo = me.Member;
+            var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
+
+            var result = await _collection.UpdateOneAsync(filter, update);
+        }
+
+        /// <summary>
         /// Delete subdocument
         /// </summary>
         /// <typeparam name="U"></typeparam>
@@ -308,6 +339,21 @@ namespace Grand.Domain.Data
             {
                 var result = await _collection.UpdateOneAsync(filter, update);
             }
+        }
+
+        /// <summary>
+        /// Delete subdocument
+        /// </summary>
+        /// <typeparam name="U"></typeparam>
+        /// <param name="id"></param>
+        /// <param name="field"></param>
+        /// <param name="elemFieldMatch"></param>
+        /// <returns></returns>
+        public virtual async Task PullFilter<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch)
+        {
+            var filter = Builders<T>.Filter.Eq(x => x.Id, id);
+            var update = Builders<T>.Update.PullFilter(field, elemFieldMatch);
+            var result = await _collection.UpdateOneAsync(filter, update);
         }
         /// <summary>
         /// Delete subdocument
@@ -412,6 +458,14 @@ namespace Grand.Domain.Data
         /// </summary>
         public virtual IMongoQueryable<T> Table {
             get { return _collection.AsQueryable(); }
+        }
+
+        /// <summary>
+        /// Gets a table collection
+        /// </summary>
+        public virtual IMongoQueryable<T> TableCollection(string collectionName)
+        {
+            return _collection.Database.GetCollection<T>(collectionName).AsQueryable();
         }
 
         #endregion

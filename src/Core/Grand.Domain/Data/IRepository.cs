@@ -19,6 +19,11 @@ namespace Grand.Domain.Data
         IMongoCollection<T> Collection { get; }
 
         /// <summary>
+        /// Sets a collection
+        /// </summary>
+        bool SetCollection(string collectionName);
+
+        /// <summary>
         /// Gets a database
         /// </summary>
         IMongoDatabase Database { get; }
@@ -154,6 +159,19 @@ namespace Grand.Domain.Data
         Task UpdateToSet<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, U value);
 
         /// <summary>
+        /// Update subdocument
+        /// </summary>
+        /// <typeparam name="U">Document</typeparam>
+        /// <typeparam name="Z">Subdocuments</typeparam>
+        /// <param name="id">Ident of entitie</param>
+        /// <param name="field"></param>
+        /// <param name="elemFieldMatch">Subdocument field to match</param>
+        /// <param name="elemMatch">Subdocument ident value</param>
+        /// <param name="value">Subdocument - to update (all values)</param>
+        /// <returns></returns>
+        Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch, U value);
+
+        /// <summary>
         /// Delete subdocument
         /// </summary>
         /// <typeparam name="U"></typeparam>
@@ -164,6 +182,16 @@ namespace Grand.Domain.Data
         /// <param name="elemMatch"></param>
         /// <returns></returns>
         Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, bool updateMany = false);
+
+        /// <summary>
+        /// Delete subdocument
+        /// </summary>
+        /// <typeparam name="U"></typeparam>
+        /// <param name="id"></param>
+        /// <param name="field"></param>
+        /// <param name="elemFieldMatch"></param>
+        /// <returns></returns>
+        Task PullFilter<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch);
 
         /// <summary>
         /// Delete subdocument
@@ -220,5 +248,9 @@ namespace Grand.Domain.Data
         /// </summary>
         IMongoQueryable<T> Table { get; }
 
+        /// <summary>
+        /// Gets a table collection
+        /// </summary>
+        IMongoQueryable<T> TableCollection(string collectionName);
     }
 }

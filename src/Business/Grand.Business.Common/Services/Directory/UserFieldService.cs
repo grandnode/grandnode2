@@ -3,8 +3,6 @@ using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Data;
 using Grand.SharedKernel.Extensions;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,16 +17,13 @@ namespace Grand.Business.Common.Services.Directory
 
         #region Fields
 
-        private readonly IRepository<BaseEntity> _baseRepository;
         private readonly IRepository<UserFieldBaseEntity> _userfieldBaseEntitRepository;
         #endregion
 
         #region Ctor
         public UserFieldService(
-            IRepository<BaseEntity> baseRepository,
             IRepository<UserFieldBaseEntity> userfieldBaseEntitRepository)
         {
-            _baseRepository = baseRepository;
             _userfieldBaseEntitRepository = userfieldBaseEntitRepository;
         }
 
@@ -54,10 +49,11 @@ namespace Grand.Business.Common.Services.Directory
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentNullException(nameof(key));
 
-            var collection = _baseRepository.Database.GetCollection<UserFieldBaseEntity>(entity);
-            var query = _baseRepository.Database.GetCollection<UserFieldBaseEntity>(entity).Find(new BsonDocument("_id", entityId)).FirstOrDefault();
+            _ = _userfieldBaseEntitRepository.SetCollection(entity);
 
-            var props = query.UserFields.Where(x => string.IsNullOrEmpty(storeId) || x.StoreId == storeId);
+            var basefields = await _userfieldBaseEntitRepository.GetByIdAsync(entityId);
+
+            var props = basefields.UserFields.Where(x => string.IsNullOrEmpty(storeId) || x.StoreId == storeId);
 
             var prop = props.FirstOrDefault(ga =>
                 ga.Key.Equals(key, StringComparison.OrdinalIgnoreCase)); //should be culture invariant
@@ -69,33 +65,23 @@ namespace Grand.Business.Common.Services.Directory
                 if (string.IsNullOrWhiteSpace(valueStr))
                 {
                     //delete
-                    var builder = Builders<UserFieldBaseEntity>.Update;
-                    var updatefilter = builder.PullFilter(x => x.UserFields, y => y.Key == prop.Key && y.StoreId == storeId);
-                    await collection.UpdateManyAsync(new BsonDocument("_id", entityId), updatefilter);
+                    await _userfieldBaseEntitRepository.PullFilter(entityId, x => x.UserFields, y => y.Key == prop.Key && y.StoreId == storeId);
+
                 }
                 else
                 {
                     //update
-                    prop.Value = valueStr;
-                    var builder = Builders<UserFieldBaseEntity>.Filter;
-                    var filter = builder.Eq(x => x.Id, entityId);
-                    filter = filter & builder.Where(x => x.UserFields.Any(y => y.Key == prop.Key && y.StoreId == storeId));
-                    var update = Builders<UserFieldBaseEntity>.Update
-                        .Set(x => x.UserFields.ElementAt(-1).Value, prop.Value);
-                    await collection.UpdateManyAsync(filter, update);
+                    await _userfieldBaseEntitRepository.UpdateToSet(entityId, x => x.UserFields, y => y.Key == prop.Key && y.StoreId == storeId, prop);
                 }
             }
             else
             {
-                prop = new UserField
-                {
+                prop = new UserField {
                     Key = key,
                     Value = valueStr,
                     StoreId = storeId,
                 };
-                var updatebuilder = Builders<UserFieldBaseEntity>.Update;
-                var update = updatebuilder.AddToSet(p => p.UserFields, prop);
-                await collection.UpdateOneAsync(new BsonDocument("_id", entityId), update);
+                await _userfieldBaseEntitRepository.AddToSet(entityId, x => x.UserFields, prop);
             }
         }
 
@@ -115,12 +101,13 @@ namespace Grand.Business.Common.Services.Directory
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
 
-            string keyGroup = entity.GetType().Name;
+            var collectionName = entity.GetType().Name;
 
-            var collection = _baseRepository.Database.GetCollection<UserFieldBaseEntity>(keyGroup);
-            var query = _baseRepository.Database.GetCollection<UserFieldBaseEntity>(keyGroup).Find(new BsonDocument("_id", entity.Id)).FirstOrDefault();
+            _ = _userfieldBaseEntitRepository.SetCollection(collectionName);
 
-            var props = query.UserFields.Where(x => string.IsNullOrEmpty(storeId) || x.StoreId == storeId);
+            var basefields = await _userfieldBaseEntitRepository.GetByIdAsync(entity.Id);
+
+            var props = basefields.UserFields.Where(x => string.IsNullOrEmpty(storeId) || x.StoreId == storeId);
 
             var prop = props.FirstOrDefault(ga =>
                 ga.Key.Equals(key, StringComparison.OrdinalIgnoreCase)); //should be culture invariant
@@ -132,9 +119,8 @@ namespace Grand.Business.Common.Services.Directory
                 if (string.IsNullOrWhiteSpace(valueStr))
                 {
                     //delete
-                    var builder = Builders<UserFieldBaseEntity>.Update;
-                    var updatefilter = builder.PullFilter(x => x.UserFields, y => y.Key == prop.Key && y.StoreId == storeId);
-                    await collection.UpdateManyAsync(new BsonDocument("_id", entity.Id), updatefilter);
+                    await _userfieldBaseEntitRepository.PullFilter(entity.Id, x => x.UserFields, y => y.Key == prop.Key && y.StoreId == storeId);
+
                     var entityProp = entity.UserFields.FirstOrDefault(x => x.Key == prop.Key && x.StoreId == storeId);
                     if (entityProp != null)
                         entity.UserFields.Remove(entityProp);
@@ -143,13 +129,7 @@ namespace Grand.Business.Common.Services.Directory
                 {
                     //update
                     prop.Value = valueStr;
-                    var builder = Builders<UserFieldBaseEntity>.Filter;
-                    var filter = builder.Eq(x => x.Id, entity.Id);
-                    filter = filter & builder.Where(x => x.UserFields.Any(y => y.Key == prop.Key && y.StoreId == storeId));
-                    var update = Builders<UserFieldBaseEntity>.Update
-                        .Set(x => x.UserFields.ElementAt(-1).Value, prop.Value);
-
-                    await collection.UpdateManyAsync(filter, update);
+                    await _userfieldBaseEntitRepository.UpdateToSet(entity.Id, x => x.UserFields, y => y.Key == prop.Key && y.StoreId == storeId, prop);
 
                     var entityProp = entity.UserFields.FirstOrDefault(x => x.Key == prop.Key && x.StoreId == storeId);
                     if (entityProp != null)
@@ -161,15 +141,13 @@ namespace Grand.Business.Common.Services.Directory
             {
                 if (!string.IsNullOrWhiteSpace(valueStr))
                 {
-                    prop = new UserField
-                    {
+                    prop = new UserField {
                         Key = key,
                         Value = valueStr,
                         StoreId = storeId,
                     };
-                    var updatebuilder = Builders<UserFieldBaseEntity>.Update;
-                    var update = updatebuilder.AddToSet(p => p.UserFields, prop);
-                    await collection.UpdateOneAsync(new BsonDocument("_id", entity.Id), update);
+                    await _userfieldBaseEntitRepository.AddToSet(entity.Id, x => x.UserFields, prop);
+
                     entity.UserFields.Add(prop);
                 }
             }
@@ -180,10 +158,14 @@ namespace Grand.Business.Common.Services.Directory
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            var collection = await _userfieldBaseEntitRepository.Database.GetCollection<UserFieldBaseEntity>(entity.GetType().Name)
-                .FindAsync(new BsonDocument("_id", entity.Id));
+            var collectionName = entity.GetType().Name;
+            _ = _userfieldBaseEntitRepository.SetCollection(collectionName);
 
-            var props = collection.FirstOrDefault().UserFields;
+            var basefields = await _userfieldBaseEntitRepository.GetByIdAsync(entity.Id);
+            if (basefields == null)
+                return default(TPropType);
+
+            var props = basefields.UserFields;
             if (props == null)
                 return default(TPropType);
             props = props.Where(x => x.StoreId == storeId).ToList();
