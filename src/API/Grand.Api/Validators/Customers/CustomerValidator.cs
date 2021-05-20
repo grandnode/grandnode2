@@ -7,6 +7,7 @@ using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Validators;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Grand.Api.Validators.Customers
 {
@@ -74,18 +75,19 @@ namespace Grand.Api.Validators.Customers
 
                 RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, context) =>
                 {
-                    //does selected country has states?
                     var countryId = !string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
-                    var hasStates = (await countryService.GetStateProvincesByCountryId(countryId)).Count > 0;
-                    if (hasStates)
+                    var country = await countryService.GetCountryById(countryId);
+                    if (country.StateProvinces.Any())
                     {
                         //if yes, then ensure that state is selected
                         if (string.IsNullOrEmpty(y))
                         {
                             return false;
                         }
+                        if (country.StateProvinces.FirstOrDefault(x => x.Id == y) != null)
+                            return true;
                     }
-                    return true;
+                    return false;
                 }).WithMessage(translationService.GetResource("pi.Customers.Customer.Fields.StateProvince.Required"));
             }
             if (customerSettings.CompanyRequired && customerSettings.CompanyEnabled)

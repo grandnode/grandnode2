@@ -106,8 +106,6 @@ namespace Grand.Web.Admin.Services
                     foreach (var s in states)
                         model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (affiliate != null && s.Id == affiliate.Address.StateProvinceId) });
                 }
-                else
-                    model.Address.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.OtherNonUS"), Value = "" });
             }
         }
 

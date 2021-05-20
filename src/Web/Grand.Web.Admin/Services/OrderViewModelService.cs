@@ -981,8 +981,7 @@ namespace Grand.Web.Admin.Services
                 foreach (var s in states)
                     model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == address.StateProvinceId) });
             }
-            else
-                model.Address.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.OtherNonUS"), Value = "" });
+
             //customer attribute services
             await model.Address.PrepareCustomAddressAttributes(address, _addressAttributeService, _addressAttributeParser);
 

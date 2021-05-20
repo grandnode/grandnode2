@@ -97,8 +97,6 @@ namespace Grand.Web.Admin.Controllers
                 foreach (var s in states)
                     model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == model.Address.StateProvinceId) });
             }
-            else
-                model.Address.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.OtherNonUS"), Value = "" });
 
             model.Address.CountryEnabled = true;
             model.Address.StateProvinceEnabled = true;
@@ -123,8 +121,6 @@ namespace Grand.Web.Admin.Controllers
                 foreach (var s in states)
                     model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == model.Address.StateProvinceId) });
             }
-            else
-                model.Address.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.OtherNonUS"), Value = "" });
 
             model.Address.CountryEnabled = true;
             model.Address.StateProvinceEnabled = true;
@@ -366,8 +362,6 @@ namespace Grand.Web.Admin.Controllers
                 foreach (var s in states)
                     model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == originAddress.StateProvinceId) });
             }
-            else
-                model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.OtherNonUS"), Value = "" });
 
             model.ShippingOriginAddress.CountryEnabled = true;
             model.ShippingOriginAddress.StateProvinceEnabled = true;

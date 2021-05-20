@@ -126,8 +126,7 @@ namespace Grand.Web.Features.Handlers.Common
                 model.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectCountry"), Value = "" });
                 foreach (var c in loadCountries())
                 {
-                    model.AvailableCountries.Add(new SelectListItem
-                    {
+                    model.AvailableCountries.Add(new SelectListItem {
                         Text = c.GetTranslation(x => x.Name, language.Id),
                         Value = c.Id.ToString(),
                         Selected = !string.IsNullOrEmpty(model.CountryId) ? c.Id == model.CountryId : (c.Id == store.DefaultCountryId)
@@ -139,27 +138,14 @@ namespace Grand.Web.Features.Handlers.Common
                     var states = await _countryService
                         .GetStateProvincesByCountryId(!string.IsNullOrEmpty(model.CountryId) ? model.CountryId : store.DefaultCountryId, language.Id);
 
-                    if (states.Any())
-                    {
-                        model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
+                    model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
 
-                        foreach (var s in states)
-                        {
-                            model.AvailableStates.Add(new SelectListItem
-                            {
-                                Text = s.GetTranslation(x => x.Name, language.Id),
-                                Value = s.Id.ToString(),
-                                Selected = (s.Id == model.StateProvinceId)
-                            });
-                        }
-                    }
-                    else
+                    foreach (var s in states)
                     {
-                        bool anyCountrySelected = model.AvailableCountries.Any(x => x.Selected);
-                        model.AvailableStates.Add(new SelectListItem
-                        {
-                            Text = _translationService.GetResource(anyCountrySelected ? "Address.OtherNonUS" : "Address.SelectState"),
-                            Value = ""
+                        model.AvailableStates.Add(new SelectListItem {
+                            Text = s.GetTranslation(x => x.Name, language.Id),
+                            Value = s.Id.ToString(),
+                            Selected = (s.Id == model.StateProvinceId)
                         });
                     }
                 }
@@ -195,8 +181,7 @@ namespace Grand.Web.Features.Handlers.Common
             var attributes = await _addressAttributeService.GetAllAddressAttributes();
             foreach (var attribute in attributes)
             {
-                var attributeModel = new AddressAttributeModel
-                {
+                var attributeModel = new AddressAttributeModel {
                     Id = attribute.Id,
                     Name = attribute.GetTranslation(x => x.Name, language.Id),
                     IsRequired = attribute.IsRequired,
@@ -209,8 +194,7 @@ namespace Grand.Web.Features.Handlers.Common
                     var attributeValues = attribute.AddressAttributeValues;
                     foreach (var attributeValue in attributeValues)
                     {
-                        var attributeValueModel = new AddressAttributeValueModel
-                        {
+                        var attributeValueModel = new AddressAttributeValueModel {
                             Id = attributeValue.Id,
                             Name = attributeValue.GetTranslation(x => x.Name, language.Id),
                             IsPreSelected = attributeValue.IsPreSelected

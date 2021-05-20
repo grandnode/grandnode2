@@ -171,20 +171,11 @@ namespace Grand.Web.Admin.Controllers
                     {
                         result.Insert(0, new { id = "", name = _translationService.GetResource("Admin.Address.SelectState") });
                     }
-                    else
-                    {
-                        result.Insert(0, new { id = "", name = _translationService.GetResource("Admin.Address.OtherNonUS") });
-                    }
                 }
                 else
                 {
                     //some country is selected
-                    if (result.Count == 0)
-                    {
-                        //country does not have states
-                        result.Insert(0, new { id = "", name = _translationService.GetResource("Admin.Address.OtherNonUS") });
-                    }
-                    else
+                    if (result.Any())
                     {
                         //country has some states
                         if (addSelectStateItem.HasValue && addSelectStateItem.Value)

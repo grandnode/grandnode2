@@ -171,8 +171,7 @@ namespace Grand.Web.Admin.Controllers
                 foreach (var s in states)
                     model.DefaultTaxAddress.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == defaultAddress.StateProvinceId) });
             }
-            else
-                model.DefaultTaxAddress.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.OtherNonUS"), Value = "" });
+
             model.DefaultTaxAddress.CountryEnabled = true;
             model.DefaultTaxAddress.StateProvinceEnabled = true;
             model.DefaultTaxAddress.ZipPostalCodeEnabled = true;

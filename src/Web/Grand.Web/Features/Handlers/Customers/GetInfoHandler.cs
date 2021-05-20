@@ -75,8 +75,7 @@ namespace Grand.Web.Features.Handlers.Customers
             await PrepareExternalAuth(model, request);
 
             //custom customer attributes
-            var customAttributes = await _mediator.Send(new GetCustomAttributes()
-            {
+            var customAttributes = await _mediator.Send(new GetCustomAttributes() {
                 Customer = request.Customer,
                 Language = request.Language,
                 OverrideAttributes = request.OverrideCustomCustomerAttributes
@@ -124,8 +123,7 @@ namespace Grand.Web.Features.Handlers.Customers
             model.Newsletter = newsletter != null && newsletter.Active;
 
             var categories = (await _newsletterCategoryService.GetAllNewsletterCategory()).ToList();
-            categories.ForEach(x => model.NewsletterCategories.Add(new NewsletterSimpleCategory()
-            {
+            categories.ForEach(x => model.NewsletterCategories.Add(new NewsletterSimpleCategory() {
                 Id = x.Id,
                 Description = x.GetTranslation(y => y.Description, request.Language.Id),
                 Name = x.GetTranslation(y => y.Name, request.Language.Id),
@@ -141,8 +139,7 @@ namespace Grand.Web.Features.Handlers.Customers
                 model.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectCountry"), Value = "" });
                 foreach (var c in await _countryService.GetAllCountries(request.Language.Id, request.Store.Id))
                 {
-                    model.AvailableCountries.Add(new SelectListItem
-                    {
+                    model.AvailableCountries.Add(new SelectListItem {
                         Text = c.GetTranslation(x => x.Name, request.Language.Id),
                         Value = c.Id.ToString(),
                         Selected = c.Id == model.CountryId
@@ -153,26 +150,12 @@ namespace Grand.Web.Features.Handlers.Customers
                 {
                     //states
                     var states = await _countryService.GetStateProvincesByCountryId(model.CountryId, request.Language.Id);
-                    if (states.Any())
+                    model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
+
+                    foreach (var s in states)
                     {
-                        model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
-
-                        foreach (var s in states)
-                        {
-                            model.AvailableStates.Add(new SelectListItem { Text = s.GetTranslation(x => x.Name, request.Language.Id), Value = s.Id.ToString(), Selected = (s.Id == model.StateProvinceId) });
-                        }
+                        model.AvailableStates.Add(new SelectListItem { Text = s.GetTranslation(x => x.Name, request.Language.Id), Value = s.Id.ToString(), Selected = (s.Id == model.StateProvinceId) });
                     }
-                    else
-                    {
-                        bool anyCountrySelected = model.AvailableCountries.Any(x => x.Selected);
-
-                        model.AvailableStates.Add(new SelectListItem
-                        {
-                            Text = _translationService.GetResource(anyCountrySelected ? "Address.OtherNonUS" : "Address.SelectState"),
-                            Value = ""
-                        });
-                    }
-
                 }
             }
 
@@ -221,8 +204,7 @@ namespace Grand.Web.Features.Handlers.Customers
 
                 var authMethod = _externalAuthenticationService.LoadAuthenticationProviderBySystemName(ear.ProviderSystemName);
 
-                model.AssociatedExternalAuthRecords.Add(new CustomerInfoModel.AssociatedExternalAuthModel
-                {
+                model.AssociatedExternalAuthRecords.Add(new CustomerInfoModel.AssociatedExternalAuthModel {
                     Id = ear.Id,
                     Email = ear.Email,
                     ExternalIdentifier = ear.ExternalDisplayIdentifier,

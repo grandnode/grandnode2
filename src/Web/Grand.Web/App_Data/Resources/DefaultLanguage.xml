@@ -1305,9 +1305,6 @@
   <Resource Name="Address.Fields.ZipPostalCode.Required">
     <Value>Zip / postal code is required.</Value>
   </Resource>
-  <Resource Name="Address.OtherNonUS">
-    <Value>Other (Non US)</Value>
-  </Resource>
   <Resource Name="Address.SelectCountry">
     <Value>Select country</Value>
   </Resource>
@@ -1532,9 +1529,6 @@
   </Resource>
   <Resource Name="Admin.Address.Fields.ZipPostalCode.Required">
     <Value>Zip / postal code is required.</Value>
-  </Resource>
-  <Resource Name="Admin.Address.OtherNonUS">
-    <Value>Other (Non US)</Value>
   </Resource>
   <Resource Name="Admin.Address.SelectCountry">
     <Value>Select country</Value>
