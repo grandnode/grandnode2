@@ -26,7 +26,6 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         private readonly IMediator _mediator;
         private readonly IWorkContext _workContext;
         private readonly ICacheBase _cacheBase;
-        private readonly FullTextSettings _fullTextSettings;
 
         /// <summary>
         /// Ctor
@@ -37,8 +36,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
             IRepository<KnowledgebaseArticleComment> articleCommentRepository,
             IMediator mediator,
             IWorkContext workContext,
-            ICacheBase cacheBase,
-            FullTextSettings fullTextSettings
+            ICacheBase cacheBase
             )
         {
             _knowledgebaseCategoryRepository = knowledgebaseCategoryRepository;
@@ -47,7 +45,6 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
             _mediator = mediator;
             _workContext = workContext;
             _cacheBase = cacheBase;
-            _fullTextSettings = fullTextSettings;
         }
 
         /// <summary>

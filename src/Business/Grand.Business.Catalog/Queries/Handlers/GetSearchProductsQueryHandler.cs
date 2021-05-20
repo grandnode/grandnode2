@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Domain;
 using Grand.Domain.Catalog;
-using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.SharedKernel.Extensions;
@@ -23,19 +22,15 @@ namespace Grand.Business.Catalog.Queries.Handlers
         private readonly ISpecificationAttributeService _specificationAttributeService;
 
         private readonly CatalogSettings _catalogSettings;
-        private readonly FullTextSettings _fullTextSettings;
 
         public GetSearchProductsQueryHandler(
             IRepository<Product> productRepository,
             ISpecificationAttributeService specificationAttributeService,
-            CatalogSettings catalogSettings,
-            FullTextSettings fullTextSettings)
+            CatalogSettings catalogSettings)
         {
             _productRepository = productRepository;
             _specificationAttributeService = specificationAttributeService;
-
             _catalogSettings = catalogSettings;
-            _fullTextSettings = fullTextSettings;
         }
 
         public async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)>
@@ -149,38 +144,30 @@ namespace Grand.Business.Catalog.Queries.Handlers
             //searching by keyword
             if (!String.IsNullOrWhiteSpace(request.Keywords))
             {
-                if (_fullTextSettings.UseFullTextSearch)
-                {
-                    request.Keywords = "\"" + request.Keywords + "\"";
-                    request.Keywords = request.Keywords.Replace("+", "\" \"");
-                    request.Keywords = request.Keywords.Replace(" ", "\" \"");
-                    filter &= builder.Text(request.Keywords);
-                }
+
+                if (!request.SearchDescriptions)
+                    filter &= builder.Where(p =>
+                        p.Name.ToLower().Contains(request.Keywords.ToLower())
+                        ||
+                        p.Locales.Any(x => x.LocaleKey == "Name" && x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower()))
+                        ||
+                        (request.SearchSku && p.Sku.ToLower().Contains(request.Keywords.ToLower()))
+                        );
                 else
                 {
-                    if (!request.SearchDescriptions)
-                        filter &= builder.Where(p =>
-                            p.Name.ToLower().Contains(request.Keywords.ToLower())
+                    filter &= builder.Where(p =>
+                            (p.Name != null && p.Name.ToLower().Contains(request.Keywords.ToLower()))
                             ||
-                            p.Locales.Any(x => x.LocaleKey == "Name" && x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower()))
+                            (p.ShortDescription != null && p.ShortDescription.ToLower().Contains(request.Keywords.ToLower()))
+                            ||
+                            (p.FullDescription != null && p.FullDescription.ToLower().Contains(request.Keywords.ToLower()))
+                            ||
+                            (p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower())))
                             ||
                             (request.SearchSku && p.Sku.ToLower().Contains(request.Keywords.ToLower()))
                             );
-                    else
-                    {
-                        filter &= builder.Where(p =>
-                                (p.Name != null && p.Name.ToLower().Contains(request.Keywords.ToLower()))
-                                ||
-                                (p.ShortDescription != null && p.ShortDescription.ToLower().Contains(request.Keywords.ToLower()))
-                                ||
-                                (p.FullDescription != null && p.FullDescription.ToLower().Contains(request.Keywords.ToLower()))
-                                ||
-                                (p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower())))
-                                ||
-                                (request.SearchSku && p.Sku.ToLower().Contains(request.Keywords.ToLower()))
-                                );
-                    }
                 }
+
 
             }
 
