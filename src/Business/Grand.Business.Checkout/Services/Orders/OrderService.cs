@@ -286,9 +286,7 @@ namespace Grand.Business.Checkout.Services.Orders
 
             var order = await GetOrderByOrderItemId(orderItem.Id);
 
-            var updatebuilder = MongoDB.Driver.Builders<Order>.Update;
-            var updatefilter = updatebuilder.PullFilter(x => x.OrderItems, y => y.Id == orderItem.Id);
-            await _orderRepository.Collection.UpdateOneAsync(new MongoDB.Bson.BsonDocument("_id", order.Id), updatefilter);
+            await _orderRepository.PullFilter(order.Id, x => x.OrderItems, x => x.Id == orderItem.Id);
 
             //event notification
             await _mediator.EntityDeleted(orderItem);

@@ -48,8 +48,7 @@ namespace Grand.Business.Marketing.Services.Customers
 
         public async Task SaveGeoCoordinate(Customer customer, double longitude, double latitude)
         {
-            var coordinates = new MongoDB.Driver.GeoJsonObjectModel.GeoJson2DCoordinates(longitude, latitude);
-            customer.Coordinates = new Domain.Common.GeoCoordinates(coordinates.Y, coordinates.Y);
+            customer.Coordinates = new Domain.Common.GeoCoordinates(longitude, latitude);
 
             //update customer
             await _customerRepository.UpdateField(customer.Id, x => x.Coordinates, customer.Coordinates);

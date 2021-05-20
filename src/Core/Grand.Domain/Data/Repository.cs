@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using System;
@@ -305,18 +306,50 @@ namespace Grand.Domain.Data
         /// <param name="elemFieldMatch">Subdocument field to match</param>
         /// <param name="elemMatch">Subdocument ident value</param>
         /// <param name="value">Subdocument - to update (all values)</param>
-        public virtual async Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch, U value)
+        public virtual async Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch, U value, bool updateMany = false)
         {
-            var filter = Builders<T>.Filter.Eq(x => x.Id, id)
+            var filter = string.IsNullOrEmpty(id) ? Builders<T>.Filter.Where(x => true) : Builders<T>.Filter.Eq(x => x.Id, id)
                 & Builders<T>.Filter.ElemMatch(field, elemFieldMatch);
 
             MemberExpression me = field.Body as MemberExpression;
             MemberInfo minfo = me.Member;
             var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
 
-            var result = await _collection.UpdateOneAsync(filter, update);
-        }
+            if (updateMany)
+            {
+                var result = await _collection.UpdateManyAsync(filter, update);
+            }
+            else
+            {
+                var result = await _collection.UpdateOneAsync(filter, update);
+            }
 
+        }
+        // <summary>
+        /// Update subdocuments
+        /// </summary>
+        /// <typeparam name="T">Document</typeparam>
+        /// <typeparam name="Z">Subdocuments</typeparam>
+        /// <param name="id">Ident of entitie</param>
+        /// <param name="field"></param>
+        /// <param name="elemFieldMatch">Subdocument field to match</param>
+        /// <param name="value">Subdocument - to update (all values)</param>
+        /// <param name="updateMany">Update many records</param>
+        /// <returns></returns>
+        public virtual async Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value, bool updateMany = false)
+        {
+            MemberExpression me = field.Body as MemberExpression;
+            MemberInfo minfo = me.Member;
+
+            var filter = new BsonDocument
+            {
+                new BsonElement(minfo.Name, elemFieldMatch.ToString())
+            };
+
+            var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
+            await _collection.UpdateManyAsync(filter, update);
+
+        }
         /// <summary>
         /// Delete subdocument
         /// </summary>

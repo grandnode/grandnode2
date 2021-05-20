@@ -166,14 +166,8 @@ namespace Grand.Business.Catalog.Services.Products
 
             await _productTagRepository.UpdateAsync(productTag);
 
-            //update name on products
-            var filter = new MongoDB.Bson.BsonDocument
-            {
-                new MongoDB.Bson.BsonElement("ProductTags", previouse.Name)
-            };
-            var update = MongoDB.Driver.Builders<Product>.Update
-                .Set(x => x.ProductTags.ElementAt(-1), productTag.Name);
-            await _productRepository.Collection.UpdateManyAsync(filter, update);
+            //update on products
+            await _productRepository.UpdateToSet(x => x.ProductTags, previouse.Name, productTag.Name, true);
 
             //cache
             await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTTAG_PATTERN_KEY);

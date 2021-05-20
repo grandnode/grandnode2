@@ -147,9 +147,7 @@ namespace Grand.Business.Marketing.Services.Customers
         /// </summary>
         public virtual async Task InsertTagToCustomer(string customerTagId, string customerId)
         {
-            var updatebuilder = MongoDB.Driver.Builders<Customer>.Update;
-            var update = updatebuilder.AddToSet(p => p.CustomerTags, customerTagId);
-            await _customerRepository.Collection.UpdateOneAsync(new MongoDB.Bson.BsonDocument("_id", customerId), update);
+            await _customerRepository.AddToSet(customerId, x => x.CustomerTags, customerTagId);
         }
 
         /// <summary>
@@ -157,9 +155,7 @@ namespace Grand.Business.Marketing.Services.Customers
         /// </summary>
         public virtual async Task DeleteTagFromCustomer(string customerTagId, string customerId)
         {
-            var updatebuilder = MongoDB.Driver.Builders<Customer>.Update;
-            var update = updatebuilder.Pull(p => p.CustomerTags, customerTagId);
-            await _customerRepository.Collection.UpdateOneAsync(new MongoDB.Bson.BsonDocument("_id", customerId), update);
+            await _customerRepository.Pull(customerId, x => x.CustomerTags, customerTagId);
         }
 
         /// <summary>

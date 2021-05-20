@@ -572,24 +572,25 @@ namespace Grand.Business.Customers.Services
             if (guestGroup == null)
                 throw new GrandException("Guests group could not be loaded");
 
-            var userGroups = new List<string> { guestGroup.Id };
-            var builder = MongoDB.Driver.Builders<Customer>.Filter;
-            var filter = builder.AnyIn(x => x.Groups, userGroups);
+            var query = from p in _customerRepository.Table
+                        select p;
+
+            query = query.Where(x => x.Groups.Contains(guestGroup.Id));
 
             if (createdFromUtc.HasValue)
-                filter &= builder.Gte(x => x.LastActivityDateUtc, createdFromUtc.Value);
+                query = query.Where(x => x.LastActivityDateUtc > createdFromUtc.Value);
             if (createdToUtc.HasValue)
-                filter &= builder.Lte(x => x.LastActivityDateUtc, createdToUtc.Value);
+                query = query.Where(x => x.LastActivityDateUtc < createdToUtc.Value);
             if (onlyWithoutShoppingCart)
-                filter &= builder.Size(x => x.ShoppingCartItems, 0);
+                query = query.Where(x => !x.ShoppingCartItems.Any());
 
-            filter &= builder.Eq(x => x.HasContributions, false);
+            query = query.Where(x => !x.HasContributions);
 
-            filter &= builder.Eq(x => x.IsSystemAccount, false);
+            query = query.Where(x => !x.IsSystemAccount);
 
-            var customers = await _customerRepository.Collection.DeleteManyAsync(filter);
+            var customers = await _customerRepository.DeleteAsync(query);
 
-            return (int)customers.DeletedCount;
+            return customers.Count();
 
         }
 
