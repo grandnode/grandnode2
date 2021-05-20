@@ -1,5 +1,3 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using System;
 
 namespace Grand.Domain.Media
@@ -27,13 +25,12 @@ namespace Grand.Domain.Media
         /// <summary>
         /// Gets or sets the download binary
         /// </summary>
-        [BsonIgnore]
         public byte[] DownloadBinary { get; set; }
 
         /// <summary>
         /// Gets or sets the download binary
         /// </summary>
-        public ObjectId DownloadObjectId { get; set; }
+        public string DownloadObjectId { get; set; }
 
         /// <summary>
         /// The mime-type of the download

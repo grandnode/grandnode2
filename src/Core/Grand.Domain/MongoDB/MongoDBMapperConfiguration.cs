@@ -29,6 +29,12 @@ namespace Grand.Domain.MongoDB
             };
             ConventionRegistry.Register("ApplicationConventions", cp, t => true);
 
+
+            BsonClassMap.RegisterClassMap<Media.Download>(cm =>
+            {
+                cm.AutoMap();
+                cm.UnmapMember(m => m.DownloadBinary);
+            });
         }
 
     }

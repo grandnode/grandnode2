@@ -56,10 +56,10 @@ namespace Grand.Business.Storage.Services
             return _download;
         }
 
-        protected virtual async Task<byte[]> DownloadAsBytes(MongoDB.Bson.ObjectId objectId)
+        protected virtual async Task<byte[]> DownloadAsBytes(string objectId)
         {
             var bucket = new MongoDB.Driver.GridFS.GridFSBucket(_downloadRepository.Database);
-            var binary = await bucket.DownloadAsBytesAsync(objectId, new MongoDB.Driver.GridFS.GridFSDownloadOptions() { CheckMD5 = true, Seekable = true });
+            var binary = await bucket.DownloadAsBytesAsync(new MongoDB.Bson.ObjectId(objectId), new MongoDB.Driver.GridFS.GridFSDownloadOptions() { CheckMD5 = true, Seekable = true });
             return binary;
         }
         /// <summary>
@@ -95,7 +95,7 @@ namespace Grand.Business.Storage.Services
             {
                 var bucket = new MongoDB.Driver.GridFS.GridFSBucket(_downloadRepository.Database);
                 var id = await bucket.UploadFromBytesAsync(download.Filename, download.DownloadBinary);
-                download.DownloadObjectId = id;
+                download.DownloadObjectId = id.ToString();
             }
 
             download.DownloadBinary = null;

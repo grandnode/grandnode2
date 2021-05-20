@@ -121,7 +121,7 @@ namespace Grand.Business.Common.Services.Pdf
                 };
                 var bucket = new MongoDB.Driver.GridFS.GridFSBucket(_downloadRepository.Database);
                 var id = await bucket.UploadFromBytesAsync(download.Filename, ms.ToArray());
-                download.DownloadObjectId = id;
+                download.DownloadObjectId = id.ToString();
                 await _downloadRepository.InsertAsync(download);
 
                 //TODO
