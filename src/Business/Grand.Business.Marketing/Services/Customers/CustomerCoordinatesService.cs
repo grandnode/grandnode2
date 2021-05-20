@@ -35,6 +35,9 @@ namespace Grand.Business.Marketing.Services.Customers
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
 
+            if (customer.Coordinates == null)
+                await Task.FromResult((0, 0));
+
             return await Task.FromResult((customer.Coordinates.X, customer.Coordinates.Y));
         }
 
@@ -46,10 +49,10 @@ namespace Grand.Business.Marketing.Services.Customers
         public async Task SaveGeoCoordinate(Customer customer, double longitude, double latitude)
         {
             var coordinates = new MongoDB.Driver.GeoJsonObjectModel.GeoJson2DCoordinates(longitude, latitude);
-            customer.Coordinates = coordinates;
+            customer.Coordinates = new Domain.Common.GeoCoordinates(coordinates.Y, coordinates.Y);
 
             //update customer
-            await _customerRepository.UpdateField(customer.Id, x => x.Coordinates, coordinates);
+            await _customerRepository.UpdateField(customer.Id, x => x.Coordinates, customer.Coordinates);
 
             //raise event       
             await _mediator.Publish(new CustomerCoordinatesEvent(customer));

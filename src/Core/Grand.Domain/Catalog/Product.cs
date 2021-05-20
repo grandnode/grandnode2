@@ -1,8 +1,8 @@
+using Grand.Domain.Common;
 using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Domain.Seo;
 using Grand.Domain.Stores;
-using MongoDB.Driver.GeoJsonObjectModel;
 using System;
 using System.Collections.Generic;
 
@@ -561,7 +561,7 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets the coordinates
         /// </summary>
-        public GeoJson2DCoordinates Coordinates { get; set; }
+        public GeoCoordinates Coordinates { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of locales
