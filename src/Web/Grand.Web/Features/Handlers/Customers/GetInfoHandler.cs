@@ -117,8 +117,9 @@ namespace Grand.Web.Features.Handlers.Customers
         {
             //newsletter
             var newsletter = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByEmailAndStoreId(request.Customer.Email, request.Store.Id);
-            if (newsletter == null)
-                newsletter = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByCustomerId(request.Customer.Id);
+            //TODO - it is necessary ?
+            //if (newsletter == null)
+            //    newsletter = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByCustomerId(request.Customer.Id);
 
             model.Newsletter = newsletter != null && newsletter.Active;
 
