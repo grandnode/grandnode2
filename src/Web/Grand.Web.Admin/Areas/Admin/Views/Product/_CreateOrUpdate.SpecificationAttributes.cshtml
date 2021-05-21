@@ -256,18 +256,26 @@
             if (selectedTypeId == @(((int)SpecificationAttributeType.Option).ToString())) {
                 $('#pnlSpecificationAttributeOptionId').show();
                 $('#pnlCustomValue').hide();
+                $('#disableOnCustom').show();
+                $('#disableOnCustom select').removeAttr('disabled');
                 $('#pnlAllowFiltering').show();
             } else if (selectedTypeId == @(((int)SpecificationAttributeType.CustomText).ToString())) {
                 $('#pnlSpecificationAttributeOptionId').hide();
                 $('#pnlCustomValue').show();
+                $('#disableOnCustom').hide();
+                $('#disableOnCustom select').setAttribute('disabled');
                 $('#pnlAllowFiltering').hide();
             } else if (selectedTypeId == @(((int)SpecificationAttributeType.CustomHtmlText).ToString())) {
                 $('#pnlSpecificationAttributeOptionId').hide();
                 $('#pnlCustomValue').show();
+                $('#disableOnCustom').hide();
+                $('#disableOnCustom select').setAttribute('disabled');
                 $('#pnlAllowFiltering').hide();
             } else if (selectedTypeId == @(((int)SpecificationAttributeType.Hyperlink).ToString())) {
                 $('#pnlSpecificationAttributeOptionId').hide();
                 $('#pnlCustomValue').show();
+                $('#disableOnCustom').hide();
+                $('#disableOnCustom select').setAttribute('disabled');
                 $('#pnlAllowFiltering').hide();
             }
         }
@@ -281,7 +289,7 @@
                         <span asp-validation-for="AddSpecificationAttributeModel.AttributeTypeId"></span>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="disableOnCustom">
                     <admin-label asp-for="AddSpecificationAttributeModel.SpecificationAttributeId" />
                     <div class="col-md-9 col-sm-9">
                         <admin-select asp-for="AddSpecificationAttributeModel.SpecificationAttributeId" asp-items="Model.AddSpecificationAttributeModel.AvailableAttributes" />
