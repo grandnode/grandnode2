@@ -2,8 +2,6 @@
 using Grand.Api.Queries.Models.Common;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,10 +19,8 @@ namespace Grand.Api.Queries.Handlers.Common
 
         public async Task<PictureDto> Handle(GetPictureByIdQuery request, CancellationToken cancellationToken)
         {
-            return await _mongoDBContext.Database()
-                .GetCollection<PictureDto>(typeof(Domain.Media.Picture).Name)
-                .AsQueryable()
-                .FirstOrDefaultAsync(x => x.Id == request.Id);
+            var query = _mongoDBContext.Table<PictureDto>(typeof(Domain.Media.Picture).Name);
+            return await Task.FromResult(query.Where(x => x.Id == request.Id).FirstOrDefault());
         }
     }
 }

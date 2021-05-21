@@ -2,6 +2,7 @@
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -25,6 +26,11 @@ namespace Grand.Domain.Data
         public IMongoDatabase Database()
         {
             return _database;
+        }
+
+        public IQueryable<T> Table<T>(string collectionName)
+        {
+            return _database.GetCollection<T>(collectionName).AsQueryable();
         }
 
         protected IMongoDatabase TryReadMongoDatabase()

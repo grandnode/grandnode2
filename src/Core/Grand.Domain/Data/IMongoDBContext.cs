@@ -1,6 +1,8 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,6 +11,7 @@ namespace Grand.Domain.Data
     public interface IMongoDBContext
     {
         IMongoDatabase Database();
+        IQueryable<T> Table<T>(string collectionName);
         Task<byte[]> GridFSBucketDownload(string id);
         Task<string> GridFSBucketUploadFromBytesAsync(string filename, byte[] source);
         Task<bool> DatabaseExist(string connectionString);

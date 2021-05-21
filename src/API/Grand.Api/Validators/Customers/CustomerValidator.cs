@@ -77,7 +77,7 @@ namespace Grand.Api.Validators.Customers
                 {
                     var countryId = !string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
                     var country = await countryService.GetCountryById(countryId);
-                    if (country.StateProvinces.Any())
+                    if (country != null && country.StateProvinces.Any())
                     {
                         //if yes, then ensure that state is selected
                         if (string.IsNullOrEmpty(y))

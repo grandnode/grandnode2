@@ -2,14 +2,13 @@
 using Grand.Api.Queries.Models.Common;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Grand.Api.Queries.Handlers.Common
 {
-    public class GetLanguageQueryHandler : IRequestHandler<GetQuery<LanguageDto>, IMongoQueryable<LanguageDto>>
+    public class GetLanguageQueryHandler : IRequestHandler<GetQuery<LanguageDto>, IQueryable<LanguageDto>>
     {
         private readonly IMongoDBContext _mongoDBContext;
 
@@ -17,12 +16,15 @@ namespace Grand.Api.Queries.Handlers.Common
         {
             _mongoDBContext = mongoDBContext;
         }
-        public Task<IMongoQueryable<LanguageDto>> Handle(GetQuery<LanguageDto> request, CancellationToken cancellationToken)
+        public async Task<IQueryable<LanguageDto>> Handle(GetQuery<LanguageDto> request, CancellationToken cancellationToken)
         {
+            var query = _mongoDBContext.Table<LanguageDto>(typeof(Domain.Localization.Language).Name);
+
             if (string.IsNullOrEmpty(request.Id))
-                return Task.FromResult(_mongoDBContext.Database().GetCollection<LanguageDto>(typeof(Domain.Localization.Language).Name).AsQueryable());
+                return query;
             else
-                return Task.FromResult(_mongoDBContext.Database().GetCollection<LanguageDto>(typeof(Domain.Localization.Language).Name).AsQueryable().Where(x => x.Id == request.Id));
+                return await Task.FromResult(query.Where(x => x.Id == request.Id));
+
         }
     }
 }

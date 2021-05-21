@@ -2,14 +2,13 @@
 using Grand.Api.Queries.Models.Common;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Grand.Api.Queries.Handlers.Customers
 {
-    public class GetCustomerGroupQueryHandler : IRequestHandler<GetQuery<CustomerGroupDto>, IMongoQueryable<CustomerGroupDto>>
+    public class GetCustomerGroupQueryHandler : IRequestHandler<GetQuery<CustomerGroupDto>, IQueryable<CustomerGroupDto>>
     {
         private readonly IMongoDBContext _mongoDBContext;
 
@@ -17,19 +16,15 @@ namespace Grand.Api.Queries.Handlers.Customers
         {
             _mongoDBContext = mongoDBContext;
         }
-        public Task<IMongoQueryable<CustomerGroupDto>> Handle(GetQuery<CustomerGroupDto> request, CancellationToken cancellationToken)
+        public async Task<IQueryable<CustomerGroupDto>> Handle(GetQuery<CustomerGroupDto> request, CancellationToken cancellationToken)
         {
+            var query = _mongoDBContext.Table<CustomerGroupDto>(typeof(Domain.Customers.CustomerGroup).Name);
+
             if (string.IsNullOrEmpty(request.Id))
-                return Task.FromResult(
-                    _mongoDBContext.Database()
-                    .GetCollection<CustomerGroupDto>
-                    (typeof(Domain.Customers.CustomerGroup).Name)
-                    .AsQueryable());
+                return query;
             else
-                return Task.FromResult(_mongoDBContext.Database()
-                    .GetCollection<CustomerGroupDto>(typeof(Domain.Customers.CustomerGroup).Name)
-                    .AsQueryable()
-                    .Where(x => x.Id == request.Id));
+                return await Task.FromResult(query.Where(x => x.Id == request.Id));
+
         }
     }
 }
