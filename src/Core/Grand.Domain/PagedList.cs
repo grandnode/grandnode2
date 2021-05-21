@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Grand.Domain.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Grand.Domain
 {
@@ -46,6 +48,34 @@ namespace Grand.Domain
         public PagedList(IEnumerable<T> source, int pageIndex, int pageSize, int totalCount)
         {
             Initialize(source, pageIndex, pageSize, totalCount);
+        }
+        private async Task InitializeAsync(IQueryable<T> source, int pageIndex, int pageSize, int? totalCount = null)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (pageSize <= 0)
+                pageSize = 1;
+
+            TotalCount = totalCount ?? await source.CountAsync2();
+            source = totalCount == null ? source.Skip(pageIndex * pageSize).Take(pageSize) : source;
+            AddRange(source);
+
+            if (pageSize > 0)
+            {
+                TotalPages = TotalCount / pageSize;
+                if (TotalCount % pageSize > 0)
+                    TotalPages++;
+            }
+
+            PageSize = pageSize;
+            PageIndex = pageIndex;
+        }
+
+        public static async Task<PagedList<T>> Create(IQueryable<T> source, int pageIndex, int pageSize)
+        {
+            var pagelist = new PagedList<T>();
+            await pagelist.InitializeAsync(source, pageIndex, pageSize);
+            return pagelist;
         }
 
         public int PageIndex { get; private set; }
