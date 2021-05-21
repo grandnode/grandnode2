@@ -31,18 +31,20 @@ namespace Grand.Web.Validators.Common
             {
                 RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, context) =>
                 {
-                    //does selected country has states?
-                    var countryId = !String.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
-                    var hasStates = (await countryServices.GetCountryById(countryId))?.StateProvinces.Count > 0;
-                    if (hasStates)
+                    var countryId = !string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
+                    var country = await countryService.GetCountryById(countryId);
+                    if (country != null && country.StateProvinces.Any())
                     {
                         //if yes, then ensure that state is selected
-                        if (String.IsNullOrEmpty(y))
+                        if (string.IsNullOrEmpty(y))
                         {
                             return false;
                         }
+                        if (country.StateProvinces.FirstOrDefault(x => x.Id == y) != null)
+                            return true;
                     }
-                    return true;
+                    return false;
+
                 }).WithMessage(translationService.GetResource("Account.VendorInfo.StateProvince.Required"));
             }
             if (addressSettings.CompanyRequired && addressSettings.CompanyEnabled)
