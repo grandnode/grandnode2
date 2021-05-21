@@ -240,7 +240,7 @@
             @if (Model.ShowQty)
             {
                 var qtyId = "addtocart_" + @Model.Id + "_EnteredQuantity";
-                <input class="form-control input-group-addon catalog-quantity" type="number" id="@qtyId" name="@qtyId" value="1">
+                <input class="form-control input-group-addon catalog-quantity" type="number" min="1" id="@qtyId" name="@qtyId" value="1">
             }
             <b-button-group>
                 @if (!Model.ProductPrice.DisableWishlistButton && Model.ProductType == ProductType.SimpleProduct)
