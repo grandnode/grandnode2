@@ -2,14 +2,13 @@
 using Grand.Api.Queries.Models.Common;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Grand.Api.Queries.Handlers.Shipping
 {
-    public class GetWarehouseQueryHandler : IRequestHandler<GetQuery<WarehouseDto>, IMongoQueryable<WarehouseDto>>
+    public class GetWarehouseQueryHandler : IRequestHandler<GetQuery<WarehouseDto>, IQueryable<WarehouseDto>>
     {
         private readonly IMongoDBContext _mongoDBContext;
 
@@ -17,21 +16,14 @@ namespace Grand.Api.Queries.Handlers.Shipping
         {
             _mongoDBContext = mongoDBContext;
         }
-        public Task<IMongoQueryable<WarehouseDto>> Handle(GetQuery<WarehouseDto> request, CancellationToken cancellationToken)
+        public async Task<IQueryable<WarehouseDto>> Handle(GetQuery<WarehouseDto> request, CancellationToken cancellationToken)
         {
+            var query = _mongoDBContext.Table<WarehouseDto>(typeof(Domain.Shipping.Warehouse).Name);
+
             if (string.IsNullOrEmpty(request.Id))
-                return Task.FromResult
-                    (_mongoDBContext.Database()
-                    .GetCollection<WarehouseDto>
-                    (typeof(Domain.Shipping.Warehouse).Name)
-                    .AsQueryable());
+                return query;
             else
-                return Task.FromResult
-                    (_mongoDBContext.Database()
-                    .GetCollection<WarehouseDto>
-                    (typeof(Domain.Shipping.Warehouse).Name)
-                    .AsQueryable()
-                    .Where(x => x.Id == request.Id));
+                return await Task.FromResult(query.Where(x => x.Id == request.Id));
         }
     }
 }

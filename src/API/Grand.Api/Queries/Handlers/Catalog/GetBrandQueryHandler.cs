@@ -2,14 +2,13 @@
 using Grand.Api.Queries.Models.Common;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Grand.Api.Queries.Handlers.Common
 {
-    public class GetBrandQueryHandler : IRequestHandler<GetQuery<BrandDto>, IMongoQueryable<BrandDto>>
+    public class GetBrandQueryHandler : IRequestHandler<GetQuery<BrandDto>, IQueryable<BrandDto>>
     {
         private readonly IMongoDBContext _mongoDBContext;
 
@@ -17,19 +16,15 @@ namespace Grand.Api.Queries.Handlers.Common
         {
             _mongoDBContext = mongoDBContext;
         }
-        public Task<IMongoQueryable<BrandDto>> Handle(GetQuery<BrandDto> request, CancellationToken cancellationToken)
+        public async Task<IQueryable<BrandDto>> Handle(GetQuery<BrandDto> request, CancellationToken cancellationToken)
         {
+            var query = _mongoDBContext.Table<BrandDto>(typeof(Domain.Catalog.Brand).Name);
+
             if (string.IsNullOrEmpty(request.Id))
-                return Task.FromResult(
-                    _mongoDBContext.Database()
-                    .GetCollection<BrandDto>
-                    (typeof(Domain.Catalog.Brand).Name)
-                    .AsQueryable());
+                return query;
             else
-                return Task.FromResult(_mongoDBContext.Database()
-                    .GetCollection<BrandDto>(typeof(Domain.Catalog.Brand).Name)
-                    .AsQueryable()
-                    .Where(x => x.Id == request.Id));
+                return await Task.FromResult(query.Where(x => x.Id == request.Id));
+
         }
     }
 }

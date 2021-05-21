@@ -167,7 +167,7 @@ namespace Grand.Api.Controllers.OData
             if (!product.Any())
                 return NotFound();
 
-            var pc = product.FirstOrDefault().Categories.Where(x => x.CategoryId == productCategory.CategoryId).FirstOrDefault();
+            var pc = product.FirstOrDefault().ProductCategories.Where(x => x.CategoryId == productCategory.CategoryId).FirstOrDefault();
             if (pc != null)
                 ModelState.AddModelError("", "Product category mapping found with the specified categoryid");
 
@@ -195,7 +195,7 @@ namespace Grand.Api.Controllers.OData
                 return NotFound();
 
 
-            var pc = product.FirstOrDefault().Categories.Where(x => x.CategoryId == productCategory.CategoryId).FirstOrDefault();
+            var pc = product.FirstOrDefault().ProductCategories.Where(x => x.CategoryId == productCategory.CategoryId).FirstOrDefault();
             if (pc == null)
                 ModelState.AddModelError("", "No product category mapping found with the specified id");
 
@@ -226,7 +226,7 @@ namespace Grand.Api.Controllers.OData
             var categoryId = parameters.FirstOrDefault(x => x.Key == "CategoryId").Value;
             if (categoryId != null)
             {
-                var pc = product.FirstOrDefault().Categories.Where(x => x.CategoryId == categoryId.ToString()).FirstOrDefault();
+                var pc = product.FirstOrDefault().ProductCategories.Where(x => x.CategoryId == categoryId.ToString()).FirstOrDefault();
                 if (pc == null)
                     ModelState.AddModelError("", "No product category mapping found with the specified id");
 
@@ -260,7 +260,7 @@ namespace Grand.Api.Controllers.OData
                 return NotFound();
 
 
-            var pm = product.FirstOrDefault().Collections.Where(x => x.CollectionId == productCollection.CollectionId).FirstOrDefault();
+            var pm = product.FirstOrDefault().ProductCollections.Where(x => x.CollectionId == productCollection.CollectionId).FirstOrDefault();
             if (pm != null)
                 ModelState.AddModelError("", "Product collection mapping found with the specified collectionid");
 
@@ -287,7 +287,7 @@ namespace Grand.Api.Controllers.OData
             if (!product.Any())
                 return NotFound();
 
-            var pm = product.FirstOrDefault().Collections.Where(x => x.CollectionId == productCollection.CollectionId).FirstOrDefault();
+            var pm = product.FirstOrDefault().ProductCollections.Where(x => x.CollectionId == productCollection.CollectionId).FirstOrDefault();
             if (pm == null)
                 ModelState.AddModelError("", "No product collection mapping found with the specified id");
 
@@ -317,7 +317,7 @@ namespace Grand.Api.Controllers.OData
             var collectionId = parameters.FirstOrDefault(x => x.Key == "CollectionId").Value;
             if (collectionId != null)
             {
-                var pm = product.FirstOrDefault().Collections.Where(x => x.CollectionId == collectionId.ToString()).FirstOrDefault();
+                var pm = product.FirstOrDefault().ProductCollections.Where(x => x.CollectionId == collectionId.ToString()).FirstOrDefault();
                 if (pm == null)
                     ModelState.AddModelError("", "No product collection mapping found with the specified id");
 
@@ -351,7 +351,7 @@ namespace Grand.Api.Controllers.OData
                 return NotFound();
 
 
-            var pp = product.FirstOrDefault().Pictures.Where(x => x.PictureId == productPicture.PictureId).FirstOrDefault();
+            var pp = product.FirstOrDefault().ProductPictures.Where(x => x.PictureId == productPicture.PictureId).FirstOrDefault();
             if (pp != null)
                 ModelState.AddModelError("", "Product picture mapping found with the specified pictureid");
 
@@ -379,7 +379,7 @@ namespace Grand.Api.Controllers.OData
                 return NotFound();
 
 
-            var pp = product.FirstOrDefault().Pictures.Where(x => x.PictureId == productPicture.PictureId).FirstOrDefault();
+            var pp = product.FirstOrDefault().ProductPictures.Where(x => x.PictureId == productPicture.PictureId).FirstOrDefault();
             if (pp == null)
                 ModelState.AddModelError("", "No product picture mapping found with the specified id");
 
@@ -410,7 +410,7 @@ namespace Grand.Api.Controllers.OData
             var pictureId = parameters.FirstOrDefault(x => x.Key == "PictureId").Value;
             if (pictureId != null)
             {
-                var pp = product.FirstOrDefault().Pictures.Where(x => x.PictureId == pictureId.ToString()).FirstOrDefault();
+                var pp = product.FirstOrDefault().ProductPictures.Where(x => x.PictureId == pictureId.ToString()).FirstOrDefault();
                 if (pp == null)
                     ModelState.AddModelError("", "No product picture mapping found with the specified id");
 
@@ -443,7 +443,7 @@ namespace Grand.Api.Controllers.OData
             if (!product.Any())
                 return NotFound();
 
-            var psa = product.FirstOrDefault().SpecificationAttribute.Where(x => x.Id == productSpecification.Id).FirstOrDefault();
+            var psa = product.FirstOrDefault().ProductSpecificationAttributes.Where(x => x.Id == productSpecification.Id).FirstOrDefault();
             if (psa != null)
                 ModelState.AddModelError("", "Product specification mapping found with the specified id");
 
@@ -470,7 +470,7 @@ namespace Grand.Api.Controllers.OData
             if (!product.Any())
                 return NotFound();
 
-            var psa = product.FirstOrDefault().SpecificationAttribute.Where(x => x.Id == productSpecification.Id).FirstOrDefault();
+            var psa = product.FirstOrDefault().ProductSpecificationAttributes.Where(x => x.Id == productSpecification.Id).FirstOrDefault();
             if (psa == null)
                 ModelState.AddModelError("", "No product specification mapping found with the specified id");
 
@@ -501,7 +501,7 @@ namespace Grand.Api.Controllers.OData
             var specificationId = parameters.FirstOrDefault(x => x.Key == "Id").Value;
             if (specificationId != null)
             {
-                var psa = product.FirstOrDefault().SpecificationAttribute.Where(x => x.Id == specificationId.ToString()).FirstOrDefault();
+                var psa = product.FirstOrDefault().ProductSpecificationAttributes.Where(x => x.Id == specificationId.ToString()).FirstOrDefault();
                 if (psa == null)
                     ModelState.AddModelError("", "No product specification mapping found with the specified id");
 
@@ -624,7 +624,7 @@ namespace Grand.Api.Controllers.OData
             if (!product.Any())
                 return NotFound();
 
-            var pam = product.FirstOrDefault().AttributeMappings.Where(x => x.Id == productAttributeMapping.Id).FirstOrDefault();
+            var pam = product.FirstOrDefault().ProductAttributeMappings.Where(x => x.Id == productAttributeMapping.Id).FirstOrDefault();
             if (pam != null)
                 ModelState.AddModelError("", "Product attribute mapping found with the specified id");
 
@@ -651,7 +651,7 @@ namespace Grand.Api.Controllers.OData
             if (!product.Any())
                 return NotFound();
 
-            var pam = product.FirstOrDefault().AttributeMappings.Where(x => x.Id == productAttributeMapping.Id).FirstOrDefault();
+            var pam = product.FirstOrDefault().ProductAttributeMappings.Where(x => x.Id == productAttributeMapping.Id).FirstOrDefault();
             if (pam == null)
                 ModelState.AddModelError("", "No product attribute mapping found with the specified id");
 
@@ -682,7 +682,7 @@ namespace Grand.Api.Controllers.OData
             var attrId = parameters.FirstOrDefault(x => x.Key == "Id").Value;
             if (attrId != null)
             {
-                var pam = product.FirstOrDefault().AttributeMappings.Where(x => x.Id == attrId.ToString()).FirstOrDefault();
+                var pam = product.FirstOrDefault().ProductAttributeMappings.Where(x => x.Id == attrId.ToString()).FirstOrDefault();
                 if (pam == null)
                     ModelState.AddModelError("", "No product attribute mapping found with the specified id");
 

@@ -2,14 +2,13 @@
 using Grand.Api.Queries.Models.Common;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Grand.Api.Queries.Handlers.Common
 {
-    public class GetLayoutQueryHandler : IRequestHandler<GetLayoutQuery, IMongoQueryable<LayoutDto>>
+    public class GetLayoutQueryHandler : IRequestHandler<GetLayoutQuery, IQueryable<LayoutDto>>
     {
         private readonly IMongoDBContext _mongoDBContext;
 
@@ -18,12 +17,15 @@ namespace Grand.Api.Queries.Handlers.Common
             _mongoDBContext = mongoDBContext;
         }
 
-        public Task<IMongoQueryable<LayoutDto>> Handle(GetLayoutQuery request, CancellationToken cancellationToken)
+        public async Task<IQueryable<LayoutDto>> Handle(GetLayoutQuery request, CancellationToken cancellationToken)
         {
+            var query = _mongoDBContext.Table<LayoutDto>(request.LayoutName);
+
             if (string.IsNullOrEmpty(request.Id))
-                return Task.FromResult(_mongoDBContext.Database().GetCollection<LayoutDto>(request.LayoutName).AsQueryable());
+                return query;
             else
-                return Task.FromResult(_mongoDBContext.Database().GetCollection<LayoutDto>(request.LayoutName).AsQueryable().Where(x => x.Id == request.Id));
+                return await Task.FromResult(query.Where(x => x.Id == request.Id));
+
         }
     }
 }

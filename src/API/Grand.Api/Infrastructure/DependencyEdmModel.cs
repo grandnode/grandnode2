@@ -181,7 +181,7 @@ namespace Grand.Api.Infrastructure
             ActionConfiguration createProductAttributeMapping = product.Action("CreateProductAttributeMapping");
             createProductAttributeMapping.Parameter<string>(nameof(ProductAttributeMappingDto.Id));
             createProductAttributeMapping.Parameter<int>(nameof(ProductAttributeMappingDto.DisplayOrder));
-            createProductAttributeMapping.Parameter<AttributeControlType>(nameof(ProductAttributeMappingDto.AttributeControlType)).Required();
+            createProductAttributeMapping.Parameter<AttributeControlType>(nameof(ProductAttributeMappingDto.AttributeControlTypeId)).Required();
             createProductAttributeMapping.Parameter<string>(nameof(ProductAttributeMappingDto.DefaultValue));
             createProductAttributeMapping.Parameter<bool>(nameof(ProductAttributeMappingDto.IsRequired));
             createProductAttributeMapping.Parameter<string>(nameof(ProductAttributeMappingDto.TextPrompt));
@@ -195,7 +195,7 @@ namespace Grand.Api.Infrastructure
             ActionConfiguration updateProductAttributeMapping = product.Action("UpdateProductAttributeMapping");
             updateProductAttributeMapping.Parameter<string>(nameof(ProductAttributeMappingDto.Id)).Required();
             updateProductAttributeMapping.Parameter<int>(nameof(ProductAttributeMappingDto.DisplayOrder));
-            updateProductAttributeMapping.Parameter<AttributeControlType>(nameof(ProductAttributeMappingDto.AttributeControlType)).Required();
+            updateProductAttributeMapping.Parameter<AttributeControlType>(nameof(ProductAttributeMappingDto.AttributeControlTypeId)).Required();
             updateProductAttributeMapping.Parameter<string>(nameof(ProductAttributeMappingDto.DefaultValue));
             updateProductAttributeMapping.Parameter<bool>(nameof(ProductAttributeMappingDto.IsRequired));
             updateProductAttributeMapping.Parameter<string>(nameof(ProductAttributeMappingDto.TextPrompt));

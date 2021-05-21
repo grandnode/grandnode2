@@ -1,6 +1,5 @@
 ﻿using Grand.Api.Models;
 using Grand.Domain.Catalog;
-using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 
@@ -10,15 +9,15 @@ namespace Grand.Api.DTOs.Catalog
     {
         public ProductDto()
         {
-            Categories = new List<ProductCategoryDto>();
-            Collections = new List<ProductCollectionDto>();
-            Pictures = new List<ProductPictureDto>();
-            SpecificationAttribute = new List<ProductSpecificationAttributeDto>();
+            ProductCategories = new List<ProductCategoryDto>();
+            ProductCollections = new List<ProductCollectionDto>();
+            ProductPictures = new List<ProductPictureDto>();
+            ProductSpecificationAttributes = new List<ProductSpecificationAttributeDto>();
             TierPrices = new List<ProductTierPriceDto>();
-            WarehouseInventory = new List<ProductWarehouseInventoryDto>();
-            AttributeMappings = new List<ProductAttributeMappingDto>();
-            AttributeCombinations = new List<ProductAttributeCombinationDto>();
-            Tags = new List<string>();
+            ProductWarehouseInventory = new List<ProductWarehouseInventoryDto>();
+            ProductAttributeMappings = new List<ProductAttributeMappingDto>();
+            ProductAttributeCombinations = new List<ProductAttributeCombinationDto>();
+            ProductTags = new List<string>();
             AppliedDiscounts = new List<string>();
         }
         public ProductType ProductTypeId { get; set; }
@@ -133,23 +132,15 @@ namespace Grand.Api.DTOs.Catalog
         public Int64 Viewed { get; set; }
         public int OnSale { get; set; }
         public string Flag { get; set; }
-        [BsonElement("ProductCategories")]
-        public IList<ProductCategoryDto> Categories { get; set; }
-        [BsonElement("ProductCollections")]
-        public IList<ProductCollectionDto> Collections { get; set; }
-        [BsonElement("ProductPictures")]
-        public IList<ProductPictureDto> Pictures { get; set; }
-        [BsonElement("ProductSpecificationAttributes")]
-        public IList<ProductSpecificationAttributeDto> SpecificationAttribute { get; set; }
+        public IList<ProductCategoryDto> ProductCategories { get; set; }
+        public IList<ProductCollectionDto> ProductCollections { get; set; }
+        public IList<ProductPictureDto> ProductPictures { get; set; }
+        public IList<ProductSpecificationAttributeDto> ProductSpecificationAttributes { get; set; }
         public IList<ProductTierPriceDto> TierPrices { get; set; }
-        [BsonElement("ProductWarehouseInventory")]
-        public IList<ProductWarehouseInventoryDto> WarehouseInventory { get; set; }
-        [BsonElement("ProductAttributeMappings")]
-        public IList<ProductAttributeMappingDto> AttributeMappings { get; set; }
-        [BsonElement("ProductAttributeCombinations")]
-        public IList<ProductAttributeCombinationDto> AttributeCombinations { get; set; }
-        [BsonElement("ProductTags")]
-        public IList<string> Tags { get; set; }
+        public IList<ProductWarehouseInventoryDto> ProductWarehouseInventory { get; set; }
+        public IList<ProductAttributeMappingDto> ProductAttributeMappings { get; set; }
+        public IList<ProductAttributeCombinationDto> ProductAttributeCombinations { get; set; }
+        public IList<string> ProductTags { get; set; }
         public IList<string> AppliedDiscounts { get; set; }
     }
 }

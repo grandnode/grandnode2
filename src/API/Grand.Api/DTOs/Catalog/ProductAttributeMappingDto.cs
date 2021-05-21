@@ -1,6 +1,5 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Api.Models;
-using MongoDB.Bson.Serialization.Attributes;
 using System.Collections.Generic;
 
 namespace Grand.Api.DTOs.Catalog
@@ -9,7 +8,7 @@ namespace Grand.Api.DTOs.Catalog
     {
         public ProductAttributeMappingDto()
         {
-            this.ProductAttributeValues = new List<ProductAttributeValueDto>();
+            ProductAttributeValues = new List<ProductAttributeValueDto>();
         }
         public string ProductAttributeId { get; set; }
         public string TextPrompt { get; set; }
@@ -21,8 +20,7 @@ namespace Grand.Api.DTOs.Catalog
         public int? ValidationFileMaximumSize { get; set; }
         public string DefaultValue { get; set; }
         public string ConditionAttributeXml { get; set; }
-        [BsonElement("AttributeControlTypeId")]
-        public AttributeControlType AttributeControlType { get; set; }
+        public AttributeControlType AttributeControlTypeId { get; set; }
 
         public IList<ProductAttributeValueDto> ProductAttributeValues { get; set; }
         
@@ -41,7 +39,6 @@ namespace Grand.Api.DTOs.Catalog
         public bool IsPreSelected { get; set; }
         public int DisplayOrder { get; set; }
         public string PictureId { get; set; }
-        [BsonElement("AttributeValueTypeId")]
-        public AttributeValueType AttributeValueType { get; set; }
+        public AttributeValueType AttributeValueTypeId { get; set; }
     }
 }
