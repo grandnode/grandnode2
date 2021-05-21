@@ -77,15 +77,15 @@ namespace Grand.Business.Catalog.Interfaces.Products
         /// <summary>
         /// Updates most view on the product
         /// </summary>
-        /// <param name="productId">ProductId</param>
-        Task UpdateMostView(string productId);
+        /// <param name="product">Product</param>
+        Task UpdateMostView(Product product);
 
         /// <summary>
         /// Updates best sellers on the product
         /// </summary>
-        /// <param name="productId">ProductId</param>
+        /// <param name="product">Product</param>
         /// <param name="qty">Count</param>
-        Task UpdateSold(string productId, int qty);
+        Task UpdateSold(Product product, int qty);
 
         /// <summary>
         /// Set product as unpublished

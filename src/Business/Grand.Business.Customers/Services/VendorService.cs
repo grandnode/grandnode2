@@ -4,9 +4,6 @@ using Grand.Domain;
 using Grand.Domain.Data;
 using Grand.Domain.Vendors;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,7 +64,8 @@ namespace Grand.Business.Customers.Services
         public virtual async Task<IPagedList<Vendor>> GetAllVendors(string name = "",
             int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
         {
-            var query = _vendorRepository.Table;
+            var query = from p in _vendorRepository.Table
+                        select p;
 
             if (!String.IsNullOrWhiteSpace(name))
                 query = query.Where(v => v.Name.ToLower().Contains(name.ToLower()));
@@ -148,9 +146,7 @@ namespace Grand.Business.Customers.Services
             if (vendorNote == null)
                 throw new ArgumentNullException(nameof(vendorNote));
 
-            var updatebuilder = Builders<Vendor>.Update;
-            var update = updatebuilder.AddToSet(p => p.VendorNotes, vendorNote);
-            await _vendorRepository.Collection.UpdateOneAsync(new BsonDocument("_id", vendorId), update);
+            await _vendorRepository.AddToSet(vendorId, x => x.VendorNotes, vendorNote);
 
             //event notification
             await _mediator.EntityInserted(vendorNote);
@@ -166,9 +162,7 @@ namespace Grand.Business.Customers.Services
             if (vendorNote == null)
                 throw new ArgumentNullException(nameof(vendorNote));
 
-            var updatebuilder = Builders<Vendor>.Update;
-            var update = updatebuilder.Pull(p => p.VendorNotes, vendorNote);
-            await _vendorRepository.Collection.UpdateOneAsync(new BsonDocument("_id", vendorId), update);
+            await _vendorRepository.PullFilter(vendorId, x => x.VendorNotes, x => x.Id, vendorNote.Id);
 
             //event notification
             await _mediator.EntityDeleted(vendorNote);
@@ -184,7 +178,7 @@ namespace Grand.Business.Customers.Services
             var query = from c in _vendorRepository.Table
                         where c.AppliedDiscounts.Any(x => x == discountId)
                         select c;
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         #region Vendor reviews
@@ -255,14 +249,13 @@ namespace Grand.Business.Customers.Services
             vendor.ApprovedTotalReviews = approvedTotalReviews;
             vendor.NotApprovedTotalReviews = notApprovedTotalReviews;
 
-            var filter = Builders<Vendor>.Filter.Eq("Id", vendor.Id);
-            var update = Builders<Vendor>.Update
+            var update = UpdateBuilder<Vendor>.Create()
                     .Set(x => x.ApprovedRatingSum, vendor.ApprovedRatingSum)
                     .Set(x => x.NotApprovedRatingSum, vendor.NotApprovedRatingSum)
                     .Set(x => x.ApprovedTotalReviews, vendor.ApprovedTotalReviews)
                     .Set(x => x.NotApprovedTotalReviews, vendor.NotApprovedTotalReviews);
 
-            await _vendorRepository.Collection.UpdateOneAsync(filter, update);
+            await _vendorRepository.UpdateOneAsync(x=>x.Id == vendor.Id, update);
 
             //event notification
             await _mediator.EntityUpdated(vendor);
@@ -273,16 +266,14 @@ namespace Grand.Business.Customers.Services
             if (vendorreview == null)
                 throw new ArgumentNullException(nameof(vendorreview));
 
-            var builder = Builders<VendorReview>.Filter;
-            var filter = builder.Eq(x => x.Id, vendorreview.Id);
-            var update = Builders<VendorReview>.Update
+            var update = UpdateBuilder<VendorReview>.Create()
                 .Set(x => x.Title, vendorreview.Title)
                 .Set(x => x.ReviewText, vendorreview.ReviewText)
                 .Set(x => x.IsApproved, vendorreview.IsApproved)
                 .Set(x => x.HelpfulYesTotal, vendorreview.HelpfulYesTotal)
                 .Set(x => x.HelpfulNoTotal, vendorreview.HelpfulNoTotal);
 
-            await _vendorReviewRepository.Collection.UpdateManyAsync(filter, update);
+            await _vendorReviewRepository.UpdateOneAsync(x => x.Id == vendorreview.Id, update);
 
             //event notification
             await _mediator.EntityUpdated(vendorreview);
@@ -340,20 +331,20 @@ namespace Grand.Business.Customers.Services
             string keywords = null)
         {
             //vendors
-            var builder = Builders<Vendor>.Filter;
-            var filter = FilterDefinition<Vendor>.Empty;
+            var query = from p in _vendorRepository.Table
+                        select p;
 
             //searching by keyword
             if (!string.IsNullOrWhiteSpace(keywords))
             {
-                filter &= builder.Where(p => p.Name.ToLower().Contains(keywords.ToLower()));
+                query = query.Where(p => p.Name.ToLower().Contains(keywords.ToLower()));
             }
             //vendor filtering
             if (!string.IsNullOrEmpty(vendorId))
             {
-                filter &= builder.Where(x => x.Id == vendorId);
+                query = query.Where(x => x.Id == vendorId);
             }
-            return await _vendorRepository.Collection.Find(filter).ToListAsync();
+            return await query.ToListAsync2();
         }
 
         #endregion

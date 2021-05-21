@@ -5,9 +5,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Common;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,7 +59,7 @@ namespace Grand.Business.Common.Services.Addresses
                 var query = from aa in _addressAttributeRepository.Table
                             orderby aa.DisplayOrder
                             select aa;
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
         }
 
@@ -142,9 +139,7 @@ namespace Grand.Business.Common.Services.Addresses
             if (addressAttributeValue == null)
                 throw new ArgumentNullException(nameof(addressAttributeValue));
 
-            var updatebuilder = Builders<AddressAttribute>.Update;
-            var update = updatebuilder.AddToSet(p => p.AddressAttributeValues, addressAttributeValue);
-            await _addressAttributeRepository.Collection.UpdateOneAsync(new BsonDocument("_id", addressAttributeValue.AddressAttributeId), update);
+            await _addressAttributeRepository.AddToSet(addressAttributeValue.AddressAttributeId, x => x.AddressAttributeValues, addressAttributeValue);
 
             await _cacheBase.RemoveByPrefix(CacheKey.ADDRESSATTRIBUTES_PATTERN_KEY);
             await _cacheBase.RemoveByPrefix(CacheKey.ADDRESSATTRIBUTEVALUES_PATTERN_KEY);
@@ -162,16 +157,8 @@ namespace Grand.Business.Common.Services.Addresses
             if (addressAttributeValue == null)
                 throw new ArgumentNullException(nameof(addressAttributeValue));
 
-            var builder = Builders<AddressAttribute>.Filter;
-            var filter = builder.Eq(x => x.Id, addressAttributeValue.AddressAttributeId);
-            filter = filter & builder.ElemMatch(x => x.AddressAttributeValues, y => y.Id == addressAttributeValue.Id);
-            var update = Builders<AddressAttribute>.Update
-                .Set(x => x.AddressAttributeValues.ElementAt(-1).DisplayOrder, addressAttributeValue.DisplayOrder)
-                .Set(x => x.AddressAttributeValues.ElementAt(-1).IsPreSelected, addressAttributeValue.IsPreSelected)
-                .Set(x => x.AddressAttributeValues.ElementAt(-1).Locales, addressAttributeValue.Locales)
-                .Set(x => x.AddressAttributeValues.ElementAt(-1).Name, addressAttributeValue.Name);
-
-            await _addressAttributeRepository.Collection.UpdateManyAsync(filter, update);
+            await _addressAttributeRepository.UpdateToSet(addressAttributeValue.AddressAttributeId, 
+                x => x.AddressAttributeValues, z => z.Id, addressAttributeValue.Id, addressAttributeValue);
 
             await _cacheBase.RemoveByPrefix(CacheKey.ADDRESSATTRIBUTES_PATTERN_KEY);
             await _cacheBase.RemoveByPrefix(CacheKey.ADDRESSATTRIBUTEVALUES_PATTERN_KEY);
@@ -189,9 +176,7 @@ namespace Grand.Business.Common.Services.Addresses
             if (addressAttributeValue == null)
                 throw new ArgumentNullException(nameof(addressAttributeValue));
 
-            var updatebuilder = Builders<AddressAttribute>.Update;
-            var update = updatebuilder.Pull(p => p.AddressAttributeValues, addressAttributeValue);
-            await _addressAttributeRepository.Collection.UpdateOneAsync(new BsonDocument("_id", addressAttributeValue.AddressAttributeId), update);
+            await _addressAttributeRepository.PullFilter(addressAttributeValue.AddressAttributeId, x => x.AddressAttributeValues, z => z.Id, addressAttributeValue.Id);
 
             await _cacheBase.RemoveByPrefix(CacheKey.ADDRESSATTRIBUTES_PATTERN_KEY);
             await _cacheBase.RemoveByPrefix(CacheKey.ADDRESSATTRIBUTEVALUES_PATTERN_KEY);

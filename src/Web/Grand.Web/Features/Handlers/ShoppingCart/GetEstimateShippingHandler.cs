@@ -46,8 +46,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
                 model.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectCountry"), Value = "" });
                 foreach (var c in await _countryService.GetAllCountriesForShipping(request.Language.Id, request.Store.Id))
-                    model.AvailableCountries.Add(new SelectListItem
-                    {
+                    model.AvailableCountries.Add(new SelectListItem {
                         Text = c.GetTranslation(x => x.Name, request.Language.Id),
                         Value = c.Id.ToString(),
                         Selected = c.Id == defaultEstimateCountryId
@@ -57,14 +56,11 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 var states = !String.IsNullOrEmpty(defaultEstimateCountryId) ? await _countryService.GetStateProvincesByCountryId(defaultEstimateCountryId, request.Language.Id) : new List<StateProvince>();
                 if (states.Any())
                     foreach (var s in states)
-                        model.AvailableStates.Add(new SelectListItem
-                        {
+                        model.AvailableStates.Add(new SelectListItem {
                             Text = s.GetTranslation(x => x.Name, request.Language.Id),
                             Value = s.Id.ToString(),
                             Selected = s.Id == defaultEstimateStateId
                         });
-                else
-                    model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.OtherNonUS"), Value = "" });
 
                 if (request.SetEstimateShippingDefaultAddress && request.Customer.ShippingAddress != null)
                     model.ZipPostalCode = request.Customer.ShippingAddress.ZipPostalCode;

@@ -5,8 +5,6 @@ using Grand.Domain.Common;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -78,7 +76,7 @@ namespace Grand.Business.Common.Services.Directory
                         where st.Keyword == keyword && st.StoreId == storeId
                         orderby st.Id
                         select st;
-            return await query.FirstOrDefaultAsync();
+            return await query.FirstOrDefaultAsync2();
         }
 
         /// <summary>

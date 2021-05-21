@@ -9,8 +9,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -172,7 +170,7 @@ namespace Grand.Business.Catalog.Services.Brands
                         where c.AppliedDiscounts.Any(x => x == discountId)
                         select c;
 
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         #endregion

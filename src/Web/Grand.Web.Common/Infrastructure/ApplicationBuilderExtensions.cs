@@ -1,14 +1,14 @@
 ﻿using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Logging;
-using Grand.Web.Common.Middleware;
 using Grand.Domain.Common;
+using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Data;
 using Grand.Infrastructure.Endpoints;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearchers;
 using Grand.SharedKernel.Extensions;
+using Grand.Web.Common.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -191,8 +191,7 @@ namespace Grand.Web.Common.Infrastructure
         public static void UseGrandStaticFiles(this IApplicationBuilder application, AppConfig appConfig)
         {
             //static files
-            application.UseStaticFiles(new StaticFileOptions
-            {
+            application.UseStaticFiles(new StaticFileOptions {
 
                 OnPrepareResponse = ctx =>
                 {
@@ -203,8 +202,7 @@ namespace Grand.Web.Common.Infrastructure
             });
 
             //themes
-            application.UseStaticFiles(new StaticFileOptions
-            {
+            application.UseStaticFiles(new StaticFileOptions {
                 FileProvider = new PhysicalFileProvider(CommonPath.ThemePath),
                 RequestPath = new PathString("/Themes"),
                 OnPrepareResponse = ctx =>
@@ -214,8 +212,7 @@ namespace Grand.Web.Common.Infrastructure
                 }
             });
             //plugins
-            application.UseStaticFiles(new StaticFileOptions
-            {
+            application.UseStaticFiles(new StaticFileOptions {
                 FileProvider = new PhysicalFileProvider(CommonPath.PluginsPath),
                 RequestPath = new PathString("/Plugins"),
                 OnPrepareResponse = ctx =>
@@ -266,8 +263,7 @@ namespace Grand.Web.Common.Infrastructure
         /// <param name="application">Builder for configuring an application's request pipeline</param>
         public static void UseGrandForwardedHeaders(this IApplicationBuilder application)
         {
-            application.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
+            application.UseForwardedHeaders(new ForwardedHeadersOptions {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
         }

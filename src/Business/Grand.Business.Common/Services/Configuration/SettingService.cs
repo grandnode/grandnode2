@@ -3,12 +3,10 @@ using Grand.Domain.Configuration;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Services.Configuration
@@ -51,7 +49,7 @@ namespace Grand.Business.Common.Services.Configuration
         private IList<Setting> GetSettingsByName(string name)
         {
             if (string.IsNullOrEmpty(name))
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
 
             return _settingRepository.Table.Where(x => x.Name == name.ToLowerInvariant()).ToList();
         }
@@ -150,7 +148,7 @@ namespace Grand.Business.Common.Services.Configuration
                         setting = settings.FirstOrDefault(x => x.StoreId == "");
 
                     if (setting != null)
-                        return BsonSerializer.Deserialize<T>(setting.Metadata);
+                        return JsonSerializer.Deserialize<T>(setting.Metadata);
                 }
 
                 return defaultValue;
@@ -177,15 +175,14 @@ namespace Grand.Business.Common.Services.Configuration
             if (setting != null)
             {
                 //update
-                setting.Metadata = value.ToBsonDocument();
+                setting.Metadata = JsonSerializer.Serialize(value);
                 await UpdateSetting(setting, clearCache);
             }
             else
             {
                 //insert
-                var metadata = value.ToBsonDocument();
-                setting = new Setting
-                {
+                var metadata = JsonSerializer.Serialize(value);
+                setting = new Setting {
                     Name = key.ToLowerInvariant(),
                     Metadata = metadata,
                     StoreId = storeId
@@ -200,7 +197,7 @@ namespace Grand.Business.Common.Services.Configuration
         /// <returns>Settings</returns>
         public virtual IList<Setting> GetAllSettings()
         {
-            return _settingRepository.Collection.Find(new BsonDocument()).SortBy(x => x.Name).ToList();
+            return _settingRepository.Table.OrderBy(x => x.Name).ToList();
         }
 
         /// <summary>
@@ -231,7 +228,7 @@ namespace Grand.Business.Common.Services.Configuration
                     if (setting == null && !String.IsNullOrEmpty(storeId))
                         setting = settings.FirstOrDefault(x => x.StoreId == "");
 
-                    return BsonSerializer.Deserialize(setting.Metadata, type) as ISettings;
+                    return JsonSerializer.Deserialize(setting.Metadata, type) as ISettings;
                 }
                 return Activator.CreateInstance(type) as ISettings;
             });
@@ -250,16 +247,15 @@ namespace Grand.Business.Common.Services.Configuration
             if (setting != null)
             {
                 //update
-                setting.Metadata = settings.ToBsonDocument();
+                setting.Metadata = JsonSerializer.Serialize(settings);
                 await UpdateSetting(setting);
             }
             else
             {
                 //insert
-                setting = new Setting
-                {
+                setting = new Setting {
                     Name = typeof(T).Name.ToLowerInvariant(),
-                    Metadata = settings.ToBsonDocument(),
+                    Metadata = JsonSerializer.Serialize(settings),
                     StoreId = storeId
                 };
                 await InsertSetting(setting);

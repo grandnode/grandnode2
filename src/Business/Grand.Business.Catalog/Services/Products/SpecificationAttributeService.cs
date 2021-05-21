@@ -6,9 +6,6 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -75,7 +72,7 @@ namespace Grand.Business.Catalog.Services.Products
             sename = sename.ToLowerInvariant();
 
             var key = string.Format(CacheKey.SPECIFICATION_BY_SENAME, sename);
-            return await _cacheBase.GetAsync(key, async () => await _specificationAttributeRepository.Table.Where(x => x.SeName == sename).FirstOrDefaultAsync());
+            return await _cacheBase.GetAsync(key, async () => await _specificationAttributeRepository.Table.Where(x => x.SeName == sename).FirstOrDefaultAsync2());
         }
 
 
@@ -138,9 +135,8 @@ namespace Grand.Business.Catalog.Services.Products
             if (specificationAttribute == null)
                 throw new ArgumentNullException(nameof(specificationAttribute));
 
-            var builder = Builders<Product>.Update;
-            var updatefilter = builder.PullFilter(x => x.ProductSpecificationAttributes, y => y.SpecificationAttributeId == specificationAttribute.Id);
-            await _productRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilter);
+            //delete from all product collections
+            await _productRepository.PullFilter(string.Empty, x => x.ProductSpecificationAttributes, z => z.SpecificationAttributeId, specificationAttribute.Id, true);
 
             await _specificationAttributeRepository.DeleteAsync(specificationAttribute);
 
@@ -172,7 +168,7 @@ namespace Grand.Business.Catalog.Services.Products
                 var query = from p in _specificationAttributeRepository.Table
                             where p.SpecificationAttributeOptions.Any(x => x.Id == specificationAttributeOptionId)
                             select p;
-                return await query.FirstOrDefaultAsync();
+                return await query.FirstOrDefaultAsync2();
             });
         }
 
@@ -185,10 +181,8 @@ namespace Grand.Business.Catalog.Services.Products
             if (specificationAttributeOption == null)
                 throw new ArgumentNullException(nameof(specificationAttributeOption));
 
-            var builder = Builders<Product>.Update;
-            var updatefilter = builder.PullFilter(x => x.ProductSpecificationAttributes,
-                y => y.SpecificationAttributeOptionId == specificationAttributeOption.Id);
-            await _productRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilter);
+            //delete from all product collections
+            await _productRepository.PullFilter(string.Empty, x => x.ProductSpecificationAttributes, z => z.SpecificationAttributeOptionId, specificationAttributeOption.Id, true);
 
             var specificationAttribute = await GetSpecificationAttributeByOptionId(specificationAttributeOption.Id);
             var sao = specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == specificationAttributeOption.Id).FirstOrDefault();
@@ -222,9 +216,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (productSpecificationAttribute == null)
                 throw new ArgumentNullException(nameof(productSpecificationAttribute));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.ProductSpecificationAttributes, productSpecificationAttribute);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.AddToSet(productId, x => x.ProductSpecificationAttributes, productSpecificationAttribute);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -243,19 +235,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (productSpecificationAttribute == null)
                 throw new ArgumentNullException(nameof(productSpecificationAttribute));
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, productId);
-            filter = filter & builder.Where(x => x.ProductSpecificationAttributes.Any(y => y.Id == productSpecificationAttribute.Id));
-            var update = Builders<Product>.Update
-                .Set(x => x.ProductSpecificationAttributes.ElementAt(-1).ShowOnProductPage, productSpecificationAttribute.ShowOnProductPage)
-                .Set(x => x.ProductSpecificationAttributes.ElementAt(-1).CustomValue, productSpecificationAttribute.CustomValue)
-                .Set(x => x.ProductSpecificationAttributes.ElementAt(-1).DisplayOrder, productSpecificationAttribute.DisplayOrder)
-                .Set(x => x.ProductSpecificationAttributes.ElementAt(-1).AttributeTypeId, productSpecificationAttribute.AttributeTypeId)
-                .Set(x => x.ProductSpecificationAttributes.ElementAt(-1).SpecificationAttributeId, productSpecificationAttribute.SpecificationAttributeId)
-                .Set(x => x.ProductSpecificationAttributes.ElementAt(-1).SpecificationAttributeOptionId, productSpecificationAttribute.SpecificationAttributeOptionId)
-                .Set(x => x.ProductSpecificationAttributes.ElementAt(-1).AllowFiltering, productSpecificationAttribute.AllowFiltering);
-
-            await _productRepository.Collection.UpdateManyAsync(filter, update);
+            await _productRepository.UpdateToSet(productId, x => x.ProductSpecificationAttributes, z => z.Id, productSpecificationAttribute.Id, productSpecificationAttribute);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -273,9 +253,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (productSpecificationAttribute == null)
                 throw new ArgumentNullException(nameof(productSpecificationAttribute));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.Pull(p => p.ProductSpecificationAttributes, productSpecificationAttribute);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.PullFilter(productId, x => x.ProductSpecificationAttributes, x => x.Id, productSpecificationAttribute.Id);
 
             //clear cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -292,7 +270,8 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Count</returns>
         public virtual int GetProductSpecificationAttributeCount(string productId = "", string specificationAttributeOptionId = "")
         {
-            var query = _productRepository.Table;
+            var query = from p in _productRepository.Table
+                        select p;
 
             if (!string.IsNullOrEmpty(productId))
                 query = query.Where(psa => psa.Id == productId);

@@ -1,8 +1,6 @@
 using Grand.Business.System.Interfaces.ScheduleTasks;
 using Grand.Domain.Data;
 using Grand.Domain.Tasks;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,15 +45,11 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
         /// <returns>Task</returns>
         public virtual Task<ScheduleTask> GetTaskByType(string type)
         {
-            if (String.IsNullOrWhiteSpace(type))
+            if (string.IsNullOrWhiteSpace(type))
                 return Task.FromResult<ScheduleTask>(null);
 
-            var query = _taskRepository.Table;
-
-            query = query.Where(st => st.Type == type);
-            query = query.OrderByDescending(t => t.Id);
-
-            return query.FirstOrDefaultAsync();
+            var query = _taskRepository.Table.Where(st => st.Type == type).OrderByDescending(t => t.Id);
+            return query.FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -65,7 +59,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
         /// <returns>Tasks</returns>
         public virtual async Task<IList<ScheduleTask>> GetAllTasks()
         {
-            return await _taskRepository.Table.ToListAsync();
+            return await _taskRepository.Table.ToListAsync2();
         }
 
         /// <summary>

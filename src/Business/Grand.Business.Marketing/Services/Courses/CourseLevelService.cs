@@ -3,11 +3,10 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Courses;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Grand.Business.Marketing.Services.Courses
 {
@@ -39,7 +38,7 @@ namespace Grand.Business.Marketing.Services.Courses
                         orderby l.DisplayOrder
                         select l;
 
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         public virtual Task<CourseLevel> GetById(string id)

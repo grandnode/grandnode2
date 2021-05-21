@@ -5,11 +5,10 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Grand.Business.Catalog.Services.Products
 {
@@ -79,11 +78,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (customerGroupProduct == null)
                 throw new ArgumentNullException(nameof(customerGroupProduct));
 
-            var builder = Builders<CustomerGroupProduct>.Filter;
-            var filter = builder.Eq(x => x.Id, customerGroupProduct.Id);
-            var update = Builders<CustomerGroupProduct>.Update
-                .Set(x => x.DisplayOrder, customerGroupProduct.DisplayOrder);
-            await _customerGroupProductRepository.Collection.UpdateOneAsync(filter, update);
+            await _customerGroupProductRepository.UpdateAsync(customerGroupProduct);
 
             //clear cache
             await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMERGROUPSPRODUCTS_ROLE_KEY, customerGroupProduct.CustomerGroupId));
@@ -104,8 +99,7 @@ namespace Grand.Business.Catalog.Services.Products
             string key = string.Format(CacheKey.CUSTOMERGROUPSPRODUCTS_ROLE_KEY, customerGroupId);
             return await _cacheBase.GetAsync(key, () =>
             {
-                var filter = Builders<CustomerGroupProduct>.Filter.Eq(x => x.CustomerGroupId, customerGroupId);
-                return _customerGroupProductRepository.Collection.Find(filter).SortBy(x => x.DisplayOrder).ToListAsync();
+                return _customerGroupProductRepository.Table.Where(x => x.CustomerGroupId == customerGroupId).OrderBy(x => x.DisplayOrder).ToListAsync2();
             });
         }
 
@@ -117,11 +111,9 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Customer group product</returns>
         public virtual Task<CustomerGroupProduct> GetCustomerGroupProduct(string customerGroupId, string productId)
         {
-            var filters = Builders<CustomerGroupProduct>.Filter;
-            var filter = filters.Eq(x => x.CustomerGroupId, customerGroupId);
-            filter &= filters.Eq(x => x.ProductId, productId);
-
-            return _customerGroupProductRepository.Collection.Find(filter).SortBy(x => x.DisplayOrder).FirstOrDefaultAsync();
+            return _customerGroupProductRepository.Table
+                .Where(x => x.CustomerGroupId == customerGroupId && x.ProductId == productId)
+                .OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -136,7 +128,7 @@ namespace Grand.Business.Catalog.Services.Products
                         orderby cr.DisplayOrder
                         select cr;
 
-            return query.FirstOrDefaultAsync();
+            return query.FirstOrDefaultAsync2();
         }
 
 

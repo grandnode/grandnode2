@@ -6,8 +6,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,7 +56,8 @@ namespace Grand.Business.Catalog.Services.Products
         public virtual async Task<IPagedList<OutOfStockSubscription>> GetAllSubscriptionsByCustomerId(string customerId,
             string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var query = _outOfStockSubscriptionRepository.Table;
+            var query = from p in _outOfStockSubscriptionRepository.Table
+                        select p;
 
             //customer
             query = query.Where(biss => biss.CustomerId == customerId);
@@ -92,7 +91,7 @@ namespace Grand.Business.Catalog.Services.Products
                               biss.WarehouseId == warehouseId
                         select biss;
 
-            var outOfStockSubscriptionlist = await query.ToListAsync();
+            var outOfStockSubscriptionlist = await query.ToListAsync2();
             if (attributes != null && attributes.Any())
                 outOfStockSubscriptionlist = outOfStockSubscriptionlist.Where(x => x.Attributes.All(y => attributes.Any(z => z.Key == y.Key && z.Value == y.Value))).ToList();
 

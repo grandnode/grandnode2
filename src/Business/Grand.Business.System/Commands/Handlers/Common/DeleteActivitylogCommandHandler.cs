@@ -2,7 +2,6 @@
 using Grand.Domain.Data;
 using Grand.Domain.Logging;
 using MediatR;
-using MongoDB.Bson;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,7 +18,7 @@ namespace Grand.Business.System.Commands.Handlers.Common
 
         public async Task<bool> Handle(DeleteActivitylogCommand request, CancellationToken cancellationToken)
         {
-            await _repositoryActivityLog.Collection.DeleteManyAsync(new BsonDocument());
+            await _repositoryActivityLog.ClearAsync();
             return true;
         }
     }

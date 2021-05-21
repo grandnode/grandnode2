@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Cms.Interfaces;
 using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.Common.Services.Security;
-using Grand.Infrastructure;
-using Grand.Infrastructure.Data;
+using Grand.Domain.Data;
 using Grand.Domain.Stores;
+using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;

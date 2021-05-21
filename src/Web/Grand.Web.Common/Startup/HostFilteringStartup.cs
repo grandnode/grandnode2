@@ -1,4 +1,5 @@
-﻿using Grand.Infrastructure;
+﻿using Grand.Domain.Data;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HostFiltering;

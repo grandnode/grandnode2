@@ -10,7 +10,6 @@ using Grand.Domain.Data;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using MediatR;
-using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,12 +43,14 @@ namespace Grand.Business.Catalog.Services.Products
             return _bidRepository.GetByIdAsync(Id);
         }
 
-        public virtual Task<Bid> GetLatestBid(string productId)
+        public virtual async Task<Bid> GetLatestBid(string productId)
         {
-            var builder = Builders<Bid>.Filter;
-            var filter = builder.Eq(x => x.ProductId, productId);
-            var bid = _bidRepository.Collection.Find(filter).SortByDescending(x => x.Date).FirstOrDefaultAsync();
-            return bid;
+            var bid = await _bidRepository.Table
+                            .Where(x=>x.ProductId == productId)
+                            .OrderByDescending(x => x.Date)
+                            .ToListAsync2();
+
+            return bid.FirstOrDefault();
         }
 
         public virtual async Task<IPagedList<Bid>> GetBidsByProductId(string productId, int pageIndex = 0, int pageSize = int.MaxValue)
@@ -99,11 +100,11 @@ namespace Grand.Business.Catalog.Services.Products
         }
         public virtual async Task UpdateHighestBid(Product product, decimal bid, string highestBidder)
         {
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, product.Id);
-            var update = Builders<Product>.Update.Set(x => x.HighestBid, bid).Set(x => x.HighestBidder, highestBidder);
+            product.HighestBid = bid;
+            product.HighestBidder = highestBidder;
+            product.UpdatedOnUtc = DateTime.UtcNow;
 
-            await _productRepository.Collection.UpdateOneAsync(filter, update);
+            await _productRepository.UpdateAsync(product);
 
             await _cacheBase.RemoveAsync(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
 
@@ -112,22 +113,20 @@ namespace Grand.Business.Catalog.Services.Products
 
         public virtual async Task<IList<Product>> GetAuctionsToEnd()
         {
-            var builder = Builders<Product>.Filter;
-            var filter = FilterDefinition<Product>.Empty;
-            filter &= builder.Where(x => x.ProductTypeId == ProductType.Auction && !x.AuctionEnded && x.AvailableEndDateTimeUtc < DateTime.UtcNow);
-            return await _productRepository.Collection.Find(filter).ToListAsync();
+            return await _productRepository.Table
+                .Where(x => x.ProductTypeId == ProductType.Auction && 
+                        !x.AuctionEnded && x.AvailableEndDateTimeUtc < DateTime.UtcNow)
+                .ToListAsync2();
         }
 
         public virtual async Task UpdateAuctionEnded(Product product, bool ended, bool enddate = false)
         {
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, product.Id);
-            var updateDefinition = Builders<Product>.Update;
-            var update = updateDefinition.Set(x => x.AuctionEnded, ended).CurrentDate("UpdatedOnUtc");
+            product.AuctionEnded = ended;
+            product.UpdatedOnUtc = DateTime.UtcNow;
             if (enddate)
-                update = update.Set(x => x.AvailableEndDateTimeUtc, DateTime.UtcNow);
+                product.AvailableEndDateTimeUtc = DateTime.UtcNow;
 
-            await _productRepository.Collection.UpdateOneAsync(filter, update);
+            await _productRepository.UpdateAsync(product);
 
             await _cacheBase.RemoveAsync(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
 
@@ -179,13 +178,10 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="OrderId">OrderId</param>
         public virtual async Task CancelBidByOrder(string orderId)
         {
-            var builder = Builders<Bid>.Filter;
-            var filter = builder.Eq(x => x.OrderId, orderId);
-            var bid = _bidRepository.Collection.Find(filter).FirstOrDefault();
+            var bid = _bidRepository.Table.Where(x => x.OrderId == orderId).FirstOrDefault();
             if (bid != null)
             {
-                var filterDelete = builder.Eq(x => x.ProductId, bid.ProductId);
-                await _bidRepository.Collection.DeleteManyAsync(filterDelete);
+                await _bidRepository.DeleteAsync(bid);
                 var product = await _productRepository.GetByIdAsync(bid.ProductId);
                 if (product != null)
                 {

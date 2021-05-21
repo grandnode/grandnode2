@@ -1069,7 +1069,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 await _inventoryManageService.AdjustReserved(product, -sc.Quantity, sc.Attributes, orderItem.WarehouseId);
 
                 //update sold
-                await _productService.UpdateSold(sc.ProductId, sc.Quantity);
+                await _productService.UpdateSold(product, sc.Quantity);
             }
 
             //insert order

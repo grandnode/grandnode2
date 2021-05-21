@@ -5,9 +5,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Data;
 using Grand.Domain.Orders;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,7 +56,7 @@ namespace Grand.Business.Checkout.Services.Orders
                             select ot;
 
                 var dictionary = new Dictionary<string, int>();
-                foreach (var tag in await query.ToListAsync())
+                foreach (var tag in await query.ToListAsync2())
                 {
                     dictionary.Add(tag.Id, tag.Count);
                 }
@@ -79,7 +76,7 @@ namespace Grand.Business.Checkout.Services.Orders
         public virtual async Task<IList<OrderTag>> GetAllOrderTags()
         {
             var query = _orderTagRepository.Table;
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>
@@ -103,7 +100,7 @@ namespace Grand.Business.Checkout.Services.Orders
                         where pt.Name == name
                         select pt;
 
-            return query.FirstOrDefaultAsync();
+            return query.FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -150,10 +147,10 @@ namespace Grand.Business.Checkout.Services.Orders
             if (orderTag == null)
                 throw new ArgumentNullException(nameof(orderTag));
 
-            var builder = Builders<Order>.Update;
-            var updatefilter = builder.Pull(x => x.OrderTags, orderTag.Id);
-            await _orderRepository.Collection.UpdateManyAsync(new BsonDocument(), updatefilter);
+            //update orders
+            await _orderRepository.Pull(string.Empty, x => x.OrderTags, orderTag.Id, true);
 
+            //delete tag
             await _orderTagRepository.DeleteAsync(orderTag);
 
             //cache
@@ -170,16 +167,12 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="orderTag">Order's identification</param>
         public virtual async Task AttachOrderTag(string orderTagId, string orderId)
         {
-            var updateBuilder = Builders<Order>.Update;
-            var update = updateBuilder.AddToSet(p => p.OrderTags, orderTagId);
-            await _orderRepository.Collection.UpdateOneAsync(new BsonDocument("_id", orderId), update);
+            //assign to product
+            await _orderRepository.AddToSet(orderId, x => x.OrderTags, orderTagId);
 
-            // update ordertag with count's order and new order id
-            var updateBuilderTag = Builders<OrderTag>.Update
-                .Inc(x => x.Count, 1);
-
-            await _orderTagRepository.Collection.UpdateOneAsync(new BsonDocument("_id", orderTagId), updateBuilderTag);
-            var orderTag = await _orderTagRepository.GetByIdAsync(orderTagId);
+            var orderTag = await GetOrderTagById(orderTagId);
+            //update product tag
+            await _orderTagRepository.UpdateField(orderTagId, x => x.Count, orderTag.Count + 1);
 
             //cache
             await _cacheBase.RemoveAsync(string.Format(CacheKey.ORDERS_BY_ID_KEY, orderId));
@@ -195,13 +188,11 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="orderTag">Order Tag</param>
         public virtual async Task DetachOrderTag(string orderTagId, string orderId)
         {
-            var updateBuilder = Builders<Order>.Update;
-            var update = updateBuilder.Pull(p => p.OrderTags, orderTagId);
-            await _orderRepository.Collection.UpdateOneAsync(new BsonDocument("_id", orderId), update);
+            await _orderRepository.Pull(orderId, x => x.OrderTags, orderTagId);
 
-            var updateTag = Builders<OrderTag>.Update
-                .Inc(x => x.Count, -1);
-            await _orderTagRepository.Collection.UpdateManyAsync(new BsonDocument("_id", orderTagId), updateTag);
+            var orderTag = await GetOrderTagById(orderTagId);
+            //update product tag
+            await _orderTagRepository.UpdateField(orderTagId, x => x.Count, orderTag.Count - 1);
 
             //cache
             await _cacheBase.RemoveAsync(string.Format(CacheKey.ORDERS_BY_ID_KEY, orderId));

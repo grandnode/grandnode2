@@ -9,8 +9,6 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,14 +65,8 @@ namespace Grand.Business.Catalog.Services.Products
                 pwi.ReservedQuantity -= shipmentItem.Quantity;
                 pwi.StockQuantity -= shipmentItem.Quantity;
 
-                var builder = Builders<Product>.Filter;
-                var filter = builder.Eq(x => x.Id, product.Id);
-                filter &= builder.Where(x => x.ProductWarehouseInventory.Any(y => y.WarehouseId == pwi.WarehouseId));
-
-                var update = Builders<Product>.Update
-                        .Set(x => x.ProductWarehouseInventory.ElementAt(-1), pwi)
-                        .CurrentDate("UpdatedOnUtc");
-                await _productRepository.Collection.UpdateOneAsync(filter, update);
+                await _productRepository.UpdateToSet(product.Id, x => x.ProductWarehouseInventory, z => z.Id, pwi.Id, pwi);
+                await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
 
                 product.StockQuantity = product.ProductWarehouseInventory.Sum(x => x.StockQuantity);
                 product.ReservedQuantity = product.ProductWarehouseInventory.Sum(x => x.ReservedQuantity);
@@ -97,18 +89,8 @@ namespace Grand.Business.Catalog.Services.Products
             {
                 combination.ReservedQuantity -= shipmentItem.Quantity;
                 combination.StockQuantity -= shipmentItem.Quantity;
-
-                var builder = Builders<Product>.Filter;
-                var filter = builder.Eq(x => x.Id, product.Id);
-                filter &= builder.ElemMatch(x => x.ProductAttributeCombinations, y => y.Id == combination.Id);
-                var update = Builders<Product>.Update
-                    .Set("ProductAttributeCombinations.$.StockQuantity", combination.StockQuantity)
-                    .Set("ProductAttributeCombinations.$.ReservedQuantity", combination.ReservedQuantity)
-                    .Set("ProductAttributeCombinations.$.WarehouseInventory", combination.WarehouseInventory)
-                    .CurrentDate("UpdatedOnUtc");
-
-                await _productRepository.Collection.UpdateManyAsync(filter, update);
-
+                await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id, combination.Id, combination);
+                await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
             }
             else
             {
@@ -122,16 +104,9 @@ namespace Grand.Business.Catalog.Services.Products
                 combination.StockQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
                 combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
 
-                var builder = Builders<Product>.Filter;
-                var filter = builder.Eq(x => x.Id, product.Id);
-                filter &= builder.ElemMatch(x => x.ProductAttributeCombinations, y => y.Id == combination.Id);
-                var update = Builders<Product>.Update
-                    .Set("ProductAttributeCombinations.$.StockQuantity", combination.StockQuantity)
-                    .Set("ProductAttributeCombinations.$.ReservedQuantity", combination.ReservedQuantity)
-                    .Set("ProductAttributeCombinations.$.WarehouseInventory", combination.WarehouseInventory)
-                    .CurrentDate("UpdatedOnUtc");
+                await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id, combination.Id, combination);
+                await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
 
-                await _productRepository.Collection.UpdateManyAsync(filter, update);
             }
             product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
             product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
@@ -198,7 +173,7 @@ namespace Grand.Business.Catalog.Services.Products
                         where j.ProductId == product.Id && j.PositionId == shipmentItem.Id
                         select j.Id;
 
-            return await query.AnyAsync();
+            return await Task.FromResult(query.Any());
         }
         private async Task ReverseBookedInventory(Product product, InventoryJournal inventoryJournal)
         {
@@ -214,14 +189,9 @@ namespace Grand.Business.Catalog.Services.Products
                     pwi.StockQuantity += inventoryJournal.OutQty;
                     pwi.ReservedQuantity += inventoryJournal.OutQty;
 
-                    var builder = Builders<Product>.Filter;
-                    var filter = builder.Eq(x => x.Id, product.Id);
-                    filter &= builder.Where(x => x.ProductWarehouseInventory.Any(y => y.WarehouseId == pwi.WarehouseId));
+                    await _productRepository.UpdateToSet(product.Id, x => x.ProductWarehouseInventory, z => z.Id, pwi.Id, pwi);
+                    await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
 
-                    var update = Builders<Product>.Update
-                            .Set(x => x.ProductWarehouseInventory.ElementAt(-1), pwi)
-                            .CurrentDate("UpdatedOnUtc");
-                    await _productRepository.Collection.UpdateOneAsync(filter, update);
                 }
                 else
                 {
@@ -245,17 +215,11 @@ namespace Grand.Business.Catalog.Services.Products
                     product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
                     product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
 
-                    var builder = Builders<Product>.Filter;
-                    var filter = builder.Eq(x => x.Id, product.Id);
-                    filter &= builder.ElemMatch(x => x.ProductAttributeCombinations, y => y.Id == combination.Id);
-                    var update = Builders<Product>.Update
-                        .Set(x => x.StockQuantity, product.StockQuantity)
-                        .Set(x => x.ReservedQuantity, product.ReservedQuantity)
-                        .Set("ProductAttributeCombinations.$.StockQuantity", combination.StockQuantity)
-                        .Set("ProductAttributeCombinations.$.ReservedQuantity", combination.ReservedQuantity)
-                        .CurrentDate("UpdatedOnUtc");
+                    await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id, combination.Id, combination);
+                    await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
 
-                    await _productRepository.Collection.UpdateManyAsync(filter, update);
+                    await UpdateStockProduct(product);
+
 
                 }
                 else
@@ -271,19 +235,11 @@ namespace Grand.Business.Catalog.Services.Products
                     combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
                     product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
                     product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
+                   
+                    await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id, combination.Id, combination);
+                    await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+                    await UpdateStockProduct(product);
 
-                    var builder = Builders<Product>.Filter;
-                    var filter = builder.Eq(x => x.Id, product.Id);
-                    filter &= builder.ElemMatch(x => x.ProductAttributeCombinations, y => y.Id == combination.Id);
-                    var update = Builders<Product>.Update
-                        .Set(x => x.StockQuantity, product.StockQuantity)
-                        .Set(x => x.ReservedQuantity, product.ReservedQuantity)
-                        .Set("ProductAttributeCombinations.$.StockQuantity", combination.StockQuantity)
-                        .Set("ProductAttributeCombinations.$.ReservedQuantity", combination.ReservedQuantity)
-                        .Set("ProductAttributeCombinations.$.WarehouseInventory", combination.WarehouseInventory)
-                        .CurrentDate("UpdatedOnUtc");
-
-                    await _productRepository.Collection.UpdateManyAsync(filter, update);
                 }
             }
 
@@ -352,12 +308,9 @@ namespace Grand.Business.Catalog.Services.Products
                             product.DisableBuyButton = true;
                             product.LowStock = true;
 
-                            var filter = Builders<Product>.Filter.Eq("Id", product.Id);
-                            var update = Builders<Product>.Update
-                                    .Set(x => x.DisableBuyButton, product.DisableBuyButton)
-                                    .Set(x => x.LowStock, product.LowStock)
-                                    .CurrentDate("UpdatedOnUtc");
-                            await _productRepository.Collection.UpdateOneAsync(filter, update);
+                            await _productRepository.UpdateField(product.Id, x => x.DisableBuyButton, product.DisableBuyButton);
+                            await _productRepository.UpdateField(product.Id, x => x.LowStock, product.LowStock);
+                            await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
                             //cache
                             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
 
@@ -368,12 +321,10 @@ namespace Grand.Business.Catalog.Services.Products
                         case LowStockActivity.Unpublish:
                             product.Published = false;
                             product.LowStock = true;
-                            var filter2 = Builders<Product>.Filter.Eq("Id", product.Id);
-                            var update2 = Builders<Product>.Update
-                                    .Set(x => x.Published, product.Published)
-                                    .Set(x => x.LowStock, product.LowStock)
-                                    .CurrentDate("UpdatedOnUtc");
-                            await _productRepository.Collection.UpdateOneAsync(filter2, update2);
+                            
+                            await _productRepository.UpdateField(product.Id, x => x.Published, product.Published);
+                            await _productRepository.UpdateField(product.Id, x => x.LowStock, product.LowStock);
+                            await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
 
                             //cache
                             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
@@ -401,12 +352,9 @@ namespace Grand.Business.Catalog.Services.Products
                                 product.DisableBuyButton = false;
                                 product.LowStock = product.MinStockQuantity <= totalStock;
 
-                                var filter = Builders<Product>.Filter.Eq("Id", product.Id);
-                                var update = Builders<Product>.Update
-                                        .Set(x => x.DisableBuyButton, product.DisableBuyButton)
-                                        .Set(x => x.LowStock, product.LowStock)
-                                        .CurrentDate("UpdatedOnUtc");
-                                await _productRepository.Collection.UpdateOneAsync(filter, update);
+                                await _productRepository.UpdateField(product.Id, x => x.DisableBuyButton, product.DisableBuyButton);
+                                await _productRepository.UpdateField(product.Id, x => x.LowStock, product.LowStock);
+                                await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
 
                                 //cache
                                 await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
@@ -419,12 +367,9 @@ namespace Grand.Business.Catalog.Services.Products
                                 product.Published = true;
                                 product.LowStock = product.MinStockQuantity < totalStock;
 
-                                var filter2 = Builders<Product>.Filter.Eq("Id", product.Id);
-                                var update2 = Builders<Product>.Update
-                                        .Set(x => x.Published, product.Published)
-                                        .Set(x => x.LowStock, product.LowStock)
-                                        .CurrentDate("UpdatedOnUtc");
-                                await _productRepository.Collection.UpdateOneAsync(filter2, update2);
+                                await _productRepository.UpdateField(product.Id, x => x.Published, product.Published);
+                                await _productRepository.UpdateField(product.Id, x => x.LowStock, product.LowStock);
+                                await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
 
                                 //cache
                                 await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
@@ -533,11 +478,9 @@ namespace Grand.Business.Catalog.Services.Products
 
                 pwi.ReservedQuantity += qty;
 
-                var filter = Builders<Product>.Filter.Eq("Id", product.Id);
-                var update = Builders<Product>.Update
-                        .Set(x => x.ProductWarehouseInventory, product.ProductWarehouseInventory)
-                        .CurrentDate("UpdatedOnUtc");
-                await _productRepository.Collection.UpdateOneAsync(filter, update);
+                await _productRepository.UpdateToSet(product.Id, x => x.ProductWarehouseInventory, z => z.Id, pwi.Id, pwi);
+                await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+
             }
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
@@ -570,16 +513,10 @@ namespace Grand.Business.Catalog.Services.Products
             {
                 combination.ReservedQuantity += qty;
                 product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
-
-                var builder = Builders<Product>.Filter;
-                var filter = builder.Eq(x => x.Id, product.Id);
-                filter &= builder.ElemMatch(x => x.ProductAttributeCombinations, y => y.Id == combination.Id);
-                var update = Builders<Product>.Update
-                    .Set(x => x.ReservedQuantity, product.ReservedQuantity)
-                    .Set("ProductAttributeCombinations.$.ReservedQuantity", combination.ReservedQuantity)
-                    .CurrentDate("UpdatedOnUtc");
-
-                await _productRepository.Collection.UpdateManyAsync(filter, update);
+                
+                await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id, combination.Id, combination);
+                await _productRepository.UpdateField(product.Id, x => x.ReservedQuantity, product.ReservedQuantity);
+                await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
 
             }
             else
@@ -595,17 +532,9 @@ namespace Grand.Business.Catalog.Services.Products
 
                 product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
 
-                var builder = Builders<Product>.Filter;
-                var filter = builder.Eq(x => x.Id, product.Id);
-                filter &= builder.ElemMatch(x => x.ProductAttributeCombinations, y => y.Id == combination.Id);
-                var update = Builders<Product>.Update
-                    .Set(x => x.ReservedQuantity, product.ReservedQuantity)
-                    .Set("ProductAttributeCombinations.$.StockQuantity", combination.StockQuantity)
-                    .Set("ProductAttributeCombinations.$.ReservedQuantity", combination.ReservedQuantity)
-                    .Set("ProductAttributeCombinations.$.WarehouseInventory", combination.WarehouseInventory)
-                    .CurrentDate("UpdatedOnUtc");
-
-                await _productRepository.Collection.UpdateManyAsync(filter, update);
+                await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id, combination.Id, combination);
+                await _productRepository.UpdateField(product.Id, x => x.ReservedQuantity, product.ReservedQuantity);
+                await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
             }
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
@@ -645,11 +574,9 @@ namespace Grand.Business.Catalog.Services.Products
 
                 pwi.ReservedQuantity -= qty;
 
-                var filter = Builders<Product>.Filter.Eq("Id", product.Id);
-                var update = Builders<Product>.Update
-                        .Set(x => x.ProductWarehouseInventory, product.ProductWarehouseInventory)
-                        .CurrentDate("UpdatedOnUtc");
-                await _productRepository.Collection.UpdateOneAsync(filter, update);
+                await _productRepository.UpdateToSet(product.Id, x => x.ProductWarehouseInventory, z => z.Id, pwi.Id, pwi);
+                await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+
             }
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
@@ -677,15 +604,10 @@ namespace Grand.Business.Catalog.Services.Products
             {
                 combination.ReservedQuantity -= qty;
                 product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
-                var builder = Builders<Product>.Filter;
-                var filter = builder.Eq(x => x.Id, product.Id);
-                filter &= builder.ElemMatch(x => x.ProductAttributeCombinations, y => y.Id == combination.Id);
-                var update = Builders<Product>.Update
-                    .Set(x => x.ReservedQuantity, product.ReservedQuantity)
-                    .Set("ProductAttributeCombinations.$.ReservedQuantity", combination.ReservedQuantity)
-                    .CurrentDate("UpdatedOnUtc");
 
-                await _productRepository.Collection.UpdateManyAsync(filter, update);
+                await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id, combination.Id, combination);
+                await _productRepository.UpdateField(product.Id, x => x.ReservedQuantity, product.ReservedQuantity);
+                await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
 
             }
             else
@@ -697,15 +619,9 @@ namespace Grand.Business.Catalog.Services.Products
                 pwi.ReservedQuantity -= qty;
                 combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
 
-                var builder = Builders<Product>.Filter;
-                var filter = builder.Eq(x => x.Id, product.Id);
-                filter = filter & builder.ElemMatch(x => x.ProductAttributeCombinations, y => y.Id == combination.Id);
-                var update = Builders<Product>.Update
-                    .Set("ProductAttributeCombinations.$.ReservedQuantity", combination.ReservedQuantity)
-                    .Set("ProductAttributeCombinations.$.WarehouseInventory", combination.WarehouseInventory)
-                    .CurrentDate("UpdatedOnUtc");
+                await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id, combination.Id, combination);
+                await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
 
-                await _productRepository.Collection.UpdateManyAsync(filter, update);
             }
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
@@ -807,13 +723,11 @@ namespace Grand.Business.Catalog.Services.Products
                 throw new ArgumentNullException(nameof(product));
 
             //update
-            var filter = Builders<Product>.Filter.Eq("Id", product.Id);
-            var update = Builders<Product>.Update
-                    .Set(x => x.StockQuantity, product.StockQuantity)
-                    .Set(x => x.ReservedQuantity, product.ReservedQuantity)
-                    .Set(x => x.LowStock, ((product.MinStockQuantity > 0 && product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) || product.StockQuantity - product.ReservedQuantity <= 0))
-                    .CurrentDate("UpdatedOnUtc");
-            await _productRepository.Collection.UpdateOneAsync(filter, update);
+            await _productRepository.UpdateField(product.Id, x => x.StockQuantity, product.StockQuantity);
+            await _productRepository.UpdateField(product.Id, x => x.ReservedQuantity, product.ReservedQuantity);
+            await _productRepository.UpdateField(product.Id, x => x.LowStock, ((product.MinStockQuantity > 0 && product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) || product.StockQuantity - product.ReservedQuantity <= 0));
+            await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
+
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));

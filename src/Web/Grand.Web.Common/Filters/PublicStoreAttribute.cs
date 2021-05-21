@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.Common.Services.Security;
-using Grand.Infrastructure.Data;
+using Grand.Domain.Data;
 using Grand.Domain.Stores;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -91,7 +91,7 @@ namespace Grand.Web.Common.Filters
                 else
                     //customer has not access to a public store
                     filterContext.Result = new RedirectToRouteResult("Login", new RouteValueDictionary());
-                
+
             }
 
             #endregion

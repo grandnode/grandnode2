@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Customers.Interfaces;
-using Grand.Infrastructure;
-using Grand.Infrastructure.Data;
 using Grand.Domain.Affiliates;
+using Grand.Domain.Data;
+using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Linq;

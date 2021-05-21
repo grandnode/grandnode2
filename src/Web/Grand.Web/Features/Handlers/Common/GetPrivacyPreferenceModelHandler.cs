@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Common.Interfaces.Directory;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
@@ -26,7 +27,8 @@ namespace Grand.Web.Features.Handlers.Common
         {
             var model = new List<PrivacyPreferenceModel>();
             var consentCookies = _cookiePreference.GetConsentCookies();
-            var savedCookiesConsent = await _userFieldService.GetFieldsForEntity<Dictionary<string, bool>>(request.Customer, SystemCustomerFieldNames.ConsentCookies, request.Store.Id);
+            var savedCookiesConsent = request.Customer.GetUserFieldFromEntity<Dictionary<string, bool>>(SystemCustomerFieldNames.ConsentCookies, request.Store.Id);
+               
             foreach (var item in consentCookies)
             {
                 var state = item.DefaultState ?? false;

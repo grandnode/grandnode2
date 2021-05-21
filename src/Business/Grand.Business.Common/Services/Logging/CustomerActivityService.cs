@@ -8,8 +8,6 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Http;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -124,7 +122,7 @@ namespace Grand.Business.Common.Services.Logging
             var query = from alt in _activityLogTypeRepository.Table
                         orderby alt.Name
                         select alt;
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>
@@ -218,7 +216,9 @@ namespace Grand.Business.Common.Services.Logging
             string ipAddress = null,
             int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var query = _activityLogRepository.Table;
+            var query = from p in _activityLogRepository.Table
+                        select p;
+
             if (!String.IsNullOrEmpty(comment))
                 query = query.Where(al => al.Comment != null && al.Comment.ToLower().Contains(comment.ToLower()));
             if (createdOnFrom.HasValue)
@@ -249,35 +249,26 @@ namespace Grand.Business.Common.Services.Logging
             DateTime? createdOnTo = null, string activityLogTypeId = "",
             int pageIndex = 0, int pageSize = int.MaxValue)
         {
+            var query = from p in _activityLogRepository.Table
+                        select p;
 
-            var builder = Builders<ActivityLog>.Filter;
-            var filter = builder.Where(x => true);
             if (createdOnFrom.HasValue)
-                filter = filter & builder.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
+                query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
             if (createdOnTo.HasValue)
-                filter = filter & builder.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
+                query = query.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
             if (!String.IsNullOrEmpty(activityLogTypeId))
-                filter = filter & builder.Where(al => activityLogTypeId == al.ActivityLogTypeId);
+                query = query.Where(al => activityLogTypeId == al.ActivityLogTypeId);
 
-            var query = _activityLogRepository.Collection
-                    .Aggregate()
-                    .Match(filter)
-                    .Group(
-                        key => new { key.ActivityLogTypeId, key.EntityKeyId },
-                            g => new
-                            {
-                                Id = g.Key,
-                                Count = g.Count()
-                            })
-                    .Project(x => new ActivityStats
-                    {
-                        ActivityLogTypeId = x.Id.ActivityLogTypeId,
-                        EntityKeyId = x.Id.EntityKeyId,
-                        Count = x.Count
-                    })
-                    .SortByDescending(x => x.Count);
+            var gquery = query.GroupBy(key=> new { key.ActivityLogTypeId, key.EntityKeyId })
+                .Select(g => new ActivityStats {
+                    ActivityLogTypeId = g.Key.ActivityLogTypeId,
+                    EntityKeyId = g.Key.EntityKeyId,
+                    Count = g.Count(),
+                });
 
-            return await PagedList<ActivityStats>.Create(query, pageIndex, pageSize);
+            gquery = gquery.OrderByDescending(x => x.Count);
+
+            return await PagedList<ActivityStats>.Create(gquery, pageIndex, pageSize);
         }
         /// <summary>
         /// Gets category activity log items
@@ -291,7 +282,9 @@ namespace Grand.Business.Common.Services.Logging
         public virtual async Task<IPagedList<ActivityLog>> GetCategoryActivities(DateTime? createdOnFrom = null,
             DateTime? createdOnTo = null, string categoryId = "", int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var query = _activityLogRepository.Table;
+            var query = from p in _activityLogRepository.Table
+                        select p;
+
             if (createdOnFrom.HasValue)
                 query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
             if (createdOnTo.HasValue)
@@ -319,7 +312,9 @@ namespace Grand.Business.Common.Services.Logging
         public virtual async Task<IPagedList<ActivityLog>> GetKnowledgebaseCategoryActivities(DateTime? createdOnFrom = null,
             DateTime? createdOnTo = null, string categoryId = "", int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var query = _activityLogRepository.Table;
+            var query = from p in _activityLogRepository.Table
+                        select p;
+
             if (createdOnFrom.HasValue)
                 query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
             if (createdOnTo.HasValue)
@@ -347,7 +342,9 @@ namespace Grand.Business.Common.Services.Logging
         public virtual async Task<IPagedList<ActivityLog>> GetKnowledgebaseArticleActivities(DateTime? createdOnFrom = null,
             DateTime? createdOnTo = null, string categoryId = "", int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var query = _activityLogRepository.Table;
+            var query = from p in _activityLogRepository.Table
+                        select p;
+
             if (createdOnFrom.HasValue)
                 query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
             if (createdOnTo.HasValue)
@@ -374,7 +371,9 @@ namespace Grand.Business.Common.Services.Logging
         public virtual async Task<IPagedList<ActivityLog>> GetBrandActivities(DateTime? createdOnFrom = null,
             DateTime? createdOnTo = null, string brandId = "", int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var query = _activityLogRepository.Table;
+            var query = from p in _activityLogRepository.Table
+                        select p;
+
             if (createdOnFrom.HasValue)
                 query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
             if (createdOnTo.HasValue)
@@ -402,7 +401,9 @@ namespace Grand.Business.Common.Services.Logging
         public virtual async Task<IPagedList<ActivityLog>> GetCollectionActivities(DateTime? createdOnFrom = null,
             DateTime? createdOnTo = null, string collectionId = "", int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var query = _activityLogRepository.Table;
+            var query = from p in _activityLogRepository.Table
+                        select p;
+
             if (createdOnFrom.HasValue)
                 query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
             if (createdOnTo.HasValue)
@@ -430,7 +431,9 @@ namespace Grand.Business.Common.Services.Logging
         public virtual async Task<IPagedList<ActivityLog>> GetProductActivities(DateTime? createdOnFrom = null,
             DateTime? createdOnTo = null, string productId = "", int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var query = _activityLogRepository.Table;
+            var query = from p in _activityLogRepository.Table
+                        select p;
+
             if (createdOnFrom.HasValue)
                 query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
             if (createdOnTo.HasValue)
@@ -461,7 +464,7 @@ namespace Grand.Business.Common.Services.Logging
         /// </summary>
         public virtual async Task ClearAllActivities()
         {
-            await _activityLogRepository.Collection.DeleteManyAsync(new MongoDB.Bson.BsonDocument());
+            await _activityLogRepository.ClearAsync();
         }
         #endregion
 

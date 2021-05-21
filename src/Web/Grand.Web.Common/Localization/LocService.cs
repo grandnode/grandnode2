@@ -34,8 +34,15 @@ namespace Grand.Web.Common.Localization
                 {
                     return new LocalizedString(name, resFormat, resFormat == null);
                 }
-                return new LocalizedString(name, string.Format(resFormat, arguments),
-                    resFormat == null);
+                try
+                {
+                    return new LocalizedString(name, string.Format(resFormat, arguments),
+                        resFormat == null);
+                }
+                catch
+                {
+                    return new LocalizedString(name, resFormat, resFormat == null);
+                }
             }
         }
     }

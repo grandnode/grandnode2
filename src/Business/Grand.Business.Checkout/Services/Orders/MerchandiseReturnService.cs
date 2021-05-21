@@ -7,8 +7,6 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,7 +79,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <returns>Merchandise return</returns>
         public virtual Task<MerchandiseReturn> GetMerchandiseReturnById(int id)
         {
-            return _merchandiseReturnRepository.Table.Where(x => x.ReturnNumber == id).FirstOrDefaultAsync();
+            return _merchandiseReturnRepository.Table.Where(x => x.ReturnNumber == id).FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -131,7 +129,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 var query = from rra in _merchandiseReturnActionRepository.Table
                             orderby rra.DisplayOrder, rra.Id
                             select rra;
-                return await query.ToListAsync();
+                return await query.ToListAsync2();
             });
         }
 
@@ -274,7 +272,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 var query = from rra in _merchandiseReturnReasonRepository.Table
                             orderby rra.DisplayOrder, rra.Id
                             select rra;
-                return await query.ToListAsync();
+                return await query.ToListAsync2();
             });
         }
 
@@ -369,7 +367,7 @@ namespace Grand.Business.Checkout.Services.Orders
                         orderby merchandiseReturnNote.CreatedOnUtc descending
                         select merchandiseReturnNote;
 
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>
@@ -379,7 +377,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <returns>MerchandiseReturnNote</returns>
         public virtual Task<MerchandiseReturnNote> GetMerchandiseReturnNote(string merchandiseReturnNoteId)
         {
-            return _merchandiseReturnNoteRepository.Table.Where(x => x.Id == merchandiseReturnNoteId).FirstOrDefaultAsync();
+            return _merchandiseReturnNoteRepository.Table.Where(x => x.Id == merchandiseReturnNoteId).FirstOrDefaultAsync2();
         }
 
         #endregion

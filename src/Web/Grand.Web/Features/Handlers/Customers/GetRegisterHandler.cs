@@ -92,8 +92,7 @@ namespace Grand.Web.Features.Handlers.Customers
 
                 foreach (var c in await _countryService.GetAllCountries(request.Language.Id, request.Store.Id))
                 {
-                    model.AvailableCountries.Add(new SelectListItem
-                    {
+                    model.AvailableCountries.Add(new SelectListItem {
                         Text = c.GetTranslation(x => x.Name, request.Language.Id),
                         Value = c.Id.ToString(),
                         Selected = c.Id == model.CountryId
@@ -104,32 +103,17 @@ namespace Grand.Web.Features.Handlers.Customers
                 {
                     //states
                     var states = await _countryService.GetStateProvincesByCountryId(model.CountryId, request.Language.Id);
-                    if (states.Any())
+                    model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
+
+                    foreach (var s in states)
                     {
-                        model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
-
-                        foreach (var s in states)
-                        {
-                            model.AvailableStates.Add(new SelectListItem { Text = s.GetTranslation(x => x.Name, request.Language.Id), Value = s.Id.ToString(), Selected = (s.Id == model.StateProvinceId) });
-                        }
+                        model.AvailableStates.Add(new SelectListItem { Text = s.GetTranslation(x => x.Name, request.Language.Id), Value = s.Id.ToString(), Selected = (s.Id == model.StateProvinceId) });
                     }
-                    else
-                    {
-                        bool anyCountrySelected = model.AvailableCountries.Any(x => x.Selected);
-
-                        model.AvailableStates.Add(new SelectListItem
-                        {
-                            Text = _translationService.GetResource(anyCountrySelected ? "Address.OtherNonUS" : "Address.SelectState"),
-                            Value = ""
-                        });
-                    }
-
                 }
             }
 
             //custom customer attributes
-            var customAttributes = await _mediator.Send(new GetCustomAttributes()
-            {
+            var customAttributes = await _mediator.Send(new GetCustomAttributes() {
                 Customer = request.Customer,
                 Language = request.Language,
                 OverrideAttributes = request.OverrideCustomCustomerAttributes
@@ -143,8 +127,7 @@ namespace Grand.Web.Features.Handlers.Customers
             var newsletterCategories = await _newsletterCategoryService.GetNewsletterCategoriesByStore(request.Store.Id);
             foreach (var item in newsletterCategories)
             {
-                model.NewsletterCategories.Add(new NewsletterSimpleCategory()
-                {
+                model.NewsletterCategories.Add(new NewsletterSimpleCategory() {
                     Id = item.Id,
                     Name = item.GetTranslation(x => x.Name, request.Language.Id),
                     Description = item.GetTranslation(x => x.Description, request.Language.Id),

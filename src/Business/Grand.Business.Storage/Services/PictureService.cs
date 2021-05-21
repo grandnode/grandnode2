@@ -7,8 +7,6 @@ using Grand.Domain.Data;
 using Grand.Domain.Media;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using SkiaSharp;
 using System;
 using System.IO;
@@ -488,7 +486,7 @@ namespace Grand.Business.Storage.Services
                             Reference = p.Reference,
                             ObjectId = p.ObjectId
                         });
-                return await query.FirstOrDefaultAsync();
+                return await Task.FromResult(query.FirstOrDefault());
             });
         }
 

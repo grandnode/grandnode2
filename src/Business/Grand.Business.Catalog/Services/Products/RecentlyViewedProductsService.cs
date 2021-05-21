@@ -3,8 +3,6 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,7 +73,7 @@ namespace Grand.Business.Catalog.Services.Products
                             where p.CustomerId == customerId
                             orderby p.CreatedOnUtc descending
                             select p.ProductId;
-                return await query.Take(number).ToListAsync();
+                return await query.Take(number).ToListAsync2();
             });
         }
 

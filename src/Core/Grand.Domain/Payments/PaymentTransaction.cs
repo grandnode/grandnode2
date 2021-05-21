@@ -1,6 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Grand.Domain.Payments
@@ -48,22 +46,19 @@ namespace Grand.Domain.Payments
         /// Gets or sets currency code
         /// </summary>
         public string CurrencyCode { get; set; }
-        [BsonRepresentation(BsonType.Decimal128, AllowTruncation = true)]
+
         public decimal CurrencyRate { get; set; }
 
         /// <summary>
         /// Gets or sets amount 
         /// </summary>
-        [BsonRepresentation(BsonType.Decimal128, AllowTruncation = true)]
         public decimal TransactionAmount { get; set; }
 
-        [BsonRepresentation(BsonType.Decimal128, AllowTruncation = true)]
         public decimal PaidAmount { get; set; }
 
         /// <summary>
         /// Gets or sets the refunded amount
         /// </summary>
-        [BsonRepresentation(BsonType.Decimal128, AllowTruncation = true)]
         public decimal RefundedAmount { get; set; }
 
         /// <summary>

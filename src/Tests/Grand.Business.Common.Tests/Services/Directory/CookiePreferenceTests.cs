@@ -5,10 +5,8 @@ using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Services.Directory
@@ -42,7 +40,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         }
 
         [TestMethod()]
-        public async Task  IsEnable_ReturnExpectedValue()
+        public async Task IsEnable_ReturnExpectedValue()
         {
             var dic = new Dictionary<string, bool>();
             dic.Add("cookie1", true);

@@ -5,8 +5,6 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,9 +33,11 @@ namespace Grand.Business.Checkout.Services.Orders
             string key = string.Format(CacheKey.ORDER_STATUS_ALL);
             var orderstatuses = await _cacheBase.GetAsync(CacheKey.ORDER_STATUS_ALL, () =>
             {
-                var query = _orderStatusRepository.Table;
+                var query = from p in _orderStatusRepository.Table
+                            select p;
+
                 query = query.OrderBy(l => l.DisplayOrder);
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
 
             return orderstatuses;

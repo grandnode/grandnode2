@@ -18,6 +18,7 @@ namespace Grand.Business.Storage.Tests.Services
     {
         private Mock<IMediator> _mediatorMock;
         private Mock<IRepository<Download>> _repositoryMock;
+        private Mock<IMongoDBContext> _mongoDBContext;
         private DownloadService _service;
 
         [TestInitialize]
@@ -25,7 +26,8 @@ namespace Grand.Business.Storage.Tests.Services
         {
             _mediatorMock = new Mock<IMediator>();
             _repositoryMock = new Mock<IRepository<Download>>();
-            _service = new DownloadService(_repositoryMock.Object,_mediatorMock.Object);
+            _mongoDBContext = new Mock<IMongoDBContext>();
+            _service = new DownloadService(_repositoryMock.Object, _mongoDBContext.Object, _mediatorMock.Object);
         }
 
         [TestMethod]

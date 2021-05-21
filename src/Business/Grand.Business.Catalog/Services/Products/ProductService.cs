@@ -13,9 +13,6 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,15 +66,10 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Products</returns>
         public virtual async Task<IList<string>> GetAllProductsDisplayedOnHomePage()
         {
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Published, true);
-            filter &= builder.Eq(x => x.ShowOnHomePage, true);
-            filter &= builder.Eq(x => x.VisibleIndividually, true);
-            var query = _productRepository.Collection.Find(filter).
-                        SortBy(x => x.DisplayOrder).ThenBy(x => x.Name).
-                        Project(x => x.Id);
+            var query = _productRepository.Table.Where(x => x.Published && x.ShowOnHomePage && x.VisibleIndividually)
+                        .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).Select(x => x.Id);
 
-            var products = await query.ToListAsync();
+            var products = await query.ToListAsync2();
 
             return products;
         }
@@ -88,15 +80,11 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Products</returns>
         public virtual async Task<IList<string>> GetAllProductsDisplayedOnBestSeller()
         {
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Published, true);
-            filter &= builder.Eq(x => x.BestSeller, true);
-            filter &= builder.Eq(x => x.VisibleIndividually, true);
-            var query = _productRepository.Collection.Find(filter).
-                        SortBy(x => x.DisplayOrder).ThenBy(x => x.Name).
-                        Project(x => x.Id);
+            var query = _productRepository.Table.Where(x => x.Published && x.BestSeller && x.VisibleIndividually)
+                        .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
+                        .Select(x => x.Id);
 
-            var products = await query.ToListAsync();
+            var products = await query.ToListAsync2();
 
             return products;
         }
@@ -201,9 +189,7 @@ namespace Grand.Business.Catalog.Services.Products
 
             var oldProduct = await _productRepository.GetByIdAsync(product.Id);
             //update
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, product.Id);
-            var update = Builders<Product>.Update
+            var update = UpdateBuilder<Product>.Create()
                 .Set(x => x.AdditionalShippingCharge, product.AdditionalShippingCharge)
                 .Set(x => x.AdminComment, product.AdminComment)
                 .Set(x => x.AllowOutOfStockSubscriptions, product.AllowOutOfStockSubscriptions)
@@ -269,7 +255,7 @@ namespace Grand.Business.Catalog.Services.Products
                 .Set(x => x.MetaTitle, product.MetaTitle)
                 .Set(x => x.MinEnteredPrice, product.MinEnteredPrice)
                 .Set(x => x.MinStockQuantity, product.MinStockQuantity)
-                .Set(x => x.LowStock, ((product.MinStockQuantity > 0 && product.MinStockQuantity >= product.StockQuantity-product.ReservedQuantity) || product.StockQuantity-product.ReservedQuantity <= 0))
+                .Set(x => x.LowStock, ((product.MinStockQuantity > 0 && product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) || product.StockQuantity - product.ReservedQuantity <= 0))
                 .Set(x => x.Name, product.Name)
                 .Set(x => x.NotApprovedRatingSum, product.NotApprovedRatingSum)
                 .Set(x => x.NotApprovedTotalReviews, product.NotApprovedTotalReviews)
@@ -316,9 +302,9 @@ namespace Grand.Business.Catalog.Services.Products
                 .Set(x => x.Weight, product.Weight)
                 .Set(x => x.Width, product.Width)
                 .Set(x => x.UserFields, product.UserFields)
-                .CurrentDate("UpdatedOnUtc");
+                .Set(x => x.UpdatedOnUtc, DateTime.UtcNow);
 
-            await _productRepository.Collection.UpdateOneAsync(filter, update);
+            await _productRepository.UpdateOneAsync(x => x.Id == product.Id, update);
 
             if (oldProduct.AdditionalShippingCharge != product.AdditionalShippingCharge ||
                 oldProduct.IsFreeShipping != product.IsFreeShipping ||
@@ -369,25 +355,24 @@ namespace Grand.Business.Catalog.Services.Products
             await _mediator.EntityDeleted(product);
         }
 
-        public virtual async Task UpdateMostView(string productId)
+        public virtual async Task UpdateMostView(Product product)
         {
-            var update = new UpdateDefinitionBuilder<Product>().Inc(x => x.Viewed, 1);
-            await _productRepository.Collection.UpdateManyAsync(x => x.Id == productId, update);
+            await _productRepository.UpdateField(product.Id, x => x.Viewed, product.Viewed + 1);
         }
 
-        public virtual async Task UpdateSold(string productId, int qty)
+        public virtual async Task UpdateSold(Product product, int qty)
         {
-            var update = new UpdateDefinitionBuilder<Product>().Inc(x => x.Sold, qty);
-            await _productRepository.Collection.UpdateManyAsync(x => x.Id == productId, update);
+            await _productRepository.UpdateField(product.Id, x => x.Sold, product.Sold + qty);
         }
 
         public virtual async Task UnpublishProduct(Product product)
         {
-            var filter = Builders<Product>.Filter.Eq("Id", product.Id);
-            var update = Builders<Product>.Update
+            var update = UpdateBuilder<Product>.Create()
                     .Set(x => x.Published, false)
-                    .CurrentDate("UpdatedOnUtc");
-            await _productRepository.Collection.UpdateOneAsync(filter, update);
+                    .Set(x => x.UpdatedOnUtc, DateTime.UtcNow);
+
+            await _productRepository.UpdateOneAsync(x => x.Id == product.Id, update);
+
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
 
             //event
@@ -412,29 +397,35 @@ namespace Grand.Business.Catalog.Services.Products
             if (categoryIds != null && categoryIds.Contains(""))
                 categoryIds.Remove("");
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Where(p => p.Published && p.VisibleIndividually);
+            var query = from p in _productRepository.Table
+                        select p;
+
+            query = query.Where(p => p.Published && p.VisibleIndividually);
+
             ////category filtering
             if (categoryIds != null && categoryIds.Any())
             {
-                filter &= builder.Where(p => p.ProductCategories.Any(x => categoryIds.Contains(x.CategoryId)));
+                query = query.Where(p => p.ProductCategories.Any(x => categoryIds.Contains(x.CategoryId)));
             }
 
             if (!ignoreAcl)
             {
                 //ACL (access control list)
                 var allowedCustomerGroupsIds = customer.GetCustomerGroupIds();
-                filter &= (builder.AnyIn(x => x.CustomerGroups, allowedCustomerGroupsIds) | builder.Where(x => !x.LimitedToGroups));
+                query = from p in query
+                        where !p.LimitedToGroups || allowedCustomerGroupsIds.Any(x => p.CustomerGroups.Contains(x))
+                        select p;
             }
 
             if (!string.IsNullOrEmpty(storeId) && !ignoreStore)
             {
-                //Store acl
-                var currentStoreId = new List<string> { storeId };
-                filter &= (builder.AnyIn(x => x.Stores, currentStoreId) | builder.Where(x => !x.LimitedToStores));
+                //Limited to stores rules
+                query = from p in query
+                        where !p.LimitedToStores || p.Stores.Contains(storeId)
+                        select p;
             }
 
-            return Convert.ToInt32(_productRepository.Collection.Find(filter).CountDocuments());
+            return Convert.ToInt32(query.Count());
 
         }
 
@@ -499,8 +490,7 @@ namespace Grand.Business.Catalog.Services.Products
             bool? overridePublished = null)
         {
 
-            var model = await _mediator.Send(new GetSearchProductsQuery()
-            {
+            var model = await _mediator.Send(new GetSearchProductsQuery() {
                 Customer = _workContext.CurrentCustomer,
                 LoadFilterableSpecificationAttributeOptionIds = loadFilterableSpecificationAttributeOptionIds,
                 PageIndex = pageIndex,
@@ -561,31 +551,31 @@ namespace Grand.Business.Catalog.Services.Products
             string storeId = "", string vendorId = "", bool showHidden = false)
         {
 
-            var builder = Builders<Product>.Filter;
-            var filter = FilterDefinition<Product>.Empty;
+            var query = from p in _productRepository.Table
+                        select p;
 
-            filter = filter & builder.Where(p => p.ParentGroupedProductId == parentGroupedProductId);
+            query = query.Where(p => p.ParentGroupedProductId == parentGroupedProductId);
 
             if (!showHidden)
             {
-                filter = filter & builder.Where(p => p.Published);
+                query = query.Where(p => p.Published);
             }
             if (!showHidden)
             {
                 var nowUtc = DateTime.UtcNow;
                 //available dates
-                filter = filter & builder.Where(p =>
+                query = query.Where(p =>
                     (p.AvailableStartDateTimeUtc == null || p.AvailableStartDateTimeUtc < nowUtc) &&
                     (p.AvailableEndDateTimeUtc == null || p.AvailableEndDateTimeUtc > nowUtc));
 
             }
             //vendor filtering
-            if (!String.IsNullOrEmpty(vendorId))
+            if (!string.IsNullOrEmpty(vendorId))
             {
-                filter = filter & builder.Where(p => p.VendorId == vendorId);
+                query = query.Where(p => p.VendorId == vendorId);
             }
 
-            var products = await _productRepository.Collection.Find(filter).SortBy(x => x.DisplayOrder).ToListAsync();
+            var products = await query.OrderBy(x => x.DisplayOrder).ToListAsync2();
 
             //ACL mapping
             if (!showHidden)
@@ -612,8 +602,7 @@ namespace Grand.Business.Catalog.Services.Products
                 return null;
 
             sku = sku.Trim();
-            var filter = Builders<Product>.Filter.Eq(x => x.Sku, sku);
-            return await _productRepository.Collection.Find(filter).FirstOrDefaultAsync();
+            return await _productRepository.Table.Where(x => x.Sku == sku).FirstOrDefaultAsync2();
         }
 
         public virtual async Task UpdateAssociatedProduct(Product product)
@@ -621,13 +610,11 @@ namespace Grand.Business.Catalog.Services.Products
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, product.Id);
-            var update = Builders<Product>.Update
+            var update = UpdateBuilder<Product>.Create()
                 .Set(x => x.DisplayOrder, product.DisplayOrder)
                 .Set(x => x.ParentGroupedProductId, product.ParentGroupedProductId);
 
-            await _productRepository.Collection.UpdateManyAsync(filter, update);
+            await _productRepository.UpdateManyAsync(x => x.Id == product.Id, update);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
@@ -652,9 +639,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (relatedProduct == null)
                 throw new ArgumentNullException(nameof(relatedProduct));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.RelatedProducts, relatedProduct);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.AddToSet(productId, x => x.RelatedProducts, relatedProduct);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -672,9 +657,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (relatedProduct == null)
                 throw new ArgumentNullException(nameof(relatedProduct));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.Pull(p => p.RelatedProducts, relatedProduct);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.PullFilter(productId, x => x.RelatedProducts, z => z.Id, relatedProduct.Id);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -693,13 +676,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (relatedProduct == null)
                 throw new ArgumentNullException(nameof(relatedProduct));
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, productId);
-            filter = filter & builder.ElemMatch(x => x.RelatedProducts, y => y.Id == relatedProduct.Id);
-            var update = Builders<Product>.Update
-                .Set(x => x.RelatedProducts.ElementAt(-1).DisplayOrder, relatedProduct.DisplayOrder);
-
-            await _productRepository.Collection.UpdateManyAsync(filter, update);
+            await _productRepository.UpdateToSet(productId, x => x.RelatedProducts, z => z.Id, relatedProduct.Id, relatedProduct);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -717,9 +694,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (similarProduct == null)
                 throw new ArgumentNullException(nameof(similarProduct));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.SimilarProducts, similarProduct);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", similarProduct.ProductId1), update);
+            await _productRepository.AddToSet(similarProduct.ProductId1, x => x.SimilarProducts, similarProduct);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, similarProduct.ProductId1));
@@ -737,13 +712,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (similarProduct == null)
                 throw new ArgumentNullException(nameof(similarProduct));
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, similarProduct.ProductId1);
-            filter = filter & builder.ElemMatch(x => x.SimilarProducts, y => y.Id == similarProduct.Id);
-            var update = Builders<Product>.Update
-                .Set(x => x.SimilarProducts.ElementAt(-1).DisplayOrder, similarProduct.DisplayOrder);
-
-            await _productRepository.Collection.UpdateManyAsync(filter, update);
+            await _productRepository.UpdateToSet(similarProduct.ProductId1, x => x.SimilarProducts, z => z.Id, similarProduct.Id, similarProduct);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, similarProduct.ProductId1));
@@ -760,9 +729,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (similarProduct == null)
                 throw new ArgumentNullException(nameof(similarProduct));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.Pull(p => p.SimilarProducts, similarProduct);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", similarProduct.ProductId1), update);
+            await _productRepository.PullFilter(similarProduct.ProductId1, x => x.SimilarProducts, z => z.Id, similarProduct.Id);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, similarProduct.ProductId1));
@@ -785,9 +752,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (bundleProduct == null)
                 throw new ArgumentNullException(nameof(bundleProduct));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.BundleProducts, bundleProduct);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productBundleId), update);
+            await _productRepository.AddToSet(productBundleId, x => x.BundleProducts, bundleProduct);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productBundleId));
@@ -807,14 +772,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (bundleProduct == null)
                 throw new ArgumentNullException(nameof(bundleProduct));
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, productBundleId);
-            filter = filter & builder.ElemMatch(x => x.BundleProducts, y => y.Id == bundleProduct.Id);
-            var update = Builders<Product>.Update
-                .Set(x => x.BundleProducts.ElementAt(-1).Quantity, bundleProduct.Quantity)
-                .Set(x => x.BundleProducts.ElementAt(-1).DisplayOrder, bundleProduct.DisplayOrder);
-
-            await _productRepository.Collection.UpdateManyAsync(filter, update);
+            await _productRepository.UpdateToSet(productBundleId, x => x.BundleProducts, z => z.Id, bundleProduct.Id, bundleProduct);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productBundleId));
@@ -833,9 +791,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (bundleProduct == null)
                 throw new ArgumentNullException(nameof(bundleProduct));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.Pull(p => p.BundleProducts, bundleProduct);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productBundleId), update);
+            await _productRepository.PullFilter(productBundleId, x => x.BundleProducts, z => z.Id, bundleProduct.Id);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productBundleId));
@@ -857,9 +813,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (crossSellProduct == null)
                 throw new ArgumentNullException(nameof(crossSellProduct));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.CrossSellProduct, crossSellProduct.ProductId2);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", crossSellProduct.ProductId1), update);
+            await _productRepository.AddToSet(crossSellProduct.ProductId1, x => x.CrossSellProduct, crossSellProduct.ProductId2);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, crossSellProduct.ProductId1));
@@ -877,9 +831,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (crossSellProduct == null)
                 throw new ArgumentNullException(nameof(crossSellProduct));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.Pull(p => p.CrossSellProduct, crossSellProduct.ProductId2);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", crossSellProduct.ProductId1), update);
+            await _productRepository.Pull(crossSellProduct.ProductId1, x => x.CrossSellProduct, crossSellProduct.ProductId2);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, crossSellProduct.ProductId1));
@@ -958,9 +910,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (tierPrice == null)
                 throw new ArgumentNullException(nameof(tierPrice));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.TierPrices, tierPrice);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.AddToSet(productId, x => x.TierPrices, tierPrice);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -979,20 +929,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (tierPrice == null)
                 throw new ArgumentNullException(nameof(tierPrice));
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, productId);
-            filter = filter & builder.Where(x => x.TierPrices.Any(y => y.Id == tierPrice.Id));
-
-            var update = Builders<Product>.Update
-                .Set(x => x.TierPrices.ElementAt(-1).Price, tierPrice.Price)
-                .Set(x => x.TierPrices.ElementAt(-1).Quantity, tierPrice.Quantity)
-                .Set(x => x.TierPrices.ElementAt(-1).StoreId, tierPrice.StoreId)
-                .Set(x => x.TierPrices.ElementAt(-1).CustomerGroupId, tierPrice.CustomerGroupId)
-                .Set(x => x.TierPrices.ElementAt(-1).CurrencyCode, tierPrice.CurrencyCode)
-                .Set(x => x.TierPrices.ElementAt(-1).StartDateTimeUtc, tierPrice.StartDateTimeUtc)
-                .Set(x => x.TierPrices.ElementAt(-1).EndDateTimeUtc, tierPrice.EndDateTimeUtc);
-
-            await _productRepository.Collection.UpdateManyAsync(filter, update);
+            await _productRepository.UpdateToSet(productId, x => x.TierPrices, z => z.Id, tierPrice.Id, tierPrice);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1010,9 +947,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (tierPrice == null)
                 throw new ArgumentNullException(nameof(tierPrice));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.Pull(p => p.TierPrices, tierPrice);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.PullFilter(productId, x => x.TierPrices, x => x.Id, tierPrice.Id);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1034,9 +969,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (productPrice == null)
                 throw new ArgumentNullException(nameof(productPrice));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.ProductPrices, productPrice);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productPrice.ProductId), update);
+            await _productRepository.AddToSet(productPrice.ProductId, x => x.ProductPrices, productPrice);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productPrice.ProductId));
@@ -1054,15 +987,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (productPrice == null)
                 throw new ArgumentNullException(nameof(productPrice));
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, productPrice.ProductId);
-            filter &= builder.Where(x => x.ProductPrices.Any(y => y.Id == productPrice.Id));
-
-            var update = Builders<Product>.Update
-                .Set(x => x.ProductPrices.ElementAt(-1).Price, productPrice.Price)
-                .Set(x => x.ProductPrices.ElementAt(-1).CurrencyCode, productPrice.CurrencyCode);
-
-            await _productRepository.Collection.UpdateManyAsync(filter, update);
+            await _productRepository.UpdateToSet(productPrice.ProductId, x => x.ProductPrices, z => z.Id, productPrice.Id, productPrice);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productPrice.ProductId));
@@ -1080,9 +1005,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (productPrice == null)
                 throw new ArgumentNullException(nameof(productPrice));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.Pull(p => p.ProductPrices, productPrice);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productPrice.ProductId), update);
+            await _productRepository.PullFilter(productPrice.Id, x => x.ProductPrices, x => x.Id, productPrice.Id);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productPrice.ProductId));
@@ -1104,9 +1027,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (productPicture == null)
                 throw new ArgumentNullException(nameof(productPicture));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.ProductPictures, productPicture);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.AddToSet(productId, x => x.ProductPictures, productPicture);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1125,13 +1046,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (productPicture == null)
                 throw new ArgumentNullException(nameof(productPicture));
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, productId);
-            filter &= builder.ElemMatch(x => x.ProductPictures, y => y.Id == productPicture.Id);
-            var update = Builders<Product>.Update
-                .Set(x => x.ProductPictures.ElementAt(-1).DisplayOrder, productPicture.DisplayOrder);
-
-            await _productRepository.Collection.UpdateManyAsync(filter, update);
+            await _productRepository.UpdateToSet(productId, x => x.ProductPictures, z => z.Id, productPicture.Id, productPicture);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1149,9 +1064,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (productPicture == null)
                 throw new ArgumentNullException(nameof(productPicture));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.Pull(p => p.ProductPictures, productPicture);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.PullFilter(productId, x => x.ProductPictures, x => x.Id, productPicture.Id);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1173,9 +1086,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (pwi == null)
                 throw new ArgumentNullException(nameof(pwi));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.ProductWarehouseInventory, pwi);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.AddToSet(productId, x => x.ProductWarehouseInventory, pwi);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1194,14 +1105,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (pwi == null)
                 throw new ArgumentNullException(nameof(pwi));
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, productId);
-            filter = filter & builder.ElemMatch(x => x.ProductWarehouseInventory, y => y.Id == pwi.Id);
-            var update = Builders<Product>.Update
-                .Set(x => x.ProductWarehouseInventory.ElementAt(-1).StockQuantity, pwi.StockQuantity)
-                .Set(x => x.ProductWarehouseInventory.ElementAt(-1).ReservedQuantity, pwi.ReservedQuantity);
-
-            await _productRepository.Collection.UpdateManyAsync(filter, update);
+            await _productRepository.UpdateToSet(productId, x => x.ProductWarehouseInventory, z => z.Id, pwi.Id, pwi);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1218,9 +1122,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (pwi == null)
                 throw new ArgumentNullException(nameof(pwi));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.Pull(p => p.ProductWarehouseInventory, pwi);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.PullFilter(productId, x => x.ProductWarehouseInventory, x => x.Id, pwi.Id);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1235,9 +1137,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (string.IsNullOrEmpty(discountId))
                 throw new ArgumentNullException(nameof(discountId));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.Pull(p => p.AppliedDiscounts, discountId);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.Pull(productId, x => x.AppliedDiscounts, discountId);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
@@ -1248,10 +1148,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (string.IsNullOrEmpty(discountId))
                 throw new ArgumentNullException(nameof(discountId));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.AppliedDiscounts, discountId);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
-
+            await _productRepository.AddToSet(productId, x => x.AppliedDiscounts, discountId);
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
         }

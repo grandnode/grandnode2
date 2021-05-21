@@ -4,8 +4,6 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -161,8 +159,8 @@ namespace Grand.Business.Catalog.Services.Products
         {
             if (!string.IsNullOrEmpty(orderId))
             {
-                var update = new UpdateDefinitionBuilder<ProductReservation>().Set(x => x.OrderId, "");
-                await _productReservationRepository.Collection.UpdateManyAsync(x => x.OrderId == orderId, update);
+                await _productReservationRepository.UpdateManyAsync(x => x.OrderId == orderId,
+                UpdateBuilder<ProductReservation>.Create().Set(x => x.OrderId, ""));
             }
         }
 
@@ -182,7 +180,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>List<CustomerReservationsHelper></returns>
         public virtual async Task<IList<CustomerReservationsHelper>> GetCustomerReservationsHelpers(string customerId)
         {
-            return await _customerReservationsHelperRepository.Table.Where(x => x.CustomerId == customerId).ToListAsync();
+            return await _customerReservationsHelperRepository.Table.Where(x => x.CustomerId == customerId).ToListAsync2();
         }
 
         /// <summary>
@@ -192,7 +190,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>List<CustomerReservationsHelper></returns>
         public virtual async Task<IList<CustomerReservationsHelper>> GetCustomerReservationsHelperBySciId(string sciId)
         {
-            return await _customerReservationsHelperRepository.Table.Where(x => x.ShoppingCartItemId == sciId).ToListAsync();
+            return await _customerReservationsHelperRepository.Table.Where(x => x.ShoppingCartItemId == sciId).ToListAsync2();
         }
     }
 }

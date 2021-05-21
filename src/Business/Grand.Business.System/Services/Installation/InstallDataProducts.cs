@@ -5,7 +5,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Seo;
 using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.IO;

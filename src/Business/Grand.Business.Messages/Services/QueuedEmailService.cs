@@ -4,8 +4,6 @@ using Grand.Domain;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -84,9 +82,9 @@ namespace Grand.Business.Messages.Services
             if (email == null)
                 throw new ArgumentNullException("email");
 
-            var builder = Builders<QueuedEmail>.Filter;
-            var filter = builder.Eq(x => x.To, email);
-            await _queuedEmailRepository.Collection.DeleteManyAsync(filter);
+            var deleteCustomerEmail = _queuedEmailRepository.Table.Where(x => x.To == email);
+
+            await _queuedEmailRepository.DeleteAsync(deleteCustomerEmail);
         }
 
         /// <summary>
@@ -113,7 +111,7 @@ namespace Grand.Business.Messages.Services
             var query = from qe in _queuedEmailRepository.Table
                         where queuedEmailIds.Contains(qe.Id)
                         select qe;
-            var queuedEmails = await query.ToListAsync();
+            var queuedEmails = await query.ToListAsync2();
             //sort by passed identifiers
             var sortedQueuedEmails = new List<QueuedEmail>();
             foreach (string id in queuedEmailIds)
@@ -147,7 +145,8 @@ namespace Grand.Business.Messages.Services
             fromEmail = (fromEmail ?? string.Empty).Trim();
             toEmail = (toEmail ?? string.Empty).Trim();
 
-            var query = _queuedEmailRepository.Table;
+            var query = from p in _queuedEmailRepository.Table
+                        select p;
 
             if (!string.IsNullOrEmpty(fromEmail))
                 query = query.Where(qe => qe.From.ToLower().Contains(fromEmail.ToLower()));
@@ -188,7 +187,7 @@ namespace Grand.Business.Messages.Services
         /// </summary>
         public virtual async Task DeleteAllEmails()
         {
-            await _queuedEmailRepository.Collection.DeleteManyAsync(new MongoDB.Bson.BsonDocument());
+            await _queuedEmailRepository.ClearAsync();
         }
     }
 }

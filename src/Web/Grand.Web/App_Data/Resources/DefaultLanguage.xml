@@ -1305,9 +1305,6 @@
   <Resource Name="Address.Fields.ZipPostalCode.Required">
     <Value>Zip / postal code is required.</Value>
   </Resource>
-  <Resource Name="Address.OtherNonUS">
-    <Value>Other (Non US)</Value>
-  </Resource>
   <Resource Name="Address.SelectCountry">
     <Value>Select country</Value>
   </Resource>
@@ -1532,9 +1529,6 @@
   </Resource>
   <Resource Name="Admin.Address.Fields.ZipPostalCode.Required">
     <Value>Zip / postal code is required.</Value>
-  </Resource>
-  <Resource Name="Admin.Address.OtherNonUS">
-    <Value>Other (Non US)</Value>
   </Resource>
   <Resource Name="Admin.Address.SelectCountry">
     <Value>Select country</Value>
@@ -3572,9 +3566,6 @@
   </Resource>
   <Resource Name="Admin.Catalog.Products.ProductWarehouseInventory.Description3">
     <Value>"Planned qty" is product quantity that is ordered and already added to a shipment but not shipped yet.</Value>
-  </Resource>
-  <Resource Name="Admin.Catalog.Products.ProductWarehouseInventory.Fields.PlannedQuantity">
-    <Value>Planned qty</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.ProductWarehouseInventory.Fields.ReservedQuantity">
     <Value>Reserved qty</Value>
@@ -9617,7 +9608,7 @@
     <Value>Warehouse</Value>
   </Resource>
   <Resource Name="Admin.Orders.Shipments.Products.Warehouse.ChooseQty">
-    <Value>{0} ({1} qty in stock, {2} qty reserved, {3} qty planned)</Value>
+    <Value>{0} ({1} qty in stock, {2} qty reserved</Value>
   </Resource>
   <Resource Name="Admin.Orders.Shipments.Products.Warehouse.NotAvailabe">
     <Value>No warehouses available. You cannot ship this product.</Value>
@@ -11136,36 +11127,6 @@
   </Resource>
   <Resource Name="Admin.Settings.GeneralCommon.FacebookLink">
     <Value>Facebook page URL</Value>
-  </Resource>
-  <Resource Name="Admin.Settings.GeneralCommon.FullTextSettings">
-    <Value>Full-Text settings</Value>
-  </Resource>
-  <Resource Name="Admin.Settings.GeneralCommon.FullTextSettings.CurrenlyDisabled">
-    <Value>Full-Text is disabled</Value>
-  </Resource>
-  <Resource Name="Admin.Settings.GeneralCommon.FullTextSettings.CurrenlyEnabled">
-    <Value>Full-Text is enabled</Value>
-  </Resource>
-  <Resource Name="Admin.Settings.GeneralCommon.FullTextSettings.Disable">
-    <Value>Disable Full-Text</Value>
-  </Resource>
-  <Resource Name="Admin.Settings.GeneralCommon.FullTextSettings.Disabled">
-    <Value>Full-Text support has been disabled successfully.</Value>
-  </Resource>
-  <Resource Name="Admin.Settings.GeneralCommon.FullTextSettings.Enable">
-    <Value>Enable Full-Text</Value>
-  </Resource>
-  <Resource Name="Admin.Settings.GeneralCommon.FullTextSettings.Enabled">
-    <Value>Full-Text support has been enabled successfully.</Value>
-  </Resource>
-  <Resource Name="Admin.Settings.GeneralCommon.FullTextSettings.NoiseWords">
-    <Value>To prevent a full-text index from becoming bloated, Microsoft SQL Server has a mechanism that discards commonly occurring words that do not help the search. These words are called noise words, or stop words. Noise words are listed in the locale specific noise word files. For example, in the English locale, words such as "a," "and," "is," and "the" are in the English noise word file and are left out of the full-text index since they are empirically known to be useless to a search. Please contact your SQL Server administrator to get more information about it.</Value>
-  </Resource>
-  <Resource Name="Admin.Settings.GeneralCommon.FullTextSettings.NotSupported">
-    <Value>Full-Text is not supported by your database</Value>
-  </Resource>
-  <Resource Name="Admin.Settings.GeneralCommon.FullTextSettings.Supported">
-    <Value>Full-Text is supported by your database</Value>
   </Resource>
   <Resource Name="Admin.Settings.GeneralCommon.GenerateProductMetaDescription">
     <Value>If not provided, generate product META description automatically</Value>
@@ -13691,15 +13652,6 @@
   </Resource>
   <Resource Name="Enums.Grand.Domain.Catalog.SpecificationAttributeType.Option">
     <Value>Option</Value>
-  </Resource>
-  <Resource Name="Enums.Grand.Domain.Common.FulltextSearchMode.And">
-    <Value>Using CONTAINS and AND with prefix_term</Value>
-  </Resource>
-  <Resource Name="Enums.Grand.Domain.Common.FulltextSearchMode.ExactMatch">
-    <Value>Exact match (using CONTAINS with prefix_term)</Value>
-  </Resource>
-  <Resource Name="Enums.Grand.Domain.Common.FulltextSearchMode.Or">
-    <Value>Using CONTAINS and OR with prefix_term</Value>
   </Resource>
   <Resource Name="Enums.Grand.Domain.Customers.CustomerNameFormat.Emails">
     <Value>Show emails</Value>

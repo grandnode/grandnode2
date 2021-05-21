@@ -7,8 +7,6 @@ using Grand.Domain.Messages;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -157,7 +155,7 @@ namespace Grand.Business.Messages.Services
                 var query = from ea in _emailAccountRepository.Table
                             orderby ea.Id
                             select ea;
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
         }
     }

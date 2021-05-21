@@ -2,14 +2,13 @@
 using Grand.Domain.Data;
 using Grand.Domain.Payments;
 using MediatR;
-using MongoDB.Driver.Linq;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders
 {
-    public class GetPaymentTransactionQueryHandler : IRequestHandler<GetPaymentTransactionQuery, IMongoQueryable<PaymentTransaction>>
+    public class GetPaymentTransactionQueryHandler : IRequestHandler<GetPaymentTransactionQuery, IQueryable<PaymentTransaction>>
     {
         private readonly IRepository<PaymentTransaction> _paymentTransactionRepository;
 
@@ -18,9 +17,10 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             _paymentTransactionRepository = paymentTransactionRepository;
         }
 
-        public Task<IMongoQueryable<PaymentTransaction>> Handle(GetPaymentTransactionQuery request, CancellationToken cancellationToken)
+        public Task<IQueryable<PaymentTransaction>> Handle(GetPaymentTransactionQuery request, CancellationToken cancellationToken)
         {
-            var query = _paymentTransactionRepository.Table;
+            var query = from p in _paymentTransactionRepository.Table
+                        select p;
 
             if (!string.IsNullOrEmpty(request.StoreId))
                 query = query.Where(rr => request.StoreId == rr.StoreId);

@@ -1,4 +1,4 @@
-﻿using Grand.Infrastructure.Data;
+﻿using Grand.Domain.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using System;

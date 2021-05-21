@@ -14,8 +14,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,7 +92,8 @@ namespace Grand.Business.Catalog.Services.Discounts
             string key = string.Format(CacheKey.DISCOUNTS_ALL_KEY, showHidden, storeId, currencyCode, couponCode, discountName);
             var result = await _cacheBase.GetAsync(key, () =>
             {
-                var query = _discountRepository.Table;
+                var query = from m in _discountRepository.Table
+                            select m;
                 if (!showHidden)
                 {
                     var nowUtc = DateTime.UtcNow;
@@ -126,7 +125,7 @@ namespace Grand.Business.Catalog.Services.Discounts
                 }
                 query = query.OrderBy(d => d.Name);
 
-                var discounts = query.ToListAsync();
+                var discounts = query.ToListAsync2();
                 return discounts;
             });
             if (discountType.HasValue)
@@ -261,9 +260,7 @@ namespace Grand.Business.Catalog.Services.Discounts
             if (String.IsNullOrWhiteSpace(couponCode))
                 return null;
 
-            var builder = Builders<DiscountCoupon>.Filter;
-            var filter = builder.Eq(x => x.CouponCode, couponCode);
-            var query = await _discountCouponRepository.Collection.FindAsync(filter);
+            var query = await _discountCouponRepository.Table.Where(x => x.CouponCode == couponCode).ToListAsync2();
 
             var coupon = query.FirstOrDefault();
             if (coupon == null)
@@ -284,13 +281,15 @@ namespace Grand.Business.Catalog.Services.Discounts
             if (String.IsNullOrWhiteSpace(couponCode))
                 return false;
 
-            var builder = Builders<DiscountCoupon>.Filter;
-            var filter = builder.Eq(x => x.CouponCode, couponCode);
-            filter &= builder.Eq(x => x.DiscountId, discountId);
+            var query = _discountCouponRepository.Table.Where(x => x.CouponCode == couponCode
+                            && x.DiscountId == discountId);
+
             if (used.HasValue)
-                filter &= builder.Eq(x => x.Used, used.Value);
-            var query = await _discountCouponRepository.Collection.FindAsync(filter);
-            if (query.Any())
+                query = query.Where(x => x.Used == used.Value);
+
+            var result = await query.ToListAsync2();
+
+            if (result.Any())
                 return true;
             else
                 return false;
@@ -305,11 +304,13 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// <returns></returns>
         public virtual async Task<IPagedList<DiscountCoupon>> GetAllCouponCodesByDiscountId(string discountId, int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var query = _discountCouponRepository.Table;
+            var query = from d in _discountCouponRepository.Table
+                        select d;
 
-            if (!String.IsNullOrEmpty(discountId))
+            if (!string.IsNullOrEmpty(discountId))
                 query = query.Where(duh => duh.DiscountId == discountId);
             query = query.OrderByDescending(c => c.CouponCode);
+
             return await PagedList<DiscountCoupon>.Create(query, pageIndex, pageSize);
         }
 
@@ -331,9 +332,7 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// <returns></returns>
         public async Task<DiscountCoupon> GetDiscountCodeByCode(string couponCode)
         {
-            var builder = Builders<DiscountCoupon>.Filter;
-            var filter = builder.Eq(x => x.CouponCode, couponCode);
-            var query = await _discountCouponRepository.Collection.FindAsync(filter);
+            var query = await _discountCouponRepository.Table.Where(x => x.CouponCode == couponCode).ToListAsync2();
             return query.FirstOrDefault();
         }
 
@@ -388,7 +387,7 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// <param name="orderId"></param>
         public virtual async Task CancelDiscount(string orderId)
         {
-            var discountUsage = await _discountUsageHistoryRepository.Table.Where(x => x.OrderId == orderId).ToListAsync();
+            var discountUsage = await _discountUsageHistoryRepository.Table.Where(x => x.OrderId == orderId).ToListAsync2();
             foreach (var item in discountUsage)
             {
                 await DiscountCouponSetAsUsed(item.CouponCode, false);
@@ -610,17 +609,19 @@ namespace Grand.Business.Catalog.Services.Discounts
             string customerId = "", string orderId = "", bool? canceled = null,
             int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var query = _discountUsageHistoryRepository.Table;
+            var query = from d in _discountUsageHistoryRepository.Table
+                        select d;
 
-            if (!String.IsNullOrEmpty(discountId))
+            if (!string.IsNullOrEmpty(discountId))
                 query = query.Where(duh => duh.DiscountId == discountId);
-            if (!String.IsNullOrEmpty(customerId))
+            if (!string.IsNullOrEmpty(customerId))
                 query = query.Where(duh => duh.CustomerId == customerId);
-            if (!String.IsNullOrEmpty(orderId))
+            if (!string.IsNullOrEmpty(orderId))
                 query = query.Where(duh => duh.OrderId == orderId);
             if (canceled.HasValue)
                 query = query.Where(duh => duh.Canceled == canceled.Value);
             query = query.OrderByDescending(c => c.CreatedOnUtc);
+
             return await PagedList<DiscountUsageHistory>.Create(query, pageIndex, pageSize);
         }
 

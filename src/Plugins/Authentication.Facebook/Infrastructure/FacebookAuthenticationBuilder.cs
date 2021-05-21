@@ -35,7 +35,7 @@ namespace Authentication.Facebook.Infrastructure
                     var fbSettings = new Repository<Setting>(DataSettingsHelper.ConnectionString()).Table.Where(x => x.Name.StartsWith("facebookexternalauthsettings"));
                     if (fbSettings.Any())
                     {
-                        var metadata = fbSettings.FirstOrDefault().Metadata.ToString();
+                        var metadata = fbSettings.FirstOrDefault().Metadata;
                         settings = JsonSerializer.Deserialize<FacebookExternalAuthSettings>(metadata);
                     }
                 }

@@ -10,8 +10,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -81,20 +79,19 @@ namespace Grand.Business.Catalog.Services.Collections
                 }
 
                 var query_ProductCollection = from prod in query
-                                                from pm in prod.ProductCollections
-                                                select new ProductsCollection
-                                                {
-                                                    Id = pm.Id,
-                                                    ProductId = prod.Id,
-                                                    DisplayOrder = pm.DisplayOrder,
-                                                    IsFeaturedProduct = pm.IsFeaturedProduct,
-                                                    CollectionId = pm.CollectionId
-                                                };
+                                              from pm in prod.ProductCollections
+                                              select new ProductsCollection {
+                                                  Id = pm.Id,
+                                                  ProductId = prod.Id,
+                                                  DisplayOrder = pm.DisplayOrder,
+                                                  IsFeaturedProduct = pm.IsFeaturedProduct,
+                                                  CollectionId = pm.CollectionId
+                                              };
 
                 query_ProductCollection = from pm in query_ProductCollection
-                                            where pm.CollectionId == collectionId
-                                            orderby pm.DisplayOrder
-                                            select pm;
+                                          where pm.CollectionId == collectionId
+                                          orderby pm.DisplayOrder
+                                          select pm;
 
                 return Task.FromResult(new PagedList<ProductsCollection>(query_ProductCollection, pageIndex, pageSize));
             });
@@ -110,9 +107,7 @@ namespace Grand.Business.Catalog.Services.Collections
             if (productCollection == null)
                 throw new ArgumentNullException(nameof(productCollection));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.ProductCollections, productCollection);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.AddToSet(productId, x => x.ProductCollections, productCollection);
 
             //cache
             await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCOLLECTIONS_PATTERN_KEY);
@@ -132,15 +127,7 @@ namespace Grand.Business.Catalog.Services.Collections
             if (productCollection == null)
                 throw new ArgumentNullException(nameof(productCollection));
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, productId);
-            filter = filter & builder.Where(x => x.ProductCollections.Any(y => y.Id == productCollection.Id));
-            var update = Builders<Product>.Update
-                .Set(x => x.ProductCollections.ElementAt(-1).CollectionId, productCollection.CollectionId)
-                .Set(x => x.ProductCollections.ElementAt(-1).IsFeaturedProduct, productCollection.IsFeaturedProduct)
-                .Set(x => x.ProductCollections.ElementAt(-1).DisplayOrder, productCollection.DisplayOrder);
-
-            await _productRepository.Collection.UpdateManyAsync(filter, update);
+            await _productRepository.UpdateToSet(productId, x => x.ProductCollections, z => z.Id, productCollection.Id, productCollection);
 
             //cache
             await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCOLLECTIONS_PATTERN_KEY);
@@ -160,9 +147,7 @@ namespace Grand.Business.Catalog.Services.Collections
             if (productCollection == null)
                 throw new ArgumentNullException(nameof(productCollection));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.Pull(p => p.ProductCollections, productCollection);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.PullFilter(productId, x => x.ProductCollections, z => z.Id, productCollection.Id);
 
             //cache
             await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCOLLECTIONS_PATTERN_KEY);

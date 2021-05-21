@@ -1,5 +1,3 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using System;
 
 namespace Grand.Business.System.Utilities
@@ -18,7 +16,6 @@ namespace Grand.Business.System.Utilities
         /// <summary>
         /// Gets or sets the total amount
         /// </summary>
-        [BsonRepresentation(BsonType.Decimal128, AllowTruncation = true)]
         public decimal TotalAmount { get; set; }
 
         /// <summary>

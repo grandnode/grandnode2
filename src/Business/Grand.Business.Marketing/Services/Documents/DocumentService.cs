@@ -4,7 +4,6 @@ using Grand.Domain;
 using Grand.Domain.Data;
 using Grand.Domain.Documents;
 using MediatR;
-using MongoDB.Driver.Linq;
 using System;
 using System.Linq;
 using System.Threading.Tasks;

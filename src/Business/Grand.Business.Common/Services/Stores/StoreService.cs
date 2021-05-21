@@ -5,11 +5,10 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Data;
 using Grand.Domain.Stores;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Grand.Business.Common.Services.Stores
 {
@@ -59,7 +58,7 @@ namespace Grand.Business.Common.Services.Stores
             {
                 _allStores = await _cacheBase.GetAsync(CacheKey.STORES_ALL_KEY, () =>
                 {
-                    return _storeRepository.Collection.Find(new BsonDocument()).SortBy(x => x.DisplayOrder).ToListAsync();
+                    return _storeRepository.Table.OrderBy(x => x.DisplayOrder).ToListAsync2();
                 });
             }
             return _allStores;
@@ -75,7 +74,7 @@ namespace Grand.Business.Common.Services.Stores
             {
                 _allStores = _cacheBase.Get(CacheKey.STORES_ALL_KEY, () =>
                 {
-                    return _storeRepository.Collection.Find(new BsonDocument()).SortBy(x => x.DisplayOrder).ToList();
+                    return _storeRepository.Table.OrderBy(x => x.DisplayOrder).ToList();
                 });
             }
             return _allStores;

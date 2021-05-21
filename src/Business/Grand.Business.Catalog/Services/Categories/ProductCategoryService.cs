@@ -10,8 +10,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -110,9 +108,7 @@ namespace Grand.Business.Catalog.Services.Categories
             if (productCategory == null)
                 throw new ArgumentNullException(nameof(productCategory));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.AddToSet(p => p.ProductCategories, productCategory);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.AddToSet(productId, x => x.ProductCategories, productCategory);
 
             //cache
             await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCATEGORIES_PATTERN_KEY);
@@ -132,15 +128,7 @@ namespace Grand.Business.Catalog.Services.Categories
             if (productCategory == null)
                 throw new ArgumentNullException(nameof(productCategory));
 
-            var builder = Builders<Product>.Filter;
-            var filter = builder.Eq(x => x.Id, productId);
-            filter = filter & builder.Where(x => x.ProductCategories.Any(y => y.Id == productCategory.Id));
-            var update = Builders<Product>.Update
-                .Set(x => x.ProductCategories.ElementAt(-1).CategoryId, productCategory.CategoryId)
-                .Set(x => x.ProductCategories.ElementAt(-1).IsFeaturedProduct, productCategory.IsFeaturedProduct)
-                .Set(x => x.ProductCategories.ElementAt(-1).DisplayOrder, productCategory.DisplayOrder);
-
-            await _productRepository.Collection.UpdateManyAsync(filter, update);
+            await _productRepository.UpdateToSet(productId, x => x.ProductCategories, z => z.Id, productCategory.Id, productCategory);
 
             //cache
             await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCATEGORIES_PATTERN_KEY);
@@ -159,9 +147,7 @@ namespace Grand.Business.Catalog.Services.Categories
             if (productCategory == null)
                 throw new ArgumentNullException(nameof(productCategory));
 
-            var updatebuilder = Builders<Product>.Update;
-            var update = updatebuilder.Pull(p => p.ProductCategories, productCategory);
-            await _productRepository.Collection.UpdateOneAsync(new BsonDocument("_id", productId), update);
+            await _productRepository.PullFilter(productId, x => x.ProductCategories, z => z.Id, productCategory.Id);
 
             //cache
             await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCATEGORIES_PATTERN_KEY);

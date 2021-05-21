@@ -7,8 +7,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,8 +94,7 @@ namespace Grand.Business.Common.Services.Directory
             string key = string.Format(CacheKey.CUSTOMERGROUPS_BY_SYSTEMNAME_KEY, systemName);
             return _cacheBase.GetAsync(key, () =>
             {
-                var filter = Builders<CustomerGroup>.Filter.Eq(x => x.SystemName, systemName);
-                return _customerGroupRepository.Collection.Find(filter).FirstOrDefaultAsync();
+                return _customerGroupRepository.Table.Where(x => x.SystemName == systemName).FirstOrDefaultAsync2();
             });
         }
 
@@ -220,7 +217,7 @@ namespace Grand.Business.Common.Services.Directory
                 var query = from cr in _customerGroupRepository.Table
                             orderby cr.Name
                             select cr;
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
             return customerGroups.Where(x => ids.Contains(x.Id)).ToList();
         }

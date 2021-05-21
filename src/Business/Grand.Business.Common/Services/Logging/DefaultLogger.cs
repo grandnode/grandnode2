@@ -6,8 +6,6 @@ using Grand.Domain.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Net.Http.Headers;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,25 +58,23 @@ namespace Grand.Business.Common.Services.Logging
             string message = "", LogLevel? logLevel = null,
             int pageIndex = 0, int pageSize = int.MaxValue)
         {
-
-            var builder = Builders<Log>.Filter;
-            var filter = builder.Where(c => true);
+            var query = from p in _logRepository.Table
+                        select p;
 
             if (fromUtc.HasValue)
-                filter = filter & builder.Where(l => fromUtc.Value <= l.CreatedOnUtc);
+                query = query.Where(l => fromUtc.Value <= l.CreatedOnUtc);
             if (toUtc.HasValue)
-                filter = filter & builder.Where(l => toUtc.Value >= l.CreatedOnUtc);
+                query = query.Where(l => toUtc.Value >= l.CreatedOnUtc);
             if (logLevel.HasValue)
             {
-                filter = filter & builder.Where(l => logLevel.Value == l.LogLevelId);
+                query = query.Where(l => logLevel.Value == l.LogLevelId);
             }
-            if (!String.IsNullOrEmpty(message))
-                filter = filter & builder.Where(l => l.ShortMessage.ToLower().Contains(message.ToLower()) || l.FullMessage.ToLower().Contains(message.ToLower()));
+            if (!string.IsNullOrEmpty(message))
+                query = query.Where(l => l.ShortMessage.ToLower().Contains(message.ToLower()) || l.FullMessage.ToLower().Contains(message.ToLower()));
 
-            var builderSort = Builders<Log>.Sort.Descending(x => x.CreatedOnUtc);
-            var query = _logRepository.Collection;
-
-            var logs = await PagedList<Log>.Create(query, filter, builderSort, pageIndex, pageSize);
+            query = query.OrderByDescending(x => x.CreatedOnUtc);
+            
+            var logs = await PagedList<Log>.Create(query, pageIndex, pageSize);
 
             return logs;
         }
@@ -107,7 +103,7 @@ namespace Grand.Business.Common.Services.Logging
                         where logIds.Contains(l.Id)
                         select l;
 
-            var logItems = await query.ToListAsync();
+            var logItems = await query.ToListAsync2();
             var sortedLogItems = new List<Log>();
             foreach (string id in logIds)
             {
@@ -178,7 +174,7 @@ namespace Grand.Business.Common.Services.Logging
         /// </summary>
         public virtual async Task ClearLog()
         {
-            await _logRepository.Collection.DeleteManyAsync(new MongoDB.Bson.BsonDocument());
+            await _logRepository.ClearAsync();
         }
 
         #endregion

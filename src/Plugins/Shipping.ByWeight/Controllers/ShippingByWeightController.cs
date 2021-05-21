@@ -197,7 +197,7 @@ namespace Shipping.ByWeight.Controllers
             foreach (var c in countries)
                 model.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
             //states
-            model.AvailableStates.Add(new SelectListItem { Text = "*", Value = " " });
+            model.AvailableStates.Add(new SelectListItem { Text = "*", Value = "" });
 
             return View("~/Plugins/Shipping.ByWeight/Views/AddPopup.cshtml", model);
         }

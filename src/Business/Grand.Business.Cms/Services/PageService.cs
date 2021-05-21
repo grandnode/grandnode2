@@ -9,8 +9,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -78,10 +76,12 @@ namespace Grand.Business.Cms.Services
             return await _cacheBase.GetAsync(key, async () =>
             {
 
-                var query = _pageRepository.Table;
+                var query = from p in _pageRepository.Table
+                            select p;
+
                 query = query.Where(t => t.SystemName.ToLower() == systemName.ToLower());
                 query = query.OrderBy(t => t.Id);
-                var pages = await query.ToListAsync();
+                var pages = await query.ToListAsync2();
                 if (!String.IsNullOrEmpty(storeId))
                 {
                     pages = pages.Where(x => _aclService.Authorize(x, storeId)).ToList();
@@ -100,7 +100,8 @@ namespace Grand.Business.Cms.Services
             string key = string.Format(CacheKey.PAGES_ALL_KEY, storeId, ignorAcl);
             return await _cacheBase.GetAsync(key, () =>
             {
-                var query = _pageRepository.Table;
+                var query = from p in _pageRepository.Table
+                            select p;
 
                 query = query.OrderBy(t => t.DisplayOrder).ThenBy(t => t.SystemName);
 
@@ -124,7 +125,7 @@ namespace Grand.Business.Cms.Services
                         query = query.OrderBy(t => t.SystemName);
                     }
                 }
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
         }
 

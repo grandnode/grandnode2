@@ -1,11 +1,10 @@
 ﻿using Grand.Business.Catalog.Commands.Models;
+using Grand.Domain.Catalog;
+using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using Grand.Domain.Catalog;
-using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,13 +29,12 @@ namespace Grand.Business.Catalog.Commands.Handlers
             if (request.Product == null)
                 throw new ArgumentNullException(nameof(request.Product));
 
-            var filter = Builders<Product>.Filter.Eq("Id", request.Product.Id);
-            var update = Builders<Product>.Update
+            var update = UpdateBuilder<Product>.Create()
                     .Set(x => x.Interval, request.Interval)
                     .Set(x => x.IntervalUnitId, request.IntervalUnit)
                     .Set(x => x.IncBothDate, request.IncludeBothDates);
 
-            await _productRepository.Collection.UpdateOneAsync(filter, update);
+            await _productRepository.UpdateOneAsync(x => x.Id == request.Product.Id, update);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, request.Product.Id));

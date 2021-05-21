@@ -16,7 +16,6 @@ namespace Grand.Web.Admin.Models.Settings
             SeoSettings = new SeoSettingsModel();
             SecuritySettings = new SecuritySettingsModel();
             PdfSettings = new PdfSettingsModel();
-            FullTextSettings = new FullTextSettingsModel();
             GoogleAnalyticsSettings = new GoogleAnalyticsSettingsModel();
             DisplayMenuSettings = new DisplayMenuSettingsModel();
         }
@@ -26,7 +25,6 @@ namespace Grand.Web.Admin.Models.Settings
         public SeoSettingsModel SeoSettings { get; set; }
         public SecuritySettingsModel SecuritySettings { get; set; }
         public PdfSettingsModel PdfSettings { get; set; }
-        public FullTextSettingsModel FullTextSettings { get; set; }
         public GoogleAnalyticsSettingsModel GoogleAnalyticsSettings { get; set; }
         public DisplayMenuSettingsModel DisplayMenuSettings { get; set; }
         
@@ -281,12 +279,6 @@ namespace Grand.Web.Admin.Models.Settings
 
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.InvoiceFooterText")]
             public string InvoiceFooterText { get; set; }
-        }
-
-        public partial class FullTextSettingsModel : BaseModel
-        {
-            public bool Enabled { get; set; }
-
         }
 
         public partial class GoogleAnalyticsSettingsModel : BaseModel

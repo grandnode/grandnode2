@@ -29,19 +29,9 @@ namespace Grand.Web.Features.Handlers.Common
         {
             var states = await _countryService.GetStateProvincesByCountryId(request.CountryId, _workContext.WorkingLanguage.Id);
             var model = (from s in states select new StateProvinceModel { id = s.Id, name = s.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id) }).ToList();
-            //some country is selected
-            if (!model.Any())
+            if (request.AddSelectStateItem)
             {
-                //country does not have states
-                model.Insert(0, new StateProvinceModel { id = "", name = _translationService.GetResource("Address.OtherNonUS") });
-            }
-            else
-            {
-                //country has some states
-                if (request.AddSelectStateItem)
-                {
-                    model.Insert(0, new StateProvinceModel { id = "", name = _translationService.GetResource("Address.SelectState") });
-                }
+                model.Insert(0, new StateProvinceModel { id = "", name = _translationService.GetResource("Address.SelectState") });
             }
             return model;
         }

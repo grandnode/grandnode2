@@ -11,8 +11,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -142,7 +140,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
             var query = from c in _campaignRepository.Table
                         orderby c.CreatedOnUtc
                         select c;
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         public virtual async Task<IPagedList<CampaignHistory>> GetCampaignHistory(Campaign campaign, int pageIndex = 0, int pageSize = int.MaxValue)

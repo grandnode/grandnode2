@@ -5,8 +5,6 @@ using Grand.Domain;
 using Grand.Domain.Data;
 using Grand.Domain.Orders;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,7 +93,7 @@ namespace Grand.Business.Checkout.Services.GiftVouchers
                         select h;
 
             query = query.Where(x => x.UsedWithOrderId == orderId);
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>
@@ -153,12 +151,13 @@ namespace Grand.Business.Checkout.Services.GiftVouchers
             if (String.IsNullOrEmpty(purchasedWithOrderItemId))
                 return new List<GiftVoucher>();
 
-            var query = _giftVoucherRepository.Table;
+            var query = from p in _giftVoucherRepository.Table
+                        select p;
 
             query = query.Where(gc => gc.PurchasedWithOrderItem.Id == purchasedWithOrderItemId);
             query = query.OrderBy(gc => gc.Id);
 
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>

@@ -11,7 +11,6 @@ using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Customers.Interfaces;
 using Grand.Business.Storage.Interfaces;
-using Grand.Business.System.Commands.Models.Common;
 using Grand.Domain.AdminSearch;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
@@ -155,8 +154,7 @@ namespace Grand.Web.Admin.Controllers
             var blogSettings = _settingService.LoadSetting<BlogSettings>(storeScope);
             var newsSettings = _settingService.LoadSetting<NewsSettings>(storeScope);
             var knowledgebaseSettings = _settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
-            var model = new ContentSettingsModel()
-            {
+            var model = new ContentSettingsModel() {
                 BlogSettings = blogSettings.ToModel(),
                 NewsSettings = newsSettings.ToModel()
             };
@@ -307,16 +305,14 @@ namespace Grand.Web.Admin.Controllers
             var model = new List<SortOptionModel>();
             foreach (int option in Enum.GetValues(typeof(ProductSortingEnum)))
             {
-                model.Add(new SortOptionModel()
-                {
+                model.Add(new SortOptionModel() {
                     Id = option,
                     Name = ((ProductSortingEnum)option).GetTranslationEnum(_translationService, _workContext),
                     IsActive = !catalogSettings.ProductSortingEnumDisabled.Contains(option),
                     DisplayOrder = catalogSettings.ProductSortingEnumDisplayOrder.TryGetValue(option, out int value) ? value : option
                 });
             }
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = model.OrderBy(option => option.DisplayOrder),
                 Total = model.Count
             };
@@ -352,8 +348,7 @@ namespace Grand.Web.Admin.Controllers
             var orderSettings = _settingService.LoadSetting<OrderSettings>(storeScope);
             var shoppingCartSettings = _settingService.LoadSetting<ShoppingCartSettings>(storeScope);
 
-            var model = new SalesSettingsModel()
-            {
+            var model = new SalesSettingsModel() {
                 LoyaltyPointsSettings = loyaltyPointsSettings.ToModel(),
                 OrderSettings = orderSettings.ToModel(),
                 ShoppingCartSettings = shoppingCartSettings.ToModel(),
@@ -437,8 +432,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> MerchandiseReturnReasonList(DataSourceRequest command)
         {
             var reasons = await _merchandiseReturnService.GetAllMerchandiseReturnReasons();
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = reasons.Select(x => x.ToModel()),
                 Total = reasons.Count
             };
@@ -536,8 +530,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> MerchandiseReturnActionList(DataSourceRequest command)
         {
             var actions = await _merchandiseReturnService.GetAllMerchandiseReturnActions();
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = actions.Select(x => x.ToModel()),
                 Total = actions.Count
             };
@@ -714,8 +707,7 @@ namespace Grand.Web.Admin.Controllers
             var addressSettings = _settingService.LoadSetting<AddressSettings>(storeScope);
 
             //merge settings
-            var model = new CustomerSettingsModel
-            {
+            var model = new CustomerSettingsModel {
                 CustomerSettings = customerSettings.ToModel(),
                 AddressSettings = addressSettings.ToModel()
             };
@@ -765,8 +757,7 @@ namespace Grand.Web.Admin.Controllers
             foreach (TimeZoneInfo timeZone in _dateTimeService.GetSystemTimeZones())
             {
                 var name = iswindows ? timeZone.DisplayName : $"{timeZone.StandardName} ({timeZone.Id})";
-                model.DateTimeSettings.AvailableTimeZones.Add(new SelectListItem
-                {
+                model.DateTimeSettings.AvailableTimeZones.Add(new SelectListItem {
                     Text = name,
                     Value = timeZone.Id,
                     Selected = timeZone.Id.Equals(dateTimeSettings.DefaultStoreTimeZoneId, StringComparison.OrdinalIgnoreCase)
@@ -779,8 +770,7 @@ namespace Grand.Web.Admin.Controllers
             model.StoreInformationSettings.DefaultStoreTheme = storeInformationSettings.DefaultStoreTheme;
             model.StoreInformationSettings.AvailableStoreThemes = _themeProvider
                 .GetConfigurations()
-                .Select(x => new GeneralCommonSettingsModel.StoreInformationSettingsModel.ThemeConfigurationModel
-                {
+                .Select(x => new GeneralCommonSettingsModel.StoreInformationSettingsModel.ThemeConfigurationModel {
                     ThemeTitle = x.Title,
                     ThemeName = x.Name,
                     ThemeVersion = x.Version,
@@ -870,10 +860,6 @@ namespace Grand.Web.Admin.Controllers
             model.PdfSettings.DisablePdfInvoicesForPendingOrders = pdfSettings.DisablePdfInvoicesForPendingOrders;
             model.PdfSettings.InvoiceHeaderText = pdfSettings.InvoiceHeaderText;
             model.PdfSettings.InvoiceFooterText = pdfSettings.InvoiceFooterText;
-
-            //full-text support
-            var fullTextSettings = _settingService.LoadSetting<FullTextSettings>();
-            model.FullTextSettings.Enabled = fullTextSettings.UseFullTextSearch;
 
             //google analytics
             model.GoogleAnalyticsSettings.GaprivateKey = googleAnalyticsSettings.gaprivateKey;
@@ -1041,46 +1027,12 @@ namespace Grand.Web.Admin.Controllers
             return RedirectToAction("GeneralCommon");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ToggleFullText()
-        {
-            //https://docs.mongodb.com/manual/reference/text-search-languages/#text-search-languages
-            var fullTextSettings = _settingService.LoadSetting<FullTextSettings>();
-            try
-            {
-                if (fullTextSettings.UseFullTextSearch)
-                {
-                    await _mediator.Send(new UseFullTextSearchCommand() { UseFullTextSearch = false });
-                    fullTextSettings.UseFullTextSearch = false;
-                    await _settingService.SaveSetting(fullTextSettings);
-                    Success(_translationService.GetResource("Admin.Settings.GeneralCommon.FullTextSettings.Disabled"));
-                }
-                else
-                {
-                    await _mediator.Send(new UseFullTextSearchCommand() { UseFullTextSearch = true });
-                    fullTextSettings.UseFullTextSearch = true;
-                    await _settingService.SaveSetting(fullTextSettings);
-                    Success(_translationService.GetResource("Admin.Settings.GeneralCommon.FullTextSettings.Enabled"));
-                }
-            }
-            catch (Exception exc)
-            {
-                Error(exc);
-            }
-
-            //selected tab
-            await SaveSelectedTabIndex();
-
-            return RedirectToAction("GeneralCommon");
-        }
-
         public async Task<IActionResult> PushNotifications()
         {
             var storeScope = await GetActiveStore(_storeService, _workContext);
             var settings = _settingService.LoadSetting<PushNotificationsSettings>(storeScope);
 
-            var model = new ConfigurationModel
-            {
+            var model = new ConfigurationModel {
                 AllowGuestNotifications = settings.AllowGuestNotifications,
                 AuthDomain = settings.AuthDomain,
                 DatabaseUrl = settings.DatabaseUrl,
@@ -1174,8 +1126,7 @@ namespace Grand.Web.Admin.Controllers
         public IActionResult AdminSearch()
         {
             var settings = _settingService.LoadSetting<AdminSearchSettings>();
-            var model = new AdminSearchSettingsModel
-            {
+            var model = new AdminSearchSettingsModel {
                 SearchInBlogs = settings.SearchInBlogs,
                 SearchInCategories = settings.SearchInCategories,
                 SearchInCustomers = settings.SearchInCustomers,

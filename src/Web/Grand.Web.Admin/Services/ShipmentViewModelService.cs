@@ -421,8 +421,7 @@ namespace Grand.Web.Admin.Services
                                     WarehouseId = warehouse.Id,
                                     WarehouseName = warehouse.Name,
                                     StockQuantity = pwi.StockQuantity,
-                                    ReservedQuantity = pwi.ReservedQuantity,
-                                    PlannedQuantity = await _shipmentService.GetQuantityInShipments(product, orderItem.Attributes, warehouse.Id, true, true)
+                                    ReservedQuantity = pwi.ReservedQuantity
                                 });
                             }
                         }
@@ -464,8 +463,7 @@ namespace Grand.Web.Admin.Services
                                         WarehouseId = warehouse.Id,
                                         WarehouseName = warehouse.Name,
                                         StockQuantity = pwi.StockQuantity,
-                                        ReservedQuantity = pwi.ReservedQuantity,
-                                        PlannedQuantity = await _shipmentService.GetQuantityInShipments(product, orderItem.Attributes, warehouse.Id, true, true)
+                                        ReservedQuantity = pwi.ReservedQuantity
                                     });
                                 }
                             }
@@ -499,8 +497,7 @@ namespace Grand.Web.Admin.Services
                                 WarehouseId = warehouse.Id,
                                 WarehouseName = warehouse.Name,
                                 StockQuantity = await GetStockQty(product, orderItem.WarehouseId),
-                                ReservedQuantity = await GetReservedQty(product, orderItem.WarehouseId),
-                                PlannedQuantity = await GetPlannedQty(product, orderItem.WarehouseId)
+                                ReservedQuantity = await GetReservedQty(product, orderItem.WarehouseId)
                             });
                         }
                     }
@@ -518,7 +515,6 @@ namespace Grand.Web.Admin.Services
                                     WarehouseName = warehouse.Name,
                                     StockQuantity = await GetStockQty(product, warehouse.Id),
                                     ReservedQuantity = await GetReservedQty(product, warehouse.Id),
-                                    PlannedQuantity = await GetPlannedQty(product, warehouse.Id)
                                 });
                             }
                         }

@@ -3,8 +3,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,7 +92,7 @@ namespace Grand.Business.Marketing.Services.Newsteletters
         /// <returns>NewsletterCategories</returns>
         public virtual async Task<IList<NewsletterCategory>> GetAllNewsletterCategory()
         {
-            return await _newsletterCategoryRepository.Table.ToListAsync();
+            return await _newsletterCategoryRepository.Table.ToListAsync2();
         }
 
         /// <summary>
@@ -107,7 +105,7 @@ namespace Grand.Business.Marketing.Services.Newsteletters
                         where !p.LimitedToStores || p.Stores.Contains(storeId)
                         orderby p.DisplayOrder
                         select p;
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
         #endregion
     }

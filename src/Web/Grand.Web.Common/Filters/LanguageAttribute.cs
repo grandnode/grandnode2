@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Common.Interfaces.Localization;
+using Grand.Domain.Data;
 using Grand.Domain.Localization;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;

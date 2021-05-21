@@ -5,6 +5,7 @@ using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Admin.Models.Customers;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Grand.Web.Admin.Validators.Customers
 {
@@ -33,18 +34,19 @@ namespace Grand.Web.Admin.Validators.Customers
             {
                 RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, context) =>
                 {
-                    //does selected country has states?
                     var countryId = !string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
-                    var hasStates = (await countryService.GetStateProvincesByCountryId(countryId)).Count > 0;
-                    if (hasStates)
+                    var country = await countryService.GetCountryById(countryId);
+                    if (country.StateProvinces.Any())
                     {
                         //if yes, then ensure that state is selected
                         if (string.IsNullOrEmpty(y))
                         {
                             return false;
                         }
+                        if (country.StateProvinces.FirstOrDefault(x => x.Id == y) != null)
+                            return true;
                     }
-                    return true;
+                    return false;
                 }).WithMessage(translationService.GetResource("Account.Fields.StateProvince.Required"));
             }
             if (customerSettings.CompanyRequired && customerSettings.CompanyEnabled)

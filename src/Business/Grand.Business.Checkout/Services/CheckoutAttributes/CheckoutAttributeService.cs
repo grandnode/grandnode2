@@ -8,8 +8,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,7 +62,9 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
             string key = string.Format(CacheKey.CHECKOUTATTRIBUTES_ALL_KEY, storeId, excludeShippableAttributes, ignorAcl);
             return await _cacheBase.GetAsync(key, () =>
             {
-                var query = _checkoutAttributeRepository.Table;
+                var query = from p in _checkoutAttributeRepository.Table
+                            select p;
+
                 query = query.OrderBy(c => c.DisplayOrder);
 
                 if ((!String.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations) ||
@@ -89,7 +89,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
                 {
                     query = query.Where(x => !x.ShippableProductRequired);
                 }
-                return query.ToListAsync();
+                return query.ToListAsync2();
 
             });
         }

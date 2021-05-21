@@ -8,7 +8,6 @@ using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Driver.Linq;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -180,7 +179,7 @@ namespace Grand.Business.Marketing.Services.Newsteletters
                                           orderby nls.Id
                                           select nls;
 
-            return await newsLetterSubscriptions.FirstOrDefaultAsync();
+            return await newsLetterSubscriptions.FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -201,7 +200,7 @@ namespace Grand.Business.Marketing.Services.Newsteletters
                                           orderby nls.Id
                                           select nls;
 
-            return await newsLetterSubscriptions.FirstOrDefaultAsync();
+            return await newsLetterSubscriptions.FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -219,7 +218,7 @@ namespace Grand.Business.Marketing.Services.Newsteletters
                                           orderby nls.Id
                                           select nls;
 
-            return await newsLetterSubscriptions.FirstOrDefaultAsync();
+            return await newsLetterSubscriptions.FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -237,7 +236,8 @@ namespace Grand.Business.Marketing.Services.Newsteletters
             int pageIndex = 0, int pageSize = int.MaxValue)
         {
             //do not filter by customer group
-            var query = _subscriptionRepository.Table;
+            var query = from p in _subscriptionRepository.Table
+                        select p;
 
             if (!String.IsNullOrEmpty(email))
                 query = query.Where(nls => nls.Email.ToLower().Contains(email.ToLower()));

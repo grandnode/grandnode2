@@ -6,8 +6,6 @@ using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,7 +62,7 @@ namespace Grand.Business.Marketing.Services.Customers
         public virtual async Task<IList<CustomerAction>> GetCustomerActions()
         {
             var query = _customerActionRepository.Table;
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>
@@ -121,7 +119,7 @@ namespace Grand.Business.Marketing.Services.Customers
         public virtual async Task<IList<CustomerActionType>> GetCustomerActionType()
         {
             var query = _customerActionTypeRepository.Table;
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         public virtual async Task<IPagedList<CustomerActionHistory>> GetAllCustomerActionHistory(string customerActionId, int pageIndex = 0, int pageSize = 2147483647)

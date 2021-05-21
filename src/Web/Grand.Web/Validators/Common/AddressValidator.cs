@@ -6,6 +6,7 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Models.Common;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Grand.Web.Validators.Common
 {
@@ -43,18 +44,19 @@ namespace Grand.Web.Validators.Common
             {
                 RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, context) =>
                 {
-                    //does selected country has states?
-                    var countryId = !String.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
-                    var hasStates = (await countryService.GetCountryById(countryId))?.StateProvinces.Count > 0;
-                    if (hasStates)
+                    var countryId = !string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
+                    var country = await countryService.GetCountryById(countryId);
+                    if (country.StateProvinces.Any())
                     {
                         //if yes, then ensure that state is selected
                         if (String.IsNullOrEmpty(y))
                         {
                             return false;
                         }
+                        if (country.StateProvinces.FirstOrDefault(x => x.Id == y) != null)
+                            return true;
                     }
-                    return true;
+                    return false;
                 }).WithMessage(translationService.GetResource("Address.Fields.StateProvince.Required"));
             }
             if (addressSettings.CompanyRequired && addressSettings.CompanyEnabled)

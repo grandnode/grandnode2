@@ -3,8 +3,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,7 +57,7 @@ namespace Grand.Business.Catalog.Services.Categories
                 var query = from pt in _categoryLayoutRepository.Table
                             orderby pt.DisplayOrder
                             select pt;
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
         }
 

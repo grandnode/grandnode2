@@ -7,8 +7,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Orders;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +50,7 @@ namespace Grand.Business.Marketing.Services.Customers
         {
             return await _cacheBase.GetAsync(CacheKey.CUSTOMER_ACTION_TYPE, () =>
             {
-                return _customerActionTypeRepository.Table.ToListAsync();
+                return _customerActionTypeRepository.Table.ToListAsync2();
             });
         }
 

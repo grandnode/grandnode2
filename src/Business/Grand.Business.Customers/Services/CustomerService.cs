@@ -11,9 +11,6 @@ using Grand.Domain.Stores;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel;
 using MediatR;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,8 +83,7 @@ namespace Grand.Business.Customers.Services
             bool loadOnlyWithShoppingCart = false, ShoppingCartType? sct = null,
             int pageIndex = 0, int pageSize = 2147483647, Expression<Func<Customer, object>> orderBySelector = null)
         {
-            var querymodel = new GetCustomerQuery()
-            {
+            var querymodel = new GetCustomerQuery() {
                 CreatedFromUtc = createdFromUtc,
                 CreatedToUtc = createdToUtc,
                 AffiliateId = affiliateId,
@@ -121,10 +117,12 @@ namespace Grand.Business.Customers.Services
         /// <returns>Customers</returns>
         public virtual async Task<IList<Customer>> GetAllCustomersByPasswordFormat(PasswordFormat passwordFormat)
         {
-            var query = _customerRepository.Table;
+            var query = from p in _customerRepository.Table
+                        select p;
+
             query = query.Where(c => c.PasswordFormatId == passwordFormat);
             query = query.OrderByDescending(c => c.CreatedOnUtc);
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>
@@ -141,7 +139,9 @@ namespace Grand.Business.Customers.Services
         public virtual async Task<IPagedList<Customer>> GetOnlineCustomers(DateTime lastActivityFromUtc,
             string[] customerGroupIds, string storeId = "", string salesEmployeeId = "", int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var query = _customerRepository.Table;
+            var query = from p in _customerRepository.Table
+                        select p;
+
             query = query.Where(c => lastActivityFromUtc <= c.LastActivityDateUtc);
             query = query.Where(c => !c.Deleted);
 
@@ -167,7 +167,9 @@ namespace Grand.Business.Customers.Services
         /// <returns>Int</returns>
         public virtual Task<int> GetCountOnlineShoppingCart(DateTime lastActivityFromUtc, string storeId = "", string salesEmployeeId = "")
         {
-            var query = _customerRepository.Table;
+            var query = from p in _customerRepository.Table
+                        select p;
+
             query = query.Where(c => c.Active);
             query = query.Where(c => lastActivityFromUtc <= c.LastUpdateCartDateUtc);
             query = query.Where(c => c.ShoppingCartItems.Any(y => y.ShoppingCartTypeId == ShoppingCartType.ShoppingCart));
@@ -178,7 +180,7 @@ namespace Grand.Business.Customers.Services
             if (!string.IsNullOrEmpty(salesEmployeeId))
                 query = query.Where(c => c.SeId == salesEmployeeId);
 
-            return query.CountAsync();
+            return query.CountAsync2();
         }
 
         /// <summary>
@@ -207,7 +209,7 @@ namespace Grand.Business.Customers.Services
             var query = from c in _customerRepository.Table
                         where customerIds.Contains(c.Id)
                         select c;
-            var customers = await query.ToListAsync();
+            var customers = await query.ToListAsync2();
             //sort by passed identifiers
             var sortedCustomers = new List<Customer>();
             foreach (var id in customerIds)
@@ -226,8 +228,7 @@ namespace Grand.Business.Customers.Services
         /// <returns>A customer</returns>
         public virtual Task<Customer> GetCustomerByGuid(Guid customerGuid)
         {
-            var filter = Builders<Customer>.Filter.Eq(x => x.CustomerGuid, customerGuid);
-            return _customerRepository.Collection.Find(filter).FirstOrDefaultAsync();
+            return _customerRepository.Table.Where(x => x.CustomerGuid == customerGuid).FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -240,8 +241,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrWhiteSpace(email))
                 return Task.FromResult<Customer>(null);
 
-            var filter = Builders<Customer>.Filter.Eq(x => x.Email, email.ToLowerInvariant());
-            return _customerRepository.Collection.Find(filter).FirstOrDefaultAsync();
+            return _customerRepository.Table.Where(x => x.Email == email.ToLowerInvariant()).FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -254,8 +254,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrWhiteSpace(systemName))
                 return Task.FromResult<Customer>(null);
 
-            var filter = Builders<Customer>.Filter.Eq(x => x.SystemName, systemName);
-            return _customerRepository.Collection.Find(filter).FirstOrDefaultAsync();
+            return _customerRepository.Table.Where(x => x.SystemName == systemName).FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -268,8 +267,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrWhiteSpace(username))
                 return Task.FromResult<Customer>(null);
 
-            var filter = Builders<Customer>.Filter.Eq(x => x.Username, username.ToLowerInvariant());
-            return _customerRepository.Collection.Find(filter).FirstOrDefaultAsync();
+            return _customerRepository.Table.Where(x => x.Username == username.ToLowerInvariant()).FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -278,8 +276,7 @@ namespace Grand.Business.Customers.Services
         /// <returns>Customer</returns>
         public virtual async Task<Customer> InsertGuestCustomer(Store store)
         {
-            var customer = new Customer
-            {
+            var customer = new Customer {
                 CustomerGuid = Guid.NewGuid(),
                 Active = true,
                 StoreId = store.Id,
@@ -346,12 +343,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException("customerId");
 
-            var builder = Builders<Customer>.Filter;
-            var filter = builder.Eq(x => x.Id, customerId);
-            var update = Builders<Customer>.Update
-                .Set(expression, value);
-
-            await _customerRepository.Collection.UpdateOneAsync(filter, update);
+            await _customerRepository.UpdateField<T>(customerId, expression, value);
 
         }
         /// <summary>
@@ -363,9 +355,7 @@ namespace Grand.Business.Customers.Services
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
 
-            var builder = Builders<Customer>.Filter;
-            var filter = builder.Eq(x => x.Id, customer.Id);
-            var update = Builders<Customer>.Update
+            var update = UpdateBuilder<Customer>.Create()
                 .Set(x => x.Email, string.IsNullOrEmpty(customer.Email) ? "" : customer.Email.ToLowerInvariant())
                 .Set(x => x.PasswordFormatId, customer.PasswordFormatId)
                 .Set(x => x.PasswordSalt, customer.PasswordSalt)
@@ -376,7 +366,7 @@ namespace Grand.Business.Customers.Services
                 .Set(x => x.Username, string.IsNullOrEmpty(customer.Username) ? "" : customer.Username.ToLowerInvariant())
                 .Set(x => x.Deleted, customer.Deleted);
 
-            await _customerRepository.Collection.UpdateOneAsync(filter, update);
+            await _customerRepository.UpdateOneAsync(x => x.Id == customer.Id, update);
 
             //event notification
             await _mediator.EntityUpdated(customer);
@@ -432,17 +422,15 @@ namespace Grand.Business.Customers.Services
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
 
-            var builder = Builders<Customer>.Filter;
-            var filter = builder.Eq(x => x.Id, customer.Id);
-            var update = Builders<Customer>.Update
+            var update = UpdateBuilder<Customer>.Create()
                 .Set(x => x.LastLoginDateUtc, customer.LastLoginDateUtc)
                 .Set(x => x.FailedLoginAttempts, customer.FailedLoginAttempts)
                 .Set(x => x.CannotLoginUntilDateUtc, customer.CannotLoginUntilDateUtc);
 
-            await _customerRepository.Collection.UpdateOneAsync(filter, update);
+            await _customerRepository.UpdateOneAsync(x => x.Id == customer.Id, update);
 
         }
-        
+
         /// <summary>
         /// Updates the customer - password
         /// </summary>
@@ -464,9 +452,7 @@ namespace Grand.Business.Customers.Services
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
 
-            var builder = Builders<Customer>.Filter;
-            var filter = builder.Eq(x => x.Id, customer.Id);
-            var update = Builders<Customer>.Update
+            var update = UpdateBuilder<Customer>.Create()
                 .Set(x => x.Active, customer.Active)
                 .Set(x => x.AdminComment, customer.AdminComment)
                 .Set(x => x.AffiliateId, customer.AffiliateId)
@@ -474,7 +460,7 @@ namespace Grand.Business.Customers.Services
                 .Set(x => x.Active, customer.Active)
                 .Set(x => x.Email, string.IsNullOrEmpty(customer.Email) ? "" : customer.Email.ToLowerInvariant())
                 .Set(x => x.IsTaxExempt, customer.IsTaxExempt)
-                .Set(x => x.Password, customer.Password)                
+                .Set(x => x.Password, customer.Password)
                 .Set(x => x.Username, string.IsNullOrEmpty(customer.Username) ? "" : customer.Username.ToLowerInvariant())
                 .Set(x => x.Groups, customer.Groups)
                 .Set(x => x.Addresses, customer.Addresses)
@@ -485,24 +471,23 @@ namespace Grand.Business.Customers.Services
                 .Set(x => x.StaffStoreId, customer.StaffStoreId)
                 .Set(x => x.Attributes, customer.Attributes);
 
-            await _customerRepository.Collection.UpdateOneAsync(filter, update);
+            await _customerRepository.UpdateOneAsync(x => x.Id == customer.Id, update);
             //event notification
             await _mediator.EntityUpdated(customer);
 
         }
 
-        
+
         public virtual async Task UpdateActive(Customer customer)
         {
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
-            var builder = Builders<Customer>.Filter;
-            var filter = builder.Eq(x => x.Id, customer.Id);
-            var update = Builders<Customer>.Update
+
+            var update = UpdateBuilder<Customer>.Create()
                 .Set(x => x.Active, customer.Active)
                 .Set(x => x.StoreId, customer.StoreId);
 
-            await _customerRepository.Collection.UpdateOneAsync(filter, update);
+            await _customerRepository.UpdateOneAsync(x => x.Id == customer.Id, update);
 
             //event notification
             await _mediator.EntityUpdated(customer);
@@ -587,24 +572,25 @@ namespace Grand.Business.Customers.Services
             if (guestGroup == null)
                 throw new GrandException("Guests group could not be loaded");
 
-            var userGroups = new List<string> { guestGroup.Id };
-            var builder = Builders<Customer>.Filter;
-            var filter = builder.AnyIn(x => x.Groups, userGroups);
+            var query = from p in _customerRepository.Table
+                        select p;
+
+            query = query.Where(x => x.Groups.Contains(guestGroup.Id));
 
             if (createdFromUtc.HasValue)
-                filter &= builder.Gte(x => x.LastActivityDateUtc, createdFromUtc.Value);
+                query = query.Where(x => x.LastActivityDateUtc > createdFromUtc.Value);
             if (createdToUtc.HasValue)
-                filter &= builder.Lte(x => x.LastActivityDateUtc, createdToUtc.Value);
+                query = query.Where(x => x.LastActivityDateUtc < createdToUtc.Value);
             if (onlyWithoutShoppingCart)
-                filter &= builder.Size(x => x.ShoppingCartItems, 0);
+                query = query.Where(x => !x.ShoppingCartItems.Any());
 
-            filter &= builder.Eq(x => x.HasContributions, false);
+            query = query.Where(x => !x.HasContributions);
 
-            filter &= builder.Eq(x => x.IsSystemAccount, false);
+            query = query.Where(x => !x.IsSystemAccount);
 
-            var customers = await _customerRepository.Collection.DeleteManyAsync(filter);
+            var customers = await _customerRepository.DeleteAsync(query);
 
-            return (int)customers.DeletedCount;
+            return customers.Count();
 
         }
 
@@ -620,9 +606,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException(nameof(customerId));
 
-            var updatebuilder = Builders<Customer>.Update;
-            var update = updatebuilder.Pull(p => p.Groups, customerGroup.Id);
-            await _customerRepository.Collection.UpdateOneAsync(new BsonDocument("_id", customerId), update);           
+            await _customerRepository.Pull(customerId, x => x.Groups, customerGroup.Id);
         }
 
         public virtual async Task InsertCustomerGroupInCustomer(CustomerGroup customerGroup, string customerId)
@@ -633,9 +617,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException(nameof(customerId));
 
-            var updatebuilder = Builders<Customer>.Update;
-            var update = updatebuilder.AddToSet(p => p.Groups, customerGroup.Id);
-            await _customerRepository.Collection.UpdateOneAsync(new BsonDocument("_id", customerId), update);
+            await _customerRepository.AddToSet(customerId, x => x.Groups, customerGroup.Id);
 
         }
 
@@ -651,9 +633,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException(nameof(customerId));
 
-            var updatebuilder = Builders<Customer>.Update;
-            var update = updatebuilder.Pull(p => p.Addresses, address);
-            await _customerRepository.Collection.UpdateOneAsync(new BsonDocument("_id", customerId), update);
+            await _customerRepository.PullFilter(customerId, x => x.Addresses, x => x.Id, address.Id);
 
             //event notification
             await _mediator.EntityDeleted(address);
@@ -671,9 +651,7 @@ namespace Grand.Business.Customers.Services
             if (address.StateProvinceId == "0")
                 address.StateProvinceId = "";
 
-            var updatebuilder = Builders<Customer>.Update;
-            var update = updatebuilder.AddToSet(p => p.Addresses, address);
-            await _customerRepository.Collection.UpdateOneAsync(new BsonDocument("_id", customerId), update);
+            await _customerRepository.AddToSet(customerId, x => x.Addresses, address);
 
             //event notification
             await _mediator.EntityInserted(address);
@@ -687,28 +665,8 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException(nameof(customerId));
 
-            var builder = Builders<Customer>.Filter;
-            var filter = builder.Eq(x => x.Id, customerId);
-            filter = filter & builder.ElemMatch(x => x.Addresses, y => y.Id == address.Id);
-            var update = Builders<Customer>.Update
-                .Set(x => x.Addresses.ElementAt(-1).Address1, address.Address1)
-                .Set(x => x.Addresses.ElementAt(-1).Address2, address.Address2)
-                .Set(x => x.Addresses.ElementAt(-1).City, address.City)
-                .Set(x => x.Addresses.ElementAt(-1).Company, address.Company)
-                .Set(x => x.Addresses.ElementAt(-1).VatNumber, address.VatNumber)
-                .Set(x => x.Addresses.ElementAt(-1).CountryId, address.CountryId)
-                .Set(x => x.Addresses.ElementAt(-1).Attributes, address.Attributes)
-                .Set(x => x.Addresses.ElementAt(-1).Email, address.Email)
-                .Set(x => x.Addresses.ElementAt(-1).FaxNumber, address.FaxNumber)
-                .Set(x => x.Addresses.ElementAt(-1).FirstName, address.FirstName)
-                .Set(x => x.Addresses.ElementAt(-1).LastName, address.LastName)
-                .Set(x => x.Addresses.ElementAt(-1).PhoneNumber, address.PhoneNumber)
-                .Set(x => x.Addresses.ElementAt(-1).StateProvinceId, address.StateProvinceId)
-                .Set(x => x.Addresses.ElementAt(-1).ZipPostalCode, address.ZipPostalCode)
-                .Set(x => x.Addresses.ElementAt(-1).Note, address.Note)
-                .Set(x => x.Addresses.ElementAt(-1).AddressType, address.AddressType);
+            await _customerRepository.UpdateToSet(customerId, x => x.Addresses, z => z.Id, address.Id, address);
 
-            await _customerRepository.Collection.UpdateManyAsync(filter, update);
             //event notification
             await _mediator.EntityUpdated(address);
         }
@@ -722,11 +680,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException(nameof(customerId));
 
-            var builder = Builders<Customer>.Filter;
-            var filter = builder.Eq(x => x.Id, customerId);
-            var update = Builders<Customer>.Update
-                .Set(x => x.BillingAddress, address);
-            await _customerRepository.Collection.UpdateOneAsync(filter, update);
+            await _customerRepository.UpdateField(customerId, x => x.BillingAddress, address);
 
         }
         public virtual async Task UpdateShippingAddress(Address address, string customerId)
@@ -737,22 +691,12 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException(nameof(customerId));
 
-            var builder = Builders<Customer>.Filter;
-            var filter = builder.Eq(x => x.Id, customerId);
-            var update = Builders<Customer>.Update
-                .Set(x => x.ShippingAddress, address);
-
-            await _customerRepository.Collection.UpdateOneAsync(filter, update);
+            await _customerRepository.UpdateField(customerId, x => x.ShippingAddress, address);
         }
 
         public virtual async Task RemoveShippingAddress(string customerId)
         {
-            var builder = Builders<Customer>.Filter;
-            var filter = builder.Eq(x => x.Id, customerId);
-            var update = Builders<Customer>.Update
-                .Set(x => x.ShippingAddress, null);
-
-            await _customerRepository.Collection.UpdateOneAsync(filter, update);
+            await _customerRepository.UpdateField(customerId, x => x.ShippingAddress, null);
         }
 
         #endregion
@@ -764,9 +708,7 @@ namespace Grand.Business.Customers.Services
             if (shoppingCartItem == null)
                 throw new ArgumentNullException(nameof(shoppingCartItem));
 
-            var update = Builders<Customer>.Update.PullFilter(p => p.ShoppingCartItems, Builders<ShoppingCartItem>.Filter.Eq(per => per.Id, shoppingCartItem.Id));
-
-            await _customerRepository.Collection.UpdateOneAsync(new BsonDocument("_id", customerId), update);
+            await _customerRepository.PullFilter(customerId, x => x.ShoppingCartItems, x => x.Id, shoppingCartItem.Id);
 
             if (shoppingCartItem.ShoppingCartTypeId == ShoppingCartType.ShoppingCart)
                 await UpdateCustomerField(customerId, x => x.LastUpdateCartDateUtc, DateTime.UtcNow);
@@ -777,10 +719,10 @@ namespace Grand.Business.Customers.Services
 
         public virtual async Task ClearShoppingCartItem(string customerId, IList<ShoppingCartItem> cart)
         {
-            var updatebuilder = Builders<Customer>.Update;
-            var ids = cart.Select(c => c.Id).ToArray();
-            var update = updatebuilder.PullFilter(p => p.ShoppingCartItems, p => ids.Contains(p.Id));
-            await _customerRepository.Collection.UpdateOneAsync(new BsonDocument("_id", customerId), update);
+            foreach (var item in cart)
+            {
+                await _customerRepository.PullFilter(customerId, x => x.ShoppingCartItems, x => x.Id, item.Id);
+            }
 
             if (cart.Any(c => c.ShoppingCartTypeId == ShoppingCartType.ShoppingCart || c.ShoppingCartTypeId == ShoppingCartType.Auctions))
                 await UpdateCustomerField(customerId, x => x.LastUpdateCartDateUtc, DateTime.UtcNow);
@@ -793,9 +735,7 @@ namespace Grand.Business.Customers.Services
             if (shoppingCartItem == null)
                 throw new ArgumentNullException(nameof(shoppingCartItem));
 
-            var updatebuilder = Builders<Customer>.Update;
-            var update = updatebuilder.AddToSet(p => p.ShoppingCartItems, shoppingCartItem);
-            await _customerRepository.Collection.UpdateOneAsync(new BsonDocument("_id", customerId), update);
+            await _customerRepository.AddToSet(customerId, x => x.ShoppingCartItems, shoppingCartItem);
 
             if (shoppingCartItem.ShoppingCartTypeId == ShoppingCartType.ShoppingCart)
                 await UpdateCustomerField(customerId, x => x.LastUpdateCartDateUtc, DateTime.UtcNow);
@@ -808,28 +748,7 @@ namespace Grand.Business.Customers.Services
             if (shoppingCartItem == null)
                 throw new ArgumentNullException(nameof(shoppingCartItem));
 
-            var builder = Builders<Customer>.Filter;
-            var filter = builder.Eq(x => x.Id, customerId);
-            filter &= builder.ElemMatch(x => x.ShoppingCartItems, y => y.Id == shoppingCartItem.Id);
-            var update = Builders<Customer>.Update
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).WarehouseId, shoppingCartItem.WarehouseId)
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).Quantity, shoppingCartItem.Quantity)
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).AdditionalShippingChargeProduct, shoppingCartItem.AdditionalShippingChargeProduct)
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).IsFreeShipping, shoppingCartItem.IsFreeShipping)
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).IsGiftVoucher, shoppingCartItem.IsGiftVoucher)
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).IsShipEnabled, shoppingCartItem.IsShipEnabled)
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).IsTaxExempt, shoppingCartItem.IsTaxExempt)
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).RentalStartDateUtc, shoppingCartItem.RentalStartDateUtc)
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).RentalEndDateUtc, shoppingCartItem.RentalEndDateUtc)
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).Attributes, shoppingCartItem.Attributes)
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).EnteredPrice, shoppingCartItem.EnteredPrice)
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).UpdatedOnUtc, shoppingCartItem.UpdatedOnUtc)
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).Duration, shoppingCartItem.Duration)
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).Parameter, shoppingCartItem.Parameter)
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).StoreId, shoppingCartItem.StoreId)
-                .Set(x => x.ShoppingCartItems.ElementAt(-1).ShoppingCartTypeId, shoppingCartItem.ShoppingCartTypeId);
-
-            await _customerRepository.Collection.UpdateManyAsync(filter, update);
+            await _customerRepository.UpdateToSet(customerId, x => x.ShoppingCartItems, z => z.Id, shoppingCartItem.Id, shoppingCartItem);
 
             if (shoppingCartItem.ShoppingCartTypeId == ShoppingCartType.ShoppingCart)
                 await UpdateCustomerField(customerId, x => x.LastUpdateCartDateUtc, DateTime.UtcNow);
@@ -839,7 +758,6 @@ namespace Grand.Business.Customers.Services
         }
 
         #endregion
-
 
         #endregion
     }

@@ -1,4 +1,4 @@
-﻿namespace Grand.Infrastructure.Data
+﻿namespace Grand.Domain.Data
 {
     /// <summary>
     /// Data settings helper
@@ -34,7 +34,7 @@
         {
             return _connectionString;
         }
-       
+
         public static void ResetCache()
         {
             _databaseIsInstalled = false;

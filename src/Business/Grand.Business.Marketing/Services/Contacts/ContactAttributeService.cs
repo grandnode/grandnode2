@@ -1,20 +1,17 @@
 using Grand.Business.Marketing.Interfaces.Contacts;
+using Grand.Domain.Customers;
+using Grand.Domain.Data;
+using Grand.Domain.Messages;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
-using Grand.Domain.Catalog;
-using Grand.Domain.Customers;
-using Grand.Domain.Data;
-using Grand.Domain.Messages;
+using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Grand.SharedKernel.Extensions;
 
 namespace Grand.Business.Marketing.Services.Contacts
 {
@@ -82,7 +79,9 @@ namespace Grand.Business.Marketing.Services.Contacts
             string key = string.Format(CacheKey.CONTACTATTRIBUTES_ALL_KEY, storeId, ignorAcl);
             return await _cacheBase.GetAsync(key, () =>
             {
-                var query = _contactAttributeRepository.Table;
+                var query = from p in _contactAttributeRepository.Table
+                            select p;
+
                 query = query.OrderBy(c => c.DisplayOrder);
 
                 if ((!String.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations) ||
@@ -103,7 +102,7 @@ namespace Grand.Business.Marketing.Services.Contacts
                                 select p;
                     }
                 }
-                return query.ToListAsync();
+                return query.ToListAsync2();
 
             });
         }

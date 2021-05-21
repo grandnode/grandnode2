@@ -1,7 +1,7 @@
-﻿using Grand.Web.Common.Routing;
+﻿using Grand.Domain.Data;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Data;
 using Grand.Infrastructure.Endpoints;
+using Grand.Web.Common.Routing;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -93,10 +93,8 @@ namespace Grand.Web.Endpoints
 
         }
 
-        public int Priority
-        {
-            get
-            {
+        public int Priority {
+            get {
                 //it should be the last route
                 //we do not set it to -int.MaxValue so it could be overridden (if required)
                 return -1000000;

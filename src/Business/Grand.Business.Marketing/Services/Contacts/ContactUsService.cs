@@ -4,9 +4,9 @@ using Grand.Domain;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using MediatR;
-using MongoDB.Driver;
 using System;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Grand.Business.Marketing.Services.Contacts
 {
@@ -47,7 +47,7 @@ namespace Grand.Business.Marketing.Services.Contacts
         /// </summary>
         public virtual async Task ClearTable()
         {
-            await _contactusRepository.Collection.DeleteManyAsync(new MongoDB.Bson.BsonDocument());
+            await _contactusRepository.ClearAsync();
         }
 
         /// <summary>
@@ -65,26 +65,26 @@ namespace Grand.Business.Marketing.Services.Contacts
             string email = "", string vendorId = "", string customerId = "", string storeId = "",
             int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var builder = Builders<ContactUs>.Filter;
-            var filter = builder.Where(c => true);
+
+            var query = from c in _contactusRepository.Table
+                        select c;
 
             if (fromUtc.HasValue)
-                filter = filter & builder.Where(l => fromUtc.Value <= l.CreatedOnUtc);
+                query = query.Where(l => fromUtc.Value <= l.CreatedOnUtc);
             if (toUtc.HasValue)
-                filter = filter & builder.Where(l => toUtc.Value >= l.CreatedOnUtc);
+                query = query.Where(l => toUtc.Value >= l.CreatedOnUtc);
             if (!String.IsNullOrEmpty(vendorId))
-                filter = filter & builder.Where(l => vendorId == l.VendorId);
+                query = query.Where(l => vendorId == l.VendorId);
             if (!String.IsNullOrEmpty(customerId))
-                filter = filter & builder.Where(l => customerId == l.CustomerId);
+                query = query.Where(l => customerId == l.CustomerId);
             if (!String.IsNullOrEmpty(storeId))
-                filter = filter & builder.Where(l => storeId == l.StoreId);
+                query = query.Where(l => storeId == l.StoreId);
 
             if (!String.IsNullOrEmpty(email))
-                filter = filter & builder.Where(l => l.Email.ToLower().Contains(email.ToLower()));
+                query = query.Where(l => l.Email.ToLower().Contains(email.ToLower()));
 
-            var builderSort = Builders<ContactUs>.Sort.Descending(x => x.CreatedOnUtc);
-            var query = _contactusRepository.Collection;
-            var contactus = await PagedList<ContactUs>.Create(query, filter, builderSort, pageIndex, pageSize);
+            query = query.OrderByDescending(x => x.CreatedOnUtc);
+            var contactus = await PagedList<ContactUs>.Create(query, pageIndex, pageSize);
             return contactus;
         }
 

@@ -5,8 +5,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Data;
 using Grand.Domain.Shipping;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,7 +62,7 @@ namespace Grand.Business.Checkout.Services.Shipping
                 var query = from pp in _pickupPointsRepository.Table
                             orderby pp.DisplayOrder
                             select pp;
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
         }
 

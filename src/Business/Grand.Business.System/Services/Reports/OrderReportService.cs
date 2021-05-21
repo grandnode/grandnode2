@@ -7,9 +7,6 @@ using Grand.Domain.Data;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -69,7 +66,8 @@ namespace Grand.Business.System.Services.Reports
         public virtual async Task<IList<OrderByCountryReportLine>> GetCountryReport(string storeId, int? os,
             PaymentStatus? ps, ShippingStatus? ss, DateTime? startTimeUtc, DateTime? endTimeUtc)
         {
-            var query = _orderRepository.Table;
+            var query = from p in _orderRepository.Table
+                        select p;
 
             query = query.Where(o => !o.Deleted);
             if (!String.IsNullOrEmpty(storeId))
@@ -95,14 +93,13 @@ namespace Grand.Business.System.Services.Reports
                           }
                        )
                        .OrderByDescending(x => x.SumOrders)
-                       .Select(r => new OrderByCountryReportLine
-                       {
+                       .Select(r => new OrderByCountryReportLine {
                            CountryId = r.CountryId,
                            TotalOrders = r.TotalOrders,
                            SumOrders = r.SumOrders
                        });
 
-            return await report.ToListAsync();
+            return await report.ToListAsync2();
         }
 
 
@@ -124,25 +121,31 @@ namespace Grand.Business.System.Services.Reports
 
             var endTime = new DateTime(endTimeUtc.Value.Year, endTimeUtc.Value.Month, endTimeUtc.Value.Day, 23, 59, 00);
 
-            var builder = Builders<Order>.Filter;
+            var builderquery = from p in _orderRepository.Table
+                               select p;
 
-            var filter = builder.Where(o => !o.Deleted);
-            filter = filter & builder.Where(o => o.CreatedOnUtc >= startTimeUtc.Value && o.CreatedOnUtc <= endTime);
+            builderquery = builderquery.Where(o => !o.Deleted);
+            builderquery = builderquery.Where(o => o.CreatedOnUtc >= startTimeUtc.Value && o.CreatedOnUtc <= endTime);
 
             if (!string.IsNullOrEmpty(storeId))
-                filter = filter & builder.Where(o => o.StoreId == storeId);
+                builderquery = builderquery.Where(o => o.StoreId == storeId);
 
             var daydiff = (endTimeUtc.Value - startTimeUtc.Value).TotalDays;
             if (daydiff > 31)
             {
-                var query = await _orderRepository.Collection.Aggregate().Match(filter).Group(x =>
-                    new { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month },
-                    g => new { Period = g.Key, Amount = g.Sum(x => x.OrderTotal / x.CurrencyRate), Count = g.Count() }).SortBy(x => x.Period).ToListAsync();
+                var query = await builderquery.GroupBy(x =>
+                    new { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month })
+                    .Select(g => new OrderStats {
+                        Year = g.Key.Year,
+                        Month = g.Key.Month,
+                        Count = g.Count(),
+                        Amount = g.Sum(x => x.OrderTotal * x.CurrencyRate)
+                    }).ToListAsync2();
+               
                 foreach (var item in query)
                 {
-                    report.Add(new OrderByTimeReportLine()
-                    {
-                        Time = item.Period.Year.ToString() + "-" + item.Period.Month.ToString(),
+                    report.Add(new OrderByTimeReportLine() {
+                        Time = item.Year.ToString().PadLeft(2, '0') + "-" + item.Month.ToString().PadLeft(2, '0'),
                         SumOrders = Math.Round(item.Amount, 2),
                         TotalOrders = item.Count,
                     });
@@ -150,14 +153,20 @@ namespace Grand.Business.System.Services.Reports
             }
             else
             {
-                var query = await _orderRepository.Collection.Aggregate().Match(filter).Group(x =>
-                    new { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month, Day = x.CreatedOnUtc.Day },
-                    g => new { Period = g.Key, Amount = g.Sum(x => x.OrderTotal / x.CurrencyRate), Count = g.Count() }).SortBy(x => x.Period).ToListAsync();
+                var query = await builderquery.GroupBy(x =>
+                    new { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month, Day = x.CreatedOnUtc.Day })
+                    .Select(g => new OrderStats {
+                        Year = g.Key.Year,
+                        Month = g.Key.Month,
+                        Day = g.Key.Day,
+                        Count = g.Count(),
+                        Amount = g.Sum(x => x.OrderTotal * x.CurrencyRate)
+                    }).ToListAsync2();
+
                 foreach (var item in query)
                 {
-                    report.Add(new OrderByTimeReportLine()
-                    {
-                        Time = item.Period.Year.ToString() + "-" + item.Period.Month.ToString() + "-" + item.Period.Day.ToString(),
+                    report.Add(new OrderByTimeReportLine() {
+                        Time = item.Year.ToString().PadLeft(2, '0') + "-" + item.Month.ToString().PadLeft(2, '0') + "-" + item.Day.ToString().PadLeft(2, '0'),
                         SumOrders = Math.Round(item.Amount, 2),
                         TotalOrders = item.Count,
                     });
@@ -196,78 +205,75 @@ namespace Grand.Business.System.Services.Reports
             string billingEmail = null, string billingLastName = "", bool ignoreCancelledOrders = false,
             string tagid = null)
         {
-            var builder = Builders<Order>.Filter;
+            var builderquery = from p in _orderRepository.Table
+                               select p;
 
-            var filter = builder.Where(o => !o.Deleted);
+            builderquery = builderquery.Where(o => !o.Deleted);
             if (!string.IsNullOrEmpty(storeId))
-                filter &= builder.Where(o => o.StoreId == storeId);
+                builderquery = builderquery.Where(o => o.StoreId == storeId);
 
             if (!string.IsNullOrEmpty(orderId))
-                filter &= builder.Where(o => o.Id == orderId);
+                builderquery = builderquery.Where(o => o.Id == orderId);
 
             if (!string.IsNullOrEmpty(customerId))
-                filter &= builder.Where(o => o.CustomerId == customerId);
+                builderquery = builderquery.Where(o => o.CustomerId == customerId);
 
             if (!string.IsNullOrEmpty(vendorId))
             {
-                filter &= builder
+                builderquery = builderquery
                     .Where(o => o.OrderItems
                     .Any(orderItem => orderItem.VendorId == vendorId));
             }
             if (!string.IsNullOrEmpty(salesEmployeeId))
-                filter &= builder.Where(o => o.SeId == salesEmployeeId);
+                builderquery = builderquery.Where(o => o.SeId == salesEmployeeId);
 
             if (!string.IsNullOrEmpty(billingCountryId))
-                filter &= builder.Where(o => o.BillingAddress != null && o.BillingAddress.CountryId == billingCountryId);
+                builderquery = builderquery.Where(o => o.BillingAddress != null && o.BillingAddress.CountryId == billingCountryId);
 
             if (ignoreCancelledOrders)
             {
                 var cancelledOrderStatusId = OrderStatusSystem.Cancelled;
-                filter &= builder.Where(o => o.OrderStatusId != (int)cancelledOrderStatusId);
+                builderquery = builderquery.Where(o => o.OrderStatusId != (int)cancelledOrderStatusId);
 
             }
             if (!string.IsNullOrEmpty(paymentMethodSystemName))
-                filter &= builder.Where(o => o.PaymentMethodSystemName == paymentMethodSystemName);
+                builderquery = builderquery.Where(o => o.PaymentMethodSystemName == paymentMethodSystemName);
 
             if (os.HasValue)
-                filter &= builder.Where(o => o.OrderStatusId == os.Value);
+                builderquery = builderquery.Where(o => o.OrderStatusId == os.Value);
 
             if (ps.HasValue)
-                filter &= builder.Where(o => o.PaymentStatusId == ps.Value);
+                builderquery = builderquery.Where(o => o.PaymentStatusId == ps.Value);
 
             if (ss.HasValue)
-                filter &= builder.Where(o => o.ShippingStatusId == ss.Value);
+                builderquery = builderquery.Where(o => o.ShippingStatusId == ss.Value);
 
             if (startTimeUtc.HasValue)
-                filter &= builder.Where(o => startTimeUtc.Value <= o.CreatedOnUtc);
+                builderquery = builderquery.Where(o => startTimeUtc.Value <= o.CreatedOnUtc);
 
             if (endTimeUtc.HasValue)
-                filter &= builder.Where(o => endTimeUtc.Value >= o.CreatedOnUtc);
+                builderquery = builderquery.Where(o => endTimeUtc.Value >= o.CreatedOnUtc);
 
             if (!string.IsNullOrEmpty(billingEmail))
-                filter &= builder.Where(o => o.BillingAddress != null && !String.IsNullOrEmpty(o.BillingAddress.Email) && o.BillingAddress.Email.Contains(billingEmail));
+                builderquery = builderquery.Where(o => o.BillingAddress != null && !String.IsNullOrEmpty(o.BillingAddress.Email) && o.BillingAddress.Email.Contains(billingEmail));
 
             if (!string.IsNullOrEmpty(billingLastName))
-                filter &= builder.Where(o => o.BillingAddress != null && !String.IsNullOrEmpty(o.BillingAddress.LastName) && o.BillingAddress.LastName.Contains(billingLastName));
+                builderquery = builderquery.Where(o => o.BillingAddress != null && !String.IsNullOrEmpty(o.BillingAddress.LastName) && o.BillingAddress.LastName.Contains(billingLastName));
 
             //tag filtering 
             if (!string.IsNullOrEmpty(tagid))
-                filter &= builder.Where(o => o.OrderTags.Any(y => y == tagid));
+                builderquery = builderquery.Where(o => o.OrderTags.Any(y => y == tagid));
 
-            var query = await _orderRepository.Collection
-                    .Aggregate()
-                    .Match(filter)
-                    .Group(x => 1, g => new OrderAverageReportLine
-                    {
+            var query = await builderquery
+                    .GroupBy(x => 1).Select(g => new OrderAverageReportLine {
                         CountOrders = g.Count(),
-                        SumShippingExclTax = g.Sum(o => o.OrderShippingExclTax / o.CurrencyRate),
-                        SumTax = g.Sum(o => o.OrderTax / o.CurrencyRate),
-                        SumOrders = g.Sum(o => o.OrderTotal / o.CurrencyRate)
-                    }).ToListAsync();
+                        SumShippingExclTax = g.Sum(o => o.OrderShippingExclTax * o.CurrencyRate),
+                        SumTax = g.Sum(o => o.OrderTax * o.CurrencyRate),
+                        SumOrders = g.Sum(o => o.OrderTotal * o.CurrencyRate)
+                    }).ToListAsync2();
 
 
-            var item2 = query.Count() > 0 ? query.FirstOrDefault() : new OrderAverageReportLine
-            {
+            var item2 = query.Count() > 0 ? query.FirstOrDefault() : new OrderAverageReportLine {
                 CountOrders = 0,
                 SumShippingExclTax = decimal.Zero,
                 SumTax = decimal.Zero,
@@ -371,78 +377,54 @@ namespace Grand.Business.System.Services.Reports
             int pageIndex = 0, int pageSize = int.MaxValue,
             bool showHidden = false)
         {
-            var builder = Builders<Order>.Filter;
-            var builderItem = Builders<UnwindedOrderItem>.Filter;
-
-            var filter = builder.Where(o => !o.Deleted);
-            var filterItem = builderItem.Where(x => true);
-            if (!string.IsNullOrEmpty(vendorId))
-            {
-                filterItem &= builderItem.Where(x => x.OrderItems.VendorId == vendorId);
-            }
-
+            var builderquery = from p in _orderRepository.Table
+                               select p;
+            
+            builderquery = builderquery.Where(o => !o.Deleted);
+            
             if (!string.IsNullOrEmpty(storeId))
-                filter &= builder.Where(o => o.StoreId == storeId);
+                builderquery = builderquery.Where(o => o.StoreId == storeId);
 
             if (!string.IsNullOrEmpty(vendorId))
             {
-                filter &= builder
+                builderquery = builderquery
                     .Where(o => o.OrderItems
                     .Any(orderItem => orderItem.VendorId == vendorId));
             }
             if (!string.IsNullOrEmpty(billingCountryId))
-                filter &= builder.Where(o => o.BillingAddress != null && o.BillingAddress.CountryId == billingCountryId);
+                builderquery = builderquery.Where(o => o.BillingAddress != null && o.BillingAddress.CountryId == billingCountryId);
 
 
             if (os.HasValue)
-                filter &= builder.Where(o => o.OrderStatusId == os.Value);
+                builderquery = builderquery.Where(o => o.OrderStatusId == os.Value);
             if (ps.HasValue)
-                filter &= builder.Where(o => o.PaymentStatusId == ps.Value);
+                builderquery = builderquery.Where(o => o.PaymentStatusId == ps.Value);
             if (ss.HasValue)
-                filter &= builder.Where(o => o.ShippingStatusId == ss.Value);
+                builderquery = builderquery.Where(o => o.ShippingStatusId == ss.Value);
             if (createdFromUtc.HasValue)
-                filter &= builder.Where(o => createdFromUtc.Value <= o.CreatedOnUtc);
+                builderquery = builderquery.Where(o => createdFromUtc.Value <= o.CreatedOnUtc);
             if (createdToUtc.HasValue)
-                filter &= builder.Where(o => createdToUtc.Value >= o.CreatedOnUtc);
+                builderquery = builderquery.Where(o => createdToUtc.Value >= o.CreatedOnUtc);
 
-            FilterDefinition<BsonDocument> filterPublishedProduct =
-                !showHidden ? new BsonDocument("Product.Published", true) : new BsonDocument();
+            var query = from p in builderquery
+                        from item in p.OrderItems
+                        select item;
 
-            var groupBy = new BsonDocument
+            if (!string.IsNullOrEmpty(vendorId))
             {
-                 new BsonElement("_id", "$OrderItems.ProductId"),
-                 new BsonElement("TotalAmount", new BsonDocument("$sum", new BsonDocument("$divide",new BsonArray { "$OrderItems.PriceExclTax", "$CurrencyRate" }))),
-                 new BsonElement("TotalQuantity", new BsonDocument("$sum", "$OrderItems.Quantity"))
-            };
-
-            var query = _orderRepository.Collection
-                .Aggregate()
-                .Match(filter)
-                .Unwind<Order, UnwindedOrderItem>(x => x.OrderItems)
-                .Match(filterItem)
-                .Lookup("Product", "OrderItems.ProductId", "_id", "Product")
-                .Match(filterPublishedProduct)
-                .Group(groupBy);
-
-            if (orderBy == 1)
-            {
-                query = query.SortByDescending(x => x["TotalQuantity"]);
-            }
-            else
-            {
-                query = query.SortByDescending(x => x["TotalAmount"]);
+                query = query.Where(x => x.VendorId == vendorId);
             }
 
-            var query2 = new List<BestsellersReportLine>();
-            await query.ForEachAsync(q =>
-            {
-                var line = new BestsellersReportLine();
-                line.ProductId = q["_id"].ToString();
-                line.TotalAmount = q["TotalAmount"].AsDecimal;
-                line.TotalQuantity = q["TotalQuantity"].AsInt32;
-                query2.Add(line);
+            var queryItem = query.GroupBy(x => new { ProductId = x.ProductId }).Select(x => new BestsellersReportLine() {
+                ProductId = x.Key.ProductId,
+                TotalAmount = x.Sum(y => y.PriceInclTax),
+                TotalQuantity = x.Sum(y => y.Quantity)
             });
-            var result = new PagedList<BestsellersReportLine>(query2, pageIndex, pageSize);
+
+            var queryItemOrdered = orderBy == 1 ? await queryItem.OrderByDescending(x => x.TotalQuantity).ToListAsync2() :
+                await queryItem.OrderByDescending(x => x.TotalAmount).ToListAsync2();
+
+            var result = new PagedList<BestsellersReportLine>(queryItemOrdered, pageIndex, pageSize);
             return result;
         }
 
@@ -467,7 +449,7 @@ namespace Grand.Business.System.Services.Reports
                         && (string.IsNullOrEmpty(salesEmployeeId) || o.SeId == salesEmployeeId)
                         group o by 1 into g
                         select new ReportPeriodOrder() { Amount = g.Sum(x => x.OrderTotal / x.CurrencyRate), Count = g.Count() };
-            var report = (await query.ToListAsync())?.FirstOrDefault();
+            var report = (await query.ToListAsync2())?.FirstOrDefault();
             if (report == null)
                 report = new ReportPeriodOrder();
             report.Date = date;
@@ -499,7 +481,7 @@ namespace Grand.Business.System.Services.Reports
             if (recordsToReturn > 0)
                 product = product.Take(recordsToReturn);
 
-            var report = await product.ToListAsync();
+            var report = await product.ToListAsync2();
             var ids = new List<string>();
             foreach (var reportLine in report)
                 ids.Add(reportLine.ProductId);
@@ -533,7 +515,7 @@ namespace Grand.Business.System.Services.Reports
                                 (createdToUtc.Value >= order.CreatedOnUtc) &&
                                 (!order.Deleted)
                                 from orderItem in order.OrderItems
-                                select new { orderItem.ProductId }).ToListAsync()).Distinct().Select(x => x.ProductId);
+                                select new { orderItem.ProductId }).ToListAsync2()).Distinct().Select(x => x.ProductId);
 
             var qproducts = from p in _productRepository.Table
                             orderby p.Name
@@ -572,7 +554,8 @@ namespace Grand.Business.System.Services.Reports
             DateTime? startTimeUtc = null, DateTime? endTimeUtc = null,
             string billingEmail = null, string billingLastName = "", string tagid = null)
         {
-            var query = _orderRepository.Table;
+            var query = from p in _orderRepository.Table
+                        select p;
 
             query = query.Where(o => !o.Deleted);
 
@@ -626,7 +609,7 @@ namespace Grand.Business.System.Services.Reports
                          select p;
 
 
-            var productCost = await query2.SumAsync(orderItem => orderItem.OriginalProductCost * orderItem.Quantity);
+            var productCost = query2.Sum(orderItem => orderItem.OriginalProductCost * orderItem.Quantity);
 
             var reportSummary = await GetOrderAverageReportLine(
                 storeId: storeId,
@@ -653,6 +636,14 @@ namespace Grand.Business.System.Services.Reports
             public OrderItem OrderItems { get; set; }
         }
 
+        public class OrderStats
+        {
+            public int Year { get; set; }
+            public int Month { get; set; }
+            public int Day { get; set; }
+            public int Count { get; set; }
+            public decimal Amount { get; set; }
+        }
 
         #endregion
     }

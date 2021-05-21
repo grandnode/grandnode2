@@ -5,8 +5,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Data;
 using Grand.Domain.Localization;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,12 +58,13 @@ namespace Grand.Business.Common.Services.Localization
             string key = string.Format(CacheKey.LANGUAGES_ALL_KEY, showHidden);
             var languages = await _cacheBase.GetAsync(key, () =>
             {
-                var query = _languageRepository.Table;
+                var query = from p in _languageRepository.Table
+                            select p;
 
                 if (!showHidden)
                     query = query.Where(l => l.Published);
                 query = query.OrderBy(l => l.DisplayOrder);
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
 
             //store acl

@@ -10,8 +10,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -110,12 +108,9 @@ namespace Grand.Business.Catalog.Services.Collections
         /// <returns>Collections</returns>
         public virtual async Task<IList<Collection>> GetAllCollectionFeaturedProductsOnHomePage(bool showHidden = false)
         {
-            var builder = Builders<Collection>.Filter;
-            var filter = builder.Eq(x => x.Published, true);
-            filter = filter & builder.Eq(x => x.FeaturedProductsOnHomePage, true);
-            var query = _collectionRepository.Collection.Find(filter).SortBy(x => x.DisplayOrder);
+            var query = _collectionRepository.Table.Where(x=>x.Published && x.FeaturedProductsOnHomePage).OrderBy(x => x.DisplayOrder);
 
-            var collections = await query.ToListAsync();
+            var collections = await query.ToListAsync2();
             if (!showHidden)
             {
                 collections = collections
@@ -203,7 +198,7 @@ namespace Grand.Business.Catalog.Services.Collections
                         where c.AppliedDiscounts.Any(x => x == discountId)
                         select c;
 
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         #endregion

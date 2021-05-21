@@ -10,6 +10,7 @@ using Grand.Business.System.Services.ExportImport;
 using Grand.Business.System.Services.Installation;
 using Grand.Business.System.Services.MachineNameProvider;
 using Grand.Business.System.Services.Reports;
+using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Data;

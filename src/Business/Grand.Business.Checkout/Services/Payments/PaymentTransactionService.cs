@@ -5,8 +5,6 @@ using Grand.Domain.Data;
 using Grand.Domain.Payments;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -92,7 +90,7 @@ namespace Grand.Business.Checkout.Services.Payments
         {
             return await
                 _repositoryPaymentTransaction.Table.Where(x => x.OrderCode == orderCode)
-                .ToListAsync();
+                .ToListAsync2();
         }
 
         /// <summary>
@@ -104,7 +102,7 @@ namespace Grand.Business.Checkout.Services.Payments
         {
             return await
                 _repositoryPaymentTransaction.Table.Where(x => x.OrderGuid == orderguid)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -115,7 +113,8 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <returns>Order</returns>
         public virtual async Task<IList<PaymentTransaction>> GetByAuthorizationTransactionIdAndPaymentMethod(string authorizationTransactionId, string paymentMethodSystemName)
         {
-            var query = _repositoryPaymentTransaction.Table;
+            var query = from p in _repositoryPaymentTransaction.Table
+                        select p;
 
             if (!string.IsNullOrEmpty(authorizationTransactionId))
                 query = query.Where(c => c.AuthorizationTransactionId == authorizationTransactionId);
@@ -123,7 +122,7 @@ namespace Grand.Business.Checkout.Services.Payments
             if (!string.IsNullOrEmpty(paymentMethodSystemName))
                 query = query.Where(c => c.PaymentMethodSystemName == paymentMethodSystemName);
 
-            return await query.ToListAsync();
+            return await query.ToListAsync2();
         }
 
         /// <summary>
@@ -147,8 +146,7 @@ namespace Grand.Business.Checkout.Services.Payments
               DateTime? createdFromUtc = null,
               DateTime? createdToUtc = null)
         {
-            var model = new GetPaymentTransactionQuery()
-            {
+            var model = new GetPaymentTransactionQuery() {
                 CreatedFromUtc = createdFromUtc,
                 CreatedToUtc = createdToUtc,
                 PageIndex = pageIndex,
@@ -168,12 +166,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// </summary>
         public virtual async Task SetError(string paymenttransactionId, List<string> errors)
         {
-            var builder = Builders<PaymentTransaction>.Filter;
-            var filter = builder.Eq(x => x.Id, paymenttransactionId);
-            var update = Builders<PaymentTransaction>.Update
-                .Set(x => x.Errors, errors);
-
-            await _repositoryPaymentTransaction.Collection.UpdateManyAsync(filter, update);
+            await _repositoryPaymentTransaction.UpdateField(paymenttransactionId, x => x.Errors, errors);
         }
     }
 }

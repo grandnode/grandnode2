@@ -1,7 +1,7 @@
 ﻿using Grand.Business.System.Interfaces.ScheduleTasks;
 using Grand.Business.System.Services.BackgroundServices;
+using Grand.Domain.Data;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Data;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearchers;
 using Microsoft.AspNetCore.Builder;

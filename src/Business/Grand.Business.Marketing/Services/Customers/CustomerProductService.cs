@@ -6,9 +6,9 @@ using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver.Linq;
 using System;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Grand.Business.Marketing.Services.Customers
 {
@@ -58,9 +58,8 @@ namespace Grand.Business.Marketing.Services.Customers
             var key = string.Format(CacheKey.CUSTOMER_PRODUCT_PRICE_KEY_ID, customerId, productId);
             var productprice = await _cacheBase.GetAsync(key, async () =>
             {
-                var pp = await _customerProductPriceRepository.Table
-                .Where(x => x.CustomerId == customerId && x.ProductId == productId)
-                .FirstOrDefaultAsync();
+                var pp = await _customerProductPriceRepository.Table.Where(x => x.CustomerId == customerId && x.ProductId == productId)
+                .FirstOrDefaultAsync2();
                 if (pp == null)
                     return (null, false);
                 else
@@ -161,7 +160,7 @@ namespace Grand.Business.Marketing.Services.Customers
                         where pp.CustomerId == customerId && pp.ProductId == productId
                         select pp;
 
-            return query.FirstOrDefaultAsync();
+            return query.FirstOrDefaultAsync2();
         }
 
         /// <summary>

@@ -1,11 +1,11 @@
 ﻿using Grand.Domain.Orders;
 using MediatR;
-using MongoDB.Driver.Linq;
 using System;
+using System.Linq;
 
 namespace Grand.Business.Checkout.Queries.Models.Orders
 {
-    public class GetGiftVoucherQuery : IRequest<IMongoQueryable<GiftVoucher>>
+    public class GetGiftVoucherQuery : IRequest<IQueryable<GiftVoucher>>
     {
         public string GiftVoucherId { get; set; } = "";
         public string PurchasedWithOrderItemId { get; set; } = "";

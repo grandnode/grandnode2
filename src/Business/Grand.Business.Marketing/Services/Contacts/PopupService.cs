@@ -3,8 +3,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -54,7 +52,7 @@ namespace Grand.Business.Marketing.Services.Contacts
                         where c.CustomerId == customerId
                         orderby c.CreatedOnUtc
                         select c;
-            return await query.FirstOrDefaultAsync();
+            return await query.FirstOrDefaultAsync2();
         }
 
         public virtual async Task MovepopupToArchive(string id, string customerId)
@@ -66,7 +64,7 @@ namespace Grand.Business.Marketing.Services.Contacts
                         where c.CustomerId == customerId && c.Id == id
                         select c;
 
-            var popup = await query.FirstOrDefaultAsync();
+            var popup = await query.FirstOrDefaultAsync2();
             if (popup != null)
             {
                 var archiveBanner = new PopupArchive()

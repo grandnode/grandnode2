@@ -4,8 +4,6 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -90,9 +88,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (productreview == null)
                 throw new ArgumentNullException(nameof(productreview));
 
-            var builder = Builders<ProductReview>.Filter;
-            var filter = builder.Eq(x => x.Id, productreview.Id);
-            var update = Builders<ProductReview>.Update
+            var update = UpdateBuilder<ProductReview>.Create()
                 .Set(x => x.Title, productreview.Title)
                 .Set(x => x.ReviewText, productreview.ReviewText)
                 .Set(x => x.ReplyText, productreview.ReplyText)
@@ -103,7 +99,7 @@ namespace Grand.Business.Catalog.Services.Products
                 .Set(x => x.HelpfulYesTotal, productreview.HelpfulYesTotal)
                 .Set(x => x.ProductReviewHelpfulnessEntries, productreview.ProductReviewHelpfulnessEntries);
 
-            await _productReviewRepository.Collection.UpdateManyAsync(filter, update);
+            await _productReviewRepository.UpdateOneAsync(x => x.Id == productreview.Id, update);
 
             //event notification
             await _mediator.EntityUpdated(productreview);

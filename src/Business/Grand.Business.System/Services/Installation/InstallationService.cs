@@ -1,4 +1,3 @@
-using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Customers.Interfaces;
 using Grand.Business.Customers.Utilities;
@@ -30,7 +29,6 @@ using Grand.Domain.Tasks;
 using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Data;
 using Grand.Infrastructure.TypeSearchers;
 using Grand.SharedKernel;
 using Microsoft.AspNetCore.Hosting;
@@ -238,8 +236,7 @@ namespace Grand.Business.System.Services.Installation
 
         protected virtual async Task InstallVersion()
         {
-            var version = new GrandNodeVersion
-            {
+            var version = new GrandNodeVersion {
                 DataBaseVersion = GrandVersion.SupportedDBVersion
             };
             await _versionRepository.InsertAsync(version);
@@ -415,7 +412,7 @@ namespace Grand.Business.System.Services.Installation
             await _orderRepository.Collection.Indexes.CreateOneAsync(new CreateIndexModel<Order>((Builders<Order>.IndexKeys.Ascending("OrderItems.ProductId")), new CreateIndexOptions() { Name = "OrderItemsProductId" }));
             await _orderRepository.Collection.Indexes.CreateOneAsync(new CreateIndexModel<Order>((Builders<Order>.IndexKeys.Ascending("OrderItems._id")), new CreateIndexOptions() { Name = "OrderItemId" }));
 
-            await _orderStatusRepository.Collection.Indexes.CreateOneAsync(new CreateIndexModel<OrderStatus>((Builders<OrderStatus>.IndexKeys.Ascending(x=>x.StatusId)), new CreateIndexOptions() { Name = "StatusId", Unique = true }));
+            await _orderStatusRepository.Collection.Indexes.CreateOneAsync(new CreateIndexModel<OrderStatus>((Builders<OrderStatus>.IndexKeys.Ascending(x => x.StatusId)), new CreateIndexOptions() { Name = "StatusId", Unique = true }));
 
             await _orderNoteRepository.Collection.Indexes.CreateOneAsync(new CreateIndexModel<OrderNote>((Builders<OrderNote>.IndexKeys.Ascending(x => x.OrderId).Descending(x => x.CreatedOnUtc)), new CreateIndexOptions() { Name = "Id", Unique = false, Background = true }));
 

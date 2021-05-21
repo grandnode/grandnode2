@@ -26,14 +26,16 @@ namespace Grand.Business.Common.Services.Pdf
         private readonly IViewRenderService _viewRenderService;
         private readonly ILanguageService _languageService;
         private readonly IRepository<Download> _downloadRepository;
+        private readonly IMongoDBContext _mongoDBContext;
 
         public WkPdfService(IGeneratePdf generatePdf, IViewRenderService viewRenderService, IRepository<Download> downloadRepository,
-            ILanguageService languageService)
+            ILanguageService languageService, IMongoDBContext mongoDBContext)
         {
             _generatePdf = generatePdf;
             _viewRenderService = viewRenderService;
             _languageService = languageService;
             _downloadRepository = downloadRepository;
+            _mongoDBContext = mongoDBContext;
         }
 
         public async Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string languageId = "", string vendorId = "")
@@ -119,9 +121,8 @@ namespace Grand.Business.Common.Services.Pdf
                     Extension = ".pdf",
                     ContentType = "application/pdf",
                 };
-                var bucket = new MongoDB.Driver.GridFS.GridFSBucket(_downloadRepository.Database);
-                var id = await bucket.UploadFromBytesAsync(download.Filename, ms.ToArray());
-                download.DownloadObjectId = id;
+
+                download.DownloadObjectId = await _mongoDBContext.GridFSBucketUploadFromBytesAsync(download.Filename, ms.ToArray());
                 await _downloadRepository.InsertAsync(download);
 
                 //TODO

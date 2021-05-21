@@ -2,12 +2,12 @@
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using MediatR;
-using MongoDB.Driver.Linq;
 using System;
+using System.Linq;
 
 namespace Grand.Business.Checkout.Queries.Models.Orders
 {
-    public class GetOrderQuery : IRequest<IMongoQueryable<Order>>
+    public class GetOrderQuery : IRequest<IQueryable<Order>>
     {
         public string OrderId { get; set; } = "";
         public string StoreId { get; set; } = "";

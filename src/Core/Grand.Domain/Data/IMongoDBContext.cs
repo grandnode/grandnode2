@@ -9,6 +9,8 @@ namespace Grand.Domain.Data
     public interface IMongoDBContext
     {
         IMongoDatabase Database();
+        Task<byte[]> GridFSBucketDownload(string id);
+        Task<string> GridFSBucketUploadFromBytesAsync(string filename, byte[] source);
         Task<bool> DatabaseExist(string connectionString);
         TResult RunCommand<TResult>(string command);
         BsonDocument RunCommand(string command);

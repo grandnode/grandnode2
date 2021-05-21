@@ -3,8 +3,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,7 +93,7 @@ namespace Grand.Business.Marketing.Services.Contacts
             if (string.IsNullOrEmpty(systemName))
                 throw new ArgumentNullException("systemName");
 
-            return await _formRepository.Table.FirstOrDefaultAsync(x => x.SystemName == systemName);
+            return await _formRepository.Table.Where(x => x.SystemName == systemName).FirstOrDefaultAsync2();
         }
 
         /// <summary>
@@ -108,7 +106,8 @@ namespace Grand.Business.Marketing.Services.Contacts
             var query = from c in _formRepository.Table
                         orderby c.CreatedOnUtc
                         select c;
-            return await query.ToListAsync();
+
+            return await query.ToListAsync2();
         }
 
     }

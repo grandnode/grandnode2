@@ -8,8 +8,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -123,11 +121,12 @@ namespace Grand.Business.Messages.Services
             string key = string.Format(CacheKey.MESSAGETEMPLATES_BY_NAME_KEY, messageTemplateName, storeId);
             return await _cacheBase.GetAsync(key, async () =>
             {
-                var query = _messageTemplateRepository.Table;
+                var query = from p in _messageTemplateRepository.Table
+                            select p;
 
                 query = query.Where(t => t.Name == messageTemplateName);
                 query = query.OrderBy(t => t.Id);
-                var templates = await query.ToListAsync();
+                var templates = await query.ToListAsync2();
 
                 //store acl
                 if (!String.IsNullOrEmpty(storeId))
@@ -152,7 +151,8 @@ namespace Grand.Business.Messages.Services
             string key = string.Format(CacheKey.MESSAGETEMPLATES_ALL_KEY, storeId);
             return await _cacheBase.GetAsync(key, () =>
             {
-                var query = _messageTemplateRepository.Table;
+                var query = from p in _messageTemplateRepository.Table
+                            select p;
 
                 query = query.OrderBy(t => t.Name);
 
@@ -164,7 +164,7 @@ namespace Grand.Business.Messages.Services
                             select p;
                     query = query.OrderBy(t => t.Name);
                 }
-                return query.ToListAsync();
+                return query.ToListAsync2();
             });
         }
 
