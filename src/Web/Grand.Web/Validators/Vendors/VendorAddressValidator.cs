@@ -6,6 +6,7 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Models.Vendors;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Grand.Web.Validators.Common
 {
@@ -14,7 +15,7 @@ namespace Grand.Web.Validators.Common
         public VendorAddressValidator(
             IEnumerable<IValidatorConsumer<VendorAddressModel>> validators,
             ITranslationService translationService,
-            ICountryService countryServices,
+            ICountryService countryService,
             VendorSettings addressSettings)
             : base(validators)
         {

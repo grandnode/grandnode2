@@ -8,6 +8,7 @@ using Grand.Web.Models.Customer;
 using System;
 using System.Collections.Generic;
 using Grand.SharedKernel.Extensions;
+using System.Linq;
 
 namespace Grand.Web.Validators.Customer
 {
