@@ -8,6 +8,7 @@ using Grand.Web.Models.Customer;
 using System;
 using System.Collections.Generic;
 using Grand.SharedKernel.Extensions;
+using System.Linq;
 
 namespace Grand.Web.Validators.Customer
 {
@@ -60,17 +61,20 @@ namespace Grand.Web.Validators.Customer
                 RuleFor(x => x.StateProvinceId).MustAsync(async (x, y, context) =>
                 {
                     //does selected country has states?
-                    var countryId = !String.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
-                    var hasStates = (await countryService.GetCountryById(countryId))?.StateProvinces.Count > 0;
-                    if (hasStates)
+                    var countryId = !string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
+                    var country = await countryService.GetCountryById(countryId);
+                    if (country != null && country.StateProvinces.Any())
                     {
                         //if yes, then ensure that state is selected
-                        if (String.IsNullOrEmpty(y))
+                        if (string.IsNullOrEmpty(y))
                         {
                             return false;
                         }
+                        if (country.StateProvinces.FirstOrDefault(x => x.Id == y) != null)
+                            return true;
                     }
-                    return true;
+                    return false;
+
                 }).WithMessage(translationService.GetResource("Account.Fields.StateProvince.Required"));
             }
             if (customerSettings.DateOfBirthEnabled && customerSettings.DateOfBirthRequired)

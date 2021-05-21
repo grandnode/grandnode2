@@ -46,7 +46,7 @@ namespace Grand.Web.Validators.Common
                 {
                     var countryId = !string.IsNullOrEmpty(x.CountryId) ? x.CountryId : "";
                     var country = await countryService.GetCountryById(countryId);
-                    if (country.StateProvinces.Any())
+                    if (country != null && country.StateProvinces.Any())
                     {
                         //if yes, then ensure that state is selected
                         if (String.IsNullOrEmpty(y))
@@ -81,7 +81,7 @@ namespace Grand.Web.Validators.Common
             }
             if (addressSettings.CityRequired && addressSettings.CityEnabled)
             {
-                RuleFor(x => x.City).NotEmpty().WithMessage(translationService.GetResource("Account.Fields.City.Required"));               
+                RuleFor(x => x.City).NotEmpty().WithMessage(translationService.GetResource("Account.Fields.City.Required"));
             }
             if (addressSettings.PhoneRequired && addressSettings.PhoneEnabled)
             {
