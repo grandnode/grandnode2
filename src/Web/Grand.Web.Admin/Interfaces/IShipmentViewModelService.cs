@@ -12,7 +12,6 @@ namespace Grand.Web.Admin.Interfaces
     {
         Task<ShipmentModel> PrepareShipmentModel(Shipment shipment, bool prepareProducts, bool prepareShipmentEvent = false);
         Task<int> GetStockQty(Product product, string warehouseId);
-        Task<int> GetPlannedQty(Product product, string warehouseId);
         Task<int> GetReservedQty(Product product, string warehouseId);
         Task LogShipment(string shipmentId, string message);
         Task<IList<ShipmentModel.ShipmentNote>> PrepareShipmentNotes(Shipment shipment);
@@ -21,6 +20,7 @@ namespace Grand.Web.Admin.Interfaces
         Task<ShipmentListModel> PrepareShipmentListModel();
         Task<ShipmentModel> PrepareShipmentModel(Order order);
         Task<(Shipment shipment, decimal? totalWeight)> PrepareShipment(Order order, IList<OrderItem> orderItems, IFormCollection form);
+        Task<(bool valid, string message)> ValidStockShipment(Shipment shipment);
         Task<(IEnumerable<Shipment> shipments, int totalCount)> PrepareShipments(ShipmentListModel model, int pageIndex, int pageSize);
     }
 }

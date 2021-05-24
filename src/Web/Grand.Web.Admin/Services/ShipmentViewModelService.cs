@@ -9,7 +9,6 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Catalog;
-using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
@@ -42,6 +41,7 @@ namespace Grand.Web.Admin.Services
         private readonly ITranslationService _translationService;
         private readonly IDownloadService _downloadService;
         private readonly IShippingService _shippingService;
+        private readonly IStockQuantityService _stockQuantityService;
         private readonly MeasureSettings _measureSettings;
         private readonly ShippingSettings _shippingSettings;
         private readonly ShippingProviderSettings _shippingProviderSettings;
@@ -61,6 +61,7 @@ namespace Grand.Web.Admin.Services
             ITranslationService translationService,
             IDownloadService downloadService,
             IShippingService shippingService,
+            IStockQuantityService stockQuantityService,
             MeasureSettings measureSettings,
             ShippingSettings shippingSettings,
             ShippingProviderSettings shippingProviderSettings)
@@ -79,6 +80,7 @@ namespace Grand.Web.Admin.Services
             _translationService = translationService;
             _downloadService = downloadService;
             _shippingService = shippingService;
+            _stockQuantityService = stockQuantityService;
             _measureSettings = measureSettings;
             _shippingSettings = shippingSettings;
             _shippingProviderSettings = shippingProviderSettings;
@@ -93,8 +95,7 @@ namespace Grand.Web.Admin.Services
             var baseDimensionIn = baseDimension != null ? baseDimension.Name : "";
             var order = await _orderService.GetOrderById(shipment.OrderId);
 
-            var model = new ShipmentModel
-            {
+            var model = new ShipmentModel {
                 Id = shipment.Id,
                 ShipmentNumber = shipment.ShipmentNumber,
                 OrderId = shipment.OrderId,
@@ -134,8 +135,7 @@ namespace Grand.Web.Admin.Services
                     if (product != null)
                     {
                         var warehouse = await _warehouseService.GetWarehouseById(shipmentItem.WarehouseId);
-                        var shipmentItemModel = new ShipmentModel.ShipmentItemModel
-                        {
+                        var shipmentItemModel = new ShipmentModel.ShipmentItemModel {
                             Id = shipmentItem.Id,
                             OrderItemId = orderItem.Id,
                             ProductId = orderItem.ProductId,
@@ -217,24 +217,6 @@ namespace Grand.Web.Admin.Services
             return _qty.Count > 0 ? _qty.Min() : 0;
         }
 
-        public virtual async Task<int> GetPlannedQty(Product product, string warehouseId)
-        {
-            List<int> _qty = new List<int>();
-            foreach (var item in product.BundleProducts)
-            {
-                var p1 = await _productService.GetProductById(item.ProductId);
-                if (p1.UseMultipleWarehouses)
-                {
-                    var stock = p1.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId);
-                    if (stock != null)
-                    {
-                        _qty.Add((stock.StockQuantity - stock.ReservedQuantity) / item.Quantity);
-                    }
-                }
-            }
-            return _qty.Count > 0 ? _qty.Min() : 0;
-        }
-
         public virtual async Task<int> GetReservedQty(Product product, string warehouseId)
         {
             List<int> _qty = new List<int>();
@@ -261,8 +243,7 @@ namespace Grand.Web.Admin.Services
                 .OrderByDescending(on => on.CreatedOnUtc))
             {
                 var download = await _downloadService.GetDownloadById(shipmentNote.DownloadId);
-                shipmentNoteModels.Add(new ShipmentModel.ShipmentNote
-                {
+                shipmentNoteModels.Add(new ShipmentModel.ShipmentNote {
                     Id = shipmentNote.Id,
                     ShipmentId = shipment.Id,
                     DownloadId = String.IsNullOrEmpty(shipmentNote.DownloadId) ? "" : shipmentNote.DownloadId,
@@ -278,8 +259,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task InsertShipmentNote(Shipment shipment, string downloadId, bool displayToCustomer, string message)
         {
-            var shipmentNote = new ShipmentNote
-            {
+            var shipmentNote = new ShipmentNote {
                 DisplayToCustomer = displayToCustomer,
                 Note = message,
                 DownloadId = downloadId,
@@ -350,8 +330,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<ShipmentModel> PrepareShipmentModel(Order order)
         {
-            var model = new ShipmentModel
-            {
+            var model = new ShipmentModel {
                 OrderId = order.Id,
                 OrderNumber = order.OrderNumber
             };
@@ -386,8 +365,7 @@ namespace Grand.Web.Admin.Services
                 if (maxQtyToAdd <= 0)
                     continue;
 
-                var shipmentItemModel = new ShipmentModel.ShipmentItemModel
-                {
+                var shipmentItemModel = new ShipmentModel.ShipmentItemModel {
                     OrderItemId = orderItem.Id,
                     ProductId = orderItem.ProductId,
                     ProductName = product.Name,
@@ -416,8 +394,7 @@ namespace Grand.Web.Admin.Services
                             var warehouse = await _warehouseService.GetWarehouseById(pwi.WarehouseId);
                             if (warehouse != null)
                             {
-                                shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo
-                                {
+                                shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo {
                                     WarehouseId = warehouse.Id,
                                     WarehouseName = warehouse.Name,
                                     StockQuantity = pwi.StockQuantity,
@@ -432,8 +409,7 @@ namespace Grand.Web.Admin.Services
                         var warehouse = await _warehouseService.GetWarehouseById(product.WarehouseId);
                         if (warehouse != null)
                         {
-                            shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo
-                            {
+                            shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo {
                                 WarehouseId = warehouse.Id,
                                 WarehouseName = warehouse.Name,
                                 StockQuantity = product.StockQuantity
@@ -458,8 +434,7 @@ namespace Grand.Web.Admin.Services
                                 var warehouse = await _warehouseService.GetWarehouseById(pwi.WarehouseId);
                                 if (warehouse != null)
                                 {
-                                    shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo
-                                    {
+                                    shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo {
                                         WarehouseId = warehouse.Id,
                                         WarehouseName = warehouse.Name,
                                         StockQuantity = pwi.StockQuantity,
@@ -475,8 +450,7 @@ namespace Grand.Web.Admin.Services
                         var warehouse = await _warehouseService.GetWarehouseById(product.WarehouseId);
                         if (warehouse != null)
                         {
-                            shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo
-                            {
+                            shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo {
                                 WarehouseId = warehouse.Id,
                                 WarehouseName = warehouse.Name,
                                 StockQuantity = product.StockQuantity
@@ -492,8 +466,7 @@ namespace Grand.Web.Admin.Services
                         var warehouse = await _warehouseService.GetWarehouseById(product.WarehouseId);
                         if (warehouse != null)
                         {
-                            shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo
-                            {
+                            shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo {
                                 WarehouseId = warehouse.Id,
                                 WarehouseName = warehouse.Name,
                                 StockQuantity = await GetStockQty(product, orderItem.WarehouseId),
@@ -509,8 +482,7 @@ namespace Grand.Web.Admin.Services
                             var warehouses = await _warehouseService.GetAllWarehouses();
                             foreach (var warehouse in warehouses)
                             {
-                                shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo
-                                {
+                                shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo {
                                     WarehouseId = warehouse.Id,
                                     WarehouseName = warehouse.Name,
                                     StockQuantity = await GetStockQty(product, warehouse.Id),
@@ -524,6 +496,33 @@ namespace Grand.Web.Admin.Services
                 model.Items.Add(shipmentItemModel);
             }
             return model;
+        }
+
+        public virtual async Task<(bool valid, string message)> ValidStockShipment(Shipment shipment)
+        {
+            foreach (var item in shipment.ShipmentItems)
+            {
+                var product = await _productService.GetProductById(item.ProductId);
+                if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
+                {
+                    var stock = _stockQuantityService.GetTotalStockQuantity(product, useReservedQuantity: false, warehouseId: item.WarehouseId);
+                    if (stock - item.Quantity < 0)
+                        return (false, $"Out of stock for product {product.Name}");
+                }
+                if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
+                {
+                    var combination = _productAttributeParser.FindProductAttributeCombination(product, item.Attributes);
+                    if (combination == null)
+                        return (false, $"Can't find combination for product {product.Name}");
+
+                    var stock = _stockQuantityService.GetTotalStockQuantityForCombination(product, combination, useReservedQuantity: false, warehouseId: item.WarehouseId);
+                    if (stock - item.Quantity < 0)
+                        return (false, $"Out of stock for product {product.Name}");
+                }
+
+            }
+
+            return (true, string.Empty);
         }
 
         public virtual async Task<(Shipment shipment, decimal? totalWeight)> PrepareShipment(Order order, IList<OrderItem> orderItems, IFormCollection form)
@@ -593,8 +592,7 @@ namespace Grand.Web.Admin.Services
                 {
                     var trackingNumber = form["TrackingNumber"];
                     var adminComment = form["AdminComment"];
-                    shipment = new Shipment
-                    {
+                    shipment = new Shipment {
                         OrderId = order.Id,
                         SeId = order.SeId,
                         TrackingNumber = trackingNumber,
@@ -611,8 +609,7 @@ namespace Grand.Web.Admin.Services
                     }
                 }
                 //create a shipment item
-                var shipmentItem = new ShipmentItem
-                {
+                var shipmentItem = new ShipmentItem {
                     ProductId = orderItem.ProductId,
                     OrderItemId = orderItem.Id,
                     Quantity = qtyToAdd,

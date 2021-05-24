@@ -223,7 +223,14 @@ namespace Grand.Web.Admin.Controllers
             }
             var sh = await _shipmentViewModelService.PrepareShipment(order, orderItems.ToList(), form);
             Shipment shipment = sh.shipment;
-            //if we have at least one item in the shipment, then save it
+            //check stock
+            var (valid, message) = await _shipmentViewModelService.ValidStockShipment(shipment);
+            if (!valid)
+            {
+                Error(message);
+                return RedirectToAction("AddShipment", new { orderId = orderId });
+            }
+                //if we have at least one item in the shipment, then save it
             if (shipment != null && shipment.ShipmentItems.Count > 0)
             {
                 shipment.TotalWeight = sh.totalWeight;
