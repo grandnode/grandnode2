@@ -134,12 +134,18 @@ namespace Grand.Web.Common.Infrastructure
         {
             application.UseStatusCodePages(context =>
             {
-                //handle 404 (Bad request)
+                //handle 400 (Bad request)
                 if (context.HttpContext.Response.StatusCode == StatusCodes.Status400BadRequest)
                 {
-                    var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger>();
-                    var workContext = context.HttpContext.RequestServices.GetRequiredService<IWorkContext>();
-                    logger.Error("Error 400. Bad request", null, customer: workContext.CurrentCustomer);
+                    string authHeader = context.HttpContext.Request.Headers[HeaderNames.Authorization];
+                    var apirequest = authHeader != null && authHeader.Split(' ')[0] == JwtBearerDefaults.AuthenticationScheme;
+
+                    if (!apirequest)
+                    {
+                        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger>();
+                        var workContext = context.HttpContext.RequestServices.GetRequiredService<IWorkContext>();
+                        logger.Error("Error 400. Bad request", null, customer: workContext.CurrentCustomer);
+                    }
                 }
                 return Task.CompletedTask;
             });
