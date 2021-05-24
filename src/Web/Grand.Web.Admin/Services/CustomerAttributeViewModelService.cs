@@ -31,6 +31,10 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<CustomerAttribute> InsertCustomerAttributeModel(CustomerAttributeModel model)
         {
             var customerAttribute = model.ToEntity();
+
+            if (customerAttribute.IsReadOnly && customerAttribute.IsRequired)
+                customerAttribute.IsRequired = false;  
+
             await _customerAttributeService.InsertCustomerAttribute(customerAttribute);
             return customerAttribute;
         }
@@ -94,6 +98,9 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<CustomerAttribute> UpdateCustomerAttributeModel(CustomerAttributeModel model, CustomerAttribute customerAttribute)
         {
             customerAttribute = model.ToEntity(customerAttribute);
+            if (customerAttribute.IsReadOnly && customerAttribute.IsRequired)
+                customerAttribute.IsRequired = false;
+
             await _customerAttributeService.UpdateCustomerAttribute(customerAttribute);
             return customerAttribute;
         }
