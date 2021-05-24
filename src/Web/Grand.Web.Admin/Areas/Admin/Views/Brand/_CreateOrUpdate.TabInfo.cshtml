@@ -149,7 +149,7 @@
             </div>
         </div>
         <div class="form-group">
-            <admin-label asp-for="PageSizeOptions" />
+            <admin-label asp-for="DefaultSort" />
             <div class="col-md-9 col-sm-9">
                 <admin-select asp-for="DefaultSort" asp-items="Model.AvailableSortOptions" />
                 <span asp-validation-for="DefaultSort"></span>
@@ -160,16 +160,6 @@
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Icon" />
                 <span asp-validation-for="Icon"></span>
-            </div>
-        </div>
-        <div class="form-group">
-            <admin-label asp-for="AllowCustomersToSelectPageSize" />
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="AllowCustomersToSelectPageSize" />
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="AllowCustomersToSelectPageSize"></span>
             </div>
         </div>
         <div class="form-group">
