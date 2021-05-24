@@ -73,5 +73,6 @@ namespace Grand.Business.Common.Services.Security
             Category = CategorySystem,
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Edit, PermissionActionName.Preview }
         };
+        
     }
 }

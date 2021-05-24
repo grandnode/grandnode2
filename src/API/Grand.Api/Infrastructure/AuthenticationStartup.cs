@@ -1,4 +1,6 @@
 ﻿using Grand.Api.Constants;
+using Grand.Business.Authentication.Interfaces;
+using Grand.Business.Authentication.Services;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNet.OData.Extensions;
@@ -24,7 +26,6 @@ namespace Grand.Api.Infrastructure
             IConfiguration configuration)
         {
             var apiConfig = services.BuildServiceProvider().GetService<ApiConfig>();
-
             if (apiConfig.Enabled)
             {
                 //cors

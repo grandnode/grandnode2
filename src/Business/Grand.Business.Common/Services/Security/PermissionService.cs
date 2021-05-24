@@ -209,7 +209,7 @@ namespace Grand.Business.Common.Services.Security
             if (String.IsNullOrEmpty(permissionSystemName))
                 return false;
 
-            var customerGroups = await _groupService.GetAllByIds(_workContext.CurrentCustomer.Groups.ToArray());
+            var customerGroups = await _groupService.GetAllByIds(customer.Groups.ToArray());
             foreach (var group in customerGroups)
                 if (await Authorize(permissionSystemName, group))
                     //yes, we have such permission

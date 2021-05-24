@@ -86,6 +86,7 @@ namespace Grand.Business.Common.Services.Security
                 StandardPermission.AccessClosedStore,
                 StandardPermission.ManageOrderTags,
                 StandardPermission.ManageOrderStatus,
+                StandardPermission.AllowUseApi
             };
         }
 
@@ -172,7 +173,8 @@ namespace Grand.Business.Common.Services.Security
                         StandardPermission.ManageBanners,
                         StandardPermission.ManageInteractiveForm,
                         StandardPermission.ManageActions,
-                        StandardPermission.ManageReminders
+                        StandardPermission.ManageReminders,
+                        StandardPermission.AllowUseApi
                     }
                 },
                 new DefaultPermission
@@ -194,7 +196,8 @@ namespace Grand.Business.Common.Services.Security
                         StandardPermission.DisplayPrices,
                         StandardPermission.EnableShoppingCart,
                         StandardPermission.EnableWishlist,
-                        StandardPermission.PublicStoreAllowNavigation
+                        StandardPermission.PublicStoreAllowNavigation,
+                        StandardPermission.AllowUseApi
                     }
                 },
                 new DefaultPermission

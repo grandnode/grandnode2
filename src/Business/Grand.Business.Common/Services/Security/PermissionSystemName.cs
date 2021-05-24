@@ -72,7 +72,7 @@
         public const string UserFields = "UserFields";
         public const string HtmlEditor = "HtmlEditor.ManagePictures";
         public const string ScheduleTasks = "ManageScheduleTasks";
-
+        public const string AllowUseApi = "AllowUseApi";
         //public store permissions
         public const string DisplayPrices = "DisplayPrices";
         public const string EnableShoppingCart = "EnableShoppingCart";

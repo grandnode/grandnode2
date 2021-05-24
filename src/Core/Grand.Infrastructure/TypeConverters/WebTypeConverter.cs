@@ -3,6 +3,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Shipping;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Grand.Domain.Security;
 
 namespace Grand.Infrastructure.TypeConverters
 {
@@ -27,6 +28,9 @@ namespace Grand.Infrastructure.TypeConverters
             //custom attributes
             TypeDescriptor.AddAttributes(typeof(List<CustomAttribute>), new TypeConverterAttribute(typeof(CustomAttributeListTypeConverter)));
             TypeDescriptor.AddAttributes(typeof(IList<CustomAttribute>), new TypeConverterAttribute(typeof(CustomAttributeListTypeConverter)));
+
+            TypeDescriptor.AddAttributes(typeof(RefreshToken), new TypeConverterAttribute(typeof(RefreshTokenTypeConverter)));
+
 
         }
 

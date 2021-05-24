@@ -2,10 +2,12 @@
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Customers;
+using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -45,6 +47,17 @@ namespace Grand.Business.Authentication.Services
             if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith(JwtBearerDefaults.AuthenticationScheme))
                 return null;
 
+            if (!_httpContextAccessor.HttpContext.Request.Path.Value.StartsWith("/odata"))
+            {
+                customer = await ApiCustomer();
+                if (customer != null)
+                {
+                    _cachedCustomer = customer;
+                    return _cachedCustomer;
+                }
+                return null;
+            }
+
             var authenticateResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
             if (!authenticateResult.Succeeded)
                 return null;
@@ -66,5 +79,31 @@ namespace Grand.Business.Authentication.Services
 
         }
 
+        private async Task<Customer> ApiCustomer()
+        {
+            Customer customer = null;
+            var authResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(GrandWebApiConfig.Scheme);
+            if (!authResult.Succeeded)
+            {
+                _httpContextAccessor.HttpContext.Response.StatusCode = 400;
+                _httpContextAccessor.HttpContext.Response.ContentType = "text/plain";
+                await _httpContextAccessor.HttpContext.Response.WriteAsync(authResult.Failure.Message);
+                return await _customerService.GetCustomerBySystemName(SystemCustomerNames.Anonymous);
+            };
+
+            var email = authResult.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
+            if (email is null)
+            {
+                //guest
+                var id = authResult.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Guid")?.Value;
+                customer = await _customerService.GetCustomerByGuid(Guid.Parse(id));
+            }
+            else
+            {
+                customer = await _customerService.GetCustomerByEmail(email);
+            }
+
+            return customer;
+        }
     }
 }

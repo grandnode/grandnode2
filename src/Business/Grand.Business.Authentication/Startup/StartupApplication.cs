@@ -18,6 +18,8 @@ namespace Grand.Business.Authentication.Startup
             services.AddScoped<IJwtBearerAuthenticationService, JwtBearerAuthenticationService>();
             services.AddScoped<ITwoFactorAuthenticationService, TwoFactorAuthenticationService>();
             services.AddScoped<IExternalAuthenticationService, ExternalAuthenticationService>();
+            services.AddScoped<IJwtBearerCustomerAuthenticationService, JwtBearerCustomerAuthenticationService>();
+            services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         }
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {

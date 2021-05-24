@@ -213,6 +213,8 @@ namespace Grand.Infrastructure
             services.StartupConfig<HostingConfig>(configuration.GetSection("Hosting"));
             //add api configuration parameters
             services.StartupConfig<ApiConfig>(configuration.GetSection("Api"));
+            //add grand.web api token config
+            services.StartupConfig<GrandWebApiConfig>(configuration.GetSection("GrandWebApi"));
 
             //set base application path
             var provider = services.BuildServiceProvider();
