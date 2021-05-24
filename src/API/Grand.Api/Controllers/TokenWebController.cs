@@ -117,6 +117,7 @@ namespace Grand.Api.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Antiforgery()
         {
             var token = _antiforgery.GetAndStoreTokens(this.HttpContext).RequestToken;
