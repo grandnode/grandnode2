@@ -6,6 +6,7 @@ using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using MediatR;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -23,6 +24,7 @@ namespace Grand.Api.Controllers
         private readonly IStoreHelper _storeHelper;
         private readonly IRefreshTokenService _refreshTokenService;
         private readonly IUserFieldService _userFieldService;
+        private readonly IAntiforgery _antiforgery;
 
         public TokenWebController(
             ICustomerService customerService,
@@ -30,7 +32,8 @@ namespace Grand.Api.Controllers
             IMediator mediator,
             IStoreHelper storeHelper,
             IRefreshTokenService refreshTokenService,
-            IUserFieldService userFieldService)
+            IUserFieldService userFieldService,
+            IAntiforgery antiforgery)
         {
             _customerService = customerService;
             _customerManagerService = customerManagerService;
@@ -38,6 +41,7 @@ namespace Grand.Api.Controllers
             _storeHelper = storeHelper;
             _refreshTokenService = refreshTokenService;
             _userFieldService = userFieldService;
+            _antiforgery = antiforgery;
         }
 
         [AllowAnonymous]
@@ -109,6 +113,13 @@ namespace Grand.Api.Controllers
                 return BadRequest("Invalid refresh token");
             }
             var token = await GetToken(claims, customer); ;
+            return Ok(token);
+        }
+
+        [HttpGet]
+        public IActionResult Antiforgery()
+        {
+            var token = _antiforgery.GetAndStoreTokens(this.HttpContext).RequestToken;
             return Ok(token);
         }
 
