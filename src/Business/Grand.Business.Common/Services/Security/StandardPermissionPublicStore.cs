@@ -42,5 +42,11 @@ namespace Grand.Business.Common.Services.Security
             Category = CategoryPublicStore
         };
 
+        public static readonly Permission AllowUseApi = new Permission {
+            Name = "Allow to use api for web",
+            SystemName = PermissionSystemName.AllowUseApi,
+            Area = "Public store",
+            Category = CategoryPublicStore
+        };
     }
 }

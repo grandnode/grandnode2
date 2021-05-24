@@ -73,11 +73,6 @@ namespace Grand.Business.Common.Services.Security
             Category = CategorySystem,
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Edit, PermissionActionName.Preview }
         };
-        public static readonly Permission AllowUseApi = new Permission {
-            Name = "Allow to use api",
-            SystemName = PermissionSystemName.AllowUseApi,
-            Area = "Public store",
-            Category = CategorySystem
-        };
+        
     }
 }
