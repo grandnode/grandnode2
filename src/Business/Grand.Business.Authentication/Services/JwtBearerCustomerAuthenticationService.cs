@@ -59,7 +59,7 @@ namespace Grand.Business.Authentication.Services
 
             if(!(await _permissionService.Authorize(StandardPermission.AllowUseApi,customer)))
             {
-                _errorMessage = "Customer not has perrmission";
+                _errorMessage = "Customer not has permission";
                 return false;
             }
 
