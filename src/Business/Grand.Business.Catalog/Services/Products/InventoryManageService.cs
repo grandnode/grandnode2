@@ -64,6 +64,8 @@ namespace Grand.Business.Catalog.Services.Products
 
                 pwi.ReservedQuantity -= shipmentItem.Quantity;
                 pwi.StockQuantity -= shipmentItem.Quantity;
+                if (pwi.ReservedQuantity < 0)
+                    pwi.ReservedQuantity = 0;
 
                 await _productRepository.UpdateToSet(product.Id, x => x.ProductWarehouseInventory, z => z.Id, pwi.Id, pwi);
                 await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
@@ -89,6 +91,9 @@ namespace Grand.Business.Catalog.Services.Products
             {
                 combination.ReservedQuantity -= shipmentItem.Quantity;
                 combination.StockQuantity -= shipmentItem.Quantity;
+                if (combination.ReservedQuantity < 0)
+                    combination.ReservedQuantity = 0;
+
                 await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id, combination.Id, combination);
                 await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
             }
@@ -100,6 +105,8 @@ namespace Grand.Business.Catalog.Services.Products
 
                 pwi.ReservedQuantity -= shipmentItem.Quantity;
                 pwi.StockQuantity -= shipmentItem.Quantity;
+                if (pwi.ReservedQuantity < 0)
+                    pwi.ReservedQuantity = 0;
 
                 combination.StockQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
                 combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
@@ -120,8 +127,7 @@ namespace Grand.Business.Catalog.Services.Products
                 if (p1 != null && p1.Id != product.Id &&
                     p1.ManageInventoryMethodId != ManageInventoryMethod.DontManageStock)
                 {
-                    var _shipmentItem = new ShipmentItem()
-                    {
+                    var _shipmentItem = new ShipmentItem() {
                         Id = shipmentItem.Id,
                         Attributes = shipmentItem.Attributes,
                         OrderItemId = shipmentItem.OrderItemId,
@@ -151,8 +157,7 @@ namespace Grand.Business.Catalog.Services.Products
                     {
                         if (!await CheckExistsInventoryJournal(associatedProduct, shipmentItem))
                         {
-                            var _shipmentItem = new ShipmentItem()
-                            {
+                            var _shipmentItem = new ShipmentItem() {
                                 Id = shipmentItem.Id,
                                 Attributes = shipmentItem.Attributes,
                                 OrderItemId = shipmentItem.OrderItemId,
@@ -188,6 +193,8 @@ namespace Grand.Business.Catalog.Services.Products
 
                     pwi.StockQuantity += inventoryJournal.OutQty;
                     pwi.ReservedQuantity += inventoryJournal.OutQty;
+                    if (pwi.ReservedQuantity < 0)
+                        pwi.ReservedQuantity = 0;
 
                     await _productRepository.UpdateToSet(product.Id, x => x.ProductWarehouseInventory, z => z.Id, pwi.Id, pwi);
                     await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
@@ -212,6 +219,9 @@ namespace Grand.Business.Catalog.Services.Products
                 {
                     combination.StockQuantity += inventoryJournal.OutQty;
                     combination.ReservedQuantity += inventoryJournal.OutQty;
+                    if (combination.ReservedQuantity < 0)
+                        combination.ReservedQuantity = 0;
+
                     product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
                     product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
 
@@ -231,11 +241,14 @@ namespace Grand.Business.Catalog.Services.Products
                     pwi.StockQuantity += inventoryJournal.OutQty;
                     pwi.ReservedQuantity += inventoryJournal.OutQty;
 
+                    if (pwi.ReservedQuantity < 0)
+                        pwi.ReservedQuantity = 0;
+
                     combination.StockQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
                     combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
                     product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
                     product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
-                   
+
                     await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id, combination.Id, combination);
                     await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
                     await UpdateStockProduct(product);
@@ -247,8 +260,7 @@ namespace Grand.Business.Catalog.Services.Products
         }
         private async Task InsertInventoryJournal(Product product, Shipment shipment, ShipmentItem shipmentItem)
         {
-            var ij = new InventoryJournal
-            {
+            var ij = new InventoryJournal {
                 CreateDateUtc = DateTime.UtcNow,
                 ObjectType = typeof(Shipment).Name,
                 ObjectId = shipment.Id,
@@ -263,7 +275,7 @@ namespace Grand.Business.Catalog.Services.Products
             await _inventoryJournalRepository.InsertAsync(ij);
 
         }
-        
+
         #endregion
 
         #region Inventory management methods
@@ -321,7 +333,7 @@ namespace Grand.Business.Catalog.Services.Products
                         case LowStockActivity.Unpublish:
                             product.Published = false;
                             product.LowStock = true;
-                            
+
                             await _productRepository.UpdateField(product.Id, x => x.Published, product.Published);
                             await _productRepository.UpdateField(product.Id, x => x.LowStock, product.LowStock);
                             await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
@@ -390,8 +402,7 @@ namespace Grand.Business.Catalog.Services.Products
                 //send email notification
                 if (quantityToChange < 0 && _stockQuantityService.GetTotalStockQuantity(product, warehouseId: warehouseId) < product.NotifyAdminForQuantityBelow)
                 {
-                    await _mediator.Send(new SendQuantityBelowStoreOwnerCommand()
-                    {
+                    await _mediator.Send(new SendQuantityBelowStoreOwnerCommand() {
                         Product = product
                     });
                 }
@@ -410,8 +421,7 @@ namespace Grand.Business.Catalog.Services.Products
                     //send email notification
                     if (quantityToChange < 0 && combination.StockQuantity < combination.NotifyAdminForQuantityBelow)
                     {
-                        await _mediator.Send(new SendQuantityBelowStoreOwnerCommand()
-                        {
+                        await _mediator.Send(new SendQuantityBelowStoreOwnerCommand() {
                             Product = product,
                             ProductAttributeCombination = combination
                         });
@@ -477,6 +487,8 @@ namespace Grand.Business.Catalog.Services.Products
                     return;
 
                 pwi.ReservedQuantity += qty;
+                if (pwi.ReservedQuantity < 0)
+                    pwi.ReservedQuantity = 0;
 
                 await _productRepository.UpdateToSet(product.Id, x => x.ProductWarehouseInventory, z => z.Id, pwi.Id, pwi);
                 await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
@@ -512,8 +524,11 @@ namespace Grand.Business.Catalog.Services.Products
             if (!product.UseMultipleWarehouses)
             {
                 combination.ReservedQuantity += qty;
+                if (combination.ReservedQuantity < 0)
+                    combination.ReservedQuantity = 0;
+
                 product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
-                
+
                 await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id, combination.Id, combination);
                 await _productRepository.UpdateField(product.Id, x => x.ReservedQuantity, product.ReservedQuantity);
                 await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
@@ -526,6 +541,8 @@ namespace Grand.Business.Catalog.Services.Products
                     return;
 
                 pwi.ReservedQuantity += qty;
+                if (pwi.ReservedQuantity < 0)
+                    pwi.ReservedQuantity = 0;
 
                 combination.StockQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
                 combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
@@ -573,6 +590,8 @@ namespace Grand.Business.Catalog.Services.Products
                     return;
 
                 pwi.ReservedQuantity -= qty;
+                if (pwi.ReservedQuantity < 0)
+                    pwi.ReservedQuantity = 0;
 
                 await _productRepository.UpdateToSet(product.Id, x => x.ProductWarehouseInventory, z => z.Id, pwi.Id, pwi);
                 await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
@@ -603,6 +622,9 @@ namespace Grand.Business.Catalog.Services.Products
             if (!product.UseMultipleWarehouses)
             {
                 combination.ReservedQuantity -= qty;
+                if (combination.ReservedQuantity < 0)
+                    combination.ReservedQuantity = 0;
+
                 product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
 
                 await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id, combination.Id, combination);
@@ -617,6 +639,9 @@ namespace Grand.Business.Catalog.Services.Products
                     return;
 
                 pwi.ReservedQuantity -= qty;
+                if (pwi.ReservedQuantity < 0)
+                    pwi.ReservedQuantity = 0;
+
                 combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
 
                 await _productRepository.UpdateToSet(product.Id, x => x.ProductAttributeCombinations, z => z.Id, combination.Id, combination);
@@ -677,7 +702,7 @@ namespace Grand.Business.Catalog.Services.Products
             await _mediator.EntityUpdated(product);
 
             //insert inventory journal
-            if(product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock || product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
+            if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock || product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
                 await InsertInventoryJournal(product, shipment, shipmentItem);
 
         }
@@ -690,7 +715,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Quantity reversed</returns>
         public virtual async Task ReverseBookedInventory(Shipment shipment, ShipmentItem shipmentItem)
         {
-            
+
             if (shipment == null)
                 throw new ArgumentNullException(nameof(shipment));
 
@@ -713,7 +738,7 @@ namespace Grand.Business.Catalog.Services.Products
                 //event notification
                 await _mediator.EntityUpdated(product);
             }
-            
+
         }
 
 
@@ -721,6 +746,8 @@ namespace Grand.Business.Catalog.Services.Products
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
+            if (product.ReservedQuantity < 0)
+                product.ReservedQuantity = 0;
 
             //update
             await _productRepository.UpdateField(product.Id, x => x.StockQuantity, product.StockQuantity);
