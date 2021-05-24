@@ -70,7 +70,7 @@ namespace Grand.Business.Checkout.Interfaces.Orders
         /// <param name="validateCheckoutAttributes">A value indicating whether to validate checkout attributes</param>
         /// <returns>Warnings</returns>
         Task<IList<string>> GetShoppingCartWarnings(IList<ShoppingCartItem> shoppingCart,
-            List<CustomAttribute> checkoutAttributes, bool validateCheckoutAttributes);
+            IList<CustomAttribute> checkoutAttributes, bool validateCheckoutAttributes);
 
         /// <summary>
         /// Validates shopping cart item for reservation products

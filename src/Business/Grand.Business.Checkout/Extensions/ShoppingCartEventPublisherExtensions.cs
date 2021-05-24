@@ -11,7 +11,7 @@ namespace Grand.Business.Checkout.Extensions
 {
     public static class ShoppingCartEventPublisherExtensions
     {
-        public static async Task ShoppingCartWarningsAdd<T, U>(this IMediator eventPublisher, IList<T> warnings, IList<U> shoppingCartItems, List<CustomAttribute> checkoutAttributes, bool validateCheckoutAttributes) where U : ShoppingCartItem
+        public static async Task ShoppingCartWarningsAdd<T, U>(this IMediator eventPublisher, IList<T> warnings, IList<U> shoppingCartItems, IList<CustomAttribute> checkoutAttributes, bool validateCheckoutAttributes) where U : ShoppingCartItem
         {
             await eventPublisher.Publish(new ShoppingCartWarningsEvent<T, U>(warnings, shoppingCartItems, checkoutAttributes, validateCheckoutAttributes));
         }

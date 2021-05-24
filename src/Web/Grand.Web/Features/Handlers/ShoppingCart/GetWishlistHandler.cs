@@ -108,7 +108,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             model.ShowSku = _catalogSettings.ShowSkuOnProductDetailsPage;
 
             //cart warnings
-            var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(request.Cart, new List<Domain.Common.CustomAttribute>(), false);
+            var cartWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(request.Cart, null, false);
             foreach (var warning in cartWarnings)
                 model.Warnings.Add(warning);
 

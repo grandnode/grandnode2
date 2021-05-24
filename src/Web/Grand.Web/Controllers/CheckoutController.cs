@@ -213,7 +213,8 @@ namespace Grand.Web.Controllers
             await _customerService.ResetCheckoutData(customer, _workContext.CurrentStore.Id);
 
             //validation (cart)
-            var checkoutAttributes = await customer.GetUserField<List<CustomAttribute>>(_userFieldService, SystemCustomerFieldNames.CheckoutAttributes, _workContext.CurrentStore.Id);
+            var checkoutAttributes = await customer.GetUserField<List<CustomAttribute>>(_userFieldService, SystemCustomerFieldNames.CheckoutAttributes, 
+                _workContext.CurrentStore.Id);
             var scWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes, true);
             if (scWarnings.Any())
                 return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });

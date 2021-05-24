@@ -498,8 +498,7 @@ namespace Grand.Business.Checkout.Services.Orders
                     if (associatedProduct != null)
                     {
                         var totalQty = shoppingCartItem.Quantity * attributeValue.Quantity;
-                        var associatedProductWarnings = await GetShoppingCartItemWarnings(customer, new ShoppingCartItem()
-                        {
+                        var associatedProductWarnings = await GetShoppingCartItemWarnings(customer, new ShoppingCartItem() {
                             ShoppingCartTypeId = shoppingCartItem.ShoppingCartTypeId,
                             StoreId = _workContext.CurrentStore.Id,
                             Quantity = totalQty,
@@ -670,9 +669,11 @@ namespace Grand.Business.Checkout.Services.Orders
         }
 
         public virtual async Task<IList<string>> GetShoppingCartWarnings(IList<ShoppingCartItem> shoppingCart,
-            List<CustomAttribute> checkoutAttributes, bool validateCheckoutAttributes)
+            IList<CustomAttribute> checkoutAttributes, bool validateCheckoutAttributes)
         {
             var warnings = new List<string>();
+            if (checkoutAttributes == null)
+                checkoutAttributes = new List<CustomAttribute>();
 
             bool hasStandartProducts = false;
             bool hasRecurringProducts = false;

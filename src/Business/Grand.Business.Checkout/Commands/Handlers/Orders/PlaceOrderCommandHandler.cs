@@ -465,7 +465,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 throw new GrandException("Cart is empty");
 
             //validate the entire shopping cart
-            var warnings = await _shoppingCartValidator.GetShoppingCartWarnings(details.Cart, details.CheckoutAttributes.ToList(), true);
+            var warnings = await _shoppingCartValidator.GetShoppingCartWarnings(details.Cart, details.CheckoutAttributes, true);
             if (warnings.Any())
             {
                 var warningsSb = new StringBuilder();
