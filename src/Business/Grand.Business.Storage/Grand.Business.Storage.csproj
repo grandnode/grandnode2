@@ -16,9 +16,9 @@
     <ProjectReference Include="..\Grand.Business.Common\Grand.Business.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="3.7.0.20" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.0.21" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.8.3" />
+    <PackageReference Include="AWSSDK.Core" Version="3.7.0.26" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.0.27" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.8.4" />
     <PackageReference Include="SkiaSharp" Version="2.80.2" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.80.2" />
   </ItemGroup>
