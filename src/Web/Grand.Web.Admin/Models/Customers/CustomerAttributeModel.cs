@@ -13,11 +13,13 @@ namespace Grand.Web.Admin.Models.Customers
         }
 
         [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.Name")]
-
         public string Name { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.IsRequired")]
         public bool IsRequired { get; set; }
+
+        [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.IsReadOnly")]
+        public bool IsReadOnly { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.AttributeControlType")]
         public int AttributeControlTypeId { get; set; }

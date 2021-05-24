@@ -5,6 +5,7 @@
     string controlId = string.Format("customer_attribute_{0}", attribute.Id);
     string textPrompt = attribute.Name;
     string required = attribute.IsRequired ? "required" : "";
+    string readonlyAttr = attribute.IsReadOnly ? "disabled=\"disabled\"" : "";
 
     <div class="row">
         <div class="col-12 form-group custom-attributes">
@@ -13,7 +14,7 @@
                 case AttributeControlType.DropdownList:
                     {
                         <label for="@(controlId)" class="col-form-label">@textPrompt:</label>
-                        <select class="custom-select form-control" name="@(controlId)" id="@(controlId)">
+                        <select class="custom-select form-control" name="@(controlId)" id="@(controlId)" @readonlyAttr>
                             @if (!attribute.IsRequired)
                             {
                                 <option value="">---</option>
@@ -36,7 +37,7 @@
                                     <fieldset>
                                         <legend class="sr-only">@(controlId)</legend>
                                         <label class="custom-control custom-radio">
-                                            <input class="custom-control-input" id="@(controlId)_@(attributeValue.Id)" type="radio" name="@(controlId)" value="@attributeValue.Id" checked="@(attributeValue.IsPreSelected)" />
+                                            <input class="custom-control-input" id="@(controlId)_@(attributeValue.Id)" type="radio" name="@(controlId)" value="@attributeValue.Id" checked="@(attributeValue.IsPreSelected)" @readonlyAttr/>
                                             <span class="custom-control-label"></span>
                                             <span class="custom-control-description">@attributeValue.Name</span>
                                         </label>
@@ -48,7 +49,6 @@
                     }
                     break;
                 case AttributeControlType.Checkboxes:
-                case AttributeControlType.ReadonlyCheckboxes:
                     {
                         <span class="col-form-label">@textPrompt:</span>
                         <ul class="option-list pl-0">
@@ -57,7 +57,7 @@
                                 <li>
 
                                     <label for="@(controlId)_@(attributeValue.Id)" class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" id="@(controlId)_@(attributeValue.Id)" type="checkbox" name="@(controlId)" value="@(attributeValue.Id)" checked="@(attributeValue.IsPreSelected)" @(attribute.AttributeControlType == AttributeControlType.ReadonlyCheckboxes ? Html.Raw(" disabled=\"disabled\"") : null) />
+                                        <input class="custom-control-input" id="@(controlId)_@(attributeValue.Id)" type="checkbox" name="@(controlId)" value="@(attributeValue.Id)" checked="@(attributeValue.IsPreSelected)" @readonlyAttr/>
                                         <span class="custom-control-label"></span>
                                         <span class="custom-control-description">@attributeValue.Name</span>
                                     </label>
@@ -71,14 +71,14 @@
                     {
                         <label for="@(controlId)" class="col-form-label">@textPrompt:</label>
                         <input name="@(controlId)" type="text" class="form-control textbox" id="@(controlId)" value="@(attribute.DefaultValue)"
-                               v-validate="'@required'" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" />
+                               v-validate="'@required'" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" @readonlyAttr />
                         <span class="field-validation-error">{{veeErrors.first('@(controlId)')}}</span>
                     }
                     break;
                 case AttributeControlType.MultilineTextbox:
                     {
                         <label for="@(controlId)" class="col-form-label">@textPrompt:</label>
-                        <textarea class="form-control" id="@(controlId)" name="@(controlId)"
+                        <textarea class="form-control" id="@(controlId)" name="@(controlId)" @readonlyAttr
                                   v-validate="'@required'" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))">@(attribute.DefaultValue)</textarea>
                         <span class="field-validation-error">{{veeErrors.first('@(controlId)')}}</span>
                     }

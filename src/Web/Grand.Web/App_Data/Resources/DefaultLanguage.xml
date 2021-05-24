@@ -6436,6 +6436,9 @@
   <Resource Name="Admin.Customers.CustomerAttributes.Fields.DisplayOrder">
     <Value>Display order</Value>
   </Resource>
+  <Resource Name="Admin.Customers.CustomerAttributes.Fields.IsReadOnly">
+    <Value>Read only</Value>
+  </Resource>
   <Resource Name="Admin.Customers.CustomerAttributes.Fields.IsRequired">
     <Value>Required</Value>
   </Resource>

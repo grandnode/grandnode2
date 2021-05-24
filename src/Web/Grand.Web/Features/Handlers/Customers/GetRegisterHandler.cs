@@ -118,7 +118,7 @@ namespace Grand.Web.Features.Handlers.Customers
                 Language = request.Language,
                 OverrideAttributes = request.OverrideCustomCustomerAttributes
             });
-            foreach (var item in customAttributes)
+            foreach (var item in customAttributes.Where(x=>!x.IsReadOnly))
             {
                 model.CustomerAttributes.Add(item);
             }

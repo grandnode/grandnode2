@@ -636,7 +636,7 @@ namespace Grand.Web.Controllers
                 return Challenge();
 
             //custom customer attributes
-            var customerAttributes = await _mediator.Send(new GetParseCustomAttributes() { Form = form });
+            var customerAttributes = await _mediator.Send(new GetParseCustomAttributes() { Form = form, CustomerCustomAttribute = _workContext.CurrentCustomer.Attributes.ToList() });
             var customerAttributeWarnings = await customerAttributeParser.GetAttributeWarnings(customerAttributes);
 
             foreach (var error in customerAttributeWarnings)

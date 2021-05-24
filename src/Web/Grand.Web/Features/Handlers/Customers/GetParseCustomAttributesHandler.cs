@@ -28,6 +28,14 @@ namespace Grand.Web.Features.Handlers.Customers
             var attributes = await _customerAttributeService.GetAllCustomerAttributes();
             foreach (var attribute in attributes)
             {
+                if (attribute.IsReadOnly)
+                {
+                    var attrReadOnly = request.CustomerCustomAttribute.FirstOrDefault(x => x.Key == attribute.Id);
+                    if (attrReadOnly != null)
+                        customAttributes.Add(attrReadOnly);
+
+                    continue;
+                }
                 string controlId = string.Format("customer_attribute_{0}", attribute.Id);
                 switch (attribute.AttributeControlTypeId)
                 {

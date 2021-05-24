@@ -26,6 +26,11 @@ namespace Grand.Domain.Customers
         public bool IsRequired { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the attribute is read only
+        /// </summary>
+        public bool IsReadOnly { get; set; }
+
+        /// <summary>
         /// Gets or sets the attribute control type identifier
         /// </summary>
         public AttributeControlType AttributeControlTypeId { get; set; }

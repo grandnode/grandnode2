@@ -15,6 +15,7 @@ namespace Grand.Web.Models.Customer
 
         public bool IsRequired { get; set; }
 
+        public bool IsReadOnly { get; set; }
         /// <summary>
         /// Default value for textboxes
         /// </summary>

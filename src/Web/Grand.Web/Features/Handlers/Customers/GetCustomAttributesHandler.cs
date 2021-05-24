@@ -35,6 +35,7 @@ namespace Grand.Web.Features.Handlers.Customers
                     Id = attribute.Id,
                     Name = attribute.GetTranslation(x => x.Name, request.Language.Id),
                     IsRequired = attribute.IsRequired,
+                    IsReadOnly = attribute.IsReadOnly,
                     AttributeControlType = attribute.AttributeControlTypeId,
                 };
 
