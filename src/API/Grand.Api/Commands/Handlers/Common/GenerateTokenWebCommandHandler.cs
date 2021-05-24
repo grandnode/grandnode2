@@ -3,25 +3,21 @@ using Grand.Api.Infrastructure.Extensions;
 using Grand.Api.Jwt;
 using Grand.Infrastructure.Configuration;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Grand.Api.Commands.Handlers.Common
 {
-    public class GenerateGrandWebTokenCommandHandler : IRequestHandler<GenerateGrandWebTokenCommand, string>
+    public class GenerateTokenWebCommandHandler : IRequestHandler<GenerateTokenWebCommand, string>
     {
         private readonly GrandWebApiConfig _grandWebApiConfig;
 
-        public GenerateGrandWebTokenCommandHandler(GrandWebApiConfig grandWebApiConfig)
+        public GenerateTokenWebCommandHandler(GrandWebApiConfig grandWebApiConfig)
         {
             _grandWebApiConfig = grandWebApiConfig;
         }
 
-        public async Task<string> Handle(GenerateGrandWebTokenCommand request, CancellationToken cancellationToken)
+        public async Task<string> Handle(GenerateTokenWebCommand request, CancellationToken cancellationToken)
         {
             var token = new JwtTokenBuilder();
             token.AddSecurityKey(JwtSecurityKey.Create(_grandWebApiConfig.SecretKey));

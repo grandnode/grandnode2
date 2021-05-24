@@ -7,17 +7,15 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace Grand.Api.Web
+namespace Grand.Api.Controllers
 {
-    public class TokenController : Controller
+    public class TokenWebController : Controller
     {
         private readonly ICustomerService _customerService;
         private readonly ICustomerManagerService _customerManagerService;
@@ -26,8 +24,13 @@ namespace Grand.Api.Web
         private readonly IRefreshTokenService _refreshTokenService;
         private readonly IUserFieldService _userFieldService;
 
-        public TokenController(ICustomerService customerService, ICustomerManagerService customerManagerService, IMediator mediator, IStoreHelper storeHelper
-            , IRefreshTokenService refreshTokenService,IUserFieldService userFieldService)
+        public TokenWebController(
+            ICustomerService customerService,
+            ICustomerManagerService customerManagerService,
+            IMediator mediator,
+            IStoreHelper storeHelper,
+            IRefreshTokenService refreshTokenService,
+            IUserFieldService userFieldService)
         {
             _customerService = customerService;
             _customerManagerService = customerManagerService;
@@ -61,10 +64,17 @@ namespace Grand.Api.Web
             {
                 return BadRequest(result.ToString());
             }
+
             var customer = await _customerService.GetCustomerByEmail(model.Email);
+
             var claims = new Dictionary<string, string> {
-                { "Email", model.Email},
-                { "Token",await _userFieldService.GetFieldsForEntity<string>(customer, SystemCustomerFieldNames.PasswordToken) }
+                {
+                    "Email", model.Email
+                },
+                {
+                    "Token",
+                    await _userFieldService.GetFieldsForEntity<string>(customer, SystemCustomerFieldNames.PasswordToken)
+                }
             };
             var tokenDto = await GetToken(claims, customer);
             return Ok(tokenDto);
@@ -79,7 +89,7 @@ namespace Grand.Api.Web
             Customer customer = null;
             var claims = new Dictionary<string, string>();
             var principal = _refreshTokenService.GetPrincipalFromToken(tokenDto.AccessToken);
-            email= principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
+            email = principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
             if (!string.IsNullOrEmpty(email))
             {
                 customer = await _customerService.GetCustomerByEmail(email);
@@ -94,17 +104,17 @@ namespace Grand.Api.Web
             }
 
             var customerRefreshToken = await _refreshTokenService.GetCustomerRefreshToken(customer);
-            if(customerRefreshToken is null || !customerRefreshToken.Token.Equals(tokenDto.RefreshToken))
+            if (customerRefreshToken is null || !customerRefreshToken.Token.Equals(tokenDto.RefreshToken))
             {
                 return BadRequest("Invalid refresh token");
             }
-            var token= await GetToken(claims, customer); ;
+            var token = await GetToken(claims, customer); ;
             return Ok(token);
         }
 
-        private async Task<TokenDto> GetToken(Dictionary<string,string> claims,Customer customer)
+        private async Task<TokenDto> GetToken(Dictionary<string, string> claims, Customer customer)
         {
-            var token = await _mediator.Send(new GenerateGrandWebTokenCommand() { Claims = claims });
+            var token = await _mediator.Send(new GenerateTokenWebCommand() { Claims = claims });
             var refreshToken = _refreshTokenService.GenerateRefreshToken();
             await _refreshTokenService.SaveRefreshTokenToCustomer(customer, refreshToken);
             return new TokenDto() {
