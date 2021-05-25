@@ -5,7 +5,6 @@ using Grand.Business.System.Commands.Models.Security;
 using Grand.Business.System.Interfaces.Installation;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;
-using Grand.Infrastructure.Data;
 using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Models.Install;
@@ -52,7 +51,7 @@ namespace Grand.Web.Controllers
 
         public virtual async Task<IActionResult> Index()
         {
-            if (DataSettingsHelper.DatabaseIsInstalled())
+            if (DataSettingsManager.DatabaseIsInstalled())
                 return RedirectToRoute("HomePage");
 
             var locService = _serviceProvider.GetRequiredService<IInstallationLocalizedService>();
@@ -93,7 +92,7 @@ namespace Grand.Web.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> Index(InstallModel model)
         {
-            if (DataSettingsHelper.DatabaseIsInstalled())
+            if (DataSettingsManager.DatabaseIsInstalled())
                 return RedirectToRoute("HomePage");
 
             var locService = _serviceProvider.GetRequiredService<IInstallationLocalizedService>();
@@ -151,7 +150,6 @@ namespace Grand.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var settingsManager = new DataSettingsManager();
                 try
                 {
                     //save settings
@@ -160,19 +158,13 @@ namespace Grand.Web.Controllers
                         ConnectionString = connectionString,
                         DbProvider = DbProvider.MongoDB
                     };
-                    await settingsManager.SaveSettings(settings);
-
-                    var dataProviderInstance = _serviceProvider.GetRequiredService<BaseDataProviderManager>().LoadDataProvider();
-                    dataProviderInstance.InitDatabase();
-
-                    var dataSettingsManager = new DataSettingsManager();
-                    var dataProviderSettings = dataSettingsManager.LoadSettings(reloadSettings: true);
+                    await DataSettingsManager.SaveSettings(settings);
 
                     var installationService = _serviceProvider.GetRequiredService<IInstallationService>();
                     await installationService.InstallData(model.AdminEmail, model.AdminPassword, model.Collation, model.InstallSampleData, model.CompanyName, model.CompanyAddress, model.CompanyPhoneNumber, model.CompanyEmail);
 
                     //reset cache
-                    DataSettingsHelper.ResetCache();
+                    DataSettingsManager.ResetCache();
 
                     PluginManager.ClearPlugins();
 
@@ -209,7 +201,7 @@ namespace Grand.Web.Controllers
                 catch (Exception exception)
                 {
                     //reset cache
-                    DataSettingsHelper.ResetCache();
+                    DataSettingsManager.ResetCache();
                     await _cacheBase.Clear();
 
                     System.IO.File.Delete(CommonPath.SettingsPath);
@@ -245,7 +237,7 @@ namespace Grand.Web.Controllers
 
         public virtual IActionResult ChangeLanguage(string language)
         {
-            if (DataSettingsHelper.DatabaseIsInstalled())
+            if (DataSettingsManager.DatabaseIsInstalled())
                 return RedirectToRoute("HomePage");
 
             var locService = _serviceProvider.GetRequiredService<IInstallationLocalizedService>();
@@ -257,7 +249,7 @@ namespace Grand.Web.Controllers
 
         public virtual IActionResult RestartInstall()
         {
-            if (DataSettingsHelper.DatabaseIsInstalled())
+            if (DataSettingsManager.DatabaseIsInstalled())
                 return RedirectToRoute("HomePage");
 
             //stop application

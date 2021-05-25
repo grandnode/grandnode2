@@ -1,5 +1,6 @@
 ﻿using Grand.Api.Commands.Models.Common;
 using Grand.Api.DTOs;
+using Grand.Api.Models.Common;
 using Grand.Business.Authentication.Interfaces;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Customers.Interfaces;
@@ -61,7 +62,7 @@ namespace Grand.Api.Controllers
         [AllowAnonymous]
         [IgnoreAntiforgeryToken]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Models.Common.LoginModel model)
+        public async Task<IActionResult> Create([FromBody] LoginModel model)
         {
             var result = await _customerManagerService.LoginCustomer(model.Email, model.Password);
             if (!result.Equals(CustomerLoginResults.Successful))

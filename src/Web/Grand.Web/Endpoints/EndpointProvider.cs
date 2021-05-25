@@ -12,7 +12,7 @@ namespace Grand.Web.Endpoints
         public void RegisterEndpoint(IEndpointRouteBuilder endpointRouteBuilder)
         {
             var pattern = "";
-            if (DataSettingsHelper.DatabaseIsInstalled())
+            if (DataSettingsManager.DatabaseIsInstalled())
             {
                 var config = endpointRouteBuilder.ServiceProvider.GetRequiredService<AppConfig>();
                 if (config.SeoFriendlyUrlsForLanguagesEnabled)

@@ -58,7 +58,7 @@ namespace Grand.Web.Common.Filters
                 if (context == null || context.HttpContext == null || context.HttpContext.Request == null)
                     return;
 
-                if (!DataSettingsHelper.DatabaseIsInstalled())
+                if (!DataSettingsManager.DatabaseIsInstalled())
                     return;
 
                 //get action and controller names

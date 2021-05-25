@@ -77,7 +77,7 @@ namespace Grand.Web.Common.Filters
                 if (actionFilter?.IgnoreFilter ?? _ignoreFilter)
                     return;
 
-                if (!DataSettingsHelper.DatabaseIsInstalled())
+                if (!DataSettingsManager.DatabaseIsInstalled())
                     return;
 
                 //there is AdminAuthorizeFilter, so check access

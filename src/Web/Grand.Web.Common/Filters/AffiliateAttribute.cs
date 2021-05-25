@@ -95,7 +95,7 @@ namespace Grand.Web.Common.Filters
                 if (request?.Query == null || !request.Query.Any())
                     return;
 
-                if (!DataSettingsHelper.DatabaseIsInstalled())
+                if (!DataSettingsManager.DatabaseIsInstalled())
                     return;
 
                 //try to find by ID

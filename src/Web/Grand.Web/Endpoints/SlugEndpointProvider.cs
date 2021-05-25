@@ -12,7 +12,7 @@ namespace Grand.Web.Endpoints
     {
         public void RegisterEndpoint(IEndpointRouteBuilder endpointRouteBuilder)
         {
-            if (!DataSettingsHelper.DatabaseIsInstalled())
+            if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
             var pattern = "{**SeName}";

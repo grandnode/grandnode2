@@ -9,15 +9,17 @@ namespace Grand.Domain.Data
     /// <summary>
     /// Manager of data settings (connection string)
     /// </summary>
-    public partial class DataSettingsManager
+    public static class DataSettingsManager
     {
 
-        private DataSettings _dataSettings;
+        private static DataSettings _dataSettings;
+
+        private static bool? _databaseIsInstalled;
 
         /// <summary>
         /// Load settings
         /// </summary>
-        public virtual DataSettings LoadSettings(bool reloadSettings = false)
+        public static DataSettings LoadSettings(bool reloadSettings = false)
         {
             if (!reloadSettings && _dataSettings != null)
                 return _dataSettings;
@@ -41,10 +43,29 @@ namespace Grand.Domain.Data
         }
 
         /// <summary>
+        /// Returns a value indicating whether database is already installed
+        /// </summary>
+        /// <returns></returns>
+        public static bool DatabaseIsInstalled()
+        {
+            if (!_databaseIsInstalled.HasValue)
+            {
+                var settings = _dataSettings ?? LoadSettings();
+                _databaseIsInstalled = settings != null && !string.IsNullOrEmpty(settings.ConnectionString);
+            }
+            return _databaseIsInstalled.Value;
+        }
+
+        public static void ResetCache()
+        {
+            _databaseIsInstalled = false;
+        }
+
+        /// <summary>
         /// Save settings to a file
         /// </summary>
         /// <param name="settings"></param>
-        public virtual async Task SaveSettings(DataSettings settings)
+        public static async Task SaveSettings(DataSettings settings)
         {
             var filePath = CommonPath.SettingsPath;
             if (!File.Exists(filePath))

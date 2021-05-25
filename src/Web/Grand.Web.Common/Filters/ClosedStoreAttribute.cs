@@ -91,7 +91,7 @@ namespace Grand.Web.Common.Filters
                     return;
                 }
 
-                if (!DataSettingsHelper.DatabaseIsInstalled())
+                if (!DataSettingsManager.DatabaseIsInstalled())
                 {
                     await next();
                     return;

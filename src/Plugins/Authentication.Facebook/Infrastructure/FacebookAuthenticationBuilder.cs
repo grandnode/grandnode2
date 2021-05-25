@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Authentication.Interfaces;
 using Grand.Domain.Configuration;
 using Grand.Domain.Data;
-using Grand.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -29,10 +28,12 @@ namespace Authentication.Facebook.Infrastructure
         {
             builder.AddFacebook(FacebookDefaults.AuthenticationScheme, options =>
             {
+                var connection = DataSettingsManager.LoadSettings();
+
                 var settings = new FacebookExternalAuthSettings();
                 try
                 {
-                    var fbSettings = new Repository<Setting>(DataSettingsHelper.ConnectionString()).Table.Where(x => x.Name.StartsWith("facebookexternalauthsettings"));
+                    var fbSettings = new Repository<Setting>(connection.ConnectionString).Table.Where(x => x.Name.StartsWith("facebookexternalauthsettings"));
                     if (fbSettings.Any())
                     {
                         var metadata = fbSettings.FirstOrDefault().Metadata;

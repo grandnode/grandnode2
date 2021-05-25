@@ -77,7 +77,7 @@ namespace Grand.Web.Common.Filters
                 if (actionFilter?.IgnoreFilter ?? _ignoreFilter)
                     return;
 
-                if (!DataSettingsHelper.DatabaseIsInstalled())
+                if (!DataSettingsManager.DatabaseIsInstalled())
                     return;
 
                 //check whether current customer has access to a public store
