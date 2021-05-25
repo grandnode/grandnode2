@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,6 +13,12 @@ namespace Grand.Domain.Data.Mongo
         public MongoDBContext()
         {
 
+        }
+        public MongoDBContext(string connectionString)
+        {
+            var mongourl = new MongoUrl(connectionString);
+            var databaseName = mongourl.DatabaseName;
+            _database = new MongoClient(connectionString).GetDatabase(databaseName);
         }
 
         public MongoDBContext(IMongoDatabase mongodatabase)
@@ -67,6 +74,48 @@ namespace Grand.Domain.Data.Mongo
                 return true;
             else
                 return false;
+        }
+
+        public async Task CreateTable(string name, string collation)
+        {
+            var options = new CreateCollectionOptions();
+            options.Collation = new Collation(collation);
+            var database = _database ?? TryReadMongoDatabase();
+            await database.CreateCollectionAsync(name, options);
+
+        }
+
+        public async Task CreateIndex<T>(IRepository<T> repository, OrderBuilder<T> orderBuilder, string indexName, bool unique = false) where T : BaseEntity
+        {
+            IList<IndexKeysDefinition<T>> keys = new List<IndexKeysDefinition<T>>();
+            foreach (var item in orderBuilder.Fields)
+            {
+                if (item.selector != null)
+                {
+                    if (item.value)
+                    {
+                        keys.Add(Builders<T>.IndexKeys.Ascending(item.selector));
+                    }
+                    else
+                    {
+                        keys.Add(Builders<T>.IndexKeys.Descending(item.selector));
+                    }
+                }
+                else
+                {
+                    if (item.value)
+                    {
+                        keys.Add(Builders<T>.IndexKeys.Ascending(item.fieldName));
+                    }
+                    else
+                    {
+                        keys.Add(Builders<T>.IndexKeys.Descending(item.fieldName));
+                    }
+                }
+            }
+
+            await ((MongoRepository<T>)repository).Collection.Indexes.CreateOneAsync(new CreateIndexModel<T>(Builders<T>.IndexKeys.Combine(keys),
+                new CreateIndexOptions() { Name = indexName, Unique = unique }));
         }
     }
 }
