@@ -1,10 +1,20 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Collections.Generic;
 
 namespace Grand.Web.Admin.Models.Settings
 {
     public partial class CatalogSettingsModel : BaseModel
     {
+        public CatalogSettingsModel()
+        {
+            DefaultViewModes = new List<SelectListItem>();
+            DefaultViewModes.Add(new SelectListItem() { Text = "grid", Value = "grid" });
+            DefaultViewModes.Add(new SelectListItem() { Text = "list", Value = "list" });
+        }
+
+        
         public string ActiveStore { get; set; }
 
 
@@ -226,6 +236,7 @@ namespace Grand.Web.Admin.Models.Settings
 
         [GrandResourceDisplayName("Admin.Settings.Catalog.DefaultViewMode")]
         public string DefaultViewMode { get; set; }
+        public IList<SelectListItem> DefaultViewModes { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Catalog.DefaultCollectionPageSize")]
         public int DefaultCollectionPageSize { get; set; }
