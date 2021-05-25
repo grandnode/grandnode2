@@ -5,6 +5,7 @@ using Grand.Domain.Data;
 using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
+using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MongoDB.Driver;
@@ -29,6 +30,8 @@ namespace Grand.Business.Catalog.Tests.Handlers
         [TestInitialize()]
         public void Init()
         {
+            CommonPath.BaseDirectory = "";
+
             _repositoryMock = new Mock<MongoRepository<Product>>();
             _mediatorMock = new Mock<IMediator>();
             _cacheMock = new Mock<ICacheBase>();
@@ -47,8 +50,8 @@ namespace Grand.Business.Catalog.Tests.Handlers
         {
             var product = new Product();
             var command = new UpdateIntervalPropertiesCommand() { Product = product };
-            var collectionMock = new Mock<IMongoCollection<Product>>();
-            _repositoryMock.Setup(c => c.Collection).Returns(collectionMock.Object);
+            //var collectionMock = new Mock<IMongoCollection<Product>>();
+            //_repositoryMock.Setup(c => c.Collection).Returns(collectionMock.Object);
             await _handler.Handle(command, default);
             //TODO
             //collectionMock.Verify(c => c.UpdateOneAsync(x => x.Id == product.Id, It.IsAny<UpdateDefinition<Product>>(), null, default), Times.Once);

@@ -7,6 +7,7 @@ using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
+using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MongoDB.Driver;
@@ -36,6 +37,8 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         [TestInitialize()]
         public void Init()
         {
+            CommonPath.BaseDirectory = "";
+
             _casheManagerMock = new Mock<ICacheBase>();
             _categoryRepositoryMock = new Mock<IRepository<Grand.Domain.Catalog.Category>>();
             _productRepositoryMock = new Mock<MongoRepository<Product>>();
@@ -144,8 +147,8 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         [TestMethod()]
         public async Task DeleteProductCategory_InvokreRepositoryAndClearCache()
         {
-            var collectonMock = new Mock<IMongoCollection<Product>>();
-            _productRepositoryMock.Setup(p => p.Collection).Returns(collectonMock.Object);
+            //var collectonMock = new Mock<IMongoCollection<Product>>();
+            //_productRepositoryMock.Setup(p => p.Collection).Returns(collectonMock.Object);
             await _productCategoryService.DeleteProductCategory(new ProductCategory(), "1");
             //TODO
             //collectonMock.Verify(c => c.UpdateOneAsync(It.IsAny<FilterDefinition<Product>>(), It.IsAny<UpdateDefinition<Product>>(), null, default(CancellationToken)), Times.Once);
@@ -163,8 +166,8 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         [TestMethod()]
         public async Task InsertProductCategory_InvokreRepositoryAndClearCache()
         {
-            var collectonMock = new Mock<IMongoCollection<Product>>();
-            _productRepositoryMock.Setup(p => p.Collection).Returns(collectonMock.Object);
+            //var collectonMock = new Mock<IMongoCollection<Product>>();
+            //_productRepositoryMock.Setup(p => p.Collection).Returns(collectonMock.Object);
             await _productCategoryService.InsertProductCategory(new ProductCategory(), "id");
             //TODO
             //collectonMock.Verify(c => c.UpdateOneAsync(It.IsAny<FilterDefinition<Product>>(), It.IsAny<UpdateDefinition<Product>>(), null, default(CancellationToken)), Times.Once);

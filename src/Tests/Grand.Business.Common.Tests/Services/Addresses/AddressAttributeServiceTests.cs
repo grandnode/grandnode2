@@ -4,6 +4,7 @@ using Grand.Domain.Data;
 using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
+using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MongoDB.Driver;
@@ -27,6 +28,7 @@ namespace Grand.Business.Common.Tests.Services.Addresses
         [TestInitialize()]
         public void Init()
         {
+            CommonPath.BaseDirectory = "";
             _cacheMock = new Mock<ICacheBase>();
             _repositoryMock = new Mock<MongoRepository<AddressAttribute>>();
             _mediatorMock = new Mock<IMediator>();
@@ -63,7 +65,6 @@ namespace Grand.Business.Common.Tests.Services.Addresses
         [TestMethod()]
         public async Task InsertAddressAttributeValue_ValidArgument_InvokeExpectedMethod()
         {
-            _repositoryMock.Setup(c => c.Collection).Returns(new Mock<IMongoCollection<AddressAttribute>>().Object);
             await _service.InsertAddressAttributeValue(new AddressAttributeValue() { AddressAttributeId="id"});
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<AddressAttributeValue>>(), default), Times.Once);
             _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()));
@@ -72,7 +73,6 @@ namespace Grand.Business.Common.Tests.Services.Addresses
         [TestMethod()]
         public async Task DeleteAddressAttributeValue_ValidArgument_InvokeExpectedMethod()
         {
-            _repositoryMock.Setup(c => c.Collection).Returns(new Mock<IMongoCollection<AddressAttribute>>().Object);
             await _service.DeleteAddressAttributeValue(new AddressAttributeValue() { AddressAttributeId="id"});
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<AddressAttributeValue>>(), default), Times.Once);
             _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()));
@@ -81,7 +81,6 @@ namespace Grand.Business.Common.Tests.Services.Addresses
         [TestMethod()]
         public async Task UpdateAddressAttributeValue_ValidArgument_InvokeExpectedMethod()
         {
-            _repositoryMock.Setup(c => c.Collection).Returns(new Mock<IMongoCollection<AddressAttribute>>().Object);
             await _service.UpdateAddressAttributeValue(new AddressAttributeValue() { AddressAttributeId = "id" });
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<AddressAttributeValue>>(), default), Times.Once);
             _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()));
