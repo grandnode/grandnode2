@@ -10,15 +10,15 @@ namespace Grand.Api.Queries.Handlers.Common
 {
     public class GetStoreQueryHandler : IRequestHandler<GetQuery<StoreDto>, IQueryable<StoreDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetStoreQueryHandler(IMongoDBContext mongoDBContext)
+        public GetStoreQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
         public async Task<IQueryable<StoreDto>> Handle(GetQuery<StoreDto> request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<StoreDto>(typeof(Domain.Stores.Store).Name);
+            var query = _dbContext.Table<StoreDto>(typeof(Domain.Stores.Store).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;

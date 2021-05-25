@@ -10,15 +10,15 @@ namespace Grand.Api.Queries.Handlers.Shipping
 {
     public class GetDeliveryDateQueryHandler : IRequestHandler<GetQuery<DeliveryDateDto>, IQueryable<DeliveryDateDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetDeliveryDateQueryHandler(IMongoDBContext mongoDBContext)
+        public GetDeliveryDateQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
         public async Task<IQueryable<DeliveryDateDto>> Handle(GetQuery<DeliveryDateDto> request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<DeliveryDateDto>(typeof(Domain.Shipping.DeliveryDate).Name);
+            var query = _dbContext.Table<DeliveryDateDto>(typeof(Domain.Shipping.DeliveryDate).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;

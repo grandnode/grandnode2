@@ -10,15 +10,15 @@ namespace Grand.Api.Queries.Handlers.Common
 {
     public class GetCountryQueryHandler : IRequestHandler<GetQuery<CountryDto>, IQueryable<CountryDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetCountryQueryHandler(IMongoDBContext mongoDBContext)
+        public GetCountryQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
         public async Task<IQueryable<CountryDto>> Handle(GetQuery<CountryDto> request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<CountryDto>(typeof(Domain.Directory.Country).Name);
+            var query = _dbContext.Table<CountryDto>(typeof(Domain.Directory.Country).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;

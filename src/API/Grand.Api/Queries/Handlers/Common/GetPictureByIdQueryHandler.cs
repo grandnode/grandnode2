@@ -10,16 +10,16 @@ namespace Grand.Api.Queries.Handlers.Common
 {
     public class GetPictureByIdQueryHandler : IRequestHandler<GetPictureByIdQuery, PictureDto>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetPictureByIdQueryHandler(IMongoDBContext mongoDBContext)
+        public GetPictureByIdQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
 
         public async Task<PictureDto> Handle(GetPictureByIdQuery request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<PictureDto>(typeof(Domain.Media.Picture).Name);
+            var query = _dbContext.Table<PictureDto>(typeof(Domain.Media.Picture).Name);
             return await Task.FromResult(query.Where(x => x.Id == request.Id).FirstOrDefault());
         }
     }

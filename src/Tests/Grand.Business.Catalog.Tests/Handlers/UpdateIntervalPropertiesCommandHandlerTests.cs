@@ -2,6 +2,7 @@
 using Grand.Business.Catalog.Commands.Models;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
+using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
 using MediatR;
@@ -20,7 +21,7 @@ namespace Grand.Business.Catalog.Tests.Handlers
     [TestClass()]
     public class UpdateIntervalPropertiesCommandHandlerTests
     {
-        private Mock<IRepository<Product>> _repositoryMock;
+        private Mock<MongoRepository<Product>> _repositoryMock;
         private Mock<IMediator> _mediatorMock;
         private Mock<ICacheBase> _cacheMock;
         private UpdateIntervalPropertiesCommandHandler _handler;
@@ -28,7 +29,7 @@ namespace Grand.Business.Catalog.Tests.Handlers
         [TestInitialize()]
         public void Init()
         {
-            _repositoryMock = new Mock<IRepository<Product>>();
+            _repositoryMock = new Mock<MongoRepository<Product>>();
             _mediatorMock = new Mock<IMediator>();
             _cacheMock = new Mock<ICacheBase>();
             _handler = new UpdateIntervalPropertiesCommandHandler(_repositoryMock.Object, _mediatorMock.Object, _cacheMock.Object);

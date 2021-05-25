@@ -10,15 +10,15 @@ namespace Grand.Api.Queries.Handlers.Common
 {
     public class GetProductAttributeQueryHandler : IRequestHandler<GetQuery<ProductAttributeDto>, IQueryable<ProductAttributeDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetProductAttributeQueryHandler(IMongoDBContext mongoDBContext)
+        public GetProductAttributeQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
         public async Task<IQueryable<ProductAttributeDto>> Handle(GetQuery<ProductAttributeDto> request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<ProductAttributeDto>(typeof(Domain.Catalog.ProductAttribute).Name);
+            var query = _dbContext.Table<ProductAttributeDto>(typeof(Domain.Catalog.ProductAttribute).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;

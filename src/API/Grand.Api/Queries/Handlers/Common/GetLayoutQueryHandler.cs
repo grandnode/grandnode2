@@ -10,16 +10,16 @@ namespace Grand.Api.Queries.Handlers.Common
 {
     public class GetLayoutQueryHandler : IRequestHandler<GetLayoutQuery, IQueryable<LayoutDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetLayoutQueryHandler(IMongoDBContext mongoDBContext)
+        public GetLayoutQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
 
         public async Task<IQueryable<LayoutDto>> Handle(GetLayoutQuery request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<LayoutDto>(request.LayoutName);
+            var query = _dbContext.Table<LayoutDto>(request.LayoutName);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;

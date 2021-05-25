@@ -1,4 +1,5 @@
 ﻿using Grand.Domain.Data;
+using Grand.Domain.Data.Mongo;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -40,10 +41,10 @@ namespace Grand.Infrastructure.Startup
 
             }
 
-            serviceCollection.AddScoped<IMongoDBContext, MongoDBContext>();
-            //MongoDbRepository
+            serviceCollection.AddScoped<IDatabaseContext, MongoDBContext>();
 
-            serviceCollection.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            //MongoDbRepository
+            serviceCollection.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
 
         }
     }

@@ -4,6 +4,7 @@ using Grand.Business.Common.Services.Security;
 using Grand.Business.System.Commands.Models.Security;
 using Grand.Business.System.Interfaces.Installation;
 using Grand.Domain.Data;
+using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
@@ -60,8 +61,7 @@ namespace Grand.Web.Controllers
             if (installed)
                 return View(new InstallModel() { Installed = true });
 
-            var model = new InstallModel
-            {
+            var model = new InstallModel {
                 AdminEmail = "admin@yourstore.com",
                 InstallSampleData = false,
                 DatabaseConnectionString = "",
@@ -69,8 +69,7 @@ namespace Grand.Web.Controllers
             };
             foreach (var lang in locService.GetAvailableLanguages())
             {
-                model.AvailableLanguages.Add(new SelectListItem
-                {
+                model.AvailableLanguages.Add(new SelectListItem {
                     Value = Url.RouteUrl("InstallChangeLanguage", new { language = lang.Code }),
                     Text = lang.Name,
                     Selected = locService.GetCurrentLanguage().Code == lang.Code,
@@ -79,8 +78,7 @@ namespace Grand.Web.Controllers
             //prepare collation list
             foreach (var col in locService.GetAvailableCollations())
             {
-                model.AvailableCollation.Add(new SelectListItem
-                {
+                model.AvailableCollation.Add(new SelectListItem {
                     Value = col.Value,
                     Text = col.Name,
                     Selected = locService.GetCurrentLanguage().Code == col.Value,
@@ -137,7 +135,7 @@ namespace Grand.Web.Controllers
                 try
                 {
                     var mdb = new MongoDBContext();
-                    if(await mdb.DatabaseExist(connectionString))
+                    if (await mdb.DatabaseExist(connectionString))
                         ModelState.AddModelError("", locService.GetResource("AlreadyInstalled"));
                 }
                 catch (Exception ex)
@@ -153,8 +151,7 @@ namespace Grand.Web.Controllers
                 try
                 {
                     //save settings
-                    var settings = new DataSettings
-                    {
+                    var settings = new DataSettings {
                         ConnectionString = connectionString,
                         DbProvider = DbProvider.MongoDB
                     };
@@ -213,8 +210,7 @@ namespace Grand.Web.Controllers
             //prepare language list
             foreach (var lang in locService.GetAvailableLanguages())
             {
-                model.AvailableLanguages.Add(new SelectListItem
-                {
+                model.AvailableLanguages.Add(new SelectListItem {
                     Value = Url.RouteUrl("InstallChangeLanguage", new { language = lang.Code }),
                     Text = lang.Name,
                     Selected = locService.GetCurrentLanguage().Code == lang.Code,
@@ -224,8 +220,7 @@ namespace Grand.Web.Controllers
             //prepare collation list
             foreach (var col in locService.GetAvailableCollations())
             {
-                model.AvailableCollation.Add(new SelectListItem
-                {
+                model.AvailableCollation.Add(new SelectListItem {
                     Value = col.Value,
                     Text = col.Name,
                     Selected = locService.GetCurrentLanguage().Code == col.Value,

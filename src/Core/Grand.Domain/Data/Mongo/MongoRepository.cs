@@ -8,12 +8,12 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Grand.Domain.Data
+namespace Grand.Domain.Data.Mongo
 {
     /// <summary>
     /// MongoDB repository
     /// </summary>
-    public partial class Repository<T> : IRepository<T> where T : BaseEntity
+    public partial class MongoRepository<T> : IRepository<T> where T : BaseEntity
     {
         #region Fields
 
@@ -54,7 +54,7 @@ namespace Grand.Domain.Data
         /// <summary>
         /// Ctor
         /// </summary>        
-        public Repository()
+        public MongoRepository()
         {
             var connection = DataSettingsManager.LoadSettings();
 
@@ -66,7 +66,7 @@ namespace Grand.Domain.Data
                 _collection = _database.GetCollection<T>(typeof(T).Name);
             }
         }
-        public Repository(string connectionString)
+        public MongoRepository(string connectionString)
         {
             var client = new MongoClient(connectionString);
             var databaseName = new MongoUrl(connectionString).DatabaseName;
@@ -75,7 +75,7 @@ namespace Grand.Domain.Data
         }
 
 
-        public Repository(IMongoDatabase database)
+        public MongoRepository(IMongoDatabase database)
         {
             _database = database;
             _collection = _database.GetCollection<T>(typeof(T).Name);
@@ -111,19 +111,6 @@ namespace Grand.Domain.Data
         public virtual Task<List<T>> GetAllAsync()
         {
             return _collection.AsQueryable().ToListAsync();
-        }
-
-        /// <summary>
-        /// get first item in query as async with filterdefinition
-        /// </summary>
-        /// <param name="filter"></param>
-        /// <returns>entity of <typeparamref name="T"/></returns>
-        public virtual Task<T> FirstOrDefaultAsync(FilterDefinition<T> filter = null)
-        {
-            if (filter == null)
-                return _collection.AsQueryable().FirstOrDefaultAsync();
-
-            return _collection.Find(filter).FirstOrDefaultAsync();
         }
 
         /// <summary>
@@ -243,9 +230,9 @@ namespace Grand.Domain.Data
         /// <param name="updateBuilder"></param>
         /// <returns></returns>
         public virtual async Task UpdateOneAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder)
-        {
+        {           
             var update = Builders<T>.Update.Combine(updateBuilder.Fields);
-            var result = await _collection.UpdateOneAsync(filterexpression, update);
+            await _collection.UpdateOneAsync(filterexpression, update);
         }
 
         /// <summary>
@@ -257,7 +244,7 @@ namespace Grand.Domain.Data
         public virtual async Task UpdateManyAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder)
         {
             var update = Builders<T>.Update.Combine(updateBuilder.Fields);
-            var result = await _collection.UpdateManyAsync(filterexpression, update);
+            await _collection.UpdateManyAsync(filterexpression, update);
         }
 
         // <summary>
@@ -297,7 +284,7 @@ namespace Grand.Domain.Data
             MemberInfo minfo = me.Member;
             var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
 
-            var result = await _collection.UpdateOneAsync(filter, update);
+            await _collection.UpdateOneAsync(filter, update);
         }
 
         /// <summary>
@@ -320,11 +307,11 @@ namespace Grand.Domain.Data
 
             if (updateMany)
             {
-                var result = await _collection.UpdateManyAsync(filter, update);
+                await _collection.UpdateManyAsync(filter, update);
             }
             else
             {
-                var result = await _collection.UpdateOneAsync(filter, update);
+                await _collection.UpdateOneAsync(filter, update);
             }
 
         }
@@ -369,11 +356,11 @@ namespace Grand.Domain.Data
             var update = Builders<T>.Update.PullFilter(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
             if (updateMany)
             {
-                var result = await _collection.UpdateManyAsync(filter, update);
+                await _collection.UpdateManyAsync(filter, update);
             }
             else
             {
-                var result = await _collection.UpdateOneAsync(filter, update);
+                await _collection.UpdateOneAsync(filter, update);
             }
         }
 
@@ -389,7 +376,7 @@ namespace Grand.Domain.Data
         {
             var filter = Builders<T>.Filter.Eq(x => x.Id, id);
             var update = Builders<T>.Update.PullFilter(field, elemFieldMatch);
-            var result = await _collection.UpdateOneAsync(filter, update);
+            await _collection.UpdateOneAsync(filter, update);
         }
         /// <summary>
         /// Delete subdocument
@@ -404,11 +391,11 @@ namespace Grand.Domain.Data
             var update = Builders<T>.Update.Pull(field, element);
             if (updateMany)
             {
-                var result = await _collection.UpdateManyAsync(filter, update);
+                await _collection.UpdateManyAsync(filter, update);
             }
             else
             {
-                var result = await _collection.UpdateOneAsync(filter, update);
+                await _collection.UpdateOneAsync(filter, update);
             }
         }
         /// <summary>

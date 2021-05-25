@@ -10,15 +10,15 @@ namespace Grand.Api.Queries.Handlers.Shipping
 {
     public class GetWarehouseQueryHandler : IRequestHandler<GetQuery<WarehouseDto>, IQueryable<WarehouseDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetWarehouseQueryHandler(IMongoDBContext mongoDBContext)
+        public GetWarehouseQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
         public async Task<IQueryable<WarehouseDto>> Handle(GetQuery<WarehouseDto> request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<WarehouseDto>(typeof(Domain.Shipping.Warehouse).Name);
+            var query = _dbContext.Table<WarehouseDto>(typeof(Domain.Shipping.Warehouse).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;

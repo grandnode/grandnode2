@@ -10,15 +10,15 @@ namespace Grand.Api.Queries.Handlers.Common
 {
     public class GetStateProvinceQueryHandler : IRequestHandler<GetQuery<StateProvinceDto>, IQueryable<StateProvinceDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetStateProvinceQueryHandler(IMongoDBContext mongoDBContext)
+        public GetStateProvinceQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
         public async Task<IQueryable<StateProvinceDto>> Handle(GetQuery<StateProvinceDto> request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<StateProvinceDto>(typeof(Domain.Directory.StateProvince).Name);
+            var query = _dbContext.Table<StateProvinceDto>(typeof(Domain.Directory.StateProvince).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;

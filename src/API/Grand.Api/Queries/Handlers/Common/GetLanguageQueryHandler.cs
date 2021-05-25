@@ -10,15 +10,15 @@ namespace Grand.Api.Queries.Handlers.Common
 {
     public class GetLanguageQueryHandler : IRequestHandler<GetQuery<LanguageDto>, IQueryable<LanguageDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetLanguageQueryHandler(IMongoDBContext mongoDBContext)
+        public GetLanguageQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
         public async Task<IQueryable<LanguageDto>> Handle(GetQuery<LanguageDto> request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<LanguageDto>(typeof(Domain.Localization.Language).Name);
+            var query = _dbContext.Table<LanguageDto>(typeof(Domain.Localization.Language).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;

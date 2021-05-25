@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation.AspNetCore;
-using Grand.Domain.Data;
+using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure.Caching.RabbitMq;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;

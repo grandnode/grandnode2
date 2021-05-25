@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Catalog.Services.Categories;
 using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Interfaces.Stores;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
+using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
@@ -14,7 +14,6 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,7 +25,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
     {
         private Mock<ICacheBase> _casheManagerMock;
         private Mock<IRepository<Grand.Domain.Catalog.Category>> _categoryRepositoryMock;
-        private Mock<IRepository<Product>> _productRepositoryMock;
+        private Mock<MongoRepository<Product>> _productRepositoryMock;
         private Mock<IWorkContext> _workContextMock;
         private Mock<IMediator> _mediatorMock;
         private Mock<IAclService> _aclServiceMock;
@@ -39,7 +38,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         {
             _casheManagerMock = new Mock<ICacheBase>();
             _categoryRepositoryMock = new Mock<IRepository<Grand.Domain.Catalog.Category>>();
-            _productRepositoryMock = new Mock<IRepository<Product>>();
+            _productRepositoryMock = new Mock<MongoRepository<Product>>();
             _workContextMock = new Mock<IWorkContext>();
             _mediatorMock = new Mock<IMediator>();
             _aclServiceMock = new Mock<IAclService>();
@@ -111,7 +110,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
             var allCategory = GetMockCategoryList();
             var category = new Grand.Domain.Catalog.Category() { Id = "6", ParentCategoryId = "1", Published = true };
             _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
-            _aclServiceMock.Setup(a => a.Authorize<Grand.Domain.Catalog.Category>(It.IsAny<Grand.Domain.Catalog.Category>(),It.IsAny<Customer>())).Returns(() => true);
+            _aclServiceMock.Setup(a => a.Authorize<Grand.Domain.Catalog.Category>(It.IsAny<Grand.Domain.Catalog.Category>(), It.IsAny<Customer>())).Returns(() => true);
             _aclServiceMock.Setup(a => a.Authorize<Grand.Domain.Catalog.Category>(It.IsAny<Grand.Domain.Catalog.Category>(), It.IsAny<string>())).Returns(() => true);
             var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
             Assert.IsTrue(result.Count == 3);
@@ -141,13 +140,13 @@ namespace Grand.Business.Catalog.Tests.Service.Category
             var result = _categoryService.GetFormattedBreadCrumb(null, allCategory);
             Assert.IsTrue(string.IsNullOrEmpty(result));
         }
-        
+
         [TestMethod()]
         public async Task DeleteProductCategory_InvokreRepositoryAndClearCache()
         {
             var collectonMock = new Mock<IMongoCollection<Product>>();
             _productRepositoryMock.Setup(p => p.Collection).Returns(collectonMock.Object);
-            await _productCategoryService.DeleteProductCategory(new ProductCategory(),"1");
+            await _productCategoryService.DeleteProductCategory(new ProductCategory(), "1");
             //TODO
             //collectonMock.Verify(c => c.UpdateOneAsync(It.IsAny<FilterDefinition<Product>>(), It.IsAny<UpdateDefinition<Product>>(), null, default(CancellationToken)), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<ProductCategory>>(), default(CancellationToken)), Times.Once);
@@ -158,7 +157,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         [TestMethod()]
         public void DeleteProductCategory_NullArgument_ThrowException()
         {
-            Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _productCategoryService.DeleteProductCategory(null,"id"), "productCategory");
+            Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _productCategoryService.DeleteProductCategory(null, "id"), "productCategory");
         }
 
         [TestMethod()]
@@ -166,7 +165,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         {
             var collectonMock = new Mock<IMongoCollection<Product>>();
             _productRepositoryMock.Setup(p => p.Collection).Returns(collectonMock.Object);
-            await _productCategoryService.InsertProductCategory(new ProductCategory() ,"id");
+            await _productCategoryService.InsertProductCategory(new ProductCategory(), "id");
             //TODO
             //collectonMock.Verify(c => c.UpdateOneAsync(It.IsAny<FilterDefinition<Product>>(), It.IsAny<UpdateDefinition<Product>>(), null, default(CancellationToken)), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<ProductCategory>>(), default(CancellationToken)), Times.Once);
@@ -176,9 +175,9 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         [TestMethod()]
         public void InsertProductCategory_NullArgument_ThrowException()
         {
-            Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _productCategoryService.InsertProductCategory(null,"id"), "productCategory");
+            Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _productCategoryService.InsertProductCategory(null, "id"), "productCategory");
         }
- 
+
         private IList<Grand.Domain.Catalog.Category> GetMockCategoryList()
         {
             return new List<Grand.Domain.Catalog.Category>()
@@ -190,6 +189,6 @@ namespace Grand.Business.Catalog.Tests.Service.Category
                 new Grand.Domain.Catalog.Category(){ Id="5" ,Name="cat5",Published=true},
             };
         }
-    
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Common.Services.Addresses;
 using Grand.Domain.Common;
 using Grand.Domain.Data;
+using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
 using MediatR;
@@ -19,7 +20,7 @@ namespace Grand.Business.Common.Tests.Services.Addresses
     public class AddressAttributeServiceTests
     {
         private Mock<ICacheBase> _cacheMock;
-        private Mock<IRepository<AddressAttribute>> _repositoryMock;
+        private Mock<MongoRepository<AddressAttribute>> _repositoryMock;
         private Mock<IMediator> _mediatorMock;
         private AddressAttributeService _service;
 
@@ -27,7 +28,7 @@ namespace Grand.Business.Common.Tests.Services.Addresses
         public void Init()
         {
             _cacheMock = new Mock<ICacheBase>();
-            _repositoryMock = new Mock<IRepository<AddressAttribute>>();
+            _repositoryMock = new Mock<MongoRepository<AddressAttribute>>();
             _mediatorMock = new Mock<IMediator>();
             _service = new AddressAttributeService(_cacheMock.Object,_repositoryMock.Object,_mediatorMock.Object);
         }

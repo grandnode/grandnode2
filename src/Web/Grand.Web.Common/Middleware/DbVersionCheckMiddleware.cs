@@ -5,6 +5,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Grand.Web.Common.Middleware
 {
@@ -17,7 +18,11 @@ namespace Grand.Web.Common.Middleware
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context, ICacheBase cacheBase, IRepository<GrandNodeVersion> repository)
+        public async Task Invoke(
+            HttpContext context, 
+            ICacheBase cacheBase, 
+
+            IRepository<GrandNodeVersion> repository)
         {
             if (context == null || context.Request == null)
             {
@@ -25,7 +30,7 @@ namespace Grand.Web.Common.Middleware
                 return;
             }
 
-            var version = await cacheBase.GetAsync(CacheKey.GRAND_NODE_VERSION, async () => await repository.FirstOrDefaultAsync());
+            var version = cacheBase.Get(CacheKey.GRAND_NODE_VERSION, () => repository.Table.FirstOrDefault());
             if (version == null)
             {
                 await context.Response.WriteAsync($"The database does not exist.");

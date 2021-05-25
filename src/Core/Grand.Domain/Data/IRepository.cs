@@ -1,5 +1,4 @@
-﻿using MongoDB.Driver;
-using MongoDB.Driver.Linq;
+﻿using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -14,19 +13,10 @@ namespace Grand.Domain.Data
     {
 
         /// <summary>
-        /// Gets a collection
-        /// </summary>
-        IMongoCollection<T> Collection { get; }
-
-        /// <summary>
         /// Sets a collection
         /// </summary>
         bool SetCollection(string collectionName);
 
-        /// <summary>
-        /// Gets a database
-        /// </summary>
-        IMongoDatabase Database { get; }
 
         /// <summary>
         /// Get entity by identifier
@@ -47,13 +37,6 @@ namespace Grand.Domain.Data
         /// </summary>
         /// <returns>collection of entities</returns>
         Task<List<T>> GetAllAsync();
-
-        /// <summary>
-        /// Get first entity in query as async with filterdefinition
-        /// </summary>
-        /// <param name="filter">filter definition</param>
-        /// <returns>entity of <typeparamref name="T"/></returns>
-        Task<T> FirstOrDefaultAsync(FilterDefinition<T> filter = null);
 
         /// <summary>
         /// get first item in query as async

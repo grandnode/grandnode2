@@ -10,15 +10,15 @@ namespace Grand.Api.Queries.Handlers.Shipping
 {
     public class GetShippingMethodQueryHandler : IRequestHandler<GetQuery<ShippingMethodDto>, IQueryable<ShippingMethodDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetShippingMethodQueryHandler(IMongoDBContext mongoDBContext)
+        public GetShippingMethodQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
         public async Task<IQueryable<ShippingMethodDto>> Handle(GetQuery<ShippingMethodDto> request, CancellationToken cancellationToken)
         {
-            var shippingMethod = _mongoDBContext.Table<ShippingMethodDto>(typeof(Domain.Shipping.ShippingMethod).Name);
+            var shippingMethod = _dbContext.Table<ShippingMethodDto>(typeof(Domain.Shipping.ShippingMethod).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return shippingMethod;

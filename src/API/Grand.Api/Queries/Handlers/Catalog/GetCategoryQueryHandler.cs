@@ -10,15 +10,15 @@ namespace Grand.Api.Queries.Handlers.Common
 {
     public class GetCategoryQueryHandler : IRequestHandler<GetQuery<CategoryDto>, IQueryable<CategoryDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetCategoryQueryHandler(IMongoDBContext mongoDBContext)
+        public GetCategoryQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
         public async Task<IQueryable<CategoryDto>> Handle(GetQuery<CategoryDto> request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<CategoryDto>(typeof(Domain.Catalog.Category).Name);
+            var query = _dbContext.Table<CategoryDto>(typeof(Domain.Catalog.Category).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;

@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Authentication.Interfaces;
 using Grand.Domain.Configuration;
 using Grand.Domain.Data;
+using Grand.Domain.Data.Mongo;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -33,7 +34,7 @@ namespace Authentication.Google.Infrastructure
                 var settings = new GoogleExternalAuthSettings();
                 try
                 {
-                    var gSettings = new Repository<Setting>(connection.ConnectionString).Table.Where(x => x.Name.StartsWith("googleexternalauthsettings"));
+                    var gSettings = new MongoRepository<Setting>(connection.ConnectionString).Table.Where(x => x.Name.StartsWith("googleexternalauthsettings"));
                     if (gSettings.Any())
                     {
                         var metadata = gSettings.FirstOrDefault().Metadata;

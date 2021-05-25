@@ -10,15 +10,15 @@ namespace Grand.Api.Queries.Handlers.Customers
 {
     public class GetCustomerGroupQueryHandler : IRequestHandler<GetQuery<CustomerGroupDto>, IQueryable<CustomerGroupDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetCustomerGroupQueryHandler(IMongoDBContext mongoDBContext)
+        public GetCustomerGroupQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
         public async Task<IQueryable<CustomerGroupDto>> Handle(GetQuery<CustomerGroupDto> request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<CustomerGroupDto>(typeof(Domain.Customers.CustomerGroup).Name);
+            var query = _dbContext.Table<CustomerGroupDto>(typeof(Domain.Customers.CustomerGroup).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;

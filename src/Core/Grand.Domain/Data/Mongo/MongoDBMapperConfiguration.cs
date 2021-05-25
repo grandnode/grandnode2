@@ -6,7 +6,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using System;
 using System.Collections.Generic;
 
-namespace Grand.Domain.Data
+namespace Grand.Domain.Data.Mongo
 {
     public static class MongoDBMapperConfiguration
     {

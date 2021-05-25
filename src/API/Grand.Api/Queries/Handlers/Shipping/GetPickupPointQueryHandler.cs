@@ -10,15 +10,15 @@ namespace Grand.Api.Queries.Handlers.Shipping
 {
     public class GetPickupPointQueryHandler : IRequestHandler<GetQuery<PickupPointDto>, IQueryable<PickupPointDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetPickupPointQueryHandler(IMongoDBContext mongoDBContext)
+        public GetPickupPointQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
         public async Task<IQueryable<PickupPointDto>> Handle(GetQuery<PickupPointDto> request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<PickupPointDto>(typeof(Domain.Shipping.PickupPoint).Name);
+            var query = _dbContext.Table<PickupPointDto>(typeof(Domain.Shipping.PickupPoint).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;

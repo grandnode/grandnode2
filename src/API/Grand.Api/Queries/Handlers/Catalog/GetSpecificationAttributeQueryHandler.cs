@@ -10,15 +10,15 @@ namespace Grand.Api.Queries.Handlers.Common
 {
     public class GetSpecificationAttributeQueryHandler : IRequestHandler<GetQuery<SpecificationAttributeDto>, IQueryable<SpecificationAttributeDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetSpecificationAttributeQueryHandler(IMongoDBContext mongoDBContext)
+        public GetSpecificationAttributeQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
         public async Task<IQueryable<SpecificationAttributeDto>> Handle(GetQuery<SpecificationAttributeDto> request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<SpecificationAttributeDto>(typeof(Domain.Catalog.SpecificationAttribute).Name);
+            var query = _dbContext.Table<SpecificationAttributeDto>(typeof(Domain.Catalog.SpecificationAttribute).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;

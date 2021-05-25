@@ -10,15 +10,15 @@ namespace Grand.Api.Queries.Handlers.Common
 {
     public class GetBrandQueryHandler : IRequestHandler<GetQuery<BrandDto>, IQueryable<BrandDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetBrandQueryHandler(IMongoDBContext mongoDBContext)
+        public GetBrandQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
         public async Task<IQueryable<BrandDto>> Handle(GetQuery<BrandDto> request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<BrandDto>(typeof(Domain.Catalog.Brand).Name);
+            var query = _dbContext.Table<BrandDto>(typeof(Domain.Catalog.Brand).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;

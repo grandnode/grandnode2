@@ -4,6 +4,7 @@ using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
+using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure.Caching;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MongoDB.Driver;
@@ -19,7 +20,7 @@ namespace Grand.Business.Catalog.Tests.Handlers
     [TestClass()]
     public class UpdateProductReviewTotalsCommandHandlerTest
     {
-        private Mock<IRepository<Product>> _productRepositoryMock;
+        private Mock<MongoRepository<Product>> _productRepositoryMock;
         private Mock<ICacheBase> _cacheBaseMock;
         private UpdateProductReviewTotalsCommandHandler _updateProductReviewTotalsCommandHandler;
         private Mock<IMongoCollection<Product>> _mongoCollectionMock;
@@ -40,7 +41,7 @@ namespace Grand.Business.Catalog.Tests.Handlers
                 It.IsAny<UpdateOptions>(),
                 default));
 
-            _productRepositoryMock = new Mock<IRepository<Product>>();
+            _productRepositoryMock = new Mock<MongoRepository<Product>>();
             _productRepositoryMock.Setup(x => x.Collection).Returns(_mongoCollectionMock.Object);
 
             _cacheBaseMock = new Mock<ICacheBase>();

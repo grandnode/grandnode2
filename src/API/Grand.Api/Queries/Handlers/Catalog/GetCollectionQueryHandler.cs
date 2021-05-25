@@ -10,16 +10,16 @@ namespace Grand.Api.Queries.Handlers.Common
 {
     public class GetCollectionQueryHandler : IRequestHandler<GetQuery<CollectionDto>, IQueryable<CollectionDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetCollectionQueryHandler(IMongoDBContext mongoDBContext)
+        public GetCollectionQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
 
         public async Task<IQueryable<CollectionDto>> Handle(GetQuery<CollectionDto> request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<CollectionDto>(typeof(Domain.Catalog.Collection).Name);
+            var query = _dbContext.Table<CollectionDto>(typeof(Domain.Catalog.Collection).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;

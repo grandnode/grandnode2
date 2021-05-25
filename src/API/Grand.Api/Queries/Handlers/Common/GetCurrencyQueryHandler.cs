@@ -10,15 +10,15 @@ namespace Grand.Api.Queries.Handlers.Common
 {
     public class GetCurrencyQueryHandler : IRequestHandler<GetQuery<CurrencyDto>, IQueryable<CurrencyDto>>
     {
-        private readonly IMongoDBContext _mongoDBContext;
+        private readonly IDatabaseContext _dbContext;
 
-        public GetCurrencyQueryHandler(IMongoDBContext mongoDBContext)
+        public GetCurrencyQueryHandler(IDatabaseContext dbContext)
         {
-            _mongoDBContext = mongoDBContext;
+            _dbContext = dbContext;
         }
         public async Task<IQueryable<CurrencyDto>> Handle(GetQuery<CurrencyDto> request, CancellationToken cancellationToken)
         {
-            var query = _mongoDBContext.Table<CurrencyDto>(typeof(Domain.Directory.Currency).Name);
+            var query = _dbContext.Table<CurrencyDto>(typeof(Domain.Directory.Currency).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;
