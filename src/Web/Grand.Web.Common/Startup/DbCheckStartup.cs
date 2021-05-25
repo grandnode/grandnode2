@@ -15,7 +15,7 @@ namespace Grand.Web.Common.Startup
 
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
-            if (!DataSettingsHelper.DatabaseIsInstalled())
+            if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
             application.UseMiddleware<DbVersionCheckMiddleware>();

@@ -74,7 +74,7 @@ namespace Grand.Web.Common.Filters
                 if (actionFilter?.IgnoreFilter ?? _ignoreFilter)
                     return;
 
-                if (!DataSettingsHelper.DatabaseIsInstalled())
+                if (!DataSettingsManager.DatabaseIsInstalled())
                     return;
 
                 //whether current customer is vendor

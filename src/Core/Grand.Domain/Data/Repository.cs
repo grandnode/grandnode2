@@ -50,15 +50,18 @@ namespace Grand.Domain.Data
         #endregion
 
         #region Ctor
+
         /// <summary>
         /// Ctor
         /// </summary>        
-        public Repository(IDataProvider dataProvider)
+        public Repository()
         {
-            if (!string.IsNullOrEmpty(dataProvider.ConnectionString))
+            var connection = DataSettingsManager.LoadSettings();
+
+            if (!string.IsNullOrEmpty(connection.ConnectionString))
             {
-                var client = new MongoClient(dataProvider.ConnectionString);
-                var databaseName = new MongoUrl(dataProvider.ConnectionString).DatabaseName;
+                var client = new MongoClient(connection.ConnectionString);
+                var databaseName = new MongoUrl(connection.ConnectionString).DatabaseName;
                 _database = client.GetDatabase(databaseName);
                 _collection = _database.GetCollection<T>(typeof(T).Name);
             }

@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Authentication.Interfaces;
 using Grand.Domain.Configuration;
 using Grand.Domain.Data;
-using Grand.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -29,10 +28,12 @@ namespace Authentication.Google.Infrastructure
         {
             builder.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
             {
+                var connection = DataSettingsManager.LoadSettings();
+
                 var settings = new GoogleExternalAuthSettings();
                 try
                 {
-                    var gSettings = new Repository<Setting>(DataSettingsHelper.ConnectionString()).Table.Where(x => x.Name.StartsWith("googleexternalauthsettings"));
+                    var gSettings = new Repository<Setting>(connection.ConnectionString).Table.Where(x => x.Name.StartsWith("googleexternalauthsettings"));
                     if (gSettings.Any())
                     {
                         var metadata = gSettings.FirstOrDefault().Metadata;

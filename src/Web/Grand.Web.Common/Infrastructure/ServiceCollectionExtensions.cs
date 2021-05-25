@@ -60,7 +60,7 @@ namespace Grand.Web.Common.Infrastructure
                 options.Cookie = new CookieBuilder() {
                     Name = $"{config.CookiePrefix}Antiforgery"
                 };
-                if (DataSettingsHelper.DatabaseIsInstalled())
+                if (DataSettingsManager.DatabaseIsInstalled())
                 {
                     //whether to allow the use of anti-forgery cookies from SSL protected page on the other store pages which are not
                     options.Cookie.SecurePolicy = config.CookieSecurePolicyAlways ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
@@ -81,7 +81,7 @@ namespace Grand.Web.Common.Infrastructure
                     Name = $"{config.CookiePrefix}Session",
                     HttpOnly = true,
                 };
-                if (DataSettingsHelper.DatabaseIsInstalled())
+                if (DataSettingsManager.DatabaseIsInstalled())
                 {
                     options.Cookie.SecurePolicy = config.CookieSecurePolicyAlways ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
                 }
@@ -94,7 +94,7 @@ namespace Grand.Web.Common.Infrastructure
         /// <param name="services">Collection of service descriptors</param>
         public static void AddThemes(this IServiceCollection services)
         {
-            if (!DataSettingsHelper.DatabaseIsInstalled())
+            if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
             //themes support
@@ -236,7 +236,7 @@ namespace Grand.Web.Common.Infrastructure
         public static void AddGrandMiniProfiler(this IServiceCollection services)
         {
             //whether database is already installed
-            if (!DataSettingsHelper.DatabaseIsInstalled())
+            if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
             //add MiniProfiler services
@@ -286,11 +286,15 @@ namespace Grand.Web.Common.Infrastructure
 
         public static void AddGrandHealthChecks(this IServiceCollection services)
         {
-            var hcBuilder = services.AddHealthChecks();
-            hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy());
-            hcBuilder.AddMongoDb(DataSettingsHelper.ConnectionString(),
-                   name: "mongodb-check",
-                   tags: new string[] { "mongodb" });
+            var connection = DataSettingsManager.LoadSettings();
+            if (connection.DbProvider == DbProvider.MongoDB)
+            {
+                var hcBuilder = services.AddHealthChecks();
+                hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy());
+                hcBuilder.AddMongoDb(connection.ConnectionString,
+                       name: "mongodb-check",
+                       tags: new string[] { "mongodb" });
+            }
         }
 
         public static void AddHtmlMinification(this IServiceCollection services, IConfiguration configuration)
@@ -357,7 +361,7 @@ namespace Grand.Web.Common.Infrastructure
         /// <param name="services">Collection of service descriptors</param>
         public static void AddWebEncoder(this IServiceCollection services)
         {
-            if (!DataSettingsHelper.DatabaseIsInstalled())
+            if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
             services.Configure<WebEncoderOptions>(options =>
@@ -384,7 +388,7 @@ namespace Grand.Web.Common.Infrastructure
         /// <param name="services">Collection of service descriptors</param>
         public static void AddPWA(this IServiceCollection services, IConfiguration configuration)
         {
-            if (!DataSettingsHelper.DatabaseIsInstalled())
+            if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
             var config = new AppConfig();

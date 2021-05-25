@@ -36,7 +36,7 @@ namespace Grand.Web.Common.Startup
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             //database is already installed, so start scheduled tasks
-            if (DataSettingsHelper.DatabaseIsInstalled())
+            if (DataSettingsManager.DatabaseIsInstalled())
             {
                 var typeSearcher = new AppTypeSearcher();
                 var scheduleTasks = typeSearcher.ClassesOfType<IScheduleTask>();

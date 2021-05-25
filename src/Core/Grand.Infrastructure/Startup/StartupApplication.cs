@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 
-namespace Grand.Infrastructure.Data
+namespace Grand.Infrastructure.Startup
 {
     public class StartupApplication : IStartupApplication
     {
@@ -26,17 +26,14 @@ namespace Grand.Infrastructure.Data
 
         private void RegisterDataLayer(IServiceCollection serviceCollection)
         {
-            var dataSettingsManager = new DataSettingsManager();
-            var dataProviderSettings = dataSettingsManager.LoadSettings();
-            if (string.IsNullOrEmpty(dataProviderSettings.DataConnectionString))
+            var dataProviderSettings = DataSettingsManager.LoadSettings();
+            if (string.IsNullOrEmpty(dataProviderSettings.ConnectionString))
             {
-                serviceCollection.AddTransient(c => dataSettingsManager.LoadSettings());
-                serviceCollection.AddTransient<BaseDataProviderManager>(c => new MongoDBDataProviderManager(c.GetRequiredService<DataSettings>()));
-                serviceCollection.AddTransient<IDataProvider>(x => x.GetRequiredService<BaseDataProviderManager>().LoadDataProvider());
+                serviceCollection.AddTransient(c => dataProviderSettings);
             }
             if (dataProviderSettings != null && dataProviderSettings.IsValid())
             {
-                var connectionString = dataProviderSettings.DataConnectionString;
+                var connectionString = dataProviderSettings.ConnectionString;
                 var mongourl = new MongoUrl(connectionString);
                 var databaseName = mongourl.DatabaseName;
                 serviceCollection.AddScoped(c => new MongoClient(mongourl).GetDatabase(databaseName));

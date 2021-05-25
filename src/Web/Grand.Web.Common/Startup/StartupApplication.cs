@@ -6,7 +6,6 @@ using Grand.Infrastructure.Caching.Message;
 using Grand.Infrastructure.Caching.RabbitMq;
 using Grand.Infrastructure.Caching.Redis;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Data;
 using Grand.Infrastructure.TypeSearchers;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Localization;
@@ -122,7 +121,7 @@ namespace Grand.Web.Common.Startup
 
             serviceCollection.AddScoped<IResourceManager, ResourceManager>();
 
-            if (DataSettingsHelper.DatabaseIsInstalled())
+            if (DataSettingsManager.DatabaseIsInstalled())
                 serviceCollection.AddScoped<LocService>();
             else
             {

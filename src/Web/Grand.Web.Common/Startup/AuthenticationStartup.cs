@@ -36,7 +36,7 @@ namespace Grand.Web.Common.Startup
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
             //check whether database is installed
-            if (!DataSettingsHelper.DatabaseIsInstalled())
+            if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
             //configure authentication

@@ -34,7 +34,7 @@ namespace Grand.Web.Common.Middleware
         public async Task InvokeAsync(HttpContext context)
         {
             //whether database is installed
-            if (!DataSettingsHelper.DatabaseIsInstalled())
+            if (!DataSettingsManager.DatabaseIsInstalled())
             {
                 var installUrl = $"/install";
                 if (!context.Request.GetEncodedPathAndQuery().StartsWith(installUrl, StringComparison.OrdinalIgnoreCase))

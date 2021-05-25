@@ -72,7 +72,7 @@ namespace Grand.Web.Common.Infrastructure
                     try
                     {
                         //check whether database is installed
-                        if (DataSettingsHelper.DatabaseIsInstalled())
+                        if (DataSettingsManager.DatabaseIsInstalled())
                         {
                             var logger = context.RequestServices.GetRequiredService<ILogger>();
                             //get current customer
@@ -237,7 +237,7 @@ namespace Grand.Web.Common.Infrastructure
         public static void UseProfiler(this IApplicationBuilder application)
         {
             //whether database is already installed
-            if (!DataSettingsHelper.DatabaseIsInstalled())
+            if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
             var appConfig = application.ApplicationServices.GetRequiredService<AppConfig>();
@@ -255,7 +255,7 @@ namespace Grand.Web.Common.Infrastructure
         public static void LogApplicationStarted(this IApplicationBuilder application)
         {
             //whether database is already installed
-            if (!DataSettingsHelper.DatabaseIsInstalled())
+            if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
             var serviceProvider = application.ApplicationServices;

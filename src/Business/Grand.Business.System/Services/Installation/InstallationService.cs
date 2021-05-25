@@ -1,4 +1,3 @@
-using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Customers.Interfaces;
 using Grand.Business.Customers.Utilities;
 using Grand.Business.System.Interfaces.Installation;
@@ -127,7 +126,6 @@ namespace Grand.Business.System.Services.Installation
         private readonly IRepository<OrderTag> _orderTagRepository;
         private readonly IRepository<OrderStatus> _orderStatusRepository;
 
-        private readonly IUserFieldService _userFieldService;
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IServiceProvider _serviceProvider;
 
@@ -137,88 +135,89 @@ namespace Grand.Business.System.Services.Installation
 
         public InstallationService(IServiceProvider serviceProvider)
         {
-            _versionRepository = serviceProvider.GetRequiredService<IRepository<GrandNodeVersion>>();
-            _adminRepository = serviceProvider.GetRequiredService<IRepository<AdminSiteMap>>();
-            _bidRepository = serviceProvider.GetRequiredService<IRepository<Bid>>();
-            _affiliateRepository = serviceProvider.GetRequiredService<IRepository<Affiliate>>();
-            _campaignHistoryRepository = serviceProvider.GetRequiredService<IRepository<CampaignHistory>>();
-            _orderRepository = serviceProvider.GetRequiredService<IRepository<Order>>();
-            _orderNoteRepository = serviceProvider.GetRequiredService<IRepository<OrderNote>>();
-            _storeRepository = serviceProvider.GetRequiredService<IRepository<Store>>();
-            _measureDimensionRepository = serviceProvider.GetRequiredService<IRepository<MeasureDimension>>();
-            _measureWeightRepository = serviceProvider.GetRequiredService<IRepository<MeasureWeight>>();
-            _measureUnitRepository = serviceProvider.GetRequiredService<IRepository<MeasureUnit>>();
-            _taxCategoryRepository = serviceProvider.GetRequiredService<IRepository<TaxCategory>>();
-            _languageRepository = serviceProvider.GetRequiredService<IRepository<Language>>();
-            _lsrRepository = serviceProvider.GetRequiredService<IRepository<TranslationResource>>();
-            _logRepository = serviceProvider.GetRequiredService<IRepository<Log>>();
-            _currencyRepository = serviceProvider.GetRequiredService<IRepository<Currency>>();
-            _customerRepository = serviceProvider.GetRequiredService<IRepository<Customer>>();
-            _customerGroupRepository = serviceProvider.GetRequiredService<IRepository<CustomerGroup>>();
-            _customerProductRepository = serviceProvider.GetRequiredService<IRepository<CustomerProduct>>();
-            _customerProductPriceRepository = serviceProvider.GetRequiredService<IRepository<CustomerProductPrice>>();
-            _customerGroupProductRepository = serviceProvider.GetRequiredService<IRepository<CustomerGroupProduct>>();
-            _customerTagProductRepository = serviceProvider.GetRequiredService<IRepository<CustomerTagProduct>>();
-            _customerHistoryPasswordRepository = serviceProvider.GetRequiredService<IRepository<CustomerHistoryPassword>>();
-            _customerNoteRepository = serviceProvider.GetRequiredService<IRepository<CustomerNote>>();
-            _userapiRepository = serviceProvider.GetRequiredService<IRepository<UserApi>>();
-            _specificationAttributeRepository = serviceProvider.GetRequiredService<IRepository<SpecificationAttribute>>();
-            _checkoutAttributeRepository = serviceProvider.GetRequiredService<IRepository<CheckoutAttribute>>();
-            _productAttributeRepository = serviceProvider.GetRequiredService<IRepository<ProductAttribute>>();
-            _categoryRepository = serviceProvider.GetRequiredService<IRepository<Category>>();
-            _brandRepository = serviceProvider.GetRequiredService<IRepository<Brand>>();
-            _collectionRepository = serviceProvider.GetRequiredService<IRepository<Collection>>();
-            _productRepository = serviceProvider.GetRequiredService<IRepository<Product>>();
-            _productReservationRepository = serviceProvider.GetRequiredService<IRepository<ProductReservation>>();
-            _productalsopurchasedRepository = serviceProvider.GetRequiredService<IRepository<ProductAlsoPurchased>>();
-            _entityUrlRepository = serviceProvider.GetRequiredService<IRepository<EntityUrl>>();
-            _emailAccountRepository = serviceProvider.GetRequiredService<IRepository<EmailAccount>>();
-            _messageTemplateRepository = serviceProvider.GetRequiredService<IRepository<MessageTemplate>>();
-            _countryRepository = serviceProvider.GetRequiredService<IRepository<Country>>();
-            _discountRepository = serviceProvider.GetRequiredService<IRepository<Discount>>();
-            _discountCouponRepository = serviceProvider.GetRequiredService<IRepository<DiscountCoupon>>();
-            _blogPostRepository = serviceProvider.GetRequiredService<IRepository<BlogPost>>();
-            _pageRepository = serviceProvider.GetRequiredService<IRepository<Page>>();
-            _productReviewRepository = serviceProvider.GetRequiredService<IRepository<ProductReview>>();
-            _newsItemRepository = serviceProvider.GetRequiredService<IRepository<NewsItem>>();
-            _newslettersubscriptionRepository = serviceProvider.GetRequiredService<IRepository<NewsLetterSubscription>>();
-            _shippingMethodRepository = serviceProvider.GetRequiredService<IRepository<ShippingMethod>>();
-            _deliveryDateRepository = serviceProvider.GetRequiredService<IRepository<DeliveryDate>>();
-            _activityLogTypeRepository = serviceProvider.GetRequiredService<IRepository<ActivityLogType>>();
-            _productTagRepository = serviceProvider.GetRequiredService<IRepository<ProductTag>>();
-            _productLayoutRepository = serviceProvider.GetRequiredService<IRepository<ProductLayout>>();
-            _recentlyViewedProductRepository = serviceProvider.GetRequiredService<IRepository<RecentlyViewedProduct>>();
-            _categoryLayoutRepository = serviceProvider.GetRequiredService<IRepository<CategoryLayout>>();
-            _brandLayoutRepository = serviceProvider.GetRequiredService<IRepository<BrandLayout>>();
-            _collectionLayoutRepository = serviceProvider.GetRequiredService<IRepository<CollectionLayout>>();
-            _pageLayoutRepository = serviceProvider.GetRequiredService<IRepository<PageLayout>>();
-            _scheduleTaskRepository = serviceProvider.GetRequiredService<IRepository<ScheduleTask>>();
-            _merchandiseReturnRepository = serviceProvider.GetRequiredService<IRepository<MerchandiseReturn>>();
-            _merchandiseReturnNoteRepository = serviceProvider.GetRequiredService<IRepository<MerchandiseReturnNote>>();
-            _loyaltypointshistoryRepository = serviceProvider.GetRequiredService<IRepository<LoyaltyPointsHistory>>();
-            _searchtermRepository = serviceProvider.GetRequiredService<IRepository<SearchTerm>>();
-            _settingRepository = serviceProvider.GetRequiredService<IRepository<Setting>>();
-            _shipmentRepository = serviceProvider.GetRequiredService<IRepository<Shipment>>();
-            _warehouseRepository = serviceProvider.GetRequiredService<IRepository<Warehouse>>();
-            _pickupPointsRepository = serviceProvider.GetRequiredService<IRepository<PickupPoint>>();
-            _permissionRepository = serviceProvider.GetRequiredService<IRepository<Permission>>();
-            _permissionAction = serviceProvider.GetRequiredService<IRepository<PermissionAction>>();
-            _vendorRepository = serviceProvider.GetRequiredService<IRepository<Vendor>>();
-            _externalAuthenticationRepository = serviceProvider.GetRequiredService<IRepository<ExternalAuthentication>>();
-            _discountusageRepository = serviceProvider.GetRequiredService<IRepository<DiscountUsageHistory>>();
-            _merchandiseReturnReasonRepository = serviceProvider.GetRequiredService<IRepository<MerchandiseReturnReason>>();
-            _contactUsRepository = serviceProvider.GetRequiredService<IRepository<ContactUs>>();
-            _merchandiseReturnActionRepository = serviceProvider.GetRequiredService<IRepository<MerchandiseReturnAction>>();
-            _customerAction = serviceProvider.GetRequiredService<IRepository<CustomerAction>>();
-            _customerActionType = serviceProvider.GetRequiredService<IRepository<CustomerActionType>>();
-            _customerActionHistory = serviceProvider.GetRequiredService<IRepository<CustomerActionHistory>>();
-            _customerReminderHistoryRepository = serviceProvider.GetRequiredService<IRepository<CustomerReminderHistory>>();
-            _knowledgebaseArticleRepository = serviceProvider.GetRequiredService<IRepository<KnowledgebaseArticle>>();
-            _knowledgebaseCategoryRepository = serviceProvider.GetRequiredService<IRepository<KnowledgebaseCategory>>();
-            _popupArchive = serviceProvider.GetRequiredService<IRepository<PopupArchive>>();
-            _orderTagRepository = serviceProvider.GetRequiredService<IRepository<OrderTag>>();
-            _orderStatusRepository = serviceProvider.GetRequiredService<IRepository<OrderStatus>>();
-            _userFieldService = serviceProvider.GetRequiredService<IUserFieldService>();
+            var dataProviderSettings = DataSettingsManager.LoadSettings(reloadSettings: true);
+
+            _versionRepository = new Repository<GrandNodeVersion>(dataProviderSettings.ConnectionString);
+            _adminRepository = new Repository<AdminSiteMap>(dataProviderSettings.ConnectionString);
+            _bidRepository = new Repository<Bid>(dataProviderSettings.ConnectionString);
+            _affiliateRepository = new Repository<Affiliate>(dataProviderSettings.ConnectionString);
+            _campaignHistoryRepository = new Repository<CampaignHistory>(dataProviderSettings.ConnectionString);
+            _orderRepository = new Repository<Order>(dataProviderSettings.ConnectionString);
+            _orderNoteRepository = new Repository<OrderNote>(dataProviderSettings.ConnectionString);
+            _storeRepository = new Repository<Store>(dataProviderSettings.ConnectionString);
+            _measureDimensionRepository = new Repository<MeasureDimension>(dataProviderSettings.ConnectionString);
+            _measureWeightRepository = new Repository<MeasureWeight>(dataProviderSettings.ConnectionString);
+            _measureUnitRepository = new Repository<MeasureUnit>(dataProviderSettings.ConnectionString);
+            _taxCategoryRepository = new Repository<TaxCategory>(dataProviderSettings.ConnectionString);
+            _languageRepository = new Repository<Language>(dataProviderSettings.ConnectionString);
+            _lsrRepository = new Repository<TranslationResource>(dataProviderSettings.ConnectionString);
+            _logRepository = new Repository<Log>(dataProviderSettings.ConnectionString);
+            _currencyRepository = new Repository<Currency>(dataProviderSettings.ConnectionString);
+            _customerRepository = new Repository<Customer>(dataProviderSettings.ConnectionString);
+            _customerGroupRepository = new Repository<CustomerGroup>(dataProviderSettings.ConnectionString);
+            _customerProductRepository = new Repository<CustomerProduct>(dataProviderSettings.ConnectionString);
+            _customerProductPriceRepository = new Repository<CustomerProductPrice>(dataProviderSettings.ConnectionString);
+            _customerGroupProductRepository = new Repository<CustomerGroupProduct>(dataProviderSettings.ConnectionString);
+            _customerTagProductRepository = new Repository<CustomerTagProduct>(dataProviderSettings.ConnectionString);
+            _customerHistoryPasswordRepository = new Repository<CustomerHistoryPassword>(dataProviderSettings.ConnectionString);
+            _customerNoteRepository = new Repository<CustomerNote>(dataProviderSettings.ConnectionString);
+            _userapiRepository = new Repository<UserApi>(dataProviderSettings.ConnectionString);
+            _specificationAttributeRepository = new Repository<SpecificationAttribute>(dataProviderSettings.ConnectionString);
+            _checkoutAttributeRepository = new Repository<CheckoutAttribute>(dataProviderSettings.ConnectionString);
+            _productAttributeRepository = new Repository<ProductAttribute>(dataProviderSettings.ConnectionString);
+            _categoryRepository = new Repository<Category>(dataProviderSettings.ConnectionString);
+            _brandRepository = new Repository<Brand>(dataProviderSettings.ConnectionString);
+            _collectionRepository = new Repository<Collection>(dataProviderSettings.ConnectionString);
+            _productRepository = new Repository<Product>(dataProviderSettings.ConnectionString);
+            _productReservationRepository = new Repository<ProductReservation>(dataProviderSettings.ConnectionString);
+            _productalsopurchasedRepository = new Repository<ProductAlsoPurchased>(dataProviderSettings.ConnectionString);
+            _entityUrlRepository = new Repository<EntityUrl>(dataProviderSettings.ConnectionString);
+            _emailAccountRepository = new Repository<EmailAccount>(dataProviderSettings.ConnectionString);
+            _messageTemplateRepository = new Repository<MessageTemplate>(dataProviderSettings.ConnectionString);
+            _countryRepository = new Repository<Country>(dataProviderSettings.ConnectionString);
+            _discountRepository = new Repository<Discount>(dataProviderSettings.ConnectionString);
+            _discountCouponRepository = new Repository<DiscountCoupon>(dataProviderSettings.ConnectionString);
+            _blogPostRepository = new Repository<BlogPost>(dataProviderSettings.ConnectionString);
+            _pageRepository = new Repository<Page>(dataProviderSettings.ConnectionString);
+            _productReviewRepository = new Repository<ProductReview>(dataProviderSettings.ConnectionString);
+            _newsItemRepository = new Repository<NewsItem>(dataProviderSettings.ConnectionString);
+            _newslettersubscriptionRepository = new Repository<NewsLetterSubscription>(dataProviderSettings.ConnectionString);
+            _shippingMethodRepository = new Repository<ShippingMethod>(dataProviderSettings.ConnectionString);
+            _deliveryDateRepository = new Repository<DeliveryDate>(dataProviderSettings.ConnectionString);
+            _activityLogTypeRepository = new Repository<ActivityLogType>(dataProviderSettings.ConnectionString);
+            _productTagRepository = new Repository<ProductTag>(dataProviderSettings.ConnectionString);
+            _productLayoutRepository = new Repository<ProductLayout>(dataProviderSettings.ConnectionString);
+            _recentlyViewedProductRepository = new Repository<RecentlyViewedProduct>(dataProviderSettings.ConnectionString);
+            _categoryLayoutRepository = new Repository<CategoryLayout>(dataProviderSettings.ConnectionString);
+            _brandLayoutRepository = new Repository<BrandLayout>(dataProviderSettings.ConnectionString);
+            _collectionLayoutRepository = new Repository<CollectionLayout>(dataProviderSettings.ConnectionString);
+            _pageLayoutRepository = new Repository<PageLayout>(dataProviderSettings.ConnectionString);
+            _scheduleTaskRepository = new Repository<ScheduleTask>(dataProviderSettings.ConnectionString);
+            _merchandiseReturnRepository = new Repository<MerchandiseReturn>(dataProviderSettings.ConnectionString);
+            _merchandiseReturnNoteRepository = new Repository<MerchandiseReturnNote>(dataProviderSettings.ConnectionString);
+            _loyaltypointshistoryRepository = new Repository<LoyaltyPointsHistory>(dataProviderSettings.ConnectionString);
+            _searchtermRepository = new Repository<SearchTerm>(dataProviderSettings.ConnectionString);
+            _settingRepository = new Repository<Setting>(dataProviderSettings.ConnectionString);
+            _shipmentRepository = new Repository<Shipment>(dataProviderSettings.ConnectionString);
+            _warehouseRepository = new Repository<Warehouse>(dataProviderSettings.ConnectionString);
+            _pickupPointsRepository = new Repository<PickupPoint>(dataProviderSettings.ConnectionString);
+            _permissionRepository = new Repository<Permission>(dataProviderSettings.ConnectionString);
+            _permissionAction = new Repository<PermissionAction>(dataProviderSettings.ConnectionString);
+            _vendorRepository = new Repository<Vendor>(dataProviderSettings.ConnectionString);
+            _externalAuthenticationRepository = new Repository<ExternalAuthentication>(dataProviderSettings.ConnectionString);
+            _discountusageRepository = new Repository<DiscountUsageHistory>(dataProviderSettings.ConnectionString);
+            _merchandiseReturnReasonRepository = new Repository<MerchandiseReturnReason>(dataProviderSettings.ConnectionString);
+            _contactUsRepository = new Repository<ContactUs>(dataProviderSettings.ConnectionString);
+            _merchandiseReturnActionRepository = new Repository<MerchandiseReturnAction>(dataProviderSettings.ConnectionString);
+            _customerAction = new Repository<CustomerAction>(dataProviderSettings.ConnectionString);
+            _customerActionType = new Repository<CustomerActionType>(dataProviderSettings.ConnectionString);
+            _customerActionHistory = new Repository<CustomerActionHistory>(dataProviderSettings.ConnectionString);
+            _customerReminderHistoryRepository = new Repository<CustomerReminderHistory>(dataProviderSettings.ConnectionString);
+            _knowledgebaseArticleRepository = new Repository<KnowledgebaseArticle>(dataProviderSettings.ConnectionString);
+            _knowledgebaseCategoryRepository = new Repository<KnowledgebaseCategory>(dataProviderSettings.ConnectionString);
+            _popupArchive = new Repository<PopupArchive>(dataProviderSettings.ConnectionString);
+            _orderTagRepository = new Repository<OrderTag>(dataProviderSettings.ConnectionString);
+            _orderStatusRepository = new Repository<OrderStatus>(dataProviderSettings.ConnectionString);
             _hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
 
             _serviceProvider = serviceProvider;
@@ -453,8 +452,7 @@ namespace Grand.Business.System.Services.Installation
                 var options = new CreateCollectionOptions();
                 var collation = new Collation(local);
                 options.Collation = collation;
-                var dataSettingsManager = new DataSettingsManager();
-                var connectionString = dataSettingsManager.LoadSettings().DataConnectionString;
+                var connectionString = DataSettingsManager.LoadSettings().ConnectionString;
 
                 var mongourl = new MongoUrl(connectionString);
                 var databaseName = mongourl.DatabaseName;
@@ -481,7 +479,8 @@ namespace Grand.Business.System.Services.Installation
 
 
         public virtual async Task InstallData(string defaultUserEmail,
-            string defaultUserPassword, string collation, bool installSampleData = true, string companyName = "", string companyAddress = "", string companyPhoneNumber = "", string companyEmail = "")
+            string defaultUserPassword, string collation, bool installSampleData = true, string companyName = "", string companyAddress = "",
+            string companyPhoneNumber = "", string companyEmail = "")
         {
             defaultUserEmail = defaultUserEmail.ToLower();
 

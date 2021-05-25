@@ -13,7 +13,6 @@ using Grand.Business.System.Services.Reports;
 using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -85,7 +84,7 @@ namespace Grand.Business.System.Startup
 
         private void RegisterInstallService(IServiceCollection serviceCollection)
         {
-            var databaseInstalled = DataSettingsHelper.DatabaseIsInstalled();
+            var databaseInstalled = DataSettingsManager.DatabaseIsInstalled();
             if (!databaseInstalled)
             {
                 //installation service
