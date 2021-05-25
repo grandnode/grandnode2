@@ -55,5 +55,6 @@ namespace Grand.Domain.Customers
         public static string UseLoyaltyPointsDuringCheckout { get { return "UseLoyaltyPointsDuringCheckout"; } }
         public static string CookieAccepted { get { return "Cookie.Accepted"; } }
         public static string ConsentCookies { get { return "ConsentCookies"; } }
+        public static string RefreshToken { get { return "RefreshToken"; } }
     }
 }

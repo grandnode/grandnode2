@@ -79,7 +79,8 @@ namespace Grand.Api.Infrastructure
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = config.ValidIssuer,
                     ValidAudience = config.ValidAudience,
-                    IssuerSigningKey = JwtSecurityKey.Create(config.SecretKey)
+                    IssuerSigningKey = JwtSecurityKey.Create(config.SecretKey),
+                    ClockSkew = TimeSpan.Zero
                 };
 
                 options.Events = new JwtBearerEvents {

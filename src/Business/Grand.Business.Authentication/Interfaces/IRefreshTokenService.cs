@@ -12,7 +12,7 @@ namespace Grand.Business.Authentication.Interfaces
     public interface IRefreshTokenService
     {
         string GenerateRefreshToken();
-        Task SaveRefreshTokenToCustomer(Customer customer, string refreshToken);
+        Task<RefreshToken> SaveRefreshTokenToCustomer(Customer customer, string refreshToken);
         Task<RefreshToken> GetCustomerRefreshToken(Customer customer);
         ClaimsPrincipal GetPrincipalFromToken(string token);
     }

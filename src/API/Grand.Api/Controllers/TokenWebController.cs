@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Grand.Api.Controllers
@@ -93,8 +94,16 @@ namespace Grand.Api.Controllers
             string email = null, guid = null;
             Customer customer = null;
             var claims = new Dictionary<string, string>();
-            var principal = _refreshTokenService.GetPrincipalFromToken(tokenDto.AccessToken);
-            email = principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
+            ClaimsPrincipal principal = null;
+            try
+            {
+                principal = _refreshTokenService.GetPrincipalFromToken(tokenDto.AccessToken);
+                email = principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
+            }
+            catch(Exception)
+            {
+                return BadRequest("Invalid access token");
+            }
             if (!string.IsNullOrEmpty(email))
             {
                 customer = await _customerService.GetCustomerByEmail(email);
@@ -127,12 +136,13 @@ namespace Grand.Api.Controllers
 
         private async Task<TokenDto> GetToken(Dictionary<string, string> claims, Customer customer)
         {
+            var refreshTokenValue = _refreshTokenService.GenerateRefreshToken();
+            var refreshToken=await _refreshTokenService.SaveRefreshTokenToCustomer(customer, refreshTokenValue);
+            claims.Add("RefreshId", refreshToken.RefreshId);
             var token = await _mediator.Send(new GenerateTokenWebCommand() { Claims = claims });
-            var refreshToken = _refreshTokenService.GenerateRefreshToken();
-            await _refreshTokenService.SaveRefreshTokenToCustomer(customer, refreshToken);
             return new TokenDto() {
                 AccessToken = token,
-                RefreshToken = refreshToken
+                RefreshToken = refreshTokenValue
             };
         }
     }

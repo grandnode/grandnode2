@@ -15,7 +15,6 @@ namespace Grand.Business.Authentication.Services
 {
     public class RefreshTokenService : IRefreshTokenService
     {
-        private const string _userFieldRefreshToken = "RefreshToken";
         private readonly IUserFieldService _userFieldService;
         private readonly GrandWebApiConfig _grandWebApiConfig;
 
@@ -35,18 +34,21 @@ namespace Grand.Business.Authentication.Services
             }
         }
 
-        public async Task SaveRefreshTokenToCustomer(Customer customer, string refreshToken)
+        public async Task<RefreshToken> SaveRefreshTokenToCustomer(Customer customer, string refreshToken)
         {
-            await _userFieldService.SaveField(customer, _userFieldRefreshToken, new RefreshToken() {
+            var token = new RefreshToken() {
+                RefreshId=Guid.NewGuid().ToString(),
                 Token = refreshToken,
                 IsActive = true,
                 ValidTo = DateTime.UtcNow.AddMinutes(_grandWebApiConfig.RefreshTokenExpiryInMinutes)
-            });
+            };
+            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.RefreshToken, token);
+            return token;
         }
 
         public async Task<RefreshToken> GetCustomerRefreshToken(Customer customer)
         {
-            return await _userFieldService.GetFieldsForEntity<RefreshToken>(customer, _userFieldRefreshToken);
+            return await _userFieldService.GetFieldsForEntity<RefreshToken>(customer, SystemCustomerFieldNames.RefreshToken);
         }
 
         public ClaimsPrincipal GetPrincipalFromToken(string token)
