@@ -1,7 +1,7 @@
-﻿using Grand.Domain.Data;
-using Grand.SharedKernel.Extensions;
+﻿using Grand.SharedKernel.Extensions;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Grand.Domain.Data
@@ -25,10 +25,19 @@ namespace Grand.Domain.Data
             if (!File.Exists(CommonPath.SettingsPath))
                 return new DataSettings();
 
-            var connectionString = File.ReadLines(CommonPath.SettingsPath).FirstOrDefault();
-            _dataSettings = new DataSettings() { DataConnectionString = connectionString };
-            return _dataSettings;
+            try
+            {
+                var text = File.ReadAllText(CommonPath.SettingsPath);
+                _dataSettings = JsonSerializer.Deserialize<DataSettings>(text);
+            }
+            catch
+            {
+                //Try to read file
+                var connectionString = File.ReadLines(CommonPath.SettingsPath).FirstOrDefault();
+                _dataSettings = new DataSettings() { ConnectionString = connectionString, DbProvider = DbProvider.MongoDB };
 
+            }
+            return _dataSettings;
         }
 
         /// <summary>
@@ -42,7 +51,8 @@ namespace Grand.Domain.Data
             {
                 using FileStream fs = File.Create(filePath);
             }
-            await File.WriteAllTextAsync(filePath, settings.DataConnectionString);
+            var data = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
+            await File.WriteAllTextAsync(filePath, data);
         }
     }
 }

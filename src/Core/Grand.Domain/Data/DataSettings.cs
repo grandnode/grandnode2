@@ -9,11 +9,16 @@
         /// <summary>
         /// Connection string
         /// </summary>
-        public string DataConnectionString { get; set; }
+        public string ConnectionString { get; set; }
+
+        /// <summary>
+        /// Database type
+        /// </summary>
+        public DbProvider DbProvider { get; set; }
 
         public bool IsValid()
         {
-            return !string.IsNullOrEmpty(DataConnectionString);
+            return !string.IsNullOrEmpty(ConnectionString);
         }
     }
 }

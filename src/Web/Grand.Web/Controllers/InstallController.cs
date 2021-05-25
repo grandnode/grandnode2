@@ -157,7 +157,8 @@ namespace Grand.Web.Controllers
                     //save settings
                     var settings = new DataSettings
                     {
-                        DataConnectionString = connectionString
+                        ConnectionString = connectionString,
+                        DbProvider = DbProvider.MongoDB
                     };
                     await settingsManager.SaveSettings(settings);
 

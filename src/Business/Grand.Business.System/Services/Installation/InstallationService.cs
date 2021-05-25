@@ -454,7 +454,7 @@ namespace Grand.Business.System.Services.Installation
                 var collation = new Collation(local);
                 options.Collation = collation;
                 var dataSettingsManager = new DataSettingsManager();
-                var connectionString = dataSettingsManager.LoadSettings().DataConnectionString;
+                var connectionString = dataSettingsManager.LoadSettings().ConnectionString;
 
                 var mongourl = new MongoUrl(connectionString);
                 var databaseName = mongourl.DatabaseName;

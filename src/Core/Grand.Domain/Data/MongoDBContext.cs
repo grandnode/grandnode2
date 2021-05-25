@@ -36,7 +36,7 @@ namespace Grand.Domain.Data
         protected IMongoDatabase TryReadMongoDatabase()
         {
             var dataSettingsManager = new DataSettingsManager();
-            var connectionString = dataSettingsManager.LoadSettings().DataConnectionString;
+            var connectionString = dataSettingsManager.LoadSettings().ConnectionString;
 
             var mongourl = new MongoUrl(connectionString);
             var databaseName = mongourl.DatabaseName;

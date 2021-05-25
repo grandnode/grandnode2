@@ -36,7 +36,7 @@ namespace Grand.Infrastructure.Plugins
         public static async Task SaveInstalledPluginsFile(IList<string> pluginSystemNames, string filePath)
         {
             //serialize
-            string result = JsonSerializer.Serialize(pluginSystemNames);
+            string result = JsonSerializer.Serialize(pluginSystemNames, new JsonSerializerOptions { WriteIndented = true });
             //save
             await File.WriteAllTextAsync(filePath, result);
             await Task.CompletedTask;

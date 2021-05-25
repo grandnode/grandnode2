@@ -28,7 +28,7 @@ namespace Grand.Infrastructure.Data
         {
             var dataSettingsManager = new DataSettingsManager();
             var dataProviderSettings = dataSettingsManager.LoadSettings();
-            if (string.IsNullOrEmpty(dataProviderSettings.DataConnectionString))
+            if (string.IsNullOrEmpty(dataProviderSettings.ConnectionString))
             {
                 serviceCollection.AddTransient(c => dataSettingsManager.LoadSettings());
                 serviceCollection.AddTransient<BaseDataProviderManager>(c => new MongoDBDataProviderManager(c.GetRequiredService<DataSettings>()));
@@ -36,7 +36,7 @@ namespace Grand.Infrastructure.Data
             }
             if (dataProviderSettings != null && dataProviderSettings.IsValid())
             {
-                var connectionString = dataProviderSettings.DataConnectionString;
+                var connectionString = dataProviderSettings.ConnectionString;
                 var mongourl = new MongoUrl(connectionString);
                 var databaseName = mongourl.DatabaseName;
                 serviceCollection.AddScoped(c => new MongoClient(mongourl).GetDatabase(databaseName));

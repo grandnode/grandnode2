@@ -17,9 +17,9 @@
             {
                 var manager = new DataSettingsManager();
                 var settings = manager.LoadSettings();
-                _databaseIsInstalled = settings != null && !string.IsNullOrEmpty(settings.DataConnectionString);
-                if (!string.IsNullOrEmpty(settings.DataConnectionString))
-                    _connectionString = settings.DataConnectionString;
+                _databaseIsInstalled = settings != null && !string.IsNullOrEmpty(settings.ConnectionString);
+                if (!string.IsNullOrEmpty(settings.ConnectionString))
+                    _connectionString = settings.ConnectionString;
             }
             return _databaseIsInstalled.Value;
         }
@@ -27,8 +27,8 @@
         {
             var manager = new DataSettingsManager();
             var settings = manager.LoadSettings();
-            if (!string.IsNullOrEmpty(settings.DataConnectionString))
-                _connectionString = settings.DataConnectionString;
+            if (!string.IsNullOrEmpty(settings.ConnectionString))
+                _connectionString = settings.ConnectionString;
         }
         public static string ConnectionString()
         {
