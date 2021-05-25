@@ -1039,14 +1039,6 @@ namespace Grand.Business.System.Utilities
                                     IconClass = "fa fa-dot-circle-o"
                                 },
                                 new AdminSiteMap {
-                                    SystemName = "Query editor",
-                                    ResourceName = "Admin.System.QueryEditor",
-                                    PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                                    ControllerName = "Common",
-                                    ActionName = "QueryEditor",
-                                    IconClass = "fa fa-dot-circle-o"
-                                },
-                                new AdminSiteMap {
                                     SystemName = "Custom css",
                                     ResourceName = "Admin.System.CustomCss",
                                     PermissionNames = new List<string> { PermissionSystemName.Maintenance },
