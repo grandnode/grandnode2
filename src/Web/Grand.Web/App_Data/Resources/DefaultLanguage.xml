@@ -3864,9 +3864,6 @@
   <Resource Name="Admin.Common.RunQuery">
     <Value>Run query</Value>
   </Resource>
-  <Resource Name="Admin.Common.RunScript">
-    <Value>Run script (eval)</Value>
-  </Resource>
   <Resource Name="Admin.Common.Save">
     <Value>Save</Value>
   </Resource>
@@ -11988,9 +11985,6 @@
   <Resource Name="admin.system.developertools">
     <Value>Developer Tools</Value>
   </Resource>
-  <Resource Name="Admin.System.Field.QueryEditor">
-    <Value>Query</Value>
-  </Resource>
   <Resource Name="Admin.System.Log">
     <Value>Log</Value>
   </Resource>
@@ -12104,9 +12098,6 @@
   </Resource>
   <Resource Name="Admin.System.Maintenance.DeleteGuests.TotalDeleted">
     <Value>{0} customers were deleted</Value>
-  </Resource>
-  <Resource Name="Admin.System.QueryEditor">
-    <Value>Query editor</Value>
   </Resource>
   <Resource Name="Admin.System.QueuedEmails">
     <Value>Message Queue</Value>

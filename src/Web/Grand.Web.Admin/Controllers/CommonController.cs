@@ -55,7 +55,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly IWorkContext _workContext;
         private readonly ITranslationService _translationService;
         private readonly IStoreService _storeService;
-        private readonly IMongoDBContext _mongoDBContext;
         private readonly IMachineNameProvider _machineNameProvider;
         private readonly IHostApplicationLifetime _applicationLifetime;
         private readonly IMediator _mediator;
@@ -79,7 +78,6 @@ namespace Grand.Web.Admin.Controllers
             IWorkContext workContext,
             ITranslationService translationService,
             IStoreService storeService,
-            IMongoDBContext mongoDBContext,
             IMachineNameProvider machineNameProvider,
             IHostApplicationLifetime applicationLifetime,
             IMediator mediator,
@@ -103,7 +101,6 @@ namespace Grand.Web.Admin.Controllers
             _storeService = storeService;
             _applicationLifetime = applicationLifetime;
             _appConfig = appConfig;
-            _mongoDBContext = mongoDBContext;
             _machineNameProvider = machineNameProvider;
             _mediaFileStore = mediaFileStore;
             _mediator = mediator;
@@ -422,66 +419,6 @@ namespace Grand.Web.Admin.Controllers
                 Total = scripts.Count
             };
             return Json(gridModel);
-        }
-
-        public IActionResult QueryEditor()
-        {
-            var model = new QueryEditor();
-            return View(model);
-        }
-
-        [HttpPost]
-        public IActionResult QueryEditor(string query)
-        {
-            //https://docs.mongodb.com/manual/reference/command/
-            if (string.IsNullOrEmpty(query))
-                return ErrorForKendoGridJson("Empty query");
-            try
-            {
-                var result = _mongoDBContext.RunCommand(query);
-                var ok = result.Where(x => x.Name == "ok").FirstOrDefault().Value.ToBoolean();
-                var gridModel = new DataSourceResult();
-                if (result.Where(x => x.Name == "cursor").ToList().Any())
-                {
-                    var resultCollection = result["cursor"]["firstBatch"].AsBsonArray.ToList();
-                    var response = _mongoDBContext.Serialize(resultCollection);
-                    gridModel = new DataSourceResult {
-                        Data = response,
-                        Total = response.Count()
-                    };
-                }
-                else if (result.Where(x => x.Name == "n").ToList().Any())
-                {
-                    List<dynamic> n = new List<dynamic>();
-                    var number = result["n"].ToInt64();
-                    n.Add(new { Number = number });
-                    gridModel = new DataSourceResult {
-                        Data = n
-                    };
-                }
-                return Json(gridModel);
-            }
-            catch (Exception ex)
-            {
-                return ErrorForKendoGridJson(ex.Message);
-            }
-        }
-
-        [HttpPost]
-        public IActionResult RunScript(string query)
-        {
-            if (string.IsNullOrEmpty(query))
-                return Json(new { Result = false, Message = "Empty query!" });
-
-            try
-            {
-                var result = _mongoDBContext.ExecuteScript(query);
-                return Json(new { Result = true, Message = result });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Result = false, Message = ex.Message });
-            }
         }
 
         public IActionResult SeNames()
