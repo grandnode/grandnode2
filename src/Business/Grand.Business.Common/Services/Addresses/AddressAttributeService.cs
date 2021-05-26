@@ -54,12 +54,12 @@ namespace Grand.Business.Common.Services.Addresses
         public virtual async Task<IList<AddressAttribute>> GetAllAddressAttributes()
         {
             string key = CacheKey.ADDRESSATTRIBUTES_ALL_KEY;
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from aa in _addressAttributeRepository.Table
                             orderby aa.DisplayOrder
                             select aa;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 

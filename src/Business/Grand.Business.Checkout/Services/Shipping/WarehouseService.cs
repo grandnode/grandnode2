@@ -58,12 +58,12 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <returns>Warehouses</returns>
         public virtual async Task<IList<Warehouse>> GetAllWarehouses()
         {
-            return await _cacheBase.GetAsync(CacheKey.WAREHOUSES_ALL, () =>
+            return await _cacheBase.GetAsync(CacheKey.WAREHOUSES_ALL, async () =>
             {
                 var query = from wh in _warehouseRepository.Table
                             orderby wh.DisplayOrder
                             select wh;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 

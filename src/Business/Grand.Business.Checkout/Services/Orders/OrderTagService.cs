@@ -56,11 +56,11 @@ namespace Grand.Business.Checkout.Services.Orders
                             select ot;
 
                 var dictionary = new Dictionary<string, int>();
-                foreach (var tag in await query.ToListAsync2())
+                foreach (var tag in query.ToList())
                 {
                     dictionary.Add(tag.Id, tag.Count);
                 }
-                return dictionary;
+                return await Task.FromResult(dictionary);
             });
         }
 
@@ -99,7 +99,7 @@ namespace Grand.Business.Checkout.Services.Orders
                         where pt.Name == name
                         select pt;
 
-            return query.FirstOrDefaultAsync2();
+            return Task.FromResult(query.FirstOrDefault());
         }
 
         /// <summary>

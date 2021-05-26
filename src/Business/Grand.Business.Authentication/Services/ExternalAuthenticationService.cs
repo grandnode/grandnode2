@@ -336,7 +336,7 @@ namespace Grand.Business.Authentication.Services
             var query = from p in _externalAuthenticationRecordRepository.Table
                         where p.CustomerId == customer.Id
                         select p;
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>

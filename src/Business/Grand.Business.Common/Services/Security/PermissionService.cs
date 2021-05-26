@@ -70,7 +70,7 @@ namespace Grand.Business.Common.Services.Security
             string key = string.Format(CacheKey.PERMISSIONS_ALLOWED_KEY, customerGroup.Id, permissionSystemName);
             return await _cacheBase.GetAsync(key, async () =>
             {
-                var permissionRecord = await _permissionRepository.Table.Where(x => x.SystemName == permissionSystemName).FirstOrDefaultAsync2();
+                var permissionRecord = await Task.FromResult(_permissionRepository.Table.Where(x => x.SystemName == permissionSystemName).FirstOrDefault());
                 return permissionRecord?.CustomerGroups.Contains(customerGroup.Id) ?? false;
             });
         }
@@ -130,7 +130,7 @@ namespace Grand.Business.Common.Services.Security
             var query = from pr in _permissionRepository.Table
                         orderby pr.Name
                         select pr;
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>
@@ -227,8 +227,8 @@ namespace Grand.Business.Common.Services.Security
         /// <returns>Permission action</returns>
         public virtual async Task<IList<PermissionAction>> GetPermissionActions(string systemName, string customeroleId)
         {
-            return await _permissionActionRepository.Table
-                    .Where(x => x.SystemName == systemName && x.CustomerGroupId == customeroleId).ToListAsync2();
+            return await Task.FromResult(_permissionActionRepository.Table
+                    .Where(x => x.SystemName == systemName && x.CustomerGroupId == customeroleId).ToList());
         }
 
         /// <summary>
@@ -284,8 +284,8 @@ namespace Grand.Business.Common.Services.Security
                 var key = string.Format(CacheKey.PERMISSIONS_ALLOWED_ACTION_KEY, group.Id, permissionSystemName, permissionActionName);
                 var permissionAction = await _cacheBase.GetAsync(key, async () =>
                 {
-                    return await _permissionActionRepository.Table.Where(x => x.SystemName == permissionSystemName && x.CustomerGroupId == group.Id && x.Action == permissionActionName)
-                                .FirstOrDefaultAsync2();
+                    return await Task.FromResult(_permissionActionRepository.Table.Where(x => x.SystemName == permissionSystemName && x.CustomerGroupId == group.Id && x.Action == permissionActionName)
+                                .FirstOrDefault());
                 });
                 if (permissionAction != null)
                     return false;

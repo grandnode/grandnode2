@@ -110,7 +110,7 @@ namespace Grand.Business.Catalog.Services.Collections
         {
             var query = _collectionRepository.Table.Where(x=>x.Published && x.FeaturedProductsOnHomePage).OrderBy(x => x.DisplayOrder);
 
-            var collections = await query.ToListAsync2();
+            var collections = await Task.FromResult(query.ToList());
             if (!showHidden)
             {
                 collections = collections
@@ -198,7 +198,7 @@ namespace Grand.Business.Catalog.Services.Collections
                         where c.AppliedDiscounts.Any(x => x == discountId)
                         select c;
 
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         #endregion

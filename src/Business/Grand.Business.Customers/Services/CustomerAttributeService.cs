@@ -53,12 +53,12 @@ namespace Grand.Business.Customers.Services
         public virtual async Task<IList<CustomerAttribute>> GetAllCustomerAttributes()
         {
             string key = CacheKey.CUSTOMERATTRIBUTES_ALL_KEY;
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from ca in _customerAttributeRepository.Table
                             orderby ca.DisplayOrder
                             select ca;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 

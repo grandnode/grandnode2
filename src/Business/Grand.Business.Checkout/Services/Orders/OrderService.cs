@@ -75,7 +75,7 @@ namespace Grand.Business.Checkout.Services.Orders
                         where o.OrderItems.Any(x => x.Id == orderItemId)
                         select o;
 
-            return query.FirstOrDefaultAsync2();
+            return Task.FromResult(query.FirstOrDefault());
         }
         /// <summary>
         /// Gets an order
@@ -84,7 +84,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <returns>Order</returns>
         public virtual Task<Order> GetOrderByNumber(int orderNumber)
         {
-            return _orderRepository.Table.Where(x => x.OrderNumber == orderNumber).FirstOrDefaultAsync2();
+            return Task.FromResult(_orderRepository.Table.Where(x => x.OrderNumber == orderNumber).FirstOrDefault());
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace Grand.Business.Checkout.Services.Orders
             if (string.IsNullOrEmpty(code))
                 return new List<Order>();
 
-            return await _orderRepository.Table.Where(x => x.Code == code.ToUpperInvariant()).ToListAsync2();
+            return await Task.FromResult(_orderRepository.Table.Where(x => x.Code == code.ToUpperInvariant()).ToList());
         }
 
 
@@ -114,7 +114,7 @@ namespace Grand.Business.Checkout.Services.Orders
             var query = from o in _orderRepository.Table
                         where orderIds.Contains(o.Id)
                         select o;
-            var orders = await query.ToListAsync2();
+            var orders = await Task.FromResult(query.ToList());
             //sort by passed identifiers
             var sortedOrders = new List<Order>();
             foreach (string id in orderIds)
@@ -136,7 +136,7 @@ namespace Grand.Business.Checkout.Services.Orders
             var query = from o in _orderRepository.Table
                         where o.OrderGuid == orderGuid
                         select o;
-            return query.FirstOrDefaultAsync2();
+            return Task.FromResult(query.FirstOrDefault());
         }
 
         /// <summary>
@@ -241,13 +241,11 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="expirationDateUTC">Date at which all unPaid orders and has pending status Would be Canceled</param>
         public async Task CancelExpiredOrders(DateTime expirationDateUTC)
         {
-            var orders = await _orderRepository.Table
-              .Where(o =>
-              o.CreatedOnUtc < expirationDateUTC &&
-              o.PaymentStatusId == PaymentStatus.Pending &&
-              o.OrderStatusId == (int)OrderStatusSystem.Pending &&
-              (o.ShippingStatusId == ShippingStatus.Pending || o.ShippingStatusId == ShippingStatus.ShippingNotRequired))
-              .ToListAsync2();
+            var orders = _orderRepository.Table
+              .Where(o => o.CreatedOnUtc < expirationDateUTC && o.PaymentStatusId == PaymentStatus.Pending &&
+              o.OrderStatusId == (int)OrderStatusSystem.Pending && (o.ShippingStatusId == ShippingStatus.Pending 
+              || o.ShippingStatusId == ShippingStatus.ShippingNotRequired))
+              .ToList();
 
             foreach (var order in orders)
                 await _mediator.Send(new CancelOrderCommand() { Order = order, NotifyCustomer = true });
@@ -272,7 +270,7 @@ namespace Grand.Business.Checkout.Services.Orders
                     where orderItem.OrderItemGuid == orderItemGuid
                     select orderItem;
 
-            return query.FirstOrDefaultAsync2();
+            return Task.FromResult(query.FirstOrDefault());
         }
 
         /// <summary>
@@ -333,7 +331,7 @@ namespace Grand.Business.Checkout.Services.Orders
                         orderby orderNote.CreatedOnUtc descending
                         select orderNote;
 
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>
@@ -343,7 +341,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <returns>OrderNote</returns>
         public virtual Task<OrderNote> GetOrderNote(string ordernoteId)
         {
-            return _orderNoteRepository.Table.Where(x => x.Id == ordernoteId).FirstOrDefaultAsync2();
+            return Task.FromResult(_orderNoteRepository.Table.Where(x => x.Id == ordernoteId).FirstOrDefault());
         }
 
 

@@ -53,12 +53,12 @@ namespace Grand.Business.Catalog.Services.Tax
         public virtual async Task<IList<TaxCategory>> GetAllTaxCategories()
         {
             string key = string.Format(CacheKey.TAXCATEGORIES_ALL_KEY);
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from tc in _taxCategoryRepository.Table
                             orderby tc.DisplayOrder
                             select tc;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 

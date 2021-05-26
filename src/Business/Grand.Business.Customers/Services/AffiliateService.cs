@@ -60,13 +60,13 @@ namespace Grand.Business.Customers.Services
         /// </summary>
         /// <param name="friendlyUrlName">Friendly url name</param>
         /// <returns>Affiliate</returns>
-        public virtual Task<Affiliate> GetAffiliateByFriendlyUrlName(string friendlyUrlName)
+        public virtual async Task<Affiliate> GetAffiliateByFriendlyUrlName(string friendlyUrlName)
         {
             var query = from a in _affiliateRepository.Table
                         orderby a.Id
                         where a.FriendlyUrlName.Contains(friendlyUrlName.ToLowerInvariant())
                         select a;
-            var affiliate = query.FirstOrDefaultAsync2();
+            var affiliate = await Task.FromResult(query.FirstOrDefault());
             return affiliate;
         }
 

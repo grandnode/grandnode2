@@ -105,7 +105,7 @@ namespace Grand.Business.Marketing.Services.Newsteletters
                         where !p.LimitedToStores || p.Stores.Contains(storeId)
                         orderby p.DisplayOrder
                         select p;
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
         #endregion
     }

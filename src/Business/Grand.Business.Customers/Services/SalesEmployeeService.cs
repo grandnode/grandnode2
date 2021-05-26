@@ -49,12 +49,12 @@ namespace Grand.Business.Customers.Services
         /// <returns>Warehouses</returns>
         public virtual async Task<IList<SalesEmployee>> GetAll()
         {
-            return await _cacheBase.GetAsync(CacheKey.SALESEMPLOYEE_ALL, () =>
+            return await _cacheBase.GetAsync(CacheKey.SALESEMPLOYEE_ALL, async () =>
             {
                 var query = from se in _salesEmployeeRepository.Table
                             orderby se.DisplayOrder
                             select se;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 

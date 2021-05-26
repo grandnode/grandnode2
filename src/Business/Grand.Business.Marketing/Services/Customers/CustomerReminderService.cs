@@ -608,7 +608,7 @@ namespace Grand.Business.Marketing.Services.Customers
             var query = from p in _customerReminderRepository.Table
                         orderby p.DisplayOrder
                         select p;
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>
@@ -682,30 +682,30 @@ namespace Grand.Business.Marketing.Services.Customers
             var customerReminder = new List<CustomerReminder>();
             if (String.IsNullOrEmpty(id))
             {
-                customerReminder = await (from cr in _customerReminderRepository.Table
+                customerReminder = (from cr in _customerReminderRepository.Table
                                           where cr.Active && datetimeUtcNow >= cr.StartDateTimeUtc && datetimeUtcNow <= cr.EndDateTimeUtc
                                           && cr.ReminderRuleId == CustomerReminderRuleEnum.AbandonedCart
-                                          select cr).ToListAsync2();
+                                          select cr).ToList();
             }
             else
             {
-                customerReminder = await (from cr in _customerReminderRepository.Table
+                customerReminder = (from cr in _customerReminderRepository.Table
                                           where cr.Id == id && cr.ReminderRuleId == CustomerReminderRuleEnum.AbandonedCart
-                                          select cr).ToListAsync2();
+                                          select cr).ToList();
             }
 
             foreach (var reminder in customerReminder)
             {
-                var customers = await (from cu in _customerRepository.Table
+                var customers = (from cu in _customerRepository.Table
                                        where cu.ShoppingCartItems.Any() && cu.LastUpdateCartDateUtc > reminder.LastUpdateDate && cu.Active && !cu.Deleted
                                        && (!String.IsNullOrEmpty(cu.Email))
-                                       select cu).ToListAsync2();
+                                       select cu).ToList();
 
                 foreach (var customer in customers)
                 {
-                    var history = await (from hc in _customerReminderHistoryRepository.Table
+                    var history = (from hc in _customerReminderHistoryRepository.Table
                                          where hc.CustomerId == customer.Id && hc.CustomerReminderId == reminder.Id
-                                         select hc).ToListAsync2();
+                                         select hc).ToList();
                     if (history.Any())
                     {
                         var activereminderhistory = history.FirstOrDefault(x => x.Status == CustomerReminderHistoryStatusEnum.Started);
@@ -775,30 +775,30 @@ namespace Grand.Business.Marketing.Services.Customers
             var customerReminder = new List<CustomerReminder>();
             if (String.IsNullOrEmpty(id))
             {
-                customerReminder = await (from cr in _customerReminderRepository.Table
+                customerReminder = (from cr in _customerReminderRepository.Table
                                           where cr.Active && datetimeUtcNow >= cr.StartDateTimeUtc && datetimeUtcNow <= cr.EndDateTimeUtc
                                           && cr.ReminderRuleId == CustomerReminderRuleEnum.RegisteredCustomer
-                                          select cr).ToListAsync2();
+                                          select cr).ToList();
             }
             else
             {
-                customerReminder = await (from cr in _customerReminderRepository.Table
+                customerReminder = (from cr in _customerReminderRepository.Table
                                           where cr.Id == id && cr.ReminderRuleId == CustomerReminderRuleEnum.RegisteredCustomer
-                                          select cr).ToListAsync2();
+                                          select cr).ToList();
             }
             foreach (var reminder in customerReminder)
             {
-                var customers = await (from cu in _customerRepository.Table
+                var customers = (from cu in _customerRepository.Table
                                        where cu.CreatedOnUtc > reminder.LastUpdateDate && cu.Active && !cu.Deleted
                                        && (!String.IsNullOrEmpty(cu.Email))
                                        && !cu.IsSystemAccount
-                                       select cu).ToListAsync2();
+                                       select cu).ToList();
 
                 foreach (var customer in customers)
                 {
-                    var history = await (from hc in _customerReminderHistoryRepository.Table
+                    var history = (from hc in _customerReminderHistoryRepository.Table
                                          where hc.CustomerId == customer.Id && hc.CustomerReminderId == reminder.Id
-                                         select hc).ToListAsync2();
+                                         select hc).ToList();
                     if (history.Any())
                     {
                         var activereminderhistory = history.FirstOrDefault(x => x.Status == CustomerReminderHistoryStatusEnum.Started);
@@ -868,29 +868,29 @@ namespace Grand.Business.Marketing.Services.Customers
             var customerReminder = new List<CustomerReminder>();
             if (String.IsNullOrEmpty(id))
             {
-                customerReminder = await (from cr in _customerReminderRepository.Table
+                customerReminder = (from cr in _customerReminderRepository.Table
                                           where cr.Active && datetimeUtcNow >= cr.StartDateTimeUtc && datetimeUtcNow <= cr.EndDateTimeUtc
                                           && cr.ReminderRuleId == CustomerReminderRuleEnum.LastActivity
-                                          select cr).ToListAsync2();
+                                          select cr).ToList();
             }
             else
             {
-                customerReminder = await (from cr in _customerReminderRepository.Table
+                customerReminder = (from cr in _customerReminderRepository.Table
                                           where cr.Id == id && cr.ReminderRuleId == CustomerReminderRuleEnum.LastActivity
-                                          select cr).ToListAsync2();
+                                          select cr).ToList();
             }
             foreach (var reminder in customerReminder)
             {
-                var customers = await (from cu in _customerRepository.Table
+                var customers = (from cu in _customerRepository.Table
                                        where cu.LastActivityDateUtc < reminder.LastUpdateDate && cu.Active && !cu.Deleted
                                        && (!String.IsNullOrEmpty(cu.Email))
-                                       select cu).ToListAsync2();
+                                       select cu).ToList();
 
                 foreach (var customer in customers)
                 {
-                    var history = await (from hc in _customerReminderHistoryRepository.Table
+                    var history = (from hc in _customerReminderHistoryRepository.Table
                                          where hc.CustomerId == customer.Id && hc.CustomerReminderId == reminder.Id
-                                         select hc).ToListAsync2();
+                                         select hc).ToList();
                     if (history.Any())
                     {
                         var activereminderhistory = history.FirstOrDefault(x => x.Status == CustomerReminderHistoryStatusEnum.Started);
@@ -959,30 +959,30 @@ namespace Grand.Business.Marketing.Services.Customers
             var customerReminder = new List<CustomerReminder>();
             if (String.IsNullOrEmpty(id))
             {
-                customerReminder = await (from cr in _customerReminderRepository.Table
+                customerReminder = (from cr in _customerReminderRepository.Table
                                           where cr.Active && datetimeUtcNow >= cr.StartDateTimeUtc && datetimeUtcNow <= cr.EndDateTimeUtc
                                           && cr.ReminderRuleId == CustomerReminderRuleEnum.LastPurchase
-                                          select cr).ToListAsync2();
+                                          select cr).ToList();
             }
             else
             {
-                customerReminder = await (from cr in _customerReminderRepository.Table
+                customerReminder = (from cr in _customerReminderRepository.Table
                                           where cr.Id == id && cr.ReminderRuleId == CustomerReminderRuleEnum.LastPurchase
-                                          select cr).ToListAsync2();
+                                          select cr).ToList();
             }
             foreach (var reminder in customerReminder)
             {
-                var customers = await (from cu in _customerRepository.Table
+                var customers = (from cu in _customerRepository.Table
                                        where cu.LastPurchaseDateUtc < reminder.LastUpdateDate || cu.LastPurchaseDateUtc == null
                                        && (!String.IsNullOrEmpty(cu.Email)) && cu.Active && !cu.Deleted
                                        && !cu.IsSystemAccount
-                                       select cu).ToListAsync2();
+                                       select cu).ToList();
 
                 foreach (var customer in customers)
                 {
-                    var history = await (from hc in _customerReminderHistoryRepository.Table
+                    var history = (from hc in _customerReminderHistoryRepository.Table
                                          where hc.CustomerId == customer.Id && hc.CustomerReminderId == reminder.Id
-                                         select hc).ToListAsync2();
+                                         select hc).ToList();
                     if (history.Any())
                     {
                         var activereminderhistory = history.FirstOrDefault(x => x.Status == CustomerReminderHistoryStatusEnum.Started);
@@ -1052,16 +1052,16 @@ namespace Grand.Business.Marketing.Services.Customers
             var customerReminder = new List<CustomerReminder>();
             if (String.IsNullOrEmpty(id))
             {
-                customerReminder = await (from cr in _customerReminderRepository.Table
+                customerReminder = (from cr in _customerReminderRepository.Table
                                           where cr.Active && datetimeUtcNow >= cr.StartDateTimeUtc && datetimeUtcNow <= cr.EndDateTimeUtc
                                           && cr.ReminderRuleId == CustomerReminderRuleEnum.Birthday
-                                          select cr).ToListAsync2();
+                                          select cr).ToList();
             }
             else
             {
-                customerReminder = await (from cr in _customerReminderRepository.Table
+                customerReminder = (from cr in _customerReminderRepository.Table
                                           where cr.Id == id && cr.ReminderRuleId == CustomerReminderRuleEnum.Birthday
-                                          select cr).ToListAsync2();
+                                          select cr).ToList();
             }
 
             foreach (var reminder in customerReminder)
@@ -1072,16 +1072,16 @@ namespace Grand.Business.Marketing.Services.Customers
 
                 string dateDDMM = DateTime.Now.AddDays(day).ToString("-MM-dd");
 
-                var customers = await (from cu in _customerRepository.Table
+                var customers = (from cu in _customerRepository.Table
                                        where (!String.IsNullOrEmpty(cu.Email)) && cu.Active && !cu.Deleted
                                        && cu.UserFields.Any(x => x.Key == "DateOfBirth" && x.Value.Contains(dateDDMM))
-                                       select cu).ToListAsync2();
+                                       select cu).ToList();
 
                 foreach (var customer in customers)
                 {
-                    var history = await (from hc in _customerReminderHistoryRepository.Table
+                    var history = (from hc in _customerReminderHistoryRepository.Table
                                          where hc.CustomerId == customer.Id && hc.CustomerReminderId == reminder.Id
-                                         select hc).ToListAsync2();
+                                         select hc).ToList();
                     if (history.Any())
                     {
                         var activereminderhistory = history.FirstOrDefault(x => x.Status == CustomerReminderHistoryStatusEnum.Started);
@@ -1135,9 +1135,9 @@ namespace Grand.Business.Marketing.Services.Customers
                     }
                 }
 
-                var activehistory = await (from hc in _customerReminderHistoryRepository.Table
+                var activehistory = (from hc in _customerReminderHistoryRepository.Table
                                            where hc.CustomerReminderId == reminder.Id && hc.Status == CustomerReminderHistoryStatusEnum.Started
-                                           select hc).ToListAsync2();
+                                           select hc).ToList();
 
                 foreach (var activereminderhistory in activehistory)
                 {
@@ -1169,16 +1169,16 @@ namespace Grand.Business.Marketing.Services.Customers
             var customerReminder = new List<CustomerReminder>();
             if (String.IsNullOrEmpty(id))
             {
-                customerReminder = await (from cr in _customerReminderRepository.Table
+                customerReminder = (from cr in _customerReminderRepository.Table
                                           where cr.Active && datetimeUtcNow >= cr.StartDateTimeUtc && datetimeUtcNow <= cr.EndDateTimeUtc
                                           && cr.ReminderRuleId == CustomerReminderRuleEnum.CompletedOrder
-                                          select cr).ToListAsync2();
+                                          select cr).ToList();
             }
             else
             {
-                customerReminder = await (from cr in _customerReminderRepository.Table
+                customerReminder = (from cr in _customerReminderRepository.Table
                                           where cr.Id == id && cr.ReminderRuleId == CustomerReminderRuleEnum.CompletedOrder
-                                          select cr).ToListAsync2();
+                                          select cr).ToList();
             }
 
             foreach (var reminder in customerReminder)
@@ -1187,19 +1187,19 @@ namespace Grand.Business.Marketing.Services.Customers
                 if (reminder.Levels.OrderBy(x => x.Level).FirstOrDefault() != null)
                     day = reminder.Levels.OrderBy(x => x.Level).FirstOrDefault().Day;
 
-                var orders = await (from or in _orderRepository.Table
+                var orders = (from or in _orderRepository.Table
                                     where or.OrderStatusId == (int)OrderStatusSystem.Complete
                                     && or.CreatedOnUtc >= reminder.LastUpdateDate && or.CreatedOnUtc >= dateNow.AddDays(-day)
-                                    select or).ToListAsync2();
+                                    select or).ToList();
 
                 foreach (var order in orders)
                 {
-                    var history = await (from hc in _customerReminderHistoryRepository.Table
+                    var history = (from hc in _customerReminderHistoryRepository.Table
                                          where hc.BaseOrderId == order.Id && hc.CustomerReminderId == reminder.Id
-                                         select hc).ToListAsync2();
+                                         select hc).ToList();
 
-                    Customer customer = await _customerRepository.Table.Where(x => x.Id == order.CustomerId && x.Active && !x.Deleted).FirstOrDefaultAsync2();
-                    if (customer != null)
+                    Customer customer = await _customerRepository.GetByIdAsync(order.CustomerId);
+                    if (customer != null && customer.Active && !customer.Deleted)
                     {
                         if (history.Any())
                         {
@@ -1255,9 +1255,9 @@ namespace Grand.Business.Marketing.Services.Customers
                     }
                 }
 
-                var activehistory = await (from hc in _customerReminderHistoryRepository.Table
+                var activehistory = (from hc in _customerReminderHistoryRepository.Table
                                            where hc.CustomerReminderId == reminder.Id && hc.Status == CustomerReminderHistoryStatusEnum.Started
-                                           select hc).ToListAsync2();
+                                           select hc).ToList();
 
                 foreach (var activereminderhistory in activehistory)
                 {
@@ -1290,16 +1290,16 @@ namespace Grand.Business.Marketing.Services.Customers
             var customerReminder = new List<CustomerReminder>();
             if (String.IsNullOrEmpty(id))
             {
-                customerReminder = await (from cr in _customerReminderRepository.Table
+                customerReminder = (from cr in _customerReminderRepository.Table
                                           where cr.Active && datetimeUtcNow >= cr.StartDateTimeUtc && datetimeUtcNow <= cr.EndDateTimeUtc
                                           && cr.ReminderRuleId == CustomerReminderRuleEnum.UnpaidOrder
-                                          select cr).ToListAsync2();
+                                          select cr).ToList();
             }
             else
             {
-                customerReminder = await (from cr in _customerReminderRepository.Table
+                customerReminder = (from cr in _customerReminderRepository.Table
                                           where cr.Id == id && cr.ReminderRuleId == CustomerReminderRuleEnum.UnpaidOrder
-                                          select cr).ToListAsync2();
+                                          select cr).ToList();
             }
 
             foreach (var reminder in customerReminder)
@@ -1308,19 +1308,19 @@ namespace Grand.Business.Marketing.Services.Customers
                 if (reminder.Levels.OrderBy(x => x.Level).FirstOrDefault() != null)
                     day = reminder.Levels.OrderBy(x => x.Level).FirstOrDefault().Day;
 
-                var orders = await (from or in _orderRepository.Table
+                var orders = (from or in _orderRepository.Table
                                     where or.PaymentStatusId == PaymentStatus.Pending
                                     && or.CreatedOnUtc >= reminder.LastUpdateDate && or.CreatedOnUtc >= dateNow.AddDays(-day)
-                                    select or).ToListAsync2();
+                                    select or).ToList();
 
                 foreach (var order in orders)
                 {
-                    var history = await (from hc in _customerReminderHistoryRepository.Table
+                    var history = (from hc in _customerReminderHistoryRepository.Table
                                          where hc.BaseOrderId == order.Id && hc.CustomerReminderId == reminder.Id
-                                         select hc).ToListAsync2();
+                                         select hc).ToList();
 
-                    Customer customer = await _customerRepository.Table.Where(x => x.Id == order.CustomerId && x.Active && !x.Deleted).FirstOrDefaultAsync2();
-                    if (customer != null)
+                    Customer customer = await _customerRepository.GetByIdAsync(order.CustomerId);
+                    if (customer != null && customer.Active && !customer.Deleted)
                     {
                         if (history.Any())
                         {
@@ -1375,9 +1375,9 @@ namespace Grand.Business.Marketing.Services.Customers
                         }
                     }
                 }
-                var activehistory = await (from hc in _customerReminderHistoryRepository.Table
+                var activehistory = (from hc in _customerReminderHistoryRepository.Table
                                            where hc.CustomerReminderId == reminder.Id && hc.Status == CustomerReminderHistoryStatusEnum.Started
-                                           select hc).ToListAsync2();
+                                           select hc).ToList();
 
                 foreach (var activereminderhistory in activehistory)
                 {

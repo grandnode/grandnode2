@@ -50,7 +50,7 @@ namespace Grand.Business.System.Services.Reports
             if (!string.IsNullOrEmpty(storeId))
                 query_simple_products = query_simple_products.Where(x => x.Stores.Contains(storeId));
 
-            var products = await query_simple_products.ToListAsync2();
+            var products = query_simple_products.ToList();
 
             //Track inventory for product by product attributes
             var query2_1 = from p in _productRepository.Table
@@ -77,9 +77,9 @@ namespace Grand.Business.System.Services.Reports
                            where c.StockQuantity <= 0
                            select c;
 
-            var combinations = await query2_2.ToListAsync2();
+            var combinations = query2_2.ToList();
 
-            return (products, combinations);
+            return await Task.FromResult((products, combinations));
         }
     }
 }

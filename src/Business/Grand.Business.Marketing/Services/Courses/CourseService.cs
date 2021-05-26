@@ -75,17 +75,17 @@ namespace Grand.Business.Marketing.Services.Courses
             }
 
             //courses without assigned product
-            var q1 = await query.Where(x => string.IsNullOrEmpty(x.ProductId)).ToListAsync2();
+            var q1 = query.Where(x => string.IsNullOrEmpty(x.ProductId)).ToList();
 
             //get products from orders - paid/not deleted/for customer/store
-            var pl = await _orderRepository.Table.Where(x => x.CustomerId == customer.Id && !x.Deleted
+            var pl = _orderRepository.Table.Where(x => x.CustomerId == customer.Id && !x.Deleted
                             && x.PaymentStatusId == Domain.Payments.PaymentStatus.Paid
-                            && x.StoreId == storeId).SelectMany(x => x.OrderItems, (p, pr) => pr.ProductId).Distinct().ToListAsync2();
+                            && x.StoreId == storeId).SelectMany(x => x.OrderItems, (p, pr) => pr.ProductId).Distinct().ToList();
 
             //courses assigned to products
-            var q2 = await query.Where(x => pl.Contains(x.ProductId)).ToListAsync2();
+            var q2 = query.Where(x => pl.Contains(x.ProductId)).ToList();
 
-            return q1.Concat(q2).ToList();
+            return await Task.FromResult(q1.Concat(q2).ToList());
         }
 
         public virtual Task<Course> GetById(string id)

@@ -58,8 +58,7 @@ namespace Grand.Business.Marketing.Services.Customers
             var key = string.Format(CacheKey.CUSTOMER_PRODUCT_PRICE_KEY_ID, customerId, productId);
             var productprice = await _cacheBase.GetAsync(key, async () =>
             {
-                var pp = await _customerProductPriceRepository.Table.Where(x => x.CustomerId == customerId && x.ProductId == productId)
-                .FirstOrDefaultAsync2();
+                var pp = await Task.FromResult(_customerProductPriceRepository.Table.Where(x => x.CustomerId == customerId && x.ProductId == productId).FirstOrDefault());
                 if (pp == null)
                     return (null, false);
                 else
@@ -154,13 +153,13 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <param name="customerId">Customer Identifier</param>
         /// <param name="productId">Product Identifier</param>
         /// <returns>Customer product</returns>
-        public virtual Task<CustomerProduct> GetCustomerProduct(string customerId, string productId)
+        public virtual async Task<CustomerProduct> GetCustomerProduct(string customerId, string productId)
         {
             var query = from pp in _customerProductRepository.Table
                         where pp.CustomerId == customerId && pp.ProductId == productId
                         select pp;
 
-            return query.FirstOrDefaultAsync2();
+            return await Task.FromResult(query.FirstOrDefault());
         }
 
         /// <summary>

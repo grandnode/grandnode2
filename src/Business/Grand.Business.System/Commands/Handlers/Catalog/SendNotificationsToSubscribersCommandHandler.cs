@@ -64,9 +64,9 @@ namespace Grand.Business.System.Commands.Handlers.Catalog
         /// <returns>Subscriptions</returns>
         private async Task<IList<OutOfStockSubscription>> GetAllSubscriptionsByProductId(string productId, IList<CustomAttribute> attributes, string warehouseId)
         {
-            var query = await _outOfStockSubscriptionRepository.Table
+            var query = _outOfStockSubscriptionRepository.Table
                 .Where(biss => biss.ProductId == productId)
-                .OrderByDescending(biss => biss.CreatedOnUtc).ToListAsync2();
+                .OrderByDescending(biss => biss.CreatedOnUtc).ToList();
 
             //warehouse
             if (!string.IsNullOrEmpty(warehouseId))
@@ -79,7 +79,7 @@ namespace Grand.Business.System.Commands.Handlers.Catalog
                     query = query.Where(x => x.Attributes.Any(y => y.Key == item.Key && y.Value == item.Value)).ToList();
                 }
 
-            return query.ToList();
+            return await Task.FromResult(query.ToList());
         }
     }
 }

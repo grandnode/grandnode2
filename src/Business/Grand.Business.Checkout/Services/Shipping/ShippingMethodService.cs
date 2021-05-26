@@ -82,12 +82,12 @@ namespace Grand.Business.Checkout.Services.Shipping
         {
             var shippingMethods = new List<ShippingMethod>();
 
-            shippingMethods = await _cacheBase.GetAsync(CacheKey.SHIPPINGMETHOD_ALL, () =>
+            shippingMethods = await _cacheBase.GetAsync(CacheKey.SHIPPINGMETHOD_ALL, async () =>
             {
                 var query = from sm in _shippingMethodRepository.Table
                             orderby sm.DisplayOrder
                             select sm;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
 
             if (!string.IsNullOrEmpty(filterByCountryId))

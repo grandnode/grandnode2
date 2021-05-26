@@ -109,7 +109,7 @@ namespace Grand.Business.Checkout.Services.Shipping
             var query = from o in _shipmentRepository.Table
                         where shipmentIds.Contains(o.Id)
                         select o;
-            var shipments = await query.ToListAsync2();
+            var shipments = await Task.FromResult(query.ToList());
 
             //sort by passed identifiers
             var sortedOrders = new List<Shipment>();
@@ -125,7 +125,7 @@ namespace Grand.Business.Checkout.Services.Shipping
 
         public virtual async Task<IList<Shipment>> GetShipmentsByOrder(string orderId)
         {
-            return await _shipmentRepository.Table.Where(x => x.OrderId == orderId).ToListAsync2();
+            return await Task.FromResult(_shipmentRepository.Table.Where(x => x.OrderId == orderId).ToList());
         }
 
         /// <summary>
@@ -223,7 +223,7 @@ namespace Grand.Business.Checkout.Services.Shipping
                         orderby shipmentNote.CreatedOnUtc descending
                         select shipmentNote;
 
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <returns>shipmentNote</returns>
         public virtual Task<ShipmentNote> GetShipmentNote(string shipmentnoteId)
         {
-            return _shipmentNoteRepository.Table.Where(x => x.Id == shipmentnoteId).FirstOrDefaultAsync2();
+            return Task.FromResult(_shipmentNoteRepository.Table.Where(x => x.Id == shipmentnoteId).FirstOrDefault());
         }
 
 

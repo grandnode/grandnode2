@@ -64,7 +64,7 @@ namespace Grand.Business.Marketing.Services.Contacts
                         where c.CustomerId == customerId && c.Id == id
                         select c;
 
-            var popup = await query.FirstOrDefaultAsync2();
+            var popup = await Task.FromResult(query.FirstOrDefault());
             if (popup != null)
             {
                 var archiveBanner = new PopupArchive()

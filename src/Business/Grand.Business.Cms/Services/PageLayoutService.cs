@@ -53,13 +53,13 @@ namespace Grand.Business.Cms.Services
         /// <returns>Page layouts</returns>
         public virtual async Task<IList<PageLayout>> GetAllPageLayouts()
         {
-            return await _cacheBase.GetAsync(CacheKey.PAGE_LAYOUT_ALL, () =>
+            return await _cacheBase.GetAsync(CacheKey.PAGE_LAYOUT_ALL, async () =>
             {
                 var query = from pt in _pageLayoutRepository.Table
                             orderby pt.DisplayOrder
                             select pt;
 
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 

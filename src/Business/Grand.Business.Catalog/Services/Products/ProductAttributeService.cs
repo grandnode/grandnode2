@@ -337,9 +337,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Product attribute mapping collection</returns>
         public virtual async Task<IList<PredefinedProductAttributeValue>> GetPredefinedProductAttributeValues(string productAttributeId)
         {
-            var pa = await _productAttributeRepository.Table.Where(x => x.Id == productAttributeId)
-                .FirstOrDefaultAsync2();
-
+            var pa = await Task.FromResult(_productAttributeRepository.Table.Where(x => x.Id == productAttributeId).FirstOrDefault());
             return pa.PredefinedProductAttributeValues.OrderBy(x => x.DisplayOrder).ToList();
         }
 

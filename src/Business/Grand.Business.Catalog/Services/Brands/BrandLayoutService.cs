@@ -52,12 +52,12 @@ namespace Grand.Business.Catalog.Services.Brands
         /// <returns>Brand layouts</returns>
         public virtual async Task<IList<BrandLayout>> GetAllBrandLayouts()
         {
-            return await _cacheBase.GetAsync(CacheKey.BRAND_LAYOUT_ALL, () =>
+            return await _cacheBase.GetAsync(CacheKey.BRAND_LAYOUT_ALL, async () =>
             {
                 var query = from pt in _brandLayoutRepository.Table
                             orderby pt.DisplayOrder
                             select pt;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 

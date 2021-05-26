@@ -36,9 +36,9 @@ namespace Grand.Business.Customers.Services
         /// Get user api by email
         /// </summary>
         /// <param name="id">id</param>
-        public virtual Task<UserApi> GetUserByEmail(string email)
+        public virtual async Task<UserApi> GetUserByEmail(string email)
         {
-            return _userRepository.Table.Where(x => x.Email == email.ToLowerInvariant()).FirstOrDefaultAsync2();
+            return await Task.FromResult(_userRepository.Table.Where(x => x.Email == email.ToLowerInvariant()).FirstOrDefault());
         }
 
         /// <summary>

@@ -104,12 +104,12 @@ namespace Grand.Business.Common.Services.Directory
                 return null;
 
             var key = string.Format(CacheKey.CURRENCIES_BY_CODE, currencyCode);
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from q in _currencyRepository.Table
                             where q.CurrencyCode.ToLowerInvariant() == currencyCode.ToLower()
                             select q;
-                return query.FirstOrDefaultAsync2();
+                return await Task.FromResult(query.FirstOrDefault());
             });
         }
 
@@ -122,7 +122,7 @@ namespace Grand.Business.Common.Services.Directory
         public virtual async Task<IList<Currency>> GetAllCurrencies(bool showHidden = false, string storeId = "")
         {
             string key = string.Format(CacheKey.CURRENCIES_ALL_KEY, showHidden);
-            var currencies = await _cacheBase.GetAsync(key, () =>
+            var currencies = await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from p in _currencyRepository.Table
                             select p;
@@ -130,7 +130,7 @@ namespace Grand.Business.Common.Services.Directory
                 if (!showHidden)
                     query = query.Where(c => c.Published);
                 query = query.OrderBy(c => c.DisplayOrder);
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
 
             //store acl

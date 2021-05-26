@@ -56,9 +56,9 @@ namespace Grand.Business.Common.Services.Stores
         {
             if (_allStores == null)
             {
-                _allStores = await _cacheBase.GetAsync(CacheKey.STORES_ALL_KEY, () =>
+                _allStores = await _cacheBase.GetAsync(CacheKey.STORES_ALL_KEY, async () =>
                 {
-                    return _storeRepository.Table.OrderBy(x => x.DisplayOrder).ToListAsync2();
+                    return await Task.FromResult(_storeRepository.Table.OrderBy(x => x.DisplayOrder).ToList());
                 });
             }
             return _allStores;

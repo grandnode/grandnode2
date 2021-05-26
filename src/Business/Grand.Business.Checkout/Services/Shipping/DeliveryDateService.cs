@@ -58,12 +58,12 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <returns>Delivery dates</returns>
         public virtual async Task<IList<DeliveryDate>> GetAllDeliveryDates()
         {
-            return await _cacheBase.GetAsync(CacheKey.DELIVERYDATE_ALL, () =>
+            return await _cacheBase.GetAsync(CacheKey.DELIVERYDATE_ALL, async () =>
             {
                 var query = from dd in _deliveryDateRepository.Table
                             orderby dd.DisplayOrder
                             select dd;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 

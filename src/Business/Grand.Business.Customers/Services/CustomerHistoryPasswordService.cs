@@ -54,10 +54,12 @@ namespace Grand.Business.Customers.Services
         /// <returns>List of customer passwords</returns>
         public virtual async Task<IList<CustomerHistoryPassword>> GetPasswords(string customerId, int passwordsToReturn)
         {
-            return await _customerHistoryPasswordProductRepository.Table.Where(x=>x.CustomerId == customerId)
+            return await Task.FromResult(_customerHistoryPasswordProductRepository
+                    .Table
+                    .Where(x=>x.CustomerId == customerId)
                     .OrderByDescending(password => password.CreatedOnUtc)
                     .Take(passwordsToReturn)
-                    .ToListAsync2();
+                    .ToList());
         }
 
     }

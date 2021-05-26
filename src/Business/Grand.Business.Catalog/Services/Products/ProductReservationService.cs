@@ -180,7 +180,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>List<CustomerReservationsHelper></returns>
         public virtual async Task<IList<CustomerReservationsHelper>> GetCustomerReservationsHelpers(string customerId)
         {
-            return await _customerReservationsHelperRepository.Table.Where(x => x.CustomerId == customerId).ToListAsync2();
+            return await Task.FromResult(_customerReservationsHelperRepository.Table.Where(x => x.CustomerId == customerId).ToList());
         }
 
         /// <summary>
@@ -190,7 +190,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>List<CustomerReservationsHelper></returns>
         public virtual async Task<IList<CustomerReservationsHelper>> GetCustomerReservationsHelperBySciId(string sciId)
         {
-            return await _customerReservationsHelperRepository.Table.Where(x => x.ShoppingCartItemId == sciId).ToListAsync2();
+            return await Task.FromResult(_customerReservationsHelperRepository.Table.Where(x => x.ShoppingCartItemId == sciId).ToList());
         }
     }
 }

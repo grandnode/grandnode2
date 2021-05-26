@@ -38,7 +38,7 @@ namespace Grand.Business.Marketing.Services.Courses
                         orderby l.DisplayOrder
                         select l;
 
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         public virtual Task<CourseLevel> GetById(string id)

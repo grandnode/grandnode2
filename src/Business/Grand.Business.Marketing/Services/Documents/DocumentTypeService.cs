@@ -37,7 +37,7 @@ namespace Grand.Business.Marketing.Services.Documents
             var query = from t in _documentTypeRepository.Table
                         orderby t.DisplayOrder
                         select t;
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         public virtual Task<DocumentType> GetById(string id)

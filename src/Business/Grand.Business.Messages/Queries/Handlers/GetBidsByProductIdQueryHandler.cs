@@ -19,10 +19,10 @@ namespace Grand.Business.Messages.Queries.Models.Handlers
 
         public async Task<IList<Bid>> Handle(GetBidsByProductIdQuery request, CancellationToken cancellationToken)
         {
-            return await _bidRepository
+            return await Task.FromResult(_bidRepository
                 .Table.Where(x => x.ProductId == request.ProductId)
                 .OrderByDescending(x => x.Date)
-                .ToListAsync2();
+                .ToList());
         }
     }
 }

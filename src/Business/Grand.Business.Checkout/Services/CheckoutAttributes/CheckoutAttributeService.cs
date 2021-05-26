@@ -60,7 +60,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
         public virtual async Task<IList<CheckoutAttribute>> GetAllCheckoutAttributes(string storeId = "", bool excludeShippableAttributes = false, bool ignorAcl = false)
         {
             string key = string.Format(CacheKey.CHECKOUTATTRIBUTES_ALL_KEY, storeId, excludeShippableAttributes, ignorAcl);
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from p in _checkoutAttributeRepository.Table
                             select p;
@@ -89,7 +89,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
                 {
                     query = query.Where(x => !x.ShippableProductRequired);
                 }
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
 
             });
         }

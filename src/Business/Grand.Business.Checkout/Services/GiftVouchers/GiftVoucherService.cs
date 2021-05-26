@@ -93,7 +93,7 @@ namespace Grand.Business.Checkout.Services.GiftVouchers
                         select h;
 
             query = query.Where(x => x.UsedWithOrderId == orderId);
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace Grand.Business.Checkout.Services.GiftVouchers
             query = query.Where(gc => gc.PurchasedWithOrderItem.Id == purchasedWithOrderItemId);
             query = query.OrderBy(gc => gc.Id);
 
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>

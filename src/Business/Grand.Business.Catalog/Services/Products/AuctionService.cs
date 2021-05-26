@@ -45,12 +45,12 @@ namespace Grand.Business.Catalog.Services.Products
 
         public virtual async Task<Bid> GetLatestBid(string productId)
         {
-            var bid = await _bidRepository.Table
+            var bid = _bidRepository.Table
                             .Where(x=>x.ProductId == productId)
                             .OrderByDescending(x => x.Date)
-                            .ToListAsync2();
+                            .ToList();
 
-            return bid.FirstOrDefault();
+            return await Task.FromResult(bid.FirstOrDefault());
         }
 
         public virtual async Task<IPagedList<Bid>> GetBidsByProductId(string productId, int pageIndex = 0, int pageSize = int.MaxValue)
@@ -113,10 +113,9 @@ namespace Grand.Business.Catalog.Services.Products
 
         public virtual async Task<IList<Product>> GetAuctionsToEnd()
         {
-            return await _productRepository.Table
+            return await Task.FromResult(_productRepository.Table
                 .Where(x => x.ProductTypeId == ProductType.Auction && 
-                        !x.AuctionEnded && x.AvailableEndDateTimeUtc < DateTime.UtcNow)
-                .ToListAsync2();
+                        !x.AuctionEnded && x.AvailableEndDateTimeUtc < DateTime.UtcNow).ToList());
         }
 
         public virtual async Task UpdateAuctionEnded(Product product, bool ended, bool enddate = false)

@@ -81,7 +81,7 @@ namespace Grand.Business.Cms.Services
 
                 query = query.Where(t => t.SystemName.ToLower() == systemName.ToLower());
                 query = query.OrderBy(t => t.Id);
-                var pages = await query.ToListAsync2();
+                var pages = await Task.FromResult(query.ToList());
                 if (!String.IsNullOrEmpty(storeId))
                 {
                     pages = pages.Where(x => _aclService.Authorize(x, storeId)).ToList();
@@ -98,7 +98,7 @@ namespace Grand.Business.Cms.Services
         public virtual async Task<IList<Page>> GetAllPages(string storeId, bool ignorAcl = false)
         {
             string key = string.Format(CacheKey.PAGES_ALL_KEY, storeId, ignorAcl);
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from p in _pageRepository.Table
                             select p;
@@ -125,7 +125,7 @@ namespace Grand.Business.Cms.Services
                         query = query.OrderBy(t => t.SystemName);
                     }
                 }
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 

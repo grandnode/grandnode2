@@ -88,9 +88,9 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <returns>PaymentTransaction</returns>
         public virtual async Task<IList<PaymentTransaction>> GetByOrderCode(string orderCode)
         {
-            return await
+            return await Task.FromResult(
                 _repositoryPaymentTransaction.Table.Where(x => x.OrderCode == orderCode)
-                .ToListAsync2();
+                .ToList());
         }
 
         /// <summary>
@@ -100,9 +100,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <returns>PaymentTransaction</returns>
         public virtual async Task<PaymentTransaction> GetByOrdeGuid(Guid orderguid)
         {
-            return await
-                _repositoryPaymentTransaction.Table.Where(x => x.OrderGuid == orderguid)
-                .FirstOrDefaultAsync2();
+            return await Task.FromResult(_repositoryPaymentTransaction.Table.Where(x => x.OrderGuid == orderguid).FirstOrDefault());
         }
 
         /// <summary>
@@ -122,7 +120,7 @@ namespace Grand.Business.Checkout.Services.Payments
             if (!string.IsNullOrEmpty(paymentMethodSystemName))
                 query = query.Where(c => c.PaymentMethodSystemName == paymentMethodSystemName);
 
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>

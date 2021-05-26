@@ -79,11 +79,11 @@ namespace Grand.Business.Storage.Services
                         where o.DownloadGuid == downloadGuid
                         select o;
 
-            var order = (await query.ToListAsync2()).FirstOrDefault();
+            var order = query.FirstOrDefault();
             if (!order.UseDownloadUrl)
                 order.DownloadBinary = await DownloadAsBytes(order.DownloadObjectId);
 
-            return order;
+            return await Task.FromResult(order);
         }
 
         /// <summary>

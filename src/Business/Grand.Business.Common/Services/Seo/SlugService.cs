@@ -233,7 +233,7 @@ namespace Grand.Business.Common.Services.Seo
                                 ur.LanguageId == languageId &&
                                 ur.IsActive
                                 select ur.Slug;
-                    var slug = await query.FirstOrDefaultAsync2();
+                    var slug = await Task.FromResult(query.FirstOrDefault());
                     if (slug == null)
                         slug = "";
                     return slug;
@@ -262,7 +262,7 @@ namespace Grand.Business.Common.Services.Seo
                         ur.LanguageId == languageId
                         select ur;
 
-            var allUrlEntity = await query.ToListAsync2();
+            var allUrlEntity = query.ToList();
             var activeUrlEntity = allUrlEntity.FirstOrDefault(x => x.IsActive);
 
             if (!string.IsNullOrWhiteSpace(slug))

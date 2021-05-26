@@ -126,7 +126,7 @@ namespace Grand.Business.Messages.Services
 
                 query = query.Where(t => t.Name == messageTemplateName);
                 query = query.OrderBy(t => t.Id);
-                var templates = await query.ToListAsync2();
+                var templates = await Task.FromResult(query.ToList());
 
                 //store acl
                 if (!String.IsNullOrEmpty(storeId))
@@ -149,7 +149,7 @@ namespace Grand.Business.Messages.Services
         public virtual async Task<IList<MessageTemplate>> GetAllMessageTemplates(string storeId)
         {
             string key = string.Format(CacheKey.MESSAGETEMPLATES_ALL_KEY, storeId);
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from p in _messageTemplateRepository.Table
                             select p;
@@ -164,7 +164,7 @@ namespace Grand.Business.Messages.Services
                             select p;
                     query = query.OrderBy(t => t.Name);
                 }
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 

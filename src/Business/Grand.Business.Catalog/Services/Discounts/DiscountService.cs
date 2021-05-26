@@ -90,7 +90,7 @@ namespace Grand.Business.Catalog.Services.Discounts
             string storeId = "", string currencyCode = "", string couponCode = "", string discountName = "", bool showHidden = false)
         {
             string key = string.Format(CacheKey.DISCOUNTS_ALL_KEY, showHidden, storeId, currencyCode, couponCode, discountName);
-            var result = await _cacheBase.GetAsync(key, () =>
+            var result = await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from m in _discountRepository.Table
                             select m;
@@ -125,7 +125,7 @@ namespace Grand.Business.Catalog.Services.Discounts
                 }
                 query = query.OrderBy(d => d.Name);
 
-                var discounts = query.ToListAsync2();
+                var discounts = await Task.FromResult(query.ToList());
                 return discounts;
             });
             if (discountType.HasValue)
@@ -260,7 +260,7 @@ namespace Grand.Business.Catalog.Services.Discounts
             if (String.IsNullOrWhiteSpace(couponCode))
                 return null;
 
-            var query = await _discountCouponRepository.Table.Where(x => x.CouponCode == couponCode).ToListAsync2();
+            var query = _discountCouponRepository.Table.Where(x => x.CouponCode == couponCode).ToList();
 
             var coupon = query.FirstOrDefault();
             if (coupon == null)
@@ -287,7 +287,7 @@ namespace Grand.Business.Catalog.Services.Discounts
             if (used.HasValue)
                 query = query.Where(x => x.Used == used.Value);
 
-            var result = await query.ToListAsync2();
+            var result = await Task.FromResult(query.ToList());
 
             if (result.Any())
                 return true;
@@ -332,7 +332,7 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// <returns></returns>
         public async Task<DiscountCoupon> GetDiscountCodeByCode(string couponCode)
         {
-            var query = await _discountCouponRepository.Table.Where(x => x.CouponCode == couponCode).ToListAsync2();
+            var query = await Task.FromResult(_discountCouponRepository.Table.Where(x => x.CouponCode == couponCode).ToList());
             return query.FirstOrDefault();
         }
 
@@ -387,7 +387,7 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// <param name="orderId"></param>
         public virtual async Task CancelDiscount(string orderId)
         {
-            var discountUsage = await _discountUsageHistoryRepository.Table.Where(x => x.OrderId == orderId).ToListAsync2();
+            var discountUsage = _discountUsageHistoryRepository.Table.Where(x => x.OrderId == orderId).ToList();
             foreach (var item in discountUsage)
             {
                 await DiscountCouponSetAsUsed(item.CouponCode, false);

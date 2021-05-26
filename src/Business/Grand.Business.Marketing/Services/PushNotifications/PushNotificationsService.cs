@@ -65,7 +65,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         /// <param name="CustomerId"></param>
         public virtual async Task<PushRegistration> GetPushReceiverByCustomerId(string CustomerId)
         {
-            return await _pushRegistratiosnRepository.Table.Where(x => x.CustomerId == CustomerId).FirstOrDefaultAsync2();
+            return await Task.FromResult(_pushRegistratiosnRepository.Table.Where(x => x.CustomerId == CustomerId).FirstOrDefault());
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         /// </summary>
         public virtual async Task<List<PushRegistration>> GetPushReceivers()
         {
-            return await _pushRegistratiosnRepository.Table.Where(x => x.Allowed).ToListAsync2();
+            return await Task.FromResult(_pushRegistratiosnRepository.Table.Where(x => x.Allowed).ToList());
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         /// </summary>
         public virtual async Task<IPagedList<PushMessage>> GetPushMessages(int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var allMessages = await _pushMessagesRepository.Table.OrderByDescending(x => x.SentOn).ToListAsync2();
+            var allMessages = await Task.FromResult(_pushMessagesRepository.Table.OrderByDescending(x => x.SentOn).ToList());
             return new PagedList<PushMessage>(allMessages.Skip(pageIndex * pageSize).Take(pageSize).ToList(), pageIndex, pageSize, allMessages.Count);
         }
 
@@ -126,7 +126,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         /// </summary>
         public virtual async Task<IPagedList<PushRegistration>> GetPushReceivers(int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var allReceivers = await _pushRegistratiosnRepository.Table.OrderByDescending(x => x.RegisteredOn).ToListAsync2();
+            var allReceivers = await Task.FromResult(_pushRegistratiosnRepository.Table.OrderByDescending(x => x.RegisteredOn).ToList());
             return new PagedList<PushRegistration>(allReceivers.Skip(pageIndex * pageSize).Take(pageSize).ToList(), pageIndex, pageSize, allReceivers.Count);
         }
 
@@ -244,10 +244,10 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         /// <summary>
         /// Gets all push receivers
         /// </summary>
-        /// <param name="Id"></param>
-        public virtual Task<PushRegistration> GetPushReceiver(string Id)
+        /// <param name="id">Ident</param>
+        public virtual Task<PushRegistration> GetPushReceiver(string id)
         {
-            return _pushRegistratiosnRepository.Table.Where(x => x.Id == Id).FirstOrDefaultAsync2();
+            return _pushRegistratiosnRepository.GetByIdAsync(id);
         }
     }
 }

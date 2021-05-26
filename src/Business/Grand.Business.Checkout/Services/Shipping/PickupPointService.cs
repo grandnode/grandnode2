@@ -57,12 +57,12 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <returns>Warehouses</returns>
         public virtual async Task<IList<PickupPoint>> GetAllPickupPoints()
         {
-            return await _cacheBase.GetAsync(CacheKey.PICKUPPOINTS_ALL, () =>
+            return await _cacheBase.GetAsync(CacheKey.PICKUPPOINTS_ALL, async () =>
             {
                 var query = from pp in _pickupPointsRepository.Table
                             orderby pp.DisplayOrder
                             select pp;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 

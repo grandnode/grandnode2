@@ -52,12 +52,12 @@ namespace Grand.Business.Catalog.Services.Categories
         /// <returns>Category layouts</returns>
         public virtual async Task<IList<CategoryLayout>> GetAllCategoryLayouts()
         {
-            return await _cacheBase.GetAsync(CacheKey.CATEGORY_LAYOUT_ALL, () =>
+            return await _cacheBase.GetAsync(CacheKey.CATEGORY_LAYOUT_ALL, async () =>
             {
                 var query = from pt in _categoryLayoutRepository.Table
                             orderby pt.DisplayOrder
                             select pt;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 

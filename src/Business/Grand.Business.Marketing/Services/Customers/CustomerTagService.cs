@@ -104,13 +104,13 @@ namespace Grand.Business.Marketing.Services.Customers
         /// </summary>
         /// <param name="name">Customer tag name</param>
         /// <returns>Customer tag</returns>
-        public virtual Task<CustomerTag> GetCustomerTagByName(string name)
+        public virtual async Task<CustomerTag> GetCustomerTagByName(string name)
         {
             var query = from pt in _customerTagRepository.Table
                         where pt.Name == name
                         select pt;
 
-            return query.FirstOrDefaultAsync2();
+            return await Task.FromResult(query.FirstOrDefault());
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace Grand.Business.Marketing.Services.Customers
             var query = from pt in _customerTagRepository.Table
                         where pt.Name.ToLower().Contains(name.ToLower())
                         select pt;
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>
@@ -179,12 +179,12 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <returns>Number of customers</returns>
         public virtual async Task<int> GetCustomerCount(string customerTagId)
         {
-            var query = await _customerRepository.Table.
+            var query = _customerRepository.Table.
                 Where(x => x.CustomerTags.Contains(customerTagId)).
-                GroupBy(p => p, (k, s) => new { Counter = s.Count() }).ToListAsync2();
+                GroupBy(p => p, (k, s) => new { Counter = s.Count() }).ToList();
             if (query.Count > 0)
                 return query.FirstOrDefault().Counter;
-            return 0;
+            return await Task.FromResult(0);
         }
 
         #region Customer tag product
@@ -198,13 +198,13 @@ namespace Grand.Business.Marketing.Services.Customers
         public virtual async Task<IList<CustomerTagProduct>> GetCustomerTagProducts(string customerTagId)
         {
             string key = string.Format(CacheKey.CUSTOMERTAGPRODUCTS_ROLE_KEY, customerTagId);
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from cr in _customerTagProductRepository.Table
                             where (cr.CustomerTagId == customerTagId)
                             orderby cr.DisplayOrder
                             select cr;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 

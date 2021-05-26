@@ -19,7 +19,7 @@ namespace Grand.Business.Catalog.Events.Handlers
 
         public async Task Handle(UpdateProductOnCartEvent notification, CancellationToken cancellationToken)
         {
-            var customers = await _customerRepository.Table.Where(x => x.ShoppingCartItems.Any(y => y.ProductId == notification.Product.Id)).ToListAsync2();
+            var customers = _customerRepository.Table.Where(x => x.ShoppingCartItems.Any(y => y.ProductId == notification.Product.Id)).ToList();
             foreach (var cs in customers)
             {
                 foreach (var item in cs.ShoppingCartItems.Where(x => x.ProductId == notification.Product.Id))

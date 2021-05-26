@@ -137,7 +137,7 @@ namespace Grand.Business.Catalog.Services.Categories
                             select p;
                 }
             }
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace Grand.Business.Catalog.Services.Categories
             var query = _categoryRepository.Table
                 .Where(x => x.Published && x.ShowOnHomePage)
                 .OrderBy(x => x.DisplayOrder);
-            var categories = await query.ToListAsync2();
+            var categories = await Task.FromResult(query.ToList());
             if (!showHidden)
             {
                 categories = categories
@@ -225,7 +225,7 @@ namespace Grand.Business.Catalog.Services.Categories
                     .Where(x => x.Published && x.FeaturedProductsOnHomePage)
                     .OrderBy(x => x.DisplayOrder);
 
-            var categories = await query.ToListAsync2();
+            var categories = await Task.FromResult(query.ToList());
             if (!showHidden)
             {
                 categories = categories
@@ -246,7 +246,7 @@ namespace Grand.Business.Catalog.Services.Categories
                 .Where(x => x.Published && x.ShowOnSearchBox)
                 .OrderBy(x => x.SearchBoxDisplayOrder);
 
-            var categories = (await query.ToListAsync2())
+            var categories = (await Task.FromResult(query.ToList()))
                 .Where(c => _aclService.Authorize(c, _workContext.CurrentCustomer) && _aclService.Authorize(c, _workContext.CurrentStore.Id))
                 .ToList();
 
@@ -376,7 +376,7 @@ namespace Grand.Business.Catalog.Services.Categories
                         where c.AppliedDiscounts.Any(x => x == discountId)
                         select c;
 
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>

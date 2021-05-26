@@ -170,7 +170,7 @@ namespace Grand.Business.Catalog.Services.Brands
                         where c.AppliedDiscounts.Any(x => x == discountId)
                         select c;
 
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         #endregion

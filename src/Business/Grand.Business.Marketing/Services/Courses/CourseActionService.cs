@@ -30,14 +30,14 @@ namespace Grand.Business.Marketing.Services.Courses
                         where a.CustomerId == customerId && a.LessonId == lessonId
                         select a;
 
-            return await query.FirstOrDefaultAsync2();
+            return await Task.FromResult(query.FirstOrDefault());
         }
 
         public virtual async Task<bool> CustomerLessonCompleted(string customerId, string lessonId)
         {
-            var query = await (from a in _courseActionRepository.Table
+            var query = await Task.FromResult((from a in _courseActionRepository.Table
                                where a.CustomerId == customerId && a.LessonId == lessonId
-                               select a).FirstOrDefaultAsync2();
+                               select a).FirstOrDefault());
 
             return query != null ? query.Finished : false;
         }

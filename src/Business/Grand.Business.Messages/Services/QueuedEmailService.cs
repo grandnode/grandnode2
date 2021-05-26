@@ -111,7 +111,7 @@ namespace Grand.Business.Messages.Services
             var query = from qe in _queuedEmailRepository.Table
                         where queuedEmailIds.Contains(qe.Id)
                         select qe;
-            var queuedEmails = await query.ToListAsync2();
+            var queuedEmails = query.ToList();
             //sort by passed identifiers
             var sortedQueuedEmails = new List<QueuedEmail>();
             foreach (string id in queuedEmailIds)
@@ -120,7 +120,7 @@ namespace Grand.Business.Messages.Services
                 if (queuedEmail != null)
                     sortedQueuedEmails.Add(queuedEmail);
             }
-            return sortedQueuedEmails;
+            return await Task.FromResult(sortedQueuedEmails);
         }
 
         /// <summary>

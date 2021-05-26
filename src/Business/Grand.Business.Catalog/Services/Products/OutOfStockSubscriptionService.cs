@@ -91,7 +91,7 @@ namespace Grand.Business.Catalog.Services.Products
                               biss.WarehouseId == warehouseId
                         select biss;
 
-            var outOfStockSubscriptionlist = await query.ToListAsync2();
+            var outOfStockSubscriptionlist = await Task.FromResult(query.ToList());
             if (attributes != null && attributes.Any())
                 outOfStockSubscriptionlist = outOfStockSubscriptionlist.Where(x => x.Attributes.All(y => attributes.Any(z => z.Key == y.Key && z.Value == y.Value))).ToList();
 

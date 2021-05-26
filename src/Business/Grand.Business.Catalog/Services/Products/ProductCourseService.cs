@@ -21,12 +21,12 @@ namespace Grand.Business.Catalog.Services.Products
 
         public virtual async Task<Course> GetCourseByProductId(string productId)
         {
-            return await _courseRepository.Table.Where(p => p.ProductId == productId).FirstOrDefaultAsync2();
+            return await Task.FromResult(_courseRepository.Table.Where(p => p.ProductId == productId).FirstOrDefault());
         }
 
         public virtual async Task<Product> GetProductByCourseId(string courseId)
         {
-            return await _productRepository.Table.Where(p => p.CourseId == courseId).FirstOrDefaultAsync2();
+            return await Task.FromResult(_productRepository.Table.Where(p => p.CourseId == courseId).FirstOrDefault());
         }
 
         public virtual async Task UpdateCourseOnProduct(string productId, string courseId)

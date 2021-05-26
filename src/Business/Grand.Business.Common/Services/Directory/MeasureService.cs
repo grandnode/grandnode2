@@ -96,12 +96,12 @@ namespace Grand.Business.Common.Services.Directory
         public virtual async Task<IList<MeasureDimension>> GetAllMeasureDimensions()
         {
             string key = CacheKey.MEASUREDIMENSIONS_ALL_KEY;
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from md in _measureDimensionRepository.Table
                             orderby md.DisplayOrder
                             select md;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 
@@ -271,12 +271,12 @@ namespace Grand.Business.Common.Services.Directory
         public virtual async Task<IList<MeasureWeight>> GetAllMeasureWeights()
         {
             string key = CacheKey.MEASUREWEIGHTS_ALL_KEY;
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from mw in _measureWeightRepository.Table
                             orderby mw.DisplayOrder
                             select mw;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 
@@ -430,12 +430,12 @@ namespace Grand.Business.Common.Services.Directory
         public virtual async Task<IList<MeasureUnit>> GetAllMeasureUnits()
         {
             string key = CacheKey.MEASUREUNITS_ALL_KEY;
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from md in _measureUnitRepository.Table
                             orderby md.DisplayOrder
                             select md;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 

@@ -77,13 +77,13 @@ namespace Grand.Business.Common.Services.Localization
         /// <param name="Name">A string representing a name</param>
         /// <param name="languageId">Language identifier</param>
         /// <returns>Translate resource</returns>
-        public virtual Task<TranslationResource> GetTranslateResourceByName(string name, string languageId)
+        public virtual async Task<TranslationResource> GetTranslateResourceByName(string name, string languageId)
         {
             var query = from lsr in _translationRepository.Table
                         orderby lsr.Name
                         where lsr.LanguageId == languageId && lsr.Name == name
                         select lsr;
-            var translateResource = query.FirstOrDefaultAsync2();
+            var translateResource = await Task.FromResult(query.FirstOrDefault());
             return translateResource;
         }
 
@@ -296,9 +296,9 @@ namespace Grand.Business.Common.Services.Localization
                     continue;
 
                 //bulk insert
-                var resource = await (from l in _translationRepository.Table
+                var resource = (from l in _translationRepository.Table
                                       where l.Name == name.ToLowerInvariant() && l.LanguageId == language.Id
-                                      select l).FirstOrDefaultAsync2();
+                                      select l).FirstOrDefault();
 
                 if (resource != null)
                 {

@@ -97,9 +97,12 @@ namespace Grand.Business.Catalog.Services.Products
         public virtual async Task<IList<CustomerGroupProduct>> GetCustomerGroupProducts(string customerGroupId)
         {
             string key = string.Format(CacheKey.CUSTOMERGROUPSPRODUCTS_ROLE_KEY, customerGroupId);
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
-                return _customerGroupProductRepository.Table.Where(x => x.CustomerGroupId == customerGroupId).OrderBy(x => x.DisplayOrder).ToListAsync2();
+                return await Task.FromResult(_customerGroupProductRepository
+                    .Table.Where(x => x.CustomerGroupId == customerGroupId)
+                    .OrderBy(x => x.DisplayOrder)
+                    .ToList());
             });
         }
 

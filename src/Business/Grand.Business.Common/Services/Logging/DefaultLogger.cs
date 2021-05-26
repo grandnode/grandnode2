@@ -103,7 +103,7 @@ namespace Grand.Business.Common.Services.Logging
                         where logIds.Contains(l.Id)
                         select l;
 
-            var logItems = await query.ToListAsync2();
+            var logItems = await Task.FromResult(query.ToList());
             var sortedLogItems = new List<Log>();
             foreach (string id in logIds)
             {

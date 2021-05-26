@@ -72,7 +72,9 @@ namespace Grand.Business.Catalog.Services.Products
             sename = sename.ToLowerInvariant();
 
             var key = string.Format(CacheKey.SPECIFICATION_BY_SENAME, sename);
-            return await _cacheBase.GetAsync(key, async () => await _specificationAttributeRepository.Table.Where(x => x.SeName == sename).FirstOrDefaultAsync2());
+            return await _cacheBase.GetAsync(key, async () => 
+                    await Task.FromResult(_specificationAttributeRepository.Table.Where(x => x.SeName == sename)
+                .FirstOrDefault()));
         }
 
 
@@ -168,7 +170,7 @@ namespace Grand.Business.Catalog.Services.Products
                 var query = from p in _specificationAttributeRepository.Table
                             where p.SpecificationAttributeOptions.Any(x => x.Id == specificationAttributeOptionId)
                             select p;
-                return await query.FirstOrDefaultAsync2();
+                return await Task.FromResult(query.FirstOrDefault());
             });
         }
 

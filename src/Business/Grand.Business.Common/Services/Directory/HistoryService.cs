@@ -38,7 +38,7 @@ namespace Grand.Business.Common.Services.Directory
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            var history = await _historyRepository.Table.Where(x => x.Object.Id == entity.Id).Select(x => (T)x.Object).ToListAsync2();
+            var history = await Task.FromResult(_historyRepository.Table.Where(x => x.Object.Id == entity.Id).Select(x => (T)x.Object).ToList());
             return history;
         }
 
@@ -47,7 +47,7 @@ namespace Grand.Business.Common.Services.Directory
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            var history = await _historyRepository.Table.Where(x => x.Object.Id == entity.Id).ToListAsync2();
+            var history = await Task.FromResult(_historyRepository.Table.Where(x => x.Object.Id == entity.Id).ToList());
             return history;
         }
     }

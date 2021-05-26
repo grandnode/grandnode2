@@ -77,7 +77,7 @@ namespace Grand.Business.Marketing.Services.Contacts
         public virtual async Task<IList<ContactAttribute>> GetAllContactAttributes(string storeId = "", bool ignorAcl = false)
         {
             string key = string.Format(CacheKey.CONTACTATTRIBUTES_ALL_KEY, storeId, ignorAcl);
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from p in _contactAttributeRepository.Table
                             select p;
@@ -102,7 +102,7 @@ namespace Grand.Business.Marketing.Services.Contacts
                                 select p;
                     }
                 }
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
 
             });
         }

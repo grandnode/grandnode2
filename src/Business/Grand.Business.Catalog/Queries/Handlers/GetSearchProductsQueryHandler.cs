@@ -334,7 +334,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
                             from item in p.ProductSpecificationAttributes
                             select item;
 
-                var groupQuerySpec = await qspec.Where(x=>x.AllowFiltering).GroupBy(x => new { SpecificationAttributeOptionId = x.SpecificationAttributeOptionId }).ToListAsync2();
+                var groupQuerySpec = qspec.Where(x=>x.AllowFiltering).GroupBy(x => new { SpecificationAttributeOptionId = x.SpecificationAttributeOptionId }).ToList();
                 foreach (var item in groupQuerySpec)
                 {
                     specyfication.Add(item.Key.SpecificationAttributeOptionId);

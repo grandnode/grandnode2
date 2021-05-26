@@ -92,7 +92,7 @@ namespace Grand.Business.Marketing.Services.Banners
             var query = from c in _bannerRepository.Table
                         orderby c.CreatedOnUtc
                         select c;
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
     }

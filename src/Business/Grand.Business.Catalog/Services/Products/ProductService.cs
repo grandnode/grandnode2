@@ -69,9 +69,7 @@ namespace Grand.Business.Catalog.Services.Products
             var query = _productRepository.Table.Where(x => x.Published && x.ShowOnHomePage && x.VisibleIndividually)
                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).Select(x => x.Id);
 
-            var products = await query.ToListAsync2();
-
-            return products;
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>
@@ -84,7 +82,7 @@ namespace Grand.Business.Catalog.Services.Products
                         .OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
                         .Select(x => x.Id);
 
-            var products = await query.ToListAsync2();
+            var products = await Task.FromResult(query.ToList());
 
             return products;
         }
@@ -575,7 +573,7 @@ namespace Grand.Business.Catalog.Services.Products
                 query = query.Where(p => p.VendorId == vendorId);
             }
 
-            var products = await query.OrderBy(x => x.DisplayOrder).ToListAsync2();
+            var products = query.OrderBy(x => x.DisplayOrder).ToList();
 
             //ACL mapping
             if (!showHidden)
@@ -588,7 +586,7 @@ namespace Grand.Business.Catalog.Services.Products
                 products = products.Where(x => _aclService.Authorize(x, storeId)).ToList();
             }
 
-            return products;
+            return await Task.FromResult(products);
         }
 
         /// <summary>
@@ -602,7 +600,7 @@ namespace Grand.Business.Catalog.Services.Products
                 return null;
 
             sku = sku.Trim();
-            return await _productRepository.Table.Where(x => x.Sku == sku).FirstOrDefaultAsync2();
+            return await Task.FromResult(_productRepository.Table.Where(x => x.Sku == sku).FirstOrDefault());            
         }
 
         public virtual async Task UpdateAssociatedProduct(Product product)

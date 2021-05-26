@@ -122,7 +122,7 @@ namespace Grand.Business.Customers.Services
 
             query = query.Where(c => c.PasswordFormatId == passwordFormat);
             query = query.OrderByDescending(c => c.CreatedOnUtc);
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace Grand.Business.Customers.Services
             var query = from c in _customerRepository.Table
                         where customerIds.Contains(c.Id)
                         select c;
-            var customers = await query.ToListAsync2();
+            var customers = query.ToList();
             //sort by passed identifiers
             var sortedCustomers = new List<Customer>();
             foreach (var id in customerIds)
@@ -218,7 +218,7 @@ namespace Grand.Business.Customers.Services
                 if (customer != null)
                     sortedCustomers.Add(customer);
             }
-            return sortedCustomers;
+            return await Task.FromResult(sortedCustomers);
         }
 
         /// <summary>
@@ -226,9 +226,9 @@ namespace Grand.Business.Customers.Services
         /// </summary>
         /// <param name="customerGuid">Customer GUID</param>
         /// <returns>A customer</returns>
-        public virtual Task<Customer> GetCustomerByGuid(Guid customerGuid)
+        public virtual async Task<Customer> GetCustomerByGuid(Guid customerGuid)
         {
-            return _customerRepository.Table.Where(x => x.CustomerGuid == customerGuid).FirstOrDefaultAsync2();
+            return await Task.FromResult(_customerRepository.Table.Where(x => x.CustomerGuid == customerGuid).FirstOrDefault());
         }
 
         /// <summary>
@@ -236,12 +236,12 @@ namespace Grand.Business.Customers.Services
         /// </summary>
         /// <param name="email">Email</param>
         /// <returns>Customer</returns>
-        public virtual Task<Customer> GetCustomerByEmail(string email)
+        public virtual async Task<Customer> GetCustomerByEmail(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
-                return Task.FromResult<Customer>(null);
+                return null;
 
-            return _customerRepository.Table.Where(x => x.Email == email.ToLowerInvariant()).FirstOrDefaultAsync2();
+            return await Task.FromResult(_customerRepository.Table.Where(x => x.Email == email.ToLowerInvariant()).FirstOrDefault());
         }
 
         /// <summary>
@@ -249,12 +249,12 @@ namespace Grand.Business.Customers.Services
         /// </summary>
         /// <param name="systemName">System name</param>
         /// <returns>Customer</returns>
-        public virtual Task<Customer> GetCustomerBySystemName(string systemName)
+        public virtual async Task<Customer> GetCustomerBySystemName(string systemName)
         {
             if (string.IsNullOrWhiteSpace(systemName))
-                return Task.FromResult<Customer>(null);
+                return null;
 
-            return _customerRepository.Table.Where(x => x.SystemName == systemName).FirstOrDefaultAsync2();
+            return await Task.FromResult(_customerRepository.Table.Where(x => x.SystemName == systemName).FirstOrDefault());
         }
 
         /// <summary>
@@ -262,12 +262,12 @@ namespace Grand.Business.Customers.Services
         /// </summary>
         /// <param name="username">Username</param>
         /// <returns>Customer</returns>
-        public virtual Task<Customer> GetCustomerByUsername(string username)
+        public virtual async Task<Customer> GetCustomerByUsername(string username)
         {
             if (string.IsNullOrWhiteSpace(username))
-                return Task.FromResult<Customer>(null);
+                return null;
 
-            return _customerRepository.Table.Where(x => x.Username == username.ToLowerInvariant()).FirstOrDefaultAsync2();
+            return await Task.FromResult(_customerRepository.Table.Where(x => x.Username == username.ToLowerInvariant()).FirstOrDefault());
         }
 
         /// <summary>

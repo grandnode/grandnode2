@@ -74,9 +74,9 @@ namespace Grand.Business.Catalog.Services.Products
                              select pt;
 
                  var dictionary = new Dictionary<string, int>();
-                 foreach (var item in await query.ToListAsync2())
+                 foreach (var item in query.ToList())
                      dictionary.Add(item.Id, item.Count);
-                 return dictionary;
+                 return await Task.FromResult(dictionary);
              });
         }
 
@@ -118,7 +118,7 @@ namespace Grand.Business.Catalog.Services.Products
                         where pt.Name == name
                         select pt;
 
-            return query.FirstOrDefaultAsync2();
+            return Task.FromResult(query.FirstOrDefault());
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace Grand.Business.Catalog.Services.Products
             var query = from pt in _productTagRepository.Table
                         where pt.SeName == sename
                         select pt;
-            return query.FirstOrDefaultAsync2();
+            return Task.FromResult(query.FirstOrDefault());
         }
 
         /// <summary>

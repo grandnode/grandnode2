@@ -178,7 +178,7 @@ namespace Grand.Business.Customers.Services
             var query = from c in _vendorRepository.Table
                         where c.AppliedDiscounts.Any(x => x == discountId)
                         select c;
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         #region Vendor reviews
@@ -344,7 +344,7 @@ namespace Grand.Business.Customers.Services
             {
                 query = query.Where(x => x.Id == vendorId);
             }
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         #endregion

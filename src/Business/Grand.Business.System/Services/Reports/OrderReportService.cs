@@ -99,7 +99,7 @@ namespace Grand.Business.System.Services.Reports
                            SumOrders = r.SumOrders
                        });
 
-            return await report.ToListAsync2();
+            return await Task.FromResult(report.ToList());
         }
 
 
@@ -133,14 +133,14 @@ namespace Grand.Business.System.Services.Reports
             var daydiff = (endTimeUtc.Value - startTimeUtc.Value).TotalDays;
             if (daydiff > 31)
             {
-                var query = await builderquery.GroupBy(x =>
+                var query = builderquery.GroupBy(x =>
                     new { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month })
                     .Select(g => new OrderStats {
                         Year = g.Key.Year,
                         Month = g.Key.Month,
                         Count = g.Count(),
                         Amount = g.Sum(x => x.OrderTotal * x.CurrencyRate)
-                    }).ToListAsync2();
+                    }).ToList();
                
                 foreach (var item in query)
                 {
@@ -153,7 +153,7 @@ namespace Grand.Business.System.Services.Reports
             }
             else
             {
-                var query = await builderquery.GroupBy(x =>
+                var query = builderquery.GroupBy(x =>
                     new { Year = x.CreatedOnUtc.Year, Month = x.CreatedOnUtc.Month, Day = x.CreatedOnUtc.Day })
                     .Select(g => new OrderStats {
                         Year = g.Key.Year,
@@ -161,7 +161,7 @@ namespace Grand.Business.System.Services.Reports
                         Day = g.Key.Day,
                         Count = g.Count(),
                         Amount = g.Sum(x => x.OrderTotal * x.CurrencyRate)
-                    }).ToListAsync2();
+                    }).ToList();
 
                 foreach (var item in query)
                 {
@@ -172,10 +172,7 @@ namespace Grand.Business.System.Services.Reports
                     });
                 }
             }
-
-
-
-            return report;
+            return await Task.FromResult(report);
         }
 
         /// <summary>
@@ -264,13 +261,13 @@ namespace Grand.Business.System.Services.Reports
             if (!string.IsNullOrEmpty(tagid))
                 builderquery = builderquery.Where(o => o.OrderTags.Any(y => y == tagid));
 
-            var query = await builderquery
+            var query = builderquery
                     .GroupBy(x => 1).Select(g => new OrderAverageReportLine {
                         CountOrders = g.Count(),
                         SumShippingExclTax = g.Sum(o => o.OrderShippingExclTax * o.CurrencyRate),
                         SumTax = g.Sum(o => o.OrderTax * o.CurrencyRate),
                         SumOrders = g.Sum(o => o.OrderTotal * o.CurrencyRate)
-                    }).ToListAsync2();
+                    }).ToList();
 
 
             var item2 = query.Count() > 0 ? query.FirstOrDefault() : new OrderAverageReportLine {
@@ -279,7 +276,7 @@ namespace Grand.Business.System.Services.Reports
                 SumTax = decimal.Zero,
                 SumOrders = decimal.Zero,
             };
-            return item2;
+            return await Task.FromResult(item2);
         }
 
         /// <summary>
@@ -421,11 +418,11 @@ namespace Grand.Business.System.Services.Reports
                 TotalQuantity = x.Sum(y => y.Quantity)
             });
 
-            var queryItemOrdered = orderBy == 1 ? await queryItem.OrderByDescending(x => x.TotalQuantity).ToListAsync2() :
-                await queryItem.OrderByDescending(x => x.TotalAmount).ToListAsync2();
+            var queryItemOrdered = orderBy == 1 ? queryItem.OrderByDescending(x => x.TotalQuantity).ToList() :
+                queryItem.OrderByDescending(x => x.TotalAmount).ToList();
 
             var result = new PagedList<BestsellersReportLine>(queryItemOrdered, pageIndex, pageSize);
-            return result;
+            return await Task.FromResult(result);
         }
 
 
@@ -449,11 +446,11 @@ namespace Grand.Business.System.Services.Reports
                         && (string.IsNullOrEmpty(salesEmployeeId) || o.SeId == salesEmployeeId)
                         group o by 1 into g
                         select new ReportPeriodOrder() { Amount = g.Sum(x => x.OrderTotal / x.CurrencyRate), Count = g.Count() };
-            var report = (await query.ToListAsync2())?.FirstOrDefault();
+            var report = query.ToList()?.FirstOrDefault();
             if (report == null)
                 report = new ReportPeriodOrder();
             report.Date = date;
-            return report;
+            return await Task.FromResult(report);
         }
 
 
@@ -481,12 +478,12 @@ namespace Grand.Business.System.Services.Reports
             if (recordsToReturn > 0)
                 product = product.Take(recordsToReturn);
 
-            var report = await product.ToListAsync2();
+            var report = product.ToList();
             var ids = new List<string>();
             foreach (var reportLine in report)
                 ids.Add(reportLine.ProductId);
 
-            return ids.ToArray();
+            return await Task.FromResult(ids.ToArray());
         }
 
         /// <summary>
@@ -508,14 +505,14 @@ namespace Grand.Business.System.Services.Reports
             createdFromUtc = !createdFromUtc.HasValue ? DateTime.MinValue : createdFromUtc;
             createdToUtc = !createdToUtc.HasValue ? DateTime.MaxValue : createdToUtc;
 
-            var query = (await (from order in _orderRepository.Table
+            var query = ((from order in _orderRepository.Table
                                 where
                                 (string.IsNullOrEmpty(storeId) || order.StoreId == storeId) &&
                                 (createdFromUtc.Value <= order.CreatedOnUtc) &&
                                 (createdToUtc.Value >= order.CreatedOnUtc) &&
                                 (!order.Deleted)
                                 from orderItem in order.OrderItems
-                                select new { orderItem.ProductId }).ToListAsync2()).Distinct().Select(x => x.ProductId);
+                                select new { orderItem.ProductId }).ToList()).Distinct().Select(x => x.ProductId);
 
             var qproducts = from p in _productRepository.Table
                             orderby p.Name

@@ -53,7 +53,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         /// <param name="id"></param>
         public virtual async Task DeleteKnowledgebaseCategory(KnowledgebaseCategory kc)
         {
-            var children = await _knowledgebaseCategoryRepository.Table.Where(x => x.ParentCategoryId == kc.Id).ToListAsync2();
+            var children = _knowledgebaseCategoryRepository.Table.Where(x => x.ParentCategoryId == kc.Id).ToList();
             await _knowledgebaseCategoryRepository.DeleteAsync(kc);
             foreach (var child in children)
             {
@@ -85,9 +85,9 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         /// </summary>
         /// <param name="id"></param>
         /// <returns>knowledgebase category</returns>
-        public virtual Task<KnowledgebaseCategory> GetKnowledgebaseCategory(string id)
+        public virtual async Task<KnowledgebaseCategory> GetKnowledgebaseCategory(string id)
         {
-            return _knowledgebaseCategoryRepository.Table.Where(x => x.Id == id).FirstOrDefaultAsync2();
+            return await Task.FromResult(_knowledgebaseCategoryRepository.Table.Where(x => x.Id == id).FirstOrDefault());
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                             select p;
                 }
 
-                var toReturn = await query.FirstOrDefaultAsync2();
+                var toReturn = await Task.FromResult(query.FirstOrDefault());
                 return toReturn;
             });
         }
@@ -152,8 +152,8 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         /// <returns>List of knowledgebase categories</returns>
         public virtual async Task<List<KnowledgebaseCategory>> GetKnowledgebaseCategories()
         {
-            var categories = await _knowledgebaseCategoryRepository.Table.OrderBy(x => x.ParentCategoryId).ThenBy(x => x.DisplayOrder).ToListAsync2();
-            return categories.SortCategoriesForTree();
+            var categories = _knowledgebaseCategoryRepository.Table.OrderBy(x => x.ParentCategoryId).ThenBy(x => x.DisplayOrder).ToList();
+            return await Task.FromResult(categories.SortCategoriesForTree());
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         /// <returns>knowledgebase article</returns>
         public virtual Task<KnowledgebaseArticle> GetKnowledgebaseArticle(string id)
         {
-            return _knowledgebaseArticleRepository.Table.Where(x => x.Id == id).FirstOrDefaultAsync2();
+            return _knowledgebaseArticleRepository.GetByIdAsync(id);
         }
 
         /// <summary>
@@ -194,7 +194,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                         select p;
             }
             query = query.OrderBy(x => x.DisplayOrder);
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>
@@ -243,7 +243,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         /// <returns>IPagedList<KnowledgebaseArticle></returns>
         public virtual async Task<IPagedList<KnowledgebaseArticle>> GetKnowledgebaseArticlesByCategoryId(string id, int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var articles = await _knowledgebaseArticleRepository.Table.Where(x => x.ParentCategoryId == id).OrderBy(x => x.DisplayOrder).ToListAsync2();
+            var articles = await Task.FromResult(_knowledgebaseArticleRepository.Table.Where(x => x.ParentCategoryId == id).OrderBy(x => x.DisplayOrder).ToList());
             return new PagedList<KnowledgebaseArticle>(articles, pageIndex, pageSize);
         }
 
@@ -278,7 +278,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                             select p;
                 }
                 query = query.OrderBy(x => x.DisplayOrder);
-                return await query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
 
             });
         }
@@ -316,7 +316,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                 }
 
                 query = query.OrderBy(x => x.DisplayOrder);
-                return await query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 
@@ -328,7 +328,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         {
             var key = string.Format(CacheKey.ARTICLE_BY_ID, id, string.Join(",", _workContext.CurrentCustomer.GetCustomerGroupIds()),
                 _workContext.CurrentStore.Id);
-            return await _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from p in _knowledgebaseArticleRepository.Table
                             select p;
@@ -352,7 +352,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                             select p; 
                 }
 
-                return query.FirstOrDefaultAsync2();
+                return await Task.FromResult(query.FirstOrDefault());
             });
         }
 
@@ -389,7 +389,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                             select p;
                 }
                 query = query.OrderBy(x => x.DisplayOrder);
-                return await query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 
@@ -429,7 +429,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                             select p;
                 }
                 query = query.OrderBy(x => x.DisplayOrder);
-                return await query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
 
@@ -467,7 +467,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                             select p; ;
                 }
                 query = query.OrderBy(x => x.DisplayOrder);
-                return await query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
 
             });
         }
@@ -504,7 +504,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                             select p;
                 }
                 query = query.OrderBy(x => x.DisplayOrder);
-                return await query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
 
             });
         }
@@ -531,7 +531,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
             }
 
             query = query.OrderBy(x => x.DisplayOrder);
-            var toReturn  = await query.ToListAsync2();
+            var toReturn = await Task.FromResult(query.ToList());
 
             return new PagedList<KnowledgebaseArticle>(toReturn, pageIndex, pageSize);
         }
@@ -582,7 +582,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                         orderby c.CreatedOnUtc
                         where (customerId == "" || c.CustomerId == customerId)
                         select c;
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>
@@ -608,7 +608,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
             var query = from bc in _articleCommentRepository.Table
                         where commentIds.Contains(bc.Id)
                         select bc;
-            var comments = await query.ToListAsync2();
+            var comments = query.ToList();
             //sort by passed identifiers
             var sortedComments = new List<KnowledgebaseArticleComment>();
             foreach (string id in commentIds)
@@ -617,7 +617,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                 if (comment != null)
                     sortedComments.Add(comment);
             }
-            return sortedComments;
+            return await Task.FromResult(sortedComments);
         }
 
         public virtual async Task<IList<KnowledgebaseArticleComment>> GetArticleCommentsByArticleId(string articleId)
@@ -626,7 +626,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                         where c.ArticleId == articleId
                         orderby c.CreatedOnUtc
                         select c;
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         public virtual async Task DeleteArticleComment(KnowledgebaseArticleComment articleComment)

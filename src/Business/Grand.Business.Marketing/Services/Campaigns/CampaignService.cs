@@ -140,7 +140,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
             var query = from c in _campaignRepository.Table
                         orderby c.CreatedOnUtc
                         select c;
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         public virtual async Task<IPagedList<CampaignHistory>> GetCampaignHistory(Campaign campaign, int pageIndex = 0, int pageSize = int.MaxValue)

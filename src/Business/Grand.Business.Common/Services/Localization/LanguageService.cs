@@ -56,7 +56,7 @@ namespace Grand.Business.Common.Services.Localization
         public virtual async Task<IList<Language>> GetAllLanguages(bool showHidden = false, string storeId = "")
         {
             string key = string.Format(CacheKey.LANGUAGES_ALL_KEY, showHidden);
-            var languages = await _cacheBase.GetAsync(key, () =>
+            var languages = await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from p in _languageRepository.Table
                             select p;
@@ -64,7 +64,7 @@ namespace Grand.Business.Common.Services.Localization
                 if (!showHidden)
                     query = query.Where(l => l.Published);
                 query = query.OrderBy(l => l.DisplayOrder);
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
 
             //store acl

@@ -122,7 +122,7 @@ namespace Grand.Business.Common.Services.Logging
             var query = from alt in _activityLogTypeRepository.Table
                         orderby alt.Name
                         select alt;
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>

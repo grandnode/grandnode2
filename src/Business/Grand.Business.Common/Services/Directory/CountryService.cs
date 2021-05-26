@@ -80,7 +80,7 @@ namespace Grand.Business.Common.Services.Directory
                             select p;
                 }
 
-                var countries = await query.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).ToListAsync2();
+                var countries = await Task.FromResult(query.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name).ToList());
                 if (!string.IsNullOrEmpty(languageId))
                 {
                     countries = countries
@@ -145,7 +145,7 @@ namespace Grand.Business.Common.Services.Directory
             var query = from c in _countryRepository.Table
                         where countryIds.Contains(c.Id)
                         select c;
-            var countries = await query.ToListAsync2();
+            var countries = await Task.FromResult(query.ToList());
             //sort by passed identifiers
             var sortedCountries = new List<Country>();
             foreach (string id in countryIds)
@@ -162,12 +162,12 @@ namespace Grand.Business.Common.Services.Directory
         /// </summary>
         /// <param name="twoLetterIsoCode">Country two letter ISO code</param>
         /// <returns>Country</returns>
-        public virtual Task<Country> GetCountryByTwoLetterIsoCode(string twoLetterIsoCode)
+        public virtual async Task<Country> GetCountryByTwoLetterIsoCode(string twoLetterIsoCode)
         {
             var key = string.Format(CacheKey.COUNTRIES_BY_TWOLETTER, twoLetterIsoCode);
-            return _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
-                return _countryRepository.Table.Where(x => x.TwoLetterIsoCode == twoLetterIsoCode).FirstOrDefaultAsync2();
+                return await Task.FromResult(_countryRepository.Table.Where(x => x.TwoLetterIsoCode == twoLetterIsoCode).FirstOrDefault());
             });
         }
 
@@ -176,12 +176,12 @@ namespace Grand.Business.Common.Services.Directory
         /// </summary>
         /// <param name="threeLetterIsoCode">Country three letter ISO code</param>
         /// <returns>Country</returns>
-        public virtual Task<Country> GetCountryByThreeLetterIsoCode(string threeLetterIsoCode)
+        public virtual async Task<Country> GetCountryByThreeLetterIsoCode(string threeLetterIsoCode)
         {
             var key = string.Format(CacheKey.COUNTRIES_BY_THREELETTER, threeLetterIsoCode);
-            return _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
-                return _countryRepository.Table.Where(x => x.ThreeLetterIsoCode == threeLetterIsoCode).FirstOrDefaultAsync2();
+                return await Task.FromResult(_countryRepository.Table.Where(x => x.ThreeLetterIsoCode == threeLetterIsoCode).FirstOrDefault());
             });
         }
 

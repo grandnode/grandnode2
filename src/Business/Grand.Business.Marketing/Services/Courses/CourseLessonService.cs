@@ -41,7 +41,7 @@ namespace Grand.Business.Marketing.Services.Courses
                         where c.CourseId == courseId
                         select c;
 
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         public virtual Task<CourseLesson> GetById(string id)

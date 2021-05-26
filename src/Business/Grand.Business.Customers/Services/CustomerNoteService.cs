@@ -34,7 +34,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrWhiteSpace(id))
                 return Task.FromResult<CustomerNote>(null);
 
-            return _customerNoteRepository.Table.Where(x => x.Id == id).FirstOrDefaultAsync2();
+            return _customerNoteRepository.GetByIdAsync(id);
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace Grand.Business.Customers.Services
 
             query = query.OrderByDescending(x => x.CreatedOnUtc);
 
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         #endregion

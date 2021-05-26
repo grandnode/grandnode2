@@ -241,7 +241,7 @@ namespace Grand.Business.Cms.Services
                         where (customerId == "" || c.CustomerId == customerId) && (storeId == "" || c.StoreId == storeId)
                         select c;
 
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// <summary>
@@ -261,7 +261,7 @@ namespace Grand.Business.Cms.Services
                         orderby c.CreatedOnUtc
                         select c;
 
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         /// Get blog comments by identifiers
@@ -276,7 +276,7 @@ namespace Grand.Business.Cms.Services
             var query = from bc in _blogCommentRepository.Table
                         where commentIds.Contains(bc.Id)
                         select bc;
-            var comments = await query.ToListAsync2();
+            var comments = query.ToList();
             //sort by passed identifiers
             var sortedComments = new List<BlogComment>();
             foreach (string id in commentIds)
@@ -285,7 +285,7 @@ namespace Grand.Business.Cms.Services
                 if (comment != null)
                     sortedComments.Add(comment);
             }
-            return sortedComments;
+            return await Task.FromResult(sortedComments);
         }
 
         /// <summary>
@@ -330,7 +330,7 @@ namespace Grand.Business.Cms.Services
         /// <returns></returns>
         public virtual async Task<IList<BlogCategory>> GetBlogCategoryByPostId(string blogPostId)
         {
-            return await _blogCategoryRepository.Table.Where(x => x.BlogPosts.Any(x => x.BlogPostId == blogPostId)).ToListAsync2();
+            return await Task.FromResult(_blogCategoryRepository.Table.Where(x => x.BlogPosts.Any(x => x.BlogPostId == blogPostId)).ToList());
         }
 
         /// <summary>
@@ -343,7 +343,7 @@ namespace Grand.Business.Cms.Services
             if (string.IsNullOrEmpty(blogCategorySeName))
                 throw new ArgumentNullException(nameof(blogCategorySeName));
 
-            return await _blogCategoryRepository.Table.Where(x => x.SeName == blogCategorySeName.ToLowerInvariant()).FirstOrDefaultAsync2();
+            return await Task.FromResult(_blogCategoryRepository.Table.Where(x => x.SeName == blogCategorySeName.ToLowerInvariant()).FirstOrDefault());
         }
 
         /// <summary>
@@ -360,7 +360,7 @@ namespace Grand.Business.Cms.Services
                 query = query.Where(b => b.Stores.Contains(storeId) || !b.LimitedToStores);
             }
 
-            return await query.OrderBy(x => x.DisplayOrder).ToListAsync2();
+            return await Task.FromResult(query.OrderBy(x => x.DisplayOrder).ToList());
         }
 
         /// <summary>
@@ -488,7 +488,7 @@ namespace Grand.Business.Cms.Services
                         orderby bp.DisplayOrder
                         select bp;
 
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
         #endregion

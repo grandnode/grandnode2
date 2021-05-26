@@ -150,12 +150,12 @@ namespace Grand.Business.Messages.Services
         /// <returns>Email accounts list</returns>
         public virtual async Task<IList<EmailAccount>> GetAllEmailAccounts()
         {
-            return await _cacheBase.GetAsync(CacheKey.EMAILACCOUNT_ALL_KEY, () =>
+            return await _cacheBase.GetAsync(CacheKey.EMAILACCOUNT_ALL_KEY, async () =>
             {
                 var query = from ea in _emailAccountRepository.Table
                             orderby ea.Id
                             select ea;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
         }
     }

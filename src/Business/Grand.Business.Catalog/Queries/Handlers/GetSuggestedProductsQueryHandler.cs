@@ -42,7 +42,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
                             orderby cr.DisplayOrder
                             select cr.ProductId;
 
-                var productIds = await query.Take(request.ProductsNumber).ToListAsync2();
+                var productIds = query.Take(request.ProductsNumber).ToList();
 
                 var products = new List<Product>();
                 var ids = await _productService.GetProductsByIds(productIds.Distinct().ToArray());

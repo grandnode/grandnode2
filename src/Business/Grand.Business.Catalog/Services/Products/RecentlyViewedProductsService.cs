@@ -73,7 +73,7 @@ namespace Grand.Business.Catalog.Services.Products
                             where p.CustomerId == customerId
                             orderby p.CreatedOnUtc descending
                             select p.ProductId;
-                return await query.Take(number).ToListAsync2();
+                return await Task.FromResult(query.Take(number).ToList());
             });
         }
 

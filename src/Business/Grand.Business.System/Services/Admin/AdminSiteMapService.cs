@@ -29,11 +29,11 @@ namespace Grand.Business.System.Services.Admin
                 var query = from c in _adminSiteMapRepository.Table
                             select c;
 
-                var list = await query.ToListAsync2();
+                var list = query.ToList();
                 if (list.Any())
                     return list;
                 else
-                    return StandardAdminSiteMap.SiteMap;
+                    return await Task.FromResult(StandardAdminSiteMap.SiteMap);
             });
         }
     }

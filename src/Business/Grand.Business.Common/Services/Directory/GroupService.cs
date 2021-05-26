@@ -89,12 +89,12 @@ namespace Grand.Business.Common.Services.Directory
         /// </summary>
         /// <param name="systemName">Customer group system name</param>
         /// <returns>Customer group</returns>
-        public virtual Task<CustomerGroup> GetCustomerGroupBySystemName(string systemName)
+        public virtual async Task<CustomerGroup> GetCustomerGroupBySystemName(string systemName)
         {
             string key = string.Format(CacheKey.CUSTOMERGROUPS_BY_SYSTEMNAME_KEY, systemName);
-            return _cacheBase.GetAsync(key, () =>
+            return await _cacheBase.GetAsync(key, async () =>
             {
-                return _customerGroupRepository.Table.Where(x => x.SystemName == systemName).FirstOrDefaultAsync2();
+                return await Task.FromResult(_customerGroupRepository.Table.Where(x => x.SystemName == systemName).FirstOrDefault());
             });
         }
 
@@ -212,12 +212,12 @@ namespace Grand.Business.Common.Services.Directory
 
         public async Task<IList<CustomerGroup>> GetAllByIds(string[] ids)
         {
-            var customerGroups = await _cacheBase.GetAsync(CacheKey.CUSTOMERGROUPS_ALL, () =>
+            var customerGroups = await _cacheBase.GetAsync(CacheKey.CUSTOMERGROUPS_ALL, async () =>
             {
                 var query = from cr in _customerGroupRepository.Table
                             orderby cr.Name
                             select cr;
-                return query.ToListAsync2();
+                return await Task.FromResult(query.ToList());
             });
             return customerGroups.Where(x => ids.Contains(x.Id)).ToList();
         }

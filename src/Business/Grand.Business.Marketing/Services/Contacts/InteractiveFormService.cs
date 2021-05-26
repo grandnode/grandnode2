@@ -91,9 +91,9 @@ namespace Grand.Business.Marketing.Services.Contacts
         public virtual async Task<InteractiveForm> GetFormBySystemName(string systemName)
         {
             if (string.IsNullOrEmpty(systemName))
-                throw new ArgumentNullException("systemName");
+                throw new ArgumentNullException(nameof(systemName));
 
-            return await _formRepository.Table.Where(x => x.SystemName == systemName).FirstOrDefaultAsync2();
+            return await Task.FromResult(_formRepository.Table.Where(x => x.SystemName == systemName).FirstOrDefault());
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace Grand.Business.Marketing.Services.Contacts
                         orderby c.CreatedOnUtc
                         select c;
 
-            return await query.ToListAsync2();
+            return await Task.FromResult(query.ToList());
         }
 
     }
