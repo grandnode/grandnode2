@@ -387,7 +387,7 @@ namespace Grand.Web.Admin.Controllers
             await customerActivityService.InsertActivity("EditSettings", "", _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
-            return RedirectToAction("Shipping");
+            return RedirectToAction("Settings");
         }
 
         #endregion
