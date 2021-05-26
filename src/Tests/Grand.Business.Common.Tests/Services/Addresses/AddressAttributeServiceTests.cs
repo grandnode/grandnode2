@@ -1,18 +1,12 @@
 ﻿using Grand.Business.Common.Services.Addresses;
 using Grand.Domain.Common;
-using Grand.Domain.Data;
 using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
 using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MongoDB.Driver;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Services.Addresses
@@ -32,7 +26,7 @@ namespace Grand.Business.Common.Tests.Services.Addresses
             _cacheMock = new Mock<ICacheBase>();
             _repositoryMock = new Mock<MongoRepository<AddressAttribute>>();
             _mediatorMock = new Mock<IMediator>();
-            _service = new AddressAttributeService(_cacheMock.Object,_repositoryMock.Object,_mediatorMock.Object);
+            _service = new AddressAttributeService(_cacheMock.Object, _repositoryMock.Object, _mediatorMock.Object);
         }
 
         [TestMethod()]
@@ -65,7 +59,7 @@ namespace Grand.Business.Common.Tests.Services.Addresses
         [TestMethod()]
         public async Task InsertAddressAttributeValue_ValidArgument_InvokeExpectedMethod()
         {
-            await _service.InsertAddressAttributeValue(new AddressAttributeValue() { AddressAttributeId="id"});
+            await _service.InsertAddressAttributeValue(new AddressAttributeValue() { AddressAttributeId = "id" });
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<AddressAttributeValue>>(), default), Times.Once);
             _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()));
         }
@@ -73,7 +67,7 @@ namespace Grand.Business.Common.Tests.Services.Addresses
         [TestMethod()]
         public async Task DeleteAddressAttributeValue_ValidArgument_InvokeExpectedMethod()
         {
-            await _service.DeleteAddressAttributeValue(new AddressAttributeValue() { AddressAttributeId="id"});
+            await _service.DeleteAddressAttributeValue(new AddressAttributeValue() { AddressAttributeId = "id" });
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<AddressAttributeValue>>(), default), Times.Once);
             _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()));
         }

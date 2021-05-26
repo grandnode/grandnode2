@@ -2,14 +2,11 @@
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Events;
+using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MongoDB.Driver.Linq;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Tests.Services.Contacts
@@ -25,10 +22,12 @@ namespace Grand.Business.Marketing.Tests.Services.Contacts
         [TestInitialize()]
         public void Init()
         {
+            CommonPath.BaseDirectory = "";
+
             _repoMock = new Mock<IRepository<PopupActive>>();
             _repositoryArchiveMock = new Mock<IRepository<PopupArchive>>();
             _mediatorMock = new Mock<IMediator>();
-            _popupService = new PopupService(_repoMock.Object,_repositoryArchiveMock.Object,_mediatorMock.Object);
+            _popupService = new PopupService(_repoMock.Object, _repositoryArchiveMock.Object, _mediatorMock.Object);
         }
 
         [TestMethod()]

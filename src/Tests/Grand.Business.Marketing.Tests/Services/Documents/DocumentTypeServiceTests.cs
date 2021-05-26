@@ -1,15 +1,14 @@
 ﻿using Grand.Business.Marketing.Services.Documents;
 using Grand.Domain.Data;
+using Grand.Domain.Data.Mongo;
 using Grand.Domain.Documents;
 using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MongoDB.Driver.Linq;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Tests.Services.Documents
@@ -20,7 +19,6 @@ namespace Grand.Business.Marketing.Tests.Services.Documents
         private Mock<IRepository<DocumentType>> _documentTypeRepositoryMock;
         private DocumentTypeService _documentTypeService;
         private Mock<IMediator> _mediatorMock;
-        private Mock<IMongoQueryable<DocumentType>> _mongoQueryableMock;
         private List<DocumentType> _expected;
         private IQueryable<DocumentType> _expectedQueryable;
 
@@ -29,19 +27,19 @@ namespace Grand.Business.Marketing.Tests.Services.Documents
         {
             _mediatorMock = new Mock<IMediator>();
             _documentTypeRepositoryMock = new Mock<IRepository<DocumentType>>();
-            _mongoQueryableMock = new Mock<IMongoQueryable<DocumentType>>();
+            var _mongoQueryableMock = new Mock<MongoRepository<DocumentType>>();
             _expected = new List<DocumentType>
             {
                 new DocumentType() {Name = "name1", Description = "t1", DisplayOrder = 0},
                 new DocumentType() {Name = "name2", Description = "t2", DisplayOrder = 1}
             };
             _expectedQueryable = _expected.AsQueryable();
-            _mongoQueryableMock.Setup(x => x.ElementType).Returns(_expectedQueryable.ElementType);
-            _mongoQueryableMock.Setup(x => x.Expression).Returns(_expectedQueryable.Expression);
-            _mongoQueryableMock.Setup(x => x.Provider).Returns(_expectedQueryable.Provider);
-            _mongoQueryableMock.Setup(x => x.GetEnumerator()).Returns(_expectedQueryable.GetEnumerator());
+            //_mongoQueryableMock.Setup(x => x.ElementType).Returns(_expectedQueryable.ElementType);
+            //_mongoQueryableMock.Setup(x => x.Expression).Returns(_expectedQueryable.Expression);
+            //_mongoQueryableMock.Setup(x => x.Provider).Returns(_expectedQueryable.Provider);
+            //_mongoQueryableMock.Setup(x => x.GetEnumerator()).Returns(_expectedQueryable.GetEnumerator());
 
-            _documentTypeRepositoryMock.Setup(x => x.Table).Returns(_mongoQueryableMock.Object);
+            _documentTypeRepositoryMock.Setup(x => x.Table).Returns(_mongoQueryableMock.Object.Table);
             _documentTypeService = new DocumentTypeService(_documentTypeRepositoryMock.Object, _mediatorMock.Object);
         }
 

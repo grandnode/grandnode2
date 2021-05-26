@@ -1,18 +1,18 @@
-﻿using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Catalog.Interfaces.Discounts;
+﻿using Grand.Business.Catalog.Interfaces.Brands;
+using Grand.Business.Catalog.Interfaces.Categories;
 using Grand.Business.Catalog.Interfaces.Collections;
+using Grand.Business.Catalog.Interfaces.Discounts;
 using Grand.Business.Catalog.Interfaces.Prices;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Catalog.Services.Prices;
 using Grand.Business.Catalog.Utilities;
 using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Providers;
 using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Common.Services.Directory;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
+using Grand.Domain.Data.Mongo;
 using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
 using Grand.Domain.Orders;
@@ -21,14 +21,11 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MongoDB.Driver;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Grand.Business.Catalog.Interfaces.Brands;
 
 namespace Grand.Business.Catalog.Tests.Service.Prices
 {
@@ -65,7 +62,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
                 tempWorkContext.Setup(c => c.CurrentStore).Returns(_store);
                 _workContext = tempWorkContext.Object;
             }
-     
+
             tempDiscountServiceMock = new Mock<IDiscountService>();
             {
                 _discountService = tempDiscountServiceMock.Object;
@@ -101,11 +98,11 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
             IRepository<Currency> _currencyRepository;
             var tempCurrencyRepository = new Mock<IRepository<Currency>>();
             {
-                var IMongoCollection = new Mock<IMongoCollection<Currency>>().Object;
-                IMongoCollection.InsertOne(_currency);
+                var IMongoCollection = new Mock<MongoRepository<Currency>>().Object;
+                IMongoCollection.Insert(_currency);
 
 
-                tempCurrencyRepository.Setup(x => x.Table).Returns(IMongoCollection.AsQueryable());
+                tempCurrencyRepository.Setup(x => x.Table).Returns(IMongoCollection.Table);
                 tempCurrencyRepository.Setup(x => x.GetByIdAsync(_currency.Id)).ReturnsAsync(_currency);
                 _currencyRepository = tempCurrencyRepository.Object;
             }
@@ -135,8 +132,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
         [TestMethod()]
         public async Task Can_get_final_product_price()
         {
-            var product = new Product
-            {
+            var product = new Product {
                 Id = "1",
                 Name = "product name 01",
                 Price = 49.99M,
@@ -144,7 +140,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
                 Published = true,
             };
             product.ProductPrices.Add(new ProductPrice() { CurrencyCode = "USD", Price = 49.99M });
-           
+
             var currency = new Currency { Id = "1", CurrencyCode = "USD", Rate = 1, Published = true, MidpointRoundId = System.MidpointRounding.ToEven, RoundingTypeId = RoundingType.Rounding001 };
             var customer = new Customer();
             var pr = (await _pricingService.GetFinalPrice(product, customer, currency, 0, false, 1));
@@ -156,8 +152,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
         [TestMethod()]
         public async Task Can_get_final_product_price_with_tier_prices()
         {
-           var product = new Product
-            {
+            var product = new Product {
                 Id = "1",
                 Name = "product name 01",
                 Price = 49.99M,
@@ -166,7 +161,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
             };
             product.ProductPrices.Add(new ProductPrice() { CurrencyCode = "USD", Price = 49.99M });
             //TierPrice is simply "the more you buy, the less you pay"
-            product.TierPrices.Add(new TierPrice { Price = 10M, Quantity = 10, CurrencyCode = "USD"});
+            product.TierPrices.Add(new TierPrice { Price = 10M, Quantity = 10, CurrencyCode = "USD" });
             product.TierPrices.Add(new TierPrice { Price = 2M, Quantity = 200, CurrencyCode = "USD" });
 
             Customer customer = new Customer();
@@ -192,13 +187,12 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
             Assert.AreEqual(2M, (await _pricingService.GetFinalPrice(product, customer, _currency, 0, false, 22201)).finalPrice);
         }
 
-      
+
         [TestMethod()]
         public async Task Can_get_final_product_price_with_additionalFee()
         {
             //tests if price is valid for additional charge (additional fee) 
-            var product = new Product
-            {
+            var product = new Product {
                 Id = "1",
                 Name = "product name 01",
                 Price = 49.99M,
@@ -216,8 +210,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
         [TestMethod()]
         public async Task Can_get_final_product_price_with_discount()
         {
-            var product = new Product
-            {
+            var product = new Product {
                 Id = "1",
                 Name = "product name 01",
                 Price = 49.99M,
@@ -227,8 +220,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
             product.ProductPrices.Add(new ProductPrice() { CurrencyCode = "USD", Price = 49.99M });
             var customer = new Customer();
 
-            var discount001 = new Discount
-            {
+            var discount001 = new Discount {
                 Id = "1",
                 Name = "Discount 001",
                 DiscountTypeId = DiscountType.AssignedToSkus,
@@ -242,7 +234,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
             product.AppliedDiscounts.Add(discount001.Id);
 
             tempDiscountServiceMock.Setup(x => x.ValidateDiscount(discount001, customer, _currency)).ReturnsAsync(new DiscountValidationResult() { IsValid = true });
-            tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToCategories, "1", _currency.CurrencyCode,"", "", false)).ReturnsAsync(new List<Discount>());
+            tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToCategories, "1", _currency.CurrencyCode, "", "", false)).ReturnsAsync(new List<Discount>());
             tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToCollections, "1", _currency.CurrencyCode, "", "", false)).ReturnsAsync(new List<Discount>());
             tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToAllProducts, "1", _currency.CurrencyCode, "", "", false)).ReturnsAsync(new List<Discount>());
             tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToSkus, "1", _currency.CurrencyCode, "", "", false)).ReturnsAsync(new List<Discount>() { discount001 });
@@ -263,8 +255,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
             var customer001 = new Customer { Id = "98767" };
             tempWorkContext.Setup(x => x.CurrentCustomer).Returns(customer001);
             tempWorkContext.Setup(x => x.WorkingCurrency).Returns(_currency);
-            var product001 = new Product
-            {
+            var product001 = new Product {
                 Id = "242422",
                 Name = "product name 01",
                 Price = 49.99M,
@@ -275,8 +266,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
             tempProductService.Setup(x => x.GetProductById("242422", false)).ReturnsAsync(product001);
 
 
-            var shoppingCartItem = new ShoppingCartItem
-            {
+            var shoppingCartItem = new ShoppingCartItem {
                 ProductId = product001.Id,
                 Quantity = 2
             };
@@ -293,8 +283,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
         [TestMethod()]
         public async Task Can_get_shopping_cart_item_subTotal()
         {
-            var product001 = new Product
-            {
+            var product001 = new Product {
                 Id = "242422",
                 Name = "product name 01",
                 Price = 55.11M,
@@ -307,8 +296,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
             var customer001 = new Customer { Id = "98767" };
             tempWorkContext.Setup(x => x.CurrentCustomer).Returns(customer001);
             tempWorkContext.Setup(x => x.WorkingCurrency).Returns(_currency);
-            var shoppingCartItem = new ShoppingCartItem
-            {
+            var shoppingCartItem = new ShoppingCartItem {
                 ProductId = product001.Id, //222
                 Quantity = 2
             };

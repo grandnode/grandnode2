@@ -2,6 +2,7 @@
 using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.Common.Services.Directory;
 using Grand.Domain.Data;
+using Grand.Domain.Data.Mongo;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Events;
@@ -9,12 +10,9 @@ using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MongoDB.Driver;
 using Moq;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Services.Directory
@@ -40,8 +38,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
 
             CommonHelper.CacheTimeMinutes = 10;
 
-            currencyUSD = new Currency
-            {
+            currencyUSD = new Currency {
                 Id = "1",
                 Name = "US Dollar",
                 CurrencyCode = "USD",
@@ -53,8 +50,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow,
             };
-            currencyEUR = new Currency
-            {
+            currencyEUR = new Currency {
                 Id = "2",
                 Name = "Euro",
                 CurrencyCode = "EUR",
@@ -66,8 +62,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow,
             };
-            currencyRUR = new Currency
-            {
+            currencyRUR = new Currency {
                 Id = "3",
                 Name = "Russian Rouble",
                 CurrencyCode = "RUB",
@@ -82,12 +77,12 @@ namespace Grand.Business.Common.Tests.Services.Directory
 
             tempCurrencyRepository = new Mock<IRepository<Currency>>();
             {
-                var IMongoCollection = new Mock<IMongoCollection<Currency>>().Object;
-                IMongoCollection.InsertOne(currencyUSD);
-                IMongoCollection.InsertOne(currencyEUR);
-                IMongoCollection.InsertOne(currencyRUR);
+                var IMongoCollection = new Mock<MongoRepository<Currency>>().Object;
+                IMongoCollection.Insert(currencyUSD);
+                IMongoCollection.Insert(currencyEUR);
+                IMongoCollection.Insert(currencyRUR);
 
-                tempCurrencyRepository.Setup(x => x.Table).Returns(IMongoCollection.AsQueryable());
+                tempCurrencyRepository.Setup(x => x.Table).Returns(IMongoCollection.Table);
                 tempCurrencyRepository.Setup(x => x.GetByIdAsync(currencyUSD.Id)).ReturnsAsync(currencyUSD);
                 tempCurrencyRepository.Setup(x => x.GetByIdAsync(currencyEUR.Id)).ReturnsAsync(currencyEUR);
                 tempCurrencyRepository.Setup(x => x.GetByIdAsync(currencyRUR.Id)).ReturnsAsync(currencyRUR);
@@ -113,11 +108,11 @@ namespace Grand.Business.Common.Tests.Services.Directory
 
             _currencyService = new CurrencyService(
                 _cacheManager.Object, _currencyRepository, _aclService.Object,
-                _currencySettings,  _eventPublisher);
+                _currencySettings, _eventPublisher);
 
             //tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToCategories, "", "", false)).ReturnsAsync(new List<Discount>());
         }
-   
+
         [TestMethod()]
         public void Can_convert_currency_1()
         {
@@ -153,7 +148,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         }
 
         [TestMethod()]
-        public void  ConvertToPrimaryExchangeRateCurrency_ZeroExchangeRate_ThrowException()
+        public void ConvertToPrimaryExchangeRateCurrency_ZeroExchangeRate_ThrowException()
         {
             _cacheManager.Setup(c => c.GetAsync<Currency>(It.IsAny<string>(), It.IsAny<Func<Task<Currency>>>())).Returns(Task.FromResult(currencyUSD));
             currencyEUR.Rate = 0;

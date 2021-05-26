@@ -3,19 +3,17 @@ using Grand.Business.Checkout.Services.CheckoutAttributes;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Data;
+using Grand.Domain.Data.Mongo;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MongoDB.Driver;
 using Moq;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
 {
@@ -35,9 +33,10 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
         [TestInitialize()]
         public void TestInitialize()
         {
+            CommonPath.BaseDirectory = "";
+
             //color choosing via DropDownList
-            ca1 = new CheckoutAttribute
-            {
+            ca1 = new CheckoutAttribute {
                 Id = "1",
                 Name = "Color",
                 TextPrompt = "Select color:",
@@ -45,16 +44,14 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
                 AttributeControlTypeId = AttributeControlType.DropdownList,
                 DisplayOrder = 1,
             };
-            cav1_1 = new CheckoutAttributeValue
-            {
+            cav1_1 = new CheckoutAttributeValue {
                 Id = "11",
                 Name = "Green",
                 DisplayOrder = 1,
                 //CheckoutAttribute = ca1,
                 CheckoutAttributeId = ca1.Id,
             };
-            cav1_2 = new CheckoutAttributeValue
-            {
+            cav1_2 = new CheckoutAttributeValue {
                 Id = "12",
                 Name = "Red",
                 DisplayOrder = 2,
@@ -65,8 +62,7 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
             ca1.CheckoutAttributeValues.Add(cav1_2);
 
             //choosing via CheckBox'es
-            ca2 = new CheckoutAttribute
-            {
+            ca2 = new CheckoutAttribute {
                 Id = "2",
                 Name = "Custom option",
                 TextPrompt = "Select custom option:",
@@ -76,16 +72,14 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
                 //CheckoutAttributeValues
             };
 
-            cav2_1 = new CheckoutAttributeValue
-            {
+            cav2_1 = new CheckoutAttributeValue {
                 Id = "21",
                 Name = "Option 1",
                 DisplayOrder = 1,
                 //CheckoutAttribute = ca2,
                 CheckoutAttributeId = ca2.Id,
             };
-            cav2_2 = new CheckoutAttributeValue
-            {
+            cav2_2 = new CheckoutAttributeValue {
                 Id = "22",
                 Name = "Option 2",
                 DisplayOrder = 2,
@@ -96,8 +90,7 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
             ca2.CheckoutAttributeValues.Add(cav2_2);
 
             //via MultiTextBoxes
-            ca3 = new CheckoutAttribute
-            {
+            ca3 = new CheckoutAttribute {
                 Id = "3",
                 Name = "Custom text",
                 TextPrompt = "Enter custom text:",
@@ -114,11 +107,11 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
 
             var tempCheckoutAttributeRepo = new Mock<IRepository<CheckoutAttribute>>();
             {
-                var IMongoCollection = new Mock<IMongoCollection<CheckoutAttribute>>().Object;
-                IMongoCollection.InsertOne(ca1);
-                IMongoCollection.InsertOne(ca2);
-                IMongoCollection.InsertOne(ca3);
-                tempCheckoutAttributeRepo.Setup(x => x.Table).Returns(IMongoCollection.AsQueryable());
+                var IMongoCollection = new Mock<MongoRepository<CheckoutAttribute>>().Object;
+                IMongoCollection.Insert(ca1);
+                IMongoCollection.Insert(ca2);
+                IMongoCollection.Insert(ca3);
+                tempCheckoutAttributeRepo.Setup(x => x.Table).Returns(IMongoCollection.Table);
                 tempCheckoutAttributeRepo.Setup(x => x.GetByIdAsync(ca1.Id)).ReturnsAsync(ca1);
                 tempCheckoutAttributeRepo.Setup(x => x.GetByIdAsync(ca2.Id)).ReturnsAsync(ca2);
                 tempCheckoutAttributeRepo.Setup(x => x.GetByIdAsync(ca3.Id)).ReturnsAsync(ca3);
@@ -129,7 +122,7 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
             _workContextMock = new Mock<IWorkContext>();
 
             _checkoutAttributeService = new CheckoutAttributeService(cacheManager.Object, _checkoutAttributeRepo,
-               _eventPublisher,_workContextMock.Object);
+               _eventPublisher, _workContextMock.Object);
 
             _checkoutAttributeParser = new CheckoutAttributeParser(_checkoutAttributeService);
 
@@ -158,7 +151,7 @@ namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
             Assert.IsTrue(attributes.Any(c => c.Key.Equals(ca1.Id)));
             Assert.IsTrue(attributes.Any(c => c.Key.Equals(ca2.Id)));
             Assert.IsTrue(attributes.Any(c => c.Key.Equals(ca3.Id)));
-            attributes=_checkoutAttributeParser.RemoveCheckoutAttribute(attributes, ca1);
+            attributes = _checkoutAttributeParser.RemoveCheckoutAttribute(attributes, ca1);
             Assert.IsTrue(attributes.Count == 3);
             Assert.IsFalse(attributes.Any(c => c.Key.Equals(ca1.Id)));
 

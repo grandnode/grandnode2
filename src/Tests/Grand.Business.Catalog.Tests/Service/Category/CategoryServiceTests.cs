@@ -10,7 +10,6 @@ using Grand.Infrastructure.Events;
 using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MongoDB.Driver;
 using Moq;
 using System;
 using System.Collections.Generic;
