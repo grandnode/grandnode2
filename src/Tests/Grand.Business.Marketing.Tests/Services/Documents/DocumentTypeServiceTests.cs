@@ -3,6 +3,7 @@ using Grand.Domain.Data;
 using Grand.Domain.Data.Mongo;
 using Grand.Domain.Documents;
 using Grand.Infrastructure.Events;
+using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -25,6 +26,8 @@ namespace Grand.Business.Marketing.Tests.Services.Documents
         [TestInitialize()]
         public void Init()
         {
+            CommonPath.BaseDirectory = "";
+
             _mediatorMock = new Mock<IMediator>();
             _documentTypeRepositoryMock = new Mock<IRepository<DocumentType>>();
             var _mongoQueryableMock = new Mock<MongoRepository<DocumentType>>();
