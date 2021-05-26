@@ -35,7 +35,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
         [TestInitialize()]
         public void TestInitialize()
         {
-
+            CommonPath.BaseDirectory = "";
             CommonHelper.CacheTimeMinutes = 10;
 
             currencyUSD = new Currency {
@@ -83,9 +83,6 @@ namespace Grand.Business.Common.Tests.Services.Directory
                 IMongoCollection.Insert(currencyRUR);
 
                 tempCurrencyRepository.Setup(x => x.Table).Returns(IMongoCollection.Table);
-                tempCurrencyRepository.Setup(x => x.GetByIdAsync(currencyUSD.Id)).ReturnsAsync(currencyUSD);
-                tempCurrencyRepository.Setup(x => x.GetByIdAsync(currencyEUR.Id)).ReturnsAsync(currencyEUR);
-                tempCurrencyRepository.Setup(x => x.GetByIdAsync(currencyRUR.Id)).ReturnsAsync(currencyRUR);
                 tempCurrencyRepository.Setup(x => x.GetByIdAsync(currencyUSD.Id)).ReturnsAsync(currencyUSD);
                 tempCurrencyRepository.Setup(x => x.GetByIdAsync(currencyEUR.Id)).ReturnsAsync(currencyEUR);
                 tempCurrencyRepository.Setup(x => x.GetByIdAsync(currencyRUR.Id)).ReturnsAsync(currencyRUR);
