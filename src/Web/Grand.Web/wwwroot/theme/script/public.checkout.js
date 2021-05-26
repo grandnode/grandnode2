@@ -58,6 +58,13 @@ var Order = Vue.extend({
         selectedShippingMethod: 0
     },
     methods: {
+        setDisabled(e) {
+            var button = e.target;
+            button.classList.add('disabled');
+            setTimeout(function () {
+                button.classList.remove('disabled');
+            }, 600);
+        },
         vmCheckout() {
             this.Checkout = {
                 loadWaiting: false,

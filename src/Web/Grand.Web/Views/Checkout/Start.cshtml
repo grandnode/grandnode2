@@ -148,7 +148,7 @@
                                         {
                                             <a class="btn btn-secondary" href="#" id="back-payment_method" onclick="vmorder.Checkout.back(); return false;">@Loc["Common.Back"]</a>
                                         }
-                                        <input type="button" class="btn btn-info payment-method-next-step-button" onclick="vmorder.vPaymentMethod.save()" value="@Loc["Common.Continue"]" />
+                                        <input type="button" class="btn btn-info payment-method-next-step-button" @@click="vmorder.setDisabled(event)" onclick="vmorder.vPaymentMethod.save()" value="@Loc["Common.Continue"]" />
                                         <span class="please-wait" id="payment-method-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
                                     </div>
                                 </b-card-body>
