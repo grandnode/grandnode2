@@ -7,6 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\Pdf\**" />
+    <Compile Remove="Services\Seo\**" />
+    <EmbeddedResource Remove="Services\Pdf\**" />
+    <EmbeddedResource Remove="Services\Seo\**" />
+    <None Remove="Services\Pdf\**" />
+    <None Remove="Services\Seo\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.3" />
@@ -19,11 +28,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Business\Grand.Business.Common\Grand.Business.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\Pdf\" />
-    <Folder Include="Services\Seo\" />
   </ItemGroup>
 
 </Project>
