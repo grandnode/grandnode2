@@ -179,7 +179,7 @@ namespace Grand.Business.Marketing.Services.Newsteletters
                                           orderby nls.Id
                                           select nls;
 
-            return await newsLetterSubscriptions.FirstOrDefaultAsync2();
+            return await Task.FromResult(newsLetterSubscriptions.FirstOrDefault());
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace Grand.Business.Marketing.Services.Newsteletters
                                           orderby nls.Id
                                           select nls;
 
-            return await newsLetterSubscriptions.FirstOrDefaultAsync2();
+            return await Task.FromResult(newsLetterSubscriptions.FirstOrDefault());
         }
 
         /// <summary>
@@ -218,7 +218,7 @@ namespace Grand.Business.Marketing.Services.Newsteletters
                                           orderby nls.Id
                                           select nls;
 
-            return await newsLetterSubscriptions.FirstOrDefaultAsync2();
+            return await Task.FromResult(newsLetterSubscriptions.FirstOrDefault());
         }
 
         /// <summary>

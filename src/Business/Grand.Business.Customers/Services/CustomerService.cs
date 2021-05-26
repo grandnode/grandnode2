@@ -165,7 +165,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="storeId">Store ident</param>
         /// <param name="salesEmployeeId">Sales employee ident</param>
         /// <returns>Int</returns>
-        public virtual Task<int> GetCountOnlineShoppingCart(DateTime lastActivityFromUtc, string storeId = "", string salesEmployeeId = "")
+        public virtual async Task<int> GetCountOnlineShoppingCart(DateTime lastActivityFromUtc, string storeId = "", string salesEmployeeId = "")
         {
             var query = from p in _customerRepository.Table
                         select p;
@@ -180,7 +180,7 @@ namespace Grand.Business.Customers.Services
             if (!string.IsNullOrEmpty(salesEmployeeId))
                 query = query.Where(c => c.SeId == salesEmployeeId);
 
-            return query.CountAsync2();
+            return await Task.FromResult(query.Count());
         }
 
         /// <summary>

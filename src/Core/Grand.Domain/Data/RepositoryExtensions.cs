@@ -13,28 +13,10 @@ namespace Grand.Domain.Data
             return ((IMongoQueryable<T>)query).ToListAsync();
         }
 
-        public static Task<List<T>> ToListAsync2<T>(this IMongoQueryable<T> query)
-        {
-            return query.ToListAsync();
-        }
-
-        public static Task<T> FirstOrDefaultAsync2<T>(this IMongoQueryable<T> query)
-        {
-            return query.FirstOrDefaultAsync();
-        }
-
-        public static Task<T> FirstOrDefaultAsync2<T>(this IOrderedQueryable<T> query)
-        {
-            return ((IMongoQueryable<T>)query).FirstOrDefaultAsync();
-        }
         public static Task<T> FirstOrDefaultAsync2<T>(this IQueryable<T> query)
         {
             return ((IMongoQueryable<T>)query).FirstOrDefaultAsync();
         }
-
-        public static Task<int> CountAsync2<T>(this IQueryable<T> query)
-        {
-            return ((IMongoQueryable<T>)query).CountAsync();
-        }
+       
     }
 }

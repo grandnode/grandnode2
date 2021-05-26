@@ -52,7 +52,7 @@ namespace Grand.Business.Marketing.Services.Contacts
                         where c.CustomerId == customerId
                         orderby c.CreatedOnUtc
                         select c;
-            return await query.FirstOrDefaultAsync2();
+            return await Task.FromResult(query.FirstOrDefault());
         }
 
         public virtual async Task MovepopupToArchive(string id, string customerId)

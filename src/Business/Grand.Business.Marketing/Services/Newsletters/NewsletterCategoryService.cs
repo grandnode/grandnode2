@@ -92,7 +92,7 @@ namespace Grand.Business.Marketing.Services.Newsteletters
         /// <returns>NewsletterCategories</returns>
         public virtual async Task<IList<NewsletterCategory>> GetAllNewsletterCategory()
         {
-            return await _newsletterCategoryRepository.Table.ToListAsync2();
+            return await Task.FromResult(_newsletterCategoryRepository.Table.ToList());
         }
 
         /// <summary>

@@ -118,7 +118,7 @@ namespace Grand.Business.Common.Services.Security
                         orderby pr.Id
                         select pr;
 
-            return await query.FirstOrDefaultAsync2();
+            return await Task.FromResult(query.FirstOrDefault());
         }
 
         /// <summary>

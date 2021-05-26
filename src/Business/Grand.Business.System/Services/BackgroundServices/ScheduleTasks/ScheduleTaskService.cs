@@ -43,13 +43,13 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
         /// </summary>
         /// <param name="type">Task type</param>
         /// <returns>Task</returns>
-        public virtual Task<ScheduleTask> GetTaskByType(string type)
+        public virtual async Task<ScheduleTask> GetTaskByType(string type)
         {
             if (string.IsNullOrWhiteSpace(type))
-                return Task.FromResult<ScheduleTask>(null);
+                return null;
 
             var query = _taskRepository.Table.Where(st => st.Type == type).OrderByDescending(t => t.Id);
-            return query.FirstOrDefaultAsync2();
+            return await Task.FromResult(query.FirstOrDefault());
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
         /// <returns>Tasks</returns>
         public virtual async Task<IList<ScheduleTask>> GetAllTasks()
         {
-            return await _taskRepository.Table.ToListAsync2();
+            return await Task.FromResult(_taskRepository.Table.ToList());
         }
 
         /// <summary>

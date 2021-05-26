@@ -61,8 +61,7 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <returns>Customer actions</returns>
         public virtual async Task<IList<CustomerAction>> GetCustomerActions()
         {
-            var query = _customerActionRepository.Table;
-            return await query.ToListAsync2();
+            return await Task.FromResult(_customerActionRepository.Table.ToList());
         }
 
         /// <summary>
@@ -118,8 +117,7 @@ namespace Grand.Business.Marketing.Services.Customers
 
         public virtual async Task<IList<CustomerActionType>> GetCustomerActionType()
         {
-            var query = _customerActionTypeRepository.Table;
-            return await query.ToListAsync2();
+            return await Task.FromResult(_customerActionTypeRepository.Table.ToList());
         }
 
         public virtual async Task<IPagedList<CustomerActionHistory>> GetAllCustomerActionHistory(string customerActionId, int pageIndex = 0, int pageSize = 2147483647)

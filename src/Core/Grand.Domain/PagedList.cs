@@ -1,5 +1,4 @@
-﻿using Grand.Domain.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -49,14 +48,15 @@ namespace Grand.Domain
         {
             Initialize(source, pageIndex, pageSize, totalCount);
         }
-        private async Task InitializeAsync(IQueryable<T> source, int pageIndex, int pageSize, int? totalCount = null)
+
+        private Task InitializeAsync(IQueryable<T> source, int pageIndex, int pageSize, int? totalCount = null)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (pageSize <= 0)
                 pageSize = 1;
 
-            TotalCount = totalCount ?? await source.CountAsync2();
+            TotalCount = totalCount ?? source.Count();
             source = totalCount == null ? source.Skip(pageIndex * pageSize).Take(pageSize) : source;
             AddRange(source);
 
@@ -69,6 +69,7 @@ namespace Grand.Domain
 
             PageSize = pageSize;
             PageIndex = pageIndex;
+            return Task.CompletedTask;
         }
 
         public static async Task<PagedList<T>> Create(IQueryable<T> source, int pageIndex, int pageSize)

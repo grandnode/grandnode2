@@ -109,11 +109,11 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="customerGroupId">Customer group id</param>
         /// <param name="productId">Product id</param>
         /// <returns>Customer group product</returns>
-        public virtual Task<CustomerGroupProduct> GetCustomerGroupProduct(string customerGroupId, string productId)
+        public virtual async Task<CustomerGroupProduct> GetCustomerGroupProduct(string customerGroupId, string productId)
         {
-            return _customerGroupProductRepository.Table
+            return await Task.FromResult(_customerGroupProductRepository.Table
                 .Where(x => x.CustomerGroupId == customerGroupId && x.ProductId == productId)
-                .OrderBy(x => x.DisplayOrder).FirstOrDefaultAsync2();
+                .OrderBy(x => x.DisplayOrder).FirstOrDefault());
         }
 
         /// <summary>
@@ -121,14 +121,14 @@ namespace Grand.Business.Catalog.Services.Products
         /// </summary>
         /// <param name="Id">id</param>
         /// <returns>Customer group product</returns>
-        public virtual Task<CustomerGroupProduct> GetCustomerGroupProductById(string id)
+        public virtual async Task<CustomerGroupProduct> GetCustomerGroupProductById(string id)
         {
             var query = from cr in _customerGroupProductRepository.Table
                         where cr.Id == id
                         orderby cr.DisplayOrder
                         select cr;
 
-            return query.FirstOrDefaultAsync2();
+            return await Task.FromResult(query.FirstOrDefault());
         }
 
 

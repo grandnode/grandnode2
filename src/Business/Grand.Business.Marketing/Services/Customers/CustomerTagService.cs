@@ -86,8 +86,7 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <returns>Customer tags</returns>
         public virtual async Task<IList<CustomerTag>> GetAllCustomerTags()
         {
-            var query = _customerTagRepository.Table;
-            return await query.ToListAsync2();
+            return await Task.FromResult(_customerTagRepository.Table.ToList());
         }
 
         /// <summary>
@@ -215,13 +214,13 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <param name="customerTagId">Customer tag id</param>
         /// <param name="productId">Product id</param>
         /// <returns>Customer tag product</returns>
-        public virtual Task<CustomerTagProduct> GetCustomerTagProduct(string customerTagId, string productId)
+        public virtual async Task<CustomerTagProduct> GetCustomerTagProduct(string customerTagId, string productId)
         {
             var query = from cr in _customerTagProductRepository.Table
                         where cr.CustomerTagId == customerTagId && cr.ProductId == productId
                         orderby cr.DisplayOrder
                         select cr;
-            return query.FirstOrDefaultAsync2();
+            return await Task.FromResult(query.FirstOrDefault());
         }
 
         /// <summary>

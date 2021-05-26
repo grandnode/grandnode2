@@ -75,8 +75,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <returns>Order tags</returns>
         public virtual async Task<IList<OrderTag>> GetAllOrderTags()
         {
-            var query = _orderTagRepository.Table;
-            return await query.ToListAsync2();
+            return await Task.FromResult(_orderTagRepository.Table.ToList());
         }
 
         /// <summary>

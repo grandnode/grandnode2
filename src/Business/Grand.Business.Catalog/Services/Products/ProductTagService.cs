@@ -93,8 +93,7 @@ namespace Grand.Business.Catalog.Services.Products
         {
             return await _cacheBase.GetAsync(CacheKey.PRODUCTTAG_ALL_KEY, async () =>
             {
-                var query = _productTagRepository.Table;
-                return await query.ToListAsync2();
+                return await Task.FromResult(_productTagRepository.Table.ToList());
             });
         }
 

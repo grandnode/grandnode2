@@ -48,9 +48,9 @@ namespace Grand.Business.Marketing.Services.Customers
 
         protected async Task<IList<CustomerActionType>> GetAllCustomerActionType()
         {
-            return await _cacheBase.GetAsync(CacheKey.CUSTOMER_ACTION_TYPE, () =>
+            return await _cacheBase.GetAsync(CacheKey.CUSTOMER_ACTION_TYPE, async () =>
             {
-                return _customerActionTypeRepository.Table.ToListAsync2();
+                return await Task.FromResult(_customerActionTypeRepository.Table.ToList());
             });
         }
 

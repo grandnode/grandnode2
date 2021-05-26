@@ -55,8 +55,7 @@ namespace Grand.Business.Common.Services.Seo
             string key = string.Format(CacheKey.URLEntity_ALL_KEY);
             return await _cacheBase.GetAsync(key, async () =>
             {
-                var query = _urlEntityRepository.Table;
-                return await query.ToListAsync2();
+                return await Task.FromResult(_urlEntityRepository.Table.ToList());
             });
         }
 
@@ -133,7 +132,7 @@ namespace Grand.Business.Common.Services.Seo
                         where ur.Slug == slug
                         orderby ur.IsActive
                         select ur;
-            return await query.FirstOrDefaultAsync2();
+            return await Task.FromResult(query.FirstOrDefault());
         }
 
         /// <summary>

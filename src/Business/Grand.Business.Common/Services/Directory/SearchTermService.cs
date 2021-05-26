@@ -76,7 +76,7 @@ namespace Grand.Business.Common.Services.Directory
                         where st.Keyword == keyword && st.StoreId == storeId
                         orderby st.Id
                         select st;
-            return await query.FirstOrDefaultAsync2();
+            return await Task.FromResult(query.FirstOrDefault());
         }
 
         /// <summary>
