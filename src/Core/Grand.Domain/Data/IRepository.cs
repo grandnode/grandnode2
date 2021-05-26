@@ -1,6 +1,6 @@
-﻿using MongoDB.Driver.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -244,11 +244,11 @@ namespace Grand.Domain.Data
         /// <summary>
         /// Gets a table
         /// </summary>
-        IMongoQueryable<T> Table { get; }
+        IQueryable<T> Table { get; }
 
         /// <summary>
         /// Gets a table collection
         /// </summary>
-        IMongoQueryable<T> TableCollection(string collectionName);
+        IQueryable<T> TableCollection(string collectionName);
     }
 }

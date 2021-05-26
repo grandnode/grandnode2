@@ -479,14 +479,14 @@ namespace Grand.Domain.Data.Mongo
         /// <summary>
         /// Gets a table
         /// </summary>
-        public virtual IMongoQueryable<T> Table {
+        public virtual IQueryable<T> Table {
             get { return _collection.AsQueryable(); }
         }
 
         /// <summary>
         /// Gets a table collection
         /// </summary>
-        public virtual IMongoQueryable<T> TableCollection(string collectionName)
+        public virtual IQueryable<T> TableCollection(string collectionName)
         {
             return _collection.Database.GetCollection<T>(collectionName).AsQueryable();
         }
