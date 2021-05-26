@@ -4,22 +4,21 @@ using Grand.Business.Checkout.Interfaces.Shipping;
 using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Common.Services.Security;
-using Grand.Web.Common.DataSource;
-using Grand.Web.Common.Models;
-using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Payments;
+using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Grand.Business.Common.Interfaces.Logging;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -90,8 +89,7 @@ namespace Grand.Web.Admin.Controllers
                 paymentMethodsModel.Add(tmp);
             }
             paymentMethodsModel = paymentMethodsModel.ToList();
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = paymentMethodsModel,
                 Total = paymentMethodsModel.Count
             };
@@ -157,11 +155,10 @@ namespace Grand.Web.Admin.Controllers
             foreach (var c in countries)
             {
                 model.AvailableCountries.Add(c.ToModel());
-            }            
+            }
             foreach (var s in shippings)
             {
-                model.AvailableShippingMethods.Add(new Models.Shipping.ShippingMethodModel()
-                {
+                model.AvailableShippingMethods.Add(new Models.Shipping.ShippingMethodModel() {
                     Id = s.Id,
                     Name = s.Name
                 });
