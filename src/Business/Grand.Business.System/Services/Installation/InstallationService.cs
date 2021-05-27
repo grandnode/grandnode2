@@ -441,9 +441,6 @@ namespace Grand.Business.System.Services.Installation
 
         private async Task CreateTables(string local)
         {
-            if (string.IsNullOrEmpty(local))
-                local = "en";
-
             try
             {
                 var connectionString = DataSettingsManager.LoadSettings().ConnectionString;

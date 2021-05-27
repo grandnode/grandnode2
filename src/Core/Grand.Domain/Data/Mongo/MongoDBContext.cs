@@ -78,10 +78,16 @@ namespace Grand.Domain.Data.Mongo
 
         public async Task CreateTable(string name, string collation)
         {
-            var options = new CreateCollectionOptions();
-            options.Collation = new Collation(collation);
             var database = _database ?? TryReadMongoDatabase();
-            await database.CreateCollectionAsync(name, options);
+
+            if (!string.IsNullOrEmpty(collation))
+            {
+                var options = new CreateCollectionOptions();
+                options.Collation = new Collation(collation);
+                await database.CreateCollectionAsync(name, options);
+            }
+            else
+                await database.CreateCollectionAsync(name);
 
         }
 
