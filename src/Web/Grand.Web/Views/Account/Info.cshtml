@@ -15,8 +15,25 @@
 
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
-<script asp-location="Footer">
-            document.getElementById("@Html.IdFor(model => model.CountryId)").addEventListener('change',function () {
+    <script asp-location="Footer">
+        function toggleNewsletterCat() {
+                var element = document.getElementById('@Html.IdFor(model => model.Newsletter)');
+                if (element) {
+                    if (document.getElementById('@Html.IdFor(model => model.Newsletter)').checked) {
+                        if (document.querySelector('.register-category-newsletter')) {
+                            document.querySelector('.register-category-newsletter').style.display = "block";
+                        }
+                    }
+                    else {
+                        if (document.querySelector('.register-category-newsletter')) {
+                            document.querySelector('.register-category-newsletter').style.display = "none";
+                        }
+                    }
+                }
+            }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("@Html.IdFor(model => model.CountryId)").addEventListener('change', function () {
                 var selectedItem = this.value;
                 var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
                 var statesProgress = document.getElementById("states-loading-progress");
@@ -39,27 +56,31 @@
                     statesProgress.style.display = "none";
                 })
             });
-</script>
+
+            toggleNewsletterCat();
+
+        });
+    </script>
 }
 <script asp-location="Footer">
-
+    function toggleNewsletterCat() {
+                var element = document.getElementById('@Html.IdFor(model => model.Newsletter)');
+                if (element) {
+                    if (document.getElementById('@Html.IdFor(model => model.Newsletter)').checked) {
+                        if (document.querySelector('.register-category-newsletter')) {
+                            document.querySelector('.register-category-newsletter').style.display = "block";
+                        }
+                    }
+                    else {
+                        if (document.querySelector('.register-category-newsletter')) {
+                            document.querySelector('.register-category-newsletter').style.display = "none";
+                        }
+                    }
+                }
+    }
+    document.addEventListener("DOMContentLoaded", function () {
         toggleNewsletterCat();
-
-        function toggleNewsletterCat() {
-            var element = document.getElementById('@Html.IdFor(model => model.Newsletter)');
-            if (element) {
-                if (document.getElementById('@Html.IdFor(model => model.Newsletter)').checked) {
-                    if (document.querySelector('.register-category-newsletter')) {
-                        document.querySelector('.register-category-newsletter').style.display = "block";
-                    }
-                }
-                else {
-                    if (document.querySelector('.register-category-newsletter')) {
-                        document.querySelector('.register-category-newsletter').style.display = "none";
-                    }
-                }
-            }
-        }
+    });
 </script>
 <div class="page account-page customer-info-page pl-lg-3 pt-3 pt-lg-0">
     @if (customerSettings.AllowUsersToExportData)
