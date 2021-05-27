@@ -132,6 +132,11 @@ namespace Grand.Api.Controllers
             {
                 return BadRequest("Invalid refresh token");
             }
+
+            if (customerRefreshToken.ValidTo.CompareTo(DateTime.UtcNow) < 0)
+            {
+                return BadRequest("Token expired");
+            }
             var token = await GetToken(claims, customer); ;
             return Ok(token);
         }
