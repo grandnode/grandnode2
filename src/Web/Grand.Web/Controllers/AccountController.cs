@@ -1189,18 +1189,52 @@ namespace Grand.Web.Controllers
             if (!_customerSettings.TwoFactorAuthenticationEnabled)
                 return RedirectToRoute("CustomerInfo");
 
-            var customer = _workContext.CurrentCustomer;
-            if (customer != null)
-            {
-                await _userFieldService.SaveField<bool>(customer, SystemCustomerFieldNames.TwoFactorEnabled, false);
-                await _userFieldService.SaveField<string>(customer, SystemCustomerFieldNames.TwoFactorSecretKey, null);
-
-                Success(_translationService.GetResource("Account.TwoFactorAuth.Disabled"));
-
+            if (!_workContext.CurrentCustomer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled))
                 return RedirectToRoute("CustomerInfo");
-            }
-            return View();
+
+            var model = await _mediator.Send(new GetTwoFactorAuthentication() {
+                Customer = _workContext.CurrentCustomer,
+                Language = _workContext.WorkingLanguage,
+                Store = _workContext.CurrentStore,
+            });
+            return View(model);
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> DisableTwoFactorAuthenticator(CustomerInfoModel.TwoFactorAuthenticationModel model,
+            [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService)
+        {
+            if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
+                return Challenge();
+
+            if (!_customerSettings.TwoFactorAuthenticationEnabled)
+                return RedirectToRoute("CustomerInfo");
+
+            if (!_workContext.CurrentCustomer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled))
+                return RedirectToRoute("CustomerInfo");
+
+            if (string.IsNullOrEmpty(model.Code))
+            {
+                ModelState.AddModelError("", _translationService.GetResource("Account.TwoFactorAuth.SecurityCodeIsRequired"));
+            }
+            else
+            {
+                if (await twoFactorAuthenticationService.AuthenticateTwoFactor(model.SecretKey, model.Code, _workContext.CurrentCustomer, _customerSettings.TwoFactorAuthenticationType))
+                {
+                    await _userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.TwoFactorEnabled, false);
+                    await _userFieldService.SaveField<string>(_workContext.CurrentCustomer, SystemCustomerFieldNames.TwoFactorSecretKey, null);
+
+                    Success(_translationService.GetResource("Account.TwoFactorAuth.Disabled"));
+
+                    return RedirectToRoute("CustomerInfo");
+                }
+                ModelState.AddModelError("", _translationService.GetResource("Account.TwoFactorAuth.WrongSecurityCode"));
+            }
+
+            return View(model);
+        }
+
 
 
         #endregion
