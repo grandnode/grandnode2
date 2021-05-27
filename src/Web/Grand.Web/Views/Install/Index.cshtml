@@ -50,7 +50,7 @@
                     @LocalizedService.GetResource("CompanyInformation")
                 </h3>
                 <div class="card-body">
-                    
+
                     <div class="row">
                         <div class="col-md-6 col-12">
                             <label for="AdminPassword">
@@ -106,6 +106,14 @@
                     </div>
                 </div>
             </div>
+            <div class="card">
+                <h3 class="card-header">
+                    @LocalizedService.GetResource("DataProvider")
+                </h3>
+                <div class="card-body">
+                    @Html.DropDownList("DataProvider", Model.AvailableProviders, new { @class = "custom-select", onchange = "DataProviderChange(this.value);" })
+                </div>
+            </div>
             @if (!Model.DisableSampleDataOption)
             {
                 <div nowrap="nowrap" align="left">
@@ -116,8 +124,8 @@
                     </label>
                 </div>
             }
-            <section id="MongoDBConnectionInformation">
-                <div id="MongoDBSimpleData">
+            <section id="ConnectionInformation">
+                <div id="DBSampleData">
                     <div class="card">
                         <h3 class="card-header">
                             @LocalizedService.GetResource("DatabaseInformation")
@@ -161,19 +169,18 @@
 
 
                 <label class="custom-control custom-checkbox my-3">
-                    <input asp-for="MongoDBConnectionInfo" onchange="toggleMongoDBConnectionInfo()" class="custom-control-input" />
+                    <input asp-for="ConnectionInfo" onchange="toggleMongoDBConnectionInfo()" class="custom-control-input" />
                     <span class="custom-control-label"></span>
                     <span class="custom-control-description">@LocalizedService.GetResource("ConnectionString"):</span>
                 </label>
-                <div id="MongoDBDatabaseConnectionString" class="connection-string-container" style="display:none;">
+                <div id="DatabaseConnectionString" class="connection-string-container" style="display:none;">
                     <span style="white-space: nowrap;">
                         <input asp-for="DatabaseConnectionString" class="textbox form-control" />
                     </span>
                     <span class="hint">
                         @LocalizedService.GetResource("Example"):<br />
-                        @Html.Raw("mongodb://[username:password@]host1[:port1]/databaseName")
-                        <br />
-                        Find more info <a href="https://docs.mongodb.org/manual/reference/connection-string/" target="_blank">here</a>
+                        For MongoDB: @Html.Raw("mongodb://[username:password@]host1[:port1]/databaseName")
+                        (Find more info <a href="https://docs.mongodb.org/manual/reference/connection-string/" target="_blank">here</a>)
                     </span>
                 </div>
             </section>

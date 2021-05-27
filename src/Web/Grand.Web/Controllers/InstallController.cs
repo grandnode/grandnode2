@@ -65,8 +65,13 @@ namespace Grand.Web.Controllers
                 AdminEmail = "admin@yourstore.com",
                 InstallSampleData = false,
                 DatabaseConnectionString = "",
-                DataProvider = "mongodb",
             };
+
+            model.AvailableProviders = Enum.GetValues(typeof(DbProvider)).Cast<DbProvider>().Select(v => new SelectListItem {
+                Text = v.ToString(),
+                Value = ((int)v).ToString()
+            }).ToList();
+
             foreach (var lang in locService.GetAvailableLanguages())
             {
                 model.AvailableLanguages.Add(new SelectListItem {
@@ -100,7 +105,7 @@ namespace Grand.Web.Controllers
 
             string connectionString = "";
 
-            if (model.MongoDBConnectionInfo)
+            if (model.ConnectionInfo)
             {
                 if (String.IsNullOrEmpty(model.DatabaseConnectionString))
                 {
@@ -153,7 +158,7 @@ namespace Grand.Web.Controllers
                     //save settings
                     var settings = new DataSettings {
                         ConnectionString = connectionString,
-                        DbProvider = DbProvider.MongoDB
+                        DbProvider = model.DataProvider
                     };
                     await DataSettingsManager.SaveSettings(settings);
 
@@ -206,6 +211,11 @@ namespace Grand.Web.Controllers
                     ModelState.AddModelError("", string.Format(locService.GetResource("SetupFailed"), exception.Message + " " + exception.InnerException?.Message));
                 }
             }
+            //prepare db providers
+            model.AvailableProviders = Enum.GetValues(typeof(DbProvider)).Cast<DbProvider>().Select(v => new SelectListItem {
+                Text = v.ToString(),
+                Value = ((int)v).ToString()
+            }).ToList();
 
             //prepare language list
             foreach (var lang in locService.GetAvailableLanguages())

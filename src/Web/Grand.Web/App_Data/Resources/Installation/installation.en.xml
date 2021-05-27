@@ -71,8 +71,8 @@
   <LocaleResource Name="DatabaseNotExists">
     <Value>Database does not exist or you don't have permissions to connect to it</Value>
   </LocaleResource>
-  <LocaleResource Name="DataProviderRequired">
-    <Value>Select data provider</Value>
+  <LocaleResource Name="DataProvider">
+    <Value>Data provider</Value>
   </LocaleResource>
   <LocaleResource Name="Documentation1">
     <Value>If you need information on how to use grandnode, visit</Value>
