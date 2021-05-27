@@ -561,11 +561,11 @@ namespace Grand.Web.Admin.Services
                     //states
                     var states = (await _countryService.GetCountryById(model.CountryId))?.StateProvinces;
                     model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectState"), Value = "" });
-
-                    foreach (var s in states)
-                    {
-                        model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == model.StateProvinceId) });
-                    }
+                    if (states != null)
+                        foreach (var s in states)
+                        {
+                            model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (s.Id == model.StateProvinceId) });
+                        }
                 }
             }
 
@@ -673,33 +673,36 @@ namespace Grand.Web.Admin.Services
                 CreatedOnUtc = DateTime.UtcNow,
                 LastActivityDateUtc = DateTime.UtcNow,
             };
-            await _customerService.InsertCustomer(customer);
 
             //user fields
+            customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.FirstName, Value = model.FirstName, StoreId = "" });
+            customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.LastName, Value = model.LastName, StoreId = "" });
+
             if (_customerSettings.GenderEnabled)
-                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.Gender, model.Gender);
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.FirstName, model.FirstName);
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.LastName, model.LastName);
-            if (_customerSettings.DateOfBirthEnabled)
-                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.DateOfBirth, model.DateOfBirth);
+                customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.Gender, Value = model.Gender, StoreId = "" });
+
+            if (_customerSettings.DateOfBirthEnabled && model.DateOfBirth.HasValue)
+                customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.DateOfBirth, Value = model.DateOfBirth.ToString(), StoreId = "" });
             if (_customerSettings.CompanyEnabled)
-                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.Company, model.Company);
+                customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.Company, Value = model.Company, StoreId = "" });
             if (_customerSettings.StreetAddressEnabled)
-                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.StreetAddress, model.StreetAddress);
+                customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.StreetAddress, Value = model.StreetAddress, StoreId = "" });
             if (_customerSettings.StreetAddress2Enabled)
-                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.StreetAddress2, model.StreetAddress2);
+                customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.StreetAddress2, Value = model.StreetAddress2, StoreId = "" });
             if (_customerSettings.ZipPostalCodeEnabled)
-                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.ZipPostalCode, model.ZipPostalCode);
+                customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.ZipPostalCode, Value = model.ZipPostalCode, StoreId = "" });
             if (_customerSettings.CityEnabled)
-                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.City, model.City);
+                customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.City, Value = model.City, StoreId = "" });
             if (_customerSettings.CountryEnabled)
-                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.CountryId, model.CountryId);
+                customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.CountryId, Value = model.CountryId, StoreId = "" });
             if (_customerSettings.CountryEnabled && _customerSettings.StateProvinceEnabled)
-                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.StateProvinceId, model.StateProvinceId);
+                customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.StateProvinceId, Value = model.StateProvinceId, StoreId = "" });
             if (_customerSettings.PhoneEnabled)
-                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.Phone, model.Phone);
+                customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.Phone, Value = model.Phone, StoreId = "" });
             if (_customerSettings.FaxEnabled)
-                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.Fax, model.Fax);
+                customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.Fax, Value = model.Fax, StoreId = "" });
+
+            await _customerService.InsertCustomer(customer);
 
             //newsletter subscriptions
             if (!string.IsNullOrEmpty(customer.Email))
