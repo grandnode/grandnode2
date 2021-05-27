@@ -15639,6 +15639,9 @@
   <Resource Name="search.noresultstextblog">
     <Value>No blog posts were found that matched your criteria.</Value>
   </Resource>
+  <Resource Name="search.noresultstextbrand">
+    <Value>No brands were found that matched your criteria.</Value>
+  </Resource>
   <Resource Name="search.noresultstextcategory">
     <Value>No categories were found that matched your criteria.</Value>
   </Resource>
