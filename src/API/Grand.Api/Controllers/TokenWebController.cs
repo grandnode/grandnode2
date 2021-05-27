@@ -63,17 +63,22 @@ namespace Grand.Api.Controllers
         [AllowAnonymous]
         [IgnoreAntiforgeryToken]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] LoginModel model)
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var result = await _customerManagerService.LoginCustomer(model.Email, model.Password);
-            if (!result.Equals(CustomerLoginResults.Successful))
+            try
             {
-                return BadRequest(result.ToString());
-            }
+                var base64EncodedBytes = Convert.FromBase64String(model.Password);
+                var password = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
 
-            var customer = await _customerService.GetCustomerByEmail(model.Email);
+                var result = await _customerManagerService.LoginCustomer(model.Email, password);
+                if (!result.Equals(CustomerLoginResults.Successful))
+                {
+                    return BadRequest(result.ToString());
+                }
 
-            var claims = new Dictionary<string, string> {
+                var customer = await _customerService.GetCustomerByEmail(model.Email);
+
+                var claims = new Dictionary<string, string> {
                 {
                     "Email", model.Email
                 },
@@ -81,9 +86,14 @@ namespace Grand.Api.Controllers
                     "Token",
                     await _userFieldService.GetFieldsForEntity<string>(customer, SystemCustomerFieldNames.PasswordToken)
                 }
-            };
-            var tokenDto = await GetToken(claims, customer);
-            return Ok(tokenDto);
+                };
+                var tokenDto = await GetToken(claims, customer);
+                return Ok(tokenDto);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [AllowAnonymous]
@@ -100,7 +110,7 @@ namespace Grand.Api.Controllers
                 principal = _refreshTokenService.GetPrincipalFromToken(tokenDto.AccessToken);
                 email = principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return BadRequest("Invalid access token");
             }
@@ -137,7 +147,7 @@ namespace Grand.Api.Controllers
         private async Task<TokenDto> GetToken(Dictionary<string, string> claims, Customer customer)
         {
             var refreshTokenValue = _refreshTokenService.GenerateRefreshToken();
-            var refreshToken=await _refreshTokenService.SaveRefreshTokenToCustomer(customer, refreshTokenValue);
+            var refreshToken = await _refreshTokenService.SaveRefreshTokenToCustomer(customer, refreshTokenValue);
             claims.Add("RefreshId", refreshToken.RefreshId);
             var token = await _mediator.Send(new GenerateTokenWebCommand() { Claims = claims });
             return new TokenDto() {
