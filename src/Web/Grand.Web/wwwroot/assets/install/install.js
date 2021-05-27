@@ -1,17 +1,36 @@
 ﻿function toggleMongoDBConnectionInfo() {
-    if (document.getElementById('MongoDBConnectionInfo').checked == true) {
-        document.getElementById('MongoDBDatabaseConnectionString').style.display = "flex";
-        document.getElementById('MongoDBSimpleData').style.display = "none";
+    if (document.getElementById('ConnectionInfo').checked == true) {
+        document.getElementById('DatabaseConnectionString').style.display = "flex";
+        document.getElementById('DBSampleData').style.display = "none";
         var child = document.getElementById('collation');
-        document.getElementById('MongoDBDatabaseConnectionString').appendChild(child);
-
+        document.getElementById('DatabaseConnectionString').appendChild(child);
     } else {
-        document.getElementById('MongoDBDatabaseConnectionString').style.display = "none";
-        document.getElementById('MongoDBSimpleData').style.display = "block";
+        document.getElementById('DatabaseConnectionString').style.display = "none";
+        document.getElementById('DBSampleData').style.display = "block";
         var child = document.getElementById('collation');
         document.querySelector('.mongoDBDatabaseName').appendChild(child);
+
+        let dataProvider = document.getElementById('DataProvider');
+        if (dataProvider.value != "0") {
+            dataProvider.value = 0;
+        }
     }
 }
+function DataProviderChange(provider) {
+    if (provider != 0) {
+        var elm = document.getElementById('ConnectionInfo');
+        if (!elm.checked) {
+            elm.click();
+        }
+    }
+    else {
+        var elm = document.getElementById('ConnectionInfo');
+        if (elm.checked) {
+            elm.click();
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     if (document.getElementById('installation')) {
         document.getElementById('installation').addEventListener("click", function () {
@@ -22,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 10);
         });
     }
-    if (document.getElementById('MongoDBConnectionInfo')) {
+    if (document.getElementById('ConnectionInfo')) {
         toggleMongoDBConnectionInfo();
     }
 });

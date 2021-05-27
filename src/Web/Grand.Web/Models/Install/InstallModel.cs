@@ -1,4 +1,5 @@
-﻿using Grand.Infrastructure.Models;
+﻿using Grand.Domain.Data;
+using Grand.Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -11,6 +12,7 @@ namespace Grand.Web.Models.Install
         {
             AvailableLanguages = new List<SelectListItem>();
             AvailableCollation = new List<SelectListItem>();
+            AvailableProviders = new List<SelectListItem>();
         }
         [DataType(DataType.EmailAddress)]
         public string AdminEmail { get; set; }
@@ -19,8 +21,8 @@ namespace Grand.Web.Models.Install
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; }
         public string DatabaseConnectionString { get; set; }
-        public string DataProvider { get; set; }
-        public bool MongoDBConnectionInfo { get; set; }
+        public DbProvider DataProvider { get; set; }
+        public bool ConnectionInfo { get; set; }
         public string MongoDBServerName { get; set; }
         public string MongoDBDatabaseName { get; set; }
         public string MongoDBUsername { get; set; }
@@ -32,6 +34,7 @@ namespace Grand.Web.Models.Install
         public string Collation { get; set; }
         public List<SelectListItem> AvailableLanguages { get; set; }
         public List<SelectListItem> AvailableCollation { get; set; }
+        public List<SelectListItem> AvailableProviders { get; set; }
         public string CompanyName { get; set; }
         public string CompanyAddress { get; set; }
         public string CompanyPhoneNumber { get; set; }
