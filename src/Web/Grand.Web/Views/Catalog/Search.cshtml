@@ -133,11 +133,6 @@
                 </template>
                 <partial name="_Pagination" />
             </template>
-            <template v-else>
-                <b-alert variant="info" show class="my-3">
-                    @Loc["search.noresultstext"]
-                </b-alert>
-            </template>
         </div>
         @if (!String.IsNullOrEmpty(Model.Warning))
         {
