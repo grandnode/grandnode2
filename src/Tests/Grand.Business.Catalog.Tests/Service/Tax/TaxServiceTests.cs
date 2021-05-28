@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Grand.Domain.Catalog;
+using Grand.SharedKernel.Extensions;
 
 namespace Grand.Business.Catalog.Tests.Service.Tax
 {
@@ -37,6 +38,8 @@ namespace Grand.Business.Catalog.Tests.Service.Tax
         [TestInitialize()]
         public void TestInitialize()
         {
+            CommonPath.BaseDirectory = "";
+
             var serviceProvider = new Mock<IServiceProvider>();
             serviceProvider.Setup(x => x.GetService(typeof(FixedRateTestTaxProvider))).Returns(new FixedRateTestTaxProvider());
             _serviceProvider = serviceProvider.Object;
@@ -124,9 +127,9 @@ namespace Grand.Business.Catalog.Tests.Service.Tax
             var customer = new Customer { IsTaxExempt = true }; //not taxable
             var product = new Product();
 
-            Assert.AreEqual(Math.Round(909.0909090909090909090909091M, 2), (await _taxService.GetProductPrice(product, "0", 1000, true, customer, true)).productprice);
+            Assert.AreEqual(Math.Round(909.0909090, 2), (await _taxService.GetProductPrice(product, "0", 1000, true, customer, true)).productprice);
             Assert.AreEqual(1000, (await _taxService.GetProductPrice(product, "0", 1000, true, customer, false)).productprice);
-            Assert.AreEqual(Math.Round(909.0909090909090909090909091M, 2), (await _taxService.GetProductPrice(product, "0", 1000, false, customer, true)).productprice);
+            Assert.AreEqual(Math.Round(909.0909090, 2), (await _taxService.GetProductPrice(product, "0", 1000, false, customer, true)).productprice);
             Assert.AreEqual(1000, (await _taxService.GetProductPrice(product, "0", 1000, false, customer, false)).productprice);
         }
 

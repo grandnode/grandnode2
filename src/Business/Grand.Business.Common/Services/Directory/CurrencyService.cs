@@ -202,7 +202,7 @@ namespace Grand.Business.Common.Services.Directory
         public virtual double ConvertCurrency(double amount, double exchangeRate)
         {
             if (amount != 0 && exchangeRate != 0)
-                return amount * exchangeRate;
+                return Math.Round(amount * exchangeRate, 6);
             return 0;
         }
 
