@@ -30,6 +30,7 @@ namespace Grand.Web.Models.Install
         public string MongoDBPassword { get; set; }
         public bool DisableSampleDataOption { get; set; }
         public bool InstallSampleData { get; set; }
+        public bool SkipCreateIndex { get; set; }
         public bool Installed { get; set; }
         public string Collation { get; set; }
         public List<SelectListItem> AvailableLanguages { get; set; }

@@ -439,7 +439,7 @@ namespace Grand.Business.System.Services.Installation
             await dbContext.CreateIndex(_customerReminderHistoryRepository, OrderBuilder<CustomerReminderHistory>.Create().Ascending(x => x.CustomerId).Ascending(x => x.CustomerReminderId), "CustomerId");
         }
 
-        private async Task CreateTables(string local)
+        private async Task CreateTables(string local, bool skipCreateIndex)
         {
             try
             {
@@ -454,7 +454,8 @@ namespace Grand.Business.System.Services.Installation
                     if (item.BaseType != null && item.IsClass && item.BaseType == typeof(BaseEntity))
                         await dbContext.CreateTable(item.Name, local);
                 }
-                await CreateIndexes(dbContext);
+                if (!skipCreateIndex)
+                    await CreateIndexes(dbContext);
 
             }
             catch (Exception ex)
@@ -469,12 +470,12 @@ namespace Grand.Business.System.Services.Installation
 
 
         public virtual async Task InstallData(string defaultUserEmail,
-            string defaultUserPassword, string collation, bool installSampleData = true, string companyName = "", string companyAddress = "",
+            string defaultUserPassword, string collation, bool skipCreateIndex = false, bool installSampleData = true, string companyName = "", string companyAddress = "",
             string companyPhoneNumber = "", string companyEmail = "")
         {
             defaultUserEmail = defaultUserEmail.ToLower();
 
-            await CreateTables(collation);
+            await CreateTables(collation, skipCreateIndex);
             await InstallVersion();
             await InstallMenuAdminSiteMap();
             await InstallStores(companyName, companyAddress, companyPhoneNumber, companyEmail);

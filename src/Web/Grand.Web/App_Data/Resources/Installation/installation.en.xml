@@ -140,6 +140,9 @@
   <LocaleResource Name="StoreInformation">
     <Value>Store information</Value>
   </LocaleResource>
+  <LocaleResource Name="SkipCreateIndex">
+    <Value>Skip create indexes</Value>
+  </LocaleResource>
   <LocaleResource Name="Title">
     <Value>grandnode installation</Value>
   </LocaleResource>
