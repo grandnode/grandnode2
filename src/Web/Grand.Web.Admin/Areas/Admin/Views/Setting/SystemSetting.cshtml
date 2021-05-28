@@ -5,7 +5,7 @@
     ViewBag.Title = Loc["Admin.Settings.System"];
 
     var languages = new List<SelectListItem>();
-    foreach (var item in await languageService.GetAllLanguages())
+    foreach (var item in await languageService.GetAllLanguages(true))
     {
         languages.Add(new SelectListItem() { 
             Value = item.Id,
