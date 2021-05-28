@@ -127,7 +127,7 @@ namespace Grand.Business.Checkout.Services.Orders
             return await _cacheBase.GetAsync(CacheKey.MERCHANDISE_RETURN_ACTIONS_ALL_KEY, async () =>
             {
                 var query = from rra in _merchandiseReturnActionRepository.Table
-                            orderby rra.DisplayOrder, rra.Id
+                            orderby rra.DisplayOrder
                             select rra;
                 return await Task.FromResult(query.ToList());
             });
@@ -270,7 +270,7 @@ namespace Grand.Business.Checkout.Services.Orders
             return await _cacheBase.GetAsync(CacheKey.MERCHANDISE_RETURN_REASONS_ALL_KEY, async () =>
             {
                 var query = from rra in _merchandiseReturnReasonRepository.Table
-                            orderby rra.DisplayOrder, rra.Id
+                            orderby rra.DisplayOrder
                             select rra;
                 return await Task.FromResult(query.ToList());
             });

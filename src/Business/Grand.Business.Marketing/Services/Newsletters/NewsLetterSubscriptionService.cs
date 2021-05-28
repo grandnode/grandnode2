@@ -176,7 +176,6 @@ namespace Grand.Business.Marketing.Services.Newsteletters
 
             var newsLetterSubscriptions = from nls in _subscriptionRepository.Table
                                           where nls.NewsLetterSubscriptionGuid == newsLetterSubscriptionGuid
-                                          orderby nls.Id
                                           select nls;
 
             return await Task.FromResult(newsLetterSubscriptions.FirstOrDefault());
@@ -197,7 +196,6 @@ namespace Grand.Business.Marketing.Services.Newsteletters
 
             var newsLetterSubscriptions = from nls in _subscriptionRepository.Table
                                           where nls.Email.ToLower() == email.ToLower() && nls.StoreId == storeId
-                                          orderby nls.Id
                                           select nls;
 
             return await Task.FromResult(newsLetterSubscriptions.FirstOrDefault());
@@ -215,7 +213,6 @@ namespace Grand.Business.Marketing.Services.Newsteletters
 
             var newsLetterSubscriptions = from nls in _subscriptionRepository.Table
                                           where nls.CustomerId == customerId
-                                          orderby nls.Id
                                           select nls;
 
             return await Task.FromResult(newsLetterSubscriptions.FirstOrDefault());

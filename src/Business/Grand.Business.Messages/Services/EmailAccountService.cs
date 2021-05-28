@@ -153,7 +153,6 @@ namespace Grand.Business.Messages.Services
             return await _cacheBase.GetAsync(CacheKey.EMAILACCOUNT_ALL_KEY, async () =>
             {
                 var query = from ea in _emailAccountRepository.Table
-                            orderby ea.Id
                             select ea;
                 return await Task.FromResult(query.ToList());
             });

@@ -115,7 +115,6 @@ namespace Grand.Business.Common.Services.Security
 
             var query = from pr in _permissionRepository.Table
                         where pr.SystemName == systemName
-                        orderby pr.Id
                         select pr;
 
             return await Task.FromResult(query.FirstOrDefault());

@@ -564,7 +564,6 @@ namespace Grand.Business.Storage.Services
         public virtual IPagedList<Picture> GetPictures(int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var query = from p in _pictureRepository.Table
-                        orderby p.Id descending
                         select p;
             var pictures = new PagedList<Picture>(query, pageIndex, pageSize);
             return pictures;
