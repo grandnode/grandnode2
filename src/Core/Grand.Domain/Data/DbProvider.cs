@@ -2,6 +2,8 @@
 {
     public enum DbProvider
     {
-         MongoDB
+         MongoDB,
+         CosmosDB,
+         DocumentDB,
     }
 }
