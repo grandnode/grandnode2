@@ -120,8 +120,12 @@ namespace Grand.Domain.Data.Mongo
                 }
             }
 
-            await ((MongoRepository<T>)repository).Collection.Indexes.CreateOneAsync(new CreateIndexModel<T>(Builders<T>.IndexKeys.Combine(keys),
-                new CreateIndexOptions() { Name = indexName, Unique = unique }));
+            try
+            {
+                await ((MongoRepository<T>)repository).Collection.Indexes.CreateOneAsync(new CreateIndexModel<T>(Builders<T>.IndexKeys.Combine(keys),
+                    new CreateIndexOptions() { Name = indexName, Unique = unique }));
+            }
+            catch { }
         }
     }
 }
