@@ -209,7 +209,7 @@ namespace Grand.Business.Catalog.Interfaces.Discounts
         /// <param name="customer">Customer</param>
         /// <param name="product">Product</param>
         /// <returns></returns>
-        Task<decimal> GetDiscountAmount(Discount discount, Customer customer, Currency currency, Product product, decimal amount);
+        Task<double> GetDiscountAmount(Discount discount, Customer customer, Currency currency, Product product, double amount);
 
         /// <summary>
         /// Gets preferred discount
@@ -220,8 +220,8 @@ namespace Grand.Business.Catalog.Interfaces.Discounts
         /// <param name="currency"></param>
         /// <param name="amount"></param>
         /// <returns></returns>
-        Task<(List<ApplyDiscount> appliedDiscount, decimal discountAmount)> GetPreferredDiscount(IList<ApplyDiscount> discounts,
-            Customer customer, Currency currency, Product product, decimal amount);
+        Task<(List<ApplyDiscount> appliedDiscount, double discountAmount)> GetPreferredDiscount(IList<ApplyDiscount> discounts,
+            Customer customer, Currency currency, Product product, double amount);
 
         /// <summary>
         /// Get preferred discount
@@ -231,8 +231,8 @@ namespace Grand.Business.Catalog.Interfaces.Discounts
         /// <param name="customer"></param>
         /// <param name="currency"></param>
         /// <returns>appliedDiscount and discountAmount</returns>
-        Task<(List<ApplyDiscount> appliedDiscount, decimal discountAmount)> GetPreferredDiscount(IList<ApplyDiscount> discounts,
-            Customer customer, Currency currency, decimal amount);
+        Task<(List<ApplyDiscount> appliedDiscount, double discountAmount)> GetPreferredDiscount(IList<ApplyDiscount> discounts,
+            Customer customer, Currency currency, double amount);
 
         /// <summary>
         /// GetDiscountAmountProvider
@@ -242,7 +242,7 @@ namespace Grand.Business.Catalog.Interfaces.Discounts
         /// <param name="product"></param>
         /// <param name="amount"></param>
         /// <returns></returns>
-        Task<decimal> GetDiscountAmountProvider(Discount discount, Customer customer, Product product, decimal amount);
+        Task<double> GetDiscountAmountProvider(Discount discount, Customer customer, Product product, double amount);
 
         /// <summary>
         /// Load discount amount provider by systemName

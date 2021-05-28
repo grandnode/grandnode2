@@ -33,7 +33,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Orders
                 Customer = null
             };
             var result = await _handler.Handle(command, default);
-            Assert.AreEqual(decimal.Zero, result);
+            Assert.AreEqual(0, result);
         }
 
         [TestMethod]
@@ -46,7 +46,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Orders
                 Customer = new Domain.Customers.Customer()
             };
             var result = await _handler.Handle(command, default);
-            Assert.AreEqual(decimal.Zero, result);
+            Assert.AreEqual(0, result);
         }
 
         [TestMethod]

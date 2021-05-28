@@ -2,6 +2,6 @@
 {
     public class FixedShippingRate
     {
-        public decimal Rate { get; set; }
+        public double Rate { get; set; }
     }
 }

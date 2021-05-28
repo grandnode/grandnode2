@@ -102,7 +102,7 @@ namespace Grand.Web.Admin.Services
                 throw new ArgumentNullException(nameof(merchandiseReturn));
 
             var order = await _orderService.GetOrderById(merchandiseReturn.OrderId);
-            decimal unitPriceInclTaxInCustomerCurrency = 0;
+            double unitPriceInclTaxInCustomerCurrency = 0;
             foreach (var item in merchandiseReturn.MerchandiseReturnItems)
             {
                 var orderItem = order.OrderItems.Where(x => x.Id == item.OrderItemId).First();

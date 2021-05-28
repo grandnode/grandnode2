@@ -33,7 +33,7 @@ namespace Grand.Plugin.ExchangeRate.McExchange
                     exchangeRates.Add(new Domain.Directory.ExchangeRate()
                         {
                             CurrencyCode = node2.Attributes["currency"].Value,
-                            Rate = decimal.Parse(node2.Attributes["rate"].Value, provider),
+                            Rate = double.Parse(node2.Attributes["rate"].Value, provider),
                             UpdatedOn = updateDate
                         }
                     );

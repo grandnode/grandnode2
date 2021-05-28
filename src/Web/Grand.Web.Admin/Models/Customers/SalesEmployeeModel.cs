@@ -18,7 +18,7 @@ namespace Grand.Web.Admin.Models.Customers
         public bool Active { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.SalesEmployee.Fields.Commission")]
-        public decimal? Commission { get; set; }
+        public double? Commission { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.SalesEmployee.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }

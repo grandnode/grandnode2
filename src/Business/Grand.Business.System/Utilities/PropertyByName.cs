@@ -76,26 +76,26 @@ namespace Grand.Business.System.Utilities
         }
 
         /// <summary>
-        /// Converted property value to decimal
+        /// Converted property value to double
         /// </summary>
-        public decimal DecimalValue
+        public double DecimalValue
         {
             get
             {
-                if (PropertyValue == null || !decimal.TryParse(PropertyValue.ToString(), out var rez))
+                if (PropertyValue == null || !double.TryParse(PropertyValue.ToString(), out var rez))
                     return default;
                 return rez;
             }
         }
 
         /// <summary>
-        /// Converted property value to decimal?
+        /// Converted property value to double?
         /// </summary>
-        public decimal? DecimalValueNullable
+        public double? DecimalValueNullable
         {
             get
             {
-                if (PropertyValue == null || !decimal.TryParse(PropertyValue.ToString(), out var rez))
+                if (PropertyValue == null || !double.TryParse(PropertyValue.ToString(), out var rez))
                     return null;
                 return rez;
             }

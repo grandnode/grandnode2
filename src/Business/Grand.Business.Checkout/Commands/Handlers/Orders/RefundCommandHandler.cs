@@ -72,7 +72,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     if (order == null)
                         throw new ArgumentNullException(nameof(order));
 
-                    decimal totalAmountRefunded = order.RefundedAmount + request.AmountToRefund;
+                    double totalAmountRefunded = order.RefundedAmount + request.AmountToRefund;
 
                     //update order info
                     order.RefundedAmount = totalAmountRefunded;

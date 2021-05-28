@@ -53,7 +53,7 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <param name="customerId">Customer Identifier</param>
         /// <param name="productId">Product Identifier</param>
         /// <returns>Customer product price</returns>
-        public virtual async Task<decimal?> GetPriceByCustomerProduct(string customerId, string productId)
+        public virtual async Task<double?> GetPriceByCustomerProduct(string customerId, string productId)
         {
             var key = string.Format(CacheKey.CUSTOMER_PRODUCT_PRICE_KEY_ID, customerId, productId);
             var productprice = await _cacheBase.GetAsync(key, async () =>

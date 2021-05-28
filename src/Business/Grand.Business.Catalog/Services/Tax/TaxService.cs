@@ -126,7 +126,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="customer">Customer</param>
         /// <returns>Package for tax calculation</returns>
         protected virtual async Task<TaxRequest> CreateCalculateTaxRequest(Product product,
-            string taxCategoryId, Customer customer, decimal price)
+            string taxCategoryId, Customer customer, double price)
         {
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
@@ -197,14 +197,14 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="percent">Percent</param>
         /// <param name="increase">Increase</param>
         /// <returns>New price</returns>
-        protected virtual decimal CalculatePrice(decimal price, decimal percent, bool increase)
+        protected virtual double CalculatePrice(double price, double percent, bool increase)
         {
-            if (percent == decimal.Zero)
+            if (percent == 0)
                 return price;
 
             var result = increase ? price * (1 + percent / 100) : price / (1 + percent / 100);
 
-            if (result == decimal.Zero)
+            if (result == 0)
                 return 0;
 
             return Math.Round(result, _taxSettings.CalculateRoundPrice, _taxSettings.MidpointRounding);
@@ -219,10 +219,10 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="price">Price (taxable value)</param>
         /// <param name="taxRate">Calculated tax rate</param>
         /// <param name="isTaxable">A value indicating whether a request is taxable</param>
-        protected virtual async Task<(decimal taxRate, bool isTaxable)> GetTaxRate(Product product, string taxCategoryId,
-            Customer customer, decimal price)
+        protected virtual async Task<(double taxRate, bool isTaxable)> GetTaxRate(Product product, string taxCategoryId,
+            Customer customer, double price)
         {
-            decimal taxRate = decimal.Zero;
+            double taxRate = 0;
             bool isTaxable = true;
 
             //active tax provider
@@ -252,8 +252,8 @@ namespace Grand.Business.Catalog.Services.Tax
             if (calculateTaxResult.Success)
             {
                 //ensure that tax is equal or greater than zero
-                if (calculateTaxResult.TaxRate < decimal.Zero)
-                    calculateTaxResult.TaxRate = decimal.Zero;
+                if (calculateTaxResult.TaxRate < 0)
+                    calculateTaxResult.TaxRate = 0;
 
                 taxRate = calculateTaxResult.TaxRate;
             }
@@ -318,7 +318,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="price">Price</param>
         /// <param name="taxRate">Tax rate</param>
         /// <returns>Price</returns>
-        public virtual async Task<(decimal productprice, decimal taxRate)> GetProductPrice(Product product, decimal price)
+        public virtual async Task<(double productprice, double taxRate)> GetProductPrice(Product product, double price)
         {
             var customer = _workContext.CurrentCustomer;
             return await GetProductPrice(product, price, customer);
@@ -332,7 +332,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="customer">Customer</param>
         /// <param name="taxRate">Tax rate</param>
         /// <returns>Price</returns>
-        public virtual async Task<(decimal productprice, decimal taxRate)> GetProductPrice(Product product, decimal price,
+        public virtual async Task<(double productprice, double taxRate)> GetProductPrice(Product product, double price,
             Customer customer)
         {
             bool includingTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
@@ -348,7 +348,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="customer">Customer</param>
         /// <param name="taxRate">Tax rate</param>
         /// <returns>Price</returns>
-        public virtual async Task<(decimal productprice, decimal taxRate)> GetProductPrice(Product product, decimal price,
+        public virtual async Task<(double productprice, double taxRate)> GetProductPrice(Product product, double price,
             bool includingTax, Customer customer)
         {
             bool priceIncludesTax = _taxSettings.PricesIncludeTax;
@@ -368,13 +368,13 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="priceIncludesTax">A value indicating whether price already includes tax</param>
         /// <param name="taxRate">Tax rate</param>
         /// <returns>Price</returns>
-        public virtual async Task<(decimal productprice, decimal taxRate)> GetProductPrice(Product product, string taxCategoryId,
-            decimal price, bool includingTax, Customer customer,
+        public virtual async Task<(double productprice, double taxRate)> GetProductPrice(Product product, string taxCategoryId,
+            double price, bool includingTax, Customer customer,
             bool priceIncludesTax)
         {
 
             //no need to calculate tax rate if passed "price" is 0
-            if (price == decimal.Zero)
+            if (price == 0)
             {
                 return (0, 0);
             }
@@ -417,12 +417,12 @@ namespace Grand.Business.Catalog.Services.Tax
             if (!taxrates.isTaxable)
             {
                 //we return 0% tax rate in case a request is not taxable
-                taxrates.taxRate = decimal.Zero;
+                taxrates.taxRate = 0;
             }
 
             //allowed to support negative price adjustments
-            //if (price < decimal.Zero)
-            //    price = decimal.Zero;
+            //if (price < 0)
+            //    price = 0;
 
             return (price, taxrates.taxRate);
         }
@@ -430,11 +430,11 @@ namespace Grand.Business.Catalog.Services.Tax
         public virtual async Task<TaxProductPrice> GetTaxProductPrice(
             Product product,
             Customer customer,
-            decimal unitPrice,
-            decimal unitPricewithoutDisc,
+            double unitPrice,
+            double unitPricewithoutDisc,
             int quantity,
-            decimal subTotal,
-            decimal discountAmount,
+            double subTotal,
+            double discountAmount,
             bool priceIncludesTax
             )
         {
@@ -512,7 +512,7 @@ namespace Grand.Business.Catalog.Services.Tax
             if (!taxrates.isTaxable)
             {
                 //we return 0% tax rate in case a request is not taxable
-                taxrates.taxRate = decimal.Zero;
+                taxrates.taxRate = 0;
             }
             return productPrice;
         }
@@ -523,7 +523,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="price">Price</param>
         /// <param name="customer">Customer</param>
         /// <returns>Price</returns>
-        public virtual async Task<(decimal shippingPrice, decimal taxRate)> GetShippingPrice(decimal price, Customer customer)
+        public virtual async Task<(double shippingPrice, double taxRate)> GetShippingPrice(double price, Customer customer)
         {
             bool includingTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
             return await GetShippingPrice(price, includingTax, customer);
@@ -537,7 +537,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="customer">Customer</param>
         /// <param name="taxRate">Tax rate</param>
         /// <returns>Price</returns>
-        public virtual async Task<(decimal shippingPrice, decimal taxRate)> GetShippingPrice(decimal price, bool includingTax, Customer customer)
+        public virtual async Task<(double shippingPrice, double taxRate)> GetShippingPrice(double price, bool includingTax, Customer customer)
         {
             if (!_taxSettings.ShippingIsTaxable)
             {
@@ -557,7 +557,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="price">Price</param>
         /// <param name="customer">Customer</param>
         /// <returns>Price</returns>
-        public virtual async Task<(decimal paymentPrice, decimal taxRate)> GetPaymentMethodAdditionalFee(decimal price, Customer customer)
+        public virtual async Task<(double paymentPrice, double taxRate)> GetPaymentMethodAdditionalFee(double price, Customer customer)
         {
             bool includingTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
             return await GetPaymentMethodAdditionalFee(price, includingTax, customer);
@@ -571,7 +571,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="customer">Customer</param>
         /// <param name="taxRate">Tax rate</param>
         /// <returns>Price</returns>
-        public virtual async Task<(decimal paymentPrice, decimal taxRate)> GetPaymentMethodAdditionalFee(decimal price, bool includingTax, Customer customer)
+        public virtual async Task<(double paymentPrice, double taxRate)> GetPaymentMethodAdditionalFee(double price, bool includingTax, Customer customer)
         {
             if (!_taxSettings.PaymentMethodAdditionalFeeIsTaxable)
             {
@@ -590,7 +590,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="ca">Checkout attribute</param>
         /// <param name="cav">Checkout attribute value</param>
         /// <returns>Price</returns>
-        public virtual async Task<(decimal checkoutPrice, decimal taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav)
+        public virtual async Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav)
         {
             var customer = _workContext.CurrentCustomer;
             return await GetCheckoutAttributePrice(ca, cav, customer);
@@ -603,7 +603,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="cav">Checkout attribute value</param>
         /// <param name="customer">Customer</param>
         /// <returns>Price</returns>
-        public virtual async Task<(decimal checkoutPrice, decimal taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav, Customer customer)
+        public virtual async Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav, Customer customer)
         {
             bool includingTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
             return await GetCheckoutAttributePrice(ca, cav, includingTax, customer);
@@ -618,7 +618,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <param name="customer">Customer</param>
         /// <param name="taxRate">Tax rate</param>
         /// <returns>Price</returns>
-        public virtual async Task<(decimal checkoutPrice, decimal taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav, bool includingTax, Customer customer)
+        public virtual async Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav, bool includingTax, Customer customer)
         {
             if (ca == null)
                 throw new ArgumentNullException(nameof(ca));
@@ -626,7 +626,7 @@ namespace Grand.Business.Catalog.Services.Tax
             if (cav == null)
                 throw new ArgumentNullException(nameof(cav));
 
-            decimal price = cav.PriceAdjustment;
+            double price = cav.PriceAdjustment;
             if (ca.IsTaxExempt)
             {
                 return (price, 0);

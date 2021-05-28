@@ -62,11 +62,11 @@ namespace Grand.Web.Models.ShoppingCart
             public string VendorName { get; set; }
             public string VendorSeName { get; set; }
             public string UnitPriceWithoutDiscount { get; set; }
-            public decimal UnitPriceWithoutDiscountValue { get; set; }
+            public double UnitPriceWithoutDiscountValue { get; set; }
             public string UnitPrice { get; set; }
-            public decimal UnitPriceValue { get; set; }
+            public double UnitPriceValue { get; set; }
             public string SubTotal { get; set; }
-            public decimal SubTotalValue { get; set; }
+            public double SubTotalValue { get; set; }
             public string Discount { get; set; }
             public int DiscountedQty { get; set; }
             public List<string> Discounts { get; set; }

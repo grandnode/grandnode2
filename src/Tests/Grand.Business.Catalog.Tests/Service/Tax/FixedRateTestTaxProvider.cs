@@ -30,12 +30,12 @@ namespace Grand.Business.Catalog.Tests.Service.Tax
         /// </summary>
         /// <param name="taxCategoryId">The tax category identifier</param>
         /// <returns>Tax rate</returns>
-        protected decimal GetTaxRate(string taxCategoryId)
+        protected double GetTaxRate(string taxCategoryId)
         {
             if (string.IsNullOrEmpty(taxCategoryId))
                 return 0;
 
-            decimal rate = 10;
+            double rate = 10;
             return rate;
         }
 

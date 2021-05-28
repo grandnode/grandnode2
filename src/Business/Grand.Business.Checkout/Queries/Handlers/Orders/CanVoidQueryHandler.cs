@@ -23,7 +23,7 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             if (paymentTransaction == null)
                 throw new ArgumentNullException(nameof(request.PaymentTransaction));
 
-            if (paymentTransaction.TransactionAmount == decimal.Zero)
+            if (paymentTransaction.TransactionAmount == 0)
                 return false;
 
             if (paymentTransaction.TransactionStatus == TransactionStatus.Authorized &&

@@ -2,6 +2,6 @@
 {
     public class RequirementSpentAmount
     {
-        public decimal SpentAmount { get; set; }
+        public double SpentAmount { get; set; }
     }
 }

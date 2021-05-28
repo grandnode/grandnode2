@@ -10,7 +10,7 @@ namespace Grand.Business.Checkout.Utilities
         /// <summary>
         /// Gets or sets the used value
         /// </summary>
-        public decimal AmountCanBeUsed { get; set; }
+        public double AmountCanBeUsed { get; set; }
 
         /// <summary>
         /// Gets the gift voucher

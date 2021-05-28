@@ -126,7 +126,7 @@ namespace Grand.Domain.Vendors
         /// <summary>
         /// Gets or sets the commission rate
         /// </summary>
-        public decimal? Commission { get; set; }
+        public double? Commission { get; set; }
 
         /// <summary>
         /// Gets or sets the vendor address

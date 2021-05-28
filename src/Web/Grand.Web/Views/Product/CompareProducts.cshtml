@@ -11,7 +11,7 @@
     string columnWidth = "";
     if (Model.Products.Any())
     {
-        columnWidth = Math.Round((decimal)(90M / Model.Products.Count), 0).ToString() + "%";
+        columnWidth = Math.Round((double)(90M / Model.Products.Count), 0).ToString() + "%";
     }
 
 

@@ -25,15 +25,15 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
 
             var amountToRefund = request.AmountToRefund;
 
-            if (paymentTransaction.TransactionAmount == decimal.Zero)
+            if (paymentTransaction.TransactionAmount == 0)
                 return false;
 
             //uncomment the lines below in order to allow this operation for cancelled orders
             //if (order.OrderStatus == OrderStatus.Cancelled)
             //    return false;
 
-            decimal canBeRefunded = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
-            if (canBeRefunded <= decimal.Zero)
+            double canBeRefunded = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
+            if (canBeRefunded <= 0)
                 return false;
 
             if (amountToRefund > canBeRefunded)

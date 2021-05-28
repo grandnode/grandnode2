@@ -268,7 +268,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
         {
             get
             {
-                return _order.PaymentMethodAdditionalFeeExclTax > decimal.Zero;
+                return _order.PaymentMethodAdditionalFeeExclTax > 0;
             }
         }
 

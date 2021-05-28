@@ -37,7 +37,7 @@ namespace Shipping.ShippingPoint.Domain
         /// <summary>
         /// Gets or sets a fee for the pickup
         /// </summary>
-        public decimal PickupFee { get; set; }
+        public double PickupFee { get; set; }
 
         /// <summary>
         /// Gets or sets an oppening hours

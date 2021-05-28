@@ -295,7 +295,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="refundedAmount">Amount refunded</param>
         /// <param name="languageId">Message language identifier</param>
         /// <returns>Queued email identifier</returns>
-        public virtual async Task<int> SendOrderRefundedStoreOwnerMessage(Order order, decimal refundedAmount, string languageId)
+        public virtual async Task<int> SendOrderRefundedStoreOwnerMessage(Order order, double refundedAmount, string languageId)
         {
             var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = order.CustomerId });
             return await SendOrderStoreOwnerMessage(MessageTemplateNames.SendOrderRefundedStoreOwnerMessage, order, customer, languageId, refundedAmount);
@@ -308,7 +308,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="customer">Customer instance</param>
         /// <param name="languageId">Message language identifier</param>
         /// <returns>Queued email identifier</returns>
-        private async Task<int> SendOrderStoreOwnerMessage(string template, Order order, Customer customer, string languageId, decimal refundedAmount = 0)
+        private async Task<int> SendOrderStoreOwnerMessage(string template, Order order, Customer customer, string languageId, double refundedAmount = 0)
         {
             if (order == null)
                 throw new ArgumentNullException(nameof(order));
@@ -408,7 +408,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="refundedAmount">Amount refunded</param>
         /// <param name="languageId">Message language identifier</param>
         /// <returns>Queued email identifier</returns>
-        public virtual async Task<int> SendOrderRefundedCustomerMessage(Order order, decimal refundedAmount, string languageId)
+        public virtual async Task<int> SendOrderRefundedCustomerMessage(Order order, double refundedAmount, string languageId)
         {
             var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = order.CustomerId });
             return await SendOrderCustomerMessage(MessageTemplateNames.SendOrderRefundedCustomerMessage, order, customer, languageId, refundedAmount: refundedAmount);
@@ -426,7 +426,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="attachments">Attachments ident</param>
         /// <returns>Queued email identifier</returns>
         private async Task<int> SendOrderCustomerMessage(string message, Order order, Customer customer, string languageId,
-            string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null, decimal refundedAmount = 0)
+            string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null, double refundedAmount = 0)
         {
             if (order == null)
                 throw new ArgumentNullException(nameof(order));

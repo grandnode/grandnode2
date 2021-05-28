@@ -270,8 +270,8 @@ namespace Payments.PayPalStandard
             parameters.Add("cmd", "_cart");
             parameters.Add("upload", "1");
 
-            var cartTotal = decimal.Zero;
-            var roundedCartTotal = decimal.Zero;
+            double cartTotal = 0;
+            double roundedCartTotal = 0;
             var itemCount = 1;
 
             //add shopping cart items
@@ -301,7 +301,7 @@ namespace Payments.PayPalStandard
                 var attributePrice = await _taxService.GetCheckoutAttributePrice(attributeValue.ca, attributeValue.cav, false, customer);
                 if (attributePrice.checkoutPrice > 0)
                 {
-                    decimal roundedAttributePrice = Math.Round(await currencyService.ConvertFromPrimaryStoreCurrency(attributePrice.checkoutPrice, workContext.WorkingCurrency), 2);
+                    double roundedAttributePrice = Math.Round(await currencyService.ConvertFromPrimaryStoreCurrency(attributePrice.checkoutPrice, workContext.WorkingCurrency), 2);
                     //add query parameters
                     if (attributeValue.ca != null)
                     {
@@ -318,7 +318,7 @@ namespace Payments.PayPalStandard
 
             //add shipping fee as a separate order item, if it has price
             var roundedShippingPrice = Math.Round(order.OrderShippingExclTax, 2);
-            if (roundedShippingPrice > decimal.Zero)
+            if (roundedShippingPrice > 0)
             {
                 parameters.Add($"item_name_{itemCount}", "Shipping fee");
                 parameters.Add($"amount_{itemCount}", roundedShippingPrice.ToString("0.00", CultureInfo.InvariantCulture));
@@ -331,7 +331,7 @@ namespace Payments.PayPalStandard
 
             //add payment method additional fee as a separate order item, if it has price
             var roundedPaymentMethodPrice = Math.Round(order.PaymentMethodAdditionalFeeExclTax, 2);
-            if (roundedPaymentMethodPrice > decimal.Zero)
+            if (roundedPaymentMethodPrice > 0)
             {
                 parameters.Add($"item_name_{itemCount}", "Payment method fee");
                 parameters.Add($"amount_{itemCount}", roundedPaymentMethodPrice.ToString("0.00", CultureInfo.InvariantCulture));
@@ -344,7 +344,7 @@ namespace Payments.PayPalStandard
 
             //add tax as a separate order item, if it has positive amount
             var roundedTaxAmount = Math.Round(order.OrderTax, 2);
-            if (roundedTaxAmount > decimal.Zero)
+            if (roundedTaxAmount > 0)
             {
                 parameters.Add($"item_name_{itemCount}", "Tax amount");
                 parameters.Add($"amount_{itemCount}", roundedTaxAmount.ToString("0.00", CultureInfo.InvariantCulture));
@@ -474,18 +474,18 @@ namespace Payments.PayPalStandard
         /// </summary>
         /// <param name="cart">Shopping cart</param>
         /// <returns>Additional handling fee</returns>
-        public async Task<decimal> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart)
+        public async Task<double> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart)
         {
             if (_paypalStandardPaymentSettings.AdditionalFee <= 0)
                 return _paypalStandardPaymentSettings.AdditionalFee;
 
-            decimal result;
+            double result;
             if (_paypalStandardPaymentSettings.AdditionalFeePercentage)
             {
                 //percentage
                 var orderTotalCalculationService = _serviceProvider.GetRequiredService<IOrderCalculationService>();
                 var subtotal = await orderTotalCalculationService.GetShoppingCartSubTotal(cart, true);
-                result = (decimal)((((float)subtotal.subTotalWithDiscount) * ((float)_paypalStandardPaymentSettings.AdditionalFee)) / 100f);
+                result = (double)((((float)subtotal.subTotalWithDiscount) * ((float)_paypalStandardPaymentSettings.AdditionalFee)) / 100f);
             }
             else
             {

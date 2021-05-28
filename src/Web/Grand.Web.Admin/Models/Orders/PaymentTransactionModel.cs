@@ -34,16 +34,16 @@ namespace Grand.Web.Admin.Models.Orders
         public string CurrencyCode { get; set; }
 
         [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.CurrencyRate")]
-        public decimal CurrencyRate { get; set; }
+        public double CurrencyRate { get; set; }
 
         [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.TransactionAmount")]
-        public decimal TransactionAmount { get; set; }
+        public double TransactionAmount { get; set; }
 
         [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.PaidAmount")]
-        public decimal PaidAmount { get; set; }
+        public double PaidAmount { get; set; }
 
         [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.RefundedAmount")]
-        public decimal RefundedAmount { get; set; }
+        public double RefundedAmount { get; set; }
 
         [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.IPAddress")]
         public string IPAddress { get; set; }
@@ -72,10 +72,10 @@ namespace Grand.Web.Admin.Models.Orders
         public DateTime CreatedOn { get; set; }
 
         [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.PartialRefund.MaxAmountToRefund")]
-        public decimal MaxAmountToRefund { get; set; }
+        public double MaxAmountToRefund { get; set; }
 
         [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.PartialRefund.MaxAmountToPaid")]
-        public decimal MaxAmountToPaid { get; set; }
+        public double MaxAmountToPaid { get; set; }
 
         public bool CanCapture { get; set; }
         public bool CanMarkAsPaid { get; set; }
@@ -88,9 +88,9 @@ namespace Grand.Web.Admin.Models.Orders
         public bool CanVoidOffline { get; set; }
 
         [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.PartialRefund.AmountToRefund")]
-        public decimal AmountToRefund { get; set; }
+        public double AmountToRefund { get; set; }
 
         [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.PartialRefund.AmountToPaid")]
-        public decimal AmountToPaid { get; set; }
+        public double AmountToPaid { get; set; }
     }
 }

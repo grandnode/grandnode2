@@ -40,7 +40,7 @@ namespace DiscountRules.Provider
 
             var spentAmountRequirement = _settingService.GetSettingByKey<RequirementHadSpentAmount>(string.Format("DiscountRules.Standard.HadSpentAmount-{0}-{1}", request.DiscountId, request.DiscountRequirementId));
 
-            if (spentAmountRequirement == null || spentAmountRequirement.SpentAmount == decimal.Zero)
+            if (spentAmountRequirement == null || spentAmountRequirement.SpentAmount == 0)
             {
                 //valid
                 result.IsValid = true;
@@ -53,7 +53,7 @@ namespace DiscountRules.Provider
             var orders = await _orderService.SearchOrders(storeId: request.Store.Id,
                 customerId: request.Customer.Id,
                 os: (int)OrderStatusSystem.Complete);
-            decimal spentAmount = orders.Sum(o => o.OrderTotal);
+            double spentAmount = orders.Sum(o => o.OrderTotal);
             if (spentAmount > spentAmountRequirement.SpentAmount)
             {
                 result.IsValid = true;

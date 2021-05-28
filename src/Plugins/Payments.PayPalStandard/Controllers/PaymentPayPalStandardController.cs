@@ -180,10 +180,10 @@ namespace Payments.PayPalStandard.Controllers
                 {
                     var paymentTransaction = await _paymentTransactionService.GetByOrdeGuid(orderNumberGuid);
 
-                    decimal mc_gross = decimal.Zero;
+                    double mc_gross = 0;
                     try
                     {
-                        mc_gross = decimal.Parse(values["mc_gross"], new CultureInfo("en-US"));
+                        mc_gross = double.Parse(values["mc_gross"], new CultureInfo("en-US"));
                     }
                     catch (Exception exc)
                     {
@@ -315,10 +315,10 @@ namespace Payments.PayPalStandard.Controllers
             if (processor.VerifyIpn(strRequest, out values))
             {
                 #region values
-                decimal mc_gross = decimal.Zero;
+                double mc_gross = 0;
                 try
                 {
-                    mc_gross = decimal.Parse(values["mc_gross"], new CultureInfo("en-US"));
+                    mc_gross = double.Parse(values["mc_gross"], new CultureInfo("en-US"));
                 }
                 catch { }
 

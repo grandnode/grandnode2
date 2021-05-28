@@ -67,7 +67,7 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets the cancel amount
         /// </summary>
-        public decimal CancelAmount { get; set; }
+        public double CancelAmount { get; set; }
 
         /// <summary>
         /// Gets or sets the return quantity
@@ -82,52 +82,52 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets the tax rate
         /// </summary>
-        public decimal TaxRate { get; set; }
+        public double TaxRate { get; set; }
 
         /// <summary>
         /// Gets or sets the unit price without discount in primary store currency (incl tax)
         /// </summary>
-        public decimal UnitPriceWithoutDiscInclTax { get; set; }
+        public double UnitPriceWithoutDiscInclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the unit price without discount in primary store currency (excl tax)
         /// </summary>
-        public decimal UnitPriceWithoutDiscExclTax { get; set; }
+        public double UnitPriceWithoutDiscExclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the unit price in primary store currency (incl tax)
         /// </summary>
-        public decimal UnitPriceInclTax { get; set; }
+        public double UnitPriceInclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the unit price in primary store currency (excl tax)
         /// </summary>
-        public decimal UnitPriceExclTax { get; set; }
+        public double UnitPriceExclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the price in primary store currency (incl tax)
         /// </summary>
-        public decimal PriceInclTax { get; set; }
+        public double PriceInclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the price in primary store currency (excl tax)
         /// </summary>
-        public decimal PriceExclTax { get; set; }
+        public double PriceExclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the discount amount (incl tax)
         /// </summary>
-        public decimal DiscountAmountInclTax { get; set; }
+        public double DiscountAmountInclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the discount amount (excl tax)
         /// </summary>
-        public decimal DiscountAmountExclTax { get; set; }
+        public double DiscountAmountExclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the original cost of this order item (when an order was placed), qty 1
         /// </summary>
-        public decimal OriginalProductCost { get; set; }
+        public double OriginalProductCost { get; set; }
 
         /// <summary>
         /// Gets or sets the attribute description
@@ -154,7 +154,7 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets the total weight of one item
         /// </summary>       
-        public decimal? ItemWeight { get; set; }
+        public double? ItemWeight { get; set; }
 
         /// <summary>
         /// Gets or sets the rental product start date (null if it's not a rental product)
@@ -174,7 +174,7 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets the vendor`s commission
         /// </summary>
-        public decimal Commission { get; set; }
+        public double Commission { get; set; }
 
     }
 }

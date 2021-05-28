@@ -57,10 +57,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 throw new ArgumentNullException(nameof(order));
 
             //amout to refund
-            decimal amountToRefund = order.OrderTotal;
+            double amountToRefund = order.OrderTotal;
 
             //total amount refunded
-            decimal totalAmountRefunded = order.RefundedAmount + amountToRefund;
+            double totalAmountRefunded = order.RefundedAmount + amountToRefund;
 
             //update order info
             order.RefundedAmount = totalAmountRefunded;

@@ -26,7 +26,7 @@ namespace Grand.Business.Checkout.Utilities
         public Currency Currency { get; set; }
         public string AffiliateId { get; set; }
         public TaxDisplayType TaxDisplayType { get; set; }
-        public decimal CurrencyRate { get; set; }
+        public double CurrencyRate { get; set; }
         public string PrimaryCurrencyCode { get; set; }
         public string PaymentMethodSystemName { get; set; }
         public Address BillingAddress { get; set; }
@@ -47,19 +47,19 @@ namespace Grand.Business.Checkout.Utilities
         public List<ApplyDiscount> AppliedDiscounts { get; set; }
         public List<AppliedGiftVoucher> AppliedGiftVouchers { get; set; }
 
-        public decimal OrderSubTotalInclTax { get; set; }
-        public decimal OrderSubTotalExclTax { get; set; }
-        public decimal OrderSubTotalDiscountInclTax { get; set; }
-        public decimal OrderSubTotalDiscountExclTax { get; set; }
-        public decimal OrderShippingTotalInclTax { get; set; }
-        public decimal OrderShippingTotalExclTax { get; set; }
-        public decimal PaymentAdditionalFeeInclTax { get; set; }
-        public decimal PaymentAdditionalFeeExclTax { get; set; }
-        public decimal OrderTaxTotal { get; set; }
-        public decimal OrderDiscountAmount { get; set; }
+        public double OrderSubTotalInclTax { get; set; }
+        public double OrderSubTotalExclTax { get; set; }
+        public double OrderSubTotalDiscountInclTax { get; set; }
+        public double OrderSubTotalDiscountExclTax { get; set; }
+        public double OrderShippingTotalInclTax { get; set; }
+        public double OrderShippingTotalExclTax { get; set; }
+        public double PaymentAdditionalFeeInclTax { get; set; }
+        public double PaymentAdditionalFeeExclTax { get; set; }
+        public double OrderTaxTotal { get; set; }
+        public double OrderDiscountAmount { get; set; }
         public int RedeemedLoyaltyPoints { get; set; }
-        public decimal RedeemedLoyaltyPointsAmount { get; set; }
-        public decimal OrderTotal { get; set; }
+        public double RedeemedLoyaltyPointsAmount { get; set; }
+        public double OrderTotal { get; set; }
     }
 
 }

@@ -47,19 +47,19 @@ namespace Grand.Domain.Payments
         /// </summary>
         public string CurrencyCode { get; set; }
 
-        public decimal CurrencyRate { get; set; }
+        public double CurrencyRate { get; set; }
 
         /// <summary>
         /// Gets or sets amount 
         /// </summary>
-        public decimal TransactionAmount { get; set; }
+        public double TransactionAmount { get; set; }
 
-        public decimal PaidAmount { get; set; }
+        public double PaidAmount { get; set; }
 
         /// <summary>
         /// Gets or sets the refunded amount
         /// </summary>
-        public decimal RefundedAmount { get; set; }
+        public double RefundedAmount { get; set; }
 
         /// <summary>
         /// Gets or sets id transaction

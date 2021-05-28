@@ -21,18 +21,18 @@ namespace Grand.Web.Models.ShoppingCart
         public int Quantity { get; set; }
         public int ItemQuantity { get; set; }
         public string Price { get; set; }
-        public decimal DecimalPrice { get; set; }
+        public double DecimalPrice { get; set; }
         public string TotalPrice { get; set; }
         public ShoppingCartType CartType { get; set; }
 
         public int TotalItems { get; set; }
         public string SubTotal { get; set; }
         public string SubTotalDiscount { get; set; }
-        public decimal DecimalSubTotal { get; set; }
+        public double DecimalSubTotal { get; set; }
 
         public bool IsAuction { get; set; }
         public string HighestBid { get; set; }
-        public decimal HighestBidValue { get; set; }
+        public double HighestBidValue { get; set; }
         public DateTime? EndTime { get; set; }
     }
 }

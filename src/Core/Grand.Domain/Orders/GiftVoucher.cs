@@ -19,7 +19,7 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets the amount
         /// </summary>
-        public decimal Amount { get; set; }
+        public double Amount { get; set; }
 
         /// <summary>
         /// Gets or sets the currency code

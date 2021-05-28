@@ -17,9 +17,9 @@ namespace Grand.Api.DTOs.Catalog
     public partial class PredefinedProductAttributeValueDto : BaseApiEntityModel
     {
         public string Name { get; set; }
-        public decimal PriceAdjustment { get; set; }
-        public decimal WeightAdjustment { get; set; }
-        public decimal Cost { get; set; }
+        public double PriceAdjustment { get; set; }
+        public double WeightAdjustment { get; set; }
+        public double Cost { get; set; }
         public bool IsPreSelected { get; set; }
         public int DisplayOrder { get; set; }
     }

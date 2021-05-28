@@ -9,7 +9,7 @@ namespace Grand.Api.DTOs.Shipping
         public string AdminComment { get; set; }
         public string WarehouseId { get; set; }
         public string StoreId { get; set; }
-        public decimal PickupFee { get; set; }
+        public double PickupFee { get; set; }
         public int DisplayOrder { get; set; }
     }
 }

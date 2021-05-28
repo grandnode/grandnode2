@@ -15,7 +15,7 @@ namespace Grand.Business.System.Utilities
         /// <summary>
         /// Gets or sets the sum today total
         /// </summary>
-        public decimal SumTodayOrders { get; set; }
+        public double SumTodayOrders { get; set; }
 
         /// <summary>
         /// Gets or sets the today count
@@ -25,7 +25,7 @@ namespace Grand.Business.System.Utilities
         /// <summary>
         /// Gets or sets the sum this week total
         /// </summary>
-        public decimal SumThisWeekOrders { get; set; }
+        public double SumThisWeekOrders { get; set; }
 
         /// <summary>
         /// Gets or sets the this week count
@@ -35,7 +35,7 @@ namespace Grand.Business.System.Utilities
         /// <summary>
         /// Gets or sets the sum this month total
         /// </summary>
-        public decimal SumThisMonthOrders { get; set; }
+        public double SumThisMonthOrders { get; set; }
 
         /// <summary>
         /// Gets or sets the this month count
@@ -45,7 +45,7 @@ namespace Grand.Business.System.Utilities
         /// <summary>
         /// Gets or sets the sum this year total
         /// </summary>
-        public decimal SumThisYearOrders { get; set; }
+        public double SumThisYearOrders { get; set; }
 
         /// <summary>
         /// Gets or sets the this year count
@@ -55,7 +55,7 @@ namespace Grand.Business.System.Utilities
         /// <summary>
         /// Gets or sets the sum all time total
         /// </summary>
-        public decimal SumAllTimeOrders { get; set; }
+        public double SumAllTimeOrders { get; set; }
 
         /// <summary>
         /// Gets or sets the all time count

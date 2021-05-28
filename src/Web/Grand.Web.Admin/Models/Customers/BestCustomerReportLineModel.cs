@@ -13,6 +13,6 @@ namespace Grand.Web.Admin.Models.Customers
         public string OrderTotal { get; set; }
 
         [GrandResourceDisplayName("Admin.Reports.Customers.BestBy.Fields.OrderCount")]
-        public decimal OrderCount { get; set; }
+        public double OrderCount { get; set; }
     }
 }

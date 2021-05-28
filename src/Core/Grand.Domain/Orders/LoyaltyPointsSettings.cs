@@ -12,7 +12,7 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets a value of Loyalty Points exchange rate
         /// </summary>
-        public decimal ExchangeRate { get; set; }
+        public double ExchangeRate { get; set; }
 
         /// <summary>
         /// Gets or sets the minimum loyalty points to use
@@ -27,7 +27,7 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets a number of points awarded for purchases (amount in primary store currency)
         /// </summary>
-        public decimal PointsForPurchases_Amount { get; set; }
+        public double PointsForPurchases_Amount { get; set; }
 
         /// <summary>
         /// Gets or sets a number of points awarded for purchases

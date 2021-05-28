@@ -160,7 +160,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
                 }
 
                 int batchsize = 1000;
-                for (int batch = 0; batch <= Math.Round((decimal)(receivers.Count / batchsize), 0, MidpointRounding.ToEven); batch++)
+                for (int batch = 0; batch <= Math.Round((double)(receivers.Count / batchsize), 0, MidpointRounding.ToEven); batch++)
                 {
                     var t = receivers.Skip(batch * batchsize).Take(batchsize);
                     foreach (var receiver in receivers)

@@ -896,7 +896,7 @@ namespace Grand.Web.Admin.Controllers
         }
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> UpdateCart(string id, string customerId, decimal? unitPriceValue)
+        public async Task<IActionResult> UpdateCart(string id, string customerId, double? unitPriceValue)
         {
             var customer = await _customerService.GetCustomerById(customerId);
             if (customer == null || customer.Deleted || await CheckSalesManager(customer))

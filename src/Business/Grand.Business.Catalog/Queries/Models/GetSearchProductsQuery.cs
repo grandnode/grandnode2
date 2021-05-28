@@ -23,8 +23,8 @@ namespace Grand.Business.Catalog.Queries.Handlers
         public bool VisibleIndividuallyOnly { get; set; } = false;
         public bool MarkedAsNewOnly { get; set; } = false;
         public bool? FeaturedProducts { get; set; } = null;
-        public decimal? PriceMin { get; set; } = null;
-        public decimal? PriceMax { get; set; } = null;
+        public double? PriceMin { get; set; } = null;
+        public double? PriceMax { get; set; } = null;
         public string ProductTag { get; set; } = "";
         public string Keywords { get; set; } = null;
         public bool SearchDescriptions { get; set; } = false;

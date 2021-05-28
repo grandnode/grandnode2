@@ -35,6 +35,6 @@ namespace Tax.CountryStateZip.Domain
         /// <summary>
         /// Gets or sets the percentage
         /// </summary>
-        public decimal Percentage { get; set; }
+        public double Percentage { get; set; }
     }
 }

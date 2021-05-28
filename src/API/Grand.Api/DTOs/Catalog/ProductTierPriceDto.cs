@@ -8,7 +8,7 @@ namespace Grand.Api.DTOs.Catalog
         public string StoreId { get; set; }
         public string CustomerGroupId { get; set; }
         public int Quantity { get; set; }
-        public decimal Price { get; set; }
+        public double Price { get; set; }
         public DateTime? StartDateTimeUtc { get; set; }
         public DateTime? EndDateTimeUtc { get; set; }
     }

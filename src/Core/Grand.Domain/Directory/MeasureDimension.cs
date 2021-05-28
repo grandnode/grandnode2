@@ -18,7 +18,7 @@ namespace Grand.Domain.Directory
         /// <summary>
         /// Gets or sets the ratio
         /// </summary>
-        public decimal Ratio { get; set; }
+        public double Ratio { get; set; }
 
         /// <summary>
         /// Gets or sets the display order

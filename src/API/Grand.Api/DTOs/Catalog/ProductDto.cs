@@ -46,7 +46,7 @@ namespace Grand.Api.DTOs.Catalog
         public string Gtin { get; set; }
         public bool IsGiftVoucher { get; set; }
         public GiftVoucherType GiftVoucherTypeId { get; set; }
-        public decimal? OverGiftAmount { get; set; }
+        public double? OverGiftAmount { get; set; }
         public bool RequireOtherProducts { get; set; }
         public string RequiredProductIds { get; set; }
         public bool AutoAddRequiredProducts { get; set; }
@@ -70,7 +70,7 @@ namespace Grand.Api.DTOs.Catalog
         public bool IsShipEnabled { get; set; }
         public bool IsFreeShipping { get; set; }
         public bool ShipSeparately { get; set; }
-        public decimal AdditionalShippingCharge { get; set; }
+        public double AdditionalShippingCharge { get; set; }
         public string DeliveryDateId { get; set; }
         public bool IsTaxExempt { get; set; }
         public string TaxCategoryId { get; set; }
@@ -97,29 +97,29 @@ namespace Grand.Api.DTOs.Catalog
         public bool AvailableForPreOrder { get; set; }
         public DateTime? PreOrderDateTimeUtc { get; set; }
         public bool CallForPrice { get; set; }
-        public decimal Price { get; set; }
-        public decimal OldPrice { get; set; }
-        public decimal CatalogPrice { get; set; }
-        public decimal ProductCost { get; set; }
+        public double Price { get; set; }
+        public double OldPrice { get; set; }
+        public double CatalogPrice { get; set; }
+        public double ProductCost { get; set; }
         public bool EnteredPrice { get; set; }
-        public decimal MinEnteredPrice { get; set; }
-        public decimal MaxEnteredPrice { get; set; }
+        public double MinEnteredPrice { get; set; }
+        public double MaxEnteredPrice { get; set; }
         public bool BasepriceEnabled { get; set; }
-        public decimal BasepriceAmount { get; set; }
+        public double BasepriceAmount { get; set; }
         public string BasepriceUnitId { get; set; }
-        public decimal BasepriceBaseAmount { get; set; }
+        public double BasepriceBaseAmount { get; set; }
         public string BasepriceBaseUnitId { get; set; }
         public string UnitId { get; set; }
         public bool MarkAsNew { get; set; }
         public DateTime? MarkAsNewStartDateTimeUtc { get; set; }
         public DateTime? MarkAsNewEndDateTimeUtc { get; set; }
-        public decimal Weight { get; set; }
-        public decimal Length { get; set; }
-        public decimal Width { get; set; }
-        public decimal Height { get; set; }
+        public double Weight { get; set; }
+        public double Length { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
         public DateTime? AvailableStartDateTimeUtc { get; set; }
         public DateTime? AvailableEndDateTimeUtc { get; set; }
-        public decimal StartPrice { get; set; }
+        public double StartPrice { get; set; }
         public bool AuctionEnded { get; set; }
         public int DisplayOrder { get; set; }
         public int DisplayOrderCategory { get; set; }

@@ -13,6 +13,6 @@ namespace Grand.Web.Admin.Models.Orders
         public string TotalAmount { get; set; }
 
         [GrandResourceDisplayName("Admin.Reports.Bestsellers.Fields.TotalQuantity")]
-        public decimal TotalQuantity { get; set; }
+        public double TotalQuantity { get; set; }
     }
 }

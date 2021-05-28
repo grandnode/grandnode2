@@ -22,7 +22,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             if (!_loyaltyPointsSettings.Enabled)
                 return 0;
 
-            if (_loyaltyPointsSettings.PointsForPurchases_Amount <= decimal.Zero)
+            if (_loyaltyPointsSettings.PointsForPurchases_Amount <= 0)
                 return 0;
 
             if (request.Customer == null)

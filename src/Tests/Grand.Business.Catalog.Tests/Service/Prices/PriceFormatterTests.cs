@@ -133,7 +133,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
                 LanguageCulture = "en-US"
             };
 
-            Assert.AreEqual("€412.20", _priceFormatter.FormatPrice(412.2M, currency0111, language0111, false, false));
+            Assert.AreEqual("€412.20", _priceFormatter.FormatPrice(412.2, currency0111, language0111, false, false));
         }
 
         [TestMethod()]
@@ -167,8 +167,8 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
                 Name = "English",
                 LanguageCulture = "en-US"
             };
-            Assert.AreEqual("$1,234.50", _priceFormatter.FormatPrice(1234.5M, usd_currency, language, false, false));
-            Assert.AreEqual("£1,234.50", _priceFormatter.FormatPrice(1234.5M, gbp_currency, language, false, false));
+            Assert.AreEqual("$1,234.50", _priceFormatter.FormatPrice(1234.5, usd_currency, language, false, false));
+            Assert.AreEqual("£1,234.50", _priceFormatter.FormatPrice(1234.5, gbp_currency, language, false, false));
         }
 
         [TestMethod()]
@@ -192,11 +192,11 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
             };
 
             //
-            Assert.AreEqual("$18,888.10", _priceFormatter.FormatPrice(18888.1M, currency, language, false, false));
+            Assert.AreEqual("$18,888.10", _priceFormatter.FormatPrice(18888.1, currency, language, false, false));
             //
-            Assert.AreEqual("$18,888.10 incl tax", _priceFormatter.FormatPrice(18888.1M, currency, language, true, true));
+            Assert.AreEqual("$18,888.10 incl tax", _priceFormatter.FormatPrice(18888.1, currency, language, true, true));
             //
-            Assert.AreEqual("$18,888.10 excl tax", _priceFormatter.FormatPrice(18888.1M, currency, language, false, true));
+            Assert.AreEqual("$18,888.10 excl tax", _priceFormatter.FormatPrice(18888.1, currency, language, false, true));
         }
 
         [TestMethod()]
@@ -217,7 +217,7 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
                 LanguageCulture = "en-US"
             };
 
-            Assert.AreEqual("$18,888.10", _priceFormatter.FormatPrice(18888.1M, currency, language, false, false));
+            Assert.AreEqual("$18,888.10", _priceFormatter.FormatPrice(18888.1, currency, language, false, false));
 
         }
     }

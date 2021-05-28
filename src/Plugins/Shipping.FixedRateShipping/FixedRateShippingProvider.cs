@@ -41,7 +41,7 @@ namespace Shipping.FixedRateShipping
         }
         #region Utilities
 
-        private decimal GetRate(string shippingMethodId)
+        private double GetRate(string shippingMethodId)
         {
             string key = string.Format("ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{0}", shippingMethodId);
             var rate = this._settingService.GetSettingByKey<FixedShippingRate>(key)?.Rate;
@@ -90,7 +90,7 @@ namespace Shipping.FixedRateShipping
         /// </summary>
         /// <param name="getShippingOptionRequest">A request for getting shipping options</param>
         /// <returns>Fixed shipping rate; or null in case there's no fixed shipping rate</returns>
-        public async Task<decimal?> GetFixedRate(GetShippingOptionRequest getShippingOptionRequest)
+        public async Task<double?> GetFixedRate(GetShippingOptionRequest getShippingOptionRequest)
         {
             if (getShippingOptionRequest == null)
                 throw new ArgumentNullException(nameof(getShippingOptionRequest));
@@ -98,10 +98,10 @@ namespace Shipping.FixedRateShipping
             string restrictByCountryId = (getShippingOptionRequest.ShippingAddress != null && !String.IsNullOrEmpty(getShippingOptionRequest.ShippingAddress.CountryId)) ? getShippingOptionRequest.ShippingAddress.CountryId : "";
             var shippingMethods = await _shippingMethodService.GetAllShippingMethods(restrictByCountryId);
 
-            var rates = new List<decimal>();
+            var rates = new List<double>();
             foreach (var shippingMethod in shippingMethods)
             {
-                decimal rate = GetRate(shippingMethod.Id);
+                double rate = GetRate(shippingMethod.Id);
                 if (!rates.Contains(rate))
                     rates.Add(rate);
             }

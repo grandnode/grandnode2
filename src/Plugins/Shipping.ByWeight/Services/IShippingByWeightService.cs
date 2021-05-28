@@ -12,7 +12,7 @@ namespace Shipping.ByWeight.Services
 
         Task<ShippingByWeightRecord> FindRecord(string shippingMethodId,
             string storeId, string warehouseId,
-            string countryId, string stateProvinceId, string zip, decimal weight);
+            string countryId, string stateProvinceId, string zip, double weight);
 
         Task<ShippingByWeightRecord> GetById(string shippingByWeightRecordId);
 

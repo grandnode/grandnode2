@@ -37,7 +37,7 @@ namespace Grand.Business.Checkout.Interfaces.Shipping
         /// </summary>
         /// <param name="getShippingOptionRequest">A request for getting shipping options</param>
         /// <returns>Fixed shipping rate; or null in case there's no fixed shipping rate</returns>
-        Task<decimal?> GetFixedRate(GetShippingOptionRequest getShippingOptionRequest);
+        Task<double?> GetFixedRate(GetShippingOptionRequest getShippingOptionRequest);
 
         /// <summary>
         /// Gets a shipment tracker

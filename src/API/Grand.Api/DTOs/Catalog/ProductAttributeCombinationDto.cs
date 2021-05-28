@@ -10,7 +10,7 @@ namespace Grand.Api.DTOs.Catalog
         public string Sku { get; set; }
         public string CollectionPartNumber { get; set; }
         public string Gtin { get; set; }
-        public decimal? OverriddenPrice { get; set; }
+        public double? OverriddenPrice { get; set; }
         public int NotifyAdminForQuantityBelow { get; set; }
         public string PictureId { get; set; }
     }

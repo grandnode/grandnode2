@@ -40,7 +40,7 @@ namespace Grand.Domain.Shipping
         /// <summary>
         /// Gets or sets the pickup fee
         /// </summary>
-        public decimal PickupFee { get; set; }
+        public double PickupFee { get; set; }
 
         /// <summary>
         /// Gets or sets the latitude of the GeoCoordinate.

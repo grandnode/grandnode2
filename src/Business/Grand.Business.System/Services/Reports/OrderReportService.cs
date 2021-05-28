@@ -272,9 +272,9 @@ namespace Grand.Business.System.Services.Reports
 
             var item2 = query.Count() > 0 ? query.FirstOrDefault() : new OrderAverageReportLine {
                 CountOrders = 0,
-                SumShippingExclTax = decimal.Zero,
-                SumTax = decimal.Zero,
-                SumOrders = decimal.Zero,
+                SumShippingExclTax = 0,
+                SumTax = 0,
+                SumOrders = 0,
             };
             return await Task.FromResult(item2);
         }
@@ -545,7 +545,7 @@ namespace Grand.Business.System.Services.Reports
         /// <param name="billingEmail">Billing email. Leave empty to load all records.</param>
         /// <param name="tagid">Tag ident.</param>
         /// <returns>Result</returns>
-        public virtual async Task<decimal> ProfitReport(string storeId = "", string customerId = "", string vendorId = "", string salesEmployeeId = "",
+        public virtual async Task<double> ProfitReport(string storeId = "", string customerId = "", string vendorId = "", string salesEmployeeId = "",
             string billingCountryId = "", string orderId = "", string paymentMethodSystemName = null,
             int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
             DateTime? startTimeUtc = null, DateTime? endTimeUtc = null,
@@ -624,7 +624,7 @@ namespace Grand.Business.System.Services.Reports
                 billingEmail: billingEmail,
                 tagid: tagid
                 );
-            var profit = Convert.ToDecimal(reportSummary.SumOrders - reportSummary.SumShippingExclTax - reportSummary.SumTax - productCost);
+            var profit = Convert.ToDouble(reportSummary.SumOrders - reportSummary.SumShippingExclTax - reportSummary.SumTax - productCost);
             return profit;
         }
 
@@ -639,7 +639,7 @@ namespace Grand.Business.System.Services.Reports
             public int Month { get; set; }
             public int Day { get; set; }
             public int Count { get; set; }
-            public decimal Amount { get; set; }
+            public double Amount { get; set; }
         }
 
         #endregion

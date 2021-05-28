@@ -71,19 +71,19 @@ namespace Grand.Web.Admin.Models.Catalog
         public string Name { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.PriceAdjustment")]
-        public decimal PriceAdjustment { get; set; }
+        public double PriceAdjustment { get; set; }
         [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.PriceAdjustment")]
         //used only on the values list page
         public string PriceAdjustmentStr { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.WeightAdjustment")]
-        public decimal WeightAdjustment { get; set; }
+        public double WeightAdjustment { get; set; }
         [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.WeightAdjustment")]
         //used only on the values list page
         public string WeightAdjustmentStr { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.Cost")]
-        public decimal Cost { get; set; }
+        public double Cost { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.IsPreSelected")]
         public bool IsPreSelected { get; set; }

@@ -21,7 +21,7 @@ namespace Payments.BrainTree.Models
         public string PrivateKey { get; set; }
 
         [GrandResourceDisplayName("Plugins.Payments.BrainTree.Fields.AdditionalFee")]
-        public decimal AdditionalFee { get; set; }
+        public double AdditionalFee { get; set; }
 
         [GrandResourceDisplayName("Plugins.Payments.BrainTree.Fields.AdditionalFeePercentage")]
         public bool AdditionalFeePercentage { get; set; }

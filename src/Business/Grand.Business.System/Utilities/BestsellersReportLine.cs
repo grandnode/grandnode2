@@ -16,7 +16,7 @@ namespace Grand.Business.System.Utilities
         /// <summary>
         /// Gets or sets the total amount
         /// </summary>
-        public decimal TotalAmount { get; set; }
+        public double TotalAmount { get; set; }
 
         /// <summary>
         /// Gets or sets the total quantity

@@ -95,9 +95,9 @@ namespace Grand.Web.Models.Orders
             public string ProductSeName { get; set; }
             public PictureModel Picture { get; set; }
             public string UnitPrice { get; set; }
-            public decimal UnitPriceValue { get; set; }
+            public double UnitPriceValue { get; set; }
             public string UnitPriceWithoutDiscount { get; set; }
-            public decimal UnitPriceWithoutDiscountValue { get; set; }
+            public double UnitPriceWithoutDiscountValue { get; set; }
             public string SubTotal { get; set; }
             public string Discount { get; set; }
             public int Quantity { get; set; }

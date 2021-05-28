@@ -6,6 +6,6 @@ namespace Grand.Business.Checkout.Commands.Models.Orders
     public class PartiallyPaidOfflineCommand : IRequest<bool>
     {
         public PaymentTransaction PaymentTransaction { get; set; }
-        public decimal AmountToPaid { get; set; }
+        public double AmountToPaid { get; set; }
     }
 }

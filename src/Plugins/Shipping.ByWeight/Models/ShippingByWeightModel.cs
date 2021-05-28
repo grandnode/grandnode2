@@ -45,22 +45,22 @@ namespace Shipping.ByWeight.Models
         public string ShippingMethodName { get; set; }
 
         [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.From")]
-        public decimal From { get; set; }
+        public double From { get; set; }
 
         [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.To")]
-        public decimal To { get; set; }
+        public double To { get; set; }
 
         [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.AdditionalFixedCost")]
-        public decimal AdditionalFixedCost { get; set; }
+        public double AdditionalFixedCost { get; set; }
 
         [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.PercentageRateOfSubtotal")]
-        public decimal PercentageRateOfSubtotal { get; set; }
+        public double PercentageRateOfSubtotal { get; set; }
 
         [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.RatePerWeightUnit")]
-        public decimal RatePerWeightUnit { get; set; }
+        public double RatePerWeightUnit { get; set; }
 
         [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.LowerWeightLimit")]
-        public decimal LowerWeightLimit { get; set; }
+        public double LowerWeightLimit { get; set; }
 
         [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.DataHtml")]
         public string DataHtml { get; set; }

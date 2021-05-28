@@ -106,7 +106,7 @@ namespace Grand.Business.Checkout.Services.Orders
             string productId,
             string warehouseId = null,
             IList<CustomAttribute> attributes = null,
-            decimal? customerEnteredPrice = null,
+            double? customerEnteredPrice = null,
             DateTime? rentalStartDate = null,
             DateTime? rentalEndDate = null)
         {
@@ -191,7 +191,7 @@ namespace Grand.Business.Checkout.Services.Orders
         public virtual async Task<IList<string>> AddToCart(Customer customer, string productId,
             ShoppingCartType shoppingCartType, string storeId,
             string warehouseId = null, IList<CustomAttribute> attributes = null,
-            decimal? customerEnteredPrice = null,
+            double? customerEnteredPrice = null,
             DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
             int quantity = 1, bool automaticallyAddRequiredProductsIfEnabled = true,
             string reservationId = "", string parameter = "", string duration = "",
@@ -425,7 +425,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <returns>Warnings</returns>
         public virtual async Task<IList<string>> UpdateShoppingCartItem(Customer customer,
             string shoppingCartItemId, string warehouseId, IList<CustomAttribute> attributes,
-            decimal? customerEnteredPrice,
+            double? customerEnteredPrice,
             DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
             int quantity = 1, bool resetCheckoutData = true, string reservationId = "", string sciId = "")
         {

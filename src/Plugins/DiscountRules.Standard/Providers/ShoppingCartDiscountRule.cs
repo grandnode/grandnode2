@@ -50,7 +50,7 @@ namespace DiscountRules.Provider
 
             var spentAmountRequirement = _settingService.GetSettingByKey<RequirementSpentAmount>(string.Format("DiscountRequirement.ShoppingCart-{0}", request.DiscountRequirementId));
 
-            if (spentAmountRequirement == null || spentAmountRequirement.SpentAmount == decimal.Zero)
+            if (spentAmountRequirement == null || spentAmountRequirement.SpentAmount == 0)
             {
                 result.IsValid = true;
                 return result;
@@ -65,7 +65,7 @@ namespace DiscountRules.Provider
                 result.IsValid = false;
                 return result;
             }
-            decimal spentAmount = 0;
+            double spentAmount = 0;
 
             var priceCalculationService = _serviceProvider.GetRequiredService<IPricingService>();
 

@@ -9,7 +9,7 @@
         public string City { get; set; }
         public string Address1 { get; set; }
         public string ZipPostalCode { get; set; }
-        public decimal PickupFee { get; set; }
+        public double PickupFee { get; set; }
         public string OpeningHours { get; set; }
         public string StoreId { get; set; }
     }

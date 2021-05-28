@@ -62,7 +62,7 @@ namespace Grand.Web.Models.Catalog
         public bool IsFreeShipping { get; set; }
         public bool AllowToSelectWarehouse { get; set; }
         public IList<ProductWarehouseModel> ProductWarehouses { get; set; }
-        public decimal AdditionalShippingCharge { get; set; }
+        public double AdditionalShippingCharge { get; set; }
         public string AdditionalShippingChargeStr { get; set; }
         public bool FreeShippingNotificationEnabled { get; set; }
         public string DeliveryDate { get; set; }
@@ -96,8 +96,8 @@ namespace Grand.Web.Models.Catalog
         public IList<ProductBundleModel> ProductBundleModels { get; set; }
         public bool DisplayDiscontinuedMessage { get; set; }
         public string CurrentStoreName { get; set; }
-        public decimal StartPrice { get; set; }
-        public decimal HighestBidValue { get; set; }
+        public double StartPrice { get; set; }
+        public double HighestBidValue { get; set; }
         public DateTime? EndTime { get; set; }
         public DateTime? EndTimeLocalTime { get; set; }
         public bool AuctionEnded { get; set; }
@@ -133,7 +133,7 @@ namespace Grand.Web.Models.Catalog
             [GrandResourceDisplayName("Products.EnterProductPrice")]
             public bool EnteredPrice { get; set; }
             [GrandResourceDisplayName("Products.EnterProductPrice")]
-            public decimal CustomerEnteredPrice { get; set; }
+            public double CustomerEnteredPrice { get; set; }
             public String CustomerEnteredPriceRange { get; set; }
             public bool DisableBuyButton { get; set; }
             public bool DisableWishlistButton { get; set; }
@@ -165,7 +165,7 @@ namespace Grand.Web.Models.Catalog
             public string CatalogPrice { get; set; }
             public string Price { get; set; }
             public string PriceWithDiscount { get; set; }
-            public decimal PriceValue { get; set; }
+            public double PriceValue { get; set; }
             public bool EnteredPrice { get; set; }
             public bool CallForPrice { get; set; }
             public string ProductId { get; set; }
@@ -176,9 +176,9 @@ namespace Grand.Web.Models.Catalog
             //Auction
             public bool IsAuction { get; set; }
             public string HighestBid { get; set; }
-            public decimal HighestBidValue { get; set; }
+            public double HighestBidValue { get; set; }
             public string StartPrice { get; set; }
-            public decimal StartPriceValue { get; set; }
+            public double StartPriceValue { get; set; }
             public bool DisableBuyButton { get; set; }
 
             public string BasePricePAngV { get; set; }
@@ -268,7 +268,7 @@ namespace Grand.Web.Models.Catalog
             //picture model is used with "image square" attribute type
             public PictureModel ImageSquaresPictureModel { get; set; }
             public string PriceAdjustment { get; set; }
-            public decimal PriceAdjustmentValue { get; set; }
+            public double PriceAdjustmentValue { get; set; }
             public string StockAvailability { get; set; }
             public bool IsPreSelected { get; set; }
             //picture model is used when we want to override a default product picture when some attribute is selected
@@ -291,7 +291,7 @@ namespace Grand.Web.Models.Catalog
             public string Gtin { get; set; }
             public int Quantity { get; set; }
             public string Price { get; set; }
-            public decimal PriceValue { get; set; }
+            public double PriceValue { get; set; }
             public PictureModel DefaultPictureModel { get; set; }
             public IList<ProductAttributeModel> ProductAttributes { get; set; }
         }

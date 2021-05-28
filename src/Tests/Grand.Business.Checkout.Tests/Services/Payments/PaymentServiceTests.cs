@@ -84,7 +84,7 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
         public async Task ProcessPayment_OrderTotalZero_ReturnPaidPaymentStatus()
         {
             var request = new PaymentTransaction();
-            request.TransactionAmount = decimal.Zero;
+            request.TransactionAmount = 0;
             var response = await _paymentService.ProcessPayment(request);
             Assert.IsTrue(response.NewPaymentTransactionStatus == TransactionStatus.Paid);
         }
@@ -168,7 +168,7 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
                 new ShoppingCartItem(),
                 new ShoppingCartItem()
             };
-            Assert.AreEqual(decimal.Zero, await _paymentService.GetAdditionalHandlingFee(cart, null));
+            Assert.AreEqual(0, await _paymentService.GetAdditionalHandlingFee(cart, null));
         }
     }
 }

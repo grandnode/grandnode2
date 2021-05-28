@@ -41,7 +41,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             get { return _product.Sku; }
         }
 
-        public decimal Price
+        public double Price
         {
             get { return _product.Price; }
         }

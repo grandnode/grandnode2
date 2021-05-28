@@ -199,11 +199,11 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="amount">Amount</param>
         /// <param name="exchangeRate">Currency exchange rate</param>
         /// <returns>Converted value</returns>
-        public virtual decimal ConvertCurrency(decimal amount, decimal exchangeRate)
+        public virtual double ConvertCurrency(double amount, double exchangeRate)
         {
-            if (amount != decimal.Zero && exchangeRate != decimal.Zero)
+            if (amount != 0 && exchangeRate != 0)
                 return amount * exchangeRate;
-            return decimal.Zero;
+            return 0;
         }
 
         /// <summary>
@@ -213,7 +213,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="sourceCurrencyCode">Source currency code</param>
         /// <param name="targetCurrencyCode">Target currency code</param>
         /// <returns>Converted value</returns>
-        public virtual async Task<decimal> ConvertCurrency(decimal amount, Currency sourceCurrencyCode, Currency targetCurrencyCode)
+        public virtual async Task<double> ConvertCurrency(double amount, Currency sourceCurrencyCode, Currency targetCurrencyCode)
         {
             if (sourceCurrencyCode == null)
                 throw new ArgumentNullException(nameof(sourceCurrencyCode));
@@ -223,7 +223,7 @@ namespace Grand.Business.Common.Services.Directory
 
             var result = amount;
 
-            if (result == decimal.Zero || sourceCurrencyCode.Id == targetCurrencyCode.Id)
+            if (result == 0 || sourceCurrencyCode.Id == targetCurrencyCode.Id)
                 return result;
 
             result = await ConvertToPrimaryExchangeRateCurrency(result, sourceCurrencyCode);
@@ -239,7 +239,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="amount">Amount</param>
         /// <param name="sourceCurrencyCode">Source currency code</param>
         /// <returns>Converted value</returns>
-        public virtual async Task<decimal> ConvertToPrimaryExchangeRateCurrency(decimal amount, Currency sourceCurrencyCode)
+        public virtual async Task<double> ConvertToPrimaryExchangeRateCurrency(double amount, Currency sourceCurrencyCode)
         {
             if (sourceCurrencyCode == null)
                 throw new ArgumentNullException(nameof(sourceCurrencyCode));
@@ -248,9 +248,9 @@ namespace Grand.Business.Common.Services.Directory
             if (primaryExchangeRateCurrency == null)
                 throw new Exception("Primary exchange rate currency cannot be loaded");
 
-            decimal result = amount;
-            decimal exchangeRate = sourceCurrencyCode.Rate;
-            if (exchangeRate == decimal.Zero)
+            double result = amount;
+            double exchangeRate = sourceCurrencyCode.Rate;
+            if (exchangeRate == 0)
                 throw new GrandException(string.Format("Exchange rate not found for currency [{0}]", sourceCurrencyCode.Name));
             result = result / exchangeRate;
             return result;
@@ -262,7 +262,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="amount">Amount</param>
         /// <param name="targetCurrencyCode">Target currency code</param>
         /// <returns>Converted value</returns>
-        public virtual async Task<decimal> ConvertFromPrimaryExchangeRateCurrency(decimal amount, Currency targetCurrencyCode)
+        public virtual async Task<double> ConvertFromPrimaryExchangeRateCurrency(double amount, Currency targetCurrencyCode)
         {
             if (targetCurrencyCode == null)
                 throw new ArgumentNullException(nameof(targetCurrencyCode));
@@ -271,10 +271,10 @@ namespace Grand.Business.Common.Services.Directory
             if (primaryExchangeRateCurrency == null)
                 throw new Exception("Primary exchange rate currency cannot be loaded");
 
-            decimal result = amount;
+            double result = amount;
 
-            decimal exchangeRate = targetCurrencyCode.Rate;
-            if (exchangeRate == decimal.Zero)
+            double exchangeRate = targetCurrencyCode.Rate;
+            if (exchangeRate == 0)
                 throw new GrandException(string.Format("Exchange rate not found for currency [{0}]", targetCurrencyCode.Name));
 
             result = result * exchangeRate;
@@ -288,7 +288,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="amount">Amount</param>
         /// <param name="sourceCurrencyCode">Source currency code</param>
         /// <returns>Converted value</returns>
-        public virtual async Task<decimal> ConvertToPrimaryStoreCurrency(decimal amount, Currency sourceCurrencyCode)
+        public virtual async Task<double> ConvertToPrimaryStoreCurrency(double amount, Currency sourceCurrencyCode)
         {
             if (sourceCurrencyCode == null)
                 throw new ArgumentNullException(nameof(sourceCurrencyCode));
@@ -305,7 +305,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="amount">Amount</param>
         /// <param name="targetCurrencyCode">Target currency code</param>
         /// <returns>Converted value</returns>
-        public virtual async Task<decimal> ConvertFromPrimaryStoreCurrency(decimal amount, Currency targetCurrencyCode)
+        public virtual async Task<double> ConvertFromPrimaryStoreCurrency(double amount, Currency targetCurrencyCode)
         {
             if (targetCurrencyCode == null)
                 return amount;

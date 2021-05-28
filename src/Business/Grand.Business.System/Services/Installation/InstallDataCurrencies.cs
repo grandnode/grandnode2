@@ -31,7 +31,7 @@ namespace Grand.Business.System.Services.Installation
                 {
                     Name = "Euro",
                     CurrencyCode = "EUR",
-                    Rate = 0.95M,
+                    Rate = 0.95,
                     DisplayLocale = "",
                     CustomFormatting = string.Format("{0}0.00", "\u20ac"),
                     NumberDecimal = 2,
@@ -46,7 +46,7 @@ namespace Grand.Business.System.Services.Installation
                 {
                     Name = "British Pound",
                     CurrencyCode = "GBP",
-                    Rate = 0.82M,
+                    Rate = 0.82,
                     DisplayLocale = "en-GB",
                     CustomFormatting = "",
                     NumberDecimal = 2,
@@ -61,7 +61,7 @@ namespace Grand.Business.System.Services.Installation
                 {
                     Name = "Chinese Yuan Renminbi",
                     CurrencyCode = "CNY",
-                    Rate = 6.93M,
+                    Rate = 6.93,
                     DisplayLocale = "zh-CN",
                     CustomFormatting = "",
                     NumberDecimal = 2,
@@ -76,7 +76,7 @@ namespace Grand.Business.System.Services.Installation
                 {
                     Name = "Indian Rupee",
                     CurrencyCode = "INR",
-                    Rate = 68.17M,
+                    Rate = 68.17,
                     DisplayLocale = "en-IN",
                     CustomFormatting = "",
                     NumberDecimal = 2,
@@ -91,7 +91,7 @@ namespace Grand.Business.System.Services.Installation
                 {
                     Name = "Złoty",
                     CurrencyCode = "PLN",
-                    Rate = 3.97M,
+                    Rate = 3.97,
                     DisplayLocale = "pl-PL",
                     CustomFormatting = "",
                     NumberDecimal = 2,

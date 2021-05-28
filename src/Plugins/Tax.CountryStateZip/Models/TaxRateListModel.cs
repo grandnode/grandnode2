@@ -27,7 +27,7 @@ namespace Tax.CountryStateZip.Models
         [GrandResourceDisplayName("Plugins.Tax.CountryStateZip.Fields.TaxCategory")]
         public string AddTaxCategoryId { get; set; }
         [GrandResourceDisplayName("Plugins.Tax.CountryStateZip.Fields.Percentage")]
-        public decimal AddPercentage { get; set; }
+        public double AddPercentage { get; set; }
 
         public IList<SelectListItem> AvailableStores { get; set; }
         public IList<SelectListItem> AvailableCountries { get; set; }

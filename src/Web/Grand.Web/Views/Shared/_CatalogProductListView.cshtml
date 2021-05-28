@@ -63,10 +63,10 @@
             <div class="prices-rating">
                 @if (Model.ReviewOverviewModel.AllowCustomerReviews)
                 {
-                    decimal ratingValue = 0;
+                    double ratingValue = 0;
                     if (Model.ReviewOverviewModel.TotalReviews != 0)
                     {
-                        ratingValue = Convert.ToDecimal(((Model.ReviewOverviewModel.RatingSum * (double)100) / Model.ReviewOverviewModel.TotalReviews) / (double)100);
+                        ratingValue = Convert.ToDouble(((Model.ReviewOverviewModel.RatingSum * (double)100) / Model.ReviewOverviewModel.TotalReviews) / (double)100);
                     }
                     <template>
                         <div class="rating">

@@ -62,7 +62,7 @@ namespace DiscountRules.Standard.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Configure(string discountId, string discountRequirementId, decimal spentAmount)
+        public async Task<IActionResult> Configure(string discountId, string discountRequirementId, double spentAmount)
         {
             if (!await _permissionService.Authorize(StandardPermission.ManageDiscounts))
                 return Content("Access denied");

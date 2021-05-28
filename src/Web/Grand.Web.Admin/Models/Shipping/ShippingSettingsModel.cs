@@ -15,7 +15,7 @@ namespace Grand.Web.Admin.Models.Shipping
         public bool FreeShippingOverXEnabled { get; set; }
 
         [GrandResourceDisplayName("Admin.Configuration.Shipping.Settings.FreeShippingOverXValue")]
-        public decimal FreeShippingOverXValue { get; set; }
+        public double FreeShippingOverXValue { get; set; }
 
         [GrandResourceDisplayName("Admin.Configuration.Shipping.Settings.FreeShippingOverXIncludingTax")]
         public bool FreeShippingOverXIncludingTax { get; set; }

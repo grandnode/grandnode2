@@ -113,33 +113,33 @@ namespace Grand.Web.Admin.Models.Orders
         public string CurrencyCode { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.CurrencyRate")]
 
-        [UIHint("DecimalN4")]
-        public decimal CurrencyRate { get; set; }
+        [UIHint("DoubleN4")]
+        public double CurrencyRate { get; set; }
         //edit totals
         [GrandResourceDisplayName("Admin.Orders.Fields.Edit.OrderSubtotal")]
-        public decimal OrderSubtotalInclTaxValue { get; set; }
+        public double OrderSubtotalInclTaxValue { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.Edit.OrderSubtotal")]
-        public decimal OrderSubtotalExclTaxValue { get; set; }
+        public double OrderSubtotalExclTaxValue { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.Edit.OrderSubTotalDiscount")]
-        public decimal OrderSubTotalDiscountInclTaxValue { get; set; }
+        public double OrderSubTotalDiscountInclTaxValue { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.Edit.OrderSubTotalDiscount")]
-        public decimal OrderSubTotalDiscountExclTaxValue { get; set; }
+        public double OrderSubTotalDiscountExclTaxValue { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.Edit.OrderShipping")]
-        public decimal OrderShippingInclTaxValue { get; set; }
+        public double OrderShippingInclTaxValue { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.Edit.OrderShipping")]
-        public decimal OrderShippingExclTaxValue { get; set; }
+        public double OrderShippingExclTaxValue { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.Edit.PaymentMethodAdditionalFee")]
-        public decimal PaymentMethodAdditionalFeeInclTaxValue { get; set; }
+        public double PaymentMethodAdditionalFeeInclTaxValue { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.Edit.PaymentMethodAdditionalFee")]
-        public decimal PaymentMethodAdditionalFeeExclTaxValue { get; set; }
+        public double PaymentMethodAdditionalFeeExclTaxValue { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.Edit.Tax")]
-        public decimal TaxValue { get; set; }
+        public double TaxValue { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.Edit.TaxRates")]
         public string TaxRatesValue { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.Edit.OrderTotalDiscount")]
-        public decimal OrderTotalDiscountValue { get; set; }
+        public double OrderTotalDiscountValue { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.Edit.OrderTotal")]
-        public decimal OrderTotalValue { get; set; }
+        public double OrderTotalValue { get; set; }
 
         //order status
         [GrandResourceDisplayName("Admin.Orders.Fields.OrderStatus")]
@@ -206,8 +206,8 @@ namespace Grand.Web.Admin.Models.Orders
 
         //refund info
         [GrandResourceDisplayName("Admin.Orders.Fields.PartialRefund.AmountToRefund")]
-        public decimal AmountToRefund { get; set; }
-        public decimal MaxAmountToRefund { get; set; }
+        public double AmountToRefund { get; set; }
+        public double MaxAmountToRefund { get; set; }
         public string PrimaryStoreCurrencyCode { get; set; }
 
         //workflow info
@@ -236,8 +236,8 @@ namespace Grand.Web.Admin.Models.Orders
 
             public string UnitPriceInclTax { get; set; }
             public string UnitPriceExclTax { get; set; }
-            public decimal UnitPriceInclTaxValue { get; set; }
-            public decimal UnitPriceExclTaxValue { get; set; }
+            public double UnitPriceInclTaxValue { get; set; }
+            public double UnitPriceExclTaxValue { get; set; }
 
             public int Quantity { get; set; }
             public int OpenQty { get; set; }
@@ -247,13 +247,13 @@ namespace Grand.Web.Admin.Models.Orders
 
             public string DiscountInclTax { get; set; }
             public string DiscountExclTax { get; set; }
-            public decimal DiscountInclTaxValue { get; set; }
-            public decimal DiscountExclTaxValue { get; set; }
+            public double DiscountInclTaxValue { get; set; }
+            public double DiscountExclTaxValue { get; set; }
 
             public string SubTotalInclTax { get; set; }
             public string SubTotalExclTax { get; set; }
-            public decimal SubTotalInclTaxValue { get; set; }
-            public decimal SubTotalExclTaxValue { get; set; }
+            public double SubTotalInclTaxValue { get; set; }
+            public double SubTotalExclTaxValue { get; set; }
 
             public string AttributeInfo { get; set; }
             public string RecurringInfo { get; set; }
@@ -268,7 +268,7 @@ namespace Grand.Web.Admin.Models.Orders
             public Guid LicenseDownloadGuid { get; set; }
 
             public string Commission { get; set; }
-            public decimal CommissionValue { get; set; }
+            public double CommissionValue { get; set; }
         }
 
         public partial class TaxRate : BaseModel
@@ -371,15 +371,15 @@ namespace Grand.Web.Admin.Models.Orders
                 public string Name { get; set; }
 
                 [GrandResourceDisplayName("Admin.Orders.Products.AddNew.UnitPriceInclTax")]
-                public decimal UnitPriceInclTax { get; set; }
+                public double UnitPriceInclTax { get; set; }
                 [GrandResourceDisplayName("Admin.Orders.Products.AddNew.UnitPriceExclTax")]
-                public decimal UnitPriceExclTax { get; set; }
+                public double UnitPriceExclTax { get; set; }
 
                 [GrandResourceDisplayName("Admin.Orders.Products.AddNew.Quantity")]
                 public int Quantity { get; set; }
 
                 [GrandResourceDisplayName("Admin.Orders.Products.AddNew.TaxRate")]
-                public decimal TaxRate { get; set; }
+                public double TaxRate { get; set; }
 
                 //product attributes
                 public IList<ProductAttributeModel> ProductAttributes { get; set; }

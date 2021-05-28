@@ -10,10 +10,10 @@
 <div class="product-reviews-overview d-inline-flex align-items-center flex-wrap" @if (Model.TotalReviews > 0) { <text> itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating" </text> }>
     <div class="product-review-box d-inline-block order-1">
         @{ 
-            decimal ratingValue = 0;
+            double ratingValue = 0;
             if (Model.TotalReviews != 0)
             {
-                ratingValue = Convert.ToDecimal(((Model.RatingSum * (double)100) / Model.TotalReviews) / (double)100);
+                ratingValue = Convert.ToDouble(((Model.RatingSum * (double)100) / Model.TotalReviews) / (double)100);
             }
         }
             <div class="rating">
@@ -27,7 +27,7 @@
                         </b-button>
                     </div>
                     @* rendering microdata info*@
-                    decimal ratingValuee = ratingPercent / (decimal)20;
+                    double ratingValuee = ratingPercent / (double)20;
                     <span itemprop="reviewCount" style="display: none;">(@ratingValuee.ToString("0.0", new CultureInfo("en-US")))</span>
                 }
                 else

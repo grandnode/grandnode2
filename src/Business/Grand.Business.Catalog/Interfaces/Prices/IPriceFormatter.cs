@@ -12,7 +12,7 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// </summary>
         /// <param name="price">Price</param>
         /// <returns>Price</returns>
-        string FormatPrice(decimal price);
+        string FormatPrice(double price);
 
         /// <summary>
         /// Formats price
@@ -20,7 +20,7 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="price">Price</param>
         /// <param name="targetCurrency">Target currency</param>
         /// <returns>Price</returns>
-        string FormatPrice(decimal price, Currency targetCurrency);
+        string FormatPrice(double price, Currency targetCurrency);
 
         /// <summary>
         /// Formats price
@@ -28,7 +28,7 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="price">Price</param>
         /// <param name="showTax">A value that indicates if it should shows tax suffix</param>
         /// <returns>Price</returns>
-        string FormatPrice(decimal price, bool showTax);
+        string FormatPrice(double price, bool showTax);
 
         /// <summary>
         /// Formats price
@@ -38,7 +38,7 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="showTax">A value that indicates if it should shows a tax suffix</param>
         /// <param name="language">Language</param>
         /// <returns>Price</returns>
-        Task<string> FormatPrice(decimal price, string currencyCode, bool showTax, Language language);
+        Task<string> FormatPrice(double price, string currencyCode, bool showTax, Language language);
 
         /// <summary>
         /// Formats the price
@@ -48,7 +48,7 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="language">Language</param>
         /// <param name="priceIncludesTax">A value indicating whether price includes tax</param>
         /// <returns>Price</returns>
-        Task<string> FormatPrice(decimal price, string currencyCode, Language language, bool priceIncludesTax);
+        Task<string> FormatPrice(double price, string currencyCode, Language language, bool priceIncludesTax);
 
         /// <summary>
         /// Formats the price
@@ -58,7 +58,7 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="language">Language</param>
         /// <param name="priceIncludesTax">A value indicating whether price includes tax</param>
         /// <returns>Price</returns>
-        string FormatPrice(decimal price, Currency targetCurrency, Language language, bool priceIncludesTax);
+        string FormatPrice(double price, Currency targetCurrency, Language language, bool priceIncludesTax);
 
         /// <summary>
         /// Formats the price
@@ -69,7 +69,7 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="priceIncludesTax">A value indicating whether price includes tax</param>
         /// <param name="showTax">A value indicating whether to show tax suffix</param>
         /// <returns>Price</returns>
-        string FormatPrice(decimal price, Currency targetCurrency, Language language, bool priceIncludesTax, bool showTax);
+        string FormatPrice(double price, Currency targetCurrency, Language language, bool priceIncludesTax, bool showTax);
 
         /// <summary>
         /// Formats the price of rental product (with rental period)
@@ -84,7 +84,7 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// </summary>
         /// <param name="price">Price</param>
         /// <returns>Price</returns>
-        string FormatShippingPrice(decimal price);
+        string FormatShippingPrice(double price);
 
         /// <summary>
         /// Formats the shipping price
@@ -94,7 +94,7 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="language">Language</param>
         /// <param name="priceIncludesTax">A value indicating whether price includes tax</param>
         /// <returns>Price</returns>
-        string FormatShippingPrice(decimal price, Currency targetCurrency, Language language, bool priceIncludesTax);
+        string FormatShippingPrice(double price, Currency targetCurrency, Language language, bool priceIncludesTax);
 
         /// <summary>
         /// Formats the shipping price
@@ -105,7 +105,7 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="priceIncludesTax">A value indicating whether price includes tax</param>
         /// <param name="showTax">A value indicating whether to show tax suffix</param>
         /// <returns>Price</returns>
-        string FormatShippingPrice(decimal price, Currency targetCurrency, Language language, bool priceIncludesTax, bool showTax);
+        string FormatShippingPrice(double price, Currency targetCurrency, Language language, bool priceIncludesTax, bool showTax);
 
         /// <summary>
         /// Formats the shipping price
@@ -115,14 +115,14 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="language">Language</param>
         /// <param name="priceIncludesTax">A value indicating whether price includes tax</param>
         /// <returns>Price</returns>
-        Task<string> FormatShippingPrice(decimal price, string currencyCode, Language language, bool priceIncludesTax);
+        Task<string> FormatShippingPrice(double price, string currencyCode, Language language, bool priceIncludesTax);
 
         /// <summary>
         /// Formats the payment method additional fee
         /// </summary>
         /// <param name="price">Price</param>
         /// <returns>Price</returns>
-        string FormatPaymentMethodAdditionalFee(decimal price);
+        string FormatPaymentMethodAdditionalFee(double price);
 
         /// <summary>
         /// Formats the payment method additional fee
@@ -132,7 +132,7 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="language">Language</param>
         /// <param name="priceIncludesTax">A value indicating whether price includes tax</param>
         /// <returns>Price</returns>
-        string FormatPaymentMethodAdditionalFee(decimal price, Currency targetCurrency, Language language, bool priceIncludesTax);
+        string FormatPaymentMethodAdditionalFee(double price, Currency targetCurrency, Language language, bool priceIncludesTax);
 
         /// <summary>
         /// Formats the payment method additional fee
@@ -143,7 +143,7 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="priceIncludesTax">A value indicating whether price includes tax</param>
         /// <param name="showTax">A value indicating whether to show tax suffix</param>
         /// <returns>Price</returns>
-        string FormatPaymentMethodAdditionalFee(decimal price, Currency targetCurrency, Language language, bool priceIncludesTax, bool showTax);
+        string FormatPaymentMethodAdditionalFee(double price, Currency targetCurrency, Language language, bool priceIncludesTax, bool showTax);
 
         /// <summary>
         /// Formats the payment method additional fee
@@ -153,13 +153,13 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="language">Language</param>
         /// <param name="priceIncludesTax">A value indicating whether price includes tax</param>
         /// <returns>Price</returns>
-        Task<string> FormatPaymentMethodAdditionalFee(decimal price, string currencyCode, Language language, bool priceIncludesTax);
+        Task<string> FormatPaymentMethodAdditionalFee(double price, string currencyCode, Language language, bool priceIncludesTax);
 
         /// <summary>
         /// Formats a tax rate
         /// </summary>
         /// <param name="taxRate">Tax rate</param>
         /// <returns>Formatted tax rate</returns>
-        string FormatTaxRate(decimal taxRate);
+        string FormatTaxRate(double taxRate);
     }
 }

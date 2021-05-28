@@ -525,10 +525,10 @@ namespace Grand.Web.Admin.Services
             return (true, string.Empty);
         }
 
-        public virtual async Task<(Shipment shipment, decimal? totalWeight)> PrepareShipment(Order order, IList<OrderItem> orderItems, IFormCollection form)
+        public virtual async Task<(Shipment shipment, double? totalWeight)> PrepareShipment(Order order, IList<OrderItem> orderItems, IFormCollection form)
         {
             Shipment shipment = null;
-            decimal? totalWeight = null;
+            double? totalWeight = null;
             foreach (var orderItem in orderItems)
             {
                 //is shippable

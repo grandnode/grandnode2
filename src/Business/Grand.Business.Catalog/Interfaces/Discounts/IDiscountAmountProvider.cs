@@ -8,6 +8,6 @@ namespace Grand.Business.Catalog.Interfaces.Discounts
 {
     public partial interface IDiscountAmountProvider : IProvider
     {
-        Task<decimal> DiscountAmount(Discount discount, Customer customer, Product product, decimal amount);
+        Task<double> DiscountAmount(Discount discount, Customer customer, Product product, double amount);
     }
 }

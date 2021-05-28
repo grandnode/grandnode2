@@ -28,7 +28,7 @@ namespace Grand.Domain.Directory
         /// <summary>
         /// Gets or sets the rate
         /// </summary>
-        public decimal Rate { get; set; }
+        public double Rate { get; set; }
 
         /// <summary>
         /// Gets or sets the display locale
@@ -67,7 +67,7 @@ namespace Grand.Domain.Directory
         public MidpointRounding MidpointRoundId { get; set; }
 
         /// <summary>
-        /// Gets or sets the number of decimal places (for RoundPrice)
+        /// Gets or sets the number of double places (for RoundPrice)
         /// </summary>
         public int NumberDecimal { get; set; } = 2;
 

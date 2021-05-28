@@ -56,7 +56,7 @@ namespace Tax.FixedRate.Controllers
         public async Task<IActionResult> TaxRateUpdate(FixedTaxRateModel model)
         {
             string taxCategoryId = model.TaxCategoryId;
-            decimal rate = model.Rate;
+            double rate = model.Rate;
 
             await _settingService.SetSetting(string.Format("Tax.TaxProvider.FixedRate.TaxCategoryId{0}", taxCategoryId), new FixedTaxRate() { Rate = rate });
 
@@ -64,7 +64,7 @@ namespace Tax.FixedRate.Controllers
         }
 
         [NonAction]
-        protected decimal GetTaxRate(string taxCategoryId)
+        protected double GetTaxRate(string taxCategoryId)
         {
             var rate = _settingService.GetSettingByKey<FixedTaxRate>(string.Format("Tax.TaxProvider.FixedRate.TaxCategoryId{0}", taxCategoryId))?.Rate;
             return rate ?? 0;

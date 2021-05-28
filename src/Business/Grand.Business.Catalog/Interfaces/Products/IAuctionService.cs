@@ -66,7 +66,7 @@ namespace Grand.Business.Catalog.Interfaces.Products
         /// <param name="product"></param>
         /// <param name="bid"></param>
         /// <param name="bidder"></param>
-        Task UpdateHighestBid(Product product, decimal bid, string bidder);
+        Task UpdateHighestBid(Product product, double bid, string bidder);
 
         /// <summary>
         /// Updates auction ended
@@ -90,7 +90,7 @@ namespace Grand.Business.Catalog.Interfaces.Products
         /// <param name="warehouseId"></param>
         /// <param name="language"></param>
         /// <param name="amount"></param>
-        Task NewBid(Customer customer, Product product, Store store, Language language, string warehouseId, decimal amount);
+        Task NewBid(Customer customer, Product product, Store store, Language language, string warehouseId, double amount);
 
         /// <summary>
         /// Cancel bid for product

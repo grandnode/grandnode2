@@ -60,7 +60,7 @@ namespace Grand.Web.Features.Handlers.Orders
             foreach (var merchandiseReturn in merchandiseReturns)
             {
                 var order = await _orderService.GetOrderById(merchandiseReturn.OrderId);
-                decimal total = 0;
+                double total = 0;
                 foreach (var rrItem in merchandiseReturn.MerchandiseReturnItems)
                 {
                     var orderItem = order.OrderItems.Where(x => x.Id == rrItem.OrderItemId).First();

@@ -175,7 +175,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             }
         }
 
-        public decimal UnitPriceWithoutDiscInclTax
+        public double UnitPriceWithoutDiscInclTax
         {
             get
             {
@@ -183,7 +183,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             }
         }
 
-        public decimal UnitPriceWithoutDiscExclTax
+        public double UnitPriceWithoutDiscExclTax
         {
             get
             {
@@ -191,7 +191,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             }
         }
 
-        public decimal UnitPriceInclTax
+        public double UnitPriceInclTax
         {
             get
             {
@@ -199,7 +199,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             }
         }
 
-        public decimal UnitPriceExclTax
+        public double UnitPriceExclTax
         {
             get
             {
@@ -207,7 +207,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             }
         }
 
-        public decimal PriceInclTax
+        public double PriceInclTax
         {
             get
             {
@@ -215,7 +215,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             }
         }
 
-        public decimal PriceExclTax
+        public double PriceExclTax
         {
             get
             {
@@ -223,7 +223,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             }
         }
 
-        public decimal DiscountAmountInclTax
+        public double DiscountAmountInclTax
         {
             get
             {
@@ -231,7 +231,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             }
         }
 
-        public decimal DiscountAmountExclTax
+        public double DiscountAmountExclTax
         {
             get
             {
@@ -239,7 +239,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             }
         }
 
-        public decimal OriginalProductCost
+        public double OriginalProductCost
         {
             get
             {
@@ -279,7 +279,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             }
         }
 
-        public decimal? ItemWeight
+        public double? ItemWeight
         {
             get
             {

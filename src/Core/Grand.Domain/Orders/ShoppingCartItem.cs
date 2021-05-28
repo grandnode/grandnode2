@@ -42,7 +42,7 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets the price enter by a customer
         /// </summary>
-        public decimal? EnteredPrice { get; set; }
+        public double? EnteredPrice { get; set; }
 
         /// <summary>
         /// Gets or sets the quantity
@@ -84,12 +84,12 @@ namespace Grand.Domain.Orders
         /// </summary>
         public bool IsShipEnabled { get; set; }
         
-        public decimal AdditionalShippingChargeProduct { get; set; }
+        public double AdditionalShippingChargeProduct { get; set; }
         
         /// <summary>
         /// Gets the additional shipping charge
         /// </summary> 
-        public decimal AdditionalShippingCharge
+        public double AdditionalShippingCharge
         {
             get
             {             

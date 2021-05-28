@@ -45,21 +45,21 @@ namespace Grand.Business.Checkout.Extensions
         /// <param name="fee">Fee value</param>
         /// <param name="usePercentage">Is fee amount specified as percentage or fixed value?</param>
         /// <returns>Result</returns>
-        public static async Task<decimal> CalculateAdditionalFee(this IPaymentProvider paymentMethod,
+        public static async Task<double> CalculateAdditionalFee(this IPaymentProvider paymentMethod,
             IOrderCalculationService orderTotalCalculationService, IList<ShoppingCartItem> cart,
-            decimal fee, bool usePercentage)
+            double fee, bool usePercentage)
         {
             if (paymentMethod == null)
                 throw new ArgumentNullException(nameof(paymentMethod));
             if (fee <= 0)
                 return fee;
 
-            decimal result;
+            double result;
             if (usePercentage)
             {
                 //percentage
                 var shoppingCartSubTotal = await orderTotalCalculationService.GetShoppingCartSubTotal(cart, true);
-                result = (decimal)((((float)shoppingCartSubTotal.subTotalWithDiscount) * ((float)fee)) / 100f);
+                result = (double)((((float)shoppingCartSubTotal.subTotalWithDiscount) * ((float)fee)) / 100f);
             }
             else
             {

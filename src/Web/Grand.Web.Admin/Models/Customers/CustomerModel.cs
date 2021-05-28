@@ -323,7 +323,7 @@ namespace Grand.Web.Admin.Models.Customers
             [GrandResourceDisplayName("Admin.Customers.Customers.ProductPrice.ProductName")]
             public string ProductName { get; set; }
             [GrandResourceDisplayName("Admin.Customers.Customers.ProductPrice.Price")]
-            public decimal Price { get; set; }
+            public double Price { get; set; }
             public string ProductId { get; set; }
         }
         public partial class AddProductModel : BaseModel

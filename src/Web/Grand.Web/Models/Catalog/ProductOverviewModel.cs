@@ -63,14 +63,14 @@ namespace Grand.Web.Models.Catalog
             }
 
             public string OldPrice { get; set; }
-            public decimal OldPriceValue { get; set; }
+            public double OldPriceValue { get; set; }
             public string CatalogPrice { get; set; }
             public string Price { get; set; }
-            public decimal PriceValue { get; set; }
+            public double PriceValue { get; set; }
             public string StartPrice { get; set; }
-            public decimal StartPriceValue { get; set; }
+            public double StartPriceValue { get; set; }
             public string HighestBid { get; set; }
-            public decimal HighestBidValue { get; set; }
+            public double HighestBidValue { get; set; }
             public string BasePricePAngV { get; set; }
             public bool DisableBuyButton { get; set; }
             public bool DisableWishlistButton { get; set; }

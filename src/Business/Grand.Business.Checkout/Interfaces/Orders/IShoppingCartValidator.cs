@@ -49,7 +49,7 @@ namespace Grand.Business.Checkout.Interfaces.Orders
         /// <param name="product"></param>
         /// <param name="customer"></param>
         /// <returns></returns>
-        IList<string> GetAuctionProductWarning(decimal bid, Product product, Customer customer);
+        IList<string> GetAuctionProductWarning(double bid, Product product, Customer customer);
 
         /// <summary>
         /// Validates shopping cart item

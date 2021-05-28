@@ -7,7 +7,7 @@ namespace Grand.Api.DTOs.Common
     {
         public string Name { get; set; }
         public string CurrencyCode { get; set; }
-        public decimal Rate { get; set; }
+        public double Rate { get; set; }
         public string DisplayLocale { get; set; }
         public string CustomFormatting { get; set; }
         public bool Published { get; set; }

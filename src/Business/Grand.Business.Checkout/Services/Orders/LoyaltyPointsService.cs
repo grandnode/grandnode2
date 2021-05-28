@@ -76,7 +76,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <returns>LoyaltyPointsHistory</returns>
 
         public virtual async Task<LoyaltyPointsHistory> AddLoyaltyPointsHistory(string customerId, int points, string storeId, string message = "",
-           string usedWithOrderId = "", decimal usedAmount = 0M)
+           string usedWithOrderId = "", double usedAmount = 0)
         {
 
             var loyaltyPointsHistory = new LoyaltyPointsHistory

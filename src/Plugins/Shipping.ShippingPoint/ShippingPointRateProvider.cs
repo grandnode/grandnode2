@@ -86,9 +86,9 @@ namespace Shipping.ShippingPoint
         /// </summary>
         /// <param name="getShippingOptionRequest">A request for getting shipping options</param>
         /// <returns>Fixed shipping rate; or null in case there's no fixed shipping rate</returns>
-        public Task<decimal?> GetFixedRate(GetShippingOptionRequest getShippingOptionRequest)
+        public Task<double?> GetFixedRate(GetShippingOptionRequest getShippingOptionRequest)
         {
-            return Task.FromResult(default(decimal?));
+            return Task.FromResult(default(double?));
         }
 
         public async Task<bool> HideShipmentMethods(IList<ShoppingCartItem> cart)

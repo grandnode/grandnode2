@@ -61,7 +61,7 @@ namespace Shipping.ByWeight.Services
 
         public virtual async Task<ShippingByWeightRecord> FindRecord(string shippingMethodId,
             string storeId, string warehouseId,
-            string countryId, string stateProvinceId, string zip, decimal weight)
+            string countryId, string stateProvinceId, string zip, double weight)
         {
             if (zip == null)
                 zip = string.Empty;

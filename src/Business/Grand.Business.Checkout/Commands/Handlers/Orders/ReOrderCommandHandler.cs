@@ -52,7 +52,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                             orderItem.Attributes,
                             product.EnteredPrice ?
                             _taxSettings.PricesIncludeTax ? orderItem.UnitPriceInclTax : orderItem.UnitPriceExclTax
-                            : (decimal?)default,
+                            : (double?)default,
                             orderItem.RentalStartDateUtc, orderItem.RentalEndDateUtc,
                             orderItem.Quantity, false, getRequiredProductWarnings: false));
                     }

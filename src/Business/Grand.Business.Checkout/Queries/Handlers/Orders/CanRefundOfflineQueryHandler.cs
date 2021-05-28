@@ -15,11 +15,11 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             if (paymentTransaction == null)
                 throw new ArgumentNullException(nameof(request.PaymentTransaction));
 
-            if (paymentTransaction.TransactionAmount == decimal.Zero)
+            if (paymentTransaction.TransactionAmount == 0)
                 return Task.FromResult(false);
 
             //refund cannot be made if previously a partial refund has been already done. only other partial refund can be made in this case
-            if (paymentTransaction.RefundedAmount > decimal.Zero)
+            if (paymentTransaction.RefundedAmount > 0)
                 return Task.FromResult(false);
 
             if (paymentTransaction.TransactionStatus == TransactionStatus.Paid)

@@ -14,7 +14,7 @@ namespace Payments.PayPalStandard
         /// <summary>
         /// Additional fee
         /// </summary>
-        public decimal AdditionalFee { get; set; }
+        public double AdditionalFee { get; set; }
         public bool PassProductNamesAndTotals { get; set; }
         public bool PdtValidateOrderTotal { get; set; }
 

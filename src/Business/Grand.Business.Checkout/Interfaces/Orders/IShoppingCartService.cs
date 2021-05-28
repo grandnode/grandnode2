@@ -38,7 +38,7 @@ namespace Grand.Business.Checkout.Interfaces.Orders
             string productId,
             string warehouseId = null,
             IList<CustomAttribute> attributes = null,
-            decimal? customerEnteredPrice = null,
+            double? customerEnteredPrice = null,
             DateTime? rentalStartDate = null,
             DateTime? rentalEndDate = null);
 
@@ -58,7 +58,7 @@ namespace Grand.Business.Checkout.Interfaces.Orders
         /// <returns>Warnings</returns>
         Task<IList<string>> AddToCart(Customer customer, string productId,
             ShoppingCartType shoppingCartType, string storeId, string warehouseId = null, IList<CustomAttribute> attributes = null,
-            decimal? customerEnteredPrice = null,
+            double? customerEnteredPrice = null,
             DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
             int quantity = 1, bool automaticallyAddRequiredProductsIfEnabled = true, string reservationId = "", string parameter = "", string duration = "", bool getRequiredProductWarnings = true);
 
@@ -76,7 +76,7 @@ namespace Grand.Business.Checkout.Interfaces.Orders
         /// <returns>Warnings</returns>
         Task<IList<string>> UpdateShoppingCartItem(Customer customer,
             string shoppingCartItemId, string warehouseId, IList<CustomAttribute> attributes,
-            decimal? customerEnteredPrice = null,
+            double? customerEnteredPrice = null,
             DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
             int quantity = 1, bool resetCheckoutData = true, string reservationId = "", string sciId = "");
 

@@ -29,6 +29,6 @@ namespace Tax.CountryStateZip.Models
         public string Zip { get; set; }
 
         [GrandResourceDisplayName("Plugins.Tax.CountryStateZip.Fields.Percentage")]
-        public decimal Percentage { get; set; }
+        public double Percentage { get; set; }
     }
 }

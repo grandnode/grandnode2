@@ -36,14 +36,14 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             var customerGroups = await _groupService.GetAllByIds(request.Customer.Groups.ToArray());
             var minroles = customerGroups.OrderBy(x => x.MinOrderAmount).FirstOrDefault(x => x.MinOrderAmount.HasValue);
-            var minOrderAmount = minroles?.MinOrderAmount ?? decimal.MinValue;
+            var minOrderAmount = minroles?.MinOrderAmount ?? double.MinValue;
 
             var maxroles = customerGroups.OrderByDescending(x => x.MaxOrderAmount).FirstOrDefault(x => x.MaxOrderAmount.HasValue);
-            var maxOrderAmount = maxroles?.MaxOrderAmount ?? decimal.MaxValue;
+            var maxOrderAmount = maxroles?.MaxOrderAmount ?? double.MaxValue;
 
-            if (request.Cart.Any() && (minOrderAmount > decimal.Zero || maxOrderAmount > decimal.Zero || _orderSettings.MinOrderTotalAmount > 0))
+            if (request.Cart.Any() && (minOrderAmount > 0 || maxOrderAmount > 0 || _orderSettings.MinOrderTotalAmount > 0))
             {
-                decimal? shoppingCartTotalBase = (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart)).shoppingCartTotal;
+                double? shoppingCartTotalBase = (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart)).shoppingCartTotal;
                 if (shoppingCartTotalBase.HasValue && (shoppingCartTotalBase.Value < minOrderAmount || shoppingCartTotalBase.Value > maxOrderAmount))
                     return false;
 

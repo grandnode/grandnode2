@@ -353,14 +353,14 @@ namespace Grand.Web.Controllers
             #endregion
 
             #region Customer entered price
-            decimal? customerEnteredPriceConverted = null;
+            double? customerEnteredPriceConverted = null;
             if (product.EnteredPrice)
             {
                 foreach (string formKey in form.Keys)
                 {
                     if (formKey.Equals(string.Format("addtocart_{0}.CustomerEnteredPrice", productId), StringComparison.OrdinalIgnoreCase))
                     {
-                        if (decimal.TryParse(form[formKey], out decimal customerEnteredPrice))
+                        if (double.TryParse(form[formKey], out double customerEnteredPrice))
                             customerEnteredPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(customerEnteredPrice, _workContext.WorkingCurrency);
                         break;
                     }
@@ -632,14 +632,14 @@ namespace Grand.Web.Controllers
                     message = _translationService.GetResource("ShoppingCart.Mustberegisteredtobid")
                 });
             }
-            decimal bid = 0;
+            double bid = 0;
             foreach (string formKey in form.Keys)
             {
                 if (formKey.Equals(string.Format("auction_{0}.HighestBidValue", productId), StringComparison.OrdinalIgnoreCase))
                 {
-                    decimal.TryParse(form[formKey], out bid);
+                    double.TryParse(form[formKey], out bid);
                     if (bid == 0)
-                        decimal.TryParse(form[formKey], NumberStyles.AllowDecimalPoint, CultureInfo.GetCultureInfo("en-US").NumberFormat, out bid);
+                        double.TryParse(form[formKey], NumberStyles.AllowDecimalPoint, CultureInfo.GetCultureInfo("en-US").NumberFormat, out bid);
 
                     bid = Math.Round(bid, 2);
                     break;

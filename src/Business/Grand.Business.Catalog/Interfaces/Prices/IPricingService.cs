@@ -25,11 +25,11 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="includeDiscounts">A value indicating whether include discounts or not for final price computation</param>
         /// <param name="quantity">Shopping cart item quantity</param>
         /// <returns>Final price</returns>
-        Task<(decimal finalPrice, decimal discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice preferredTierPrice)> GetFinalPrice(
+        Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice preferredTierPrice)> GetFinalPrice(
             Product product,
             Customer customer,
             Currency currency,
-            decimal additionalCharge = decimal.Zero, 
+            double additionalCharge = 0, 
             bool includeDiscounts = true, 
             int quantity = 1);
 
@@ -45,10 +45,10 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="rentalStartDate">Rental period start date (for rental products)</param>
         /// <param name="rentalEndDate">Rental period end date (for rental products)</param>
         /// <returns>Final price</returns>
-        Task<(decimal finalPrice, decimal discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice preferredTierPrice)> GetFinalPrice(Product product,
+        Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice preferredTierPrice)> GetFinalPrice(Product product,
             Customer customer,
             Currency currency,
-            decimal additionalCharge,
+            double additionalCharge,
             bool includeDiscounts,
             int quantity,
             DateTime? rentalStartDate,
@@ -63,7 +63,7 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="product">Product</param>
         /// <param name="includeDiscounts">A value indicating whether include discounts or not for price computation</param>
         /// <returns>Shopping cart unit price (one item)</returns>
-        Task<(decimal unitprice, decimal discountAmount, List<ApplyDiscount> appliedDiscounts)> GetUnitPrice(ShoppingCartItem shoppingCartItem,
+        Task<(double unitprice, double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetUnitPrice(ShoppingCartItem shoppingCartItem,
             Product product, bool includeDiscounts = true);
 
 
@@ -81,13 +81,13 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="rentalEndDate">Rental end date (null for not rental products)</param>
         /// <param name="includeDiscounts">A value indicating whether include discounts or not for price computation</param>
         /// <returns>Shopping cart unit price (one item)</returns>
-        Task<(decimal unitprice, decimal discountAmount, List<ApplyDiscount> appliedDiscounts)> GetUnitPrice(Product product,
+        Task<(double unitprice, double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetUnitPrice(Product product,
             Customer customer,
             Currency currency,
             ShoppingCartType shoppingCartType,
             int quantity,
             IList<CustomAttribute> attributes,
-            decimal? customerEnteredPrice,
+            double? customerEnteredPrice,
             DateTime? rentalStartDate, DateTime? rentalEndDate,
             bool includeDiscounts);
 
@@ -98,7 +98,7 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="product">Product</param>
         /// <param name="includeDiscounts">A value indicating whether include discounts or not for price computation</param>
         /// <returns>Shopping cart item sub total</returns>
-        Task<(decimal subTotal, decimal discountAmount, List<ApplyDiscount> appliedDiscounts)> GetSubTotal(ShoppingCartItem shoppingCartItem, Product product,
+        Task<(double subTotal, double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetSubTotal(ShoppingCartItem shoppingCartItem, Product product,
             bool includeDiscounts = true);
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// <param name="product">Product</param>
         /// <param name="attributes">Shopping cart item attributes</param>
         /// <returns>Product cost (one item)</returns>
-        Task<decimal> GetProductCost(Product product, IList<CustomAttribute> attributes);
+        Task<double> GetProductCost(Product product, IList<CustomAttribute> attributes);
 
         
         /// <summary>
@@ -115,6 +115,6 @@ namespace Grand.Business.Catalog.Interfaces.Prices
         /// </summary>
         /// <param name="value">Product attribute value</param>
         /// <returns>Price adjustment</returns>
-        Task<decimal> GetProductAttributeValuePriceAdjustment(ProductAttributeValue value);
+        Task<double> GetProductAttributeValuePriceAdjustment(ProductAttributeValue value);
     }
 }

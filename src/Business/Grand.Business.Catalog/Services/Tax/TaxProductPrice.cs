@@ -2,15 +2,15 @@
 {
     public class TaxProductPrice
     {
-        public decimal UnitPriceWihoutDiscInclTax { get; set; }
-        public decimal UnitPriceWihoutDiscExclTax { get; set; }
-        public decimal UnitPriceInclTax { get; set; }
-        public decimal UnitPriceExclTax { get; set; }
+        public double UnitPriceWihoutDiscInclTax { get; set; }
+        public double UnitPriceWihoutDiscExclTax { get; set; }
+        public double UnitPriceInclTax { get; set; }
+        public double UnitPriceExclTax { get; set; }
         public int Quantity { get; set; }
-        public decimal SubTotalInclTax { get; set; }
-        public decimal SubTotalExclTax { get; set; }
-        public decimal discountAmountInclTax { get; set; }
-        public decimal discountAmountExclTax { get; set; }
-        public decimal taxRate { get; set; }
+        public double SubTotalInclTax { get; set; }
+        public double SubTotalExclTax { get; set; }
+        public double discountAmountInclTax { get; set; }
+        public double discountAmountExclTax { get; set; }
+        public double taxRate { get; set; }
     }
 }

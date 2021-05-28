@@ -229,7 +229,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 //order subtotal
                 model.OrderSubtotal = await _priceFormatter.FormatPrice(request.Order.OrderSubtotalInclTax, request.Order.CustomerCurrencyCode, request.Language, true);
                 //discount (applied to order subtotal)
-                if (request.Order.OrderSubTotalDiscountInclTax > decimal.Zero)
+                if (request.Order.OrderSubTotalDiscountInclTax > 0)
                     model.OrderSubTotalDiscount = await _priceFormatter.FormatPrice(-request.Order.OrderSubTotalDiscountInclTax, request.Order.CustomerCurrencyCode, request.Language, true);
             }
             else
@@ -239,7 +239,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 //order subtotal
                 model.OrderSubtotal = await _priceFormatter.FormatPrice(request.Order.OrderSubtotalExclTax, request.Order.CustomerCurrencyCode, request.Language, false);
                 //discount (applied to order subtotal)
-                if (request.Order.OrderSubTotalDiscountExclTax > decimal.Zero)
+                if (request.Order.OrderSubTotalDiscountExclTax > 0)
                     model.OrderSubTotalDiscount = await _priceFormatter.FormatPrice(-request.Order.OrderSubTotalDiscountExclTax, request.Order.CustomerCurrencyCode, request.Language, false);
             }
 
@@ -250,7 +250,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 //order shipping
                 model.OrderShipping = await _priceFormatter.FormatShippingPrice(request.Order.OrderShippingInclTax, request.Order.CustomerCurrencyCode, request.Language, true);
                 //payment method additional fee
-                if (request.Order.PaymentMethodAdditionalFeeInclTax > decimal.Zero)
+                if (request.Order.PaymentMethodAdditionalFeeInclTax > 0)
                     model.PaymentMethodAdditionalFee = await _priceFormatter.FormatPaymentMethodAdditionalFee(request.Order.PaymentMethodAdditionalFeeInclTax, request.Order.CustomerCurrencyCode, request.Language, true);
             }
             else
@@ -260,7 +260,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 //order shipping
                 model.OrderShipping = await _priceFormatter.FormatShippingPrice(request.Order.OrderShippingExclTax, request.Order.CustomerCurrencyCode, request.Language, false);
                 //payment method additional fee
-                if (request.Order.PaymentMethodAdditionalFeeExclTax > decimal.Zero)
+                if (request.Order.PaymentMethodAdditionalFeeExclTax > 0)
                     model.PaymentMethodAdditionalFee = await _priceFormatter.FormatPaymentMethodAdditionalFee(request.Order.PaymentMethodAdditionalFeeExclTax, request.Order.CustomerCurrencyCode, request.Language, false);
             }
 
@@ -310,7 +310,7 @@ namespace Grand.Web.Features.Handlers.Orders
 
         private async Task PrepareDiscount(GetOrderDetails request, OrderDetailsModel model)
         {
-            if (request.Order.OrderDiscount > decimal.Zero)
+            if (request.Order.OrderDiscount > 0)
                 model.OrderTotalDiscount = await _priceFormatter.FormatPrice(-request.Order.OrderDiscount, request.Order.CustomerCurrencyCode, false, request.Language);
         }
 

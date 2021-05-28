@@ -112,7 +112,7 @@ namespace Grand.Business.Catalog.Tests.Service.Tax
             var customer = new Customer();
             var product = new Product();
             _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>())).Returns(Task.FromResult<IList<CustomerGroup>>(new List<CustomerGroup>()));
-            var pp = await _taxService.GetProductPrice(product, "0", 1000M, true, customer, true);
+            var pp = await _taxService.GetProductPrice(product, "0", 1000, true, customer, true);
             var price = pp.productprice;
             Assert.AreEqual(1000, price);
         }
@@ -124,10 +124,10 @@ namespace Grand.Business.Catalog.Tests.Service.Tax
             var customer = new Customer { IsTaxExempt = true }; //not taxable
             var product = new Product();
 
-            Assert.AreEqual(Math.Round(909.0909090909090909090909091M, 2), (await _taxService.GetProductPrice(product, "0", 1000M, true, customer, true)).productprice);
-            Assert.AreEqual(1000M, (await _taxService.GetProductPrice(product, "0", 1000M, true, customer, false)).productprice);
-            Assert.AreEqual(Math.Round(909.0909090909090909090909091M, 2), (await _taxService.GetProductPrice(product, "0", 1000M, false, customer, true)).productprice);
-            Assert.AreEqual(1000, (await _taxService.GetProductPrice(product, "0", 1000M, false, customer, false)).productprice);
+            Assert.AreEqual(Math.Round(909.0909090909090909090909091M, 2), (await _taxService.GetProductPrice(product, "0", 1000, true, customer, true)).productprice);
+            Assert.AreEqual(1000, (await _taxService.GetProductPrice(product, "0", 1000, true, customer, false)).productprice);
+            Assert.AreEqual(Math.Round(909.0909090909090909090909091M, 2), (await _taxService.GetProductPrice(product, "0", 1000, false, customer, true)).productprice);
+            Assert.AreEqual(1000, (await _taxService.GetProductPrice(product, "0", 1000, false, customer, false)).productprice);
         }
 
         [TestMethod()]
@@ -147,10 +147,10 @@ namespace Grand.Business.Catalog.Tests.Service.Tax
             customer.IsTaxExempt = false;
 
             string taxCategoryId = "";  //as in code
-            decimal scUnitPriceWithoutDiscount = 1000.00M;
-            decimal scUnitPrice = 1000.00M;
-            decimal scSubTotal = 5000.00M;
-            decimal discountAmount = 7000.00M;
+            double scUnitPriceWithoutDiscount = 1000.00;
+            double scUnitPrice = 1000.00;
+            double scSubTotal = 5000.00;
+            double discountAmount = 7000.00;
             _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>())).Returns(Task.FromResult<IList<CustomerGroup>>(new List<CustomerGroup>()));
             //these 6 methods..
             var scUnitPriceInclTax = (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, true, customer, true)).productprice;
@@ -181,10 +181,10 @@ namespace Grand.Business.Catalog.Tests.Service.Tax
             customer.IsTaxExempt = false;
             string taxCategoryId = "";  //as in code
             _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>())).Returns(Task.FromResult<IList<CustomerGroup>>(new List<CustomerGroup>()));
-            decimal scUnitPriceWithoutDiscount = 1000.00M;
-            decimal scUnitPrice = 1000.00M;
-            decimal scSubTotal = 5000.00M;
-            decimal discountAmount = 7000.00M;
+            double scUnitPriceWithoutDiscount = 1000.00;
+            double scUnitPrice = 1000.00;
+            double scSubTotal = 5000.00;
+            double discountAmount = 7000.00;
 
             var scUnitPriceInclTax = (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, true, customer, false)).productprice;
             var scUnitPriceExclTax = (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, false, customer, false)).productprice;
@@ -214,10 +214,10 @@ namespace Grand.Business.Catalog.Tests.Service.Tax
             customer.IsTaxExempt = true;
             string taxCategoryId = "";
 
-            decimal scUnitPriceWithoutDiscount = 1000.00M;
-            decimal scUnitPrice = 1000.00M;
-            decimal scSubTotal = 5000.00M;
-            decimal discountAmount = 7000.00M;
+            double scUnitPriceWithoutDiscount = 1000.00;
+            double scUnitPrice = 1000.00;
+            double scSubTotal = 5000.00;
+            double discountAmount = 7000.00;
 
             var scUnitPriceInclTax = (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, true, customer, true)).productprice;
             var scUnitPriceExclTax = (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, false, customer, true)).productprice;
@@ -247,10 +247,10 @@ namespace Grand.Business.Catalog.Tests.Service.Tax
             customer.IsTaxExempt = true;
             string taxCategoryId = "";
 
-            decimal scUnitPriceWithoutDiscount = 1000.00M;
-            decimal scUnitPrice = 1000.00M;
-            decimal scSubTotal = 5000.00M;
-            decimal discountAmount = 7000.00M;
+            double scUnitPriceWithoutDiscount = 1000.00;
+            double scUnitPrice = 1000.00;
+            double scSubTotal = 5000.00;
+            double discountAmount = 7000.00;
 
             var scUnitPriceInclTax = (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, true, customer, false)).productprice;
             var scUnitPriceExclTax = (await _taxService.GetProductPrice(product, taxCategoryId, scUnitPrice, false, customer, false)).productprice;
