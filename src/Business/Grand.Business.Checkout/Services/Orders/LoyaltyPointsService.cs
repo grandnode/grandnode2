@@ -111,7 +111,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 if (!string.IsNullOrEmpty(storeId))
                     query = query.Where(rph => rph.StoreId == storeId);
             }
-            query = query.OrderByDescending(rph => rph.CreatedOnUtc).ThenByDescending(rph => rph.Id);
+            query = query.OrderByDescending(rph => rph.CreatedOnUtc);
 
             return await Task.FromResult(query.ToList());
         }

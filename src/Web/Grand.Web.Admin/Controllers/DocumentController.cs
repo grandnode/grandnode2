@@ -1,16 +1,14 @@
-﻿using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Customers.Interfaces;
 using Grand.Business.Marketing.Interfaces.Documents;
-using Grand.Web.Common.Filters;
-using Grand.Web.Common.DataSource;
-using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Documents;
+using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -25,8 +23,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly IDocumentService _documentService;
         private readonly ITranslationService _translationService;
         private readonly ICustomerService _customerService;
-        private readonly IGroupService _groupService;
-        private readonly IStoreService _storeService;
         private readonly ICustomerActivityService _customerActivityService;
 
         public DocumentController(IDocumentViewModelService documentViewModelService,
@@ -34,8 +30,6 @@ namespace Grand.Web.Admin.Controllers
             IDocumentTypeService documentTypeService,
             ITranslationService translationService,
             ICustomerService customerService,
-            IGroupService groupService,
-            IStoreService storeService,
             ICustomerActivityService customerActivityService)
         {
             _documentViewModelService = documentViewModelService;
@@ -43,8 +37,6 @@ namespace Grand.Web.Admin.Controllers
             _documentTypeService = documentTypeService;
             _translationService = translationService;
             _customerService = customerService;
-            _groupService = groupService;
-            _storeService = storeService;
             _customerActivityService = customerActivityService;
         }
 
@@ -59,8 +51,7 @@ namespace Grand.Web.Admin.Controllers
                 model.SearchEmail = (await _customerService.GetCustomerById(model.CustomerId))?.Email;
 
             var documents = await _documentViewModelService.PrepareDocumentListModel(model, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = documents.documetListModel,
                 Total = documents.totalCount
             };
@@ -170,8 +161,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> ListType()
         {
             var types = await _documentTypeService.GetAll();
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = types,
                 Total = types.Count
             };
