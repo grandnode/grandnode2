@@ -22,10 +22,6 @@ function DataProviderChange(provider) {
         if (!elm.checked) {
             elm.click();
         }
-        let collation = document.getElementById('Collation');
-        if (collation.value != "") {
-            collation.value = "";
-        }
     }
     else {
         var elm = document.getElementById('ConnectionInfo');

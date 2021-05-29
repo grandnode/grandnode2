@@ -143,9 +143,6 @@
   <LocaleResource Name="Title">
     <Value>grandnode instalacja</Value>
   </LocaleResource>
-  <LocaleResource Name="SkipCreateIndex">
-    <Value>Pomin tworzenie indeksów</Value>
-  </LocaleResource>
   <LocaleResource Name="Tooltip1">
     <Value>grandnode jest w pełni funkcjonalną platformą e-commerce, stworzoną w oparciu o ASP.NET. Ten kreator poprowadzi cię przez proces instalacji i konfiguracji grandnode</Value>
   </LocaleResource>

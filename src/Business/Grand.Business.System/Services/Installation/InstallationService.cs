@@ -550,7 +550,7 @@ namespace Grand.Business.System.Services.Installation
             
         }
 
-        private async Task CreateTables(string local, bool skipCreateIndex)
+        private async Task CreateTables(string local)
         {
             try
             {
@@ -565,8 +565,7 @@ namespace Grand.Business.System.Services.Installation
                     if (item.BaseType != null && item.IsClass && item.BaseType == typeof(BaseEntity))
                         await dbContext.CreateTable(item.Name, local);
                 }
-                if (!skipCreateIndex)
-                    await CreateIndexes(dbContext);
+                await CreateIndexes(dbContext);
 
             }
             catch (Exception ex)
@@ -581,12 +580,12 @@ namespace Grand.Business.System.Services.Installation
 
 
         public virtual async Task InstallData(string defaultUserEmail,
-            string defaultUserPassword, string collation, bool skipCreateIndex = false, bool installSampleData = true, string companyName = "", string companyAddress = "",
+            string defaultUserPassword, string collation, bool installSampleData = true, string companyName = "", string companyAddress = "",
             string companyPhoneNumber = "", string companyEmail = "")
         {
             defaultUserEmail = defaultUserEmail.ToLower();
 
-            await CreateTables(collation, skipCreateIndex);
+            await CreateTables(collation);
             await InstallVersion();
             await InstallMenuAdminSiteMap();
             await InstallStores(companyName, companyAddress, companyPhoneNumber, companyEmail);

@@ -65,7 +65,6 @@ namespace Grand.Web.Controllers
                 AdminEmail = "admin@yourstore.com",
                 InstallSampleData = false,
                 DatabaseConnectionString = "",
-                SkipCreateIndex = false,
             };
 
             model.AvailableProviders = Enum.GetValues(typeof(DbProvider)).Cast<DbProvider>().Select(v => new SelectListItem {
@@ -164,7 +163,7 @@ namespace Grand.Web.Controllers
                     await DataSettingsManager.SaveSettings(settings);
 
                     var installationService = _serviceProvider.GetRequiredService<IInstallationService>();
-                    await installationService.InstallData(model.AdminEmail, model.AdminPassword, model.Collation, model.SkipCreateIndex,
+                    await installationService.InstallData(model.AdminEmail, model.AdminPassword, model.Collation, 
                         model.InstallSampleData, model.CompanyName, model.CompanyAddress, model.CompanyPhoneNumber, model.CompanyEmail);
 
                     //reset cache
