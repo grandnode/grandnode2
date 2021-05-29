@@ -74,6 +74,8 @@ namespace Grand.Business.System.Services.Installation
         private readonly IRepository<SpecificationAttribute> _specificationAttributeRepository;
         private readonly IRepository<CheckoutAttribute> _checkoutAttributeRepository;
         private readonly IRepository<ProductAttribute> _productAttributeRepository;
+        private readonly IRepository<AddressAttribute> _addressAttributeRepository;
+        private readonly IRepository<CustomerAttribute> _customerAttributeRepository;
         private readonly IRepository<Category> _categoryRepository;
         private readonly IRepository<Brand> _brandRepository;
         private readonly IRepository<Vendor> _vendorRepository;
@@ -89,6 +91,7 @@ namespace Grand.Business.System.Services.Installation
         private readonly IRepository<DiscountCoupon> _discountCouponRepository;
         private readonly IRepository<DiscountUsageHistory> _discountusageRepository;
         private readonly IRepository<BlogPost> _blogPostRepository;
+        private readonly IRepository<BlogCategory> _blogCategoryRepository;
         private readonly IRepository<Page> _pageRepository;
         private readonly IRepository<NewsItem> _newsItemRepository;
         private readonly IRepository<NewsLetterSubscription> _newslettersubscriptionRepository;
@@ -126,6 +129,10 @@ namespace Grand.Business.System.Services.Installation
         private readonly IRepository<OrderTag> _orderTagRepository;
         private readonly IRepository<OrderStatus> _orderStatusRepository;
         private readonly IRepository<PopupActive> _popupActiveRepository;
+        private readonly IRepository<PickupPoint> _pickupPointRepository;
+        private readonly IRepository<OutOfStockSubscription> _outOfStockSubscriptionRepository;
+        private readonly IRepository<ShipmentNote> _shipmentNoteRepository;
+
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IServiceProvider _serviceProvider;
 
@@ -165,6 +172,8 @@ namespace Grand.Business.System.Services.Installation
             _specificationAttributeRepository = new MongoRepository<SpecificationAttribute>(dataProviderSettings.ConnectionString);
             _checkoutAttributeRepository = new MongoRepository<CheckoutAttribute>(dataProviderSettings.ConnectionString);
             _productAttributeRepository = new MongoRepository<ProductAttribute>(dataProviderSettings.ConnectionString);
+            _addressAttributeRepository = new MongoRepository<AddressAttribute>(dataProviderSettings.ConnectionString);
+            _customerAttributeRepository= new MongoRepository<CustomerAttribute>(dataProviderSettings.ConnectionString);
             _categoryRepository = new MongoRepository<Category>(dataProviderSettings.ConnectionString);
             _brandRepository = new MongoRepository<Brand>(dataProviderSettings.ConnectionString);
             _collectionRepository = new MongoRepository<Collection>(dataProviderSettings.ConnectionString);
@@ -199,6 +208,7 @@ namespace Grand.Business.System.Services.Installation
             _searchtermRepository = new MongoRepository<SearchTerm>(dataProviderSettings.ConnectionString);
             _settingRepository = new MongoRepository<Setting>(dataProviderSettings.ConnectionString);
             _shipmentRepository = new MongoRepository<Shipment>(dataProviderSettings.ConnectionString);
+            _shipmentNoteRepository = new MongoRepository<ShipmentNote>(dataProviderSettings.ConnectionString);
             _warehouseRepository = new MongoRepository<Warehouse>(dataProviderSettings.ConnectionString);
             _pickupPointsRepository = new MongoRepository<PickupPoint>(dataProviderSettings.ConnectionString);
             _permissionRepository = new MongoRepository<Permission>(dataProviderSettings.ConnectionString);
@@ -219,6 +229,9 @@ namespace Grand.Business.System.Services.Installation
             _orderTagRepository = new MongoRepository<OrderTag>(dataProviderSettings.ConnectionString);
             _orderStatusRepository = new MongoRepository<OrderStatus>(dataProviderSettings.ConnectionString);
             _popupActiveRepository = new MongoRepository<PopupActive>(dataProviderSettings.ConnectionString);
+            _pickupPointRepository = new MongoRepository<PickupPoint>(dataProviderSettings.ConnectionString);
+            _outOfStockSubscriptionRepository = new MongoRepository<OutOfStockSubscription>(dataProviderSettings.ConnectionString);
+            _blogCategoryRepository = new MongoRepository<BlogCategory>(dataProviderSettings.ConnectionString);
 
             _hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
 
@@ -281,6 +294,10 @@ namespace Grand.Business.System.Services.Installation
 
             await dbContext.CreateIndex(_vendorRepository, OrderBuilder<Vendor>.Create().Ascending(x => x.DisplayOrder).Ascending(x => x.Name), "DisplayOrder_Name");
 
+            await dbContext.CreateIndex(_addressAttributeRepository, OrderBuilder<AddressAttribute>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+            await dbContext.CreateIndex(_customerAttributeRepository, OrderBuilder<CustomerAttribute>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+            
+
             //product customer group
             await dbContext.CreateIndex(_customerGroupProductRepository, OrderBuilder<CustomerGroupProduct>.Create().Ascending(x => x.CustomerGroupId).Ascending(x => x.DisplayOrder), "CustomerGroupId_DisplayOrder");
 
@@ -320,6 +337,7 @@ namespace Grand.Business.System.Services.Installation
 
             //collection
             await dbContext.CreateIndex(_collectionRepository, OrderBuilder<Collection>.Create().Ascending(x => x.DisplayOrder).Ascending(x => x.Name), "DisplayOrder_Name");
+            await dbContext.CreateIndex(_collectionRepository, OrderBuilder<Collection>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
             await dbContext.CreateIndex(_collectionRepository, OrderBuilder<Collection>.Create().Ascending(x => x.ShowOnHomePage).Ascending(x => x.Published).Ascending(x => x.DisplayOrder), "ShowOnHomePage_DisplayOrder_1");
             await dbContext.CreateIndex(_collectionRepository, OrderBuilder<Collection>.Create().Ascending(x => x.AppliedDiscounts), "AppliedDiscounts");
 
@@ -347,8 +365,37 @@ namespace Grand.Business.System.Services.Installation
             await dbContext.CreateIndex(_productRepository, OrderBuilder<Product>.Create().Ascending("ProductCollections.CollectionId").Ascending("ProductCollections.IsFeaturedProduct").Ascending(x => x.Published).Ascending(x => x.VisibleIndividually), "ProductCollections.CollectionId_1_IsFeaturedProduct_1");
             await dbContext.CreateIndex(_productRepository, OrderBuilder<Product>.Create().Ascending(x => x.Published).Ascending(x => x.VisibleIndividually).Ascending(x => x.BrandId).Ascending(x => x.DisplayOrderBrand), "ProductBrand");
             await dbContext.CreateIndex(_productRepository, OrderBuilder<Product>.Create().Ascending(x => x.Published).Ascending(x => x.VisibleIndividually).Ascending("ProductSpecificationAttributes.SpecificationAttributeOptionId").Ascending("ProductSpecificationAttributes.AllowFiltering"), "ProductSpecificationAttributes");
-
             await dbContext.CreateIndex(_productRepository, OrderBuilder<Product>.Create().Ascending(x => x.DisplayOrder).Ascending(x => x.Name), "DisplayOrder_Name");
+
+            await dbContext.CreateIndex(_productRepository, OrderBuilder<Product>.Create().Ascending(x => x.DisplayOrderCategory), "DisplayOrderCategory");
+            await dbContext.CreateIndex(_productRepository, OrderBuilder<Product>.Create().Ascending(x => x.DisplayOrderBrand), "DisplayOrderBrand");
+            await dbContext.CreateIndex(_productRepository, OrderBuilder<Product>.Create().Ascending(x => x.DisplayOrderCollection), "DisplayOrderCollection");
+            await dbContext.CreateIndex(_productRepository, OrderBuilder<Product>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+            await dbContext.CreateIndex(_productRepository, OrderBuilder<Product>.Create().Ascending(x => x.Price), "Price");
+            await dbContext.CreateIndex(_productRepository, OrderBuilder<Product>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
+            await dbContext.CreateIndex(_productRepository, OrderBuilder<Product>.Create().Ascending(x => x.OnSale), "OnSale");
+            await dbContext.CreateIndex(_productRepository, OrderBuilder<Product>.Create().Ascending(x => x.Viewed), "Viewed");
+            await dbContext.CreateIndex(_productRepository, OrderBuilder<Product>.Create().Ascending(x => x.Sold), "Sold");
+
+            //product attribute
+            await dbContext.CreateIndex(_productAttributeRepository, OrderBuilder<ProductAttribute>.Create().Ascending(x => x.Name), "Name");
+
+            //Product layout
+            await dbContext.CreateIndex(_productLayoutRepository, OrderBuilder<ProductLayout>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+            await dbContext.CreateIndex(_brandLayoutRepository, OrderBuilder<BrandLayout>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+            await dbContext.CreateIndex(_collectionLayoutRepository, OrderBuilder<CollectionLayout>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+            await dbContext.CreateIndex(_pageLayoutRepository, OrderBuilder<PageLayout>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+
+            //Delivery date
+            await dbContext.CreateIndex(_deliveryDateRepository, OrderBuilder<DeliveryDate>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+
+            //Tax
+            await dbContext.CreateIndex(_taxCategoryRepository, OrderBuilder<TaxCategory>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+
+            //Measure
+            await dbContext.CreateIndex(_measureWeightRepository, OrderBuilder<MeasureWeight>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+            await dbContext.CreateIndex(_measureUnitRepository, OrderBuilder<MeasureUnit>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+            await dbContext.CreateIndex(_measureDimensionRepository, OrderBuilder<MeasureDimension>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
 
             //productreseration
             await dbContext.CreateIndex(_productReservationRepository, OrderBuilder<ProductReservation>.Create().Ascending(x => x.ProductId).Ascending(x => x.Date), "ProductReservation");
@@ -359,9 +406,11 @@ namespace Grand.Business.System.Services.Installation
 
             //ProductReview
             await dbContext.CreateIndex(_productReviewRepository, OrderBuilder<ProductReview>.Create().Ascending(x => x.ProductId).Ascending(x => x.CreatedOnUtc), "ProductId");
+            await dbContext.CreateIndex(_productReviewRepository, OrderBuilder<ProductReview>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
 
             //Recently Viewed Products
             await dbContext.CreateIndex(_recentlyViewedProductRepository, OrderBuilder<RecentlyViewedProduct>.Create().Ascending(x => x.CustomerId).Ascending(x => x.ProductId).Descending(x => x.CreatedOnUtc), "CustomerId.ProductId");
+            await dbContext.CreateIndex(_recentlyViewedProductRepository, OrderBuilder<RecentlyViewedProduct>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
 
             //Product also purchased
             await dbContext.CreateIndex(_productalsopurchasedRepository, OrderBuilder<ProductAlsoPurchased>.Create().Ascending(x => x.ProductId), "ProductId");
@@ -379,6 +428,8 @@ namespace Grand.Business.System.Services.Installation
             await dbContext.CreateIndex(_countryRepository, OrderBuilder<Country>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
 
             //discount
+            await dbContext.CreateIndex(_discountRepository, OrderBuilder<Discount>.Create().Ascending(x => x.Name), "Name)");
+
             await dbContext.CreateIndex(_discountCouponRepository, OrderBuilder<DiscountCoupon>.Create().Ascending(x => x.CouponCode), "CouponCode", true);
             await dbContext.CreateIndex(_discountCouponRepository, OrderBuilder<DiscountCoupon>.Create().Ascending(x => x.DiscountId), "DiscountId");
 
@@ -386,6 +437,13 @@ namespace Grand.Business.System.Services.Installation
             await dbContext.CreateIndex(_discountusageRepository, OrderBuilder<DiscountUsageHistory>.Create().Ascending(x => x.DiscountId), "DiscountId");
             await dbContext.CreateIndex(_discountusageRepository, OrderBuilder<DiscountUsageHistory>.Create().Ascending(x => x.OrderId), "OrderId");
 
+            await dbContext.CreateIndex(_discountusageRepository, OrderBuilder<DiscountUsageHistory>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
+
+            //blog 
+            await dbContext.CreateIndex(_blogPostRepository, OrderBuilder<BlogPost>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
+            await dbContext.CreateIndex(_blogCategoryRepository, OrderBuilder<BlogCategory>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+
+            
             //knowledgebase
             await dbContext.CreateIndex(_knowledgebaseArticleRepository, OrderBuilder<KnowledgebaseArticle>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
             await dbContext.CreateIndex(_knowledgebaseCategoryRepository, OrderBuilder<KnowledgebaseCategory>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
@@ -408,6 +466,7 @@ namespace Grand.Business.System.Services.Installation
 
             //loyalty points
             await dbContext.CreateIndex(_loyaltypointshistoryRepository, OrderBuilder<LoyaltyPointsHistory>.Create().Ascending(x => x.CustomerId), "CustomerId");
+            await dbContext.CreateIndex(_loyaltypointshistoryRepository, OrderBuilder<LoyaltyPointsHistory>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
 
             //search term
             await dbContext.CreateIndex(_searchtermRepository, OrderBuilder<SearchTerm>.Create().Descending(x => x.Count), "Count");
@@ -418,7 +477,10 @@ namespace Grand.Business.System.Services.Installation
             //shipment
             await dbContext.CreateIndex(_shipmentRepository, OrderBuilder<Shipment>.Create().Ascending(x => x.ShipmentNumber), "ShipmentNumber", true);
             await dbContext.CreateIndex(_shipmentRepository, OrderBuilder<Shipment>.Create().Ascending(x => x.OrderId), "OrderId");
+            await dbContext.CreateIndex(_shipmentRepository, OrderBuilder<Shipment>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
 
+            await dbContext.CreateIndex(_shipmentNoteRepository, OrderBuilder<ShipmentNote>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
+            
             //order
             await dbContext.CreateIndex(_orderRepository, OrderBuilder<Order>.Create().Ascending(x => x.CustomerId).Descending(x => x.CreatedOnUtc), "CustomerId_1_CreatedOnUtc_-1");
             await dbContext.CreateIndex(_orderRepository, OrderBuilder<Order>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc_-1");
@@ -430,6 +492,7 @@ namespace Grand.Business.System.Services.Installation
             await dbContext.CreateIndex(_orderStatusRepository, OrderBuilder<OrderStatus>.Create().Ascending(x => x.StatusId), "StatusId", true);
 
             await dbContext.CreateIndex(_orderNoteRepository, OrderBuilder<OrderNote>.Create().Ascending(x => x.OrderId).Descending(x => x.CreatedOnUtc), "OrderId_Created");
+            await dbContext.CreateIndex(_orderNoteRepository, OrderBuilder<OrderNote>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
 
             //permision
             await dbContext.CreateIndex(_permissionRepository, OrderBuilder<Permission>.Create().Ascending(x => x.SystemName), "SystemName", true);
@@ -442,6 +505,8 @@ namespace Grand.Business.System.Services.Installation
 
             //merchandise return
             await dbContext.CreateIndex(_merchandiseReturnRepository, OrderBuilder<MerchandiseReturn>.Create().Ascending(x => x.ReturnNumber), "ReturnNumber", true);
+            await dbContext.CreateIndex(_merchandiseReturnRepository, OrderBuilder<MerchandiseReturn>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc", false);
+
             await dbContext.CreateIndex(_merchandiseReturnNoteRepository, OrderBuilder<MerchandiseReturnNote>.Create().Ascending(x => x.MerchandiseReturnId).Descending(x => x.CreatedOnUtc), "MerchandiseReturnId_CreatedOn");
 
             //contactus
@@ -468,12 +533,21 @@ namespace Grand.Business.System.Services.Installation
             //warehouse
             await dbContext.CreateIndex(_warehouseRepository, OrderBuilder<Warehouse>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
 
+            //shipping method
+            await dbContext.CreateIndex(_shippingMethodRepository, OrderBuilder<ShippingMethod>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+
             //order status
             await dbContext.CreateIndex(_orderStatusRepository, OrderBuilder<OrderStatus>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
 
             //country
             await dbContext.CreateIndex(_countryRepository, OrderBuilder<Country>.Create().Ascending(x => x.DisplayOrder).Ascending(x => x.Name), "DisplayOrder_Name");
 
+            //picpup points
+            await dbContext.CreateIndex(_pickupPointRepository, OrderBuilder<PickupPoint>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+
+            //outofstock
+            await dbContext.CreateIndex(_outOfStockSubscriptionRepository, OrderBuilder<OutOfStockSubscription>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
+            
         }
 
         private async Task CreateTables(string local, bool skipCreateIndex)

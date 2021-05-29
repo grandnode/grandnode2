@@ -20,26 +20,29 @@ namespace Widgets.Slider
         private readonly IRepository<PictureSlider> _pictureSliderRepository;
         private readonly ITranslationService _translationService;
         private readonly ILanguageService _languageService;
+        private readonly IDatabaseContext _databaseContext;
 
         public SliderWidgetPlugin(IPictureService pictureService,
             IRepository<PictureSlider> pictureSliderRepository,
             ITranslationService translationService,
-            ILanguageService languageService)
+            ILanguageService languageService,
+            IDatabaseContext databaseContext)
         {
             _pictureService = pictureService;
             _pictureSliderRepository = pictureSliderRepository;
             _translationService = translationService;
             _languageService = languageService;
+            _databaseContext = databaseContext;
         }
-
-
-
 
         /// <summary>
         /// Install plugin
         /// </summary>
         public override async Task Install()
         {
+            //Create index
+            await _databaseContext.CreateIndex(_pictureSliderRepository, OrderBuilder<PictureSlider>.Create().Ascending(x => x.SliderTypeId).Ascending(x => x.DisplayOrder), "SliderTypeId_DisplayOrder");
+
             //pictures
             var sampleImagesPath = CommonPath.MapPath("Plugins/Widgets.Slider/Assets/slider/sample-images/");
             var byte1 = File.ReadAllBytes(sampleImagesPath + "banner1.png");
@@ -73,6 +76,8 @@ namespace Widgets.Slider
             pictureSlider2.PictureId = pic2.Id;
 
             await _pictureSliderRepository.InsertAsync(pictureSlider2);
+
+
 
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.FriendlyName", "Widget Slider");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Added", "Slider added");

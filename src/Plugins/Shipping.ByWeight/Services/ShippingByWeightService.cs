@@ -52,7 +52,6 @@ namespace Shipping.ByWeight.Services
             return await _cacheBase.GetAsync(key, () =>
             {
                 var query = from sbw in _sbwRepository.Table
-                            orderby sbw.StoreId, sbw.CountryId, sbw.StateProvinceId, sbw.Zip, sbw.ShippingMethodId, sbw.From
                             select sbw;
 
                 return Task.FromResult(new PagedList<ShippingByWeightRecord>(query, pageIndex, pageSize));

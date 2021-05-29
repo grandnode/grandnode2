@@ -58,7 +58,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 query = query.Where(rph => rph.CustomerId == customerId);
             if (!_loyaltyPointsSettings.PointsAccumulatedForAllStores)
                 query = query.Where(rph => rph.StoreId == storeId);
-            query = query.OrderByDescending(rph => rph.CreatedOnUtc).ThenByDescending(rph => rph.Id);
+            query = query.OrderByDescending(rph => rph.CreatedOnUtc);
 
             var lastRph = await Task.FromResult(query.FirstOrDefault());
             return lastRph != null ? lastRph.PointsBalance : 0;
