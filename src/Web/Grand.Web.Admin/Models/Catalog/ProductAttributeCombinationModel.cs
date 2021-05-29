@@ -40,8 +40,8 @@ namespace Grand.Web.Admin.Models.Catalog
         public string Gtin { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.OverriddenPrice")]
-        [UIHint("DecimalNullable")]
-        public decimal? OverriddenPrice { get; set; }
+        [UIHint("DoubleNullable")]
+        public double? OverriddenPrice { get; set; }
         public string PrimaryStoreCurrencyCode { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.NotifyAdminForQuantityBelow")]

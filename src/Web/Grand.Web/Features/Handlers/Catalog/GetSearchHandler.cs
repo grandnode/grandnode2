@@ -198,8 +198,8 @@ namespace Grand.Web.Features.Handlers.Catalog
                 {
                     var categoryIds = new List<string>();
                     string collectionId = "";
-                    decimal? minPriceConverted = null;
-                    decimal? maxPriceConverted = null;
+                    double? minPriceConverted = null;
+                    double? maxPriceConverted = null;
                     bool searchInDescriptions = false;
                     string vendorId = "";
                     if (request.Model.adv)
@@ -217,15 +217,15 @@ namespace Grand.Web.Features.Handlers.Catalog
                         //min price
                         if (!string.IsNullOrEmpty(request.Model.pf))
                         {
-                            decimal minPrice;
-                            if (decimal.TryParse(request.Model.pf, out minPrice))
+                            double minPrice;
+                            if (double.TryParse(request.Model.pf, out minPrice))
                                 minPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(minPrice, request.Currency);
                         }
                         //max price
                         if (!string.IsNullOrEmpty(request.Model.pt))
                         {
-                            decimal maxPrice;
-                            if (decimal.TryParse(request.Model.pt, out maxPrice))
+                            double maxPrice;
+                            if (double.TryParse(request.Model.pt, out maxPrice))
                                 maxPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(maxPrice, request.Currency);
                         }
 

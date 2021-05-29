@@ -20,7 +20,7 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets the used value (amount)
         /// </summary>
-        public decimal UsedValue { get; set; }
+        public double UsedValue { get; set; }
 
         /// <summary>
         /// Gets or sets the date and time of instance creation

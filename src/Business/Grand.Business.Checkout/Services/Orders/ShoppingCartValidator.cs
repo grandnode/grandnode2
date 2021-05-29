@@ -141,8 +141,8 @@ namespace Grand.Business.Checkout.Services.Orders
                 if (shoppingCartItemEnteredPrice < product.MinEnteredPrice ||
                     shoppingCartItemEnteredPrice > product.MaxEnteredPrice)
                 {
-                    decimal minimumCustomerEnteredPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.MinEnteredPrice, _workContext.WorkingCurrency);
-                    decimal maximumCustomerEnteredPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.MaxEnteredPrice, _workContext.WorkingCurrency);
+                    double minimumCustomerEnteredPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.MinEnteredPrice, _workContext.WorkingCurrency);
+                    double maximumCustomerEnteredPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(product.MaxEnteredPrice, _workContext.WorkingCurrency);
                     warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.CustomerEnteredPrice.RangeError"),
                         _priceFormatter.FormatPrice(minimumCustomerEnteredPrice, false),
                         _priceFormatter.FormatPrice(maximumCustomerEnteredPrice, false)));
@@ -564,7 +564,7 @@ namespace Grand.Business.Checkout.Services.Orders
             return warnings;
         }
 
-        public virtual IList<string> GetAuctionProductWarning(decimal bid, Product product, Customer customer)
+        public virtual IList<string> GetAuctionProductWarning(double bid, Product product, Customer customer)
         {
             var warnings = new List<string>();
             if (bid <= product.HighestBid || bid <= product.StartPrice)

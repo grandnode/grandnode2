@@ -36,10 +36,10 @@ namespace Grand.Plugin.ExchangeRate.McExchange
                 var exchangeRates = new List<Domain.Directory.ExchangeRate>();
                 foreach (XmlNode node2 in ratesNode.ChildNodes)
                 {
-                    var rate = decimal.Parse(node2.SelectSingleNode("Mid").InnerText, provider);
+                    var rate = double.Parse(node2.SelectSingleNode("Mid").InnerText, provider);
                     exchangeRates.Add(new Domain.Directory.ExchangeRate {
                         CurrencyCode = node2.SelectSingleNode("Code").InnerText,
-                        Rate = Math.Round(1m / rate, 4, MidpointRounding.AwayFromZero),
+                        Rate = Math.Round(1 / rate, 4, MidpointRounding.AwayFromZero),
                         UpdatedOn = updateDate
                     });
                 }

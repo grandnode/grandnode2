@@ -61,7 +61,7 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
             _auctionMock.Setup(c => c.GetAuctionsToEnd()).ReturnsAsync(new List<Product>() { new Product() { Id = "id" } });
             _auctionMock.Setup(c => c.GetBidsByProductId(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(() => new PagedList<Bid>() { new Bid()});
             _shoppingCartMock.Setup(c => c.AddToCart(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<ShoppingCartType>(), It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<IList<CustomAttribute>>(), It.IsAny<decimal?>(), It.IsAny<DateTime?>(),
+                It.IsAny<string>(), It.IsAny<IList<CustomAttribute>>(), It.IsAny<double?>(), It.IsAny<DateTime?>(),
                 It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .ReturnsAsync(new List<string>() { "warning" });
             await _task.Execute();
@@ -75,7 +75,7 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
             _auctionMock.Setup(c => c.GetAuctionsToEnd()).ReturnsAsync(new List<Product>() { new Product() { Id = "id" } });
             _auctionMock.Setup(c => c.GetBidsByProductId(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(() => new PagedList<Bid>() { new Bid() });
             _shoppingCartMock.Setup(c => c.AddToCart(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<ShoppingCartType>(), It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<IList<CustomAttribute>>(), It.IsAny<decimal?>(), It.IsAny<DateTime?>(),
+                It.IsAny<string>(), It.IsAny<IList<CustomAttribute>>(), It.IsAny<double?>(), It.IsAny<DateTime?>(),
                 It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .ReturnsAsync(new List<string>() );
             await _task.Execute();

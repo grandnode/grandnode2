@@ -11,15 +11,15 @@ namespace Grand.Domain.Orders
         /// Gets a gift voucher remaining amount
         /// </summary>
         /// <returns>Gift voucher remaining amount</returns>
-        public static decimal GetGiftVoucherRemainingAmount(this GiftVoucher giftVoucher)
+        public static double GetGiftVoucherRemainingAmount(this GiftVoucher giftVoucher)
         {
-            decimal result = giftVoucher.Amount;
+            double result = giftVoucher.Amount;
 
             foreach (var gcuh in giftVoucher.GiftVoucherUsageHistory)
                 result -= gcuh.UsedValue;
 
-            if (result < decimal.Zero)
-                result = decimal.Zero;
+            if (result < 0)
+                result = 0;
 
             return result;
         }
@@ -40,8 +40,8 @@ namespace Grand.Domain.Orders
             if(giftVoucher.ValidTo.HasValue && giftVoucher.ValidTo.Value <= System.DateTime.UtcNow)
                 return false;
 
-            decimal remainingAmount = giftVoucher.GetGiftVoucherRemainingAmount();
-            if (remainingAmount > decimal.Zero)
+            double remainingAmount = giftVoucher.GetGiftVoucherRemainingAmount();
+            if (remainingAmount > 0)
                 return true;
 
             return false;

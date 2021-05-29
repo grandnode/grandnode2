@@ -35,7 +35,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 { "Text", DefaultDisplayTemplates.StringTemplate },
                 { "Url", DefaultDisplayTemplates.UrlTemplate },
                 { typeof(bool).Name, DefaultDisplayTemplates.BooleanTemplate },
-                { typeof(decimal).Name, DefaultDisplayTemplates.DecimalTemplate },
+                { typeof(double).Name, DefaultDisplayTemplates.DecimalTemplate },
                 { typeof(string).Name, DefaultDisplayTemplates.StringTemplate },
                 { typeof(object).Name, DefaultDisplayTemplates.ObjectTemplate },
             };
@@ -67,7 +67,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 { typeof(long).Name, DefaultEditorTemplates.NumberInputTemplate },
                 { typeof(ulong).Name, DefaultEditorTemplates.NumberInputTemplate },
                 { typeof(bool).Name, DefaultEditorTemplates.BooleanTemplate },
-                { typeof(decimal).Name, DefaultEditorTemplates.DecimalTemplate },
+                { typeof(double).Name, DefaultEditorTemplates.DecimalTemplate },
                 { typeof(string).Name, DefaultEditorTemplates.StringTemplate },
                 { typeof(object).Name, DefaultEditorTemplates.ObjectTemplate },
                 { typeof(IFormFile).Name, DefaultEditorTemplates.FileInputTemplate },

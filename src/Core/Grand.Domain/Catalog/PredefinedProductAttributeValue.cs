@@ -21,17 +21,17 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets the price adjustment
         /// </summary>
-        public decimal PriceAdjustment { get; set; }
+        public double PriceAdjustment { get; set; }
 
         /// <summary>
         /// Gets or sets the weight adjustment
         /// </summary>
-        public decimal WeightAdjustment { get; set; }
+        public double WeightAdjustment { get; set; }
 
         /// <summary>
         /// Gets or sets the attibute value cost
         /// </summary>
-        public decimal Cost { get; set; }
+        public double Cost { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the value is pre-selected

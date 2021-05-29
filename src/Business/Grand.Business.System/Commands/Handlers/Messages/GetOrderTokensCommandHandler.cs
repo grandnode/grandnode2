@@ -193,7 +193,7 @@ namespace Grand.Business.System.Commands.Handlers.Messages
                     //subtotal
                     _cusSubTotal = _priceFormatter.FormatPrice(request.Order.OrderSubtotalInclTax, currency, language, true);
                     //discount (applied to order subtotal)
-                    if (request.Order.OrderSubTotalDiscountInclTax > decimal.Zero)
+                    if (request.Order.OrderSubTotalDiscountInclTax > 0)
                     {
                         _cusSubTotalDiscount = _priceFormatter.FormatPrice(-request.Order.OrderSubTotalDiscountInclTax, currency, language, true);
                         _displaySubTotalDiscount = true;
@@ -206,7 +206,7 @@ namespace Grand.Business.System.Commands.Handlers.Messages
                     //subtotal
                     _cusSubTotal = _priceFormatter.FormatPrice(request.Order.OrderSubtotalExclTax, currency, language, false);
                     //discount (applied to order subtotal)
-                    if (request.Order.OrderSubTotalDiscountExclTax > decimal.Zero)
+                    if (request.Order.OrderSubTotalDiscountExclTax > 0)
                     {
                         _cusSubTotalDiscount = _priceFormatter.FormatPrice(-request.Order.OrderSubTotalDiscountExclTax, currency, language, false);
                         _displaySubTotalDiscount = true;
@@ -240,7 +240,7 @@ namespace Grand.Business.System.Commands.Handlers.Messages
                 bool displayShipping = request.Order.ShippingStatusId != ShippingStatus.ShippingNotRequired;
 
                 //payment method fee
-                bool displayPaymentMethodFee = request.Order.PaymentMethodAdditionalFeeExclTax > decimal.Zero;
+                bool displayPaymentMethodFee = request.Order.PaymentMethodAdditionalFeeExclTax > 0;
 
                 //tax
                 _displayTax = true;
@@ -269,7 +269,7 @@ namespace Grand.Business.System.Commands.Handlers.Messages
 
                 //discount
                 _displayDiscount = false;
-                if (request.Order.OrderDiscount > decimal.Zero)
+                if (request.Order.OrderDiscount > 0)
                 {
                     _cusDiscount = _priceFormatter.FormatPrice(-request.Order.OrderDiscount, currency, language, request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax, false);
                     _displayDiscount = true;

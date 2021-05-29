@@ -406,7 +406,7 @@ namespace Grand.Business.System.Services.Installation
             await _settingService.SaveSetting(new ShippingSettings {
                 AllowPickUpInStore = true,
                 FreeShippingOverXEnabled = false,
-                FreeShippingOverXValue = decimal.Zero,
+                FreeShippingOverXValue = 0,
                 FreeShippingOverXIncludingTax = false,
                 EstimateShippingEnabled = false,
                 DisplayShipmentEventsToCustomers = false,

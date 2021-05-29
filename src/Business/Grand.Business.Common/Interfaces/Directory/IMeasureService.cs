@@ -56,7 +56,7 @@ namespace Grand.Business.Common.Interfaces.Directory
         /// <param name="targetMeasureDimension">Target dimension</param>
         /// <param name="round">A value indicating whether a result should be rounded</param>
         /// <returns>Converted value</returns>
-        Task<decimal> ConvertDimension(decimal value,
+        Task<double> ConvertDimension(double value,
             MeasureDimension sourceMeasureDimension, MeasureDimension targetMeasureDimension, bool round = true);
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Grand.Business.Common.Interfaces.Directory
         /// <param name="value">Value to convert</param>
         /// <param name="sourceMeasureDimension">Source dimension</param>
         /// <returns>Converted value</returns>
-        Task<decimal> ConvertToPrimaryMeasureDimension(decimal value,
+        Task<double> ConvertToPrimaryMeasureDimension(double value,
             MeasureDimension sourceMeasureDimension);
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Grand.Business.Common.Interfaces.Directory
         /// <param name="value">Value to convert</param>
         /// <param name="targetMeasureDimension">Target dimension</param>
         /// <returns>Converted value</returns>
-        Task<decimal> ConvertFromPrimaryMeasureDimension(decimal value,
+        Task<double> ConvertFromPrimaryMeasureDimension(double value,
             MeasureDimension targetMeasureDimension);
 
         
@@ -124,7 +124,7 @@ namespace Grand.Business.Common.Interfaces.Directory
         /// <param name="targetMeasureWeight">Target weight</param>
         /// <param name="round">A value indicating whether a result should be rounded</param>
         /// <returns>Converted value</returns>
-        Task<decimal> ConvertWeight(decimal value,
+        Task<double> ConvertWeight(double value,
             MeasureWeight sourceMeasureWeight, MeasureWeight targetMeasureWeight, bool round = true);
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace Grand.Business.Common.Interfaces.Directory
         /// <param name="value">Value to convert</param>
         /// <param name="sourceMeasureWeight">Source weight</param>
         /// <returns>Converted value</returns>
-        Task<decimal> ConvertToPrimaryMeasureWeight(decimal value, MeasureWeight sourceMeasureWeight);
+        Task<double> ConvertToPrimaryMeasureWeight(double value, MeasureWeight sourceMeasureWeight);
 
         /// <summary>
         /// Converts from primary weight
@@ -141,7 +141,7 @@ namespace Grand.Business.Common.Interfaces.Directory
         /// <param name="value">Value to convert</param>
         /// <param name="targetMeasureWeight">Target weight</param>
         /// <returns>Converted value</returns>
-        Task<decimal> ConvertFromPrimaryMeasureWeight(decimal value,
+        Task<double> ConvertFromPrimaryMeasureWeight(double value,
             MeasureWeight targetMeasureWeight);
 
         /// <summary>

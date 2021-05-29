@@ -698,7 +698,7 @@ namespace Grand.Web.Admin.Controllers
             if (orderItem == null)
                 throw new ArgumentException("No order item found with the specified id");
 
-            if (!decimal.TryParse(form["pvUnitPriceExclTax" + orderItemId], out decimal unitPriceExclTax))
+            if (!double.TryParse(form["pvUnitPriceExclTax" + orderItemId], out double unitPriceExclTax))
                 unitPriceExclTax = orderItem.UnitPriceExclTax;
             if (!int.TryParse(form["pvQuantity" + orderItemId], out int quantity))
                 quantity = orderItem.Quantity;

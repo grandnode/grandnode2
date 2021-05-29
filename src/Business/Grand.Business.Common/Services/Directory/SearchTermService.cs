@@ -74,7 +74,6 @@ namespace Grand.Business.Common.Services.Directory
 
             var query = from st in _searchTermRepository.Table
                         where st.Keyword == keyword && st.StoreId == storeId
-                        orderby st.Id
                         select st;
             return await Task.FromResult(query.FirstOrDefault());
         }

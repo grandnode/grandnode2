@@ -30,12 +30,12 @@ namespace Grand.Web.Admin.Models.Customers
         public bool EnablePasswordLifetime { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Fields.MinOrderAmount")]
-        [UIHint("DecimalNullable")]
-        public decimal? MinOrderAmount { get; set; }
+        [UIHint("DoubleNullable")]
+        public double? MinOrderAmount { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Fields.MaxOrderAmount")]
-        [UIHint("DecimalNullable")]
-        public decimal? MaxOrderAmount { get; set; }
+        [UIHint("DoubleNullable")]
+        public double? MaxOrderAmount { get; set; }
 
     }
 }

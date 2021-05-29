@@ -11,6 +11,6 @@ namespace Tax.CountryStateZip.Infrastructure.Cache
         public string CountryId { get; set; }
         public string StateProvinceId { get; set; }
         public string Zip { get; set; }
-        public decimal Percentage { get; set; }
+        public double Percentage { get; set; }
     }
 }

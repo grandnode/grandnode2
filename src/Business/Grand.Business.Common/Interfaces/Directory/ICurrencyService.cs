@@ -68,7 +68,7 @@ namespace Grand.Business.Common.Interfaces.Directory
         /// <param name="amount">Amount</param>
         /// <param name="exchangeRate">Currency exchange rate</param>
         /// <returns>Converted value</returns>
-        decimal ConvertCurrency(decimal amount, decimal exchangeRate);
+        double ConvertCurrency(double amount, double exchangeRate);
 
         /// <summary>
         /// Converts currency
@@ -77,7 +77,7 @@ namespace Grand.Business.Common.Interfaces.Directory
         /// <param name="sourceCurrencyCode">Source currency code</param>
         /// <param name="targetCurrencyCode">Target currency code</param>
         /// <returns>Converted value</returns>
-        Task<decimal> ConvertCurrency(decimal amount, Currency sourceCurrencyCode, Currency targetCurrencyCode);
+        Task<double> ConvertCurrency(double amount, Currency sourceCurrencyCode, Currency targetCurrencyCode);
 
         /// <summary>
         /// Converts to primary exchange rate currency 
@@ -85,7 +85,7 @@ namespace Grand.Business.Common.Interfaces.Directory
         /// <param name="amount">Amount</param>
         /// <param name="sourceCurrencyCode">Source currency code</param>
         /// <returns>Converted value</returns>
-        Task<decimal> ConvertToPrimaryExchangeRateCurrency(decimal amount, Currency sourceCurrencyCode);
+        Task<double> ConvertToPrimaryExchangeRateCurrency(double amount, Currency sourceCurrencyCode);
 
         /// <summary>
         /// Converts from primary exchange rate currency
@@ -93,7 +93,7 @@ namespace Grand.Business.Common.Interfaces.Directory
         /// <param name="amount">Amount</param>
         /// <param name="targetCurrencyCode">Target currency code</param>
         /// <returns>Converted value</returns>
-        Task<decimal> ConvertFromPrimaryExchangeRateCurrency(decimal amount, Currency targetCurrencyCode);
+        Task<double> ConvertFromPrimaryExchangeRateCurrency(double amount, Currency targetCurrencyCode);
 
         /// <summary>
         /// Converts to primary store currency 
@@ -101,7 +101,7 @@ namespace Grand.Business.Common.Interfaces.Directory
         /// <param name="amount">Amount</param>
         /// <param name="sourceCurrencyCode">Source currency code</param>
         /// <returns>Converted value</returns>
-        Task<decimal> ConvertToPrimaryStoreCurrency(decimal amount, Currency sourceCurrencyCode);
+        Task<double> ConvertToPrimaryStoreCurrency(double amount, Currency sourceCurrencyCode);
 
         /// <summary>
         /// Converts from primary store currency
@@ -109,6 +109,6 @@ namespace Grand.Business.Common.Interfaces.Directory
         /// <param name="amount">Amount</param>
         /// <param name="targetCurrencyCode">Target currency code</param>
         /// <returns>Converted value</returns>
-        Task<decimal> ConvertFromPrimaryStoreCurrency(decimal amount, Currency targetCurrencyCode);
+        Task<double> ConvertFromPrimaryStoreCurrency(double amount, Currency targetCurrencyCode);
     }
 }

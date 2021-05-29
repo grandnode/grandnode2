@@ -498,9 +498,9 @@ namespace Grand.Web.Admin.Services
             //discount (applied to order subtotal)
             string orderSubtotalDiscountInclTaxStr = _priceFormatter.FormatPrice(order.OrderSubTotalDiscountInclTax, orderCurrency, _workContext.WorkingLanguage, true);
             string orderSubtotalDiscountExclTaxStr = _priceFormatter.FormatPrice(order.OrderSubTotalDiscountExclTax, orderCurrency, _workContext.WorkingLanguage, false);
-            if (order.OrderSubTotalDiscountInclTax > decimal.Zero)
+            if (order.OrderSubTotalDiscountInclTax > 0)
                 model.OrderSubTotalDiscountInclTax = orderSubtotalDiscountInclTaxStr;
-            if (order.OrderSubTotalDiscountExclTax > decimal.Zero)
+            if (order.OrderSubTotalDiscountExclTax > 0)
                 model.OrderSubTotalDiscountExclTax = orderSubtotalDiscountExclTaxStr;
             model.OrderSubTotalDiscountInclTaxValue = order.OrderSubTotalDiscountInclTax;
             model.OrderSubTotalDiscountExclTaxValue = order.OrderSubTotalDiscountExclTax;
@@ -512,7 +512,7 @@ namespace Grand.Web.Admin.Services
             model.OrderShippingExclTaxValue = order.OrderShippingExclTax;
 
             //payment method additional fee
-            if (order.PaymentMethodAdditionalFeeInclTax > decimal.Zero)
+            if (order.PaymentMethodAdditionalFeeInclTax > 0)
             {
                 model.PaymentMethodAdditionalFeeInclTax = _priceFormatter.FormatPaymentMethodAdditionalFee(order.PaymentMethodAdditionalFeeInclTax, orderCurrency, _workContext.WorkingLanguage, true);
                 model.PaymentMethodAdditionalFeeExclTax = _priceFormatter.FormatPaymentMethodAdditionalFee(order.PaymentMethodAdditionalFeeExclTax, orderCurrency, _workContext.WorkingLanguage, false);
@@ -570,11 +570,11 @@ namespace Grand.Web.Admin.Services
             model.CurrencyCode = order.CustomerCurrencyCode;
 
             //refunded amount
-            if (order.RefundedAmount > decimal.Zero)
+            if (order.RefundedAmount > 0)
                 model.RefundedAmount = await _priceFormatter.FormatPrice(order.RefundedAmount, order.CustomerCurrencyCode, false, _workContext.WorkingLanguage);
 
             var suggestedRefundedAmount = order.OrderItems.Sum(x => x.CancelAmount);
-            if (suggestedRefundedAmount > decimal.Zero)
+            if (suggestedRefundedAmount > 0)
                 model.SuggestedRefundedAmount = await _priceFormatter.FormatPrice(suggestedRefundedAmount, order.CustomerCurrencyCode, false, _workContext.WorkingLanguage);
 
             //used discounts
@@ -606,9 +606,9 @@ namespace Grand.Web.Admin.Services
                 model.OrderSubtotalExclTax += $" ({await _priceFormatter.FormatPrice(order.OrderSubtotalExclTax / order.CurrencyRate, order.PrimaryCurrencyCode, _workContext.WorkingLanguage, false)})";
 
                 //discount (applied to order subtotal)
-                if (order.OrderSubTotalDiscountInclTax > decimal.Zero)
+                if (order.OrderSubTotalDiscountInclTax > 0)
                     model.OrderSubTotalDiscountInclTax += $" ({await _priceFormatter.FormatPrice(order.OrderSubTotalDiscountInclTax / order.CurrencyRate, order.PrimaryCurrencyCode, _workContext.WorkingLanguage, true)})";
-                if (order.OrderSubTotalDiscountExclTax > decimal.Zero)
+                if (order.OrderSubTotalDiscountExclTax > 0)
                     model.OrderSubTotalDiscountExclTax += $" ({await _priceFormatter.FormatPrice(order.OrderSubTotalDiscountExclTax / order.CurrencyRate, order.PrimaryCurrencyCode, _workContext.WorkingLanguage, false)})";
 
                 //shipping
@@ -616,7 +616,7 @@ namespace Grand.Web.Admin.Services
                 model.OrderShippingExclTax += $" ({await _priceFormatter.FormatShippingPrice(order.OrderShippingExclTax / order.CurrencyRate, order.PrimaryCurrencyCode, _workContext.WorkingLanguage, false)})";
 
                 //payment method additional fee
-                if (order.PaymentMethodAdditionalFeeInclTax > decimal.Zero)
+                if (order.PaymentMethodAdditionalFeeInclTax > 0)
                 {
                     model.PaymentMethodAdditionalFeeInclTax += $" ({await _priceFormatter.FormatPaymentMethodAdditionalFee(order.PaymentMethodAdditionalFeeInclTax / order.CurrencyRate, order.PrimaryCurrencyCode, _workContext.WorkingLanguage, true)})";
                     model.PaymentMethodAdditionalFeeExclTax += $" ({await _priceFormatter.FormatPaymentMethodAdditionalFee(order.PaymentMethodAdditionalFeeExclTax / order.CurrencyRate, order.PrimaryCurrencyCode, _workContext.WorkingLanguage, false)})";
@@ -624,7 +624,7 @@ namespace Grand.Web.Admin.Services
                 model.Tax += $" ({await _priceFormatter.FormatPrice(order.OrderTax / order.CurrencyRate, order.PrimaryCurrencyCode, false, _workContext.WorkingLanguage)})";
 
                 //refunded amount
-                if (order.RefundedAmount > decimal.Zero)
+                if (order.RefundedAmount > 0)
                     model.RefundedAmount += $" ({await _priceFormatter.FormatPrice(order.RefundedAmount / order.CurrencyRate, order.PrimaryCurrencyCode, false, _workContext.WorkingLanguage)})";
             }
 
@@ -877,10 +877,10 @@ namespace Grand.Web.Admin.Services
             var customer = await _customerService.GetCustomerById(order.CustomerId);
             var currency = await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);
             var presetQty = 1;
-            var presetPrice = (await _pricingService.GetFinalPrice(product, customer, currency, decimal.Zero, true, presetQty)).finalPrice;
+            var presetPrice = (await _pricingService.GetFinalPrice(product, customer, currency, 0, true, presetQty)).finalPrice;
             var productPrice = await _taxService.GetProductPrice(product, presetPrice, true, customer);
-            decimal presetPriceInclTax = productPrice.productprice;
-            decimal presetPriceExclTax = (await _taxService.GetProductPrice(product, presetPrice, false, customer)).productprice;
+            double presetPriceInclTax = productPrice.productprice;
+            double presetPriceExclTax = (await _taxService.GetProductPrice(product, presetPrice, false, customer)).productprice;
 
             var model = new OrderModel.AddOrderProductModel.ProductDetailsModel
             {
@@ -1070,8 +1070,8 @@ namespace Grand.Web.Admin.Services
             //save order item
 
             //basic properties
-            decimal.TryParse(form["UnitPriceInclTax"], out decimal unitPriceInclTax);
-            decimal.TryParse(form["UnitPriceExclTax"], out decimal unitPriceExclTax);
+            double.TryParse(form["UnitPriceInclTax"], out double unitPriceInclTax);
+            double.TryParse(form["UnitPriceExclTax"], out double unitPriceExclTax);
             int.TryParse(form["Quantity"], out int quantity);
             int.TryParse(form["TaxRate"], out int taxRate);
 
@@ -1268,8 +1268,8 @@ namespace Grand.Web.Admin.Services
                     Attributes = customattributes,
                     Quantity = quantity,
                     OpenQty = quantity,
-                    DiscountAmountInclTax = decimal.Zero,
-                    DiscountAmountExclTax = decimal.Zero,
+                    DiscountAmountInclTax = 0,
+                    DiscountAmountExclTax = 0,
                     DownloadCount = 0,
                     IsDownloadActivated = false,
                     LicenseDownloadId = "",

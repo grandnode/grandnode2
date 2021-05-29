@@ -217,7 +217,7 @@ namespace Grand.Api.Infrastructure
 
             ActionConfiguration createTierPrice = product.Action("CreateProductTierPrice");
             createTierPrice.Parameter<int>(nameof(ProductTierPriceDto.Quantity));
-            createTierPrice.Parameter<decimal>(nameof(ProductTierPriceDto.Price));
+            createTierPrice.Parameter<double>(nameof(ProductTierPriceDto.Price));
             createTierPrice.Parameter<string>(nameof(ProductTierPriceDto.StoreId));
             createTierPrice.Parameter<string>(nameof(ProductTierPriceDto.CustomerGroupId));
             createTierPrice.Parameter<DateTime?>(nameof(ProductTierPriceDto.StartDateTimeUtc));
@@ -227,7 +227,7 @@ namespace Grand.Api.Infrastructure
             ActionConfiguration updateTierPrice = product.Action("UpdateProductTierPrice");
             updateTierPrice.Parameter<string>(nameof(ProductTierPriceDto.Id)).Required();
             updateTierPrice.Parameter<int>(nameof(ProductTierPriceDto.Quantity));
-            updateTierPrice.Parameter<decimal>(nameof(ProductTierPriceDto.Price));
+            updateTierPrice.Parameter<double>(nameof(ProductTierPriceDto.Price));
             updateTierPrice.Parameter<string>(nameof(ProductTierPriceDto.StoreId));
             updateTierPrice.Parameter<string>(nameof(ProductTierPriceDto.CustomerGroupId));
             updateTierPrice.Parameter<DateTime?>(nameof(ProductTierPriceDto.StartDateTimeUtc));

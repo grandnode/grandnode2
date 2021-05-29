@@ -24,11 +24,11 @@ namespace Grand.Web.Admin.Models.Orders
         public bool DisplayColorSquaresRgb { get; set; }
 
         [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Values.Fields.PriceAdjustment")]
-        public decimal PriceAdjustment { get; set; }
+        public double PriceAdjustment { get; set; }
         public string PrimaryStoreCurrencyCode { get; set; }
 
         [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Values.Fields.WeightAdjustment")]
-        public decimal WeightAdjustment { get; set; }
+        public double WeightAdjustment { get; set; }
         public string BaseWeightIn { get; set; }
 
         [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Values.Fields.IsPreSelected")]

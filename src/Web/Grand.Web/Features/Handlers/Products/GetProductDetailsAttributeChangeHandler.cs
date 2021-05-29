@@ -98,16 +98,16 @@ namespace Grand.Web.Features.Handlers.Products
                     request.Customer,
                     request.Currency,
                     ShoppingCartType.ShoppingCart,
-                    1, customAttributes, (decimal?)default,
+                    1, customAttributes, (double?)default,
                     rentalStartDate, rentalEndDate,
                     true);
 
-                decimal discountAmount = unitprice.discountAmount;
+                double discountAmount = unitprice.discountAmount;
                 List<ApplyDiscount> scDiscounts = unitprice.appliedDiscounts;
-                decimal finalPrice = unitprice.unitprice;
+                double finalPrice = unitprice.unitprice;
                 var productprice = await _taxService.GetProductPrice(request.Product, finalPrice);
-                decimal finalPriceWithDiscount = productprice.productprice;
-                decimal taxRate = productprice.taxRate;
+                double finalPriceWithDiscount = productprice.productprice;
+                double taxRate = productprice.taxRate;
                 model.Price = _priceFormatter.FormatPrice(finalPriceWithDiscount);
             }
             //stock

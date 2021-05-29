@@ -26,8 +26,8 @@ namespace Grand.Web.Models.Customer
         public string Status { get; set; }
         public string DocumentType { get; set; }
         public string Link { get; set; }
-        public decimal Amount { get; set; }
-        public decimal OutstandAmount { get; set; }
+        public double Amount { get; set; }
+        public double OutstandAmount { get; set; }
         public int Quantity { get; set; }
         public DateTime? DocDate { get; set; }
         public DateTime? DueDate { get; set; }

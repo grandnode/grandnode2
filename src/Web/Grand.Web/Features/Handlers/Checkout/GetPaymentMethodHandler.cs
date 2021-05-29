@@ -58,15 +58,15 @@ namespace Grand.Web.Features.Handlers.Checkout
             if (_loyaltyPointsSettings.Enabled)
             {
                 int loyaltyPointsBalance = await _loyaltyPointsService.GetLoyaltyPointsBalance(request.Customer.Id, request.Store.Id);
-                decimal loyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance), request.Currency);
-                if (loyaltyPointsAmount > decimal.Zero &&
+                double loyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance), request.Currency);
+                if (loyaltyPointsAmount > 0 &&
                     _orderTotalCalculationService.CheckMinimumLoyaltyPointsToUseRequirement(loyaltyPointsBalance))
                 {
                     model.DisplayLoyaltyPoints = true;
                     model.LoyaltyPointsAmount = _priceFormatter.FormatPrice(loyaltyPointsAmount, false);
                     model.LoyaltyPointsBalance = loyaltyPointsBalance;
                     var shoppingCartTotalBase = (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart, useLoyaltyPoints: true)).shoppingCartTotal;
-                    model.LoyaltyPointsEnoughToPayForOrder = (shoppingCartTotalBase.HasValue && shoppingCartTotalBase.Value == decimal.Zero);
+                    model.LoyaltyPointsEnoughToPayForOrder = (shoppingCartTotalBase.HasValue && shoppingCartTotalBase.Value == 0);
                 }
             }
 
@@ -91,9 +91,9 @@ namespace Grand.Web.Features.Handlers.Checkout
                     LogoUrl = pm.LogoURL
                 };
                 //payment method additional fee
-                decimal paymentMethodAdditionalFee = await _paymentService.GetAdditionalHandlingFee(request.Cart, pm.SystemName);
-                decimal rate = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer)).paymentPrice;
-                if (rate > decimal.Zero)
+                double paymentMethodAdditionalFee = await _paymentService.GetAdditionalHandlingFee(request.Cart, pm.SystemName);
+                double rate = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer)).paymentPrice;
+                if (rate > 0)
                     pmModel.Fee = _priceFormatter.FormatPaymentMethodAdditionalFee(rate);
 
                 model.PaymentMethods.Add(pmModel);

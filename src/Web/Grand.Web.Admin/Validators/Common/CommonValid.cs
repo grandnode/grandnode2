@@ -2,7 +2,7 @@
 {
     public static class CommonValid
     {
-        public static bool IsCommissionValid(decimal? commission)
+        public static bool IsCommissionValid(double? commission)
         {
             if (!commission.HasValue)
                 return true;

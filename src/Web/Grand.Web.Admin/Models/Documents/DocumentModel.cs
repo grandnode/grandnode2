@@ -77,10 +77,10 @@ namespace Grand.Web.Admin.Models.Documents
         public string CurrencyCode { get; set; }
 
         [GrandResourceDisplayName("Admin.Documents.Document.Fields.TotalAmount")]
-        public decimal TotalAmount { get; set; }
+        public double TotalAmount { get; set; }
 
         [GrandResourceDisplayName("Admin.Documents.Document.Fields.OutstandAmount")]
-        public decimal OutstandAmount { get; set; }
+        public double OutstandAmount { get; set; }
 
         [GrandResourceDisplayName("Admin.Documents.Document.Fields.Quantity")]
         public int Quantity { get; set; }

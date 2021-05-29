@@ -30,7 +30,7 @@ namespace Grand.Web.Admin.Models.Settings
             public bool IsReOrderAllowed { get; set; }
 
             [GrandResourceDisplayName("Admin.Settings.Order.MinOrderSubtotalAmount")]
-            public decimal MinOrderSubtotalAmount { get; set; }
+            public double MinOrderSubtotalAmount { get; set; }
 
             [GrandResourceDisplayName("Admin.Settings.Order.MinOrderSubtotalAmountIncludingTax")]
             public bool MinOrderSubtotalAmountIncludingTax { get; set; }
@@ -96,7 +96,7 @@ namespace Grand.Web.Admin.Models.Settings
             public bool MerchandiseReturns_PickupDateRequired { get; set; }
 
             [GrandResourceDisplayName("Admin.Settings.Order.MinOrderTotalAmount")]
-            public decimal MinOrderTotalAmount { get; set; }
+            public double MinOrderTotalAmount { get; set; }
 
             [GrandResourceDisplayName("Admin.Settings.Order.MinimumOrderPlacementInterval")]
             public int MinimumOrderPlacementInterval { get; set; }
@@ -195,7 +195,7 @@ namespace Grand.Web.Admin.Models.Settings
             public bool Enabled { get; set; }
 
             [GrandResourceDisplayName("Admin.Settings.LoyaltyPoints.ExchangeRate")]
-            public decimal ExchangeRate { get; set; }
+            public double ExchangeRate { get; set; }
 
             [GrandResourceDisplayName("Admin.Settings.LoyaltyPoints.MinimumLoyaltyPointsToUse")]
             public int MinimumLoyaltyPointsToUse { get; set; }
@@ -204,7 +204,7 @@ namespace Grand.Web.Admin.Models.Settings
             public int PointsForRegistration { get; set; }
 
             [GrandResourceDisplayName("Admin.Settings.LoyaltyPoints.PointsForPurchases_Amount")]
-            public decimal PointsForPurchases_Amount { get; set; }
+            public double PointsForPurchases_Amount { get; set; }
             public int PointsForPurchases_Points { get; set; }
 
             [GrandResourceDisplayName("Admin.Settings.LoyaltyPoints.PointsForPurchases_Awarded")]

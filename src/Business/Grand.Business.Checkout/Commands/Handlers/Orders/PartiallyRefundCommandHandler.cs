@@ -82,7 +82,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     //total amount refunded
                     if (paymentTransaction.TransactionStatus == Domain.Payments.TransactionStatus.Refunded)
                     {
-                        decimal totalAmountRefunded = order.RefundedAmount + amountToRefund;
+                        double totalAmountRefunded = order.RefundedAmount + amountToRefund;
 
                         order.RefundedAmount = totalAmountRefunded;
                         order.PaymentStatusId = order.RefundedAmount == order.OrderTotal ? Domain.Payments.PaymentStatus.Refunded : Domain.Payments.PaymentStatus.PartiallyRefunded;

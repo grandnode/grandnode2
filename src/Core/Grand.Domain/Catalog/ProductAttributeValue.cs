@@ -41,17 +41,17 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets the price adjustment (used only with AttributeValueType.Simple)
         /// </summary>
-        public decimal PriceAdjustment { get; set; }
+        public double PriceAdjustment { get; set; }
 
         /// <summary>
         /// Gets or sets the weight adjustment (used only with AttributeValueType.Simple)
         /// </summary>
-        public decimal WeightAdjustment { get; set; }
+        public double WeightAdjustment { get; set; }
 
         /// <summary>
         /// Gets or sets the attibute value cost (used only with AttributeValueType.Simple)
         /// </summary>
-        public decimal Cost { get; set; }
+        public double Cost { get; set; }
 
         /// <summary>
         /// Gets or sets the quantity of associated product (used only with AttributeValueType.AssociatedToProduct)

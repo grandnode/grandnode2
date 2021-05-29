@@ -169,7 +169,7 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets gift voucher amount that can be used after purchase. If not specified, then product price will be used.
         /// </summary>
-        public decimal? OverGiftAmount { get; set; }
+        public double? OverGiftAmount { get; set; }
         /// <summary>
         /// Gets or sets a value indicating whether the product requires that other products are added to the cart (Product X requires Product Y)
         /// </summary>
@@ -267,7 +267,7 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets the additional shipping charge
         /// </summary>
-        public decimal AdditionalShippingCharge { get; set; }
+        public double AdditionalShippingCharge { get; set; }
         /// <summary>
         /// Gets or sets a delivery date identifier
         /// </summary>
@@ -380,21 +380,21 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets the price
         /// </summary>
-        public decimal Price { get; set; }
+        public double Price { get; set; }
         /// <summary>
         /// Gets or sets the old price
         /// </summary>
-        public decimal OldPrice { get; set; }
+        public double OldPrice { get; set; }
 
         /// <summary>
         /// Gets or sets the catalog price
         /// </summary>
-        public decimal CatalogPrice { get; set; }
+        public double CatalogPrice { get; set; }
 
         /// <summary>
         /// Gets or sets the product cost
         /// </summary>
-        public decimal ProductCost { get; set; }
+        public double ProductCost { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether a customer enters price
@@ -403,11 +403,11 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets the minimum price entered by a customer
         /// </summary>
-        public decimal MinEnteredPrice { get; set; }
+        public double MinEnteredPrice { get; set; }
         /// <summary>
         /// Gets or sets the maximum price entered by a customer
         /// </summary>
-        public decimal MaxEnteredPrice { get; set; }
+        public double MaxEnteredPrice { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether base price (PAngV) is enabled. Used by German users.
@@ -416,7 +416,7 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets an amount in product for PAngV
         /// </summary>
-        public decimal BasepriceAmount { get; set; }
+        public double BasepriceAmount { get; set; }
         /// <summary>
         /// Gets or sets a unit of product for PAngV (MeasureWeight entity)
         /// </summary>
@@ -424,7 +424,7 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets a reference amount for PAngV
         /// </summary>
-        public decimal BasepriceBaseAmount { get; set; }
+        public double BasepriceBaseAmount { get; set; }
         /// <summary>
         /// Gets or sets a reference unit for PAngV (MeasureWeight entity)
         /// </summary>
@@ -456,19 +456,19 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets the weight
         /// </summary>
-        public decimal Weight { get; set; }
+        public double Weight { get; set; }
         /// <summary>
         /// Gets or sets the length
         /// </summary>
-        public decimal Length { get; set; }
+        public double Length { get; set; }
         /// <summary>
         /// Gets or sets the width
         /// </summary>
-        public decimal Width { get; set; }
+        public double Width { get; set; }
         /// <summary>
         /// Gets or sets the height
         /// </summary>
-        public decimal Height { get; set; }
+        public double Height { get; set; }
 
         /// <summary>
         /// Gets or sets the available start date and time
@@ -482,12 +482,12 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets auction start price
         /// </summary>
-        public decimal StartPrice { get; set; }
+        public double StartPrice { get; set; }
 
         /// <summary>
         /// Gets or sets current highest bid
         /// </summary>
-        public decimal HighestBid { get; set; }
+        public double HighestBid { get; set; }
 
         /// <summary>
         /// Gets or sets current highest bidder customer id

@@ -21,8 +21,8 @@ namespace Grand.Web.Features.Handlers.Checkout
         {
             bool result = true;
             //check whether order total equals zero
-            decimal? shoppingCartTotalBase = (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart, useLoyaltyPoints: request.UseLoyaltyPoints)).shoppingCartTotal;
-            if (shoppingCartTotalBase.HasValue && shoppingCartTotalBase.Value == decimal.Zero && !_paymentSettings.ShowPaymentIfCartIsZero)
+            double? shoppingCartTotalBase = (await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart, useLoyaltyPoints: request.UseLoyaltyPoints)).shoppingCartTotal;
+            if (shoppingCartTotalBase.HasValue && shoppingCartTotalBase.Value == 0 && !_paymentSettings.ShowPaymentIfCartIsZero)
                 result = false;
             return result;
         }

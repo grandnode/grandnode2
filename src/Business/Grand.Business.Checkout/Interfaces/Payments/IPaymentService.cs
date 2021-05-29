@@ -98,7 +98,7 @@ namespace Grand.Business.Checkout.Interfaces.Payments
         /// <param name="cart">Shoping cart</param>
         /// <param name="paymentMethodSystemName">Payment method system name</param>
         /// <returns>Additional handling fee</returns>
-        Task<decimal> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart, string paymentMethodSystemName);
+        Task<double> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart, string paymentMethodSystemName);
 
         /// <summary>
         /// Gets a value indicating whether capture is supported by payment method

@@ -19,7 +19,7 @@ namespace Grand.Web.Admin.Interfaces
         Task DeleteShipmentNote(Shipment shipment, string id);
         Task<ShipmentListModel> PrepareShipmentListModel();
         Task<ShipmentModel> PrepareShipmentModel(Order order);
-        Task<(Shipment shipment, decimal? totalWeight)> PrepareShipment(Order order, IList<OrderItem> orderItems, IFormCollection form);
+        Task<(Shipment shipment, double? totalWeight)> PrepareShipment(Order order, IList<OrderItem> orderItems, IFormCollection form);
         Task<(bool valid, string message)> ValidStockShipment(Shipment shipment);
         Task<(IEnumerable<Shipment> shipments, int totalCount)> PrepareShipments(ShipmentListModel model, int pageIndex, int pageSize);
     }

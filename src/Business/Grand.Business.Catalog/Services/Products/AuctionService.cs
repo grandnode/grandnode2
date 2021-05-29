@@ -98,7 +98,7 @@ namespace Grand.Business.Catalog.Services.Products
                 await UpdateHighestBid(productToUpdate, highestBid != null ? highestBid.Amount : 0, highestBid != null ? highestBid.CustomerId : "");
             }
         }
-        public virtual async Task UpdateHighestBid(Product product, decimal bid, string highestBidder)
+        public virtual async Task UpdateHighestBid(Product product, double bid, string highestBidder)
         {
             product.HighestBid = bid;
             product.HighestBidder = highestBidder;
@@ -142,7 +142,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="warehouseId"></param>
         /// <param name="language"></param>
         /// <param name="amount"></param>
-        public virtual async Task NewBid(Customer customer, Product product, Store store, Language language, string warehouseId, decimal amount)
+        public virtual async Task NewBid(Customer customer, Product product, Store store, Language language, string warehouseId, double amount)
         {
             var latestbid = await GetLatestBid(product.Id);
             await InsertBid(new Bid

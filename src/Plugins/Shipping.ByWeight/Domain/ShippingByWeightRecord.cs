@@ -40,31 +40,31 @@ namespace Shipping.ByWeight.Domain
         /// <summary>
         /// Gets or sets the "from" value
         /// </summary>
-        public decimal From { get; set; }
+        public double From { get; set; }
 
         /// <summary>
         /// Gets or sets the "to" value
         /// </summary>
-        public decimal To { get; set; }
+        public double To { get; set; }
 
         /// <summary>
         /// Gets or sets the additional fixed cost
         /// </summary>
-        public decimal AdditionalFixedCost { get; set; }
+        public double AdditionalFixedCost { get; set; }
 
         /// <summary>
         /// Gets or sets the shipping charge percentage (of subtotal)
         /// </summary>
-        public decimal PercentageRateOfSubtotal { get; set; }
+        public double PercentageRateOfSubtotal { get; set; }
 
         /// <summary>
         /// Gets or sets the shipping charge amount (per weight unit)
         /// </summary>
-        public decimal RatePerWeightUnit { get; set; }
+        public double RatePerWeightUnit { get; set; }
 
         /// <summary>
         /// Gets or sets the lower weight limit
         /// </summary>
-        public decimal LowerWeightLimit { get; set; }
+        public double LowerWeightLimit { get; set; }
     }
 }

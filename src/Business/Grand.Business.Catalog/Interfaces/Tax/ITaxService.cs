@@ -42,7 +42,7 @@ namespace Grand.Business.Catalog.Interfaces.Tax
         /// <param name="price">Price</param>
         /// <param name="taxRate">Tax rate</param>
         /// <returns>Price</returns>
-        Task<(decimal productprice, decimal taxRate)> GetProductPrice(Product product, decimal price);
+        Task<(double productprice, double taxRate)> GetProductPrice(Product product, double price);
 
         /// <summary>
         /// Gets price
@@ -51,7 +51,7 @@ namespace Grand.Business.Catalog.Interfaces.Tax
         /// <param name="price">Price</param>
         /// <param name="customer">Customer</param>
         /// <returns>Price</returns>
-        Task<(decimal productprice, decimal taxRate)> GetProductPrice(Product product, decimal price, Customer customer);
+        Task<(double productprice, double taxRate)> GetProductPrice(Product product, double price, Customer customer);
 
         /// <summary>
         /// Gets price
@@ -61,7 +61,7 @@ namespace Grand.Business.Catalog.Interfaces.Tax
         /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
         /// <param name="customer">Customer</param>
         /// <returns>Price</returns>
-        Task<(decimal productprice, decimal taxRate)> GetProductPrice(Product product, decimal price, bool includingTax, Customer customer);
+        Task<(double productprice, double taxRate)> GetProductPrice(Product product, double price, bool includingTax, Customer customer);
 
         /// <summary>
         /// Gets price
@@ -73,7 +73,7 @@ namespace Grand.Business.Catalog.Interfaces.Tax
         /// <param name="customer">Customer</param>
         /// <param name="priceIncludesTax">A value indicating whether price already includes tax</param>
         /// <returns>Price</returns>
-        Task<(decimal productprice, decimal taxRate)> GetProductPrice(Product product, string taxCategoryId, decimal price, bool includingTax, Customer customer, bool priceIncludesTax);
+        Task<(double productprice, double taxRate)> GetProductPrice(Product product, string taxCategoryId, double price, bool includingTax, Customer customer, bool priceIncludesTax);
 
 
         /// <summary>
@@ -91,11 +91,11 @@ namespace Grand.Business.Catalog.Interfaces.Tax
         Task<TaxProductPrice> GetTaxProductPrice(
             Product product,
             Customer customer,
-            decimal unitPrice,
-            decimal unitPricewithoutDisc,
+            double unitPrice,
+            double unitPricewithoutDisc,
             int quantity,
-            decimal subTotal,
-            decimal discountAmount,
+            double subTotal,
+            double discountAmount,
             bool priceIncludesTax
             );
 
@@ -105,7 +105,7 @@ namespace Grand.Business.Catalog.Interfaces.Tax
         /// <param name="price">Price</param>
         /// <param name="customer">Customer</param>
         /// <returns>Price</returns>
-        Task<(decimal shippingPrice, decimal taxRate)> GetShippingPrice(decimal price, Customer customer);
+        Task<(double shippingPrice, double taxRate)> GetShippingPrice(double price, Customer customer);
 
         /// <summary>
         /// Gets shipping price
@@ -114,7 +114,7 @@ namespace Grand.Business.Catalog.Interfaces.Tax
         /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
         /// <param name="customer">Customer</param>
         /// <returns>Price</returns>
-        Task<(decimal shippingPrice, decimal taxRate)> GetShippingPrice(decimal price, bool includingTax, Customer customer);
+        Task<(double shippingPrice, double taxRate)> GetShippingPrice(double price, bool includingTax, Customer customer);
 
         /// <summary>
         /// Gets payment method additional handling fee
@@ -122,7 +122,7 @@ namespace Grand.Business.Catalog.Interfaces.Tax
         /// <param name="price">Price</param>
         /// <param name="customer">Customer</param>
         /// <returns>Price</returns>
-        Task<(decimal paymentPrice, decimal taxRate)> GetPaymentMethodAdditionalFee(decimal price, Customer customer);
+        Task<(double paymentPrice, double taxRate)> GetPaymentMethodAdditionalFee(double price, Customer customer);
 
         /// <summary>
         /// Gets payment method additional handling fee
@@ -131,7 +131,7 @@ namespace Grand.Business.Catalog.Interfaces.Tax
         /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
         /// <param name="customer">Customer</param>
         /// <returns>Price</returns>
-        Task<(decimal paymentPrice, decimal taxRate)> GetPaymentMethodAdditionalFee(decimal price, bool includingTax, Customer customer);
+        Task<(double paymentPrice, double taxRate)> GetPaymentMethodAdditionalFee(double price, bool includingTax, Customer customer);
 
         /// <summary>
         /// Gets checkout attribute value price
@@ -139,7 +139,7 @@ namespace Grand.Business.Catalog.Interfaces.Tax
         /// <param name="ca">Checkout attribute</param>
         /// <param name="cav">Checkout attribute value</param>
         /// <returns>Price</returns>
-        Task<(decimal checkoutPrice, decimal taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav);
+        Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav);
 
         /// <summary>
         /// Gets checkout attribute value price
@@ -148,7 +148,7 @@ namespace Grand.Business.Catalog.Interfaces.Tax
         /// <param name="cav">Checkout attribute value</param>
         /// <param name="customer">Customer</param>
         /// <returns>Price</returns>
-        Task<(decimal checkoutPrice, decimal taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav, Customer customer);
+        Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav, Customer customer);
 
         /// <summary>
         /// Gets checkout attribute value price
@@ -158,7 +158,7 @@ namespace Grand.Business.Catalog.Interfaces.Tax
         /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
         /// <param name="customer">Customer</param>
         /// <returns>Price</returns>
-        Task<(decimal checkoutPrice, decimal taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav, bool includingTax, Customer customer);
+        Task<(double checkoutPrice, double taxRate)> GetCheckoutAttributePrice(CheckoutAttribute ca, CheckoutAttributeValue cav, bool includingTax, Customer customer);
 
         /// <summary>
         /// Gets a value indicating whether a product is tax exempt

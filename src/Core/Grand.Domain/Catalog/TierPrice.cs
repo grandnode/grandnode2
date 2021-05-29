@@ -31,7 +31,7 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets the price
         /// </summary>
-        public decimal Price { get; set; }
+        public double Price { get; set; }
         /// <summary>
         /// Gets or sets the start date and time of the special price
         /// </summary>

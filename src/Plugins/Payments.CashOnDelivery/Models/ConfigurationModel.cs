@@ -19,7 +19,7 @@ namespace Payments.CashOnDelivery.Models
         public string DescriptionText { get; set; }
 
         [GrandResourceDisplayName("Plugins.Payment.CashOnDelivery.AdditionalFee")]
-        public decimal AdditionalFee { get; set; }
+        public double AdditionalFee { get; set; }
 
         [GrandResourceDisplayName("Plugins.Payment.CashOnDelivery.AdditionalFeePercentage")]
         public bool AdditionalFeePercentage { get; set; }

@@ -65,7 +65,7 @@ namespace Shipping.ByWeight
 
         #region Utilities
 
-        private async Task<decimal?> GetRate(decimal subTotal, decimal weight, string shippingMethodId,
+        private async Task<double?> GetRate(double subTotal, double weight, string shippingMethodId,
             string storeId, string warehouseId, string countryId, string stateProvinceId, string zip)
         {
 
@@ -79,27 +79,27 @@ namespace Shipping.ByWeight
                 if (shippingByWeightSettings.LimitMethodsToCreated)
                     return null;
 
-                return decimal.Zero;
+                return 0;
             }
 
             //additional fixed cost
-            decimal shippingTotal = shippingByWeightRecord.AdditionalFixedCost;
+            double shippingTotal = shippingByWeightRecord.AdditionalFixedCost;
             //charge amount per weight unit
-            if (shippingByWeightRecord.RatePerWeightUnit > decimal.Zero)
+            if (shippingByWeightRecord.RatePerWeightUnit > 0)
             {
                 var weightRate = weight - shippingByWeightRecord.LowerWeightLimit;
-                if (weightRate < decimal.Zero)
-                    weightRate = decimal.Zero;
+                if (weightRate < 0)
+                    weightRate = 0;
                 shippingTotal += shippingByWeightRecord.RatePerWeightUnit * weightRate;
             }
             //percentage rate of subtotal
-            if (shippingByWeightRecord.PercentageRateOfSubtotal > decimal.Zero)
+            if (shippingByWeightRecord.PercentageRateOfSubtotal > 0)
             {
-                shippingTotal += Math.Round((decimal)((((float)subTotal) * ((float)shippingByWeightRecord.PercentageRateOfSubtotal)) / 100f), 2);
+                shippingTotal += Math.Round((double)((((float)subTotal) * ((float)shippingByWeightRecord.PercentageRateOfSubtotal)) / 100f), 2);
             }
 
-            if (shippingTotal < decimal.Zero)
-                shippingTotal = decimal.Zero;
+            if (shippingTotal < 0)
+                shippingTotal = 0;
             return shippingTotal;
         }
 
@@ -112,17 +112,17 @@ namespace Shipping.ByWeight
         /// </summary>
         /// <param name="shoppingCartItem">Shopping cart item</param>
         /// <returns>Shopping cart item weight</returns>
-        private async Task<decimal> GetShoppingCartItemWeight(ShoppingCartItem shoppingCartItem)
+        private async Task<double> GetShoppingCartItemWeight(ShoppingCartItem shoppingCartItem)
         {
             if (shoppingCartItem == null)
                 throw new ArgumentNullException(nameof(shoppingCartItem));
 
             var product = await _productService.GetProductById(shoppingCartItem.ProductId);
             if (product == null)
-                return decimal.Zero;
+                return 0;
 
             //attribute weight
-            decimal attributesTotalWeight = decimal.Zero;
+            double attributesTotalWeight = 0;
             if (shoppingCartItem.Attributes != null && shoppingCartItem.Attributes.Any())
             {
                 var attributeValues = _productAttributeParser.ParseProductAttributeValues(product, shoppingCartItem.Attributes);
@@ -158,14 +158,14 @@ namespace Shipping.ByWeight
         /// <param name="request">Request</param>
         /// <param name="includeCheckoutAttributes">A value indicating whether we should calculate weights of selected checkotu attributes</param>
         /// <returns>Total weight</returns>
-        private async Task<decimal> GetTotalWeight(GetShippingOptionRequest request, bool includeCheckoutAttributes = true)
+        private async Task<double> GetTotalWeight(GetShippingOptionRequest request, bool includeCheckoutAttributes = true)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
             Customer customer = request.Customer;
 
-            decimal totalWeight = decimal.Zero;
+            double totalWeight = 0;
             //shopping cart items
             foreach (var packageItem in request.Items)
                 totalWeight += await GetShoppingCartItemWeight(packageItem.ShoppingCartItem) * packageItem.GetQuantity();
@@ -216,7 +216,7 @@ namespace Shipping.ByWeight
             string stateProvinceId = getShippingOptionRequest.ShippingAddress.StateProvinceId;
             string warehouseId = getShippingOptionRequest.WarehouseFrom != null ? getShippingOptionRequest.WarehouseFrom.Id : "";
             string zip = getShippingOptionRequest.ShippingAddress.ZipPostalCode;
-            decimal subTotal = decimal.Zero;
+            double subTotal = 0;
             var priceCalculationService = _serviceProvider.GetRequiredService<IPricingService>();
 
             foreach (var packageItem in getShippingOptionRequest.Items)
@@ -229,12 +229,12 @@ namespace Shipping.ByWeight
                     subTotal += (await priceCalculationService.GetSubTotal(packageItem.ShoppingCartItem, product)).subTotal;
             }
 
-            decimal weight = await GetTotalWeight(getShippingOptionRequest);
+            double weight = await GetTotalWeight(getShippingOptionRequest);
 
             var shippingMethods = await _shippingMethodService.GetAllShippingMethods(countryId, _workContext.CurrentCustomer);
             foreach (var shippingMethod in shippingMethods)
             {
-                decimal? rate = await GetRate(subTotal, weight, shippingMethod.Id,
+                double? rate = await GetRate(subTotal, weight, shippingMethod.Id,
                     storeId, warehouseId, countryId, stateProvinceId, zip);
                 if (rate.HasValue)
                 {
@@ -255,9 +255,9 @@ namespace Shipping.ByWeight
         /// </summary>
         /// <param name="getShippingOptionRequest">A request for getting shipping options</param>
         /// <returns>Fixed shipping rate; or null in case there's no fixed shipping rate</returns>
-        public async Task<decimal?> GetFixedRate(GetShippingOptionRequest getShippingOptionRequest)
+        public async Task<double?> GetFixedRate(GetShippingOptionRequest getShippingOptionRequest)
         {
-            return await Task.FromResult(default(decimal?));
+            return await Task.FromResult(default(double?));
         }
 
         /// <summary>

@@ -1266,7 +1266,7 @@ namespace Grand.Web.Admin.Services
             }
         }
 
-        public virtual async Task<IList<string>> UpdateCart(Customer customer, string shoppingCartId, decimal? unitprice)
+        public virtual async Task<IList<string>> UpdateCart(Customer customer, string shoppingCartId, double? unitprice)
         {
             var cart = customer.ShoppingCartItems.FirstOrDefault(a => a.Id == shoppingCartId);
             if (cart != null)

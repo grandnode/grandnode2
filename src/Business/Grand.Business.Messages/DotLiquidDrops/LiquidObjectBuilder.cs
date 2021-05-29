@@ -51,7 +51,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             return this;
         }
 
-        public LiquidObjectBuilder AddOrderTokens(Order order, Customer customer, Store store, OrderNote orderNote = null, Vendor vendor = null, decimal refundedAmount = 0)
+        public LiquidObjectBuilder AddOrderTokens(Order order, Customer customer, Store store, OrderNote orderNote = null, Vendor vendor = null, double refundedAmount = 0)
         {
             _chain.Add(async liquidObject =>
             {

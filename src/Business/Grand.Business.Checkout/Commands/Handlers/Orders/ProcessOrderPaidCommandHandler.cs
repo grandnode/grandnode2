@@ -59,7 +59,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             await _mediator.Publish(new OrderPaidEvent(order));
 
             //order paid email notification
-            if (order.OrderTotal != decimal.Zero)
+            if (order.OrderTotal != 0)
             {
                 var customer = await _customerService.GetCustomerById(order.CustomerId);
 

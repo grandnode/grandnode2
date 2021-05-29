@@ -127,8 +127,8 @@ namespace Grand.Web.Admin.Models.Catalog
         public int GiftVoucherTypeId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.OverriddenGiftVoucherAmount")]
-        [UIHint("DecimalNullable")]
-        public decimal? OverGiftAmount { get; set; }
+        [UIHint("DoubleNullable")]
+        public double? OverGiftAmount { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.RequireOtherProducts")]
         public bool RequireOtherProducts { get; set; }
@@ -198,7 +198,7 @@ namespace Grand.Web.Admin.Models.Catalog
         public bool ShipSeparately { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.AdditionalShippingCharge")]
-        public decimal AdditionalShippingCharge { get; set; }
+        public double AdditionalShippingCharge { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.DeliveryDate")]
         public string DeliveryDateId { get; set; }
@@ -282,38 +282,38 @@ namespace Grand.Web.Admin.Models.Catalog
         public bool CallForPrice { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Price")]
-        public decimal Price { get; set; }
+        public double Price { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.OldPrice")]
-        public decimal OldPrice { get; set; }
+        public double OldPrice { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.CatalogPrice")]
-        public decimal CatalogPrice { get; set; }
+        public double CatalogPrice { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.StartPrice")]
-        public decimal StartPrice { get; set; }
+        public double StartPrice { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.ProductCost")]
-        public decimal ProductCost { get; set; }
+        public double ProductCost { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.EnteredPrice")]
         public bool EnteredPrice { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MinEnteredPrice")]
-        public decimal MinEnteredPrice { get; set; }
+        public double MinEnteredPrice { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MaxEnteredPrice")]
-        public decimal MaxEnteredPrice { get; set; }
+        public double MaxEnteredPrice { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.BasepriceEnabled")]
         public bool BasepriceEnabled { get; set; }
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.BasepriceAmount")]
-        public decimal BasepriceAmount { get; set; }
+        public double BasepriceAmount { get; set; }
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.BasepriceUnit")]
         public string BasepriceUnitId { get; set; }
         public IList<SelectListItem> AvailableBasepriceUnits { get; set; }
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.BasepriceBaseAmount")]
-        public decimal BasepriceBaseAmount { get; set; }
+        public double BasepriceBaseAmount { get; set; }
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.BasepriceBaseUnit")]
         public string BasepriceBaseUnitId { get; set; }
         public IList<SelectListItem> AvailableBasepriceBaseUnits { get; set; }
@@ -332,16 +332,16 @@ namespace Grand.Web.Admin.Models.Catalog
         public IList<SelectListItem> AvailableUnits { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Weight")]
-        public decimal Weight { get; set; }
+        public double Weight { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Length")]
-        public decimal Length { get; set; }
+        public double Length { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Width")]
-        public decimal Width { get; set; }
+        public double Width { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Height")]
-        public decimal Height { get; set; }
+        public double Height { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.Fields.AvailableStartDateTime")]
         [UIHint("DateTimeNullable")]
@@ -794,7 +794,7 @@ namespace Grand.Web.Admin.Models.Catalog
         {
             public string CurrencyCode { get; set; }
 
-            public decimal Price { get; set; }
+            public double Price { get; set; }
         }
 
         public partial class TierPriceModel : BaseEntityModel
@@ -826,7 +826,7 @@ namespace Grand.Web.Admin.Models.Catalog
             public int Quantity { get; set; }
 
             [GrandResourceDisplayName("Admin.Catalog.Products.TierPrices.Fields.Price")]
-            public decimal Price { get; set; }
+            public double Price { get; set; }
 
             [GrandResourceDisplayName("Admin.Catalog.Products.TierPrices.Fields.StartDateTime")]
             [UIHint("DateTimeNullable")]
@@ -1052,19 +1052,19 @@ namespace Grand.Web.Admin.Models.Catalog
             public bool DisplayImageSquaresPicture { get; set; }
 
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.PriceAdjustment")]
-            public decimal PriceAdjustment { get; set; }
+            public double PriceAdjustment { get; set; }
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.PriceAdjustment")]
             //used only on the values list page
             public string PriceAdjustmentStr { get; set; }
             public string PrimaryStoreCurrencyCode { get; set; }
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.WeightAdjustment")]
-            public decimal WeightAdjustment { get; set; }
+            public double WeightAdjustment { get; set; }
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.WeightAdjustment")]
             //used only on the values list page
             public string WeightAdjustmentStr { get; set; }
 
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Cost")]
-            public decimal Cost { get; set; }
+            public double Cost { get; set; }
 
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Quantity")]
             public int Quantity { get; set; }
@@ -1172,8 +1172,8 @@ namespace Grand.Web.Admin.Models.Catalog
             public string Gtin { get; set; }
 
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.OverriddenPrice")]
-            [UIHint("DecimalNullable")]
-            public decimal? OverriddenPrice { get; set; }
+            [UIHint("DoubleNullable")]
+            public double? OverriddenPrice { get; set; }
 
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.NotifyAdminForQuantityBelow")]
             public int NotifyAdminForQuantityBelow { get; set; }
@@ -1198,7 +1198,7 @@ namespace Grand.Web.Admin.Models.Catalog
             /// <summary>
             /// Gets or sets the price
             /// </summary>
-            public decimal Price { get; set; }
+            public double Price { get; set; }
         }
 
         #endregion

@@ -21,7 +21,7 @@ namespace Grand.Web.Admin.Models.Orders
         public int PurchasedWithOrderNumber { get; set; }
 
         [GrandResourceDisplayName("Admin.GiftVouchers.Fields.Amount")]
-        public decimal Amount { get; set; }
+        public double Amount { get; set; }
 
         [GrandResourceDisplayName("Admin.GiftVouchers.Fields.CurrencyCode")]
         public string CurrencyCode { get; set; }

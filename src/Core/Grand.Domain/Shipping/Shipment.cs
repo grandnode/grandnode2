@@ -38,7 +38,7 @@ namespace Grand.Domain.Shipping
         /// <summary>
         /// Gets or sets the total weight of this shipment
         /// </summary>
-        public decimal? TotalWeight { get; set; }
+        public double? TotalWeight { get; set; }
 
         /// <summary>
         /// Gets or sets the shipped date and time

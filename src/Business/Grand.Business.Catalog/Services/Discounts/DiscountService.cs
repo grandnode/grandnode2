@@ -688,17 +688,17 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// <param name="currency">currency</param>
         /// <param name="customer">Customer</param>
         /// <param name="product">Product</param>
-        public async Task<decimal> GetDiscountAmount(Discount discount, Customer customer, Currency currency, Product product, decimal amount)
+        public async Task<double> GetDiscountAmount(Discount discount, Customer customer, Currency currency, Product product, double amount)
         {
             if (discount == null)
                 throw new ArgumentNullException(nameof(discount));
 
             //calculate discount amount
-            decimal result = decimal.Zero;
+            double result = 0;
             if (!discount.CalculateByPlugin)
             {
                 if (discount.UsePercentage)
-                    result = (decimal)((((float)amount) * ((float)discount.DiscountPercentage)) / 100f);
+                    result = (double)((((float)amount) * ((float)discount.DiscountPercentage)) / 100f);
                 else
                 {
                     result = discount.DiscountAmount;
@@ -715,8 +715,8 @@ namespace Grand.Business.Catalog.Services.Discounts
                 result > discount.MaximumDiscountAmount.Value)
                 result = discount.MaximumDiscountAmount.Value;
 
-            if (result < decimal.Zero)
-                result = decimal.Zero;
+            if (result < 0)
+                result = 0;
 
             return result;
         }
@@ -731,15 +731,15 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// <param name="amount">Amount</param>
         /// <param name="discountAmount"></param>
         /// <returns>Preferred discount</returns>
-        public virtual async Task<(List<ApplyDiscount> appliedDiscount, decimal discountAmount)> GetPreferredDiscount(
+        public virtual async Task<(List<ApplyDiscount> appliedDiscount, double discountAmount)> GetPreferredDiscount(
             IList<ApplyDiscount> discounts, Customer customer, Currency currency, Product product,
-            decimal amount)
+            double amount)
         {
             if (discounts == null)
                 throw new ArgumentNullException(nameof(discounts));
 
             var appliedDiscount = new List<ApplyDiscount>();
-            var discountAmount = decimal.Zero;
+            double discountAmount = 0;
             if (!discounts.Any())
                 return (appliedDiscount, discountAmount);
 
@@ -747,7 +747,7 @@ namespace Grand.Business.Catalog.Services.Discounts
             foreach (var applieddiscount in discounts)
             {
                 var discount = await GetDiscountById(applieddiscount.DiscountId);
-                decimal currentDiscountValue = await GetDiscountAmount(discount, customer, currency, product, amount);
+                double currentDiscountValue = await GetDiscountAmount(discount, customer, currency, product, amount);
                 if (currentDiscountValue > discountAmount)
                 {
                     discountAmount = currentDiscountValue;
@@ -759,7 +759,7 @@ namespace Grand.Business.Catalog.Services.Discounts
             var cumulativeDiscounts = discounts.Where(x => x.IsCumulative).ToList();
             if (cumulativeDiscounts.Count > 1)
             {
-                var cumulativeDiscountAmount = decimal.Zero;
+                double cumulativeDiscountAmount = 0;
                 foreach (var item in cumulativeDiscounts)
                 {
                     var discount = await GetDiscountById(item.DiscountId);
@@ -785,11 +785,11 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// <param name="amount">Amount</param>
         /// <param name="discountAmount"></param>
         /// <returns>Preferred discount</returns>
-        public virtual async Task<(List<ApplyDiscount> appliedDiscount, decimal discountAmount)> GetPreferredDiscount(
+        public virtual async Task<(List<ApplyDiscount> appliedDiscount, double discountAmount)> GetPreferredDiscount(
             IList<ApplyDiscount> discounts,
             Customer customer,
             Currency currency,
-            decimal amount)
+            double amount)
         {
             return await GetPreferredDiscount(discounts, customer, currency, null, amount);
         }
@@ -800,7 +800,7 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// <param name="discount"></param>
         /// <param name="amount"></param>
         /// <returns></returns>
-        public virtual async Task<decimal> GetDiscountAmountProvider(Discount discount, Customer customer, Product product, decimal amount)
+        public virtual async Task<double> GetDiscountAmountProvider(Discount discount, Customer customer, Product product, double amount)
         {
             var discountAmountProvider = LoadDiscountAmountProviderBySystemName(discount.DiscountPluginName);
             if (discountAmountProvider == null)

@@ -58,7 +58,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 query = query.Where(rph => rph.CustomerId == customerId);
             if (!_loyaltyPointsSettings.PointsAccumulatedForAllStores)
                 query = query.Where(rph => rph.StoreId == storeId);
-            query = query.OrderByDescending(rph => rph.CreatedOnUtc).ThenByDescending(rph => rph.Id);
+            query = query.OrderByDescending(rph => rph.CreatedOnUtc);
 
             var lastRph = await Task.FromResult(query.FirstOrDefault());
             return lastRph != null ? lastRph.PointsBalance : 0;
@@ -76,7 +76,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <returns>LoyaltyPointsHistory</returns>
 
         public virtual async Task<LoyaltyPointsHistory> AddLoyaltyPointsHistory(string customerId, int points, string storeId, string message = "",
-           string usedWithOrderId = "", decimal usedAmount = 0M)
+           string usedWithOrderId = "", double usedAmount = 0)
         {
 
             var loyaltyPointsHistory = new LoyaltyPointsHistory
@@ -111,7 +111,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 if (!string.IsNullOrEmpty(storeId))
                     query = query.Where(rph => rph.StoreId == storeId);
             }
-            query = query.OrderByDescending(rph => rph.CreatedOnUtc).ThenByDescending(rph => rph.Id);
+            query = query.OrderByDescending(rph => rph.CreatedOnUtc);
 
             return await Task.FromResult(query.ToList());
         }

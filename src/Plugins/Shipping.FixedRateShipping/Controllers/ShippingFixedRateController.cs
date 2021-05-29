@@ -78,7 +78,7 @@ namespace Shipping.FixedRateShipping.Controllers
         }
 
         [NonAction]
-        protected decimal GetShippingRate(string shippingMethodId)
+        protected double GetShippingRate(string shippingMethodId)
         {
             var rate = _settingService.GetSettingByKey<FixedShippingRate>(string.Format("ShippingRateComputationMethod.FixedRate.Rate.ShippingMethodId{0}", shippingMethodId))?.Rate;
             return rate ?? 0;

@@ -141,7 +141,7 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         public async Task<IActionResult> ApplyRate(string currencyCode, string rate)
         {
-            var _rate = decimal.Parse(rate, CultureInfo.InvariantCulture.NumberFormat);
+            var _rate = double.Parse(rate, CultureInfo.InvariantCulture.NumberFormat);
             var currency = await _currencyService.GetCurrencyByCode(currencyCode);
             if (currency != null)
             {

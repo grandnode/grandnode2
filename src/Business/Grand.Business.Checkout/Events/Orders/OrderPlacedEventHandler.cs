@@ -80,7 +80,7 @@ namespace Grand.Business.Checkout.Events.Orders
         protected Task InsertLoyaltyPointsHistory(Order order)
         {
             //loyalty points history
-            if (order.RedeemedLoyaltyPointsAmount > decimal.Zero)
+            if (order.RedeemedLoyaltyPointsAmount > 0)
             {
                 _loyaltyPointsService.AddLoyaltyPointsHistory(order.CustomerId,
                     -order.RedeemedLoyaltyPoints, order.StoreId,

@@ -14,6 +14,6 @@ namespace Grand.Business.Messages.Commands.Models
         public Store Store { get; set; }
         public OrderNote OrderNote { get; set; } = null;
         public Vendor Vendor { get; set; } = null;
-        public decimal RefundedAmount { get; set; } = 0;
+        public double RefundedAmount { get; set; } = 0;
     }
 }

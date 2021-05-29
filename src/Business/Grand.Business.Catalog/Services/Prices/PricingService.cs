@@ -82,8 +82,8 @@ namespace Grand.Business.Catalog.Services.Prices
             {
                 AppliedDiscounts = new List<ApplyDiscount>();
             }
-            public decimal Price { get; set; }
-            public decimal AppliedDiscountAmount { get; set; }
+            public double Price { get; set; }
+            public double AppliedDiscountAmount { get; set; }
             public IList<ApplyDiscount> AppliedDiscounts { get; set; }
             public TierPrice PreferredTierPrice { get; set; }
 
@@ -363,14 +363,14 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="currency">Currency</param>
         /// <param name="productPriceWithoutDiscount">Already calculated product price without discount</param>
         /// <returns>Discount amount</returns>
-        protected virtual async Task<(decimal discountAmount, List<ApplyDiscount> appliedDiscounts)> GetDiscountAmount(Product product,
-            Customer customer, Currency currency, decimal productPriceWithoutDiscount)
+        protected virtual async Task<(double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetDiscountAmount(Product product,
+            Customer customer, Currency currency, double productPriceWithoutDiscount)
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
             List<ApplyDiscount> appliedDiscounts = null;
-            decimal appliedDiscountAmount = decimal.Zero;
+            double appliedDiscountAmount = 0;
 
             //we don't apply discounts to products with price entered by a customer
             if (product.EnteredPrice)
@@ -407,11 +407,11 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="includeDiscounts">A value indicating whether include discounts or not for final price computation</param>
         /// <param name="quantity">Shopping cart item quantity</param>
         /// <returns>Final price</returns>
-        public virtual async Task<(decimal finalPrice, decimal discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice preferredTierPrice)> GetFinalPrice(
+        public virtual async Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice preferredTierPrice)> GetFinalPrice(
             Product product,
             Customer customer,
             Currency currency,
-            decimal additionalCharge = decimal.Zero,
+            double additionalCharge = 0,
             bool includeDiscounts = true,
             int quantity = 1)
         {
@@ -430,11 +430,11 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="rentalStartDate">Rental period start date (for rental products)</param>
         /// <param name="rentalEndDate">Rental period end date (for rental products)</param>
         /// <returns>Final price</returns>
-        public virtual async Task<(decimal finalPrice, decimal discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice preferredTierPrice)> GetFinalPrice(
+        public virtual async Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice preferredTierPrice)> GetFinalPrice(
             Product product,
             Customer customer,
             Currency currency,
-            decimal additionalCharge,
+            double additionalCharge,
             bool includeDiscounts,
             int quantity,
             DateTime? rentalStartDate,
@@ -443,7 +443,7 @@ namespace Grand.Business.Catalog.Services.Prices
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
-            var discountAmount = decimal.Zero;
+            double discountAmount = 0;
             var appliedDiscounts = new List<ApplyDiscount>();
 
             async Task<ProductPrice> PrepareModel()
@@ -451,7 +451,7 @@ namespace Grand.Business.Catalog.Services.Prices
                 var result = new ProductPrice();
 
                 //initial price
-                decimal price =
+                double price =
                     product.ProductPrices.FirstOrDefault(x => x.CurrencyCode == currency.CurrencyCode)?.Price ??
                     await _currencyService.ConvertFromPrimaryStoreCurrency(product.Price, currency);
 
@@ -478,14 +478,14 @@ namespace Grand.Business.Catalog.Services.Prices
                 if (product.ProductTypeId == ProductType.Reservation)
                     if (rentalStartDate.HasValue && rentalEndDate.HasValue)
                     {
-                        decimal d = 0;
+                        double d = 0;
                         if (product.IncBothDate)
                         {
-                            _ = decimal.TryParse(((rentalEndDate - rentalStartDate).Value.TotalDays + 1).ToString(), out d);
+                            _ = double.TryParse(((rentalEndDate - rentalStartDate).Value.TotalDays + 1).ToString(), out d);
                         }
                         else
                         {
-                            _ = decimal.TryParse((rentalEndDate - rentalStartDate).Value.TotalDays.ToString(), out d);
+                            _ = double.TryParse((rentalEndDate - rentalStartDate).Value.TotalDays.ToString(), out d);
                         }
                         price *= d;
                     }
@@ -494,7 +494,7 @@ namespace Grand.Business.Catalog.Services.Prices
                 {
                     //discount
                     var discountamount = await GetDiscountAmount(product, customer, currency, price);
-                    decimal tmpDiscountAmount = discountamount.discountAmount;
+                    double tmpDiscountAmount = discountamount.discountAmount;
                     List<ApplyDiscount> tmpAppliedDiscounts = discountamount.appliedDiscounts;
                     price -= tmpDiscountAmount;
 
@@ -505,8 +505,8 @@ namespace Grand.Business.Catalog.Services.Prices
                     }
                 }
 
-                if (price < decimal.Zero)
-                    price = decimal.Zero;
+                if (price < 0)
+                    price = 0;
 
                 //rounding
                 if (_shoppingCartSettings.RoundPrices)
@@ -541,7 +541,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="product">Product</param>
         /// <param name="includeDiscounts">Include discounts or not for price</param>
         /// <returns>Shopping cart unit price (one item)</returns>
-        public virtual async Task<(decimal unitprice, decimal discountAmount, List<ApplyDiscount> appliedDiscounts)> GetUnitPrice(ShoppingCartItem shoppingCartItem,
+        public virtual async Task<(double unitprice, double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetUnitPrice(ShoppingCartItem shoppingCartItem,
             Product product, bool includeDiscounts = true)
         {
             if (shoppingCartItem == null)
@@ -572,14 +572,14 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="rentalEndDate">Rental end date</param>
         /// <param name="includeDiscounts">Include discounts or not for price</param>
         /// <returns>Shopping cart unit price</returns>
-        public virtual async Task<(decimal unitprice, decimal discountAmount, List<ApplyDiscount> appliedDiscounts)> GetUnitPrice(
+        public virtual async Task<(double unitprice, double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetUnitPrice(
             Product product,
             Customer customer,
             Currency currency,
             ShoppingCartType shoppingCartType,
             int quantity,
             IList<CustomAttribute> attributes,
-            decimal? customerEnteredPrice,
+            double? customerEnteredPrice,
             DateTime? rentalStartDate,
             DateTime? rentalEndDate,
             bool includeDiscounts)
@@ -590,10 +590,10 @@ namespace Grand.Business.Catalog.Services.Prices
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
 
-            var discountAmount = decimal.Zero;
+            double discountAmount = 0;
             var appliedDiscounts = new List<ApplyDiscount>();
 
-            decimal? finalPrice = null;
+            double? finalPrice = null;
 
             if (customerEnteredPrice.HasValue)
                 finalPrice = await _currencyService.ConvertFromPrimaryStoreCurrency(customerEnteredPrice.Value, currency);
@@ -620,7 +620,7 @@ namespace Grand.Business.Catalog.Services.Prices
             if (!finalPrice.HasValue)
             {
                 //summarize price of all attributes
-                decimal attributesTotalPrice = decimal.Zero;
+                double attributesTotalPrice = 0;
                 if (attributes != null && attributes.Any())
                 {
                     if (product.ProductTypeId != ProductType.BundledProduct)
@@ -704,17 +704,17 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="product">Product</param>
         /// <param name="includeDiscounts">Include discounts or not for price</param>
         /// <returns>Shopping cart item sub total</returns>
-        public virtual async Task<(decimal subTotal, decimal discountAmount, List<ApplyDiscount> appliedDiscounts)> GetSubTotal(ShoppingCartItem shoppingCartItem, Product product,
+        public virtual async Task<(double subTotal, double discountAmount, List<ApplyDiscount> appliedDiscounts)> GetSubTotal(ShoppingCartItem shoppingCartItem, Product product,
            bool includeDiscounts = true)
         {
             if (shoppingCartItem == null)
                 throw new ArgumentNullException(nameof(shoppingCartItem));
 
-            decimal subTotal;
+            double subTotal;
             //unit price
             var getunitPrice = await GetUnitPrice(shoppingCartItem, product, includeDiscounts);
             var unitPrice = getunitPrice.unitprice;
-            decimal discountAmount = getunitPrice.discountAmount;
+            double discountAmount = getunitPrice.discountAmount;
             List<ApplyDiscount> appliedDiscounts = getunitPrice.appliedDiscounts;
 
             //discount
@@ -762,12 +762,12 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="product">Product</param>
         /// <param name="attributes">Shopping cart item attributes</param>
         /// <returns>Product cost (one item)</returns>
-        public virtual async Task<decimal> GetProductCost(Product product, IList<CustomAttribute> attributes)
+        public virtual async Task<double> GetProductCost(Product product, IList<CustomAttribute> attributes)
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
-            decimal cost = product.ProductCost;
+            double cost = product.ProductCost;
             var attributeValues = _productAttributeParser.ParseProductAttributeValues(product, attributes);
             foreach (var attributeValue in attributeValues)
             {
@@ -802,12 +802,12 @@ namespace Grand.Business.Catalog.Services.Prices
         /// </summary>
         /// <param name="value">Product attribute value</param>
         /// <returns>Price adjustment</returns>
-        public virtual async Task<decimal> GetProductAttributeValuePriceAdjustment(ProductAttributeValue value)
+        public virtual async Task<double> GetProductAttributeValuePriceAdjustment(ProductAttributeValue value)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            var adjustment = decimal.Zero;
+            double adjustment = 0;
             switch (value.AttributeValueTypeId)
             {
                 case AttributeValueType.Simple:

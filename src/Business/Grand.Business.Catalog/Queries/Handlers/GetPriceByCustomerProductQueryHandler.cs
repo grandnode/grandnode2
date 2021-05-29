@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Queries.Handlers
 {
-    public class GetPriceByCustomerProductQueryHandler : IRequestHandler<GetPriceByCustomerProductQuery, decimal?>
+    public class GetPriceByCustomerProductQueryHandler : IRequestHandler<GetPriceByCustomerProductQuery, double?>
     {
         private readonly ICacheBase _cacheBase;
         private readonly IRepository<CustomerProductPrice> _customerProductPriceRepository;
@@ -21,7 +21,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
             _customerProductPriceRepository = customerProductPriceRepository;
         }
 
-        public async Task<decimal?> Handle(GetPriceByCustomerProductQuery request, CancellationToken cancellationToken)
+        public async Task<double?> Handle(GetPriceByCustomerProductQuery request, CancellationToken cancellationToken)
         {
             var key = string.Format(CacheKey.CUSTOMER_PRODUCT_PRICE_KEY_ID, request.CustomerId, request.ProductId);
             var productprice = _cacheBase.Get(key, () =>
@@ -36,7 +36,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
             });
 
             if (!productprice.Item2)
-                return await Task.FromResult(default(decimal?));
+                return await Task.FromResult(default(double?));
             else
                 return await Task.FromResult(productprice.pp.Price);
         }

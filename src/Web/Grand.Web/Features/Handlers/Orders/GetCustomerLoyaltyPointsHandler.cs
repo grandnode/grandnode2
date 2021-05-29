@@ -47,14 +47,14 @@ namespace Grand.Web.Features.Handlers.Newsletter
             }
             //current amount/balance
             int loyaltyPointsBalance = await _loyaltyPointsService.GetLoyaltyPointsBalance(request.Customer.Id, request.Store.Id);
-            decimal loyaltyPointsAmountBase = await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance);
-            decimal loyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(loyaltyPointsAmountBase, request.Currency);
+            double loyaltyPointsAmountBase = await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance);
+            double loyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(loyaltyPointsAmountBase, request.Currency);
             model.LoyaltyPointsBalance = loyaltyPointsBalance;
             model.LoyaltyPointsAmount = _priceFormatter.FormatPrice(loyaltyPointsAmount, false);
             //minimum amount/balance
             int minimumLoyaltyPointsBalance = _loyaltyPointsSettings.MinimumLoyaltyPointsToUse;
-            decimal minimumLoyaltyPointsAmountBase = await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(minimumLoyaltyPointsBalance);
-            decimal minimumLoyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(minimumLoyaltyPointsAmountBase, request.Currency);
+            double minimumLoyaltyPointsAmountBase = await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(minimumLoyaltyPointsBalance);
+            double minimumLoyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(minimumLoyaltyPointsAmountBase, request.Currency);
             model.MinimumLoyaltyPointsBalance = minimumLoyaltyPointsBalance;
             model.MinimumLoyaltyPointsAmount = _priceFormatter.FormatPrice(minimumLoyaltyPointsAmount, false);
 

@@ -18,7 +18,7 @@ namespace Grand.Business.Catalog.Utilities
         /// <summary>
         /// Gets or sets a tax rate
         /// </summary>
-        public decimal TaxRate { get; set; }
+        public double TaxRate { get; set; }
 
         /// <summary>
         /// Gets or sets an address

@@ -53,7 +53,7 @@ namespace Grand.Business.Checkout.Interfaces.Payments
         /// </summary>
         /// <param name="cart">Shoping cart</param>
         /// <returns>Additional handling fee</returns>
-        Task<decimal> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart);
+        Task<double> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart);
 
         /// <summary>
         /// Captures payment

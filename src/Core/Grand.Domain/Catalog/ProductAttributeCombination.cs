@@ -54,7 +54,7 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets the attribute combination price. This way a store owner can override the default product price when this attribute combination is added to the cart. For example, you can give a discount this way.
         /// </summary>
-        public decimal? OverriddenPrice { get; set; }
+        public double? OverriddenPrice { get; set; }
 
         /// <summary>
         /// Gets or sets the quantity when admin should be notified

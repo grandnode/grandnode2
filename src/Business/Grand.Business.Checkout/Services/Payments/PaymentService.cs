@@ -209,7 +209,7 @@ namespace Grand.Business.Checkout.Services.Payments
             if (paymentTransaction == null)
                 throw new ArgumentNullException(nameof(paymentTransaction));
 
-            if (paymentTransaction.TransactionAmount == decimal.Zero)
+            if (paymentTransaction.TransactionAmount == 0)
             {
                 var result = new ProcessPaymentResult
                 {
@@ -251,7 +251,7 @@ namespace Grand.Business.Checkout.Services.Payments
             if (paymentTransaction == null)
                 throw new ArgumentNullException(nameof(paymentTransaction));
 
-            //already paid or order.OrderTotal == decimal.Zero
+            //already paid or order.OrderTotal == 0
             if (paymentTransaction.TransactionStatus == TransactionStatus.Paid)
                 return;
 
@@ -315,18 +315,18 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <param name="cart">Shoping cart</param>
         /// <param name="paymentMethodSystemName">Payment method system name</param>
         /// <returns>Additional handling fee</returns>
-        public virtual async Task<decimal> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart, string paymentMethodSystemName)
+        public virtual async Task<double> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart, string paymentMethodSystemName)
         {
             if (String.IsNullOrEmpty(paymentMethodSystemName))
-                return decimal.Zero;
+                return 0;
 
             var paymentMethod = LoadPaymentMethodBySystemName(paymentMethodSystemName);
             if (paymentMethod == null)
-                return decimal.Zero;
+                return 0;
 
-            decimal result = await paymentMethod.GetAdditionalHandlingFee(cart);
-            if (result < decimal.Zero)
-                result = decimal.Zero;
+            double result = await paymentMethod.GetAdditionalHandlingFee(cart);
+            if (result < 0)
+                result = 0;
 
             return result;
         }

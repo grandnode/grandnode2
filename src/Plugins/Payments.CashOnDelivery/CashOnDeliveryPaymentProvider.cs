@@ -83,18 +83,18 @@ namespace Payments.CashOnDelivery
             return await Task.FromResult(false);
         }
 
-        public async Task<decimal> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart)
+        public async Task<double> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart)
         {
             if (_cashOnDeliveryPaymentSettings.AdditionalFee <= 0)
                 return _cashOnDeliveryPaymentSettings.AdditionalFee;
 
-            decimal result;
+            double result;
             if (_cashOnDeliveryPaymentSettings.AdditionalFeePercentage)
             {
                 //percentage
                 var orderTotalCalculationService = _serviceProvider.GetRequiredService<IOrderCalculationService>();
                 var subtotal = await orderTotalCalculationService.GetShoppingCartSubTotal(cart, true);
-                result = (decimal)((((float)subtotal.subTotalWithDiscount) * ((float)_cashOnDeliveryPaymentSettings.AdditionalFee)) / 100f);
+                result = (double)((((float)subtotal.subTotalWithDiscount) * ((float)_cashOnDeliveryPaymentSettings.AdditionalFee)) / 100f);
             }
             else
             {

@@ -2,8 +2,8 @@
 {
     public class OrderTax : SubBaseEntity
     {
-        public decimal Percent { get; set; }
+        public double Percent { get; set; }
 
-        public decimal Amount { get; set; }
+        public double Amount { get; set; }
     }
 }

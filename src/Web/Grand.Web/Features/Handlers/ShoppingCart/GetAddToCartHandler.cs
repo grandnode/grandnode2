@@ -131,7 +131,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 else
                 {
                     var productprices = await _taxService.GetProductPrice(request.Product, (await _pricingService.GetUnitPrice(sci, request.Product)).unitprice);
-                    decimal taxRate = productprices.taxRate;
+                    double taxRate = productprices.taxRate;
                     model.Price = !request.CustomerEnteredPrice.HasValue ? _priceFormatter.FormatPrice(productprices.productprice) : _priceFormatter.FormatPrice(request.CustomerEnteredPrice.Value);
                     model.DecimalPrice = request.CustomerEnteredPrice ?? productprices.productprice;
                     model.TotalPrice = _priceFormatter.FormatPrice(productprices.productprice * sci.Quantity);
@@ -171,10 +171,10 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax && !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
                 var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, subTotalIncludingTax);
                 List<ApplyDiscount> orderSubTotalAppliedDiscounts = shoppingCartSubTotal.appliedDiscounts;
-                decimal subTotalWithDiscountBase = shoppingCartSubTotal.subTotalWithDiscount;
+                double subTotalWithDiscountBase = shoppingCartSubTotal.subTotalWithDiscount;
                 model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency, request.Language, subTotalIncludingTax);
                 model.DecimalSubTotal = shoppingCartSubTotal.subTotalWithoutDiscount;
-                if (shoppingCartSubTotal.discountAmount > decimal.Zero)
+                if (shoppingCartSubTotal.discountAmount > 0)
                 {
                     model.SubTotalDiscount = _priceFormatter.FormatPrice(-shoppingCartSubTotal.discountAmount, request.Currency, request.Language, subTotalIncludingTax);
                 }

@@ -24,7 +24,7 @@ namespace Grand.Business.Marketing.Interfaces.Customers
         /// <param name="customerId">Customer Identifier</param>
         /// <param name="productId">Product Identifier</param>
         /// <returns>Customer product price</returns>
-        Task<decimal?> GetPriceByCustomerProduct(string customerId, string productId);
+        Task<double?> GetPriceByCustomerProduct(string customerId, string productId);
 
         /// <summary>
         /// Gets a customer product 

@@ -160,7 +160,7 @@ namespace Grand.Business.System.Interfaces.Reports
         /// <param name="billingLastName">Billing last name. Leave empty to load all records.</param>
         /// <param name="tagid">tag ident</param>
         /// <returns>Result</returns>
-        Task<decimal> ProfitReport(string storeId = "", string customerId = "", string vendorId = "", string salesEmployeeId = "",
+        Task<double> ProfitReport(string storeId = "", string customerId = "", string vendorId = "", string salesEmployeeId = "",
             string billingCountryId = "", string orderId = "", string paymentMethodSystemName = null,
             int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
             DateTime? startTimeUtc = null, DateTime? endTimeUtc = null,

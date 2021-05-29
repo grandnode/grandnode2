@@ -29,7 +29,7 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets the used amount
         /// </summary>
-        public decimal UsedAmount { get; set; }
+        public double UsedAmount { get; set; }
 
         /// <summary>
         /// Gets or sets the message

@@ -7,6 +7,6 @@ namespace Grand.Business.Checkout.Commands.Models.Orders
     public class PartiallyRefundCommand : IRequest<IList<string>>
     {
         public PaymentTransaction PaymentTransaction { get; set; }
-        public decimal AmountToRefund { get; set; }
+        public double AmountToRefund { get; set; }
     }
 }

@@ -9,6 +9,6 @@ namespace Grand.Business.System.Utilities
 
         public int TotalOrders { get; set; }
 
-        public decimal SumOrders { get; set; }
+        public double SumOrders { get; set; }
     }
 }

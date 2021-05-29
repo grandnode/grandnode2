@@ -17,11 +17,11 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
 
             var amountToPaid = request.AmountToPaid;
 
-            if (paymentTransaction.TransactionAmount == decimal.Zero)
+            if (paymentTransaction.TransactionAmount == 0)
                 return Task.FromResult(false);
 
-            decimal canBePaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount;
-            if (canBePaid <= decimal.Zero)
+            double canBePaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount;
+            if (canBePaid <= 0)
                 return Task.FromResult(false);
 
             if (amountToPaid > canBePaid)

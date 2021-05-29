@@ -50,7 +50,7 @@ namespace Tax.FixedRate
         /// </summary>
         /// <param name="taxCategoryId">The tax category identifier</param>
         /// <returns>Tax rate</returns>
-        protected decimal GetTaxRate(string taxCategoryId)
+        protected double GetTaxRate(string taxCategoryId)
         {
             var rate = _settingService.GetSettingByKey<FixedTaxRate>(string.Format("Tax.TaxProvider.FixedRate.TaxCategoryId{0}", taxCategoryId))?.Rate;
             return rate ?? 0;

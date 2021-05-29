@@ -43,7 +43,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 return false;
 
             //min order amount sub-total validation
-            if (cart.Any() && _orderSettings.MinOrderSubtotalAmount > decimal.Zero)
+            if (cart.Any() && _orderSettings.MinOrderSubtotalAmount > 0)
             {
                 //subtotal
                 var (_, _, subTotalWithoutDiscount, _, _) = await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, false);

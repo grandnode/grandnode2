@@ -93,12 +93,12 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets the currency rate
         /// </summary>
-        public decimal CurrencyRate { get; set; }
+        public double CurrencyRate { get; set; }
 
         /// <summary>
         /// Gets or sets the currency rate
         /// </summary>
-        public decimal Rate { get; set; }
+        public double Rate { get; set; }
 
         /// <summary>
         /// Gets or sets the customer tax display type identifier
@@ -138,62 +138,62 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets the order subtotal (incl tax)
         /// </summary>
-        public decimal OrderSubtotalInclTax { get; set; }
+        public double OrderSubtotalInclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the order subtotal (excl tax)
         /// </summary>
-        public decimal OrderSubtotalExclTax { get; set; }
+        public double OrderSubtotalExclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the order subtotal discount (incl tax)
         /// </summary>
-        public decimal OrderSubTotalDiscountInclTax { get; set; }
+        public double OrderSubTotalDiscountInclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the order subtotal discount (excl tax)
         /// </summary>
-        public decimal OrderSubTotalDiscountExclTax { get; set; }
+        public double OrderSubTotalDiscountExclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the order shipping (incl tax)
         /// </summary>
-        public decimal OrderShippingInclTax { get; set; }
+        public double OrderShippingInclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the order shipping (excl tax)
         /// </summary>
-        public decimal OrderShippingExclTax { get; set; }
+        public double OrderShippingExclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the payment method additional fee (incl tax)
         /// </summary>
-        public decimal PaymentMethodAdditionalFeeInclTax { get; set; }
+        public double PaymentMethodAdditionalFeeInclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the payment method additional fee (excl tax)
         /// </summary>
-        public decimal PaymentMethodAdditionalFeeExclTax { get; set; }
+        public double PaymentMethodAdditionalFeeExclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the order tax
         /// </summary>
-        public decimal OrderTax { get; set; }
+        public double OrderTax { get; set; }
 
         /// <summary>
         /// Gets or sets the order discount (applied to order total)
         /// </summary>
-        public decimal OrderDiscount { get; set; }
+        public double OrderDiscount { get; set; }
 
         /// <summary>
         /// Gets or sets the order total
         /// </summary>
-        public decimal OrderTotal { get; set; }
+        public double OrderTotal { get; set; }
 
         /// <summary>
         /// Gets or sets the paid amount
         /// </summary>
-        public decimal PaidAmount { get; set; }
+        public double PaidAmount { get; set; }
 
         /// <summary>
         /// Gets or sets the paid date and time
@@ -203,7 +203,7 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets the refunded amount
         /// </summary>
-        public decimal RefundedAmount { get; set; }
+        public double RefundedAmount { get; set; }
 
         /// <summary>
         /// Gets or sets the value indicating whether loyalty points were earned for this order
@@ -212,7 +212,7 @@ namespace Grand.Domain.Orders
 
         public int RedeemedLoyaltyPoints { get; set; }
 
-        public decimal RedeemedLoyaltyPointsAmount { get; set; }
+        public double RedeemedLoyaltyPointsAmount { get; set; }
 
         /// Gets or sets the value indicating for calculated loyalty points 
         public int CalcLoyaltyPoints { get; set; }

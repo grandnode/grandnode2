@@ -29,7 +29,7 @@ namespace DiscountRules.Standard.HadSpentAmount.Models
     public class RequirementModel
     {
         [GrandResourceDisplayName("Plugins.DiscountRules.Standard.HadSpentAmount.Fields.Amount")]
-        public decimal SpentAmount { get; set; }
+        public double SpentAmount { get; set; }
 
         public string DiscountId { get; set; }
 
@@ -154,7 +154,7 @@ namespace Grand.Plugin.DiscountRules.ShoppingCart.Models
     public class RequirementModel
     {
         [GrandResourceDisplayName("Plugins.DiscountRules.ShoppingCart.Fields.Amount")]
-        public decimal SpentAmount { get; set; }
+        public double SpentAmount { get; set; }
 
         public string DiscountId { get; set; }
 

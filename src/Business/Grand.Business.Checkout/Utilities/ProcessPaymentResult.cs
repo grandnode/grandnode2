@@ -59,6 +59,6 @@ namespace Grand.Business.Checkout.Utilities
         /// <summary>
         /// Gets or sets value paid amount
         /// </summary>
-        public decimal PaidAmount { get; set; }
+        public double PaidAmount { get; set; }
     }
 }

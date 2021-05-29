@@ -22,7 +22,7 @@ namespace Grand.Web.Features.Models.ShoppingCart
         public Store Store { get; set; }
         public TaxDisplayType TaxDisplayType { get; set; }
         public int Quantity { get; set; }
-        public decimal? CustomerEnteredPrice { get; set; }
+        public double? CustomerEnteredPrice { get; set; }
         public IList<CustomAttribute> Attributes { get; set; } = new List<CustomAttribute>();
         public ShoppingCartType CartType { get; set; }
         public DateTime? StartDate { get; set; }

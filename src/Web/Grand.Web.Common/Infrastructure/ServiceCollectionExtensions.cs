@@ -287,14 +287,12 @@ namespace Grand.Web.Common.Infrastructure
         public static void AddGrandHealthChecks(this IServiceCollection services)
         {
             var connection = DataSettingsManager.LoadSettings();
-            if (connection.DbProvider == DbProvider.MongoDB)
-            {
-                var hcBuilder = services.AddHealthChecks();
-                hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy());
-                hcBuilder.AddMongoDb(connection.ConnectionString,
-                       name: "mongodb-check",
-                       tags: new string[] { "mongodb" });
-            }
+            var hcBuilder = services.AddHealthChecks();
+            hcBuilder.AddCheck("self", () => HealthCheckResult.Healthy());
+            hcBuilder.AddMongoDb(connection.ConnectionString,
+                   name: "mongodb-check",
+                   tags: new string[] { "mongodb" });
+
         }
 
         public static void AddHtmlMinification(this IServiceCollection services, IConfiguration configuration)

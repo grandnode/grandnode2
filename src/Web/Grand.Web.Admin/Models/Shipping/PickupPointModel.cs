@@ -43,7 +43,7 @@ namespace Grand.Web.Admin.Models.Shipping
         public string StoreId { get; set; }
 
         [GrandResourceDisplayName("Admin.Configuration.Shipping.PickupPoint.Fields.PickupFee")]
-        public decimal PickupFee { get; set; }
+        public double PickupFee { get; set; }
 
         [GrandResourceDisplayName("Admin.Configuration.Shipping.PickupPoint.Fields.Latitude")]
         public double? Latitude { get; set; }

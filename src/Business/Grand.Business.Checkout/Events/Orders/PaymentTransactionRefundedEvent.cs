@@ -8,7 +8,7 @@ namespace Grand.Business.Checkout.Events.Orders
     /// </summary>
     public class PaymentTransactionRefundedEvent : INotification
     {
-        public PaymentTransactionRefundedEvent(PaymentTransaction paymentTransaction, decimal amount)
+        public PaymentTransactionRefundedEvent(PaymentTransaction paymentTransaction, double amount)
         {
             PaymentTransaction = PaymentTransaction;
             Amount = amount;
@@ -22,6 +22,6 @@ namespace Grand.Business.Checkout.Events.Orders
         /// <summary>
         /// Amount
         /// </summary>
-        public decimal Amount { get; private set; }
+        public double Amount { get; private set; }
     }
 }

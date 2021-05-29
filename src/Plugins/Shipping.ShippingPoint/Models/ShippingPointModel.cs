@@ -23,7 +23,7 @@ namespace Shipping.ShippingPoint.Models
         public string OpeningHours { get; set; }
 
         [GrandResourceDisplayName("Shipping.ShippingPoint.Fields.PickupFee")]
-        public decimal PickupFee { get; set; }
+        public double PickupFee { get; set; }
 
         public List<SelectListItem> AvailableStores { get; set; }
         [GrandResourceDisplayName("Shipping.ShippingPoint.Fields.Store")]

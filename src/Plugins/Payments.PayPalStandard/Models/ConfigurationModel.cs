@@ -20,7 +20,7 @@ namespace Payments.PayPalStandard.Models
         public bool PdtValidateOrderTotal { get; set; }
 
         [GrandResourceDisplayName("Plugins.Payments.PayPalStandard.Fields.AdditionalFee")]
-        public decimal AdditionalFee { get; set; }
+        public double AdditionalFee { get; set; }
 
         [GrandResourceDisplayName("Plugins.Payments.PayPalStandard.Fields.AdditionalFeePercentage")]
         public bool AdditionalFeePercentage { get; set; }

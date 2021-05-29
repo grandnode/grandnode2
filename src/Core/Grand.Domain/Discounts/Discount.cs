@@ -34,12 +34,12 @@ namespace Grand.Domain.Discounts
         /// <summary>
         /// Gets or sets the discount percentage
         /// </summary>
-        public decimal DiscountPercentage { get; set; }
+        public double DiscountPercentage { get; set; }
 
         /// <summary>
         /// Gets or sets the discount amount
         /// </summary>
-        public decimal DiscountAmount { get; set; }
+        public double DiscountAmount { get; set; }
 
         /// <summary>
         /// Gets or sets the discount currency
@@ -59,7 +59,7 @@ namespace Grand.Domain.Discounts
         /// <summary>
         /// Gets or sets the maximum discount amount (used with "UsePercentage")
         /// </summary>
-        public decimal? MaximumDiscountAmount { get; set; }
+        public double? MaximumDiscountAmount { get; set; }
 
         /// <summary>
         /// Gets or sets the discount start date and time

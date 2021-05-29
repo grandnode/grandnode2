@@ -32,9 +32,9 @@ namespace Grand.Api.DTOs.Catalog
         public string Name { get; set; }
         public string ColorSquaresRgb { get; set; }
         public string ImageSquaresPictureId { get; set; }
-        public decimal PriceAdjustment { get; set; }
-        public decimal WeightAdjustment { get; set; }
-        public decimal Cost { get; set; }
+        public double PriceAdjustment { get; set; }
+        public double WeightAdjustment { get; set; }
+        public double Cost { get; set; }
         public int Quantity { get; set; }
         public bool IsPreSelected { get; set; }
         public int DisplayOrder { get; set; }

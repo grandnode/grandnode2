@@ -258,7 +258,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             //process payment
             ProcessPaymentResult processPaymentResult = null;
             //skip payment workflow if order total equals zero
-            var skipPaymentWorkflow = details.OrderTotal == decimal.Zero;
+            var skipPaymentWorkflow = details.OrderTotal == 0;
             if (!skipPaymentWorkflow)
             {
                 var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(details.PaymentMethodSystemName);
@@ -331,9 +331,9 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             paymentTransaction.Errors.Clear();
             await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
         }
-        private async Task<decimal?> PrepareCommissionRate(Product product, PlaceOrderContainter details)
+        private async Task<double?> PrepareCommissionRate(Product product, PlaceOrderContainter details)
         {
-            var commissionRate = default(decimal?);
+            var commissionRate = default(double?);
             if (!string.IsNullOrEmpty(product.VendorId))
             {
                 var vendor = await _vendorService.GetVendorById(product.VendorId);
@@ -359,16 +359,16 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         /// </summary>
         /// <param name="shoppingCartItem">Shopping cart item</param>
         /// <returns>Shopping cart item weight</returns>
-        private async Task<decimal> GetShoppingCartItemWeight(ShoppingCartItem shoppingCartItem)
+        private async Task<double> GetShoppingCartItemWeight(ShoppingCartItem shoppingCartItem)
         {
             if (shoppingCartItem == null)
                 throw new ArgumentNullException(nameof(shoppingCartItem));
             var product = await _productService.GetProductById(shoppingCartItem.ProductId);
             if (product == null)
-                return decimal.Zero;
+                return 0;
 
             //attribute weight
-            decimal attributesTotalWeight = decimal.Zero;
+            double attributesTotalWeight = 0;
             if (shoppingCartItem.Attributes != null && shoppingCartItem.Attributes.Any())
             {
                 var attributeValues = _productAttributeParser.ParseProductAttributeValues(product, shoppingCartItem.Attributes);
@@ -498,7 +498,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             bool minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand() { Customer = _workContext.CurrentCustomer, Cart = details.Cart });
             if (!minOrderSubtotalAmountOk)
             {
-                decimal minOrderSubtotalAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(_orderSettings.MinOrderSubtotalAmount, _workContext.WorkingCurrency);
+                double minOrderSubtotalAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(_orderSettings.MinOrderSubtotalAmount, _workContext.WorkingCurrency);
                 throw new GrandException(string.Format(_translationService.GetResource("Checkout.MinOrderSubtotalAmount"), _priceFormatter.FormatPrice(minOrderSubtotalAmount, false)));
             }
 
@@ -517,10 +517,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             //sub total
             //sub total (incl tax)
             var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(details.Cart, true);
-            decimal orderSubTotalDiscountAmount = shoppingCartSubTotal.discountAmount;
+            double orderSubTotalDiscountAmount = shoppingCartSubTotal.discountAmount;
             List<ApplyDiscount> orderSubTotalAppliedDiscounts = shoppingCartSubTotal.appliedDiscounts;
-            decimal subTotalWithoutDiscountBase = shoppingCartSubTotal.subTotalWithoutDiscount;
-            decimal subTotalWithDiscountBase = shoppingCartSubTotal.subTotalWithDiscount;
+            double subTotalWithoutDiscountBase = shoppingCartSubTotal.subTotalWithoutDiscount;
+            double subTotalWithDiscountBase = shoppingCartSubTotal.subTotalWithDiscount;
 
             details.OrderSubTotalInclTax = subTotalWithoutDiscountBase;
             details.OrderSubTotalDiscountInclTax = orderSubTotalDiscountAmount;
@@ -582,7 +582,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             //shipping total
 
             var shoppingCartShippingTotal = await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, true);
-            decimal tax = shoppingCartShippingTotal.taxRate;
+            double tax = shoppingCartShippingTotal.taxRate;
             List<ApplyDiscount> shippingTotalDiscounts = shoppingCartShippingTotal.appliedDiscounts;
             var orderShippingTotalInclTax = shoppingCartShippingTotal.shoppingCartShippingTotal;
             var orderShippingTotalExclTax = (await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, false)).shoppingCartShippingTotal;
@@ -602,7 +602,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             //payment 
             var paymentMethodSystemName = _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.SelectedPaymentMethod, _workContext.CurrentStore.Id);
             details.PaymentMethodSystemName = paymentMethodSystemName;
-            decimal paymentAdditionalFee = await _paymentService.GetAdditionalHandlingFee(details.Cart, _workContext.CurrentStore.Id);
+            double paymentAdditionalFee = await _paymentService.GetAdditionalHandlingFee(details.Cart, _workContext.CurrentStore.Id);
             details.PaymentAdditionalFeeInclTax = (await _taxService.GetPaymentMethodAdditionalFee(paymentAdditionalFee, true, details.Customer)).paymentPrice;
             details.PaymentAdditionalFeeExclTax = (await _taxService.GetPaymentMethodAdditionalFee(paymentAdditionalFee, false, details.Customer)).paymentPrice;
 
@@ -625,7 +625,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             var shoppingCartTotal = await _orderTotalCalculationService.GetShoppingCartTotal(details.Cart);
             List<AppliedGiftVoucher> appliedGiftVouchers = shoppingCartTotal.appliedGiftVouchers;
             List<ApplyDiscount> orderAppliedDiscounts = shoppingCartTotal.appliedDiscounts;
-            decimal orderDiscountAmount = shoppingCartTotal.discountAmount;
+            double orderDiscountAmount = shoppingCartTotal.discountAmount;
             int redeemedLoyaltyPoints = shoppingCartTotal.redeemedLoyaltyPoints;
             var orderTotal = shoppingCartTotal.shoppingCartTotal;
             if (!orderTotal.HasValue)
@@ -650,24 +650,24 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         protected virtual async Task<OrderItem> PrepareOrderItem(ShoppingCartItem sc, Product product, PlaceOrderContainter details)
         {
             List<ApplyDiscount> scDiscounts;
-            decimal discountAmount;
-            decimal scUnitPrice = (await _pricingService.GetUnitPrice(sc, product)).unitprice;
-            decimal scUnitPriceWithoutDisc = (await _pricingService.GetUnitPrice(sc, product, false)).unitprice;
+            double discountAmount;
+            double scUnitPrice = (await _pricingService.GetUnitPrice(sc, product)).unitprice;
+            double scUnitPriceWithoutDisc = (await _pricingService.GetUnitPrice(sc, product, false)).unitprice;
 
             var subtotal = await _pricingService.GetSubTotal(sc, product, true);
-            decimal scSubTotal = subtotal.subTotal;
+            double scSubTotal = subtotal.subTotal;
             discountAmount = subtotal.discountAmount;
             scDiscounts = subtotal.appliedDiscounts;
 
             var prices = await _taxService.GetTaxProductPrice(product, details.Customer, scUnitPrice, scUnitPriceWithoutDisc, sc.Quantity, scSubTotal, discountAmount, _taxSettings.PricesIncludeTax);
-            decimal scUnitPriceWithoutDiscInclTax = prices.UnitPriceWihoutDiscInclTax;
-            decimal scUnitPriceWithoutDiscExclTax = prices.UnitPriceWihoutDiscExclTax;
-            decimal scUnitPriceInclTax = prices.UnitPriceInclTax;
-            decimal scUnitPriceExclTax = prices.UnitPriceExclTax;
-            decimal scSubTotalInclTax = prices.SubTotalInclTax;
-            decimal scSubTotalExclTax = prices.SubTotalExclTax;
-            decimal discountAmountInclTax = prices.discountAmountInclTax;
-            decimal discountAmountExclTax = prices.discountAmountExclTax;
+            double scUnitPriceWithoutDiscInclTax = prices.UnitPriceWihoutDiscInclTax;
+            double scUnitPriceWithoutDiscExclTax = prices.UnitPriceWihoutDiscExclTax;
+            double scUnitPriceInclTax = prices.UnitPriceInclTax;
+            double scUnitPriceExclTax = prices.UnitPriceExclTax;
+            double scSubTotalInclTax = prices.SubTotalInclTax;
+            double scSubTotalExclTax = prices.SubTotalExclTax;
+            double discountAmountInclTax = prices.discountAmountInclTax;
+            double discountAmountExclTax = prices.discountAmountExclTax;
 
             foreach (var disc in scDiscounts)
             {
@@ -943,7 +943,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         {
             foreach (var agc in details.AppliedGiftVouchers)
             {
-                decimal amountUsed = agc.AmountCanBeUsed;
+                double amountUsed = agc.AmountCanBeUsed;
                 var gcuh = new GiftVoucherUsageHistory
                 {
                     GiftVoucherId = agc.GiftVoucher.Id,
@@ -995,7 +995,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 PaymentMethodAdditionalFeeExclTax = Math.Round(details.PaymentAdditionalFeeExclTax, 6),
                 OrderTax = Math.Round(details.OrderTaxTotal, 6),
                 OrderTotal = Math.Round(details.OrderTotal, 6),
-                RefundedAmount = decimal.Zero,
+                RefundedAmount = 0,
                 OrderDiscount = Math.Round(details.OrderDiscountAmount, 6),
                 CheckoutAttributeDescription = details.CheckoutAttributeDescription,
                 CheckoutAttributes = details.CheckoutAttributes,

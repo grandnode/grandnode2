@@ -15,7 +15,7 @@ namespace Grand.Business.Checkout.Utilities
         /// <summary>
         /// Gets or sets an amount
         /// </summary>
-        public decimal AmountToRefund { get; set; }
+        public double AmountToRefund { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether it's a partial refund; otherwize, full refund

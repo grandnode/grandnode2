@@ -49,12 +49,12 @@ namespace Grand.Domain.Customers
         /// <summary>
         /// Gets or sets a minimum order total amount
         /// </summary>
-        public decimal? MinOrderAmount { get; set; }
+        public double? MinOrderAmount { get; set; }
 
         /// <summary>
         /// Gets or sets a maximum order total amount
         /// </summary>
-        public decimal? MaxOrderAmount { get; set; }
+        public double? MaxOrderAmount { get; set; }
     }
 
 }

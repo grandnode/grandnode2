@@ -10,6 +10,6 @@ namespace Shipping.FixedRateShipping.Models
         public string ShippingMethodName { get; set; }
 
         [GrandResourceDisplayName("Plugins.Shipping.FixedRateShipping.Fields.Rate")]
-        public decimal Rate { get; set; }
+        public double Rate { get; set; }
     }
 }

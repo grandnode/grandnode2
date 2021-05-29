@@ -13,7 +13,7 @@ namespace Grand.Domain.Shipping
         /// <summary>
         /// Gets or sets a shipping rate (without discounts, additional shipping charges, etc)
         /// </summary>
-        public decimal Rate { get; set; }
+        public double Rate { get; set; }
 
         /// <summary>
         /// Gets or sets a shipping option name

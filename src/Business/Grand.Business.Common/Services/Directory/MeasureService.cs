@@ -164,7 +164,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="targetMeasureDimension">Target dimension</param>
         /// <param name="round">A value indicating whether a result should be rounded</param>
         /// <returns>Converted value</returns>
-        public virtual async Task<decimal> ConvertDimension(decimal value,
+        public virtual async Task<double> ConvertDimension(double value,
             MeasureDimension sourceMeasureDimension, MeasureDimension targetMeasureDimension, bool round = true)
         {
             if (sourceMeasureDimension == null)
@@ -173,8 +173,8 @@ namespace Grand.Business.Common.Services.Directory
             if (targetMeasureDimension == null)
                 throw new ArgumentNullException(nameof(targetMeasureDimension));
 
-            decimal result = value;
-            if (result != decimal.Zero && sourceMeasureDimension.Id != targetMeasureDimension.Id)
+            double result = value;
+            if (result != 0 && sourceMeasureDimension.Id != targetMeasureDimension.Id)
             {
                 result = await ConvertToPrimaryMeasureDimension(result, sourceMeasureDimension);
                 result = await ConvertFromPrimaryMeasureDimension(result, targetMeasureDimension);
@@ -190,18 +190,18 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="value">Value to convert</param>
         /// <param name="sourceMeasureDimension">Source dimension</param>
         /// <returns>Converted value</returns>
-        public virtual async Task<decimal> ConvertToPrimaryMeasureDimension(decimal value,
+        public virtual async Task<double> ConvertToPrimaryMeasureDimension(double value,
             MeasureDimension sourceMeasureDimension)
         {
             if (sourceMeasureDimension == null)
                 throw new ArgumentNullException(nameof(sourceMeasureDimension));
 
-            decimal result = value;
+            double result = value;
             var baseDimensionIn = await GetMeasureDimensionById(_measureSettings.BaseDimensionId);
-            if (result != decimal.Zero && sourceMeasureDimension.Id != baseDimensionIn.Id)
+            if (result != 0 && sourceMeasureDimension.Id != baseDimensionIn.Id)
             {
-                decimal exchangeRatio = sourceMeasureDimension.Ratio;
-                if (exchangeRatio == decimal.Zero)
+                double exchangeRatio = sourceMeasureDimension.Ratio;
+                if (exchangeRatio == 0)
                     throw new GrandException(string.Format("Exchange ratio not set for dimension [{0}]", sourceMeasureDimension.Name));
                 result = result / exchangeRatio;
             }
@@ -214,18 +214,18 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="value">Value to convert</param>
         /// <param name="targetMeasureDimension">Target dimension</param>
         /// <returns>Converted value</returns>
-        public virtual async Task<decimal> ConvertFromPrimaryMeasureDimension(decimal value,
+        public virtual async Task<double> ConvertFromPrimaryMeasureDimension(double value,
             MeasureDimension targetMeasureDimension)
         {
             if (targetMeasureDimension == null)
                 throw new ArgumentNullException(nameof(targetMeasureDimension));
 
-            decimal result = value;
+            double result = value;
             var baseDimensionIn = await GetMeasureDimensionById(_measureSettings.BaseDimensionId);
-            if (result != decimal.Zero && targetMeasureDimension.Id != baseDimensionIn.Id)
+            if (result != 0 && targetMeasureDimension.Id != baseDimensionIn.Id)
             {
-                decimal exchangeRatio = targetMeasureDimension.Ratio;
-                if (exchangeRatio == decimal.Zero)
+                double exchangeRatio = targetMeasureDimension.Ratio;
+                if (exchangeRatio == 0)
                     throw new GrandException(string.Format("Exchange ratio not set for dimension [{0}]", targetMeasureDimension.Name));
                 result = result * exchangeRatio;
             }
@@ -339,7 +339,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="targetMeasureWeight">Target weight</param>
         /// <param name="round">A value indicating whether a result should be rounded</param>
         /// <returns>Converted value</returns>
-        public virtual async Task<decimal> ConvertWeight(decimal value,
+        public virtual async Task<double> ConvertWeight(double value,
             MeasureWeight sourceMeasureWeight, MeasureWeight targetMeasureWeight, bool round = true)
         {
             if (sourceMeasureWeight == null)
@@ -348,8 +348,8 @@ namespace Grand.Business.Common.Services.Directory
             if (targetMeasureWeight == null)
                 throw new ArgumentNullException(nameof(targetMeasureWeight));
 
-            decimal result = value;
-            if (result != decimal.Zero && sourceMeasureWeight.Id != targetMeasureWeight.Id)
+            double result = value;
+            if (result != 0 && sourceMeasureWeight.Id != targetMeasureWeight.Id)
             {
                 result = await ConvertToPrimaryMeasureWeight(result, sourceMeasureWeight);
                 result = await ConvertFromPrimaryMeasureWeight(result, targetMeasureWeight);
@@ -365,17 +365,17 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="value">Value to convert</param>
         /// <param name="sourceMeasureWeight">Source weight</param>
         /// <returns>Converted value</returns>
-        public virtual async Task<decimal> ConvertToPrimaryMeasureWeight(decimal value, MeasureWeight sourceMeasureWeight)
+        public virtual async Task<double> ConvertToPrimaryMeasureWeight(double value, MeasureWeight sourceMeasureWeight)
         {
             if (sourceMeasureWeight == null)
                 throw new ArgumentNullException(nameof(sourceMeasureWeight));
 
-            decimal result = value;
+            double result = value;
             var baseWeightIn = await GetMeasureWeightById(_measureSettings.BaseWeightId);
-            if (result != decimal.Zero && sourceMeasureWeight.Id != baseWeightIn.Id)
+            if (result != 0 && sourceMeasureWeight.Id != baseWeightIn.Id)
             {
-                decimal exchangeRatio = sourceMeasureWeight.Ratio;
-                if (exchangeRatio == decimal.Zero)
+                double exchangeRatio = sourceMeasureWeight.Ratio;
+                if (exchangeRatio == 0)
                     throw new GrandException(string.Format("Exchange ratio not set for weight [{0}]", sourceMeasureWeight.Name));
                 result = result / exchangeRatio;
             }
@@ -388,18 +388,18 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="value">Value to convert</param>
         /// <param name="targetMeasureWeight">Target weight</param>
         /// <returns>Converted value</returns>
-        public virtual async Task<decimal> ConvertFromPrimaryMeasureWeight(decimal value,
+        public virtual async Task<double> ConvertFromPrimaryMeasureWeight(double value,
             MeasureWeight targetMeasureWeight)
         {
             if (targetMeasureWeight == null)
                 throw new ArgumentNullException(nameof(targetMeasureWeight));
 
-            decimal result = value;
+            double result = value;
             var baseWeightIn = await GetMeasureWeightById(_measureSettings.BaseWeightId);
-            if (result != decimal.Zero && targetMeasureWeight.Id != baseWeightIn.Id)
+            if (result != 0 && targetMeasureWeight.Id != baseWeightIn.Id)
             {
-                decimal exchangeRatio = targetMeasureWeight.Ratio;
-                if (exchangeRatio == decimal.Zero)
+                double exchangeRatio = targetMeasureWeight.Ratio;
+                if (exchangeRatio == 0)
                     throw new GrandException(string.Format("Exchange ratio not set for weight [{0}]", targetMeasureWeight.Name));
                 result = result * exchangeRatio;
             }

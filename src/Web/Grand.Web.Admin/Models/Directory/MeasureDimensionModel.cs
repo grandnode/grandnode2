@@ -14,7 +14,7 @@ namespace Grand.Web.Admin.Models.Directory
         public string SystemKeyword { get; set; }
 
         [GrandResourceDisplayName("Admin.Configuration.Measures.Dimensions.Fields.Ratio")]
-        public decimal Ratio { get; set; }
+        public double Ratio { get; set; }
 
         [GrandResourceDisplayName("Admin.Configuration.Measures.Dimensions.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }

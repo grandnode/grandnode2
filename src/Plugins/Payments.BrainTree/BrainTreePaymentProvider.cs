@@ -132,7 +132,7 @@ namespace Payments.BrainTree
             //new transaction request
             var transactionRequest = new TransactionRequest
             {
-                Amount = paymentTransaction.TransactionAmount,
+                Amount = Convert.ToDecimal(paymentTransaction.TransactionAmount),
             };
 
             if (_brainTreePaymentSettings.Use3DS)
@@ -222,18 +222,18 @@ namespace Payments.BrainTree
         /// </summary>
         /// <param name="cart">Shoping cart</param>
         /// <returns>Additional handling fee</returns>
-        public async Task<decimal> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart)
+        public async Task<double> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart)
         {
             if (_brainTreePaymentSettings.AdditionalFee <= 0)
                 return _brainTreePaymentSettings.AdditionalFee;
 
-            decimal result;
+            double result;
             if (_brainTreePaymentSettings.AdditionalFeePercentage)
             {
                 //percentage
                 var orderTotalCalculationService = _serviceProvider.GetRequiredService<IOrderCalculationService>();
                 var subtotal = await orderTotalCalculationService.GetShoppingCartSubTotal(cart, true);
-                result = (decimal)((((float)subtotal.subTotalWithDiscount) * ((float)_brainTreePaymentSettings.AdditionalFee)) / 100f);
+                result = (double)((((float)subtotal.subTotalWithDiscount) * ((float)_brainTreePaymentSettings.AdditionalFee)) / 100f);
             }
             else
             {

@@ -187,7 +187,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 });
                 if (!minOrderSubtotalAmountOk)
                 {
-                    decimal minOrderSubtotalAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(_orderSettings.MinOrderSubtotalAmount, request.Currency);
+                    double minOrderSubtotalAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(_orderSettings.MinOrderSubtotalAmount, request.Currency);
                     model.MinOrderSubtotalWarning = string.Format(_translationService.GetResource("Checkout.MinOrderSubtotalAmount"), _priceFormatter.FormatPrice(minOrderSubtotalAmount, false));
                 }
             }
@@ -262,11 +262,11 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                         //display price if allowed
                         if (await _permissionService.Authorize(StandardPermission.DisplayPrices))
                         {
-                            decimal priceAdjustmentBase = (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue)).checkoutPrice;
-                            decimal priceAdjustment = await _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase, request.Currency);
-                            if (priceAdjustmentBase > decimal.Zero)
+                            double priceAdjustmentBase = (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue)).checkoutPrice;
+                            double priceAdjustment = await _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase, request.Currency);
+                            if (priceAdjustmentBase > 0)
                                 attributeValueModel.PriceAdjustment = "+" + _priceFormatter.FormatPrice(priceAdjustment);
-                            else if (priceAdjustmentBase < decimal.Zero)
+                            else if (priceAdjustmentBase < 0)
                                 attributeValueModel.PriceAdjustment = "-" + _priceFormatter.FormatPrice(-priceAdjustment);
                         }
                     }
@@ -458,10 +458,10 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 else
                 {
                     var unitprices = await _pricingService.GetUnitPrice(sci, product, true);
-                    decimal discountAmount = unitprices.discountAmount;
+                    double discountAmount = unitprices.discountAmount;
                     List<ApplyDiscount> appliedDiscounts = unitprices.appliedDiscounts;
                     var productprices = await _taxService.GetProductPrice(product, unitprices.unitprice);
-                    decimal taxRate = productprices.taxRate;
+                    double taxRate = productprices.taxRate;
 
                     cartItemModel.UnitPriceWithoutDiscountValue =
                         (await _taxService.GetProductPrice(product, (await _pricingService.GetUnitPrice(sci, product, false)).unitprice)).productprice;
@@ -482,17 +482,17 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     }
                     //sub total
                     var subtotal = await _pricingService.GetSubTotal(sci, product, true);
-                    decimal shoppingCartItemDiscountBase = subtotal.discountAmount;
+                    double shoppingCartItemDiscountBase = subtotal.discountAmount;
                     List<ApplyDiscount> scDiscounts = subtotal.appliedDiscounts;
                     var shoppingCartItemSubTotalWithDiscount = (await _taxService.GetProductPrice(product, subtotal.subTotal)).productprice;
                     cartItemModel.SubTotal = _priceFormatter.FormatPrice(shoppingCartItemSubTotalWithDiscount);
                     cartItemModel.SubTotalValue = shoppingCartItemSubTotalWithDiscount;
 
                     //display an applied discount amount
-                    if (shoppingCartItemDiscountBase > decimal.Zero)
+                    if (shoppingCartItemDiscountBase > 0)
                     {
                         shoppingCartItemDiscountBase = (await _taxService.GetProductPrice(product, shoppingCartItemDiscountBase)).productprice;
-                        if (shoppingCartItemDiscountBase > decimal.Zero)
+                        if (shoppingCartItemDiscountBase > 0)
                         {
                             cartItemModel.Discount = _priceFormatter.FormatPrice(shoppingCartItemDiscountBase);
                         }

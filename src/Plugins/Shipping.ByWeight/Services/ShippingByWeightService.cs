@@ -52,7 +52,6 @@ namespace Shipping.ByWeight.Services
             return await _cacheBase.GetAsync(key, () =>
             {
                 var query = from sbw in _sbwRepository.Table
-                            orderby sbw.StoreId, sbw.CountryId, sbw.StateProvinceId, sbw.Zip, sbw.ShippingMethodId, sbw.From
                             select sbw;
 
                 return Task.FromResult(new PagedList<ShippingByWeightRecord>(query, pageIndex, pageSize));
@@ -61,7 +60,7 @@ namespace Shipping.ByWeight.Services
 
         public virtual async Task<ShippingByWeightRecord> FindRecord(string shippingMethodId,
             string storeId, string warehouseId,
-            string countryId, string stateProvinceId, string zip, decimal weight)
+            string countryId, string stateProvinceId, string zip, double weight)
         {
             if (zip == null)
                 zip = string.Empty;

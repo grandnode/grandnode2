@@ -2,7 +2,6 @@
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Customers.Interfaces;
 using Grand.Business.System.Commands.Models.Security;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
@@ -16,20 +15,17 @@ namespace Grand.Business.System.Commands.Handlers.Security
     public class InstallPermissionsCommandHandler : IRequestHandler<InstallPermissionsCommand, bool>
     {
         private readonly IPermissionService _permissionService;
-        private readonly ICustomerService _customerService;
         private readonly IGroupService _groupService;
         private readonly ITranslationService _translationService;
         private readonly ILanguageService _languageService;
 
         public InstallPermissionsCommandHandler(
             IPermissionService permissionService,
-            ICustomerService customerService,
             IGroupService groupService,
             ITranslationService translationService,
             ILanguageService languageService)
         {
             _permissionService = permissionService;
-            _customerService = customerService;
             _groupService = groupService;
             _translationService = translationService;
             _languageService = languageService;
@@ -45,8 +41,7 @@ namespace Grand.Business.System.Commands.Handlers.Security
                 if (permission1 == null)
                 {
                     //new permission (install it)
-                    permission1 = new Permission
-                    {
+                    permission1 = new Permission {
                         Name = permission.Name,
                         SystemName = permission.SystemName,
                         Area = permission.Area,
@@ -63,8 +58,7 @@ namespace Grand.Business.System.Commands.Handlers.Security
                         if (customerGroup == null)
                         {
                             //new role (save it)
-                            customerGroup = new CustomerGroup
-                            {
+                            customerGroup = new CustomerGroup {
                                 Name = defaultPermission.CustomerGroupSystemName,
                                 Active = true,
                                 SystemName = defaultPermission.CustomerGroupSystemName

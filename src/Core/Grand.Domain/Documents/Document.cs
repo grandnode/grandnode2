@@ -127,12 +127,12 @@ namespace Grand.Domain.Documents
         /// <summary>
         /// Gets or sets the total amount
         /// </summary>
-        public decimal TotalAmount { get; set; }
+        public double TotalAmount { get; set; }
 
         /// <summary>
         /// Gets or sets the outstand amount
         /// </summary>
-        public decimal OutstandAmount { get; set; }
+        public double OutstandAmount { get; set; }
 
         /// <summary>
         /// Gets or sets the quantity

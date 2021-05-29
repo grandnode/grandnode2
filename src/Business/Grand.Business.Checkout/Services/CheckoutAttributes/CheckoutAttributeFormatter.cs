@@ -140,8 +140,8 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
                             formattedAttribute = string.Format("{0}: {1}", attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id), attributeValue.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id));
                             if (renderPrices)
                             {
-                                decimal priceAdjustmentBase = (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue, customer)).checkoutPrice;
-                                decimal priceAdjustment = await _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase, _workContext.WorkingCurrency);
+                                double priceAdjustmentBase = (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue, customer)).checkoutPrice;
+                                double priceAdjustment = await _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase, _workContext.WorkingCurrency);
                                 if (priceAdjustmentBase > 0)
                                 {
                                     string priceAdjustmentStr = _priceFormatter.FormatPrice(priceAdjustment);

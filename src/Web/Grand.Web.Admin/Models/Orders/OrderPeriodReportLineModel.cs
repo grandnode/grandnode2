@@ -13,7 +13,7 @@ namespace Grand.Web.Admin.Models.Orders
         public int Count { get; set; }
 
         [GrandResourceDisplayName("Admin.Reports.Period.Amount")]
-        public decimal Amount { get; set; }
+        public double Amount { get; set; }
 
     }
 }

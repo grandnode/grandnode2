@@ -42,7 +42,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
                 Id = "1",
                 Name = "US Dollar",
                 CurrencyCode = "USD",
-                Rate = 1.2M,
+                Rate = 1.2,
                 DisplayLocale = "en-US",
                 CustomFormatting = "",
                 Published = true,
@@ -66,7 +66,7 @@ namespace Grand.Business.Common.Tests.Services.Directory
                 Id = "3",
                 Name = "Russian Rouble",
                 CurrencyCode = "RUB",
-                Rate = 34.5M,
+                Rate = 34.5,
                 DisplayLocale = "ru-RU",
                 CustomFormatting = "",
                 Published = true,
@@ -115,10 +115,10 @@ namespace Grand.Business.Common.Tests.Services.Directory
         {
             //e.g. 
             //10.1 * 1.5 = 15.15
-            Assert.AreEqual(15.15M, _currencyService.ConvertCurrency(10.1M, 1.5M));
-            Assert.AreEqual(10.122M, _currencyService.ConvertCurrency(10.122M, 1));
-            Assert.AreEqual(34.4148M, _currencyService.ConvertCurrency(10.122M, 3.4M));
-            Assert.AreEqual(0, _currencyService.ConvertCurrency(10.1M, 0));
+            Assert.AreEqual(15.15, _currencyService.ConvertCurrency(10.1, 1.5));
+            Assert.AreEqual(10.122, _currencyService.ConvertCurrency(10.122, 1));
+            Assert.AreEqual(34.4148, _currencyService.ConvertCurrency(10.122, 3.4));
+            Assert.AreEqual(0, _currencyService.ConvertCurrency(10.1, 0));
             Assert.AreEqual(0, _currencyService.ConvertCurrency(0, 5));
         }
 

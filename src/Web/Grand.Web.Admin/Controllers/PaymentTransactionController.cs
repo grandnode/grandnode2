@@ -200,9 +200,9 @@ namespace Grand.Web.Admin.Controllers
             model.CanMarkAsPaid = await _mediator.Send(new CanMarkPaymentTransactionAsPaidQuery() { PaymentTransaction = paymentTransaction });
             model.CanRefund = await _mediator.Send(new CanRefundQuery() { PaymentTransaction = paymentTransaction });
             model.CanRefundOffline = await _mediator.Send(new CanRefundOfflineQuery() { PaymentTransaction = paymentTransaction });
-            model.CanPartiallyRefund = await _mediator.Send(new CanPartiallyRefundQuery() { PaymentTransaction = paymentTransaction, AmountToRefund = decimal.Zero });
-            model.CanPartiallyRefundOffline = await _mediator.Send(new CanPartiallyRefundOfflineQuery() { PaymentTransaction = paymentTransaction, AmountToRefund = decimal.Zero });
-            model.CanPartiallyPaidOffline = await _mediator.Send(new CanPartiallyPaidOfflineQuery() { PaymentTransaction = paymentTransaction, AmountToPaid = decimal.Zero });
+            model.CanPartiallyRefund = await _mediator.Send(new CanPartiallyRefundQuery() { PaymentTransaction = paymentTransaction, AmountToRefund = 0 });
+            model.CanPartiallyRefundOffline = await _mediator.Send(new CanPartiallyRefundOfflineQuery() { PaymentTransaction = paymentTransaction, AmountToRefund = 0 });
+            model.CanPartiallyPaidOffline = await _mediator.Send(new CanPartiallyPaidOfflineQuery() { PaymentTransaction = paymentTransaction, AmountToPaid = 0 });
             model.CanVoid = await _mediator.Send(new CanVoidQuery() { PaymentTransaction = paymentTransaction });
             model.CanVoidOffline = await _mediator.Send(new CanVoidOfflineQuery() { PaymentTransaction = paymentTransaction });
 
@@ -415,11 +415,11 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                decimal amountToRefund = model.AmountToRefund;
-                if (amountToRefund <= decimal.Zero)
+                double amountToRefund = model.AmountToRefund;
+                if (amountToRefund <= 0)
                     throw new GrandException("Enter amount to refund");
 
-                decimal maxAmountToRefund = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
+                double maxAmountToRefund = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
                 if (amountToRefund > maxAmountToRefund)
                     amountToRefund = maxAmountToRefund;
 
@@ -483,11 +483,11 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                decimal amountToPaid = model.AmountToPaid;
-                if (amountToPaid <= decimal.Zero)
+                double amountToPaid = model.AmountToPaid;
+                if (amountToPaid <= 0)
                     throw new GrandException("Enter amount to refund");
 
-                decimal maxAmountToPaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount;
+                double maxAmountToPaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount;
                 if (amountToPaid > maxAmountToPaid)
                     amountToPaid = maxAmountToPaid;
 

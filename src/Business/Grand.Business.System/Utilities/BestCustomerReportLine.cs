@@ -14,7 +14,7 @@ namespace Grand.Business.System.Utilities
         /// <summary>
         /// Gets or sets the order total
         /// </summary>
-        public decimal OrderTotal { get; set; }
+        public double OrderTotal { get; set; }
 
         /// <summary>
         /// Gets or sets the order count

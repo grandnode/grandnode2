@@ -13,16 +13,16 @@ namespace Grand.Business.System.Utilities
         /// <summary>
         /// Gets or sets the shipping summary (excluding tax)
         /// </summary>
-        public decimal SumShippingExclTax { get; set; }
+        public double SumShippingExclTax { get; set; }
 
         /// <summary>
         /// Gets or sets the tax summary
         /// </summary>
-        public decimal SumTax { get; set; }
+        public double SumTax { get; set; }
 
         /// <summary>
         /// Gets or sets the order total summary
         /// </summary>
-        public decimal SumOrders { get; set; }
+        public double SumOrders { get; set; }
     }
 }

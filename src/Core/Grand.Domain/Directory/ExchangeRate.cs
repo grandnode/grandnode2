@@ -13,7 +13,7 @@ namespace Grand.Domain.Directory
         public ExchangeRate()
         {
             CurrencyCode = string.Empty;
-            Rate = 1.0m;
+            Rate = 1.0;
         }
         
         /// <summary>
@@ -24,7 +24,7 @@ namespace Grand.Domain.Directory
         /// <summary>
         /// The conversion rate of this currency from the base currency
         /// </summary>
-        public decimal Rate { get; set; }
+        public double Rate { get; set; }
 
         /// <summary>
         /// When was this exchange rate updated from the data source (the internet data xml feed)

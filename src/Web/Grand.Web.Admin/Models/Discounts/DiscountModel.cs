@@ -34,10 +34,10 @@ namespace Grand.Web.Admin.Models.Discounts
         public bool UsePercentage { get; set; }
 
         [GrandResourceDisplayName("admin.marketing.Discounts.Fields.DiscountPercentage")]
-        public decimal DiscountPercentage { get; set; }
+        public double DiscountPercentage { get; set; }
 
         [GrandResourceDisplayName("admin.marketing.Discounts.Fields.DiscountAmount")]
-        public decimal DiscountAmount { get; set; }
+        public double DiscountAmount { get; set; }
 
         [GrandResourceDisplayName("admin.marketing.Discounts.Fields.CurrencyCode")]
         public string CurrencyCode { get; set; }
@@ -50,8 +50,8 @@ namespace Grand.Web.Admin.Models.Discounts
         public string DiscountPluginName { get; set; }
 
         [GrandResourceDisplayName("admin.marketing.Discounts.Fields.MaximumDiscountAmount")]
-        [UIHint("DecimalNullable")]
-        public decimal? MaximumDiscountAmount { get; set; }
+        [UIHint("DoubleNullable")]
+        public double? MaximumDiscountAmount { get; set; }
 
         [GrandResourceDisplayName("admin.marketing.Discounts.Fields.StartDate")]
         [UIHint("DateTimeNullable")]

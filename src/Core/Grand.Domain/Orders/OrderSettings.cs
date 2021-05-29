@@ -12,7 +12,7 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets a minimum order subtotal amount
         /// </summary>
-        public decimal MinOrderSubtotalAmount { get; set; }
+        public double MinOrderSubtotalAmount { get; set; }
         /// <summary>
         /// Gets or sets a value indicating whether 'inimum order subtotal amount' option
         /// should be evaluated over 'X' value including tax or not
@@ -22,7 +22,7 @@ namespace Grand.Domain.Orders
         /// <summary>
         /// Gets or sets a minimum order total amount
         /// </summary>
-        public decimal MinOrderTotalAmount { get; set; }
+        public double MinOrderTotalAmount { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether anonymous checkout allowed

@@ -18,6 +18,6 @@ namespace Grand.Business.System.Utilities
         /// <summary>
         /// Gets or sets the order total summary
         /// </summary>
-        public decimal SumOrders { get; set; }
+        public double SumOrders { get; set; }
     }
 }

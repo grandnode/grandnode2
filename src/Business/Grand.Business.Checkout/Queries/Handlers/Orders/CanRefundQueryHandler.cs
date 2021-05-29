@@ -23,10 +23,10 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             if (paymentTransaction == null)
                 throw new ArgumentNullException(nameof(request.PaymentTransaction));
 
-            if (paymentTransaction.TransactionAmount == decimal.Zero)
+            if (paymentTransaction.TransactionAmount == 0)
                 return false;
 
-            if (paymentTransaction.RefundedAmount > decimal.Zero)
+            if (paymentTransaction.RefundedAmount > 0)
                 return false;
 
             //if (order.OrderStatus == OrderStatus.Cancelled)

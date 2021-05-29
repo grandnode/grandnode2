@@ -187,28 +187,28 @@
                 <div class="right">
                     <ul>
                         <li>@(_translationService.GetResource("PDFInvoice.Sub-Total", order.CustomerLanguageId)) @order.OrderSubtotalInclTax @order.CustomerCurrencyCode</li>
-                        @if (order.OrderSubTotalDiscountInclTax > decimal.Zero)
+                        @if (order.OrderSubTotalDiscountInclTax > 0)
                         {
                             <li>@(_translationService.GetResource("PDFInvoice.Discount", order.CustomerLanguageId)) @order.OrderSubTotalDiscountInclTax @order.CustomerCurrencyCode</li>
                         }
-                        @if (order.PaymentMethodAdditionalFeeInclTax > decimal.Zero)
+                        @if (order.PaymentMethodAdditionalFeeInclTax > 0)
                         {
                             <li>@(_translationService.GetResource("PDFInvoice.PaymentmethodAdditionalFee", order.CustomerLanguageId)) @order.PaymentMethodAdditionalFeeInclTax @order.CustomerCurrencyCode</li>
                         }
                         <li>@(_translationService.GetResource("PDFInvoice.Shipping", order.CustomerLanguageId)) @order.OrderShippingInclTax @order.CustomerCurrencyCode</li>
-                        @if (order.OrderDiscount > decimal.Zero)
+                        @if (order.OrderDiscount > 0)
                         {
                             <li>@(_translationService.GetResource("PDFInvoice.Discount", order.CustomerLanguageId)) @order.OrderDiscount @order.CustomerCurrencyCode</li>
                         }
                         @foreach (var gcuh in await _giftVoucherService.GetAllGiftVoucherUsageHistory(order.Id))
                         {
-                            if (gcuh.UsedValue > decimal.Zero)
+                            if (gcuh.UsedValue > 0)
                             {
                                 var giftvoucher = await _giftVoucherService.GetGiftVoucherById(gcuh.GiftVoucherId);
                                 <li>@(string.Format(_translationService.GetResource("PDFInvoice.GiftVoucherInfo", order.CustomerLanguageId), giftvoucher.Code)) @gcuh.UsedValue</li>
                             }
                         }
-                        @if (order.OrderTax > decimal.Zero)
+                        @if (order.OrderTax > 0)
                         {
                             <li>@(_translationService.GetResource("PDFInvoice.Tax", order.CustomerLanguageId)) @order.OrderTax @order.CustomerCurrencyCode</li>
                         }

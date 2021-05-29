@@ -12,7 +12,7 @@ namespace Grand.Business.Catalog.Extensions
         /// <param name="value">Value to round</param>
         /// <param name="currency">Currency</param>
         /// <returns>Rounded value</returns>
-        public static decimal RoundPrice(decimal value, Currency currency)
+        public static double RoundPrice(double value, Currency currency)
         {
             if (currency != null)
                 return value.Round(currency.NumberDecimal, currency.RoundingTypeId, currency.MidpointRoundId);
@@ -26,11 +26,11 @@ namespace Grand.Business.Catalog.Extensions
         /// <param name="value">Value to round</param>
         /// <param name="roundingType">The rounding type</param>
         /// <returns>Rounded value</returns>
-        public static decimal Round(this decimal value, int decimals, RoundingType roundingType, MidpointRounding midpointRounding)
+        public static double Round(this double value, int doubles, RoundingType roundingType, MidpointRounding midpointRounding)
         {
 
             //default round (Rounding001)
-            var rez = Math.Round(value, decimals, midpointRounding);
+            var rez = Math.Round(value, doubles, midpointRounding);
             var fractionPart = (rez - Math.Truncate(rez)) * 10;
 
             //cash rounding not needed

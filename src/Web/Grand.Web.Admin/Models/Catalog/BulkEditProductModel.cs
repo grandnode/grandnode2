@@ -14,10 +14,10 @@ namespace Grand.Web.Admin.Models.Catalog
         public string Sku { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.BulkEdit.Fields.Price")]
-        public decimal Price { get; set; }
+        public double Price { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.BulkEdit.Fields.OldPrice")]
-        public decimal OldPrice { get; set; }
+        public double OldPrice { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.BulkEdit.Fields.ManageInventoryMethod")]
         public string ManageInventoryMethod { get; set; }

@@ -203,7 +203,7 @@ namespace Grand.Business.Messages.Interfaces
         /// <param name="refundedAmount">Amount refunded</param>
         /// <param name="languageId">Message language identifier</param>
         /// <returns>Queued email identifier</returns>
-        Task<int> SendOrderRefundedStoreOwnerMessage(Order order, decimal refundedAmount, string languageId);
+        Task<int> SendOrderRefundedStoreOwnerMessage(Order order, double refundedAmount, string languageId);
 
         /// <summary>
         /// Sends an order refunded notification to a customer
@@ -212,7 +212,7 @@ namespace Grand.Business.Messages.Interfaces
         /// <param name="refundedAmount">Amount refunded</param>
         /// <param name="languageId">Message language identifier</param>
         /// <returns>Queued email identifier</returns>
-        Task<int> SendOrderRefundedCustomerMessage(Order order, decimal refundedAmount, string languageId);
+        Task<int> SendOrderRefundedCustomerMessage(Order order, double refundedAmount, string languageId);
 
         /// <summary>
         /// Sends a new order note added notification to a customer

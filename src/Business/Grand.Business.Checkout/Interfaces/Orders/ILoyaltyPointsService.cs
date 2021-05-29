@@ -29,7 +29,7 @@ namespace Grand.Business.Checkout.Interfaces.Orders
         /// <param name="usedWithOrder">the order for which points were redeemed as a payment</param>
         /// <param name="usedAmount">Used amount</param>
         Task<LoyaltyPointsHistory> AddLoyaltyPointsHistory(string customerId, int points, string storeId, string message = "",
-           string usedWithOrderId = "", decimal usedAmount = 0M);
+           string usedWithOrderId = "", double usedAmount = 0);
 
         /// <summary>
         /// Load loyalty point history records

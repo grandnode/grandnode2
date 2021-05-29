@@ -50,7 +50,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="amount">Amount</param>
         /// <param name="targetCurrency">Target currency</param>
         /// <returns>Currency string without exchange rate</returns>
-        protected virtual string GetCurrencyString(decimal amount, Currency targetCurrency)
+        protected virtual string GetCurrencyString(double amount, Currency targetCurrency)
         {
             if (targetCurrency == null)
                 return amount.ToString("C");
@@ -85,7 +85,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// </summary>
         /// <param name="price">Price</param>
         /// <returns>Price</returns>
-        public virtual string FormatPrice(decimal price)
+        public virtual string FormatPrice(double price)
         {
             return FormatPrice(price, _workContext.WorkingCurrency);
         }
@@ -96,7 +96,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="price">Price</param>
         /// <param name="targetCurrency">Target currency</param>
         /// <returns>Price</returns>
-        public virtual string FormatPrice(decimal price, Currency targetCurrency)
+        public virtual string FormatPrice(double price, Currency targetCurrency)
         {
             bool priceIncludesTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
             return FormatPrice(price, targetCurrency, _workContext.WorkingLanguage, priceIncludesTax);
@@ -108,7 +108,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="price">Price</param>
         /// <param name="showTax">Indicates if it should show tax suffix</param>
         /// <returns>Price</returns>
-        public virtual string FormatPrice(decimal price, bool showTax)
+        public virtual string FormatPrice(double price, bool showTax)
         {
             bool priceIncludesTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
             return FormatPrice(price, _workContext.WorkingCurrency, _workContext.WorkingLanguage, priceIncludesTax, showTax);
@@ -122,7 +122,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="showTax">A value indicating whether to show tax suffix</param>
         /// <param name="language">Language</param>
         /// <returns>Price</returns>
-        public virtual async Task<string> FormatPrice(decimal price, string currencyCode, bool showTax, Language language)
+        public virtual async Task<string> FormatPrice(double price, string currencyCode, bool showTax, Language language)
         {
             var currency = string.IsNullOrEmpty(currencyCode) ? await _currencyService.GetCurrencyByCode(currencyCode) : null;
             bool priceIncludesTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
@@ -137,7 +137,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="language">Language</param>
         /// <param name="priceIncludesTax">A value indicating whether price includes tax</param>
         /// <returns>Price</returns>
-        public virtual async Task<string> FormatPrice(decimal price, string currencyCode, Language language, bool priceIncludesTax)
+        public virtual async Task<string> FormatPrice(double price, string currencyCode, Language language, bool priceIncludesTax)
         {
             var currency = string.IsNullOrEmpty(currencyCode) ? await _currencyService.GetCurrencyByCode(currencyCode) : null;
             return FormatPrice(price, currency, language, priceIncludesTax);
@@ -151,7 +151,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="language">Language</param>
         /// <param name="priceIncludesTax">A value indicating whether price includes tax</param>
         /// <returns>Price</returns>
-        public virtual string FormatPrice(decimal price, Currency targetCurrency, Language language, bool priceIncludesTax)
+        public virtual string FormatPrice(double price, Currency targetCurrency, Language language, bool priceIncludesTax)
         {
             return FormatPrice(price, targetCurrency, language, priceIncludesTax, _taxSettings.DisplayTaxSuffix);
         }
@@ -165,7 +165,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="priceIncludesTax">Indicates if price includes tax</param>
         /// <param name="showTax">Indicates if it should show tax suffix</param>
         /// <returns>Price</returns>
-        public string FormatPrice(decimal price, Currency targetCurrency, Language language, bool priceIncludesTax, bool showTax)
+        public string FormatPrice(double price, Currency targetCurrency, Language language, bool priceIncludesTax, bool showTax)
         {
             string currencyString = GetCurrencyString(price, targetCurrency);
             if (showTax)
@@ -197,7 +197,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// </summary>
         /// <param name="price">Price</param>
         /// <returns>Price</returns>
-        public virtual string FormatShippingPrice(decimal price)
+        public virtual string FormatShippingPrice(double price)
         {
             bool priceIncludesTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
             return FormatShippingPrice(price, _workContext.WorkingCurrency, _workContext.WorkingLanguage, priceIncludesTax);
@@ -211,7 +211,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="language">Language</param>
         /// <param name="priceIncludesTax">Indicates if price includes tax</param>
         /// <returns>Price</returns>
-        public virtual string FormatShippingPrice(decimal price, Currency targetCurrency, Language language, bool priceIncludesTax)
+        public virtual string FormatShippingPrice(double price, Currency targetCurrency, Language language, bool priceIncludesTax)
         {
             bool showTax = _taxSettings.ShippingIsTaxable && _taxSettings.DisplayTaxSuffix;
             return FormatShippingPrice(price, targetCurrency, language, priceIncludesTax, showTax);
@@ -226,7 +226,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="priceIncludesTax">Indicates if price includes tax</param>
         /// <param name="showTax">Indicates if it should show a tax suffix</param>
         /// <returns>Price</returns>
-        public virtual string FormatShippingPrice(decimal price,
+        public virtual string FormatShippingPrice(double price,
             Currency targetCurrency, Language language, bool priceIncludesTax, bool showTax)
         {
             return FormatPrice(price, targetCurrency, language, priceIncludesTax, showTax);
@@ -240,7 +240,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="language">Language</param>
         /// <param name="priceIncludesTax">Indicates if price includes tax</param>
         /// <returns>Price</returns>
-        public virtual async Task<string> FormatShippingPrice(decimal price, string currencyCode, Language language, bool priceIncludesTax)
+        public virtual async Task<string> FormatShippingPrice(double price, string currencyCode, Language language, bool priceIncludesTax)
         {
             var currency = string.IsNullOrEmpty(currencyCode) ? await _currencyService.GetCurrencyByCode(currencyCode) : null;
             return FormatShippingPrice(price, currency, language, priceIncludesTax);
@@ -288,7 +288,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// </summary>
         /// <param name="price">Price</param>
         /// <returns>Price</returns>
-        public virtual string FormatPaymentMethodAdditionalFee(decimal price)
+        public virtual string FormatPaymentMethodAdditionalFee(double price)
         {
             bool priceIncludesTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
             return FormatPaymentMethodAdditionalFee(price, _workContext.WorkingCurrency,
@@ -303,7 +303,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="language">Language</param>
         /// <param name="priceIncludesTax">Indicates if price includes tax</param>
         /// <returns>Price</returns>
-        public virtual string FormatPaymentMethodAdditionalFee(decimal price,
+        public virtual string FormatPaymentMethodAdditionalFee(double price,
             Currency targetCurrency, Language language, bool priceIncludesTax)
         {
             bool showTax = _taxSettings.PaymentMethodAdditionalFeeIsTaxable && _taxSettings.DisplayTaxSuffix;
@@ -319,7 +319,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="priceIncludesTax">Indicates if price includes tax</param>
         /// <param name="showTax">Indicates if it should show a tax suffix</param>
         /// <returns>Price</returns>
-        public virtual string FormatPaymentMethodAdditionalFee(decimal price,
+        public virtual string FormatPaymentMethodAdditionalFee(double price,
             Currency targetCurrency, Language language, bool priceIncludesTax, bool showTax)
         {
             return FormatPrice(price, targetCurrency, language, priceIncludesTax, showTax);
@@ -333,7 +333,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="language">Language</param>
         /// <param name="priceIncludesTax">Indicates if price includes tax</param>
         /// <returns>Price</returns>
-        public virtual async Task<string> FormatPaymentMethodAdditionalFee(decimal price,
+        public virtual async Task<string> FormatPaymentMethodAdditionalFee(double price,
             string currencyCode, Language language, bool priceIncludesTax)
         {
             var currency = string.IsNullOrEmpty(currencyCode) ? await _currencyService.GetCurrencyByCode(currencyCode) : null;
@@ -346,7 +346,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// </summary>
         /// <param name="taxRate">Tax rate</param>
         /// <returns>Formatted tax rate</returns>
-        public virtual string FormatTaxRate(decimal taxRate)
+        public virtual string FormatTaxRate(double taxRate)
         {
             return taxRate.ToString("G29");
         }

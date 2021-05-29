@@ -261,16 +261,16 @@ namespace Grand.Business.Catalog.Services.Products
 
                                 if (renderPrices)
                                 {
-                                    decimal attributeValuePriceAdjustment = await _pricingService.GetProductAttributeValuePriceAdjustment(attributeValue);
+                                    double attributeValuePriceAdjustment = await _pricingService.GetProductAttributeValuePriceAdjustment(attributeValue);
                                     var prices = await _taxService.GetProductPrice(product, attributeValuePriceAdjustment, _workContext.CurrentCustomer);
-                                    decimal priceAdjustmentBase = prices.productprice;
-                                    decimal taxRate = prices.taxRate;
+                                    double priceAdjustmentBase = prices.productprice;
+                                    double taxRate = prices.taxRate;
                                     if (priceAdjustmentBase > 0)
                                     {
                                         string priceAdjustmentStr = _priceFormatter.FormatPrice(priceAdjustmentBase, false);
                                         formattedAttribute += string.Format(" [+{0}]", priceAdjustmentStr);
                                     }
-                                    else if (priceAdjustmentBase < decimal.Zero)
+                                    else if (priceAdjustmentBase < 0)
                                     {
                                         string priceAdjustmentStr = _priceFormatter.FormatPrice(-priceAdjustmentBase, false);
                                         formattedAttribute += string.Format(" [-{0}]", priceAdjustmentStr);

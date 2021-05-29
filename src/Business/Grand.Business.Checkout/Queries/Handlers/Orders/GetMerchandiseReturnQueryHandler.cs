@@ -48,7 +48,7 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             if (request.CreatedToUtc.HasValue)
                 query = query.Where(rr => request.CreatedToUtc.Value >= rr.CreatedOnUtc);
 
-            query = query.OrderByDescending(rr => rr.CreatedOnUtc).ThenByDescending(rr => rr.Id);
+            query = query.OrderByDescending(rr => rr.CreatedOnUtc);
 
             return Task.FromResult(query);
         }

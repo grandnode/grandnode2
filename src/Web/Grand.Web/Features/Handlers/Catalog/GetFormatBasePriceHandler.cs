@@ -49,7 +49,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
             request.ProductPrice = request.ProductPrice.HasValue ? request.ProductPrice.Value : request.Product.Price;
 
-            decimal basePrice = request.ProductPrice.Value /
+            double basePrice = request.ProductPrice.Value /
                 //do not round. otherwise, it can cause issues
                 await _measureService.ConvertWeight(productAmount, productUnit, referenceUnit, false) *
                 referenceAmount;

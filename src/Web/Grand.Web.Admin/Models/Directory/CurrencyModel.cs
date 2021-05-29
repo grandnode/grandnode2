@@ -26,9 +26,9 @@ namespace Grand.Web.Admin.Models.Directory
 
         public string DisplayLocale { get; set; }
 
-        [UIHint("DecimalN4")]
+        [UIHint("DoubleN4")]
         [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.Rate")]
-        public decimal Rate { get; set; }
+        public double Rate { get; set; }
 
         [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.CustomFormatting")]
         public string CustomFormatting { get; set; }

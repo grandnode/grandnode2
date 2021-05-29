@@ -28,7 +28,7 @@ namespace Grand.Domain.Catalog
         /// <summary>
         /// Gets or sets Amount
         /// </summary>
-        public decimal Amount { get; set; }
+        public double Amount { get; set; }
         /// <summary>
         /// Gets or sets Order Id
         /// </summary>

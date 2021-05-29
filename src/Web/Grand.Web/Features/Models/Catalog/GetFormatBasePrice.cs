@@ -7,6 +7,6 @@ namespace Grand.Web.Features.Models.Catalog
     {
         public Currency Currency { get; set; }
         public Product Product { get; set; }
-        public decimal? ProductPrice { get; set; }
+        public double? ProductPrice { get; set; }
     }
 }

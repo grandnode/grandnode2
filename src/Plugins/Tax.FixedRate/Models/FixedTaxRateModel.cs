@@ -10,6 +10,6 @@ namespace Tax.FixedRate.Models
         public string TaxCategoryName { get; set; }
 
         [GrandResourceDisplayName("Plugins.Tax.FixedRate.Fields.Rate")]
-        public decimal Rate { get; set; }
+        public double Rate { get; set; }
     }
 }
