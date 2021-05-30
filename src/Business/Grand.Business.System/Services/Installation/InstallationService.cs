@@ -9,6 +9,7 @@ using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Configuration;
+using Grand.Domain.Courses;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Data.Mongo;
@@ -149,7 +150,8 @@ namespace Grand.Business.System.Services.Installation
         private readonly IRepository<NewsletterCategory> _newsletterCategoryRepository;
         private readonly IRepository<InteractiveForm> _formRepository;
         private readonly IRepository<Banner> _bannerRepository;
-
+        private readonly IRepository<Course> _courseRepository;
+        private readonly IRepository<CourseLevel> _courseLevelRepository;
 
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IServiceProvider _serviceProvider;
@@ -265,6 +267,8 @@ namespace Grand.Business.System.Services.Installation
             _newsletterCategoryRepository = new MongoRepository<NewsletterCategory>(dataProviderSettings.ConnectionString);
             _formRepository = new MongoRepository<InteractiveForm>(dataProviderSettings.ConnectionString);
             _bannerRepository = new MongoRepository<Banner>(dataProviderSettings.ConnectionString);
+            _courseRepository = new MongoRepository<Course>(dataProviderSettings.ConnectionString);
+            _courseLevelRepository = new MongoRepository<CourseLevel>(dataProviderSettings.ConnectionString);
             _hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
 
             _serviceProvider = serviceProvider;
@@ -496,6 +500,7 @@ namespace Grand.Business.System.Services.Installation
             //knowledgebase
             await dbContext.CreateIndex(_knowledgebaseArticleRepository, OrderBuilder<KnowledgebaseArticle>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
             await dbContext.CreateIndex(_knowledgebaseCategoryRepository, OrderBuilder<KnowledgebaseCategory>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+            await dbContext.CreateIndex(_knowledgebaseCategoryRepository, OrderBuilder<KnowledgebaseCategory>.Create().Ascending(x => x.ParentCategoryId).Ascending(x=>x.DisplayOrder), "ParentCategoryId_DisplayOrder");
 
             //page
             await dbContext.CreateIndex(_pageRepository, OrderBuilder<Page>.Create().Ascending(x => x.SystemName), "SystemName");
@@ -624,9 +629,13 @@ namespace Grand.Business.System.Services.Installation
 
             //interactive form
             await dbContext.CreateIndex(_formRepository, OrderBuilder<InteractiveForm>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
-            //banner
 
+            //banner
             await dbContext.CreateIndex(_bannerRepository, OrderBuilder<Banner>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
+
+            //course
+            await dbContext.CreateIndex(_courseRepository, OrderBuilder<Course>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
+            await dbContext.CreateIndex(_courseLevelRepository, OrderBuilder<CourseLevel>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
             
         }
 
