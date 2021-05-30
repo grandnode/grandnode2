@@ -470,6 +470,9 @@ namespace Grand.Web.Admin.Controllers
                 var entityName = x.EntityName != null ? x.EntityName.ToLowerInvariant() : "";
                 switch (entityName)
                 {
+                    case "brand":
+                        detailsUrl = Url.Action("Edit", "Brand", new { id = x.EntityId, area = Constants.AreaAdmin });
+                        break;
                     case "blogpost":
                         detailsUrl = Url.Action("Edit", "Blog", new { id = x.EntityId, area = Constants.AreaAdmin });
                         break;
