@@ -303,7 +303,7 @@ namespace Grand.Business.System.Services.Installation
             await customerManagerService.ChangePassword(new ChangePasswordRequest(defaultUserEmail, false, PasswordFormat.Hashed, defaultUserPassword));
         }
 
-        private async Task CreateIndexes(MongoDBContext dbContext)
+        private async Task CreateIndexes(MongoDBContext dbContext, DataSettings dataSettings)
         {
             //version
             await dbContext.CreateIndex(_versionRepository, OrderBuilder<GrandNodeVersion>.Create().Ascending(x => x.DataBaseVersion), "DataBaseVersion", true);
@@ -638,14 +638,22 @@ namespace Grand.Business.System.Services.Installation
             await dbContext.CreateIndex(_courseRepository, OrderBuilder<Course>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
             await dbContext.CreateIndex(_courseLevelRepository, OrderBuilder<CourseLevel>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
             
+            //if(dataSettings.DbProvider == DbProvider.CosmosDB)
+            //{
+            //    //
+            //    //db.fs.chunks.createIndex({'n': 1})
+            //    //To Fix problem with download files from GridFSBucket
+            //    //
+            //}
+
         }
 
         private async Task CreateTables(string local)
         {
             try
             {
-                var connectionString = DataSettingsManager.LoadSettings().ConnectionString;
-                var dbContext = new MongoDBContext(connectionString);
+                var dataSettings = DataSettingsManager.LoadSettings();
+                var dbContext = new MongoDBContext(dataSettings.ConnectionString);
 
                 var typeSearcher = _serviceProvider.GetRequiredService<ITypeSearcher>();
                 var q = typeSearcher.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "Grand.Domain");
@@ -655,7 +663,7 @@ namespace Grand.Business.System.Services.Installation
                     if (item.BaseType != null && item.IsClass && item.BaseType == typeof(BaseEntity))
                         await dbContext.CreateTable(item.Name, local);
                 }
-                await CreateIndexes(dbContext);
+                await CreateIndexes(dbContext, dataSettings);
 
             }
             catch (Exception ex)
