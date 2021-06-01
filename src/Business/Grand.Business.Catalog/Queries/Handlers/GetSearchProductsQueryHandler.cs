@@ -113,7 +113,10 @@ namespace Grand.Business.Catalog.Queries.Handlers
                 var productTypeId = (int)request.ProductType.Value;
                 query = query.Where(p => p.ProductTypeId == (ProductType)productTypeId);
             }
-
+            if (request.ShowOnHomePage.HasValue)
+            {
+                query = query.Where(p => p.ShowOnHomePage == request.ShowOnHomePage.Value);
+            }
             //The function 'CurrentUtcDateTime' is not supported by SQL Server Compact. 
             //That's why we pass the date value
             var nowUtc = DateTime.UtcNow;

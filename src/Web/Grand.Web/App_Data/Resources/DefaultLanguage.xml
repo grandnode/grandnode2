@@ -3267,8 +3267,14 @@
   <Resource Name="Admin.Catalog.Products.List.SearchPublished.All">
     <Value>All</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.Products.List.SearchPublished.MarkAsNew">
+    <Value>Mark as new</Value>
+  </Resource>
   <Resource Name="Admin.Catalog.Products.List.SearchPublished.PublishedOnly">
     <Value>Only published</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.List.SearchPublished.ShowOnHomePage">
+    <Value>Show on homePage</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.List.SearchPublished.UnpublishedOnly">
     <Value>Only unpublished</Value>

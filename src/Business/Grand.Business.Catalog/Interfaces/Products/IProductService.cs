@@ -119,6 +119,7 @@ namespace Grand.Business.Catalog.Interfaces.Products
         /// <param name="warehouseId">Warehouse identifier; "" to load all records</param>
         /// <param name="productType">Product type; "" to load all records</param>
         /// <param name="visibleIndividuallyOnly">A values indicating whether to load only products marked as "visible individually"; "false" to load all records; "true" to load "visible individually" only</param>
+        /// <param name="showOnHomePage">A value indicating whether loaded products show on homepage</param>
         /// <param name="featuredProducts">A value indicating whether loaded products are marked as featured (relates only to categories and collections). 0 to load featured products only, 1 to load not featured products only, null to load all products</param>
         /// <param name="priceMin">Minimum price; null to load all records</param>
         /// <param name="priceMax">Maximum price; null to load all records</param>
@@ -150,6 +151,7 @@ namespace Grand.Business.Catalog.Interfaces.Products
             ProductType? productType = null,
             bool visibleIndividuallyOnly = false,
             bool markedAsNewOnly = false,
+            bool? showOnHomePage = null,
             bool? featuredProducts = null,
             double? priceMin = null,
             double? priceMax = null,

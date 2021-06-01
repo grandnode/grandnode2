@@ -759,9 +759,13 @@ namespace Grand.Web.Admin.Services
             //0 - all (according to "ShowHidden" parameter)
             //1 - published only
             //2 - unpublished only
+            //3 - Show on homepage
+            //4 - mark as new
             model.AvailablePublishedOptions.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.All"), Value = " " });
             model.AvailablePublishedOptions.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.PublishedOnly"), Value = "1" });
             model.AvailablePublishedOptions.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.UnpublishedOnly"), Value = "2" });
+            model.AvailablePublishedOptions.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.ShowOnHomePage"), Value = "3" });
+            model.AvailablePublishedOptions.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Catalog.Products.List.SearchPublished.MarkAsNew"), Value = "4" });
 
             return model;
         }
@@ -792,6 +796,14 @@ namespace Grand.Web.Admin.Services
             else if (model.SearchPublishedId == 2)
                 overridePublished = false;
 
+            bool? showOnHomePage = null;
+            if (model.SearchPublishedId == 3)
+                showOnHomePage = true;
+
+            bool markedAsNewOnly = false;
+            if (model.SearchPublishedId == 4)
+                markedAsNewOnly = true;
+
             var products = (await _productService.SearchProducts(
                 categoryIds: categoryIds,
                 brandId: model.SearchBrandId,
@@ -804,7 +816,9 @@ namespace Grand.Web.Admin.Services
                 pageIndex: pageIndex - 1,
                 pageSize: pageSize,
                 showHidden: true,
-                overridePublished: overridePublished
+                showOnHomePage: showOnHomePage,
+                overridePublished: overridePublished,
+                markedAsNewOnly: markedAsNewOnly
             )).products;
 
             var items = new List<ProductModel>();

@@ -22,6 +22,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
         public ProductType? ProductType { get; set; } = null;
         public bool VisibleIndividuallyOnly { get; set; } = false;
         public bool MarkedAsNewOnly { get; set; } = false;
+        public bool? ShowOnHomePage { get; set; } = null;
         public bool? FeaturedProducts { get; set; } = null;
         public double? PriceMin { get; set; } = null;
         public double? PriceMax { get; set; } = null;
