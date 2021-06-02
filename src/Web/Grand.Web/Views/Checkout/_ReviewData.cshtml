@@ -90,7 +90,7 @@
                         <li class="address2" v-if="vmorder.cart.OrderReviewData.ShippingAddress.StreetAddress2Enabled && vmorder.cart.OrderReviewData.ShippingAddress.Address2 !== null">
                             {{vmorder.cart.OrderReviewData.ShippingAddress.Address2}}
                         </li>
-                        <template v-if="vmorder.cart.OrderReviewData.CiytEnabled && vmorder.cart.OrderReviewData.StateProvinceEnabled && vmorder.cart.OrderReviewData.ZipPostalCodeEnabled">
+                        <template v-if="vmorder.cart.OrderReviewData.ShippingAddress.CityEnabled && vmorder.cart.OrderReviewData.ShippingAddress.StateProvinceEnabled && vmorder.cart.OrderReviewData.ShippingAddress.ZipPostalCodeEnabled">
                             <li class="city-state-zip">
                                 <template v-if="vmorder.cart.OrderReviewData.ShippingAddress.CityEnabled">
                                     {{vmorder.cart.OrderReviewData.ShippingAddress.City}}
