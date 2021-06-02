@@ -800,7 +800,7 @@ namespace Grand.Business.Messages.Services
             var builder = new LiquidObjectBuilder(_mediator);
             builder.AddStoreTokens(store, language, emailAccount)
                     .AddCustomerTokens(customer, store, language)
-                    .AddShoppingCartTokens(customer, store, language, personalMessage, customerEmail);
+                    .AddEmailAFriendTokens(personalMessage, customerEmail);
 
             LiquidObject liquidObject = await builder.BuildAsync();
 

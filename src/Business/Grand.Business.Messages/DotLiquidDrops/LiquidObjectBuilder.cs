@@ -14,8 +14,6 @@ using Grand.Domain.Vendors;
 using MediatR;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Messages.DotLiquidDrops
@@ -117,16 +115,13 @@ namespace Grand.Business.Messages.DotLiquidDrops
             return this;
         }
 
-        public LiquidObjectBuilder AddShoppingCartTokens(Customer customer, Store store, Language language,
-            string personalMessage = "", string customerEmail = "")
+        public LiquidObjectBuilder AddShoppingCartTokens(Customer customer, Store store, Language language)
         {
             _chain.Add(async liquidObject =>
             {
                 var liquidShoppingCart = await _mediator.Send(new GetShoppingCartTokensCommand() {
                     Customer = customer,
-                    CustomerEmail = customerEmail,
                     Language = language,
-                    PersonalMessage = personalMessage,
                     Store = store
                 });
                 liquidObject.ShoppingCart = liquidShoppingCart;
@@ -257,7 +252,16 @@ namespace Grand.Business.Messages.DotLiquidDrops
             });
             return this;
         }
-
+        public LiquidObjectBuilder AddEmailAFriendTokens(string personalMessage, string customerEmail)
+        {
+            _chain.Add(async liquidObject =>
+            {
+                var liquidEmail = new LiquidEmailAFriend(personalMessage, customerEmail);
+                liquidObject.EmailAFriend = liquidEmail;
+                await Task.CompletedTask;
+            });
+            return this;
+        }
         public async Task<LiquidObject> BuildAsync()
         {
             foreach (var f in _chain)

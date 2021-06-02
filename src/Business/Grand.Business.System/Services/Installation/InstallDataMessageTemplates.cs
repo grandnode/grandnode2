@@ -473,7 +473,7 @@ namespace Grand.Business.System.Services.Installation
                                        {
                                            Name = "Wishlist.EmailAFriend",
                                            Subject = "{{Store.Name}}. Wishlist",
-                                           Body = "<p><a href=\"{{Store.URL}}\"> {{Store.Name}}</a> <br />\r\n<br />\r\n{{ShoppingCart.WishlistEmail}} was shopping on {{Store.Name}} and wanted to share a wishlist with you. <br />\r\n<br />\r\n<br />\r\nFor more info click <a target=\"_blank\" href=\"{{ShoppingCart.WishlistURLForCustomer}}\">here</a> <br />\r\n<br />\r\n<br />\r\n{{ShoppingCart.WishlistPersonalMessage}}<br />\r\n<br />\r\n{{Store.Name}}</p>",
+                                           Body = "<p><a href=\"{{Store.URL}}\"> {{Store.Name}}</a> <br />\r\n<br />\r\n{{EmailAFriend.Email}} was shopping on {{Store.Name}} and wanted to share a wishlist with you <br />\r\n<br />\r\n<br />\r\nFor more info click <a target=\"_blank\" href=\"{{Customer.WishlistURLForCustomer}}\">here</a> <br />\r\n<br />\r\n<br />\r\n{{EmailAFriend.PersonalMessage}}<br />\r\n<br />\r\n{{Store.Name}}</p>",
                                            IsActive = true,
                                            EmailAccountId = eaGeneral.Id,
                                        },
