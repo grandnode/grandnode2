@@ -465,11 +465,11 @@
   <Resource Name="Account.ImpersonatedAs">
     <Value>Impersonated as {0}</Value>
   </Resource>
-  <Resource Name="Account.ImpersonatedAs.Finish.hint">
-    <Value>Impersonated session</Value>
-  </Resource>
   <Resource Name="Account.ImpersonatedAs.Finish">
     <Value>finish impersonated session</Value>
+  </Resource>
+  <Resource Name="Account.ImpersonatedAs.Finish.hint">
+    <Value>Impersonated session</Value>
   </Resource>
   <Resource Name="Account.Login">
     <Value>Log in</Value>
@@ -2898,9 +2898,6 @@
   <Resource Name="Admin.Catalog.Products.Fields.CreatedOn">
     <Value>Created on</Value>
   </Resource>
-  <Resource Name="Admin.Catalog.Products.Fields.EnteredPrice">
-    <Value>Customer specify a price</Value>
-  </Resource>
   <Resource Name="Admin.Catalog.Products.Fields.DeliveryDate">
     <Value>Delivery date</Value>
   </Resource>
@@ -2942,6 +2939,9 @@
   </Resource>
   <Resource Name="Admin.Catalog.Products.Fields.DownloadExpirationDays">
     <Value>Download link expiration days</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.Fields.EnteredPrice">
+    <Value>Customer specify a price</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.Fields.Flag">
     <Value>Flag</Value>
@@ -7295,7 +7295,7 @@
     <Value>Price</Value>
   </Resource>
   <Resource Name="Admin.Customers.Customers.ProductPrice.Price.Warning">
-	<Value>Individual prices require activation of the setting "Customers have independent product price". You may find it at Settings/Catalog at Performance tab</Value>
+    <Value>Individual prices require activation of the setting "Customers have independent product price". You may find it at Settings/Catalog at Performance tab</Value>
   </Resource>
   <Resource Name="Admin.Customers.Customers.ProductPrice.ProductName">
     <Value>Product Name</Value>
@@ -11014,14 +11014,14 @@
   <Resource Name="Admin.Settings.GeneralCommon">
     <Value>General</Value>
   </Resource>
-  <Resource Name="Admin.Settings.GeneralCommon.AllowSlashChar">
-    <Value>Allow to use slash char</Value>
-  </Resource>
   <Resource Name="Admin.Settings.GeneralCommon.AdminAreaAllowedIpAddresses">
     <Value>Admin area allowed IP</Value>
   </Resource>
   <Resource Name="Admin.Settings.GeneralCommon.AllowCustomerToSelectTheme">
     <Value>Allow customers to select a theme</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.GeneralCommon.AllowSlashChar">
+    <Value>Allow to use slash char</Value>
   </Resource>
   <Resource Name="Admin.Settings.GeneralCommon.AllowToReadLetsEncryptFile">
     <Value>Allow to read Let's Encrypt file</Value>
@@ -11769,17 +11769,17 @@
   <Resource Name="Admin.Settings.System.DaysToCancelUnpaidOrder">
     <Value>Task - days to cancel unpaid order</Value>
   </Resource>
-  <Resource Name="Admin.Settings.System.DocumentPageSizeSettings">
-    <Value>Documents page size</Value>
+  <Resource Name="Admin.Settings.System.DefaultAdminLanguageId">
+    <Value>Default admin area language</Value>
   </Resource>
   <Resource Name="Admin.Settings.System.DefaultGridPageSize">
     <Value>Default grid page size</Value>
   </Resource>
-  <Resource Name="Admin.Settings.System.DefaultAdminLanguageId">
-    <Value>Default admin area language</Value>
-  </Resource>
   <Resource Name="Admin.Settings.System.DeleteGuestTaskOlderThanMinutes">
     <Value>Task - delete guest older than minutes</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.System.DocumentPageSizeSettings">
+    <Value>Documents page size</Value>
   </Resource>
   <Resource Name="Admin.Settings.System.GridPageSizes">
     <Value>Grid Page Sizes</Value>
@@ -12168,26 +12168,26 @@
   <Resource Name="Admin.System.QueuedEmails.Fields.Priority.Required">
     <Value>Enter priority.</Value>
   </Resource>
-  <Resource Name="Admin.System.QueuedEmails.Fields.ReplyTo">
-    <Value>ReplyTo</Value>
-  </Resource>
-  <Resource Name="Admin.System.QueuedEmails.Fields.ReplyToName">
-    <Value>ReplyTo name</Value>
-  </Resource>
   <Resource Name="Admin.System.QueuedEmails.Fields.ReadOn">
     <Value>Read on</Value>
   </Resource>
   <Resource Name="Admin.System.QueuedEmails.Fields.ReadOn.notread">
     <Value>Not read</Value>
   </Resource>
-  <Resource Name="Admin.System.QueuedEmails.Fields.SentOn.NotRead">
-    <Value>Not read yet</Value>
+  <Resource Name="Admin.System.QueuedEmails.Fields.ReplyTo">
+    <Value>ReplyTo</Value>
+  </Resource>
+  <Resource Name="Admin.System.QueuedEmails.Fields.ReplyToName">
+    <Value>ReplyTo name</Value>
   </Resource>
   <Resource Name="Admin.System.QueuedEmails.Fields.SendImmediately">
     <Value>Send immediately</Value>
   </Resource>
   <Resource Name="Admin.System.QueuedEmails.Fields.SentOn">
     <Value>Sent on</Value>
+  </Resource>
+  <Resource Name="Admin.System.QueuedEmails.Fields.SentOn.NotRead">
+    <Value>Not read yet</Value>
   </Resource>
   <Resource Name="Admin.System.QueuedEmails.Fields.SentOn.NotSent">
     <Value>Not sent yet</Value>
@@ -16008,9 +16008,6 @@
   <Resource Name="Shoppingcart.Reservation.Startdate">
     <Value>Date: {0}</Value>
   </Resource>
-  <Resource Name="ShoppingCart.ValidationFileAllowed">
-    <Value>This file extension does not allow to upload</Value>
-  </Resource>
   <Resource Name="ShoppingCart.SelectAttribute">
     <Value>Please select: {0}</Value>
   </Resource>
@@ -16094,6 +16091,9 @@
   </Resource>
   <Resource Name="ShoppingCart.UpdateCartItem">
     <Value>Update qty</Value>
+  </Resource>
+  <Resource Name="ShoppingCart.ValidationFileAllowed">
+    <Value>This file extension does not allow to upload</Value>
   </Resource>
   <Resource Name="ShoppingCart.Vendor">
     <Value>Show more info about:</Value>
@@ -16421,7 +16421,7 @@
   </Resource>
   <Resource Name="Wishlist.EmailAFriend.FriendEmail.Hint">
     <Value>Friend's email</Value>
-  </Resource>  
+  </Resource>
   <Resource Name="Wishlist.EmailAFriend.FriendEmail.Required">
     <Value>Enter friend's email</Value>
   </Resource>
@@ -16452,7 +16452,7 @@
   <Resource Name="Wishlist.HeaderQuantity">
     <Value>{0}</Value>
   </Resource>
-    <Resource Name="Wishlist.Mini.Items">
+  <Resource Name="Wishlist.Mini.Items">
     <Value>{0} item(s)</Value>
   </Resource>
   <Resource Name="Wishlist.Mini.ItemsText">
