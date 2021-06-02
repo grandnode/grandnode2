@@ -757,6 +757,7 @@ namespace Grand.Business.Messages.Services
 
             var builder = new LiquidObjectBuilder(_mediator);
             builder.AddStoreTokens(store, language, emailAccount)
+                   .AddEmailAFriendTokens(personalMessage, customerEmail, friendsEmail)
                    .AddCustomerTokens(customer, store, language)
                    .AddProductTokens(product, language, store);
             LiquidObject liquidObject = await builder.BuildAsync();
@@ -800,7 +801,7 @@ namespace Grand.Business.Messages.Services
             var builder = new LiquidObjectBuilder(_mediator);
             builder.AddStoreTokens(store, language, emailAccount)
                     .AddCustomerTokens(customer, store, language)
-                    .AddEmailAFriendTokens(personalMessage, customerEmail);
+                    .AddEmailAFriendTokens(personalMessage, customerEmail, friendsEmail);
 
             LiquidObject liquidObject = await builder.BuildAsync();
 

@@ -252,11 +252,11 @@ namespace Grand.Business.Messages.DotLiquidDrops
             });
             return this;
         }
-        public LiquidObjectBuilder AddEmailAFriendTokens(string personalMessage, string customerEmail)
+        public LiquidObjectBuilder AddEmailAFriendTokens(string personalMessage, string customerEmail, string friendsEmail)
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidEmail = new LiquidEmailAFriend(personalMessage, customerEmail);
+                var liquidEmail = new LiquidEmailAFriend(personalMessage, customerEmail, friendsEmail);
                 liquidObject.EmailAFriend = liquidEmail;
                 await Task.CompletedTask;
             });
