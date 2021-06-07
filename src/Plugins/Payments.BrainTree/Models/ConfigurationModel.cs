@@ -25,5 +25,8 @@ namespace Payments.BrainTree.Models
 
         [GrandResourceDisplayName("Plugins.Payments.BrainTree.Fields.AdditionalFeePercentage")]
         public bool AdditionalFeePercentage { get; set; }
+
+        [GrandResourceDisplayName("Plugins.Payments.BrainTree.Fields.DisplayOrder")]
+        public int DisplayOrder { get; set; }
     }
 }

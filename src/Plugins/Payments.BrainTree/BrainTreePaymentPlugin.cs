@@ -65,9 +65,11 @@ namespace Payments.BrainTree
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Payments.BrainTree.Fields.AdditionalFee", "Additional fee");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Payments.BrainTree.Fields.AdditionalFee.Hint", "Enter additional fee to charge your customers.");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Payments.BrainTree.Fields.AdditionalFeePercentage", "Additional fee. Use percentage");
+            await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Payments.BrainTree.Fields.DisplayOrder", "Display order");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Payments.BrainTree.Fields.AdditionalFeePercentage.Hint", "Determines whether to apply a percentage additional fee to the order total. If not enabled, a fixed value is used.");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Payments.BrainTree.PaymentMethodDescription", "Pay by credit / debit card");
 
+            
             await base.Install();
         }
 

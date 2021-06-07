@@ -48,7 +48,8 @@ namespace Payments.BrainTree.Controllers
                 PrivateKey = _brainTreePaymentSettings.PrivateKey,
                 MerchantId = _brainTreePaymentSettings.MerchantId,
                 AdditionalFee = _brainTreePaymentSettings.AdditionalFee,
-                AdditionalFeePercentage = _brainTreePaymentSettings.AdditionalFeePercentage
+                AdditionalFeePercentage = _brainTreePaymentSettings.AdditionalFeePercentage,
+                DisplayOrder = _brainTreePaymentSettings.DisplayOrder
             };
 
             return View("~/Plugins/Payments.BrainTree/Views/Configure.cshtml", model);
@@ -68,6 +69,7 @@ namespace Payments.BrainTree.Controllers
             _brainTreePaymentSettings.MerchantId = model.MerchantId;
             _brainTreePaymentSettings.AdditionalFee = model.AdditionalFee;
             _brainTreePaymentSettings.AdditionalFeePercentage = model.AdditionalFeePercentage;
+            _brainTreePaymentSettings.DisplayOrder = model.DisplayOrder;
 
             await _settingService.SaveSetting(_brainTreePaymentSettings);
 
