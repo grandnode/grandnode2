@@ -27,6 +27,10 @@ namespace Payments.CashOnDelivery.Models
         [GrandResourceDisplayName("Plugins.Payment.CashOnDelivery.ShippableProductRequired")]
         public bool ShippableProductRequired { get; set; }
 
+        [GrandResourceDisplayName("Plugins.Payment.CashOnDelivery.DisplayOrder")]
+        public int DisplayOrder { get; set; }
+
+
         public IList<ConfigurationLocalizedModel> Locales { get; set; }
 
         #region Nested class
