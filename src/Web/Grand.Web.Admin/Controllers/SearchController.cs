@@ -99,7 +99,7 @@ namespace Grand.Web.Admin.Controllers
 
                 if (result.Count() < _adminSearchSettings.MaxSearchResultsCount && _adminSearchSettings.SearchInCategories)
                 {
-                    var categories = await _categoryService.GetAllCategories(searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count(), showHidden:
+                    var categories = await _categoryService.GetAllCategories(categoryName: searchTerm, pageSize: _adminSearchSettings.MaxSearchResultsCount - result.Count(), showHidden:
                         await _groupService.IsAdmin(_workContext.CurrentCustomer));
                     foreach (var category in categories)
                     {

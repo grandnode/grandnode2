@@ -411,7 +411,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> CategoryAddPopupList(DataSourceRequest command, CustomerActionConditionModel.AddCategoryConditionModel model)
         {
-            var categories = await _categoryService.GetAllCategories(model.SearchCategoryName,
+            var categories = await _categoryService.GetAllCategories(categoryName: model.SearchCategoryName,
                 pageIndex: command.Page - 1, pageSize: command.PageSize, showHidden: true);
             var items = new List<CategoryModel>();
             foreach (var x in categories)
