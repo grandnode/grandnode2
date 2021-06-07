@@ -105,7 +105,7 @@ namespace Grand.Business.Checkout.Services.Shipping
             return _shippingRateCalculationProvider
                     .Where(x =>
                     x.IsAuthenticateStore(storeId) &&
-                    x.IsAuthenticateGroup(customer)).ToList();
+                    x.IsAuthenticateGroup(customer)).OrderBy(x => x.Priority).ToList();
         }
 
         #endregion
