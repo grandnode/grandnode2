@@ -28,7 +28,7 @@ namespace Grand.Infrastructure.Extensions
             if (string.IsNullOrEmpty(storeId))
                 return true;
 
-            if (!method.LimitedToStores.Any())
+            if (method.LimitedToStores == null || !method.LimitedToStores.Any())
                 return true;
 
             if (!method.LimitedToStores.Contains(storeId))
@@ -45,7 +45,7 @@ namespace Grand.Infrastructure.Extensions
             if (customer == null)
                 return true;
 
-            if (!method.LimitedToGroups.Any())
+            if (method.LimitedToGroups == null || !method.LimitedToGroups.Any())
                 return true;
 
             if (!method.LimitedToGroups.ContainsAny(customer.Groups.Select(x => x)))
