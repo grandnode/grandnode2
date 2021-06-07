@@ -142,9 +142,18 @@
                         <div class="col-md-9 col-sm-9">
                             <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
                                 <admin-input asp-for="LimitMethodsToCreated" />
-                                 <div class="control__indicator"></div>
+                                <div class="control__indicator"></div>
                             </label>
                             <span asp-validation-for="LimitMethodsToCreated"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3 col-sm-3 text-right">
+                            <admin-label asp-for="DisplayOrder" class="control-label" />
+                        </div>
+                        <div class="col-md-9 col-sm-9">
+                            <admin-input asp-for="DisplayOrder" />
+                            <span asp-validation-for="DisplayOrder"></span>
                         </div>
                     </div>
                     <div class="form-group">

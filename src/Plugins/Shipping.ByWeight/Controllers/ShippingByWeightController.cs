@@ -31,7 +31,7 @@ namespace Shipping.ByWeight.Controllers
         private readonly IShippingMethodService _shippingMethodService;
         private readonly IStoreService _storeService;
         private readonly ICountryService _countryService;
-        private readonly ShippingByWeightSettings _shippingByWeightSettings;
+        private readonly ByWeightShippingSettings _shippingByWeightSettings;
         private readonly IShippingByWeightService _shippingByWeightService;
         private readonly ISettingService _settingService;
         private readonly ITranslationService _translationService;
@@ -45,7 +45,7 @@ namespace Shipping.ByWeight.Controllers
             IShippingMethodService shippingMethodService,
             IStoreService storeService,
             ICountryService countryService,
-            ShippingByWeightSettings shippingByWeightSettings,
+            ByWeightShippingSettings shippingByWeightSettings,
             IShippingByWeightService shippingByWeightService,
             ISettingService settingService,
             ITranslationService translationService,
@@ -70,8 +70,9 @@ namespace Shipping.ByWeight.Controllers
         public IActionResult Configure()
         {
             var model = new ShippingByWeightListModel();
-            //other settings
+
             model.LimitMethodsToCreated = _shippingByWeightSettings.LimitMethodsToCreated;
+            model.DisplayOrder = _shippingByWeightSettings.DisplayOrder;
 
             return View("~/Plugins/Shipping.ByWeight/Views/Configure.cshtml", model);
         }
@@ -82,6 +83,8 @@ namespace Shipping.ByWeight.Controllers
         {
             //save settings
             _shippingByWeightSettings.LimitMethodsToCreated = model.LimitMethodsToCreated;
+            _shippingByWeightSettings.DisplayOrder = model.DisplayOrder;
+
             await _settingService.SaveSetting(_shippingByWeightSettings);
 
             return Json(new { Result = true });

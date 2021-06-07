@@ -37,8 +37,7 @@ namespace Shipping.ByWeight
         public override async Task Install()
         {
             //settings
-            var settings = new ShippingByWeightSettings
-            {
+            var settings = new ByWeightShippingSettings {
                 LimitMethodsToCreated = false,
             };
             await _settingService.SaveSetting(settings);
@@ -59,6 +58,7 @@ namespace Shipping.ByWeight
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Shipping.ByWeight.Fields.RatePerWeightUnit", "Rate per weight unit");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Shipping.ByWeight.Fields.LimitMethodsToCreated", "Limit shipping methods to configured ones");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Shipping.ByWeight.Fields.DataHtml", "Data");
+            await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Shipping.ByWeight.Fields.DisplayOrder", "DisplayOrder");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Shipping.ByWeight.AddRecord", "Add record");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Shipping.ByWeight.Formula", "Formula to calculate rates");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Shipping.ByWeight.Formula.Value", "[additional fixed cost] + ([order total weight] - [lower weight limit]) * [rate per weight unit] + [order subtotal] * [charge percentage]");

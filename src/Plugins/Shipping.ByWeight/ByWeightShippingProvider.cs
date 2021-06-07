@@ -70,7 +70,7 @@ namespace Shipping.ByWeight
         {
 
             var shippingByWeightService = _serviceProvider.GetRequiredService<IShippingByWeightService>();
-            var shippingByWeightSettings = _serviceProvider.GetRequiredService<ShippingByWeightSettings>();
+            var shippingByWeightSettings = _serviceProvider.GetRequiredService<ByWeightShippingSettings>();
 
             var shippingByWeightRecord = await shippingByWeightService.FindRecord(shippingMethodId,
                 storeId, warehouseId, countryId, stateProvinceId, zip, weight);

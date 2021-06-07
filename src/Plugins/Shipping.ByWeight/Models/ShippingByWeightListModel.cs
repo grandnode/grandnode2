@@ -7,5 +7,8 @@ namespace Shipping.ByWeight.Models
     {
         [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.LimitMethodsToCreated")]
         public bool LimitMethodsToCreated { get; set; }
+
+        [GrandResourceDisplayName("Plugins.Shipping.ByWeight.Fields.DisplayOrder")]
+        public int DisplayOrder { get; set; }
     }
 }
