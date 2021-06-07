@@ -1,15 +1,16 @@
-﻿using Grand.Business.Checkout.Queries.Models.Orders;
+﻿using Grand.Business.Authentication.Interfaces;
+using Grand.Business.Checkout.Queries.Models.Orders;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Customers.Interfaces;
+using Grand.Business.Customers.Queries.Models;
 using Grand.Business.System.Interfaces.Reports;
-using Grand.Infrastructure;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Domain.Seo;
+using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Home;
 using MediatR;
@@ -18,9 +19,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Grand.Business.Customers.Queries.Models;
-using Microsoft.AspNetCore.Authentication;
-using Grand.Business.Authentication.Interfaces;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -87,7 +85,8 @@ namespace Grand.Web.Admin.Controllers
 
             model.MerchandiseReturns = await _mediator.Send(new GetMerchandiseReturnCountQuery() { RequestStatusId = 0, StoreId = storeId });
             model.TodayRegisteredCustomers =
-                (await _mediator.Send(new GetCustomerQuery() { StoreId = storeId, 
+                (await _mediator.Send(new GetCustomerQuery() {
+                    StoreId = storeId,
                     CustomerGroupIds = new string[] { (await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered)).Id },
                     CreatedFromUtc = DateTime.UtcNow.Date
                 })).Count();
@@ -101,8 +100,7 @@ namespace Grand.Web.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var model = new DashboardModel
-            {
+            var model = new DashboardModel {
                 IsLoggedInAsVendor = _workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer)
             };
             if (string.IsNullOrEmpty(_googleAnalyticsSettings.gaprivateKey) ||
@@ -115,8 +113,7 @@ namespace Grand.Web.Admin.Controllers
 
         public async Task<IActionResult> Statistics()
         {
-            var model = new DashboardModel
-            {
+            var model = new DashboardModel {
                 IsLoggedInAsVendor = _workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer)
             };
             return View(model);

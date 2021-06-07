@@ -20,11 +20,13 @@ namespace Grand.Web.Admin.Controllers
     public partial class WidgetController : BaseAdminController
     {
         #region Fields
+
         private readonly IWidgetService _widgetService;
         private readonly ISettingService _settingService;
         private readonly ICacheBase _cacheBase;
         private readonly IServiceProvider _serviceProvider;
         private readonly WidgetSettings _widgetSettings;
+        
         #endregion
 
         #region Constructors

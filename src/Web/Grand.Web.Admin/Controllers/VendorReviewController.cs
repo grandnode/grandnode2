@@ -1,20 +1,19 @@
-﻿using Grand.Infrastructure;
-using Grand.Domain.Customers;
-using Grand.Web.Common.DataSource;
-using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Authorization;
+﻿using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Customers.Interfaces;
+using Grand.Infrastructure;
+using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Customers;
 using Grand.Web.Admin.Models.Vendors;
-using Grand.Web.Admin.Interfaces;
+using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Grand.Business.Common.Interfaces.Directory;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -22,6 +21,7 @@ namespace Grand.Web.Admin.Controllers
     public partial class VendorReviewController : BaseAdminController
     {
         #region Fields
+
         private readonly IVendorViewModelService _vendorViewModelService;
         private readonly IVendorService _vendorService;
         private readonly ITranslationService _translationService;
@@ -77,8 +77,7 @@ namespace Grand.Web.Admin.Controllers
 
             model.SearchVendorId = vendorId;
             var (vendorReviewModels, totalCount) = await _vendorViewModelService.PrepareVendorReviewModel(model, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = vendorReviewModels.ToList(),
                 Total = totalCount,
             };

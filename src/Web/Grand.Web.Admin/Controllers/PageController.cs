@@ -27,8 +27,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly IPageService _pageService;
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
-        private readonly IStoreService _storeService;
-        private readonly IGroupService _groupService;
         private readonly IWorkContext _workContext;
         private readonly IDateTimeService _dateTimeService;
 
@@ -41,8 +39,6 @@ namespace Grand.Web.Admin.Controllers
             IPageService pageService,
             ILanguageService languageService,
             ITranslationService translationService,
-            IStoreService storeService,
-            IGroupService groupService,
             IWorkContext workContext,
             IDateTimeService dateTimeService)
         {
@@ -50,8 +46,6 @@ namespace Grand.Web.Admin.Controllers
             _pageService = pageService;
             _languageService = languageService;
             _translationService = translationService;
-            _storeService = storeService;
-            _groupService = groupService;
             _workContext = workContext;
             _dateTimeService = dateTimeService;
         }

@@ -22,10 +22,11 @@ namespace Grand.Web.Admin.Controllers
     public partial class LanguageController : BaseAdminController
     {
         #region Fields
+        
         private readonly ILanguageViewModelService _languageViewModelService;
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
-        private readonly IStoreService _storeService;
+
         #endregion
 
         #region Constructors
@@ -33,13 +34,11 @@ namespace Grand.Web.Admin.Controllers
         public LanguageController(
             ILanguageViewModelService languageViewModelService,
             ILanguageService languageService,
-            ITranslationService translationService,
-            IStoreService storeService)
+            ITranslationService translationService)
         {
             _languageViewModelService = languageViewModelService;
             _translationService = translationService;
             _languageService = languageService;
-            _storeService = storeService;
         }
 
         #endregion

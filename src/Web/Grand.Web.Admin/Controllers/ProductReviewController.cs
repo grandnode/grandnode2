@@ -1,18 +1,17 @@
 ﻿using Grand.Business.Catalog.Interfaces.Products;
+using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Services.Security;
 using Grand.Infrastructure;
-using Grand.Domain.Customers;
+using Grand.Web.Admin.Interfaces;
+using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using Grand.Web.Admin.Interfaces;
-using Grand.Web.Admin.Models.Catalog;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Grand.Business.Common.Interfaces.Directory;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -67,8 +66,7 @@ namespace Grand.Web.Admin.Controllers
                 model.SearchStoreId = _workContext.CurrentCustomer.StaffStoreId;
 
             var (productReviewModels, totalCount) = await _productReviewViewModelService.PrepareProductReviewsModel(model, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = productReviewModels.ToList(),
                 Total = totalCount,
             };
