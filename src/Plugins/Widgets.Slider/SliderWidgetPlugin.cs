@@ -77,6 +77,9 @@ namespace Widgets.Slider
 
             await _pictureSliderRepository.InsertAsync(pictureSlider2);
 
+            await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Fields.DisplayOrder", "Display order");
+            await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Fields.LimitedToGroups", "Limited to groups");
+            await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Fields.LimitedToStores", "Limited to stores");
 
 
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.FriendlyName", "Widget Slider");

@@ -1,4 +1,4 @@
-﻿
+﻿@model ConfigurationModel
 @inject AdminAreaSettings adminAreaSettings
 @{
     Layout = "_ConfigurePlugin";
@@ -22,6 +22,9 @@
             </div>
             <div class="x_content">
                 <div id="slider-grid"></div>
+            </div>
+            <div class="x_content form">
+                <partial name="~/Plugins/Widgets.Slider/Views/_Settings.cshtml" model="Model"/>
             </div>
         </div>
     </div>

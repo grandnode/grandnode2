@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Catalog.Interfaces.Categories;
 using Grand.Business.Catalog.Interfaces.Collections;
 using Grand.Business.Common.Extensions;
+using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Common.Services.Security;
@@ -10,8 +11,6 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,6 +31,8 @@ namespace Widgets.Slider.Controllers
         private readonly ILanguageService _languageService;
         private readonly ICategoryService _categoryService;
         private readonly ICollectionService _collectionService;
+        private readonly SliderWidgetSettings _sliderWidgetSettings;
+        private readonly ISettingService _settingService;
 
         public WidgetsSliderController(
             IStoreService storeService,
@@ -40,7 +41,9 @@ namespace Widgets.Slider.Controllers
             ISliderService sliderService,
             ILanguageService languageService,
             ICategoryService categoryService,
-            ICollectionService collectionService)
+            ICollectionService collectionService,
+            ISettingService settingService,
+            SliderWidgetSettings sliderWidgetSettings)
         {
             _storeService = storeService;
             _pictureService = pictureService;
@@ -49,10 +52,26 @@ namespace Widgets.Slider.Controllers
             _languageService = languageService;
             _categoryService = categoryService;
             _collectionService = collectionService;
-        }        
+            _settingService = settingService;
+            _sliderWidgetSettings = sliderWidgetSettings;
+        }
         public IActionResult Configure()
         {
-            return View("~/Plugins/Widgets.Slider/Views/List.cshtml");
+            var model = new ConfigurationModel();
+            model.DisplayOrder = _sliderWidgetSettings.DisplayOrder;
+            model.CustomerGroups = _sliderWidgetSettings.LimitedToGroups?.ToArray();
+            model.Stores = _sliderWidgetSettings.LimitedToStores?.ToArray();
+            return View("~/Plugins/Widgets.Slider/Views/List.cshtml", model);
+        }
+
+        [HttpPost]
+        public IActionResult Configure(ConfigurationModel model)
+        {
+            _sliderWidgetSettings.DisplayOrder = model.DisplayOrder;
+            _sliderWidgetSettings.LimitedToGroups = model.CustomerGroups == null ? new List<string>() : model.CustomerGroups.ToList();
+            _sliderWidgetSettings.LimitedToStores = model.Stores == null ? new List<string>() : model.Stores.ToList();
+            _settingService.SaveSetting(_sliderWidgetSettings);
+            return Json("Ok");
         }
 
         [HttpPost]
@@ -71,8 +90,7 @@ namespace Widgets.Slider.Controllers
                 }
                 items.Add(model);
             }
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = items,
                 Total = sliders.Count
             };
@@ -84,7 +102,7 @@ namespace Widgets.Slider.Controllers
             var model = new SlideModel();
             //locales
             await AddLocales(_languageService, model.Locales);
-            
+
             return View("~/Plugins/Widgets.Slider/Views/Create.cshtml", model);
         }
         [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
@@ -118,7 +136,7 @@ namespace Widgets.Slider.Controllers
                 locale.Name = slide.GetTranslation(x => x.Name, languageId, false);
                 locale.Description = slide.GetTranslation(x => x.Description, languageId, false);
             });
-            
+
             return View("~/Plugins/Widgets.Slider/Views/Edit.cshtml", model);
         }
 
@@ -137,7 +155,7 @@ namespace Widgets.Slider.Controllers
                 Success(_translationService.GetResource("Widgets.Slider.Edited"));
                 return continueEditing ? RedirectToAction("Edit", new { id = pictureSlider.Id }) : RedirectToAction("Configure");
 
-            }            
+            }
             return View("~/Plugins/Widgets.Slider/Views/Edit.cshtml", model);
         }
 

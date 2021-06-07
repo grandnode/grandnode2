@@ -1,0 +1,63 @@
+﻿@model ConfigurationModel
+
+@inject Widgets.Slider.SliderWidgetSettings setting
+
+<form method="post" id="widget-settings-form">
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-body">
+                    <div class="form-group">
+                        <div class="col-md-3 col-sm-3 text-right">
+                            <admin-label asp-for="DisplayOrder" class="control-label" />
+                        </div>
+                        <div class="col-md-9 col-sm-9">
+                            <admin-input asp-for="DisplayOrder" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <admin-label asp-for="CustomerGroups" />
+                        <div class="col-md-9 col-sm-9">
+                            <admin-input asp-for="CustomerGroups" />
+                            <span asp-validation-for="CustomerGroups"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <admin-label asp-for="Stores" />
+                        <div class="col-md-9 col-sm-9">
+                            <admin-input asp-for="Stores" />
+                            <span asp-validation-for="Stores"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="button" id="savegeneralsettings" class="btn default" value="@Loc["Admin.Common.Save"]" />
+                        <script>
+                    $(function () {
+                        $('#savegeneralsettings').click(function () {
+
+                            var postData = $(this.form).serialize();
+                            addAntiForgeryToken(postData);
+
+                            $.ajax({
+                                cache: false,
+                                type: 'POST',
+                                url: '@Url.Action("Configure", "WidgetsSlider")',
+                                data: postData,
+                                dataType: 'json',
+                                success: function (data) {
+                                    alert('Saved');
+                                },
+                                error: function (xhr, ajaxOptions, thrownError) {
+                                    alert('Failed to add record.');
+                                }
+                            });
+                            return false;
+                        });
+                    });
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

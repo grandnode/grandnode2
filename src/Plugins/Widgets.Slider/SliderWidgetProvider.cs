@@ -24,9 +24,9 @@ namespace Widgets.Slider
 
         public int Priority => _sliderWidgetSettings.DisplayOrder;
 
-        public IList<string> LimitedToStores => new List<string>();
+        public IList<string> LimitedToStores => _sliderWidgetSettings.LimitedToStores;
 
-        public IList<string> LimitedToGroups => new List<string>();
+        public IList<string> LimitedToGroups => _sliderWidgetSettings.LimitedToGroups;
 
         /// <summary>
         /// Gets widget zones where this widget should be rendered
