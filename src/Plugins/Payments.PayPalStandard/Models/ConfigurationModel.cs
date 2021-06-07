@@ -28,5 +28,10 @@ namespace Payments.PayPalStandard.Models
         [GrandResourceDisplayName("Plugins.Payments.PayPalStandard.Fields.PassProductNamesAndTotals")]
         public bool PassProductNamesAndTotals { get; set; }
 
+        [GrandResourceDisplayName("Plugins.Payments.PayPalStandard.Fields.DisplayOrder")]
+        public int DisplayOrder { get; set; }
+
+
+
     }
 }

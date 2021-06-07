@@ -105,6 +105,7 @@ namespace Payments.PayPalStandard.Controllers
             model.AdditionalFee = payPalStandardPaymentSettings.AdditionalFee;
             model.AdditionalFeePercentage = payPalStandardPaymentSettings.AdditionalFeePercentage;
             model.PassProductNamesAndTotals = payPalStandardPaymentSettings.PassProductNamesAndTotals;
+            model.DisplayOrder = payPalStandardPaymentSettings.DisplayOrder;
 
             model.StoreScope = storeScope;
             
@@ -134,6 +135,7 @@ namespace Payments.PayPalStandard.Controllers
             payPalStandardPaymentSettings.AdditionalFee = model.AdditionalFee;
             payPalStandardPaymentSettings.AdditionalFeePercentage = model.AdditionalFeePercentage;
             payPalStandardPaymentSettings.PassProductNamesAndTotals = model.PassProductNamesAndTotals;
+            payPalStandardPaymentSettings.DisplayOrder = model.DisplayOrder;
 
             await _settingService.SaveSetting(payPalStandardPaymentSettings, storeScope);
 
