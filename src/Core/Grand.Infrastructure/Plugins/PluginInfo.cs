@@ -1,17 +1,16 @@
 ﻿using Grand.SharedKernel;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
 namespace Grand.Infrastructure.Plugins
 {
-    public class PluginInfo 
-    {        
+    public class PluginInfo
+    {
         public PluginInfo(
             FileInfo originalAssemblyFile,
-            Assembly referencedAssembly, 
+            Assembly referencedAssembly,
             Type pluginType)
             : this()
         {
