@@ -8,13 +8,6 @@
         Selected = store.Id.Equals(Model.StoreId)
     })
     .ToList();
-
-    stores.Insert(0, new SelectListItem
-    {
-        Text = Loc["Admin.Settings.StoreScope.AllStores"],
-        Value = Url.Action("ChangeStore", "Setting", new { storeid = 0, returnurl = rawUrl, area = Constants.AreaAdmin }),
-        Selected = 0.Equals(Model.StoreId)
-    });
 }
 <div class="form-group">
     <div class="col-md-12">
