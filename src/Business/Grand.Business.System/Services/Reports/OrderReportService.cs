@@ -264,9 +264,9 @@ namespace Grand.Business.System.Services.Reports
             var query = builderquery
                     .GroupBy(x => 1).Select(g => new OrderAverageReportLine {
                         CountOrders = g.Count(),
-                        SumShippingExclTax = g.Sum(o => o.OrderShippingExclTax * o.CurrencyRate),
-                        SumTax = g.Sum(o => o.OrderTax * o.CurrencyRate),
-                        SumOrders = g.Sum(o => o.OrderTotal * o.CurrencyRate)
+                        SumShippingExclTax = g.Sum(o => o.OrderShippingExclTax / o.CurrencyRate),
+                        SumTax = g.Sum(o => o.OrderTax / o.CurrencyRate),
+                        SumOrders = g.Sum(o => o.OrderTotal / o.CurrencyRate)
                     }).ToList();
 
 
