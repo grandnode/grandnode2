@@ -3741,6 +3741,9 @@
   <Resource Name="Admin.Catalog.ProductTags.Products">
     <Value>Products</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.ProductTags.Updated">
+    <Value>The product tag has been updated successfully.</Value>
+  </Resource>
   <Resource Name="admin.catalog.stores.fields.name">
     <Value>Store name</Value>
   </Resource>

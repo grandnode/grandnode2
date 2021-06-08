@@ -22,12 +22,20 @@ namespace Grand.Web.Admin.Controllers
         private readonly IProductTagService _productTagService;
         private readonly IProductService _productService;
         private readonly ILanguageService _languageService;
+        private readonly ITranslationService _translationService;
+
         private readonly SeoSettings _seoSettings;
-        public ProductTagsController(IProductTagService productTagService, IProductService productService, ILanguageService languageService, SeoSettings seoSettings)
+        public ProductTagsController(
+            IProductTagService productTagService, 
+            IProductService productService, 
+            ILanguageService languageService,
+            ITranslationService translationService,
+            SeoSettings seoSettings)
         {
             _productTagService = productTagService;
             _productService = productService;
             _languageService = languageService;
+            _translationService = translationService;
             _seoSettings = seoSettings;
         }
 
@@ -118,8 +126,9 @@ namespace Grand.Web.Admin.Controllers
                 productTag.Locales = model.Locales.ToTranslationProperty();
                 productTag.SeName = SeoExtensions.GetSeName(productTag.Name, _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls, _seoSettings.SeoCharConversion);
                 await _productTagService.UpdateProductTag(productTag);
-                ViewBag.RefreshPage = true;
-                return View(model);
+                Success(_translationService.GetResource("Admin.Catalog.ProductTags.Updated"));
+                
+                return RedirectToAction("Edit", new { id = model.Id });
             }
             //If we got this far, something failed, redisplay form
             return View(model);
