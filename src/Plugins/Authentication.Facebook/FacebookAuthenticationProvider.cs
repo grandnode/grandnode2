@@ -6,11 +6,17 @@ namespace Authentication.Facebook
 {
     public class FacebookAuthenticationProvider : IExternalAuthenticationProvider
     {
+        private readonly FacebookExternalAuthSettings _facebookExternalAuthSettings;
+
+        public FacebookAuthenticationProvider(FacebookExternalAuthSettings facebookExternalAuthSettings)
+        {
+            _facebookExternalAuthSettings = facebookExternalAuthSettings;
+        }
         public string SystemName => FacebookAuthenticationDefaults.ProviderSystemName;
 
         public string FriendlyName => "Facebook authentication";
 
-        public int Priority => 0;
+        public int Priority => _facebookExternalAuthSettings.DisplayOrder;
 
         public string ConfigurationUrl => FacebookAuthenticationDefaults.ConfigurationUrl;
 

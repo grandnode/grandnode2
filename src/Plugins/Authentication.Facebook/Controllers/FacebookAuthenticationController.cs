@@ -59,6 +59,7 @@ namespace Authentication.Facebook.Controllers
             {
                 ClientId = _facebookExternalAuthSettings.ClientKeyIdentifier,
                 ClientSecret = _facebookExternalAuthSettings.ClientSecret,
+                DisplayOrder = _facebookExternalAuthSettings.DisplayOrder
             };
 
 
@@ -79,6 +80,8 @@ namespace Authentication.Facebook.Controllers
 
             _facebookExternalAuthSettings.ClientKeyIdentifier = model.ClientId;
             _facebookExternalAuthSettings.ClientSecret = model.ClientSecret;
+            _facebookExternalAuthSettings.DisplayOrder = model.DisplayOrder;
+
             await _settingService.SaveSetting(_facebookExternalAuthSettings);
 
             //now clear settings cache

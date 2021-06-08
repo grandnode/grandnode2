@@ -61,7 +61,8 @@ namespace Authentication.Facebook
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Authentication.Facebook.Failed", "Facebook - Login error");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Authentication.Facebook.Failed.ErrorCode", "Error code");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Authentication.Facebook.Failed.ErrorMessage", "Error message");
-
+            await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Authentication.Facebook.DisplayOrder", "Display order");
+            
             await base.Install();
         }
 

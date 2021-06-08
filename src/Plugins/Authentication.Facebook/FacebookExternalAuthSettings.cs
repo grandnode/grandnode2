@@ -16,5 +16,10 @@ namespace Authentication.Facebook
         /// Gets or sets OAuth2 client secret
         /// </summary>
         public string ClientSecret { get; set; }
+
+        /// <summary>
+        /// Gets or sets display order
+        /// </summary>
+        public int DisplayOrder { get; set; }
     }
 }

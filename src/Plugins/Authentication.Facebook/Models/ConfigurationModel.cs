@@ -10,5 +10,8 @@ namespace Authentication.Facebook.Models
 
         [GrandResourceDisplayName("Authentication.Facebook.ClientSecret")]
         public string ClientSecret { get; set; }
+
+        [GrandResourceDisplayName("Authentication.Facebook.DisplayOrder")]
+        public int DisplayOrder { get; set; }
     }
 }

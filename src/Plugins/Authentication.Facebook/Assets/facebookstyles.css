@@ -11,3 +11,9 @@
 .facebook-btn:active {
     background-position: 0px -48px;
 }
+
+.facebook-login-block {
+    display: inline;
+    float: left;
+    margin: 0px 5px 5px 5px;
+}
