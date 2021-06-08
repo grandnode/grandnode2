@@ -1005,7 +1005,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (productPrice == null)
                 throw new ArgumentNullException(nameof(productPrice));
 
-            await _productRepository.PullFilter(productPrice.Id, x => x.ProductPrices, x => x.Id, productPrice.Id);
+            await _productRepository.PullFilter(productPrice.ProductId, x => x.ProductPrices, x => x.Id, productPrice.Id);
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productPrice.ProductId));
