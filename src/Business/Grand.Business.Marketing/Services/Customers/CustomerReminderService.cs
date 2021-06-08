@@ -35,7 +35,6 @@ namespace Grand.Business.Marketing.Services.Customers
         private readonly IMediator _mediator;
         private readonly IEmailAccountService _emailAccountService;
         private readonly IQueuedEmailService _queuedEmailService;
-        private readonly IMessageTokenProvider _messageTokenProvider;
         private readonly IStoreService _storeService;
         private readonly ICustomerAttributeParser _customerAttributeParser;
         private readonly IProductService _productService;
@@ -55,7 +54,6 @@ namespace Grand.Business.Marketing.Services.Customers
             IMediator mediator,
             IEmailAccountService emailAccountService,
             IQueuedEmailService queuedEmailService,
-            IMessageTokenProvider messageTokenProvider,
             IStoreService storeService,
             IProductService productService,
             ICustomerAttributeParser customerAttributeParser,
@@ -69,7 +67,6 @@ namespace Grand.Business.Marketing.Services.Customers
             _orderRepository = orderRepository;
             _mediator = mediator;
             _emailAccountService = emailAccountService;
-            _messageTokenProvider = messageTokenProvider;
             _queuedEmailService = queuedEmailService;
             _storeService = storeService;
             _customerAttributeParser = customerAttributeParser;

@@ -327,27 +327,30 @@ namespace Grand.Business.Marketing.Services.Campaigns
 
                 builder.AddStoreTokens(store, language, emailAccount)
                        .AddNewsLetterSubscriptionTokens(subscription, store);
+
                 if (customer != null)
                 {
                     builder.AddCustomerTokens(customer, store, language)
                            .AddShoppingCartTokens(customer, store, language);
                 }
 
+                var email = new QueuedEmail();
+
                 var liquidObject = await builder.BuildAsync();
+                liquidObject.Email = new LiquidEmail(email.Id);
+
                 var body = LiquidExtensions.Render(liquidObject, campaign.Body);
                 var subject = LiquidExtensions.Render(liquidObject, campaign.Subject);
 
-                var email = new QueuedEmail
-                {
-                    PriorityId = QueuedEmailPriority.Low,
-                    From = emailAccount.Email,
-                    FromName = emailAccount.DisplayName,
-                    To = subscription.Email,
-                    Subject = subject,
-                    Body = body,
-                    CreatedOnUtc = DateTime.UtcNow,
-                    EmailAccountId = emailAccount.Id
-                };
+                email.PriorityId = QueuedEmailPriority.Low;
+                email.From = emailAccount.Email;
+                email.FromName = emailAccount.DisplayName;
+                email.To = subscription.Email;
+                email.Subject = subject;
+                email.Body = body;
+                email.CreatedOnUtc = DateTime.UtcNow;
+                email.EmailAccountId = emailAccount.Id;
+
                 await _queuedEmailService.InsertQueuedEmail(email);
                 await InsertCampaignHistory(new CampaignHistory() { CampaignId = campaign.Id, CustomerId = subscription.CustomerId, Email = subscription.Email, CreatedDateUtc = DateTime.UtcNow, StoreId = campaign.StoreId });
 
