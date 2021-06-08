@@ -58,6 +58,7 @@ namespace Authentication.Google
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.ExternalAuth.Google.Title", "<h4>Configuring Google OAuth2</h4>");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Externalauth.Google.Failed", "Failed authentication");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Externalauth.Google.Failed.Errormessage", "Error message: ");
+            await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Externalauth.Google.DisplayOrder", "Display order");
 
             await base.Install();
         }
@@ -78,6 +79,7 @@ namespace Authentication.Google
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Plugins.ExternalAuth.Google.ClientSecret");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Plugins.ExternalAuth.Google.ClientSecret.Hint");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Plugins.ExternalAuth.Google.Title");
+            await this.DeletePluginTranslationResource(_translationService, _languageService, "Plugins.ExternalAuth.Google.DisplayOrder");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Plugins.Externalauth.Google.Failed");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Plugins.Externalauth.Google.Failed.Errormessage");
 

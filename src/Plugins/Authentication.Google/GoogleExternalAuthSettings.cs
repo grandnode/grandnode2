@@ -6,5 +6,6 @@ namespace Authentication.Google
     {
         public string ClientKeyIdentifier { get; set; }
         public string ClientSecret { get; set; }
+        public int DisplayOrder { get; set; }
     }
 }

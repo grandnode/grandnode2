@@ -59,7 +59,8 @@ namespace Authentication.Google.Controllers
             var model = new ConfigurationModel
             {
                 ClientKeyIdentifier = _googleExternalAuthSettings.ClientKeyIdentifier,
-                ClientSecret = _googleExternalAuthSettings.ClientSecret
+                ClientSecret = _googleExternalAuthSettings.ClientSecret,
+                DisplayOrder = _googleExternalAuthSettings.DisplayOrder
             };
 
             return View("~/Plugins/Authentication.Google/Views/Configure.cshtml", model);
@@ -79,6 +80,8 @@ namespace Authentication.Google.Controllers
 
             _googleExternalAuthSettings.ClientKeyIdentifier = model.ClientKeyIdentifier;
             _googleExternalAuthSettings.ClientSecret = model.ClientSecret;
+            _googleExternalAuthSettings.DisplayOrder = model.DisplayOrder;
+
             await _settingService.SaveSetting(_googleExternalAuthSettings);
 
             //now clear settings cache

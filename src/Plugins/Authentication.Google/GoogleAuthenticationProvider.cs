@@ -6,13 +6,20 @@ namespace Authentication.Google
 {
     public class GoogleAuthenticationProvider : IExternalAuthenticationProvider
     {
+        private readonly GoogleExternalAuthSettings _googleExternalAuthSettings;
+
+        public GoogleAuthenticationProvider(GoogleExternalAuthSettings googleExternalAuthSettings)
+        {
+            _googleExternalAuthSettings = googleExternalAuthSettings;
+        }
+
         public string ConfigurationUrl => GoogleAuthenticationDefaults.ConfigurationUrl;
 
         public string SystemName => GoogleAuthenticationDefaults.ProviderSystemName;
 
         public string FriendlyName => "Google authentication";
 
-        public int Priority => -1;
+        public int Priority => _googleExternalAuthSettings.DisplayOrder;
 
         public IList<string> LimitedToStores => new List<string>();
 
