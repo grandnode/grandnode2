@@ -41,17 +41,21 @@
     {
         if (wishlistEnabled)
         {
-            <b-nav-item href="@Url.RouteUrl("Wishlist")">
-                <b-icon icon="heart" :variant="[darkMode ? 'white' : 'dark']"></b-icon>
-                <div class="qty-indicator wishlist-qty">@Loc["Wishlist.HeaderQuantity", wishlistItems]</div>
-            </b-nav-item>
+            <li class="nav-item">
+                <a href="@Url.RouteUrl("Wishlist")" class="nav-link">
+                    <b-icon icon="heart" :variant="[darkMode ? 'white' : 'dark']"></b-icon>
+                    <div class="qty-indicator wishlist-qty">@Loc["Wishlist.HeaderQuantity", wishlistItems]</div>
+                </a>
+            </li>
         }
         if (shoppingCartEnabled)
         {
-            <b-nav-item href="@Url.RouteUrl("ShoppingCart")">
-                <b-icon icon="cart" :variant="[darkMode ? 'white' : 'dark']"></b-icon>
-                <div class="qty-indicator cart-qty">@Loc["ShoppingCart.HeaderQuantity", shoppingCartItems]</div>
-            </b-nav-item>
+            <li class="nav-item">
+                <a href="@Url.RouteUrl("ShoppingCart")" class="nav-link">
+                    <b-icon icon="cart" :variant="[darkMode ? 'white' : 'dark']"></b-icon>
+                    <div class="qty-indicator cart-qty">@Loc["ShoppingCart.HeaderQuantity", shoppingCartItems]</div>
+                </a>
+            </li>
         }
     }
 }
