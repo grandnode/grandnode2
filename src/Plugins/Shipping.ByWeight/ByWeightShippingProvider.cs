@@ -214,7 +214,9 @@ namespace Shipping.ByWeight
                 storeId = _workContext.CurrentStore.Id;
             string countryId = getShippingOptionRequest.ShippingAddress.CountryId;
             string stateProvinceId = getShippingOptionRequest.ShippingAddress.StateProvinceId;
-            string warehouseId = getShippingOptionRequest.WarehouseFrom != null ? getShippingOptionRequest.WarehouseFrom.Id : "";
+
+            //string warehouseId = getShippingOptionRequest.WarehouseFrom != null ? getShippingOptionRequest.WarehouseFrom.Id : "";
+
             string zip = getShippingOptionRequest.ShippingAddress.ZipPostalCode;
             double subTotal = 0;
             var priceCalculationService = _serviceProvider.GetRequiredService<IPricingService>();
@@ -234,9 +236,20 @@ namespace Shipping.ByWeight
             var shippingMethods = await _shippingMethodService.GetAllShippingMethods(countryId, _workContext.CurrentCustomer);
             foreach (var shippingMethod in shippingMethods)
             {
-                double? rate = await GetRate(subTotal, weight, shippingMethod.Id,
-                    storeId, warehouseId, countryId, stateProvinceId, zip);
-                if (rate.HasValue)
+                double? rate = null;
+                foreach (var item in getShippingOptionRequest.Items.GroupBy(x => x.ShoppingCartItem.WarehouseId).Select(x=>x.Key))
+                {
+                    var _rate = await GetRate(subTotal, weight, shippingMethod.Id, storeId, item, countryId, stateProvinceId, zip);
+                    if (_rate.HasValue)
+                    {
+                        if (rate == null)
+                            rate = 0;
+
+                        rate += _rate.Value;
+                    }
+                }
+
+                if (rate != null && rate.HasValue)
                 {
                     var shippingOption = new ShippingOption();
                     shippingOption.Name = shippingMethod.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id);

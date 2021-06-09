@@ -99,11 +99,10 @@ namespace Grand.Business.Checkout.Tests.Services.Shipping
 
             var result = await _service.CreateShippingOptionRequests(customer, cart, shippingAddress, store);
 
-            Assert.IsTrue(result.Count == 1);
-            Assert.AreEqual(result.First().ShippingAddress, shippingAddress);
-            Assert.AreEqual(result.First().WarehouseFrom, warehouse);
-            Assert.AreEqual(result.First().StoreId, "id");
-            Assert.AreEqual(result.First().Customer, customer);
+            Assert.AreEqual(result.ShippingAddress, shippingAddress);
+            Assert.AreEqual(result.WarehouseFrom, warehouse);
+            Assert.AreEqual(result.StoreId, "id");
+            Assert.AreEqual(result.Customer, customer);
         }
 
         [TestMethod]
@@ -128,7 +127,7 @@ namespace Grand.Business.Checkout.Tests.Services.Shipping
             _warehouseMock.Setup(c => c.GetWarehouseById(It.IsAny<string>())).ReturnsAsync(warehouse);
 
             var result = await _service.CreateShippingOptionRequests(customer, cart, shippingAddress, store);
-            Assert.IsTrue(result.Count == 0);
+            Assert.IsTrue(result != null);
         }
     }
 }

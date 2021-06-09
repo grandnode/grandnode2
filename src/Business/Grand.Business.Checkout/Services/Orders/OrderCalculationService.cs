@@ -143,8 +143,7 @@ namespace Grand.Business.Checkout.Services.Orders
                         discount.DiscountTypeId == DiscountType.AssignedToOrderSubTotal &&
                         !allowedDiscounts.Where(x => x.DiscountId == discount.Id).Any())
                     {
-                        allowedDiscounts.Add(new ApplyDiscount
-                        {
+                        allowedDiscounts.Add(new ApplyDiscount {
                             DiscountId = discount.Id,
                             IsCumulative = discount.IsCumulative,
                             CouponCode = validDiscount.CouponCode,
@@ -186,8 +185,7 @@ namespace Grand.Business.Checkout.Services.Orders
                         discount.DiscountTypeId == DiscountType.AssignedToShipping &&
                         !allowedDiscounts.Where(x => x.DiscountId == discount.Id).Any())
                     {
-                        allowedDiscounts.Add(new ApplyDiscount
-                        {
+                        allowedDiscounts.Add(new ApplyDiscount {
                             DiscountId = discount.Id,
                             IsCumulative = discount.IsCumulative,
                             CouponCode = validDiscount.CouponCode,
@@ -233,8 +231,7 @@ namespace Grand.Business.Checkout.Services.Orders
                                discount.DiscountTypeId == DiscountType.AssignedToOrderTotal &&
                                !allowedDiscounts.Where(x => x.DiscountId == discount.Id).Any())
                     {
-                        allowedDiscounts.Add(new ApplyDiscount
-                        {
+                        allowedDiscounts.Add(new ApplyDiscount {
                             DiscountId = discount.Id,
                             IsCumulative = discount.IsCumulative,
                             CouponCode = validDiscount.CouponCode,
@@ -295,7 +292,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="subTotalWithoutDiscount">Sub total (without discount)</param>
         /// <param name="subTotalWithDiscount">Sub total (with discount)</param>
         /// <param name="taxRates">Tax rates (of order sub total)</param>
-        public virtual async Task<(double discountAmount, List<ApplyDiscount> appliedDiscounts, 
+        public virtual async Task<(double discountAmount, List<ApplyDiscount> appliedDiscounts,
             double subTotalWithoutDiscount, double subTotalWithDiscount, SortedDictionary<double, double> taxRates)>
             GetShoppingCartSubTotal(IList<ShoppingCartItem> cart, bool includingTax)
         {
@@ -310,7 +307,7 @@ namespace Grand.Business.Checkout.Services.Orders
 
             //get the customer 
             Customer customer = _workContext.CurrentCustomer;
-            
+
             //sub totals
             double subTotalExclTaxWithoutDiscount = 0;
             double subTotalInclTaxWithoutDiscount = 0;
@@ -635,22 +632,19 @@ namespace Grand.Business.Checkout.Services.Orders
                 {
                     var shippingRateMethod = shippingRateMethods[0];
 
-                    var shippingOptionRequests = await _shippingService.CreateShippingOptionRequests(customer, cart,
+                    var shippingOptionRequest = await _shippingService.CreateShippingOptionRequests(customer, cart,
                         shippingAddress,
                         _workContext.CurrentStore);
-                    
-                    double? fixedRate = null;
-                    foreach (var shippingOptionRequest in shippingOptionRequests)
-                    {
-                        //calculate fixed rates for each request-package
-                        var fixedRateTmp = await shippingRateMethod.GetFixedRate(shippingOptionRequest);
-                        if (fixedRateTmp.HasValue)
-                        {
-                            if (!fixedRate.HasValue)
-                                fixedRate = 0;
 
-                            fixedRate += fixedRateTmp.Value;
-                        }
+                    double? fixedRate = null;
+                    //calculate fixed rates for each request-package
+                    var fixedRateTmp = await shippingRateMethod.GetFixedRate(shippingOptionRequest);
+                    if (fixedRateTmp.HasValue)
+                    {
+                        if (!fixedRate.HasValue)
+                            fixedRate = 0;
+
+                        fixedRate += fixedRateTmp.Value;
                     }
 
                     if (fixedRate.HasValue)
@@ -904,8 +898,7 @@ namespace Grand.Business.Checkout.Services.Orders
                         //reduce subtotal
                         resultTemp -= amountCanBeUsed;
 
-                        var appliedGiftVoucher = new AppliedGiftVoucher
-                        {
+                        var appliedGiftVoucher = new AppliedGiftVoucher {
                             GiftVoucher = gc,
                             AmountCanBeUsed = amountCanBeUsed
                         };

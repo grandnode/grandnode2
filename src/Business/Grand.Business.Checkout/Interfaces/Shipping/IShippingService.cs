@@ -43,8 +43,8 @@ namespace Grand.Business.Checkout.Interfaces.Shipping
         /// <param name="cart">Shopping cart</param>
         /// <param name="shippingAddress">Shipping address</param>
         /// <param name="store">Store</param>
-        /// <returns>Shipment packages (requests)</returns>
-        Task<IList<GetShippingOptionRequest>> CreateShippingOptionRequests(Customer customer,
+        /// <returns>Shipment packages</returns>
+        Task<GetShippingOptionRequest> CreateShippingOptionRequests(Customer customer,
             IList<ShoppingCartItem> cart, Address shippingAddress, Store store);
 
         /// <summary>

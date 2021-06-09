@@ -121,61 +121,39 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <param name="shippingAddress">Shipping address</param>
         /// <param name="store">Store</param>
         /// <returns>Shipment packages (requests)</returns>
-        public virtual async Task<IList<GetShippingOptionRequest>> CreateShippingOptionRequests(Customer customer,
+        public virtual async Task<GetShippingOptionRequest> CreateShippingOptionRequests(Customer customer,
             IList<ShoppingCartItem> cart, Address shippingAddress, Store store)
         {
-            var requests = new List<GetShippingOptionRequest>();
+            var request = new GetShippingOptionRequest();
+            //store
+            request.StoreId = store?.Id;
+            //customer
+            request.Customer = customer;
 
+            //ship to
+            request.ShippingAddress = shippingAddress;
+            //ship from
+            Address originAddress = _shippingSettings.ShippingOriginAddress;
+
+            if (originAddress != null)
+            {
+                var country = await _countryService.GetCountryById(originAddress.CountryId);
+                var state = country?.StateProvinces.FirstOrDefault(x => x.Id == originAddress.StateProvinceId);
+                request.CountryFrom = country;
+                request.StateProvinceFrom = state;
+                request.ZipPostalCodeFrom = originAddress.ZipPostalCode;
+                request.CityFrom = originAddress.City;
+                request.AddressFrom = originAddress.Address1;
+            }
             foreach (var sci in cart)
             {
                 if (!sci.IsShipEnabled)
                     continue;
-
-                //warehouses
-                Warehouse warehouse = null;
-
-                if (!string.IsNullOrEmpty(sci.WarehouseId))
-                    warehouse = await _warehouseService.GetWarehouseById(sci.WarehouseId);
-                else
-                {
-                    if (!string.IsNullOrEmpty(store?.DefaultWarehouseId))
-                        warehouse = await _warehouseService.GetWarehouseById(store.DefaultWarehouseId);
-                }
-
-                string warehouseId = warehouse != null ? warehouse.Id : "";
-
-                //create a new request
-                var request = new GetShippingOptionRequest();
-                //store
-                request.StoreId = store?.Id;
-                //customer
-                request.Customer = customer;
                 //add item
                 request.Items.Add(new GetShippingOptionRequest.PackageItem(sci));
-                //ship to
-                request.ShippingAddress = shippingAddress;
-                //ship from
-                Address originAddress = _shippingSettings.ShippingOriginAddress;
-                if (warehouse != null)
-                {
-                    //warehouse address
-                    originAddress = warehouse.Address;
-                    request.WarehouseFrom = warehouse;
-                }
-                if (originAddress != null)
-                {
-                    var country = await _countryService.GetCountryById(originAddress.CountryId);
-                    var state = country?.StateProvinces.FirstOrDefault(x => x.Id == originAddress.StateProvinceId);
-                    request.CountryFrom = country;
-                    request.StateProvinceFrom = state;
-                    request.ZipPostalCodeFrom = originAddress.ZipPostalCode;
-                    request.CityFrom = originAddress.City;
-                    request.AddressFrom = originAddress.Address1;
-                }
-                requests.Add(request);
             }
 
-            return requests;
+            return request;
         }
 
         /// <summary>
@@ -196,7 +174,7 @@ namespace Grand.Business.Checkout.Services.Shipping
             var result = new GetShippingOptionResponse();
 
             //create a package
-            var shippingOptionRequests = await CreateShippingOptionRequests(customer, cart, shippingAddress, store);
+            var shippingOptionRequest = await CreateShippingOptionRequests(customer, cart, shippingAddress, store);
 
             var shippingRateMethods = await LoadActiveShippingRateCalculationProviders(customer, store?.Id, cart);
             //filter by system name
@@ -214,48 +192,47 @@ namespace Grand.Business.Checkout.Services.Shipping
             {
                 //request shipping options (separately for each package-request)
                 IList<ShippingOption> srcmShippingOptions = null;
-                foreach (var shippingOptionRequest in shippingOptionRequests)
+
+                var getShippingOptionResponse = await srcm.GetShippingOptions(shippingOptionRequest);
+
+                if (getShippingOptionResponse.Success)
                 {
-                    var getShippingOptionResponse = await srcm.GetShippingOptions(shippingOptionRequest);
-
-                    if (getShippingOptionResponse.Success)
+                    //success
+                    if (srcmShippingOptions == null)
                     {
-                        //success
-                        if (srcmShippingOptions == null)
-                        {
-                            //first shipping option request
-                            srcmShippingOptions = getShippingOptionResponse.ShippingOptions;
-                        }
-                        else
-                        {
-                            //get shipping options which already exist for prior requested packages for this scrm (i.e. common options)
-                            srcmShippingOptions = srcmShippingOptions
-                                .Where(existingso => getShippingOptionResponse.ShippingOptions.Any(newso => newso.Name == existingso.Name))
-                                .ToList();
-
-                            //and sum the rates
-                            foreach (var existingso in srcmShippingOptions)
-                            {
-                                existingso.Rate += getShippingOptionResponse
-                                    .ShippingOptions
-                                    .First(newso => newso.Name == existingso.Name)
-                                    .Rate;
-                            }
-                        }
+                        //first shipping option request
+                        srcmShippingOptions = getShippingOptionResponse.ShippingOptions;
                     }
                     else
                     {
-                        //errors
-                        foreach (string error in getShippingOptionResponse.Errors)
+                        //get shipping options which already exist for prior requested packages for this scrm (i.e. common options)
+                        srcmShippingOptions = srcmShippingOptions
+                            .Where(existingso => getShippingOptionResponse.ShippingOptions.Any(newso => newso.Name == existingso.Name))
+                            .ToList();
+
+                        //and sum the rates
+                        foreach (var existingso in srcmShippingOptions)
                         {
-                            result.AddError(error);
-                            _logger.Warning(string.Format("Shipping ({0}). {1}", srcm.FriendlyName, error));
+                            existingso.Rate += getShippingOptionResponse
+                                .ShippingOptions
+                                .First(newso => newso.Name == existingso.Name)
+                                .Rate;
                         }
-                        //clear the shipping options in this case
-                        srcmShippingOptions = new List<ShippingOption>();
-                        break;
                     }
                 }
+                else
+                {
+                    //errors
+                    foreach (string error in getShippingOptionResponse.Errors)
+                    {
+                        result.AddError(error);
+                        _logger.Warning(string.Format("Shipping ({0}). {1}", srcm.FriendlyName, error));
+                    }
+                    //clear the shipping options in this case
+                    srcmShippingOptions = new List<ShippingOption>();
+                    break;
+                }
+
 
                 // add this scrm's options to the result
                 if (srcmShippingOptions != null)

@@ -71,60 +71,25 @@ namespace Shipping.ByWeight.Services
                 .Where(sbw => sbw.ShippingMethodId == shippingMethodId && weight >= sbw.From && weight <= sbw.To)
                 .ToList();
 
-            //filter by store
-            var matchedByStore = new List<ShippingByWeightRecord>();
-            foreach (var sbw in existingRates)
-                if (storeId == sbw.StoreId)
-                    matchedByStore.Add(sbw);
-            if (matchedByStore.Count == 0)
-                foreach (var sbw in existingRates)
-                    if (String.IsNullOrEmpty(sbw.StoreId))
-                        matchedByStore.Add(sbw);
+            if (!string.IsNullOrEmpty(warehouseId))
+                existingRates = existingRates.Where(x => x.WarehouseId == warehouseId).ToList();
+            else
+                existingRates = existingRates.Where(x => string.IsNullOrEmpty(x.WarehouseId)).ToList();
 
-            //filter by warehouse
-            var matchedByWarehouse = new List<ShippingByWeightRecord>();
-            foreach (var sbw in matchedByStore)
-                if (warehouseId == sbw.WarehouseId)
-                    matchedByWarehouse.Add(sbw);
-            if (matchedByWarehouse.Count == 0)
-                foreach (var sbw in matchedByStore)
-                    if (String.IsNullOrEmpty(sbw.WarehouseId))
-                        matchedByWarehouse.Add(sbw);
+            if (!string.IsNullOrEmpty(storeId))
+                existingRates = existingRates.Where(x => x.StoreId == storeId || string.IsNullOrEmpty(x.StoreId)).ToList();
 
-            //filter by country
-            var matchedByCountry = new List<ShippingByWeightRecord>();
-            foreach (var sbw in matchedByWarehouse)
-                if (countryId == sbw.CountryId)
-                    matchedByCountry.Add(sbw);
-            if (matchedByCountry.Count == 0)
-                foreach (var sbw in matchedByWarehouse)
-                    if (String.IsNullOrEmpty(sbw.CountryId))
-                        matchedByCountry.Add(sbw);
+            if (!string.IsNullOrEmpty(countryId))
+                existingRates = existingRates.Where(x => x.CountryId == countryId || string.IsNullOrEmpty(x.CountryId)).ToList();
 
-            //filter by state/province
-            var matchedByStateProvince = new List<ShippingByWeightRecord>();
-            foreach (var sbw in matchedByCountry)
-                if (stateProvinceId == sbw.StateProvinceId)
-                    matchedByStateProvince.Add(sbw);
-            if (matchedByStateProvince.Count == 0)
-                foreach (var sbw in matchedByCountry)
-                    if (String.IsNullOrEmpty(sbw.StateProvinceId))
-                        matchedByStateProvince.Add(sbw);
+            if (!string.IsNullOrEmpty(stateProvinceId))
+                existingRates = existingRates.Where(x => x.StateProvinceId == stateProvinceId || string.IsNullOrEmpty(x.StateProvinceId)).ToList();
 
+            if (!string.IsNullOrEmpty(zip))
+                existingRates = existingRates.Where(x => x.Zip == zip || string.IsNullOrEmpty(x.Zip)).ToList();
 
-            //filter by zip
-            var matchedByZip = new List<ShippingByWeightRecord>();
-            foreach (var sbw in matchedByStateProvince)
-                if ((String.IsNullOrEmpty(zip) && String.IsNullOrEmpty(sbw.Zip)) ||
-                    (zip.Equals(sbw.Zip, StringComparison.OrdinalIgnoreCase)))
-                    matchedByZip.Add(sbw);
+            return existingRates.FirstOrDefault();
 
-            if (matchedByZip.Count == 0)
-                foreach (var taxRate in matchedByStateProvince)
-                    if (String.IsNullOrWhiteSpace(taxRate.Zip))
-                        matchedByZip.Add(taxRate);
-
-            return matchedByZip.FirstOrDefault();
         }
 
         public virtual Task<ShippingByWeightRecord> GetById(string shippingByWeightRecordId)
