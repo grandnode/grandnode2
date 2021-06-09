@@ -246,7 +246,7 @@ namespace Grand.Web.Admin.Controllers
         #region Payments and other order workflow
 
         [PermissionAuthorizeAction(PermissionActionName.Cancel)]
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> CancelOrder(string id)
         {
             var order = await _orderService.GetOrderById(id);
@@ -262,21 +262,17 @@ namespace Grand.Web.Admin.Controllers
             {
                 return RedirectToAction("List");
             }
-
             try
             {
                 await _mediator.Send(new CancelOrderCommand() { Order = order, NotifyCustomer = true });
                 await _orderViewModelService.LogEditOrder(order.Id);
-                var model = new OrderModel();
-                await _orderViewModelService.PrepareOrderDetailsModel(model, order);
+                Success("Successfully canceled order");
                 return RedirectToAction("Edit", "Order", new { id = id });
             }
             catch (Exception exc)
             {
                 //error
-                var model = new OrderModel();
-                await _orderViewModelService.PrepareOrderDetailsModel(model, order);
-                Error(exc, false);
+                Error(exc, true);
                 return RedirectToAction("Edit", "Order", new { id = id });
             }
         }

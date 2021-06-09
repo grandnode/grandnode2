@@ -26,6 +26,10 @@
                             @if (!Model.IsLoggedInAsVendor)
                             {
                                 <span id="order-delete" class="btn red"><i class="fa fa-trash-o"></i> @Loc["Admin.Common.Delete"]</span>
+                                <a asp-action="CancelOrder" asp-route-id="@Model.Id" class="btn border-red" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');">
+                                    <i class="red fa fa-times-circle-o"></i>
+                                    @Loc["Admin.Common.Cancel"]
+                                </a>
                             }
                             <input type="submit" id="btnRefreshPage" style="display: none" />
                             <script>
