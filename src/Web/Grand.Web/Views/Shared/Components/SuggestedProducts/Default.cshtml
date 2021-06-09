@@ -2,14 +2,14 @@
 @inject DisplayOrderHomePage order
 <div class="product-grid suggested-product-grid order-@order.SuggestedProducts">
     <h2 class="generalTitle text-center">@Loc["HomePage.Suggested.Products"]</h2>
-    <b-col cols="12" class="px-0">
-        <b-form-row>
+    <div class="col-12 px-0">
+        <div class="form-row">
             @foreach (var item in Model)
             {
-                <b-col xl="@order.Sp_Xl" lg="@order.Sp_Lg" md="@order.Sp_Md" sm="@order.Sp_Sm" cols="@order.Sp_Col" class="product-container mb-2">
+                <div class="col-xl-@order.Sp_Xl col-lg-@order.Sp_Lg col-md-@order.Sp_Md col-sm-@order.Sp_Sm col-@order.Sp_Col product-container mb-2">
                     <partial name="_CatalogProductView" model="item" />
-                </b-col>
+                </div>
             }
-        </b-form-row>
-    </b-col>
+        </div>
+    </div>
 </div>
