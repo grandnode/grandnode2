@@ -14,7 +14,7 @@
 <div class="page account-page address-list-page pl-lg-3 pt-lg-0 pt-3">
     @Html.AntiForgeryToken()
     <button class="btn btn-info add-address-button float-sm-right mt-2" onclick="location.href='@Url.RouteUrl("CustomerAddressAdd")'">
-        <icon icon="clipboard-plus"></icon> @Loc["Common.AddNew"]
+        <b-icon icon="clipboard-plus"></b-icon> @Loc["Common.AddNew"]
     </button>
     <h1 class="h2 generalTitle">@Loc["Account.CustomerAddresses"]</h1>
     @if (Model.Addresses.Any())
@@ -25,13 +25,13 @@
                 {
                     var address = Model.Addresses[i];
                     <div class="col-md-6 col-12 mb-3">
-                        <b-card>
-                            <template v-slot:header>
+                        <div class="card">
+                            <div class="card-header">
                                 <h3 class="h5 mb-0">
                                     @address.FirstName @address.LastName
                                 </h3>
-                            </template>
-                            <b-card-text>
+                            </div>
+                            <div class="card-body">
                                 <div class="address-item">
                                     <ul class="info mb-0 px-0">
                                         <li class="name">
@@ -120,8 +120,8 @@
                                         }
                                     </ul>
                                 </div>
-                            </b-card-text>
-                            <template v-slot:footer>
+                            </div>
+                            <div class="card-footer">
                                 <div class="btn-group">
                                     <button class="btn btn-secondary edit-address-button" onclick="location.href='@(Url.RouteUrl("CustomerAddressEdit", new { addressId = address.Id }))'">
                                         @Loc["Common.Edit"]
@@ -130,8 +130,8 @@
                                         @Loc["Common.Delete"]
                                     </button>
                                 </div>
-                            </template>
-                        </b-card>
+                            </div>
+                        </div>
                     </div>
                 }
             </div>
