@@ -72,7 +72,6 @@ namespace Grand.Web.Admin.Models.Orders
         public IList<UsedDiscountModel> UsedDiscounts { get; set; }
 
         //totals
-        public bool AllowCustomersToSelectTaxDisplayType { get; set; }
         public TaxDisplayType TaxDisplayType { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.OrderSubtotalInclTax")]
         public string OrderSubtotalInclTax { get; set; }

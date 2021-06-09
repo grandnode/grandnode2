@@ -195,15 +195,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    @if (Model.AllowCustomersToSelectTaxDisplayType)
-                                    {
-                                        @item.UnitPriceInclTax
-                                        <br />
-                                        @item.UnitPriceExclTax
-                                    }
-                                    else
-                                    {
-                                        switch (Model.TaxDisplayType)
+                                        @switch (Model.TaxDisplayType)
                                         {
                                             case TaxDisplayType.ExcludingTax:
                                                 {
@@ -218,7 +210,7 @@
                                             default:
                                                 break;
                                         }
-                                    }
+                                    
                                     <div id="pnlEditPvUnitPrice@(item.Id)">
                                         <table class="order-edit">
                                             <tr>
@@ -259,15 +251,7 @@
                                 @if (Model.Items.Sum(x => x.DiscountInclTaxValue) > 0)
                                 {
                                     <td>
-                                        @if (Model.AllowCustomersToSelectTaxDisplayType)
-                                        {
-                                            @item.DiscountInclTax
-                                            <br />
-                                            @item.DiscountExclTax
-                                        }
-                                        else
-                                        {
-                                            switch (Model.TaxDisplayType)
+                                            @switch (Model.TaxDisplayType)
                                             {
                                                 case TaxDisplayType.ExcludingTax:
                                                     {
@@ -282,7 +266,7 @@
                                                 default:
                                                     break;
                                             }
-                                        }
+                                        
                                     </td>
                                 }
                                 @if (Model.Items.Sum(x => x.CommissionValue) > 0)
@@ -292,15 +276,8 @@
                                     </td>
                                 }
                                 <td>
-                                    @if (Model.AllowCustomersToSelectTaxDisplayType)
-                                    {
-                                        @item.SubTotalInclTax
-                                        <br />
-                                        @item.SubTotalExclTax
-                                    }
-                                    else
-                                    {
-                                        switch (Model.TaxDisplayType)
+                                    
+                                        @switch (Model.TaxDisplayType)
                                         {
                                             case TaxDisplayType.ExcludingTax:
                                                 {
@@ -315,7 +292,7 @@
                                             default:
                                                 break;
                                         }
-                                    }
+                                    
                                 </td>
 
                                 @if (!Model.IsLoggedInAsVendor)

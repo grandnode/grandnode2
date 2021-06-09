@@ -396,7 +396,6 @@ namespace Grand.Web.Admin.Services
             model.UrlReferrer = order.UrlReferrer;
             model.VatNumber = order.VatNumber;
             model.CreatedOn = _dateTimeService.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc);
-            model.AllowCustomersToSelectTaxDisplayType = _taxSettings.AllowCustomersToSelectTaxDisplayType;
             model.TaxDisplayType = _taxSettings.TaxDisplayType;
 
             if (!string.IsNullOrEmpty(order.AffiliateId))
