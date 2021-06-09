@@ -99,8 +99,7 @@ namespace Grand.Business.Checkout.Tests.Services.Shipping
 
             var result = await _service.CreateShippingOptionRequests(customer, cart, shippingAddress, store);
 
-            Assert.AreEqual(result.ShippingAddress, shippingAddress);
-            Assert.AreEqual(result.WarehouseFrom, warehouse);
+            Assert.AreEqual(result.ShippingAddress, shippingAddress);            
             Assert.AreEqual(result.StoreId, "id");
             Assert.AreEqual(result.Customer, customer);
         }

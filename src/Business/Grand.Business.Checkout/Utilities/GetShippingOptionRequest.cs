@@ -37,11 +37,7 @@ namespace Grand.Business.Checkout.Utilities
         /// Gets or sets a shipping address (where we ship to)
         /// </summary>
         public Address ShippingAddress { get; set; }
-
-        /// <summary>
-        /// Shipped from warehouse
-        /// </summary>
-        public Warehouse WarehouseFrom { get; set; }
+        
         /// <summary>
         /// Shipped from country
         /// </summary>
