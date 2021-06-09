@@ -45,29 +45,29 @@
                    autocomplete="off" name="SearchKeyword" placeholder="@Loc["Blog.SearchPlaceholder"]">
 
             <span class="input-group-append">
-                <b-button type="submit" variant="info" class="search-box-button d-flex align-items-center float-sm-right">
+                <button type="submit" class="btn btn-info search-box-button d-flex align-items-center float-sm-right">
                     <span class="sr-only">Search store</span>
                     <b-icon icon="search" class="mx-1"></b-icon>
                     <span class="d-none d-lg-block">@Loc["Blog.Search"]</span>
-                </b-button>
+                </button>
             </span>
         </div>
     </form>
     @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_before_posts" })
-    <b-row class="blog-posts">
+    <div class="row blog-posts">
         @foreach (var item in Model.BlogPosts)
         {
             @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_before_post", additionalData = item.Id })
-            <b-col xl="6" cols="12">
-                <b-card @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl)) { <text>img-src="@item.PictureModel.ImageUrl" img-alt="@item.PictureModel.AlternateText"</text> }>
-                    <template v-slot:header>
+            <div class="col-xl-6 col-12">
+                <div class="card" @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl)) { <text>img-src="@item.PictureModel.ImageUrl" img-alt="@item.PictureModel.AlternateText"</text> }>
+                    <div class="card-header">
                         <h3 class="h5 mb-0">
-                            <b-link href="@Url.RouteUrl("BlogPost", new { SeName = item.SeName })">
+                            <a href="@Url.RouteUrl("BlogPost", new { SeName = item.SeName })">
                                 @item.Title
-                            </b-link>
+                            </a>
                         </h3>
-                    </template>
-                    <b-card-text>
+                    </div>
+                    <div class="card-body">
                         @Html.Raw(!String.IsNullOrEmpty(item.BodyOverview) ? item.BodyOverview : item.Body)
                         @if (item.Tags.Any())
                         {
@@ -77,27 +77,27 @@
                                 @for (int i = 0; i < item.Tags.Count; i++)
                                 {
                                     var tag = item.Tags[i];
-                                    <b-button variant="light" size="sm" class="my-1" href="@Url.RouteUrl("BlogByTag", new {tag = tag})">@tag</b-button>
+                                    <button class="btn btn-sm btn-light my-1" href="@Url.RouteUrl("BlogByTag", new {tag = tag})">@tag</button>
                                 }
                             </div>
                         }
                         <div class="buttons mt-3">
                             @if (item.AllowComments)
                             {
-                                <b-button href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})#comments" variant="secondary" class="read-comments">@string.Format(Loc["Blog.CommentsLink"], item.NumberOfComments)</b-button>
+                                <button href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})#comments" class="btn btn-secondary read-comments">@string.Format(Loc["Blog.CommentsLink"], item.NumberOfComments)</button>
                             }
-                            <b-button href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})" variant="secondary" class="read-more">@Loc["Blog.MoreInfo"]</b-button>
+                            <button href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})" class="btn btn-secondary read-more">@Loc["Blog.MoreInfo"]</button>
                         </div>
-                    </b-card-text>
-                    <template v-slot:footer>
+                    </div>
+                    <div class="card-footer">
                         <small class="text-muted">@item.CreatedOn.ToString("D")</small>
-                    </template>
+                    </div>
                     @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_inside_post", additionalData = item.Id })
-                </b-card>
-            </b-col>
+                </div>
+            </div>
             @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_after_post", additionalData = item.Id })
         }
-    </b-row>
+    </div>
     <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingFilteringContext" />
 
     @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_after_posts" })
