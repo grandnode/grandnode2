@@ -124,7 +124,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <returns>Price</returns>
         public virtual async Task<string> FormatPrice(double price, string currencyCode, bool showTax, Language language)
         {
-            var currency = string.IsNullOrEmpty(currencyCode) ? await _currencyService.GetCurrencyByCode(currencyCode) : null;
+            var currency = !string.IsNullOrEmpty(currencyCode) ? await _currencyService.GetCurrencyByCode(currencyCode) : null;
             bool priceIncludesTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
             return FormatPrice(price, currency, language, priceIncludesTax, showTax);
         }
