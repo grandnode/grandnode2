@@ -19,8 +19,8 @@
             @foreach (var review in Model.Reviews)
             {
                 int ratingStars = review.Rating;
-                <b-card header-tag="header" footer-tag="footer" class="product-review-item mb-3">
-                    <template v-slot:header>
+                <div class="card product-review-item mb-3">
+                    <header class="card-header">
                         <div class="review-info d-inline-flex w-100">
                             <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
                             <small class="date text-muted">
@@ -28,19 +28,21 @@
                                 <span>@review.CreatedOn.ToString("g")</span>
                             </small>
                         </div>
-                    </template>
-                    <div class="review-title mb-3">
-                        <div class="user d-inline-flex align-items-center w-100">
-                            <b-link href="@Url.RouteUrl("Product", new { SeName = review.ProductSeName })"><h6 class="mb-0">@review.ProductName</h6></b-link>
+                    </header>
+                    <div class="card-body">
+                        <div class="review-title mb-3">
+                            <div class="user d-inline-flex align-items-center w-100">
+                                <a href="@Url.RouteUrl("Product", new { SeName = review.ProductSeName })"><h6 class="mb-0">@review.ProductName</h6></a>
+                            </div>
+                            <div id='rating-inline2' class='p-0' variant='warning' no-border size='sm' show-value precision='2' readonly inline value='@(ratingStars)'></div>
                         </div>
-                        <b-form-rating id='rating-inline2' class='p-0' variant='warning' no-border size='sm' show-value precision='2' readonly inline value='@(ratingStars)'></b-form-rating>
-                    </div>
-                    <div class="review-content">
-                        <div class="review-text">
-                            @review.ReviewText
+                        <div class="review-content">
+                            <div class="review-text">
+                                @review.ReviewText
+                            </div>
                         </div>
                     </div>
-                    <template v-slot:footer>
+                    <footer class="card-footer">
                         @if (!string.IsNullOrEmpty(review.ReplyText))
                         {
                             <div class="reply-content">
@@ -51,8 +53,8 @@
                                 </blockquote>
                             </div>
                         }
-                    </template>
-                </b-card>
+                    </footer>
+                </div>
             }
         </div>
     }
