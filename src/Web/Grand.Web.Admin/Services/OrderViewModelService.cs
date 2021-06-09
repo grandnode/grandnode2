@@ -332,17 +332,8 @@ namespace Grand.Web.Admin.Services
             var items = new List<OrderModel>();
             foreach (var x in orders)
             {
-                var currency = await _currencyService.GetCurrencyByCode(x.CustomerCurrencyCode);
                 var store = await _storeService.GetStoreById(x.StoreId);
-                var orderTotal = _priceFormatter.FormatPrice(x.OrderTotal, currency);
-                if (x.CustomerCurrencyCode != x.PrimaryCurrencyCode)
-                {
-                    var primaryCurrency = await _currencyService.GetCurrencyByCode(x.PrimaryCurrencyCode);
-                    if (primaryCurrency == null)
-                        primaryCurrency = await _currencyService.GetPrimaryStoreCurrency();
-                    orderTotal = $"{_priceFormatter.FormatPrice(x.OrderTotal / x.CurrencyRate, primaryCurrency)} ({orderTotal})";
-                }
-
+                var orderTotal = await _priceFormatter.FormatPrice(x.OrderTotal, x.CustomerCurrencyCode, false, _workContext.WorkingLanguage);
                 items.Add(new OrderModel
                 {
                     Id = x.Id,
