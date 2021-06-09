@@ -15,7 +15,7 @@
             <div class="col-xl-6 col-12">
                 <div class="card mb-3">
                     <div class="card-header">
-                        @if (!string.IsNullOrEmpty(Model.PictureModel.ImageUrl))
+                        @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl))
                         {
                             <b-img-lazy class="img-fluid" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText" />
                         }
