@@ -17,12 +17,12 @@
     {
         foreach (var item in Model.CourseList)
         {
-            <b-card class="card mb-3">
-                <template v-slot:header>
+            <div class="card mb-3">
+                <div class="card-header">
                     <h3 class="h5 mb-0 d-inline-flex">
-                        <b-link href="@Url.RouteUrl("Course", new { SeName = item.SeName })">
+                        <a href="@Url.RouteUrl("Course", new { SeName = item.SeName })">
                             @item.Name
-                        </b-link>
+                        </a>
                     </h3>
                     <div class="d-inline-flex flex-column align-items-end">
                         @if (item.Approved)
@@ -40,14 +40,14 @@
                             </div>
                         }
                     </div>
-                </template> 
+                </div> 
                 @if (!string.IsNullOrEmpty(item.ShortDescription))
                 {
-                    <b-card-text>
+                    <div class="card-body">
                         @Html.Raw(item.ShortDescription)
-                    </b-card-text>
+                    </div>
                 }
-            </b-card>
+            </div>
         }
     }
     else

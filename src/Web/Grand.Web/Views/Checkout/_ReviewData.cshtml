@@ -1,7 +1,7 @@
 ﻿<div class="mb-3">
-    <b-card-group>
-        <b-card title="@Loc["Order.BillingAddress"]">
-            <b-card-text>
+    <div class="card-group">
+        <div class="card" title="@Loc["Order.BillingAddress"]">
+            <div class="card-body">
                 <ul class="billing-info pl-0">
                     <li class="name">
                         {{vmorder.cart.OrderReviewData.BillingAddress.FirstName}} {{vmorder.cart.OrderReviewData.BillingAddress.LastName}}
@@ -63,10 +63,10 @@
                         </li>
                     </template>
                 </ul>
-            </b-card-text>
-        </b-card>
-        <b-card v-if="vmorder.cart.OrderReviewData.IsShippable" title="@Loc["Order.ShippingAddress"]">
-            <b-card-text>
+            </div>
+        </div>
+        <div class="card" v-if="vmorder.cart.OrderReviewData.IsShippable" title="@Loc["Order.ShippingAddress"]">
+            <div class="card-body">
                 <ul class="shipping-info pl-0">
                     <template v-if="!vmorder.cart.OrderReviewData.SelectedPickUpInStore">
                         <li class="name">
@@ -150,7 +150,7 @@
                         </template>
                     </li>
                 </ul>
-            </b-card-text>
-        </b-card>
-    </b-card-group>
+            </div>
+        </div>
+    </div>
 </div>

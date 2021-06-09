@@ -10,22 +10,23 @@
 <div class="page collection-list-page">
     <h1 class="generalTitle h2">@Loc["Collections.List"]</h1>
     <div class="collectionGrid">
-        <b-form-row class="flex-grid">
+        <div class="form-row flex-grid">
             @foreach (var item in Model)
             {
-                <b-col md="4" cols="6" class="mb-2">
-                    <b-link class="mb-2" href="@Url.RouteUrl("Collection", new { SeName = item.SeName })" title="@item.PictureModel.Title">
-                        <b-card no-body
-                                tag="article">
-                            <b-card-img-lazy src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"></b-card-img-lazy>
-                            <b-card-body>
-                                <h5>@item.Name</h5>
-                            </b-card-body>
-                        </b-card>
-                    </b-link>
-                </b-col>
+                <div class="col-md-4 col-6 mb-2">
+                    <a class="mb-2" href="@Url.RouteUrl("Collection", new { SeName = item.SeName })" title="@item.PictureModel.Title">
+                        <div class="card">
+                            <article>
+                                <img class="img-fluid" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText">
+                                <div class="card-body">
+                                    <h5>@item.Name</h5>
+                                </div>
+                            </article>
+                        </div>
+                    </a>
+                </div>
             }
-        </b-form-row>
+        </div>
     </div>
 </div>
 

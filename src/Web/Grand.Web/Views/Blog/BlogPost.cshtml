@@ -20,18 +20,20 @@
 }
 <div class="page blogpost-page">
     @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_top", additionalData = Model.Id })
-    <b-card class="mt-3" @if (!string.IsNullOrEmpty(Model.PictureModel.ImageUrl)) { <text> img-src="@Model.PictureModel.ImageUrl" img-alt="@Model.PictureModel.AlternateText" </text> }>
-        <template v-slot:header>
+    <div class="card mt-3" @if (!string.IsNullOrEmpty(Model.PictureModel.ImageUrl)) { <text> img-src="@Model.PictureModel.ImageUrl" img-alt="@Model.PictureModel.AlternateText" </text> }>
+        <div class="card-header">
             <h1 class="h5 mb-0">
                 @Model.Title
             </h1>
             <span class="small text-muted">
                 @Model.CreatedOn.ToString("D")
             </span>
-        </template>
+        </div>
         @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_before_body", additionalData = Model.Id })
+    <div class="card-body">
         @Html.Raw(Model.Body)
-    </b-card>
+    </div>
+    </div>
 
     @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_before_products", additionalData = Model.Id })
 
@@ -44,7 +46,7 @@
             @for (int i = 0; i < Model.Tags.Count; i++)
             {
                 var tag = Model.Tags[i];
-                <b-button variant="light" size="sm" class="mr-2 mb-2" href="@Url.RouteUrl("BlogByTag", new {tag = tag})">@tag</b-button>
+                <button class="btn btn-sm btn-light mr-2 mb-2" href="@Url.RouteUrl("BlogByTag", new {tag = tag})">@tag</button>
             }
         </div>
     }
@@ -92,8 +94,8 @@
                 <div class="comments">
                     @foreach (var comment in Model.Comments)
                     {
-                        <b-card class="mb-3">
-                            <template v-slot:header>
+                        <div class="card mb-3">
+                            <div class="card-header">
                                 <div class="d-inline-flex w-100">
                                     <h6 class="mb-0">@comment.CustomerName</h6>
                                     <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
@@ -102,15 +104,15 @@
                                         <span>@comment.CreatedOn.ToString("g")</span>
                                     </small>
                                 </div>
-                            </template>
-                            <b-col cols="12" class="px-0">
-                                <b-row>
-                                    <b-col>
+                            </div>
+                            <div class="col-12 px-0">
+                                <div class="row">
+                                    <div class="col">
                                         @comment.CommentText
-                                    </b-col>
-                                </b-row>
-                            </b-col>
-                        </b-card>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     }
                 </div>
             </div>

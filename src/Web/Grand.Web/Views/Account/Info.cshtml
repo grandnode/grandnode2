@@ -85,9 +85,9 @@
 <div class="page account-page customer-info-page pl-lg-3 pt-3 pt-lg-0">
     @if (customerSettings.AllowUsersToExportData)
     {
-        <b-button variant="info" class="float-sm-right mt-2" onclick="location.href='/account/export'">
+        <button class="btn btn-info float-sm-right mt-2" onclick="location.href='/account/export'">
             <b-icon icon="server"></b-icon> @Loc["Account.CustomerExportToXls"]
-        </b-button>
+        </button>
     }
     <h2 class="generalTitle">@Loc["Account.CustomerInfo"]</h2>
     <form asp-route="CustomerInfo" method="post" v-on:submit.prevent="validateBeforeSubmit($event)">

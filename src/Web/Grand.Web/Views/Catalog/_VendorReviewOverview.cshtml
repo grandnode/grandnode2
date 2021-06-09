@@ -23,9 +23,9 @@
                         @if (Model.TotalReviews > 0)
                         {
                             <div class="product-review-links order-3">
-                                <b-button variant="outline-info" size="sm" class="review-scroll-button" href="@Url.RouteUrl("VendorReviews", new { VendorId = Model.VendorId })">
+                                <button class="btn btn-sm btn-outline-info" href="@Url.RouteUrl("VendorReviews", new { VendorId = Model.VendorId })">
                                     @Loc["VendorReviews.Overview.AddNew"]
-                                </b-button>
+                                </button>
                             </div>
                             @* Rendering microdata info*@
                             double ratingValuee = ratingPercent / (double)20;
@@ -34,9 +34,9 @@
                         else
                         {
                             <div class="vendor-no-reviews order-3">
-                                <b-button variant="outline-info" size="sm" href="@Url.RouteUrl("VendorReviews", new { VendorId = Model.VendorId })">
+                                <button class="btn btn-sm btn-outline-info"  href="@Url.RouteUrl("VendorReviews", new { VendorId = Model.VendorId })">
                                     @Loc["VendorReviews.Overview.First"]
-                                </b-button>
+                                </button>
                             </div>
                         }
                     </div>

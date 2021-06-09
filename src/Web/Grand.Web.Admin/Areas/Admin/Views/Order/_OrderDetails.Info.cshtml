@@ -280,7 +280,7 @@
                     </div>
                 </div>
             }
-            if (Model.AllowCustomersToSelectTaxDisplayType || Model.TaxDisplayType == TaxDisplayType.IncludingTax)
+            if (Model.TaxDisplayType == TaxDisplayType.IncludingTax)
             {
                 <div class="form-group">
                     <admin-label asp-for="OrderSubtotalInclTax" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
@@ -289,7 +289,7 @@
                     </div>
                 </div>
             }
-            if (Model.AllowCustomersToSelectTaxDisplayType || Model.TaxDisplayType == TaxDisplayType.ExcludingTax)
+            if (Model.TaxDisplayType == TaxDisplayType.ExcludingTax)
             {
                 <div class="form-group">
                     <admin-label asp-for="OrderSubtotalExclTax" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
@@ -298,7 +298,7 @@
                     </div>
                 </div>
             }
-            if ((Model.AllowCustomersToSelectTaxDisplayType || Model.TaxDisplayType == TaxDisplayType.IncludingTax)
+            if (Model.TaxDisplayType == TaxDisplayType.IncludingTax
                 && !String.IsNullOrEmpty(Model.OrderSubTotalDiscountInclTax))
             {
                 <div class="form-group">
@@ -308,7 +308,7 @@
                     </div>
                 </div>
             }
-            if ((Model.AllowCustomersToSelectTaxDisplayType || Model.TaxDisplayType == TaxDisplayType.ExcludingTax)
+            if (Model.TaxDisplayType == TaxDisplayType.ExcludingTax
                 && !String.IsNullOrEmpty(Model.OrderSubTotalDiscountExclTax))
             {
                 <div class="form-group">
@@ -318,7 +318,7 @@
                     </div>
                 </div>
             }
-            if (Model.AllowCustomersToSelectTaxDisplayType || Model.TaxDisplayType == TaxDisplayType.IncludingTax)
+            if (Model.TaxDisplayType == TaxDisplayType.IncludingTax)
             {
                 <div class="form-group">
                     <admin-label asp-for="OrderShippingInclTax" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
@@ -327,7 +327,7 @@
                     </div>
                 </div>
             }
-            if (Model.AllowCustomersToSelectTaxDisplayType || Model.TaxDisplayType == TaxDisplayType.ExcludingTax)
+            if (Model.TaxDisplayType == TaxDisplayType.ExcludingTax)
             {
                 <div class="form-group">
                     <admin-label asp-for="OrderShippingExclTax" asp-display-hint="false" class="control-label col-3 col-md-3 col-sm-3"></admin-label>
@@ -336,7 +336,7 @@
                     </div>
                 </div>
             }
-            if ((Model.AllowCustomersToSelectTaxDisplayType || Model.TaxDisplayType == TaxDisplayType.IncludingTax)
+            if (Model.TaxDisplayType == TaxDisplayType.IncludingTax
                 && !String.IsNullOrEmpty(Model.PaymentMethodAdditionalFeeInclTax))
             {
                 <div class="form-group">
@@ -346,7 +346,7 @@
                     </div>
                 </div>
             }
-            if ((Model.AllowCustomersToSelectTaxDisplayType || Model.TaxDisplayType == TaxDisplayType.ExcludingTax)
+            if (Model.TaxDisplayType == TaxDisplayType.ExcludingTax
                 && !String.IsNullOrEmpty(Model.PaymentMethodAdditionalFeeExclTax))
             {
                 <div class="form-group">

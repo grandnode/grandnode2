@@ -14,42 +14,42 @@
 <vc:widget widget-zone="customer-subaccounts" additional-data="@Model"></vc:widget>
 <div class="page account-page subaccounts-list-page pl-lg-3 pt-lg-0 pt-3">
     @Html.AntiForgeryToken()
-    <b-button variant="info" class="add-address-button float-sm-right mt-2" onclick="location = '@Url.RouteUrl("CustomerSubAccountAdd")'">
+    <button class="btn btn-info add-address-button float-sm-right mt-2" onclick="location = '@Url.RouteUrl("CustomerSubAccountAdd")'">
         <b-icon icon="clipboard-plus"></b-icon> @Loc["Common.AddNew"]
-    </b-button>
+    </button>
     <h1 class="h2 generalTitle">@Loc["Account.SubAccounts"]</h1>
     @if (Model.Any())
     {
-        <b-col cols="12" class="px-0">
-            <b-row class="account-list">
+        <div class="col-12 px-0">
+            <div class="row account-list">
                 @for (int i = 0; i < Model.Count; i++)
                 {
                     var account = Model[i];
-                    <b-col md="6" cols="12" class="mb-3">
-                        <b-card class="card">
-                            <template v-slot:header>
+                    <div class="col-md-6 col-12 mb-3">
+                        <div class="card">
+                            <div class="card-header">
                                 <h5 class="mb-0"><strong>@account.FirstName @account.LastName</strong></h5>
-                            </template>
-                            <b-card-text>
+                            </div>
+                            <div class="card-body">
                                 <div class="account-item">
                                     @account.Email
                                 </div>
-                            </b-card-text>
-                            <template v-slot:footer>
-                                <b-btn-group>
-                                    <b-button variant="secondary" class="edit-subaccount-button" onclick="location = '@(Url.RouteUrl("CustomerSubAccountEdit", new { id = account.Id }))'">
+                            </div>
+                            <div class="card-footer">
+                                <div class="btn-group">
+                                    <button class="btn btn-secondary edit-subaccount-button" onclick="location = '@(Url.RouteUrl("CustomerSubAccountEdit", new { id = account.Id }))'">
                                         @Loc["Common.Edit"]
-                                    </b-button>
-                                    <b-button variant="danger" class="delete-subaccount-button" onclick="deletecustomersubaccount('@(account.Id)')">
+                                    </button>
+                                    <button class="btn btn-danger delete-subaccount-button" onclick="deletecustomersubaccount('@(account.Id)')">
                                         @Loc["Common.Delete"]
-                                    </b-button>
-                                </b-btn-group>
-                            </template>
-                        </b-card>
-                    </b-col>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 }
-            </b-row>
-        </b-col>
+            </div>
+        </div>
         <script asp-location="Footer">
                 function deletecustomersubaccount(accountId) {
                     if (confirm('@Loc["Admin.Common.AreYouSure"]')) {

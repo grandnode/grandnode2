@@ -1286,7 +1286,7 @@ namespace Grand.Web.Admin.Controllers
             if (_workContext.CurrentVendor != null)
                 model.VendorId = _workContext.CurrentVendor.Id;
 
-            var (orderModels, aggregator, totalCount) = await orderViewModelService.PrepareOrderModel(model, command.Page, command.PageSize);
+            var (orderModels, totalCount) = await orderViewModelService.PrepareOrderModel(model, command.Page, command.PageSize);
             var gridModel = new DataSourceResult
             {
                 Data = orderModels.ToList(),
