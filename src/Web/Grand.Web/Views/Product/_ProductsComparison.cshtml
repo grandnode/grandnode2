@@ -4,8 +4,8 @@
 }
 @if (Model.CompareProductsEnabled)
 {
-    <b-button variant="secondary" class="add-to-compare-list-button mr-1" onclick="AxiosCart.addproducttocomparelist('@addtocomparelink');return false;" v-b-tooltip.hover.bottom title="@Loc["Products.Compare.AddToCompareList"]">
+    <button class="btn btn-secondary add-to-compare-list-button mr-1" onclick="AxiosCart.addproducttocomparelist('@addtocomparelink');return false;" v-b-tooltip.hover.bottom title="@Loc["Products.Compare.AddToCompareList"]">
         <b-icon icon="shuffle"></b-icon>
         <span class="sr-only">@Loc["Products.Compare.AddToCompareList"]</span>
-    </b-button>
+    </button>
 }
