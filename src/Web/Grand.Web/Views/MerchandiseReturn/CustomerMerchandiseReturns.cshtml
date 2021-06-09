@@ -16,35 +16,37 @@
     <h1 class="h2 generalTitle">@Loc["Account.CustomerMerchandiseReturns"]</h1>
     @if (Model.Items.Any())
     {
-        <b-row>
+        <div class="row">
             @foreach (var item in Model.Items)
             {
-                <b-col class="col-lg-6 col-md-6 col-12">
-                    <b-card>
-                        <template v-slot:header>
+                <div class="col col-lg-6 col-md-6 col-12">
+                    <div class="card">
+                        <div class="card-header">
                             <h5 class="mb-0">
                                 @string.Format(Loc["Account.CustomerMerchandiseReturns.Title"], item.ReturnNumber, item.MerchandiseReturnStatus)
                             </h5>
-                        </template>
-                        <div class="d-inline-flex align-items-center flex-wrap mb-3">
-                            <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
-                            <small class="date text-muted">
-                                <label class="mb-0">@Loc["Account.CustomerMerchandiseReturns.Date"]</label>
-                                <span>@item.CreatedOn.ToString()</span>
-                            </small>
                         </div>
-                        <div class="alert alert-info mb-0">
-                            @string.Format(Loc["Account.CustomerMerchandiseReturns.Totals"], item.ProductsCount, item.ReturnTotal)
+                        <div class="card-body">
+                            <div class="d-inline-flex align-items-center flex-wrap mb-3">
+                                <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                                <small class="date text-muted">
+                                    <label class="mb-0">@Loc["Account.CustomerMerchandiseReturns.Date"]</label>
+                                    <span>@item.CreatedOn.ToString()</span>
+                                </small>
+                            </div>
+                            <div class="alert alert-info mb-0">
+                                @string.Format(Loc["Account.CustomerMerchandiseReturns.Totals"], item.ProductsCount, item.ReturnTotal)
+                            </div>
                         </div>
-                        <template v-slot:footer>
-                            <b-button variant="info" size="sm" onclick="location = ('@Url.RouteUrl("MerchandiseReturnDetails", new { merchandiseReturnId = item.Id })')">
+                        <div class="card-footer">
+                            <button class="btn btn-sm btn-info" onclick="location = ('@Url.RouteUrl("MerchandiseReturnDetails", new { merchandiseReturnId = item.Id })')">
                                 @Loc["Account.CustomerMerchandiseReturns.Details"]
-                            </b-button>
-                        </template>
-                    </b-card>
-                </b-col>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             }
-        </b-row>
+        </div>
     }
     else
     {
