@@ -1,15 +1,15 @@
 ﻿@model IList<ProductOverviewModel>
 
-<b-col cols="12" class="product-grid blogpost-product-grid px-0">
+<div class="product-grid blogpost-product-grid col-12 px-0">
     <h2 class="h3 generalTitle text-center">
         @Loc["Blog.Products"]
     </h2>
-        <b-form-row class="flex-grid">
+        <div class=" form-row flex-grid">
             @foreach (var product in Model)
             {
-                <b-col lg="4" sm="6" cols="6" class="mb-2">
+                <div class="col-lg-4 col-sm-6 col-6 mb-2">
                     <partial name="_CatalogProductView" model="product" />
-                </b-col>
+                </div>
             }
-        </b-form-row>
-</b-col>
+        </div>
+</div>
