@@ -24,15 +24,15 @@
                                  name="TermsOfService">
                     @Loc["Checkout.TermsOfService.PleaseAccept"] <a href="@Url.RouteUrl("Page", new { SeName = PageSeNameConstants.Conditionsofuse })" target="_blank">@Loc["Checkout.TermsOfService.Read"]</a>
                 </b-form-checkbox>
-                <b-alert variant="info" class="my-2" :show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</b-alert>
+                <div class="alert alert-info my-2" :show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</div>
             </div>
-            <b-button id="new-back-confirm_order">@Loc["Common.Back"]</b-button>
-            <b-button variant="info" @@click="vmorder.termsCheck()">
+            <button class="btn btn-secondary" id="new-back-confirm_order">@Loc["Common.Back"]</button>
+            <button class="btn btn-info" @@click="vmorder.termsCheck()">
                 @Loc["Common.Confirm"]
-            </b-button>
+            </button>
         </template>
         <template v-else>
-            <b-button id="new-back-confirm_order">@Loc["Common.Back"]</b-button>
+            <button class="btn btn-secondary" id="new-back-confirm_order">@Loc["Common.Back"]</button>
             <input type="button" class="btn btn-info confirm-order-next-step-button" onclick="vmorder.vConfirmOrder.save()" value="@Loc["Common.Confirm"]" />
         </template>
     </div>
