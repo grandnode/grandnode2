@@ -13,18 +13,18 @@
 }
 <div class="page account-page address-list-page pl-lg-3 pt-lg-0 pt-3">
     @Html.AntiForgeryToken()
-    <b-button variant="info" class="add-address-button float-sm-right mt-2" onclick="location.href='@Url.RouteUrl("CustomerAddressAdd")'">
-        <b-icon icon="clipboard-plus"></b-icon> @Loc["Common.AddNew"]
-    </b-button>
+    <button class="btn btn-info add-address-button float-sm-right mt-2" onclick="location.href='@Url.RouteUrl("CustomerAddressAdd")'">
+        <icon icon="clipboard-plus"></icon> @Loc["Common.AddNew"]
+    </button>
     <h1 class="h2 generalTitle">@Loc["Account.CustomerAddresses"]</h1>
     @if (Model.Addresses.Any())
     {
-        <b-col cols="12" class="px-0">
-            <b-row class="address-list">
+        <div class="col-12" class="px-0">
+            <div class="row address-list">
                 @for (int i = 0; i < Model.Addresses.Count; i++)
                 {
                     var address = Model.Addresses[i];
-                    <b-col md="6" cols="12" class="mb-3">
+                    <div class="col-md-6 col-12 mb-3">
                         <b-card>
                             <template v-slot:header>
                                 <h3 class="h5 mb-0">
@@ -122,20 +122,20 @@
                                 </div>
                             </b-card-text>
                             <template v-slot:footer>
-                                <b-btn-group>
-                                    <b-button variant="secondary" class="edit-address-button" onclick="location.href='@(Url.RouteUrl("CustomerAddressEdit", new { addressId = address.Id }))'">
+                                <div class="btn-group">
+                                    <button class="btn btn-secondary edit-address-button" onclick="location.href='@(Url.RouteUrl("CustomerAddressEdit", new { addressId = address.Id }))'">
                                         @Loc["Common.Edit"]
-                                    </b-button>
-                                    <b-button variant="danger" class="delete-address-button" onclick="deletecustomeraddress('@(address.Id)')">
+                                    </button>
+                                    <button class="btn btn-danger delete-address-button" onclick="deletecustomeraddress('@(address.Id)')">
                                         @Loc["Common.Delete"]
-                                    </b-button>
-                                </b-btn-group>
+                                    </button>
+                                </div>
                             </template>
                         </b-card>
-                    </b-col>
+                    </div>
                 }
-            </b-row>
-        </b-col>
+            </div>
+        </div>
         <script asp-location="Footer">
                 function deletecustomeraddress(addressId) {
                     if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
