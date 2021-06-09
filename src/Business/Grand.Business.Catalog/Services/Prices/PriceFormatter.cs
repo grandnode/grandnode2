@@ -139,7 +139,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <returns>Price</returns>
         public virtual async Task<string> FormatPrice(double price, string currencyCode, Language language, bool priceIncludesTax)
         {
-            var currency = string.IsNullOrEmpty(currencyCode) ? await _currencyService.GetCurrencyByCode(currencyCode) : null;
+            var currency = !string.IsNullOrEmpty(currencyCode) ? await _currencyService.GetCurrencyByCode(currencyCode) : null;
             return FormatPrice(price, currency, language, priceIncludesTax);
         }
 
@@ -242,7 +242,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <returns>Price</returns>
         public virtual async Task<string> FormatShippingPrice(double price, string currencyCode, Language language, bool priceIncludesTax)
         {
-            var currency = string.IsNullOrEmpty(currencyCode) ? await _currencyService.GetCurrencyByCode(currencyCode) : null;
+            var currency = !string.IsNullOrEmpty(currencyCode) ? await _currencyService.GetCurrencyByCode(currencyCode) : null;
             return FormatShippingPrice(price, currency, language, priceIncludesTax);
         }
 
@@ -336,7 +336,7 @@ namespace Grand.Business.Catalog.Services.Prices
         public virtual async Task<string> FormatPaymentMethodAdditionalFee(double price,
             string currencyCode, Language language, bool priceIncludesTax)
         {
-            var currency = string.IsNullOrEmpty(currencyCode) ? await _currencyService.GetCurrencyByCode(currencyCode) : null;
+            var currency = !string.IsNullOrEmpty(currencyCode) ? await _currencyService.GetCurrencyByCode(currencyCode) : null;
             return FormatPaymentMethodAdditionalFee(price, currency,
                 language, priceIncludesTax);
         }
