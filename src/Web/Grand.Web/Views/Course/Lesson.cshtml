@@ -8,30 +8,29 @@
 }
 
 <div class="page category-page">
-    <b-button variant="outline-info" class="mt-3" href="@Url.RouteUrl("Course", new { SeName = Model.CourseSeName })">@Loc["Course.GoBack"]: @Model.CourseName</b-button>
+    <button class="btn btn-outline-info mt-3" href="@Url.RouteUrl("Course", new { SeName = Model.CourseSeName })">@Loc["Course.GoBack"]: @Model.CourseName</button>
     @await Component.InvokeAsync("Widget", new { widgetZone = "courselessondetails_top", additionalData = Model.Id })
     <div class="mt-3">
         <div class="container d-inline-flex px-0">
-            <b-card no-body
-                    tag="article"
-                    class="mb-2">
-                <template v-slot:header>
-                    <div class="d-inline-flex justify-content-end align-items-center w-100">
-                        @if (Model.Approved)
-                        {
-                            <div class="custom-control custom-checkbox my-1 mr-sm-2">
-                                <input type="checkbox" class="custom-control-input" id="customControlInline" checked disabled>
-                                <label class="custom-control-label" for="customControlInline"></label>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="custom-control disabled custom-checkbox my-1 mr-sm-2">
-                                <input type="checkbox" class="custom-control-input" id="customControlInline" disabled>
-                                <label class="custom-control-label" for="customControlInline"></label>
-                            </div>
-                            <button class="btn btn-info" id="btnApprove">@Loc["Course.ApproveLesson"]</button>
-                            <script asp-location="Footer">
+            <div class="card mb-2">
+                <article>
+                    <div class="card-header">
+                        <div class="d-inline-flex justify-content-end align-items-center w-100">
+                            @if (Model.Approved)
+                            {
+                                <div class="custom-control custom-checkbox my-1 mr-sm-2">
+                                    <input type="checkbox" class="custom-control-input" id="customControlInline" checked disabled>
+                                    <label class="custom-control-label" for="customControlInline"></label>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="custom-control disabled custom-checkbox my-1 mr-sm-2">
+                                    <input type="checkbox" class="custom-control-input" id="customControlInline" disabled>
+                                    <label class="custom-control-label" for="customControlInline"></label>
+                                </div>
+                                <button class="btn btn-info" id="btnApprove">@Loc["Course.ApproveLesson"]</button>
+                                <script asp-location="Footer">
                                 document.addEventListener("DOMContentLoaded", function () {
                                     document.getElementById("btnApprove").addEventListener('click', function (event) {
                                         if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
@@ -47,25 +46,26 @@
                                         }
                                     });
                                 });
-                            </script>
+                                </script>
+                            }
+                        </div>
+                    </div>
+                    <img class="img-fluid" src="@Model.PictureUrl">
+                    <div class="card-body">
+                        <h2 class="d-flex flex-column">@Model.Name<span class="h6">(@Model.CourseLevel)</span></h2>
+                        @if (Model.DownloadFile)
+                        {
+                            <a class="btn btn-secondary" id="btnDownloadFile" href="@Url.Action("DownloadFile", "Course", new { id = Model.Id  })">@Loc["Course.DownloadLesson"]</a>
+                        }
+                        @if (!String.IsNullOrWhiteSpace(Model.ShortDescription))
+                        {
+                            <p>
+                                @Html.Raw(Model.ShortDescription)
+                            </p>
                         }
                     </div>
-                </template>
-                <b-card-img-lazy src="@Model.PictureUrl"></b-card-img-lazy>
-                <b-card-body>
-                    <h2 class="d-flex flex-column">@Model.Name<span class="h6">(@Model.CourseLevel)</span></h2>
-                    @if (Model.DownloadFile)
-                    {
-                        <a class="btn btn-secondary" id="btnDownloadFile" href="@Url.Action("DownloadFile", "Course", new { id = Model.Id  })">@Loc["Course.DownloadLesson"]</a>
-                    }
-                    @if (!String.IsNullOrWhiteSpace(Model.ShortDescription))
-                    {
-                        <p>
-                            @Html.Raw(Model.ShortDescription)
-                        </p>
-                    }
-                </b-card-body>
-            </b-card>
+                </article>
+            </div>
         </div>
     </div>
     @if (Model.VideoFile)
@@ -77,8 +77,10 @@
             </video>
         </div>
     }
-    <b-card class="description mt-3">
-        @Html.Raw(Model.Description)
-    </b-card>
+    <div class="card description mt-3">
+        <div class="card-body">
+            @Html.Raw(Model.Description)
+        </div>
+    </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = "courselessondetails_bottom", additionalData = Model.Id })
 </div>
