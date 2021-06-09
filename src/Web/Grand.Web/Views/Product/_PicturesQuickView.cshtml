@@ -1,5 +1,5 @@
 ﻿@model ProductDetailsModel
-<b-col xl="5" lg="4" md="12" cols="12" class="mt-md-0 mt-3 px-0">
+<div class="col-xl-5 col-lg-4 col-md-12 col-12 mt-md-0 mt-3 px-0">
     <div class="gallery">
         @if (Model.PictureModels.Count > 1)
         {
@@ -28,4 +28,4 @@
                         id="main-product-img-@Model.Id" />
         }
     </div>
-</b-col>
+</div>
