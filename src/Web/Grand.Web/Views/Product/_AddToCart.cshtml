@@ -18,7 +18,7 @@
         </div>
     </div>
 }
-<b-input-group class="product-add-to-cart flex-nowrap">
+<div role="group" class="input-group product-add-to-cart flex-nowrap">
 @if (!Model.DisableBuyButton || Model.EnteredPrice)
 {
     if (!String.IsNullOrEmpty(Model.MinimumQuantityNotification))
@@ -93,12 +93,12 @@
                     }
 
             </script>
-            <b-input-group-append>
-            <button type="button" id="add-to-cart-button-@Model.ProductId" class="btn btn-info w-100 add-to-cart-button d-inline-flex" data-productid="@Model.ProductId" onclick="AxiosCart.addproducttocart_details('@Url.RouteUrl("AddProductDetails", new { productId = Model.ProductId, shoppingCartTypeId = (int)shoppingCartType })', '#product-details-form');return false;">
-                <span>@addToCartText</span>
-            </button>
-            </b-input-group-append>
+            <div class="input-group-append">
+                <button type="button" id="add-to-cart-button-@Model.ProductId" class="btn btn-info w-100 add-to-cart-button d-inline-flex" data-productid="@Model.ProductId" onclick="AxiosCart.addproducttocart_details('@Url.RouteUrl("AddProductDetails", new { productId = Model.ProductId, shoppingCartTypeId = (int)shoppingCartType })', '#product-details-form');return false;">
+                    <span>@addToCartText</span>
+                </button>
+            </div>
         }
     }
 }
-</b-input-group>
+</div>
