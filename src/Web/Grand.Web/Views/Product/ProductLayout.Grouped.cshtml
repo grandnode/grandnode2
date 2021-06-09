@@ -65,17 +65,17 @@
     <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
         <div itemscope itemtype="http://schema.org/Product" data-productid="@Model.Id">
             <div class="product-essential">
-                <b-container>
-                    <b-row>
+                <div class="container">
+                    <div class="row">
                         <vc:widget widget-zone="productdetails_before_pictures" additional-data="@Model.Id"></vc:widget>
                         <!--product pictures-->
                         <partial name="_Pictures" model="Model" />
                         <vc:widget widget-zone="productdetails_after_pictures" additional-data="@Model.Id"></vc:widget>
-                        <b-col xl="6" lg="6" md="7" cols="12" class="overview pl-md-3 pl-0 pr-0">
+                        <div class="col-xl-6 col-lg-6 col-md-7 col-12 overview pl-md-3 pl-0 pr-0">
                             @if (!string.IsNullOrEmpty(Model.Flag))
                             {
                                 <div class="product-label">
-                                    <b-badge variant="info">@Model.Flag</b-badge>
+                                    <div class="badge badge-info">@Model.Flag</div>
                                 </div>
                             }
                             <partial name="_Unavailable" model="Model" />
@@ -116,12 +116,12 @@
                             </b-btn-group>
                             <partial name="_ShareButton" model="Model" />
                             @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_overview_bottom", additionalData = Model.Id })
-                        </b-col>
-                    </b-row>
-                </b-container>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <b-col cols="12" class="px-0 my-3">
+            <div class="col-12 px-0 my-3">
                 <div>
                     <b-tabs content-class="mt-3" align="center">
                         <b-tab title="@Loc["Products.Description"]" active>
@@ -153,23 +153,23 @@
                         }
                     </b-tabs>
                 </div>
-            </b-col>
+            </div>
             @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_before_collateral", additionalData = Model.Id })
             <div class="product-collateral">
                 <div>
                     <!--associated products-->
                     @foreach (var variant in Model.AssociatedProducts)
                     {
-                        <b-card no-body class="overflow-hidden associatedItem mb-3">
-                            <b-row no-gutters>
-                                <b-col lg="3" md="4">
-                                    <b-card-img id="main-product-img-@variant.Id" alt="@variant.DefaultPictureModel.AlternateText" src="@variant.DefaultPictureModel.ImageUrl" class="rounded-0"></b-card-img>
-                                </b-col>
-                                <b-col lg="9" md="8">
-                                    <b-card-body class="overview" title="@variant.Name">
-                                        <b-card-text>
+                        <di class="card overflow-hidden associatedItem mb-3">
+                            <div class="row no-gutters">
+                                <div class="col-lg-3 col-md-4">
+                                    <img class="img-fluid" id="main-product-img-@variant.Id" alt="@variant.DefaultPictureModel.AlternateText" src="@variant.DefaultPictureModel.ImageUrl" class="rounded-0"/>
+                                </div>
+                                <div class="col-lg-9 col-md-8">
+                                    <div class="card-body overview" title="@variant.Name">
+                                        <div>
                                             @Html.Raw(variant.ShortDescription)
-                                        </b-card-text>
+                                        </div>
                                         <!--availability-->
                                         <partial name="_Availability" model="variant" />
                                         <!--Code products - SKU, MAN, GTIN, Vendor info -->
@@ -226,10 +226,10 @@
                                                 <partial name="_AddToWishlist" model="variant.AddToCart" view-data="dataDictAddToWishlist" />
                                             </div>
                                         }
-                                    </b-card-body>
-                                </b-col>
-                            </b-row>
-                        </b-card>
+                                    </div>
+                                </div>
+                            </div>
+                        </di>
                     }
 
                     @if (Model.AssociatedProducts.Count == 0)
