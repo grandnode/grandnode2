@@ -9,10 +9,10 @@
 }
 <div class="page email-a-friend-page">
     <h1 class="h2 text-xs-center generalTitle">@Loc["Products.EmailAFriend.Title"]</h1>
-    <b-card>
-        <template v-slot:header>
-            <h4 class="mb-0"><b-link href="@Url.RouteUrl("Product", new { SeName = Model.ProductSeName })" class="product">@Model.ProductName</b-link></h4>
-        </template>
+    <div class="card">
+        <div class="card-header" v-slot:header>
+            <h4 class="mb-0"><a href="@Url.RouteUrl("Product", new { SeName = Model.ProductSeName })" class="product">@Model.ProductName</a></h4>
+        </div>
             @if (Model.SuccessfullySent)
             {
                 <div class="alert alert-info my-3 text-center result">
@@ -55,5 +55,5 @@
                     </div>
                 </form>
             }
-    </b-card>
+    </div>
 </div>
