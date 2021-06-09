@@ -72,7 +72,6 @@ namespace Grand.Web.Admin.Models.Orders
         public IList<UsedDiscountModel> UsedDiscounts { get; set; }
 
         //totals
-        public bool AllowCustomersToSelectTaxDisplayType { get; set; }
         public TaxDisplayType TaxDisplayType { get; set; }
         [GrandResourceDisplayName("Admin.Orders.Fields.OrderSubtotalInclTax")]
         public string OrderSubtotalInclTax { get; set; }
@@ -450,15 +449,5 @@ namespace Grand.Web.Admin.Models.Orders
         }
 
         #endregion
-    }
-
-
-    public partial class OrderAggreratorModel : BaseModel
-    {
-        //aggergator properties
-        public string aggregatorprofit { get; set; }
-        public string aggregatorshipping { get; set; }
-        public string aggregatortax { get; set; }
-        public string aggregatortotal { get; set; }
     }
 }

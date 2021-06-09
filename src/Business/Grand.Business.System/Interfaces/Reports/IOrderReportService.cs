@@ -141,29 +141,5 @@ namespace Grand.Business.System.Interfaces.Reports
             DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
             int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false);
 
-        /// <summary>
-        /// Get profit report
-        /// </summary>
-        /// <param name="storeId">Store identifier</param>
-        /// <param name="customerId">Customer identifier</param>
-        /// <param name="vendorId">Vendor identifier</param>
-        /// <param name="SalesEmployeeId">Sales employee identifier</param>
-        /// <param name="billingCountryId">Billing country identifier</param>
-        /// <param name="orderId">Order identifier; pass 0 to ignore this parameter</param>
-        /// <param name="paymentMethodSystemName">Payment method system name; null to load all records</param>
-        /// <param name="startTimeUtc">Start date</param>
-        /// <param name="endTimeUtc">End date</param>
-        /// <param name="os">Order status; null to load all records</param>
-        /// <param name="ps">Order payment status; null to load all records</param>
-        /// <param name="ss">Shipping status; null to load all records</param>
-        /// <param name="billingEmail">Billing email. Leave empty to load all records.</param>
-        /// <param name="billingLastName">Billing last name. Leave empty to load all records.</param>
-        /// <param name="tagid">tag ident</param>
-        /// <returns>Result</returns>
-        Task<double> ProfitReport(string storeId = "", string customerId = "", string vendorId = "", string salesEmployeeId = "",
-            string billingCountryId = "", string orderId = "", string paymentMethodSystemName = null,
-            int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
-            DateTime? startTimeUtc = null, DateTime? endTimeUtc = null,
-            string billingEmail = null, string billingLastName = "", string tagid = null);
     }
 }

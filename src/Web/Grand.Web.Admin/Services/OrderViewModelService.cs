@@ -280,7 +280,7 @@ namespace Grand.Web.Admin.Services
 
             return model;
         }
-        public virtual async Task<(IEnumerable<OrderModel> orderModels, OrderAggreratorModel aggreratorModel, int totalCount)> PrepareOrderModel(OrderListModel model, int pageIndex, int pageSize)
+        public virtual async Task<(IEnumerable<OrderModel> orderModels, int totalCount)> PrepareOrderModel(OrderListModel model, int pageIndex, int pageSize)
         {
             DateTime? startDateValue = (model.StartDate == null) ? null
                             : (DateTime?)_dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
@@ -323,67 +323,17 @@ namespace Grand.Web.Admin.Services
                 pageSize: pageSize,
                 orderTagId: model.OrderTag);
 
-            //summary report
-            //currently we do not support productId and warehouseId parameters for this report
-            var reportSummary = await _orderReportService.GetOrderAverageReportLine(
-                storeId: model.StoreId,
-                customerId: model.CustomerId,
-                vendorId: model.VendorId,
-                salesEmployeeId: salesEmployeeId,
-                orderId: "",
-                paymentMethodSystemName: model.PaymentMethodSystemName,
-                os: orderStatus,
-                ps: paymentStatus,
-                ss: shippingStatus,
-                startTimeUtc: startDateValue,
-                endTimeUtc: endDateValue,
-                billingEmail: model.BillingEmail,
-                billingLastName: model.BillingLastName,
-                billingCountryId: model.BillingCountryId,
-                tagid: model.OrderTag
-                );
-            var profit = await _orderReportService.ProfitReport(
-                storeId: model.StoreId,
-                vendorId: model.VendorId,
-                salesEmployeeId: salesEmployeeId,
-                paymentMethodSystemName: model.PaymentMethodSystemName,
-                os: orderStatus,
-                ps: paymentStatus,
-                ss: shippingStatus,
-                startTimeUtc: startDateValue,
-                endTimeUtc: endDateValue,
-                billingEmail: model.BillingEmail,
-                billingLastName: model.BillingLastName,
-                billingCountryId: model.BillingCountryId,
-                tagid: model.OrderTag
-                );
-
+           
             var primaryStoreCurrency = await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
             if (primaryStoreCurrency == null)
                 throw new Exception("Cannot load primary store currency");
 
-            var aggregate = new OrderAggreratorModel
-            {
-                aggregatorprofit = _priceFormatter.FormatPrice(profit, false),
-                aggregatorshipping = _priceFormatter.FormatShippingPrice(reportSummary.SumShippingExclTax, primaryStoreCurrency, _workContext.WorkingLanguage, false),
-                aggregatortax = _priceFormatter.FormatPrice(reportSummary.SumTax, false),
-                aggregatortotal = _priceFormatter.FormatPrice(reportSummary.SumOrders, false)
-            };
             var status = await _orderStatusService.GetAll();
             var items = new List<OrderModel>();
             foreach (var x in orders)
             {
-                var currency = await _currencyService.GetCurrencyByCode(x.CustomerCurrencyCode);
                 var store = await _storeService.GetStoreById(x.StoreId);
-                var orderTotal = _priceFormatter.FormatPrice(x.OrderTotal, currency);
-                if (x.CustomerCurrencyCode != x.PrimaryCurrencyCode)
-                {
-                    var primaryCurrency = await _currencyService.GetCurrencyByCode(x.PrimaryCurrencyCode);
-                    if (primaryCurrency == null)
-                        primaryCurrency = await _currencyService.GetPrimaryStoreCurrency();
-                    orderTotal = $"{_priceFormatter.FormatPrice(x.OrderTotal / x.CurrencyRate, primaryCurrency)} ({orderTotal})";
-                }
-
+                var orderTotal = await _priceFormatter.FormatPrice(x.OrderTotal, x.CustomerCurrencyCode, false, _workContext.WorkingLanguage);
                 items.Add(new OrderModel
                 {
                     Id = x.Id,
@@ -402,7 +352,7 @@ namespace Grand.Web.Admin.Services
                     CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                 });
             }
-            return (items, aggregate, orders.TotalCount);
+            return (items, orders.TotalCount);
         }
 
 
@@ -437,7 +387,6 @@ namespace Grand.Web.Admin.Services
             model.UrlReferrer = order.UrlReferrer;
             model.VatNumber = order.VatNumber;
             model.CreatedOn = _dateTimeService.ConvertToUserTime(order.CreatedOnUtc, DateTimeKind.Utc);
-            model.AllowCustomersToSelectTaxDisplayType = _taxSettings.AllowCustomersToSelectTaxDisplayType;
             model.TaxDisplayType = _taxSettings.TaxDisplayType;
 
             if (!string.IsNullOrEmpty(order.AffiliateId))
@@ -592,11 +541,15 @@ namespace Grand.Web.Admin.Services
                 }
             }
 
-            //profit (hide for vendors)
+            //profit (not for vendors)
             if (_workContext.CurrentVendor == null)
             {
-                var profit = await _orderReportService.ProfitReport(orderId: order.Id);
-                model.Profit = await _priceFormatter.FormatPrice(profit, order.PrimaryCurrencyCode, false, _workContext.WorkingLanguage);
+                var productCost = order.OrderItems.Sum(orderItem => orderItem.OriginalProductCost * orderItem.Quantity);
+                if (order.CurrencyRate > 0)
+                {
+                    var profit = Convert.ToDouble((order.OrderTotal / order.CurrencyRate) - (order.OrderShippingExclTax / order.CurrencyRate) - (order.OrderTax / order.CurrencyRate) - productCost);
+                    model.Profit = await _priceFormatter.FormatPrice(profit, order.PrimaryCurrencyCode, false, _workContext.WorkingLanguage);
+                }
             }
 
             if (order.PrimaryCurrencyCode != order.CustomerCurrencyCode)

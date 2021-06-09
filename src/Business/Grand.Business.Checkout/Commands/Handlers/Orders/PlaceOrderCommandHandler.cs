@@ -602,7 +602,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             //payment 
             var paymentMethodSystemName = _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.SelectedPaymentMethod, _workContext.CurrentStore.Id);
             details.PaymentMethodSystemName = paymentMethodSystemName;
-            double paymentAdditionalFee = await _paymentService.GetAdditionalHandlingFee(details.Cart, _workContext.CurrentStore.Id);
+            double paymentAdditionalFee = await _paymentService.GetAdditionalHandlingFee(details.Cart, paymentMethodSystemName);
             details.PaymentAdditionalFeeInclTax = (await _taxService.GetPaymentMethodAdditionalFee(paymentAdditionalFee, true, details.Customer)).paymentPrice;
             details.PaymentAdditionalFeeExclTax = (await _taxService.GetPaymentMethodAdditionalFee(paymentAdditionalFee, false, details.Customer)).paymentPrice;
 
