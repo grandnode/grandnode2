@@ -8,57 +8,60 @@
                 <template v-if="catalog.Model.PagingFilteringContext.SpecificationFilter.NotFilteredItems !== undefined">
                     <div class="available-items">
                         <template v-for="group in catalog.Model.PagingFilteringContext.SpecificationFilter.NotFilteredItems">
-                            <b-col cols="12" class="px-0">
+                            <div class="col-12 px-0">
                                 <ul class="group product-spec-group">
                                     <li class="title">
                                         <h6>{{group[0].SpecificationAttributeName}}</h6>
                                     </li>
                                     <li>
-                                        <b-button-group size="sm" class="d-inline-flex flex-wrap">
+                                        <div class="btn-group-sm d-inline-flex flex-wrap">
                                             <template v-for="spec in group">
                                                 <template v-if="spec.SpecificationAttributeOptionColorRgb !== null">
-                                                    <b-button size="sm" variant="light" class="color-container mb-1 mr-1" @@click="catalog.loadProducts(spec.FilterUrl)">
+                                                    <button class="btn btn-sm btn-light color-container mb-1 mr-1" @@click="catalog.loadProducts(spec.FilterUrl)">
                                                         <span class="color" :title="spec.SpecificationAttributeOptionName" :style="'background-color:' + spec.SpecificationAttributeOptionColorRgb">&nbsp;</span>
-                                                    </b-button>
+                                                    </button>
                                                 </template>
                                                 <template v-else>
-                                                    <b-button size="sm" variant="light" class="mb-1 mr-1" @@click="catalog.loadProducts(spec.FilterUrl)">
+                                                    <button class="btn btn-sm btn-light mb-1 mr-1" @@click="catalog.loadProducts(spec.FilterUrl)">
                                                         {{spec.SpecificationAttributeOptionName}}
-                                                    </b-button>
+                                                    </button>
                                                 </template>
                                             </template>
-                                        </b-button-group>
+                                        </div>
                                     </li>
                                 </ul>
-                            </b-col>
+                            </div>
                         </template>
                     </div>
                 </template>
             </div>
             <template v-if="JSON.stringify(catalog.Model.PagingFilteringContext.SpecificationFilter.AlreadyFilteredItems) !== '{}'">
-                <b-card header="@Loc["Filtering.SpecificationFilter.CurrentlyFilteredBy"]" header-tag="h6" class="filtered-items mb-3">
-                    <ul class="p-0 mb-0">
-                        <template v-for="group in catalog.Model.PagingFilteringContext.SpecificationFilter.AlreadyFilteredItems">
-                            <li class="item">
-                                <div class="mb-2">
-                                    <strong>{{group[0].SpecificationAttributeName}}:</strong>
-                                </div>
-                                <div class="d-inline-flex flex-wrap w-100">
-                                    <template v-for="spec in group">
-                           
-                                        <b-link class="d-flex align-items-center mr-2 mb-2 pb-0" @@click="catalog.loadProducts(spec.FilterUrl)">{{spec.SpecificationAttributeOptionName}}<b-icon class="ml-2 text-danger" icon="x-circle-fill"></b-icon></b-link>
-                            
-                                    </template>
-                                </div>
-                            </li>
-                        </template>
-                    </ul>
-                    <div class="remove-filter">
-                        <b-button size="sm" variant="danger" @@click="catalog.loadProducts(catalog.Model.PagingFilteringContext.SpecificationFilter.RemoveFilterUrl)">
-                            @Loc["Filtering.SpecificationFilter.Remove"]
-                        </b-button>
+                <div class="card filtered-items mb-3">
+                    <h6 class="h6 card-header">
+                        @Loc["Filtering.SpecificationFilter.CurrentlyFilteredBy"]
+                    </h6>
+                    <div class="card-body">
+                        <ul class="p-0 mb-0">
+                            <template v-for="group in catalog.Model.PagingFilteringContext.SpecificationFilter.AlreadyFilteredItems">
+                                <li class="item">
+                                    <div class="mb-2">
+                                        <strong>{{group[0].SpecificationAttributeName}}:</strong>
+                                    </div>
+                                    <div class="d-inline-flex flex-wrap w-100">
+                                        <template v-for="spec in group">
+                                            <a class="d-flex align-items-center mr-2 mb-2 pb-0" @@click="catalog.loadProducts(spec.FilterUrl)">{{spec.SpecificationAttributeOptionName}}<b-icon class="ml-2 text-danger" icon="x-circle-fill"></b-icon></a>
+                                        </template>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                        <div class="remove-filter">
+                            <button class="btn btn-sm btn-danger" @@click="catalog.loadProducts(catalog.Model.PagingFilteringContext.SpecificationFilter.RemoveFilterUrl)">
+                                @Loc["Filtering.SpecificationFilter.Remove"]
+                            </button>
+                        </div>
                     </div>
-                </b-card>
+                </div>
             </template>
         </div>
     </template>
