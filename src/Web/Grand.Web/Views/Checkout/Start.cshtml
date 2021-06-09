@@ -41,42 +41,42 @@
 <div class="page checkout-page">
     <h1 class="generalTitle h2 my-3">@Loc["Checkout"]</h1>
     @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_content_before" })
-    <b-col cols="12" class="px-0">
+    <div class="col-12 px-0">
         <div class="opc-header">
             @if (Model.ShippingRequired)
             {
-                <b-card-header header-tag="div" role="tab">
-                    <b-button block v-b-toggle.opc-shipping id="button-shipping" variant="info">@shippingAddressStepNumber. @Loc["Checkout.ShippingAddress"]</b-button>
-                </b-card-header>
+                <div class="card-header" role="tab">
+                    <button block v-b-toggle.opc-shipping id="button-shipping" class="btn btn-info">@shippingAddressStepNumber. @Loc["Checkout.ShippingAddress"]</button>
+                </div>
             }
-            <b-card-header header-tag="div" role="tab">
-                <b-button block v-b-toggle.opc-billing id="button-billing" variant="info" class="allow">@billingAddressStepNumber. @Loc["Checkout.BillingAddress"]</b-button>
-            </b-card-header>
+            <div class="card-header" role="tab">
+                <button block v-b-toggle.opc-billing id="button-billing" class="allow btn btn-info">@billingAddressStepNumber. @Loc["Checkout.BillingAddress"]</button>
+            </div>
             @if (Model.ShippingRequired)
             {
-                <b-card-header header-tag="div" role="tab">
-                    <b-button block v-b-toggle.opc-shipping-method id="button-shipping-method" variant="info">@shippingMethodStepNumber. @Loc["Checkout.ShippingMethod"]</b-button>
-                </b-card-header>
+                <div class="card-header" role="tab">
+                    <button block v-b-toggle.opc-shipping-method id="button-shipping-method" class="btn btn-info">@shippingMethodStepNumber. @Loc["Checkout.ShippingMethod"]</button>
+                </div>
             }
-            <b-card-header header-tag="div" role="tab">
-                <b-button block v-b-toggle.opc-payment-method id="button-payment-method" variant="info">@paymentMethodStepNumber. @Loc["Checkout.PaymentMethod"]</b-button>
-            </b-card-header>
-            <b-card-header header-tag="div" role="tab">
-                <b-button block v-b-toggle.opc-payment-info id="button-payment-info" variant="info">@paymentInfoStepNumber. @Loc["Checkout.PaymentInfo"]</b-button>
-            </b-card-header>
-            <b-card-header header-tag="div" role="tab">
-                <b-button block v-b-toggle.opc-confirm-order id="button-confirm-order" variant="info">@confirmOrderStepNumber. @Loc["Checkout.ConfirmOrder"]</b-button>
-            </b-card-header>
+            <div class="card-header" role="tab">
+                <button block v-b-toggle.opc-payment-method id="button-payment-method" class="btn btn-info">@paymentMethodStepNumber. @Loc["Checkout.PaymentMethod"]</button>
+            </div>
+            <div class="card-header" role="tab">
+                <button block v-b-toggle.opc-payment-info id="button-payment-info" class="btn btn-info">@paymentInfoStepNumber. @Loc["Checkout.PaymentInfo"]</button>
+            </div>
+            <div class="card-header" role="tab">
+                <button block v-b-toggle.opc-confirm-order id="button-confirm-order" class="btn btn-info">@confirmOrderStepNumber. @Loc["Checkout.ConfirmOrder"]</button>
+            </div>
         </div>
-        <b-form-row>
-            <b-col xl="7" cols="12">
+        <div class="form-row">
+            <div class="col-xl-7 col-12">
                 <template>
                     <div class="accordion opc" id="checkout-steps" role="tablist">
                         @if (Model.ShippingRequired)
                         {
-                            <b-card no-body>
+                            <div class="card">
                                 <b-collapse id="opc-shipping" visible accordion="my-accordion" role="tabpanel" appear>
-                                    <b-card-body>
+                                    <div class="card-body">
                                         <form action="" id="co-shipping-form">
                                             <div id="checkout-shipping-load">
                                                 <partial name="_ShippingAddress" model="Model.ShippingAddress" />
@@ -86,13 +86,13 @@
                                             <input type="button" class="btn btn-info new-address-next-step-button" @@click="validateBeforeClick($event)" title="@Loc["Common.Continue"]" onclick="vmorder.vShipping.save()" value="@Loc["Common.Continue"]" />
                                             <span id="shipping-please-wait" class="please-wait" style="display: none;"> @Loc["Common.LoadingNextStep"]</span>
                                         </div>
-                                    </b-card-body>
+                                    </div>
                                 </b-collapse>
-                            </b-card>
+                            </div>
                         }
-                        <b-card no-body>
+                        <div class="card">
                             <b-collapse id="opc-billing" @if (!Model.ShippingRequired) { <text> visible </text> } accordion="my-accordion" role="tabpanel" appear>
-                                <b-card-body>
+                                <div class="card-body">
                                     <form id="co-billing-form" action="">
                                         <div id="checkout-billing-load">
                                             @if (Model.ShippingRequired)
@@ -110,14 +110,14 @@
                                         <input type="button" title="@Loc["Common.Continue"]" @@click="validateBeforeClick($event)" class="btn btn-info new-address-next-step-button" onclick="vmorder.vBilling.save()" value="@Loc["Common.Continue"]" />
                                         <span class="please-wait" id="billing-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
                                     </div>
-                                </b-card-body>
+                                </div>
                             </b-collapse>
-                        </b-card>
+                        </div>
                         @if (Model.ShippingRequired)
                         {
-                            <b-card no-body>
+                            <div class="card">
                                 <b-collapse id="opc-shipping-method" accordion="my-accordion" role="tabpanel" appear>
-                                    <b-card-body>
+                                    <div class="card-body">
                                         <form id="co-shipping-method-form" action="">
                                             <div id="checkout-shipping-method-load">
                                                 @*In that field all available shipping methods will be loaded*@
@@ -129,14 +129,14 @@
                                                 <span id="shipping-method-please-wait" class="please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
                                             </div>
                                         </form>
-                                    </b-card-body>
+                                    </div>
                                 </b-collapse>
-                            </b-card>
+                            </div>
 
                         }
-                        <b-card no-body>
+                        <div class="card">
                             <b-collapse id="opc-payment-method" accordion="my-accordion" role="tabpanel" appear>
-                                <b-card-body>
+                                <div class="card-body">
                                     <form action="" id="co-payment-method-form">
                                         <div id="checkout-payment-method-load">
                                             @*In that field all available payment methods will be loaded*@
@@ -151,12 +151,12 @@
                                         <input type="button" class="btn btn-info payment-method-next-step-button" @@click="vmorder.setDisabled(event)" onclick="vmorder.vPaymentMethod.save()" value="@Loc["Common.Continue"]" />
                                         <span class="please-wait" id="payment-method-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
                                     </div>
-                                </b-card-body>
+                                </div>
                             </b-collapse>
-                        </b-card>
-                        <b-card no-body>
+                        </div>
+                        <div class="card">
                             <b-collapse id="opc-payment-info" accordion="my-accordion" role="tabpanel" appear>
-                                <b-card-body>
+                                <div class="card-body">
                                     <form action="" id="co-payment-info-form">
                                         <div id="checkout-payment-info-load">
                                             @*In that field payment info section will be loaded*@
@@ -171,12 +171,12 @@
                                         <input type="button" class="btn btn-info payment-info-next-step-button" onclick="vmorder.vPaymentInfo.save()" value="@Loc["Common.Continue"]" />
                                         <span class="please-wait" id="payment-info-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
                                     </div>
-                                </b-card-body>
+                                </div>
                             </b-collapse>
-                        </b-card>
-                        <b-card no-body>
+                        </div>
+                        <div class="card">
                             <b-collapse id="opc-confirm-order" accordion="my-accordion" role="tabpanel" appear>
-                                <b-card-body>
+                                <div class="card-body">
                                     <div id="checkout-confirm-order-load">
                                         <partial name="_ConfirmOrder" />
                                     </div>
@@ -184,18 +184,18 @@
                                         <a class="btn btn-secondary sr-only" href="#" id="back-confirm_order" onclick="vmorder.Checkout.back(); return false;">@Loc["Common.Back"]</a>
                                         <span class="please-wait" id="confirm-order-please-wait" style="display: none;">@Loc["Checkout.SubmittingOrder"]</span>
                                     </div>
-                                </b-card-body>
+                                </div>
                             </b-collapse>
-                        </b-card>
+                        </div>
                     </div>
                 </template>
-            </b-col>
-            <b-col xl="5" cols="12">
+            </div>
+            <div class="col-xl-5 col-12">
                 <div class="opc-totals">
                     <partial name="_Summary" />
                 </div>
-            </b-col>
-        </b-form-row>
-    </b-col>
+            </div>
+        </div>
+    </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_content_after" })
 </div>

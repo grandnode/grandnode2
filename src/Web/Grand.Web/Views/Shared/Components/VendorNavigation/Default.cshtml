@@ -6,14 +6,14 @@
         <ul class="list">
             @foreach (var vendor in Model.Vendors)
             {
-                <li><b-link href="@Url.RouteUrl("Vendor", new { SeName = vendor.SeName })">@vendor.Name</b-link>
+                <li><a href="@Url.RouteUrl("Vendor", new { SeName = vendor.SeName })">@vendor.Name</a>
                 </li>
             }
         </ul>            
         @if (Model.TotalVendors > Model.Vendors.Count)
         {
             <div class="view-all w-100 mt-2">
-                <b-button size="sm" variant="outline-info" href="@Url.RouteUrl("VendorList")">@Loc["Vendors.ViewAll"]</b-button>
+                <a class="btn btn-sm btn-outline-info" href="@Url.RouteUrl("VendorList")">@Loc["Vendors.ViewAll"]</a>
             </div>
         }
     </div>

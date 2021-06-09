@@ -51,9 +51,9 @@
     @await Component.InvokeAsync("Widget", new { widgetZone = "orderdetails_page_top", additionalData = Model.Id })
 
     <div class="order-details-area mt-3">
-        <b-card no-header no-footer>
-            <b-form-row>
-                <b-col lg="4" md="6" cols="12" class="order-info">
+        <div class="card">
+            <div class="form-row">
+                <div class="col-lg-4 col-md-6 col-12 order-info">
                     <ul class="order-overview px-0">
                         <li class="title">
                             <h5 class="order-number h4">
@@ -77,8 +77,8 @@
                         </li>
                         @await Component.InvokeAsync("Widget", new { widgetZone = "orderdetails_page_overview", additionalData = Model.Id })
                     </ul>
-                </b-col>
-                <b-col lg="4" md="6" cols="12" class="billing">
+                </div>
+                <div class="col-lg-4 col-md-6 col-12 billing">
                     <ul class="billing-info px-0">
                         <li class="title">
                             <h5 class="generalTitle">@Loc["Order.BillingAddress"]</h5>
@@ -223,10 +223,10 @@
                             }
                         }
                     </ul>
-                </b-col>
+                </div>
                 @if (Model.IsShippable)
                 {
-                    <b-col lg="4" md="6" cols="12" class="shipping">
+                    <div class="col-lg-4 col-md-6 col-12 shipping">
                         <ul class="shipping-info px-0">
                             <li class="title">
                                 <h5 class="generalTitle">@(Model.PickUpInStore ? Loc["Order.PickupAddress"] : Loc["Order.ShippingAddress"])</h5>
@@ -362,10 +362,10 @@
                                 </li>
                             }
                         </ul>
-                    </b-col>
+                    </div>
                 }
-            </b-form-row>
-        </b-card>
+            </div>
+        </div>
     </div>
 
     @if (Model.Items.Any())
@@ -373,9 +373,9 @@
         @await Component.InvokeAsync("Widget", new { widgetZone = "orderdetails_page_beforeproducts", additionalData = Model.Id })
         <div class="products mt-3 shopping-cart-page">
             <div>
-                <b-col cols="12" class="px-0">
-                    <b-row>
-                        <b-col xl="8" cols="12" class="cart-out-container">
+                <div class="col-12 px-0">
+                    <div class="row">
+                        <div class="col-xl-8 col-12 cart-out-container">
                             <h5 class="generalTitle">@Loc["Order.Product(s)"]</h5>
                             <div class="shopping-cart-container">
                                 <div id="order-details"></div>
@@ -421,8 +421,8 @@
                         new OrderDetails().$mount('#order-details')
                                 </script>
                             </div>
-                        </b-col>
-                        <b-col lg="4" cols="12" class="totals">
+                        </div>
+                        <div class="col-lg-4 col-12 totals">
                             <div class="totals-inner">
                                 <div class="total-info table-responsive px-0">
                                     <table class="table table-hover">
@@ -562,9 +562,9 @@
                                     }
                                 </div>
                             </div>
-                        </b-col>
-                    </b-row>
-                </b-col>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         @await Component.InvokeAsync("Widget", new { widgetZone = "orderdetails_page_afterproducts", additionalData = Model.Id })

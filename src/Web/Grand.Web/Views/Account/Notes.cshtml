@@ -17,8 +17,8 @@
     {
         foreach (var item in Model.CustomerNoteList)
         {
-            <b-card class="mb-3">
-                <template v-slot:header>
+            <div class="card mb-3">
+                <div class="card-header">
                     <h5 class="d-inline-flex">
                         @item.Title
                     </h5>
@@ -27,11 +27,11 @@
                         <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
                         <small class="text-muted">@item.CreatedOn</small>
                     </div>
-                </template>
-                <b-card-text>
+                </div>
+                <div class="card-body">
                     @item.Note
-                </b-card-text>
-                <template v-slot:footer>
+                </div>
+                <div class="card-footer">
                     @if (!string.IsNullOrEmpty(item.DownloadId))
                     {
                         <div class="d-inline-flex">
@@ -41,8 +41,8 @@
                             </span>
                         </div>
                     }
-                </template>
-            </b-card>
+                </div>
+            </div>
         }
     }
     else

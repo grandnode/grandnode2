@@ -3,7 +3,7 @@
         <b-container :fluid="fluid" id="header-container">
             <div class="menu-container">
                 <template>
-                    <b-button aria-label="menu-toggler" class="menu-toggler" v-b-toggle.sidebar-menu><span></span><span></span><span></span></b-button>
+                    <button aria-label="menu-toggler" class="btn menu-toggler" v-b-toggle.sidebar-menu><span></span><span></span><span></span></button>
                     <b-sidebar id="sidebar-menu"
                                backdrop
                                shadow>
@@ -14,7 +14,7 @@
                 </template>
             </div>
             <partial name="_Logo"/>
-            <b-navbar-nav class="top-header-items order-3">
+            <ul class="navbar-nav top-header-items order-3">
                 <template>
                     <li class="nav-item">
                         <span class="nav-link">
@@ -27,12 +27,16 @@
                         </span>
                     </li>
                 </template>
-                <b-nav-item class="d-lg-block d-none">
-                    <b-icon :variant="[darkMode ? 'white' : 'dark']" icon="aspect-ratio" @@click="fluid = !fluid"></b-icon>
-                </b-nav-item>
-                <b-nav-item>
-                    <b-icon icon="search" :variant="[darkMode ? 'white' : 'dark']" v-b-modal.search-box></b-icon>
-                </b-nav-item>
+                <li class="nav-item d-lg-block d-none">
+                    <a href="#" target="_self" class="nav-link">
+                        <b-icon :variant="[darkMode ? 'white' : 'dark']" icon="aspect-ratio" @@click="fluid = !fluid"></b-icon>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" target="_self" class="nav-link">
+                        <b-icon icon="search" :variant="[darkMode ? 'white' : 'dark']" v-b-modal.search-box></b-icon>
+                    </a>
+                </li>
                 <b-modal id="search-box"
                          hide-footer hide-header size="xl">
                     @await Component.InvokeAsync("SearchBox")
@@ -58,7 +62,7 @@
                     </li>
                 </template>
                 <partial name="_ShoppingCartLinks" />
-            </b-navbar-nav>
+            </ul>
         </b-container>
     </b-navbar>
 </div>

@@ -1,6 +1,6 @@
 ﻿@inject StoreInformationSettings storeInformation
 @inject IWorkContext workContext
-<b-navbar-brand class="store-logo mx-lg-0 mx-auto" href="@Url.RouteUrl("HomePage")">
-    <b-img src="/@storeInformation.LogoPicture" alt="@workContext.CurrentStore.Name"></b-img>
+<a class="navbar-brand store-logo mx-lg-0 mx-auto" target="_self" href="@Url.RouteUrl("HomePage")">
+    <img src="/@storeInformation.LogoPicture" alt="@workContext.CurrentStore.Name"/>
     <span class="sr-only">@Loc["admin.configuration.shipping.providers.fields.logo"]</span>
-</b-navbar-brand>
+</a>

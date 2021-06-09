@@ -6,17 +6,17 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.RecentlyViewedProducts"]);
 }
-<b-col cols="12" class="page recently-viewed-products-page px-0">
+<div class="page recently-viewed-products-page col-12 px-0">
     <h1 class="generalTitle h2">@Loc["Products.RecentlyViewedProducts"]</h1>
     @if (Model.Any())
     {
-        <b-form-row class="product-grid">
+        <div class="form-row product-grid">
             @foreach (var product in Model)
             {
-                <b-col lg="4" sm="6" cols="6" class="product-container mb-2">
+                <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
                     <partial name="_CatalogProductView" model="product" />
-                </b-col>
+                </div>
             }
-        </b-form-row>
+        </div>
     }
-</b-col>
+</div>

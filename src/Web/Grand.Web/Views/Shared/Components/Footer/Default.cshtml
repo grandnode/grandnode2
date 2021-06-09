@@ -3,89 +3,89 @@
 <partial name="_NewsletterBox"/>
 
 <footer class="mt-3">
-    <b-container>
-        <b-form-row>
-            <b-col id="footer-block-information" cols="12" class="footer-block information block">
+    <div class="container">
+        <div class="form-row">
+            <div id="footer-block-information" class="footer-block information block col-12">
                 <div class="step-title card mb-1 p-3 d-lg-none">
                     <span class="h5 text-center mb-0"><strong>@Loc["Footer.Information"]</strong></span>
                 </div>
                 <div class="viewBox">
-                    <b-list-group>
+                    <div class="list-group">
                         @if (Model.SitemapEnabled)
                         {
-                            <b-list-group-item href="@Url.RouteUrl("Sitemap")">@Loc["Sitemap"]</b-list-group-item>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Sitemap")">@Loc["Sitemap"]</a>
                         }
                         @if (Model.PrivacyPreference)
                         {
-                            <b-list-group-item id="btnPrivacyPreference" href="#" onclick="GetPrivacyPreference('@Url.RouteUrl("PrivacyPreference")'); return false;">@Loc["PrivacyPreference"]</b-list-group-item>
+                            <a class="list-group-item list-group-item-action" id="btnPrivacyPreference" href="#" onclick="GetPrivacyPreference('@Url.RouteUrl("PrivacyPreference")'); return false;">@Loc["PrivacyPreference"]</a>
                         }
                         @foreach (var mpage in Model.Pages.Where(x => x.IncludeInFooterRow1).ToList())
                         {
-                            <b-list-group-item href="@Url.RouteUrl("Page", new { SeName = mpage.SeName })">@mpage.Name</b-list-group-item>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new { SeName = mpage.SeName })">@mpage.Name</a>
                         }
-                        <b-list-group-item href="@Url.RouteUrl("ContactUs")">@Loc["ContactUs"]</b-list-group-item>
-                        <b-list-group-item href="@Url.RouteUrl("ProductSearch")">@Loc["Search"]</b-list-group-item>
+                        <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("ContactUs")">@Loc["ContactUs"]</a>
+                        <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("ProductSearch")">@Loc["Search"]</a>
                         @if (Model.NewsEnabled)
                         {
-                            <b-list-group-item href="@Url.RouteUrl("NewsArchive")">@Loc["News"]</b-list-group-item>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("NewsArchive")">@Loc["News"]</a>
                         }
                         @if (Model.BlogEnabled)
                         {
-                            <b-list-group-item href="@Url.RouteUrl("Blog")">@Loc["Blog"]</b-list-group-item>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Blog")">@Loc["Blog"]</a>
                         }
                         @if (Model.KnowledgebaseEnabled)
                         {
-                            <b-list-group-item href="@Url.RouteUrl("Knowledgebase")">@Loc["Knowledgebase"]</b-list-group-item>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Knowledgebase")">@Loc["Knowledgebase"]</a>
                         }
                         @if (Model.RecentlyViewedProductsEnabled)
                         {
-                            <b-list-group-item href="@Url.RouteUrl("RecentlyViewedProducts")">@Loc["Products.RecentlyViewedProducts"]</b-list-group-item>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("RecentlyViewedProducts")">@Loc["Products.RecentlyViewedProducts"]</a>
                         }
                         @if (Model.CompareProductsEnabled)
                         {
-                            <b-list-group-item href="@Url.RouteUrl("CompareProducts")">@Loc["Products.Compare.List"]</b-list-group-item>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("CompareProducts")">@Loc["Products.Compare.List"]</a>
                         }
                         @if (Model.NewProductsEnabled)
                         {
-                            <b-list-group-item href="@Url.RouteUrl("NewProducts")">@Loc["Products.NewProducts"]</b-list-group-item>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("NewProducts")">@Loc["Products.NewProducts"]</a>
                         }
-                    </b-list-group>
+                    </div>
                 </div>
-            </b-col>
+            </div>
             <b-col id="footer-block-my-account" cols="12" class="footer-block my-account block">
                 <div class="step-title card mb-1 p-3 d-lg-none">
                     <span class="h5 text-center mb-0"><strong>@Loc["Footer.MyAccount"]</strong></span>
                 </div>
                 <div class="viewBox">
-                    <b-list-group class="pl-0 list-group list-pad">
-                        <b-list-group-item href="@Url.RouteUrl("CustomerInfo")">@Loc["Account.MyAccount"]</b-list-group-item>
-                        <b-list-group-item href="@Url.RouteUrl("CustomerOrders")">@Loc["Account.CustomerOrders"]</b-list-group-item>
-                        <b-list-group-item href="@Url.RouteUrl("CustomerAddresses")">@Loc["Account.CustomerAddresses"]</b-list-group-item>
+                    <div class="pl-0 list-group list-pad">
+                        <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("CustomerInfo")">@Loc["Account.MyAccount"]</a>
+                        <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("CustomerOrders")">@Loc["Account.CustomerOrders"]</a>
+                        <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("CustomerAddresses")">@Loc["Account.CustomerAddresses"]</a>
                         @if (Model.ShoppingCartEnabled)
                         {
-                            <b-list-group-item href="@Url.RouteUrl("ShoppingCart")">@Loc["ShoppingCart"]</b-list-group-item>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("ShoppingCart")">@Loc["ShoppingCart"]</a>
                         }
                         @if (Model.WishlistEnabled)
                         {
-                            <b-list-group-item href="@Url.RouteUrl("Wishlist")">@Loc["Wishlist"]</b-list-group-item>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Wishlist")">@Loc["Wishlist"]</a>
                         }
                         @if (Model.AllowCustomersToApplyForVendorAccount)
                         {
-                            <b-list-group-item href="@Url.RouteUrl("ApplyVendorAccount")">@Loc["Vendors.ApplyAccount"]</b-list-group-item>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("ApplyVendorAccount")">@Loc["Vendors.ApplyAccount"]</a>
                         }
                         @foreach (var mpage in Model.Pages.Where(x => x.IncludeInFooterRow2).ToList())
                         {
-                            <b-list-group-item href="@Url.RouteUrl("Page", new { SeName = mpage.SeName })" target="_blank">@mpage.Name</b-list-group-item>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new { SeName = mpage.SeName })" target="_blank">@mpage.Name</a>
                         }
-                    </b-list-group>
+                    </div>
                 </div>
                 <div class="viewBox">
-                    <b-list-group class="pl-0 list-group list-pad">
+                    <div class="pl-0 list-group list-pad">
                         @foreach (var mpage in Model.Pages.Where(x => x.IncludeInFooterRow3).ToList())
                         {
-                            <b-list-group-item class="list-group-item" href="@Url.RouteUrl("Page", new { SeName = mpage.SeName })">@mpage.Name</b-list-group-item>
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new { SeName = mpage.SeName })">@mpage.Name</a>
                         }
-                    </b-list-group>
+                    </div>
                 </div>
             </b-col>
             <b-col id="footer-block-about-us" cols="12" class="footer-block about-us block">
@@ -93,43 +93,43 @@
                     <span class="h5 text-center mb-0"><strong>@Loc["Footer.AboutUs"]</strong></span>
                 </div>
                 <div class="viewBox">
-                    <b-list-group class="bg-light my-3">
+                    <div class="list-group bg-light my-3">
                         @if (!string.IsNullOrEmpty(Model.CompanyName))
                         {
-                            <b-list-group-item>
+                            <div class="list-group-item">
                                 <span>@Loc["Footer.CompanyName.Title"]</span>
                                 <span>@Model.CompanyName</span>
-                            </b-list-group-item>
+                            </div>
                         }
                         @if (!string.IsNullOrEmpty(Model.CompanyAddress))
                         {
-                            <b-list-group-item>
+                            <div class="list-group-item">
                                 <span>@Loc["Footer.Address.Title"]</span>
                                 <span>@Model.CompanyAddress</span>
-                            </b-list-group-item>
+                            </div>
                         }
                         @if (!string.IsNullOrEmpty(Model.CompanyEmail))
                         {
-                            <b-list-group-item>
+                            <div class="list-group-item">
                                 <span>@Loc["footer.Email.Title"]</span>
                                 <span>@Model.CompanyEmail</span>
-                            </b-list-group-item>
+                            </div>
                         }
                         @if (!string.IsNullOrEmpty(Model.CompanyPhone))
                         {
-                            <b-list-group-item>
+                            <div class="list-group-item">
                                 <span>@Loc["Footer.Phone.Title"]</span>
                                 <span>@Model.CompanyPhone</span>
-                            </b-list-group-item>
+                            </div>
                         }
                         @if (!string.IsNullOrEmpty(Model.CompanyHours))
                         {
-                            <b-list-group-item>
+                            <div class="list-group-item">
                                 <span>@Loc["Footer.Hour.Title"]</span>
                                 <span>@Model.CompanyHours</span>
-                            </b-list-group-item>
+                            </div>
                         }
-                        </b-list-group>
+                        </div>
                     </div>
                 </b-col>
                 <ol class="d-flex flex-row list-group justify-content-center w-100 flex-wrap social-icons list-pad pb-0 mb-3">
@@ -189,17 +189,17 @@
                         </li>
                     }
                 </ol>
-            </b-form-row>
-            <div class="footer-lower small py-3 border-top">
-                <b-row>
-                    <b-col md="6" cols="12" class="pb-1 pt-1 flex-column text-lg-left text-center copyright">
-                        <span class="footer-disclaimer">@Html.Raw(Loc["Content.CopyrightNotice", DateTime.Now.Year, Model.StoreName])</span>
-                    </b-col>
-                    <b-col md="6" cols="12" class="pb-1 pt-1 text-center text-lg-right">
-                        <span>Shopping cart software by </span><a class="pr-1 text-success" href="https://grandnode.com/">GrandNode</a>™
-                    </b-col>
-                </b-row>
             </div>
-        </b-container>
+            <div class="footer-lower small py-3 border-top">
+                <div class="row">
+                    <div class="col-md-6 col-12 pb-1 pt-1 flex-column text-lg-left text-center copyright">
+                        <span class="footer-disclaimer">@Html.Raw(Loc["Content.CopyrightNotice", DateTime.Now.Year, Model.StoreName])</span>
+                    </div>
+                    <div class="col-md-6 col-12 pb-1 pt-1 text-center text-lg-right">
+                        <span>Shopping cart software by </span><a class="pr-1 text-success" href="https://grandnode.com/">GrandNode</a>™
+                    </div>
+                </div>
+            </div>
+        </div>
         @await Component.InvokeAsync("Widget", new { widgetZone = "footer" })
     </footer>

@@ -2,7 +2,7 @@
 @if (Model.PopupType == Grand.Domain.Messages.PopupType.Banner)
 {
     <b-modal id="ModalBanner" ref="ModalBanner" centered hide-footer hide-header>
-        <b-button class="modal-close" block @@click="$bvModal.hide('ModalBanner')"><b-icon icon="x"></b-icon></b-button>
+        <button class="modal-close" @@click="$bvModal.hide('ModalBanner')"><b-icon icon="x"></b-icon></button>
         <div>
             @Html.Raw(Model.Body)
         </div>
@@ -11,7 +11,7 @@
 @if (Model.PopupType == Grand.Domain.Messages.PopupType.InteractiveForm)
 {
     <b-modal id="ModalBanner" ref="ModalBanner" centered hide-footer hide-header>
-        <b-button class="modal-close" block @@click="$bvModal.hide('ModalBanner')"><b-icon icon="x"></b-icon></b-button>
+        <button class="modal-close" @@click="$bvModal.hide('ModalBanner')"><b-icon icon="x"></b-icon></button>
         <form asp-route="PopupInteractiveForm" method="post" id="interactive-form">
             <div id="action-body-form">@Html.Raw(Model.Body)</div>
         </form>

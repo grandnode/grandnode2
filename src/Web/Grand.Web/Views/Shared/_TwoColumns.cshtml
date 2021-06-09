@@ -58,18 +58,18 @@
 {
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_collection", additionalData = Model.Id })
 }
-<b-row id="TwoColumns" class="custom-container mt-3">
+<div id="TwoColumns" class="row custom-container mt-3">
     <div class="d-lg-none d-block">
-        <b-col cols="12">
-            <b-button id="sidebar-mobile-button" variant="outline-info" v-b-toggle.sidebar-mobile><b-icon icon="layout-sidebar-inset"></b-icon> @Loc["catalog.selectors.fiters"]</b-button>
-        </b-col>
+        <div class="col-12">
+            <button id="sidebar-mobile-button" class="btn btn-outline-info" v-b-toggle.sidebar-mobile><b-icon icon="layout-sidebar-inset"></b-icon> @Loc["catalog.selectors.fiters"]</button>
+        </div>
         <b-sidebar id="sidebar-mobile"
                    backdrop
                    left
                    shadow>
         </b-sidebar>
     </div>
-    <b-col lg="3" md="12" class="generalLeftSide order-1">
+    <div class="col-lg-3 col-md-12 generalLeftSide order-1">
         @if (IsSectionDefined("left"))
         {
             @RenderSection("left")
@@ -88,13 +88,13 @@
             @await Component.InvokeAsync("VendorNavigation")
             @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after" })
         }
-    </b-col>
-    <b-col lg="9" md="12" class="generalSideRight order-2">
+    </div>
+    <div class="col-lg-9 col-md-12 generalSideRight order-2">
         @await Component.InvokeAsync("Widget", new { widgetZone = "main_column_before" })
         @RenderBody()
         @await Component.InvokeAsync("Widget", new { widgetZone = "main_column_after" })
-    </b-col>
-</b-row>
+    </div>
+</div>
 <script asp-location="Footer">
     document.addEventListener("DOMContentLoaded", function () {
         var leftSide = document.querySelector('.generalLeftSide');

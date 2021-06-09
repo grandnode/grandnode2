@@ -11,13 +11,13 @@
     <h1 class="generalTitle h2">@Loc["Products.Tags.All"]</h1>
     @if (Model.Tags.Any())
     {
-        <b-button-toolbar size="sm">
+        <div class="btn-group-sm">
             @foreach (var item in Model.Tags)
             {
-                <b-button variant="light" class="d-flex align-items-center mr-2 mb-2" href="@Url.RouteUrl("ProductsByTagName", new { SeName = item.SeName })" style="font-size:@(Model.GetFontSize(item))%;">
+                <button class="btn btn-light d-flex align-items-center mr-2 mb-2" href="@Url.RouteUrl("ProductsByTagName", new { SeName = item.SeName })" style="font-size:@(Model.GetFontSize(item))%;">
                     @item.Name
-                </b-button>
+                </button>
             }
-        </b-button-toolbar>
+        </div>
     }
 </div>

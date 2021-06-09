@@ -44,9 +44,11 @@
         @Model.Name
     </h1>
 
-    <b-card>
-        @Html.Raw(@Model.Content)
-    </b-card>
+    <div class="card">
+        <div class="card-body">
+            @Html.Raw(@Model.Content)
+        </div>
+    </div>
 
     @if (Model.RelatedArticles.Any())
     {
@@ -102,8 +104,8 @@
                 <div class="comments">
                     @foreach (var comment in Model.Comments)
                     {
-                        <b-card class="mb-3">
-                            <template v-slot:header>
+                        <div class="card mb-3">
+                            <div class="card-header">
                                 <div class="d-inline-flex w-100">
                                     <h6 class="mb-0">@comment.CustomerName</h6>
                                     <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
@@ -112,15 +114,15 @@
                                         <span>@comment.CreatedOn.ToString("g")</span>
                                     </small>
                                 </div>
-                            </template>
-                            <b-col cols="12" class="px-0">
-                                <b-row>
-                                    <b-col>
+                            </div>
+                            <div class="col-12 px-0">
+                                <div class="row">
+                                    <div class="col">
                                         @comment.CommentText
-                                    </b-col>
-                                </b-row>
-                            </b-col>
-                        </b-card>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     }
                 </div>
             </div>

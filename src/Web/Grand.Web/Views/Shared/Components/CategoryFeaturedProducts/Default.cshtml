@@ -1,20 +1,19 @@
 ﻿@model IList<CategoryModel>
 @inject DisplayOrderHomePage order
-<b-col cols="12" class="product-grid px-0 order-@order.CategoryFeaturedProducts">
-    <b-form-row>
+<div class="product-grid col-12 px-0 order-@order.CategoryFeaturedProducts">
+    <div class="form-row">
         @foreach (var item in Model)
         {
-            <b-col xl="@order.CF_c_Xl" lg="@order.CF_c_Lg" md="@order.CF_c_Md" sm="@order.CF_c_Sm" cols="@order.CF_c_Col" class="categoryGrid mb-3">
-                <b-link href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title">
-                    <b-card no-body
-                            tag="article">
+            <div class="col-xl-@order.CF_c_Xl col-lg-@order.CF_c_Lg col-md-@order.CF_c_Md col-sm-@order.CF_c_Sm col-@order.CF_c_Col categoryGrid mb-3">
+                <a href="@Url.RouteUrl("Collection", new { SeName = item.SeName })" title="@item.PictureModel.Title">
+                    <article class="card">
                         <b-card-img-lazy src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"></b-card-img-lazy>
-                        <b-card-body>
+                        <div class="card-body">
                             <h4>@item.Name</h4>
-                        </b-card-body>
-                    </b-card>
-                </b-link>
-            </b-col>
+                        </div>
+                    </article>
+                </a>
+            </div>
             <div class="col-xl-@order.CF_p_Xl col-lg-@order.CF_p_Lg col-md-@order.CF_p_Md col-sm-@order.CF_p_Sm col-@order.CF_p_Col">
                 <div class="form-row flex-grid">
                     @foreach (var product in item.FeaturedProducts)
@@ -26,5 +25,5 @@
                 </div>
             </div>
         }
-    </b-form-row>
-</b-col>
+    </div>
+</div>

@@ -35,21 +35,21 @@
 }
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "productbox_before_content", additionalData = Model})
-<b-card no-body tag="article" v-bind:class="{ mobile: isMobile()}" class="product-box mb-2">
+<article v-bind:class="{ mobile: isMobile()}" class="card product-box mb-2">
     <div class="picture-container">
-        <b-link class="img-container" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })" title="@Model.DefaultPictureModel.Title">
+        <a class="img-container" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })" title="@Model.DefaultPictureModel.Title">
             <b-card-img-lazy alt="@Model.DefaultPictureModel.AlternateText" class="main-product-img" src="@Model.DefaultPictureModel.ImageUrl" title="@Model.DefaultPictureModel.Title"></b-card-img-lazy>
             @if (!string.IsNullOrEmpty(Model.SecondPictureModel.ImageUrl))
             {
                 <b-card-img-lazy class="hover-img" alt="@Model.SecondPictureModel.AlternateText" src="@Model.SecondPictureModel.ImageUrl"></b-card-img-lazy>
             }
-        </b-link>
+        </a>
         <a title="@Loc["Products.QuickView"]" class="btn btn-secondary quick-view-button" data-target="ModalQuickView" onclick="AxiosCart.quickview_product('@quickviewurl');return false;">
             <b-icon icon="search"></b-icon>
             <span>@Loc["Products.QuickView"]</span>
         </a>
     </div>
-    <b-card-body>
+    <div class="card-body">
         <h3 class="card-title mb-0">
             <a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">
                 @Model.Name
@@ -126,8 +126,8 @@
                 }
             </div>
         </div>
-    </b-card-body>
-    <template v-slot:footer>
+    </div>
+    <div class="card-footer">
         @if (Model.SpecificationAttributeModels.Any())
         {
             <div class="spec-container">
@@ -190,36 +190,36 @@
                                                 case AttributeControlType.RadioList:
                                                 case AttributeControlType.Checkboxes:
                                                 case AttributeControlType.ReadonlyCheckboxes:
-                                                    <b-button variant="light" size="sm" class="name" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                    <a class="btn btn-sm btn-light name" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
                                                         @Html.Raw(spec.Name)
-                                                    </b-button>
+                                                    </a>
                                                     break;
                                                 case AttributeControlType.ColorSquares:
                                                     if ((spec.PictureModel.FullSizeImageUrl) != null)
                                                     {
-                                                        <b-button variant="light" size="sm" class="name color-container" title="@spec.Name" @@click="productImage($event)" data-href="@spec.PictureModel.FullSizeImageUrl">
+                                                        <a class="btn btn-sm btn-light name color-container" title="@spec.Name" @@click="productImage($event)" data-href="@spec.PictureModel.FullSizeImageUrl">
                                                             <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
-                                                        </b-button>
+                                                        </a>
                                                     }
                                                     else
                                                     {
-                                                        <b-button variant="light" size="sm" class="name color-container" title="@spec.Name" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                        <a class="btn btn-sm btn-light name color-container" title="@spec.Name" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
                                                             <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
-                                                        </b-button>
+                                                        </a>
                                                     }
                                                     break;
                                                 case AttributeControlType.ImageSquares:
                                                     if ((spec.PictureModel.FullSizeImageUrl) != null)
                                                     {
-                                                        <b-button variant="light" size="sm" class="p-1 name image-container" v-on:click='productImage' data-href="@spec.PictureModel.FullSizeImageUrl">
+                                                        <a class="btn btn-sm btn-light p-1 name image-container" v-on:click='productImage' data-href="@spec.PictureModel.FullSizeImageUrl">
                                                             <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name" />
-                                                        </b-button>
+                                                        </a>
                                                     }
                                                     else
                                                     {
-                                                        <b-button variant="light" size="sm" class="p-1 name image-container" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
+                                                        <a class="btn btn-sm btn-light p-1 name image-container" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
                                                             <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name" />
-                                                        </b-button>
+                                                        </a>
                                                     }
                                                     break;
                                                 default:
@@ -243,13 +243,13 @@
             var qtyId = "addtocart_" + @Model.Id + "_EnteredQuantity";
             <input class="form-control input-group-addon catalog-quantity" type="number" min="1" id="@qtyId" name="@qtyId" value="1">
         }
-        <b-button-group>
+        <div class="btn-group">
             @if (!Model.ProductPrice.DisableWishlistButton && Model.ProductType == ProductType.SimpleProduct)
             {
-                <b-button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" onclick="AxiosCart.addproducttocart_catalog('@addtowishlistlink', '@Model.ShowQty', '@Model.Id');return false;">
+                <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" onclick="AxiosCart.addproducttocart_catalog('@addtowishlistlink', '@Model.ShowQty', '@Model.Id');return false;">
                     <b-icon icon="heart"></b-icon>
                     <span class="sr-only">AddToWishlist</span>
-                </b-button>
+                </button>
             }
             @if (!Model.ProductPrice.DisableBuyButton)
             {
@@ -262,11 +262,11 @@
                 {
                     addToCartText = Loc["ShoppingCart.PreOrder"];
                 }
-                <b-button variant="info" class="justify-content-center w-100" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', '@Model.ShowQty', '@Model.Id');return false;">
+                <button class="btn btn-info justify-content-center w-100" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', '@Model.ShowQty', '@Model.Id');return false;">
                     <b-icon icon="cart2" class="mx-auto d-sm-none d-block"></b-icon>
                     <span class="add-cart-text d-sm-block d-none">@(addToCartText)</span>
                     <span class="sr-only">AddToCart</span>
-                </b-button>
+                </button>
             }
             else
             {
@@ -274,20 +274,20 @@
                 {
 
                     var addToCartText = Loc["ShoppingCart.Bids"];
-                    <b-button variant="info" class="justify-content-center w-100" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', 'false', '@Model.Id');return false;">
+                    <button class="btn btn-info justify-content-center w-100" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', 'false', '@Model.Id');return false;">
                         <b-icon icon="hammer" class="mx-auto d-sm-none d-block"></b-icon>
                         <span class="add-cart-text d-sm-block d-none">@(addToCartText)</span>
                         <span class="sr-only">AddToCart</span>
-                    </b-button>
+                    </button>
                 }
             }
             @if (!Model.ProductPrice.DisableAddToCompareListButton && Model.ProductType == ProductType.SimpleProduct)
             {
-                <b-button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-secondary" onclick="AxiosCart.addproducttocomparelist('@addtocomparelink');return false;">
+                <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-secondary" onclick="AxiosCart.addproducttocomparelist('@addtocomparelink');return false;">
                     <span class="sr-only">AddToCompareList</span>
                     <b-icon icon="shuffle"></b-icon>
-                </b-button>
+                </button>
             }
-        </b-button-group>
-    </template>
-</b-card> 
+        </div>
+    </div>
+</article> 

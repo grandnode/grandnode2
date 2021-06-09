@@ -33,9 +33,9 @@
                 else
                 {
                     <div class="product-no-reviews order-3">
-                        <b-button variant="outline-info" size="sm" href="@Url.RouteUrl("ProductReviews", new { productId = Model.ProductId })">
+                        <a class="btn btn-sm btn-outline-info" href="@Url.RouteUrl("ProductReviews", new { productId = Model.ProductId })">
                                 @Loc["Reviews.Overview.First"]
-                        </b-button>
+                        </a>
                     </div>
                 }
             </div>

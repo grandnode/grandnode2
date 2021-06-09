@@ -13,52 +13,52 @@
 <div>
     @if (isCustomerImpersonated)
     {
-        <b-button variant="outline-secondary" class="w-100 mb-2" href="@Url.RouteUrl("Logout")" title="@Loc["Account.ImpersonatedAs.Finish.Hint"]">
+        <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.RouteUrl("Logout")" title="@Loc["Account.ImpersonatedAs.Finish.Hint"]">
             <b-icon icon="door-closed"></b-icon>
             <span class="text text-uppercase ml-3">@string.Format(Loc["Account.ImpersonatedAs"], workContext.CurrentCustomer.Email ?? "GUEST")</span>
-        </b-button>
+        </a>
     }
     @if (isAuthenticated)
     {
         @if (isAdminAccess)
         {
-            <b-button variant="outline-secondary" class="w-100 mb-2" href="@Url.Content("~/Admin")">
+            <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.Content("~/Admin")">
                 <b-icon icon="gear"></b-icon>
                 <span class="text text-uppercase ml-3">@Loc["admin"]</span>
-            </b-button>
+            </a>
         }
         @if (!string.IsNullOrEmpty(pagebuilder.EditPageUrl))
         {
-            <b-button target="_blank" variant="outline-secondary" class="w-100 mb-2" href="@pagebuilder.EditPageUrl">
+            <a target="_blank"  class="btn btn-outline-secondary w-100 mb-2" href="@pagebuilder.EditPageUrl">
                 <b-icon icon="wrench"></b-icon>
                 <span class="text text-uppercase ml-3">@Loc["edit"]</span>
-            </b-button>
+            </a>
         }
-        <b-button variant="outline-secondary" class="w-100 mb-2" href="@Url.RouteUrl("CustomerInfo")">
+        <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.RouteUrl("CustomerInfo")">
             <b-icon icon="person"></b-icon>
             <span class="text text-uppercase ml-3">@Loc["Account.MyAccount"]</span>
-        </b-button>
-        <b-button variant="outline-secondary" class="w-100 mb-2" href="@Url.RouteUrl("CustomerOrders")">
+        </a>
+        <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.RouteUrl("CustomerOrders")">
             <b-icon icon="handbag"></b-icon>
             <span class="text text-uppercase ml-3">@Loc["Account.CustomerOrders"]</span>
-        </b-button>
-        <b-button variant="outline-secondary" class="w-100 mb-2" href="@Url.RouteUrl("Logout")">
+        </a>
+        <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.RouteUrl("Logout")">
             <b-icon icon="lock"></b-icon>
             <span class="text text-uppercase ml-3">@Loc["Account.Logout"]</span>
-        </b-button>
+        </a>
     }
     else
     {
         <span class="d-flex h5 justify-content-center mb-3 w-100">@Loc["Account.Login.ReturningCustomer"] / @Loc["SideBar.NewCustomer"]</span>
         <div class="d-inline-flex flex-sm-nowrap flex-wrap w-100">
-            <b-button variant="secondary" class="w-100 mx-1 mb-2" href="@Url.RouteUrl("Login")">
+            <a class="btn btn-secondary w-100 mx-1 mb-2" href="@Url.RouteUrl("Login")">
                 <b-icon icon="shield-lock"></b-icon>
                 <span class="text text-uppercase ml-sm-3 ml-2">@Loc["Account.Login"]</span>
-            </b-button>
-            <b-button variant="secondary" class="w-100 mx-1 mb-2" href="@registerUrl">
+            </a>
+            <a class="btn btn-secondary w-100 mx-1 mb-2" href="@registerUrl">
                 <b-icon icon="person"></b-icon>
                 <span class="text text-uppercase ml-sm-3 ml-2">@Loc["Account.Register"]</span>
-            </b-button>
+            </a>
         </div>
         <div class="text-center generalMarginSupporter">
             @Loc["Account.Login.NewCustomerText"]

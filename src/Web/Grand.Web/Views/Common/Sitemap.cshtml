@@ -15,7 +15,7 @@
 <div class="d-flex justify-content-between row">
     @if (Model.Categories.Any())
     {
-        <b-col lg="4" md="6">
+        <div class="col-lg-4 col-md-6">
             <h2 class="generalTitle">@Loc["Sitemap.Categories"]</h2>
             <div class="list-group">
                 @foreach (var category in Model.Categories)
@@ -23,10 +23,10 @@
                     <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Category", new { SeName = category.SeName })">@category.Name</a>
                 }
             </div>
-        </b-col>
+        </div>
     }
     @await Component.InvokeAsync("Widget", new { widgetZone = "sitemap_before" })
-    <b-col lg="4" md="6">
+    <div class="col-lg-4 col-md-6">
         <h2 class="generalTitle">@Loc["Sitemap.General"]</h2>
         <div class="list-group">
             <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("HomePage")">@Loc["HomePage"]</a>
@@ -53,10 +53,10 @@
                 }
             }
         </div>
-    </b-col>
+    </div>
     @if (Model.BlogPosts.Any())
     {
-        <b-col lg="4" md="6">
+        <div class="col-lg-4 col-md-6">
             <h2 class="generalTitle">@Loc["Sitemap.BlogPosts"]</h2>
             <div class="list-group">
                 @foreach (var item in Model.BlogPosts)
@@ -64,11 +64,11 @@
                     <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})">@item.Title</a>
                 }
             </div>
-        </b-col>
+        </div>
     }
     @if (Model.KnowledgebaseArticles.Any())
     {
-        <b-col lg="4" md="6">
+        <div class="col-lg-4 col-md-6">
             <h2 class="generalTitle">@Loc["Sitemap.KnowledgebaseArticles"]</h2>
             <div class="list-group">
                 @foreach (var item in Model.KnowledgebaseArticles)
@@ -76,11 +76,11 @@
                     <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("KnowledgebaseArticle", new {SeName = item.SeName})">@item.Name</a>
                 }
             </div>
-        </b-col>
+        </div>
     }
     @if (Model.Brands.Any())
     {
-        <b-col lg="4" md="6">
+        <div class="col-lg-4 col-md-6">
             <h2 class="generalTitle">@Loc["Sitemap.Brands"]</h2>
             <div class="list-group">
                 @foreach (var brand in Model.Brands)
@@ -88,11 +88,11 @@
                     <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Brand", new { SeName = brand.SeName })">@brand.Name</a>
                 }
             </div>
-        </b-col>
+        </div>
     }
     @if (Model.Products.Any())
     {
-        <b-col cols="12">
+        <div class="col-12">
             <h2 class="generalTitle">@Loc["Sitemap.Products"]</h2>
             <div class="list-group sitemap-products-group">
                 @foreach (var product in Model.Products)
@@ -100,7 +100,7 @@
                     <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Product", new { SeName = product.SeName })">@product.Name</a>
                 }
             </div>
-        </b-col>
+        </div>
     }
     @await Component.InvokeAsync("Widget", new { widgetZone = "sitemap_after" })
 </div>

@@ -1,8 +1,8 @@
 ﻿@model IList<PrivacyPreferenceModel>
 <b-modal ref="ModalPrivacyPreference" :dark-theme="darkMode" title="@Loc["PrivacyPreference.Center"]" id="ModalPrivacyPreference" centered hide-footer>
-    <b-alert show>
+    <div class="alert">
         @Loc["PrivacyPreference.Description"]
-    </b-alert>
+    </div>
     @if (Model.Any())
     {
         <form id="frmPrivacyPreference">

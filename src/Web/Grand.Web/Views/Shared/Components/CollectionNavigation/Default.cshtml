@@ -20,7 +20,7 @@
         @if (Model.TotalCollections > Model.Collections.Count)
         {
             <div class="view-all mb-1">
-                <b-button size="sm" variant="outline-info" href="@Url.RouteUrl("CollectionList")">@Loc["Collections.ViewAll"]</b-button>
+                <a class="btn btn-sm btn-outline-info" href="@Url.RouteUrl("CollectionList")">@Loc["Collections.ViewAll"]</a>
             </div>
         }
     </div>

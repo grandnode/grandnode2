@@ -14,18 +14,17 @@
                             @Loc["Newsletter.Desc"]
                         </div>
                     </div>
-                    <b-col lg="5" cols="12" class="px-lg-3 pr-lg-0 px-0 mt-lg-0 newsletter-inputs d-flex flex-column justify-content-center align-items-center">
-                        <b-input-group>
-                            <b-form-input id="newsletter-email" class="newsletter-email" 
-                                          placeholder="@Loc["Newsletter.Email.Placeholder"]" aria-label="@Loc["Newsletter.Email.Placeholder"]">
-                            </b-form-input>
+                    <div class="col-lg-5 col-12 px-lg-3 pr-lg-0 px-0 mt-lg-0 newsletter-inputs d-flex flex-column justify-content-center align-items-center">
+                        <div class="input-group" role="group">
+                            <input id="newsletter-email" class="input-group-text form-control newsletter-email" 
+                                          placeholder="@Loc["Newsletter.Email.Placeholder"]" aria-label="@Loc["Newsletter.Email.Placeholder"]"/>
                             <label for="newsletter-email" class="sr-only">newsletter</label>
-                            <b-input-group-append>
-                                <b-button variant="secondary" class="newsletter-email-button" id="newsletter-subscribe-button">
+                            <div class="input-group-append">
+                                <button class="btn btn-secondary newsletter-email-button" id="newsletter-subscribe-button">
                                     <b-icon icon="envelope"></b-icon>
-                                </b-button>
-                            </b-input-group-append>
-                        </b-input-group>
+                                </button>
+                            </div>
+                        </div>
 
                         @if (customerSettings.NewsletterBlockAllowToUnsubscribe)
                         {
@@ -50,7 +49,7 @@
                             <div class="alert alert-info">
                             </div>
                         </div>
-                    </b-col>
+                    </div>
                 </div>
                 <input type="hidden" id="newsletterbox" data-href="@(Url.RouteUrl("SubscribeNewsletter"))" data-allowtounsubscribe=@customerSettings.NewsletterBlockAllowToUnsubscribe />
             </div>

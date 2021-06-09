@@ -18,22 +18,22 @@
             <link href="/theme/css/product/product.css" rel="stylesheet" type="text/css">
         }
     }
-    <b-button class="modal-close" block @@click="$bvModal.hide('ModalQuickView')"><b-icon icon="x"></b-icon></b-button>
+    <button class="modal-close" @@click="$bvModal.hide('ModalQuickView')"><b-icon icon="x"></b-icon></button>
     <div class="page product-details-page">
         <vc:widget widget-zone="productdetails_top" additional-data="@Model.Id"></vc:widget>
         <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
             <div itemscope itemtype="http://schema.org/Product" data-productid="@Model.Id">
-                <b-container class="position-relative">
-                    <b-row>
+                <div class="container position-relative">
+                    <div class="row">
                         <vc:widget widget-zone="productdetails_before_pictures" additional-data="@Model.Id"></vc:widget>
                         <!--product pictures-->
                         <partial name="_PicturesQuickView" model="Model" />
                         <vc:widget widget-zone="productdetails_after_pictures" additional-data="@Model.Id"></vc:widget>
-                        <b-col xl="7" lg="8" md="12" cols="12" class="overview pl-md-3 pl-0 pr-0">
+                        <div class="col-xl-7 col-lg-8 col-md-12 col-12 overview pl-md-3 pl-0 pr-0">
                             @if (!string.IsNullOrEmpty(Model.Flag))
                             {
                                 <div class="product-label">
-                                    <b-badge variant="info">@Model.Flag</b-badge>
+                                    <div class="badge badge-info">@Model.Flag</div>
                                 </div>
                             }
                             <partial name="_Unavailable" model="Model" />
@@ -140,7 +140,7 @@
                                         dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", Model.Id);
                                     }
                                     <partial name="_AddToCart" model="Model.AddToCart" view-data="dataDictAddToCart" />
-                                    <b-btn-group class="mt-2 mb-3 w-100">
+                                    <div class="btn-group mt-2 mb-3 w-100">
                                         @if (Model.ProductType == ProductType.SimpleProduct || Model.ProductType == ProductType.BundledProduct)
                                         {
                                             <partial name="_AddToWishlist" model="Model.AddToCart" view-data="dataDictAddToWishlist" />
@@ -154,7 +154,7 @@
                                         {
                                             <partial name="_ProductAskQuestionButton" model="Model" />
                                         }
-                                    </b-btn-group>
+                                    </div>
                                 </div>
                             </div>
                             @if (!String.IsNullOrWhiteSpace(Model.PageShareCode))
@@ -164,11 +164,11 @@
                                 </div>
                             }
                             <vc:widget widget-zone="productdetails_overview_bottom" additional-data="@Model.Id"></vc:widget>
-                        </b-col>
-                    </b-row>
-                </b-container>
+                        </div>
+                    </div>
+                </div>
 
-                <b-col cols="12" class="px-0 my-3">
+                <div class="col-12 px-0 my-3">
                     <div>
                         <b-tabs content-class="mt-3" align="center">
                             <b-tab title="@Loc["Products.Description"]" active>
@@ -194,7 +194,7 @@
                             }
                         </b-tabs>
                     </div>
-                </b-col>
+                </div>
                 <vc:products-also-purchased product-id="@Model.Id" product-thumb-picture-size="null"></vc:products-also-purchased>
                 <vc:related-products product-id="@Model.Id" product-thumb-picture-size="null"></vc:related-products>
                 <vc:similar-products product-id="@Model.Id" product-thumb-picture-size="null"></vc:similar-products>

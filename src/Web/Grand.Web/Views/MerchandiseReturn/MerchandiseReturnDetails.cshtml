@@ -13,7 +13,7 @@
 }
 <div class="page account-page px-3">
     <h1 class="h2 generalTitle">@string.Format(Loc["Account.CustomerMerchandiseReturns.Title"], Model.ReturnNumber, Model.MerchandiseReturnStatus)</h1>
-    <b-row class="flex-column">
+    <div class="row flex-column">
         <div class="return-product-container">
             <div class="details alert alert-info date">
                 <label>@Loc["Account.CustomerMerchandiseReturns.Date"]</label>
@@ -85,7 +85,11 @@
             {
                 <div class="comments">
                     <label class="col-form-label">@Loc["Account.CustomerMerchandiseReturns.Comments"] </label>
-                    <b-card>@Model.Comments</b-card>
+                    <div class="card">
+                        <div class="card-body">
+                            @Model.Comments
+                        </div>
+                    </div>
                 </div>
             }
 
@@ -105,8 +109,8 @@
 
             @if (Model.ShowPickupAddress)
             {
-                <b-card class="mt-3">
-                    <b-card-text>
+                <div class="card mt-3">
+                    <div class="card-body">
                         <ul class="billing-info px-0">
                             <li class="title">
                                 <h5 class="generalTitle">@Loc["Account.CustomerMerchandiseReturns.PickupAddress"]</h5>
@@ -188,8 +192,8 @@
                                 </li>
                             }
                         </ul>
-                    </b-card-text>
-                </b-card>
+                    </div>
+                </div>
             }
 
             @if (Model.MerchandiseReturnNotes.Any())
@@ -238,5 +242,5 @@
                 </div>
             }
         </div>
-    </b-row>
+    </div>
 </div>

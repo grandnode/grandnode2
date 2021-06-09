@@ -24,23 +24,23 @@
         <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
             <div itemscope itemtype="http://schema.org/Product" data-productid="@Model.Id">
                 <div class="product-essential">
-                    <b-container>
-                        <b-row>
+                    <div class="container">
+                        <div class="row">
                             @if (!string.IsNullOrEmpty(Model.Flag))
                             {
                                 <div class="product-label">
-                                    <b-badge variant="info">@Model.Flag</b-badge>
+                                    <div class="badge badge-info">@Model.Flag</div>
                                 </div>
                             }
                             <vc:widget widget-zone="productdetails_before_pictures" additional-data="@Model.Id"></vc:widget>
                             <!--product pictures-->
                             <partial name="_PicturesQuickView" model="Model" />
                             <vc:widget widget-zone="productdetails_after_pictures" additional-data="@Model.Id"></vc:widget>
-                            <b-col xl="5" lg="6" md="7" cols="12" class="overview px-md-3 px-0">
+                            <div class="col-xl-5 col-lg-6 col-md-7 col-12 overview px-md-3 px-0">
                                 @if (!string.IsNullOrEmpty(Model.Flag))
                                 {
                                     <div class="product-label">
-                                        <b-badge variant="info">@Model.Flag</b-badge>
+                                        <div class="bandge badge-info">@Model.Flag</div>
                                     </div>
                                 }
                                 <partial name="_Unavailable" model="Model" />
@@ -72,18 +72,18 @@
                                     <partial name="_Warehouses" model="Model" />
                                 }
                                 <!--compare, email a friend-->
-                                <b-btn-group class="mt-2 mb-3 w-100">
+                                <div class="btn-group mt-2 mb-3 w-100">
                                     @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_inside_overview_buttons_before", additionalData = Model.Id })
                                     <partial name="_ProductsComparison" model="Model" />
                                     <partial name="_SendFriend" model="Model" />
                                     <partial name="_ProductAskQuestionButton" model="Model" />
                                     @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_inside_overview_buttons_after", additionalData = Model.Id })
-                                </b-btn-group>
+                                </div>
                                 <partial name="_ShareButton" model="Model" />
                                 @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_overview_bottom", additionalData = Model.Id })
-                            </b-col>
-                        </b-row>
-                    </b-container>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <b-col cols="12" class="px-0 my-3">
