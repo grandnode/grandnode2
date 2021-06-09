@@ -24,7 +24,7 @@
                 </li>
             </ul>
             <template v-if="vmorder.ShippingMethodError !== undefined">
-                <b-alert show variant="info">{{vmorder.ShippingMethodError}}</b-alert>
+                <div class="alert alert-info">{{vmorder.ShippingMethodError}}</div>
             </template>
             <template v-if="vmorder.shippingBussy">
                 <div style="height: 65px" class="d-flex justify-content-center align-items-center w-100">
