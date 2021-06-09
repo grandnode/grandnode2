@@ -551,11 +551,15 @@ namespace Grand.Web.Admin.Services
                 }
             }
 
-            //profit (hide for vendors)
+            //profit (not for vendors)
             if (_workContext.CurrentVendor == null)
             {
-                var profit = await _orderReportService.ProfitReport(orderId: order.Id);
-                model.Profit = await _priceFormatter.FormatPrice(profit, order.PrimaryCurrencyCode, false, _workContext.WorkingLanguage);
+                var productCost = order.OrderItems.Sum(orderItem => orderItem.OriginalProductCost * orderItem.Quantity);
+                if (order.CurrencyRate > 0)
+                {
+                    var profit = Convert.ToDouble((order.OrderTotal / order.CurrencyRate) - (order.OrderShippingExclTax / order.CurrencyRate) - (order.OrderTax / order.CurrencyRate) - productCost);
+                    model.Profit = await _priceFormatter.FormatPrice(profit, order.PrimaryCurrencyCode, false, _workContext.WorkingLanguage);
+                }
             }
 
             if (order.PrimaryCurrencyCode != order.CustomerCurrencyCode)
