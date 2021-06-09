@@ -250,15 +250,6 @@
                             }
                         }
                     },
-                    requestEnd: function (e) {
-                        if (e.type == "read") {
-                            var response = e.response;
-                            if (response) {
-                                //store extra data
-                                reportAggregates = e.response["ExtraData"];
-                            }
-                        }
-                    },
                     error: function (e) {
                         display_kendoui_grid_error(e);
                         // Cancel the changes
@@ -362,12 +353,7 @@
                         width: 150,
                         template: '#=OrderTotal#',
                         headerAttributes: { style: "text-align:right" },
-                        attributes: { style: "text-align:right" },
-                        footerTemplate: '<div><strong>@Loc["Admin.Orders.Report.Summary"]:</strong></div>' +
-                                                '<div>@Loc["Admin.Orders.Report.Profit"]: <span class=\"pull-right\" id=\"aggregator-profit-block\"></span></div>' +
-                                                '<div>@Loc["Admin.Orders.Report.Shipping"]: <span class=\"pull-right\" id=\"aggregator-shipping-block\"></span></div>' +
-                                                '<div>@Loc["Admin.Orders.Report.Tax"]: <span class=\"pull-right\" id=\"aggregator-tax-block\"></span></div>' +
-                                                '<div>@Loc["Admin.Orders.Report.Total"]: <span class=\"pull-right\" id=\"aggregator-total-block\"></span></div>'
+                        attributes: { style: "text-align:right" },                        
                     },</text>
                     }
                 ]
@@ -378,7 +364,6 @@
     <script>
 
         var selectedIds = [];
-        var reportAggregates = "";
 
         $(document).ready(function () {
 
@@ -529,15 +514,6 @@
 
             updateMasterCheckbox();
 
-            //update order totals summary
-            if (reportAggregates != "") {
-                for (var key in reportAggregates) {
-                    $('#aggregator-profit-block').text(reportAggregates['aggregatorprofit']);
-                    $('#aggregator-shipping-block').text(reportAggregates['aggregatorshipping']);
-                    $('#aggregator-tax-block').text(reportAggregates['aggregatortax']);
-                    $('#aggregator-total-block').text(reportAggregates['aggregatortotal']);
-                }
-            }
         }
 
         function updateMasterCheckbox() {
@@ -548,7 +524,6 @@
     </script>
 </form>
 <form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="ExportXmlSelected" method="post" id="export-xml-selected-form">
-    
     <input type="hidden" id="selectedIds" name="selectedIds" value="" />
 </form>
 

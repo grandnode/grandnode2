@@ -143,12 +143,11 @@ namespace Grand.Web.Admin.Controllers
                 model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
             }
 
-            var (orderModels, aggreratorModel, totalCount) = await _orderViewModelService.PrepareOrderModel(model, command.Page, command.PageSize);
+            var (orderModels, totalCount) = await _orderViewModelService.PrepareOrderModel(model, command.Page, command.PageSize);
 
             var gridModel = new DataSourceResult
             {
                 Data = orderModels.ToList(),
-                ExtraData = aggreratorModel,
                 Total = totalCount
             };
             return Json(gridModel);

@@ -280,7 +280,7 @@ namespace Grand.Web.Admin.Services
 
             return model;
         }
-        public virtual async Task<(IEnumerable<OrderModel> orderModels, OrderAggreratorModel aggreratorModel, int totalCount)> PrepareOrderModel(OrderListModel model, int pageIndex, int pageSize)
+        public virtual async Task<(IEnumerable<OrderModel> orderModels, int totalCount)> PrepareOrderModel(OrderListModel model, int pageIndex, int pageSize)
         {
             DateTime? startDateValue = (model.StartDate == null) ? null
                             : (DateTime?)_dateTimeService.ConvertToUtcTime(model.StartDate.Value, _dateTimeService.CurrentTimeZone);
@@ -323,52 +323,11 @@ namespace Grand.Web.Admin.Services
                 pageSize: pageSize,
                 orderTagId: model.OrderTag);
 
-            //summary report
-            //currently we do not support productId and warehouseId parameters for this report
-            var reportSummary = await _orderReportService.GetOrderAverageReportLine(
-                storeId: model.StoreId,
-                customerId: model.CustomerId,
-                vendorId: model.VendorId,
-                salesEmployeeId: salesEmployeeId,
-                orderId: "",
-                paymentMethodSystemName: model.PaymentMethodSystemName,
-                os: orderStatus,
-                ps: paymentStatus,
-                ss: shippingStatus,
-                startTimeUtc: startDateValue,
-                endTimeUtc: endDateValue,
-                billingEmail: model.BillingEmail,
-                billingLastName: model.BillingLastName,
-                billingCountryId: model.BillingCountryId,
-                tagid: model.OrderTag
-                );
-            var profit = await _orderReportService.ProfitReport(
-                storeId: model.StoreId,
-                vendorId: model.VendorId,
-                salesEmployeeId: salesEmployeeId,
-                paymentMethodSystemName: model.PaymentMethodSystemName,
-                os: orderStatus,
-                ps: paymentStatus,
-                ss: shippingStatus,
-                startTimeUtc: startDateValue,
-                endTimeUtc: endDateValue,
-                billingEmail: model.BillingEmail,
-                billingLastName: model.BillingLastName,
-                billingCountryId: model.BillingCountryId,
-                tagid: model.OrderTag
-                );
-
+           
             var primaryStoreCurrency = await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
             if (primaryStoreCurrency == null)
                 throw new Exception("Cannot load primary store currency");
 
-            var aggregate = new OrderAggreratorModel
-            {
-                aggregatorprofit = _priceFormatter.FormatPrice(profit, false),
-                aggregatorshipping = _priceFormatter.FormatShippingPrice(reportSummary.SumShippingExclTax, primaryStoreCurrency, _workContext.WorkingLanguage, false),
-                aggregatortax = _priceFormatter.FormatPrice(reportSummary.SumTax, false),
-                aggregatortotal = _priceFormatter.FormatPrice(reportSummary.SumOrders, false)
-            };
             var status = await _orderStatusService.GetAll();
             var items = new List<OrderModel>();
             foreach (var x in orders)
@@ -402,7 +361,7 @@ namespace Grand.Web.Admin.Services
                     CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                 });
             }
-            return (items, aggregate, orders.TotalCount);
+            return (items, orders.TotalCount);
         }
 
 

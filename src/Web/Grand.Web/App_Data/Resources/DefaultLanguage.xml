@@ -9475,21 +9475,6 @@
   <Resource Name="Admin.Orders.ProductTags.Fields.OrderCount">
     <Value>Tagged orders</Value>
   </Resource>
-  <Resource Name="Admin.Orders.Report.Profit">
-    <Value>Profit</Value>
-  </Resource>
-  <Resource Name="Admin.Orders.Report.Shipping">
-    <Value>Shipping</Value>
-  </Resource>
-  <Resource Name="Admin.Orders.Report.Summary">
-    <Value>Summary</Value>
-  </Resource>
-  <Resource Name="Admin.Orders.Report.Tax">
-    <Value>Tax</Value>
-  </Resource>
-  <Resource Name="Admin.Orders.Report.Total">
-    <Value>Total</Value>
-  </Resource>
   <Resource Name="Admin.Orders.Shipments">
     <Value>Shipments</Value>
   </Resource>
