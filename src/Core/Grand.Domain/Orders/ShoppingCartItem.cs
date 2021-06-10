@@ -109,5 +109,9 @@ namespace Grand.Domain.Orders
         /// </summary>
         public string Duration { get; set; }
 
+        /// <summary>
+        /// Gets or sets owner cid
+        /// </summary>
+        public string cId { get; set; }
     }
 }

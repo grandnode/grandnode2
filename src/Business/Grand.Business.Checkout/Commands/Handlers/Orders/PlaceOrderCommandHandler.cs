@@ -728,6 +728,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 RentalEndDateUtc = sc.RentalEndDateUtc,
                 CreatedOnUtc = DateTime.UtcNow,
                 Commission = commision,
+                cId = sc.cId
             };
 
             string reservationInfo = "";

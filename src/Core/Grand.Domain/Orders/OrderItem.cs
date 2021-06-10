@@ -176,5 +176,9 @@ namespace Grand.Domain.Orders
         /// </summary>
         public double Commission { get; set; }
 
+        /// <summary>
+        /// Gets or sets owner cid
+        /// </summary>
+        public string cId { get; set; }
     }
 }
