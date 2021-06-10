@@ -28,7 +28,7 @@
             projectId: this.ProjectId,
             storageBucket: this.StorageBucket,
             messagingSenderId: this.SenderId,
-            AppId: this.appId
+            appId: this.AppId
         };
 
         firebase.initializeApp(config);

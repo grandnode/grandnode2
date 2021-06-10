@@ -3,12 +3,12 @@ importScripts('https://www.gstatic.com/firebasejs/7.21.0/firebase-messaging.js')
 
 var config = {
 apiKey: "",
+appId: "",
 authDomain: "",
 databaseURL: "",
 projectId: "",
 storageBucket: "",
 messagingSenderId: "",
-AppId: "",
 };
 
 firebase.initializeApp(config);
