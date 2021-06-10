@@ -471,7 +471,7 @@ namespace Grand.Business.Checkout.Services.Orders
 
             foreach (var sci in cart)
                 if (sci.IsShipEnabled && !sci.IsFreeShipping)
-                    additionalShippingCharge += sci.AdditionalShippingCharge;
+                    additionalShippingCharge += _shippingSettings.AdditionalShippingChargeByQty ? (sci.AdditionalShippingChargeProduct * sci.Quantity) : sci.AdditionalShippingChargeProduct;
 
             return additionalShippingCharge;
         }

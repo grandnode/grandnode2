@@ -1,11 +1,11 @@
 ﻿@model Grand.Web.Models.PushNotifications.PublicInfoModel
 @inject IPageHeadBuilder pagebuilder
 
-<script asp-location="Footer" asp-src="https://www.gstatic.com/firebasejs/7.21.0/firebase.js"></script>
+<script asp-location="Footer" asp-src="https://www.gstatic.com/firebasejs/8.6.5/firebase.js"></script>
 <script asp-location="Head" asp-src="/theme/script/vue.push.notifications.js"></script>
 
 <script asp-location="Footer">
-        PushNotifications.init("@Model.PublicApiKey", "@Model.SenderId", "@Model.ProjectId", "@Model.AuthDomain", "@Model.StorageBucket", "@Model.AppId",
-            "@Model.DatabaseUrl", "@Url.Action("ProcessRegistration", "PushNotifications")");
+        PushNotifications.init("@Model.PublicApiKey", "@Model.SenderId", "@Model.ProjectId", "@Model.AuthDomain", "@Model.StorageBucket",
+            "@Model.DatabaseUrl", "@Url.Action("ProcessRegistration", "PushNotifications")", "@Model.AppId");
         PushNotifications.process();
 </script>

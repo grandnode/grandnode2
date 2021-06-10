@@ -4908,6 +4908,9 @@
   <Resource Name="Admin.Configuration.Shipping.Settings">
     <Value>Shipping settings</Value>
   </Resource>
+  <Resource Name="Admin.Configuration.Shipping.Settings.AdditionalShippingChargeByQty">
+    <Value>Additional shipping charge on the product - multiply by the quantity</Value>
+  </Resource>
   <Resource Name="Admin.Configuration.Shipping.Settings.AllowPickUpInStore">
     <Value>"Pick Up in Store" enabled</Value>
   </Resource>

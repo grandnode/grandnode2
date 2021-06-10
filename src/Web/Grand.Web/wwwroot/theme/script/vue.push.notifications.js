@@ -28,7 +28,7 @@
             projectId: this.ProjectId,
             storageBucket: this.StorageBucket,
             messagingSenderId: this.SenderId,
-            AppId: this.appId
+            appId: this.AppId
         };
 
         firebase.initializeApp(config);
@@ -38,12 +38,12 @@
 
         messaging.requestPermission()
             .then(function () {
-                var success = false;
-                var value = "";
+                let success = false;
+                let value = "";
 
                 messaging.getToken()
                     .then(function (currentToken) {
-                        if (currentToken) {
+                        if (currentToken != null) {
                             success = true;
                             value = currentToken;
                         } else {
@@ -56,43 +56,32 @@
                         value = 'An error occurred while retrieving token. ' + err;
                     })
                     .finally(function () {
-                        
-                        var postData = {
-                            success: success,
-                            value: value,
-                        };
 
-                        addAntiForgeryToken(postData);
+                        var bodyFormData = new FormData();
+                        bodyFormData.append('success', success);
+                        bodyFormData.append('value', value);
 
                         axios({
                             url: url,
-                            data: postData,
-                            method: 'post',
-                            headers: {
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            }
+                            data: bodyFormData,
+                            method: 'post'
                         })
                     });
             })
             .catch(function (err) {
-                var postData = {
-                    success: false,
-                    value: "Permission denied",
-                };
-                addAntiForgeryToken(postData);
+                var bodyFormData = new FormData();
+                bodyFormData.append('success', success);
+                bodyFormData.append('value', value);
                 axios({
                     url: url,
-                    data: postData,
-                    method: 'post',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
+                    data: bodyFormData,
+                    method: 'post'
                 })
             });
 
         messaging.onMessage(function (payload) {
+            console.log(payload);
+
             const notificationTitle = payload.notification.title;
             const notificationOptions = {
                 body: payload.notification.body,

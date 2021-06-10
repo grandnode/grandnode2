@@ -121,7 +121,8 @@ $(document).ready(function() {
 
 @if (!(Model.Allowed == 0 && Model.Denied == 0))
 {
-    <script src="/_content/Grand.Web.Admin/administration/chart.min.js" type="text/javascript"></script>
+    <script asp-src="/_content/Grand.Web.Admin/administration/chart.min.js"></script>
+
     <script>
     $(document).ready(function () {
         var config = {
