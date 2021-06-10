@@ -86,7 +86,7 @@
                     </div>
                 </div>
 
-                <b-col cols="12" class="px-0 my-3">
+                <div class="col-12 px-0 my-3">
                     <div>
                         <b-tabs content-class="mt-3" align="center">
                             <b-tab title="@Loc["Products.Description"]" active>
@@ -112,83 +112,83 @@
                             }
                         </b-tabs>
                     </div>
-                </b-col>
+                </div>
                 @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_before_collateral", additionalData = Model.Id })
                 <div class="product-collateral">
                     <div>
                         <!--associated products-->
                         @foreach (var variant in Model.AssociatedProducts)
                         {
-                            <b-card no-body class="overflow-hidden associatedItem mb-3">
-                                <b-row no-gutters>
-                                    <b-col lg="3" md="4">
-                                        <b-card-img id="main-product-img-@variant.Id" alt="@variant.DefaultPictureModel.AlternateText" src="@variant.DefaultPictureModel.ImageUrl" class="rounded-0"></b-card-img>
-                                    </b-col>
-                                    <b-col lg="9" md="8">
-                                        <b-card-body class="overview" title="@variant.Name">
-                                            <b-card-text>
+                            <div class="card overflow-hidden associatedItem mb-3">
+                                <div class="row" no-gutters>
+                                    <div class="col-lg-3 col-md-4">
+                                        <img id="main-product-img-@variant.Id" alt="@variant.DefaultPictureModel.AlternateText" src="@variant.DefaultPictureModel.ImageUrl" class="rounded-0 img-fluid">
+                                    </div>
+                                    <div class="col-lg-9 col-md-8">
+                                        <div class="card-body overview" title="@variant.Name">
+                                            <div class="short-description mb-3">
                                                 @Html.Raw(variant.ShortDescription)
-                                            </b-card-text>
-                                            <!--availability-->
-                                            <partial name="_Availability" model="variant" />
-                                            <!--Code products - SKU, MAN, GTIN, Vendor info -->
-                                            <partial name="_Codes" model="variant" />
-                                            <!--delivery-->
-                                            @if ((variant.FreeShippingNotificationEnabled && Model.IsFreeShipping) || !string.IsNullOrWhiteSpace(variant.DeliveryDate)
-                                               || variant.NotReturnable || variant.AdditionalShippingCharge > 0)
-                                            {
-                                                <partial name="_DeliveryInfo" model="variant" />
-                                            }
-                                            <!--sample download-->
-                                            @if (variant.HasSampleDownload)
-                                            {
-                                                <partial name="_DownloadSample" model="variant" />
-                                            }
-                                            <!--attributes-->
-                                            @{
-                                                if (variant.ProductAttributes.Any())
-                                                {
-                                                    var dataDictAttributes = new ViewDataDictionary(ViewData);
-                                                    dataDictAttributes.TemplateInfo.HtmlFieldPrefix = string.Format("attributes_{0}", variant.Id);
-                                                    <partial name="_ProductAttributes" model="variant.ProductAttributes" view-data="dataDictAttributes" />
-                                                }
-                                            }
-                                            <!--gift voucher-->
-                                            @{
-                                                if (variant.GiftVoucher.IsGiftVoucher)
-                                                {
-                                                    var dataDictGiftVoucher = new ViewDataDictionary(ViewData);
-                                                    dataDictGiftVoucher.TemplateInfo.HtmlFieldPrefix = string.Format("giftvoucher_{0}", variant.Id);
-                                                    <partial name="_GiftVoucherInfo" model="variant.GiftVoucher" view-data="dataDictGiftVoucher" />
-                                                }
-                                            }
-                                            <!--price breaks-->
-                                            @if (variant.TierPrices.Any())
-                                            {
-                                                <partial name="_TierPrices" model="variant.TierPrices" />
-                                            }
-                                            @{
-                                                var dataDictAddToCart = new ViewDataDictionary(ViewData);
-                                                dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", variant.Id);
-                                            }
-                                            <!--price & add to cart-->
-                                            @{
-                                                var dataDictPrice = new ViewDataDictionary(ViewData);
-                                                dataDictPrice.TemplateInfo.HtmlFieldPrefix = string.Format("price_{0}", variant.Id);
-                                                <partial name="_Prices" model="variant.ProductPrice" view-data="dataDictPrice" />
-                                            }
-                                            @{
-                                                <partial name="_AddToCart" model="variant.AddToCart" view-data="dataDictAddToCart" />
-                                                var dataDictAddToWishlist = new ViewDataDictionary(ViewData);
-                                                dataDictAddToWishlist.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", variant.Id);
-                                                <div class="mt-2">
-                                                    <partial name="_AddToWishlist" model="variant.AddToCart" view-data="dataDictAddToWishlist" />
                                                 </div>
-                                            }
-                                        </b-card-body>
-                                    </b-col>
-                                </b-row>
-                            </b-card>
+                                                <!--availability-->
+                                                <partial name="_Availability" model="variant" />
+                                                <!--Code products - SKU, MAN, GTIN, Vendor info -->
+                                                <partial name="_Codes" model="variant" />
+                                                <!--delivery-->
+                                                @if ((variant.FreeShippingNotificationEnabled && Model.IsFreeShipping) || !string.IsNullOrWhiteSpace(variant.DeliveryDate)
+                                                  || variant.NotReturnable || variant.AdditionalShippingCharge > 0)
+                                                {
+                                                    <partial name="_DeliveryInfo" model="variant" />
+                                                }
+                                                <!--sample download-->
+                                                @if (variant.HasSampleDownload)
+                                                {
+                                                    <partial name="_DownloadSample" model="variant" />
+                                                }
+                                                <!--attributes-->
+                                                @{
+                                                    if (variant.ProductAttributes.Any())
+                                                    {
+                                                        var dataDictAttributes = new ViewDataDictionary(ViewData);
+                                                        dataDictAttributes.TemplateInfo.HtmlFieldPrefix = string.Format("attributes_{0}", variant.Id);
+                                                        <partial name="_ProductAttributes" model="variant.ProductAttributes" view-data="dataDictAttributes" />
+                                                    }
+                                                }
+                                                <!--gift voucher-->
+                                                @{
+                                                    if (variant.GiftVoucher.IsGiftVoucher)
+                                                    {
+                                                        var dataDictGiftVoucher = new ViewDataDictionary(ViewData);
+                                                        dataDictGiftVoucher.TemplateInfo.HtmlFieldPrefix = string.Format("giftvoucher_{0}", variant.Id);
+                                                        <partial name="_GiftVoucherInfo" model="variant.GiftVoucher" view-data="dataDictGiftVoucher" />
+                                                    }
+                                                }
+                                                <!--price breaks-->
+                                                @if (variant.TierPrices.Any())
+                                                {
+                                                    <partial name="_TierPrices" model="variant.TierPrices" />
+                                                }
+                                                @{
+                                                    var dataDictAddToCart = new ViewDataDictionary(ViewData);
+                                                    dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", variant.Id);
+                                                }
+                                                <!--price & add to cart-->
+                                                @{
+                                                    var dataDictPrice = new ViewDataDictionary(ViewData);
+                                                    dataDictPrice.TemplateInfo.HtmlFieldPrefix = string.Format("price_{0}", variant.Id);
+                                                    <partial name="_Prices" model="variant.ProductPrice" view-data="dataDictPrice" />
+                                                }
+                                                @{
+                                                    <partial name="_AddToCart" model="variant.AddToCart" view-data="dataDictAddToCart" />
+                                                    var dataDictAddToWishlist = new ViewDataDictionary(ViewData);
+                                                    dataDictAddToWishlist.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", variant.Id);
+                                                    <div class="mt-2">
+                                                        <partial name="_AddToWishlist" model="variant.AddToCart" view-data="dataDictAddToWishlist" />
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                </div>
+                            </div>
                         }
 
                         @if (Model.AssociatedProducts.Count == 0)
