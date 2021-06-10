@@ -66,27 +66,34 @@ namespace Shipping.ByWeight.Services
                 zip = string.Empty;
             zip = zip.Trim();
 
-            //filter by weight and shipping method
             var existingRates = (await GetAll())
                 .Where(sbw => sbw.ShippingMethodId == shippingMethodId && weight >= sbw.From && weight <= sbw.To)
                 .ToList();
 
             if (!string.IsNullOrEmpty(warehouseId))
-                existingRates = existingRates.Where(x => x.WarehouseId == warehouseId).ToList();
-            else
-                existingRates = existingRates.Where(x => string.IsNullOrEmpty(x.WarehouseId)).ToList();
+                existingRates = existingRates.Where(x => x.WarehouseId == warehouseId).Any() 
+                    ? existingRates.Where(x => x.WarehouseId == warehouseId).ToList() 
+                    : existingRates.Where(x => string.IsNullOrEmpty(x.WarehouseId)).ToList();
 
             if (!string.IsNullOrEmpty(storeId))
-                existingRates = existingRates.Where(x => x.StoreId == storeId || string.IsNullOrEmpty(x.StoreId)).ToList();
-
+                existingRates = existingRates.Where(x => x.StoreId == storeId).Any() 
+                    ? existingRates.Where(x => x.StoreId == storeId).ToList() 
+                    : existingRates.Where(x => string.IsNullOrEmpty(x.StoreId)).ToList();
+            
             if (!string.IsNullOrEmpty(countryId))
-                existingRates = existingRates.Where(x => x.CountryId == countryId || string.IsNullOrEmpty(x.CountryId)).ToList();
+                existingRates = existingRates.Where(x => x.CountryId == countryId).Any() 
+                    ? existingRates.Where(x => x.CountryId == countryId).ToList() 
+                    : existingRates.Where(x => string.IsNullOrEmpty(x.CountryId)).ToList();
 
             if (!string.IsNullOrEmpty(stateProvinceId))
-                existingRates = existingRates.Where(x => x.StateProvinceId == stateProvinceId || string.IsNullOrEmpty(x.StateProvinceId)).ToList();
+                existingRates = existingRates.Where(x => x.StateProvinceId == stateProvinceId).Any() 
+                    ? existingRates.Where(x => x.StateProvinceId == stateProvinceId).ToList() 
+                    : existingRates.Where(x => string.IsNullOrEmpty(x.StateProvinceId)).ToList();
 
             if (!string.IsNullOrEmpty(zip))
-                existingRates = existingRates.Where(x => x.Zip == zip || string.IsNullOrEmpty(x.Zip)).ToList();
+                existingRates = existingRates.Where(x => x.Zip == zip).Any()
+                   ? existingRates.Where(x => x.Zip == zip).ToList()
+                   : existingRates.Where(x => string.IsNullOrEmpty(x.Zip)).ToList();
 
             return existingRates.FirstOrDefault();
 

@@ -124,14 +124,15 @@ namespace Grand.Business.Checkout.Services.Shipping
         public virtual async Task<GetShippingOptionRequest> CreateShippingOptionRequests(Customer customer,
             IList<ShoppingCartItem> cart, Address shippingAddress, Store store)
         {
-            var request = new GetShippingOptionRequest();
-            //store
-            request.StoreId = store?.Id;
-            //customer
-            request.Customer = customer;
+            var request = new GetShippingOptionRequest {
+                //store
+                StoreId = store?.Id,
+                //customer
+                Customer = customer,
 
-            //ship to
-            request.ShippingAddress = shippingAddress;
+                //ship to
+                ShippingAddress = shippingAddress
+            };
             //ship from
             Address originAddress = _shippingSettings.ShippingOriginAddress;
 
