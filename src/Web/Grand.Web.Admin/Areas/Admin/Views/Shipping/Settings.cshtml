@@ -47,7 +47,7 @@
                 <div class="x_content form">
                     <vc:admin-widget widget-zone="shipping_settings_top" additional-data="null" />
                     <div class="form-horizontal">
-                        <div class="form-body">                            
+                        <div class="form-body">
                             <div class="form-group">
                                 <div class="col-8 col-md-4 col-sm-4 text-right">
                                     <admin-label asp-for="AllowPickUpInStore" class="control-label" />
@@ -139,6 +139,18 @@
                                         <div class="control__indicator"></div>
                                     </label>
                                     <span asp-validation-for="SkipShippingMethodSelectionIfOnlyOne"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="AdditionalShippingChargeByQty" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AdditionalShippingChargeByQty" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AdditionalShippingChargeByQty"></span>
                                 </div>
                             </div>
                             <div class="panel panel-default">

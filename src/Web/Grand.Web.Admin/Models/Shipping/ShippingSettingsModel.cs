@@ -32,6 +32,9 @@ namespace Grand.Web.Admin.Models.Shipping
         [GrandResourceDisplayName("Admin.Configuration.Shipping.Settings.SkipShippingMethodSelectionIfOnlyOne")]
         public bool SkipShippingMethodSelectionIfOnlyOne { get; set; }
 
+        [GrandResourceDisplayName("Admin.Configuration.Shipping.Settings.AdditionalShippingChargeByQty")]
+        public bool AdditionalShippingChargeByQty { get; set; }
+
         [GrandResourceDisplayName("Admin.Configuration.Shipping.Settings.ShippingOriginAddress")]
         public AddressModel ShippingOriginAddress { get; set; }
     }

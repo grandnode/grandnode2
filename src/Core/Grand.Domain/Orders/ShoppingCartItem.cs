@@ -83,20 +83,12 @@ namespace Grand.Domain.Orders
         /// Gets a value indicating whether the shopping cart item is ship enabled
         /// </summary>
         public bool IsShipEnabled { get; set; }
-        
+
+        /// <summary>
+        /// Gets a value the additional shipping charge for product
+        /// </summary>
         public double AdditionalShippingChargeProduct { get; set; }
         
-        /// <summary>
-        /// Gets the additional shipping charge
-        /// </summary> 
-        public double AdditionalShippingCharge
-        {
-            get
-            {             
-                return AdditionalShippingChargeProduct * Quantity;
-            }
-        }
-
         /// <summary>
         /// Gets a value indicating whether the shopping cart item is tax exempt
         /// </summary>

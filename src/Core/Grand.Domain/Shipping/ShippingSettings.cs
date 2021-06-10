@@ -50,5 +50,9 @@ namespace Grand.Domain.Shipping
         /// </summary>
         public bool SkipShippingMethodSelectionIfOnlyOne { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether we should calculate additional shipping charge on product multiply by the quantity
+        /// </summary>
+        public bool AdditionalShippingChargeByQty { get; set; }
     }
 }
