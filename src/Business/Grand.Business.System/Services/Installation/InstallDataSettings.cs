@@ -374,6 +374,7 @@ namespace Grand.Business.System.Services.Installation
                 RoundPrices = true,
                 GroupTierPrices = false,
                 AllowCartItemEditing = true,
+                AllowOnHoldCart = true,
             });
 
             await _settingService.SaveSetting(new OrderSettings {
