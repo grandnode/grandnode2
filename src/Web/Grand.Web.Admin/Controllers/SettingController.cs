@@ -781,6 +781,7 @@ namespace Grand.Web.Admin.Controllers
                 })
                 .ToList();
             model.StoreInformationSettings.AllowCustomerToSelectTheme = storeInformationSettings.AllowCustomerToSelectTheme;
+            model.StoreInformationSettings.AllowToSelectAdminTheme = storeInformationSettings.AllowToSelectAdminTheme;
 
             model.StoreInformationSettings.LogoPicture = storeInformationSettings.LogoPicture;
             //EU Cookie law
@@ -891,6 +892,7 @@ namespace Grand.Web.Admin.Controllers
             storeInformationSettings.StoreClosed = model.StoreInformationSettings.StoreClosed;
             storeInformationSettings.DefaultStoreTheme = model.StoreInformationSettings.DefaultStoreTheme;
             storeInformationSettings.AllowCustomerToSelectTheme = model.StoreInformationSettings.AllowCustomerToSelectTheme;
+            storeInformationSettings.AllowToSelectAdminTheme = model.StoreInformationSettings.AllowToSelectAdminTheme;
             storeInformationSettings.LogoPicture = model.StoreInformationSettings.LogoPicture;
             //EU Cookie law
             storeInformationSettings.DisplayCookieInformation = model.StoreInformationSettings.DisplayCookieInformation;
