@@ -1,14 +1,13 @@
-﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Configuration;
+﻿using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Common.Services.Security;
-using Grand.Web.Common.Controllers;
-using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Web.Common.Controllers;
+using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payments.CashOnDelivery.Models;
 using System.Linq;
@@ -25,20 +24,17 @@ namespace Payments.CashOnDelivery.Controllers
         private readonly IStoreService _storeService;
         private readonly ISettingService _settingService;
         private readonly ITranslationService _translationService;
-        private readonly ILanguageService _languageService;
 
 
         public PaymentCashOnDeliveryController(IWorkContext workContext,
             IStoreService storeService,
             ISettingService settingService,
-            ITranslationService translationService,
-            ILanguageService languageService)
+            ITranslationService translationService)
         {
             _workContext = workContext;
             _storeService = storeService;
             _settingService = settingService;
             _translationService = translationService;
-            _languageService = languageService;
         }
 
 
@@ -60,8 +56,7 @@ namespace Payments.CashOnDelivery.Controllers
             var storeScope = await this.GetActiveStore(_storeService, _workContext);
             var cashOnDeliveryPaymentSettings = _settingService.LoadSetting<CashOnDeliveryPaymentSettings>(storeScope);
 
-            var model = new ConfigurationModel
-            {
+            var model = new ConfigurationModel {
                 DescriptionText = cashOnDeliveryPaymentSettings.DescriptionText,
                 AdditionalFee = cashOnDeliveryPaymentSettings.AdditionalFee,
                 AdditionalFeePercentage = cashOnDeliveryPaymentSettings.AdditionalFeePercentage,
@@ -72,7 +67,7 @@ namespace Payments.CashOnDelivery.Controllers
 
             model.ActiveStore = storeScope;
 
-            return View("~/Plugins/Payments.CashOnDelivery/Views/PaymentCashOnDelivery/Configure.cshtml", model);
+            return View(model);
         }
 
         [HttpPost]
