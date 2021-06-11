@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel.Extensions;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System;
@@ -342,6 +343,16 @@ namespace Grand.Infrastructure.Plugins
                 //we can now register the plugin definition
                 Log.Information("Adding to ApplicationParts: '{0}'", systemName);
                 mvcCoreBuilder.AddApplicationPart(assembly);
+
+                var relatedAssemblies = RelatedAssemblyAttribute.GetRelatedAssemblies(assembly, throwOnError: false);
+                foreach (var relatedAssembly in relatedAssemblies)
+                {
+                    var applicationPartFactory = ApplicationPartFactory.GetApplicationPartFactory(relatedAssembly);
+                    foreach (var part in applicationPartFactory.GetApplicationParts(relatedAssembly))
+                    {
+                        mvcCoreBuilder.PartManager.ApplicationParts.Add(part);
+                    }
+                }
             }
             catch (Exception ex)
             {
