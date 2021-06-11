@@ -70,7 +70,7 @@
                 <template>
                     <div class="rating">
                         <b-form-rating id="rating-inline-grid-@Model.Id" aria-label="Rating" class="p-0" variant="warning" no-border size="sm" show-value aria-valuenow="@(ratingValue)" precision="2" readonly inline value="@(ratingValue)"></b-form-rating>
-                        <b-link href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">@Model.ReviewOverviewModel.TotalReviews @Loc["Reviews.Overview.Reviews"]</b-link>
+                        <b-link href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">@Model.ReviewOverviewModel.TotalReviews @Loc["Reviews.Overview.Reviews"]</b-link-link>
                     </div>
                 </template>
             }
