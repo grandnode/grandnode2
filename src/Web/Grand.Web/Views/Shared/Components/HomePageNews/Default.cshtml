@@ -12,9 +12,9 @@
                     <div class="card" @if (item.PictureModel != null && !string.IsNullOrEmpty(item.PictureModel.ImageUrl)) { <text>img-src="@item.PictureModel.ImageUrl" img-alt="@item.PictureModel.AlternateText"</text> }>
                         <div class="card-header">
                             <h3 class="h5 mb-0">
-                                <a href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })">
+                                <b-link href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })">
                                     @item.Title
-                                </a>
+                                </b-link>
                             </h3>
                         </div> 
                         <div class="card-body">

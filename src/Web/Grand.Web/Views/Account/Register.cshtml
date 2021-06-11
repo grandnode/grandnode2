@@ -485,7 +485,7 @@
                     <span class="custom-control-label"></span>
                     <span class="custom-control-description">@Loc["Account.Fields.AcceptPrivacyPolicy"]</span>
                 </label>
-                <a class="read mx-2" onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "privacyinfo" })', 450, 500, true)">@Loc["Account.Fields.AcceptPrivacyPolicy.Read"]</a>
+                <b-link class="read mx-2" onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "privacyinfo" })', 450, 500, true)">@Loc["Account.Fields.AcceptPrivacyPolicy.Read"]</b-link>
             </div>
             <span v-if="veeErrors.first('acceptprivacypolicy')" class="field-validation-error d-flex w-100">@Loc["account.fields.acceptprivacypolicy.required"]</span>
         }
