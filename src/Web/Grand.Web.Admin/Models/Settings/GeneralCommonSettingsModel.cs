@@ -49,6 +49,9 @@ namespace Grand.Web.Admin.Models.Settings
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.AllowCustomerToSelectTheme")]
             public bool AllowCustomerToSelectTheme { get; set; }
 
+            [GrandResourceDisplayName("Admin.Settings.GeneralCommon.AllowToSelectAdminTheme")]
+            public bool AllowToSelectAdminTheme { get; set; }
+
             [UIHint("Logo")]
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.Logo")]
             public string LogoPicture { get; set; }

@@ -37,7 +37,7 @@
                         <div class="d-inline-flex">
                             <span class="mb-2">
                                 <b-label class="col-form-label">@Loc["Account.CustomerNotes.Attachment"]:</b-label>
-                                <b-link class="mx-2" href="@Url.RouteUrl("GetCustomerNoteFile", new { customerNoteId = item.NoteId})">@Loc["Customer.Notes.Download"]</b-link>
+                                <a class="mx-2" href="@Url.RouteUrl("GetCustomerNoteFile", new { customerNoteId = item.NoteId})">@Loc["Customer.Notes.Download"]</a>
                             </span>
                         </div>
                     }

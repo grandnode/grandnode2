@@ -11017,6 +11017,9 @@
   <Resource Name="Admin.Settings.GeneralCommon.AllowToReadLetsEncryptFile">
     <Value>Allow to read Let's Encrypt file</Value>
   </Resource>
+  <Resource Name="Admin.Settings.GeneralCommon.AllowToSelectAdminTheme">
+    <Value>Allow to select admin theme</Value>
+  </Resource>
   <Resource Name="Admin.Settings.GeneralCommon.AllowToSelectStore">
     <Value>Allow to select store from dropdown list</Value>
   </Resource>
