@@ -44,7 +44,7 @@ namespace Widgets.Slider
 
         public Task<string> GetPublicViewComponentName(string widgetZone)
         {
-            return Task.FromResult("Widgets.Slider");
+            return Task.FromResult("WidgetSlider");
         }
 
     }

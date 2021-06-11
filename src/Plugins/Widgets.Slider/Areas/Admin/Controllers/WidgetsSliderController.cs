@@ -24,34 +24,25 @@ namespace Widgets.Slider.Controllers
     [PermissionAuthorize(PermissionSystemName.Widgets)]
     public class WidgetsSliderController : BasePluginController
     {
-        private readonly IStoreService _storeService;
         private readonly IPictureService _pictureService;
         private readonly ITranslationService _translationService;
         private readonly ISliderService _sliderService;
         private readonly ILanguageService _languageService;
-        private readonly ICategoryService _categoryService;
-        private readonly ICollectionService _collectionService;
         private readonly SliderWidgetSettings _sliderWidgetSettings;
         private readonly ISettingService _settingService;
 
         public WidgetsSliderController(
-            IStoreService storeService,
             IPictureService pictureService,
             ITranslationService translationService,
             ISliderService sliderService,
             ILanguageService languageService,
-            ICategoryService categoryService,
-            ICollectionService collectionService,
             ISettingService settingService,
             SliderWidgetSettings sliderWidgetSettings)
         {
-            _storeService = storeService;
             _pictureService = pictureService;
             _translationService = translationService;
             _sliderService = sliderService;
             _languageService = languageService;
-            _categoryService = categoryService;
-            _collectionService = collectionService;
             _settingService = settingService;
             _sliderWidgetSettings = sliderWidgetSettings;
         }
@@ -61,7 +52,7 @@ namespace Widgets.Slider.Controllers
             model.DisplayOrder = _sliderWidgetSettings.DisplayOrder;
             model.CustomerGroups = _sliderWidgetSettings.LimitedToGroups?.ToArray();
             model.Stores = _sliderWidgetSettings.LimitedToStores?.ToArray();
-            return View("~/Plugins/Widgets.Slider/Views/List.cshtml", model);
+            return View(model);
         }
 
         [HttpPost]
@@ -103,7 +94,7 @@ namespace Widgets.Slider.Controllers
             //locales
             await AddLocales(_languageService, model.Locales);
 
-            return View("~/Plugins/Widgets.Slider/Views/Create.cshtml", model);
+            return View(model);
         }
         [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
         public async Task<IActionResult> Create(SlideModel model, bool continueEditing)
@@ -119,8 +110,7 @@ namespace Widgets.Slider.Controllers
                 return continueEditing ? RedirectToAction("Edit", new { id = pictureSlider.Id }) : RedirectToAction("Configure");
 
             }
-
-            return View("~/Plugins/Widgets.Slider/Views/Create.cshtml", model);
+            return View(model);
         }
         public async Task<IActionResult> Edit(string id)
         {
@@ -137,7 +127,7 @@ namespace Widgets.Slider.Controllers
                 locale.Description = slide.GetTranslation(x => x.Description, languageId, false);
             });
 
-            return View("~/Plugins/Widgets.Slider/Views/Edit.cshtml", model);
+            return View(model);
         }
 
         [HttpPost, ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
@@ -156,7 +146,7 @@ namespace Widgets.Slider.Controllers
                 return continueEditing ? RedirectToAction("Edit", new { id = pictureSlider.Id }) : RedirectToAction("Configure");
 
             }
-            return View("~/Plugins/Widgets.Slider/Views/Edit.cshtml", model);
+            return View(model);
         }
 
         public async Task<IActionResult> Delete(string id)

@@ -11,14 +11,14 @@ using Widgets.Slider.Services;
 
 namespace Widgets.Slider.ViewComponents
 {
-    [ViewComponent(Name = "Widgets.Slider")]
-    public class SliderViewComponent : ViewComponent
+    [ViewComponent(Name = "WidgetSlider")]
+    public class WidgetSliderComponent : ViewComponent
     {
         private readonly IPictureService _pictureService;
         private readonly ISliderService _sliderService;
         private readonly IWorkContext _workContext;
 
-        public SliderViewComponent(
+        public WidgetSliderComponent(
             IPictureService pictureService,
             ISliderService sliderService,
             IWorkContext workContext)
@@ -42,8 +42,7 @@ namespace Widgets.Slider.ViewComponents
             int i = 1;
             foreach (var item in sliders.OrderBy(x => x.DisplayOrder))
             {
-                model.Slide.Add(new PublicInfoModel.Slider()
-                {
+                model.Slide.Add(new PublicInfoModel.Slider() {
                     Link = item.Link,
                     PictureUrl = await GetPictureUrl(item.PictureId),
                     Name = item.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
@@ -79,7 +78,7 @@ namespace Widgets.Slider.ViewComponents
             if (!model.Slide.Any())
                 return Content("");
 
-            return View("/Plugins/Widgets.Slider/Views/Slider.cshtml", model);
+            return View(model);
         }
     }
 }
