@@ -30,7 +30,7 @@
                         <template v-else>
                             <b-form-rating :id="'rating-inline-grid-' + Model.Id" class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline :value="0"></b-form-rating>
                         </template>
-                        <b-link :href="Model.Url">{{Model.ReviewOverviewModel.TotalReviews}} @Loc["Reviews.Overview.Reviews"]</b-link>
+                        <a href="Model.Url">{{Model.ReviewOverviewModel.TotalReviews}} @Loc["Reviews.Overview.Reviews"]</a>
                     </div>
                 </template>
                 <template v-if="Model.ProductType == 25">

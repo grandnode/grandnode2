@@ -37,7 +37,7 @@
                     </div>
                     <template v-slot:footer v-if="wishindicator > 0">
                         <template v-if="flywish !== undefined">
-                            <b-col cols="12" class="p-3 bg-dark">
+                            <div class="col-12 p-3 bg-dark">
                                 <div class="btn-group w-100">
                                     <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("Wishlist")">
                                         <b-icon icon="heart" class="pr-2"></b-icon>
@@ -50,7 +50,7 @@
                                         </a>
                                     </template>
                                 </div>
-                            </b-col>
+                            </div>
                         </template>
                     </template>
                     <template v-else-if="wishindicator !== undefined">
