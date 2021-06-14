@@ -62,7 +62,7 @@ namespace Widgets.FacebookPixel.Controllers
             model.ConsentDescription = facebookPixelSettings.ConsentDescription;
             model.ConsentDefaultState = facebookPixelSettings.ConsentDefaultState;
 
-            return View("~/Plugins/Widgets.FacebookPixel/Views/Configure.cshtml", model);
+            return View(model);
         }
 
         [HttpPost]

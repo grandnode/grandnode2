@@ -42,7 +42,7 @@ namespace Widgets.FacebookPixel.Components
             //page
             if (widgetZone == FacebookPixelDefaults.Page)
             {
-                return View("~/Plugins/Widgets.FacebookPixel/Views/PublicInfo.cshtml", GetTrackingScript());
+                return View("Default", GetTrackingScript());
             }
             //add to cart
             if (widgetZone == FacebookPixelDefaults.AddToCart)
@@ -50,7 +50,7 @@ namespace Widgets.FacebookPixel.Components
                 var model = JsonConvert.DeserializeObject<FacebookAddToCartModelModel>(JsonConvert.SerializeObject(additionalData));
                 if (model != null)
                 {
-                    return View("~/Plugins/Widgets.FacebookPixel/Views/PublicInfo.cshtml", GetAddToCartScript(model));
+                    return View("Default", GetAddToCartScript(model));
                 }
             }
             //order details 
@@ -59,7 +59,7 @@ namespace Widgets.FacebookPixel.Components
                 var orderId = additionalData as string;
                 if (!string.IsNullOrEmpty(orderId))
                 {
-                    return View("~/Plugins/Widgets.FacebookPixel/Views/PublicInfo.cshtml", await GetOrderScript(orderId));
+                    return View("Default", await GetOrderScript(orderId));
                 }
 
             }
