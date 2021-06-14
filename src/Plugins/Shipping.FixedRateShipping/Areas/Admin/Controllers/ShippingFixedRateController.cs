@@ -32,7 +32,7 @@ namespace Shipping.FixedRateShipping.Controllers
 
         public IActionResult Configure()
         {
-            return View("~/Plugins/Shipping.FixedRateShipping/Views/ShippingFixedRate/Configure.cshtml");
+            return View();
         }
 
         [HttpPost]
