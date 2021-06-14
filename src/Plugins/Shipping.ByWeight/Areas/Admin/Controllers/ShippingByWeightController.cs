@@ -74,7 +74,7 @@ namespace Shipping.ByWeight.Controllers
             model.LimitMethodsToCreated = _shippingByWeightSettings.LimitMethodsToCreated;
             model.DisplayOrder = _shippingByWeightSettings.DisplayOrder;
 
-            return View("~/Plugins/Shipping.ByWeight/Views/Configure.cshtml", model);
+            return View(model);
         }
 
         [HttpPost]
@@ -202,7 +202,7 @@ namespace Shipping.ByWeight.Controllers
             //states
             model.AvailableStates.Add(new SelectListItem { Text = "*", Value = "" });
 
-            return View("~/Plugins/Shipping.ByWeight/Views/AddPopup.cshtml", model);
+            return View(model);
         }
 
         [HttpPost]
@@ -228,7 +228,7 @@ namespace Shipping.ByWeight.Controllers
 
             ViewBag.RefreshPage = true;
 
-            return View("~/Plugins/Shipping.ByWeight/Views/AddPopup.cshtml", model);
+            return View(model);
         }
 
         //edit
@@ -289,7 +289,7 @@ namespace Shipping.ByWeight.Controllers
             foreach (var s in states)
                 model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString(), Selected = (selectedState != null && s.Id == selectedState.Id) });
 
-            return View("~/Plugins/Shipping.ByWeight/Views/EditPopup.cshtml", model);
+            return View(model);
         }
         [HttpPost]
         [AutoValidateAntiforgeryToken]
@@ -316,7 +316,7 @@ namespace Shipping.ByWeight.Controllers
 
             ViewBag.RefreshPage = true;
 
-            return View("~/Plugins/Shipping.ByWeight/Views/EditPopup.cshtml", model);
+            return View(model);
         }
     }
 }
