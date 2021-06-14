@@ -5,7 +5,7 @@
 @using Payments.PayPalStandard.Models;
 @await Component.InvokeAsync("StoreScope")
 
-<form asp-controller="PaymentPayPalStandard" asp-action="Configure" method="post">
+<form asp-area="Admin" asp-controller="PayPalStandard" asp-action="Configure" method="post">
     
     <div class="form-horizontal">
         <div class="form-body">

@@ -8,7 +8,7 @@ namespace Payments.PayPalStandard.Controllers
     {
         public IViewComponentResult Invoke()
         {
-            return View("~/Plugins/Payments.PayPalStandard/Views/PaymentPayPalStandard/PaymentInfo.cshtml");
+            return View(this.GetViewPath());
         }
     }
 }
