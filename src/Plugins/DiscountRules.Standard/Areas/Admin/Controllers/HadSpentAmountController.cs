@@ -57,7 +57,7 @@ namespace DiscountRules.Standard.HadSpentAmount.Controllers
             //add a prefix
             ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("DiscountRulesHadSpentAmount{0}-{1}", discount.Id, !String.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "");
 
-            return View("~/Plugins/DiscountRules.Standard/Views/HadSpentAmount/Configure.cshtml", model);
+            return View(model);
         }
 
         [HttpPost]

@@ -1,6 +1,7 @@
-﻿using DiscountRules.HasAllProducts.Models;
+﻿using DiscountRules.HasOneProduct.Models;
 using DiscountRules.Standard.Models;
 using Grand.Business.Catalog.Interfaces.Discounts;
+using Grand.Business.Catalog.Interfaces.Collections;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Localization;
@@ -22,11 +23,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DiscountRules.HasAllProducts.Controllers
+namespace DiscountRules.HasOneProduct.Controllers
 {
     [Area("Admin")]
     [AuthorizeAdmin]
-    public class HasAllProductsController : BasePluginController
+    public class HasOneProductController : BasePluginController
     {
         private readonly IDiscountService _discountService;
         private readonly ISettingService _settingService;
@@ -37,7 +38,7 @@ namespace DiscountRules.HasAllProducts.Controllers
         private readonly IVendorService _vendorService;
         private readonly IProductService _productService;
 
-        public HasAllProductsController(IDiscountService discountService,
+        public HasOneProductController(IDiscountService discountService,
             ISettingService settingService,
             IPermissionService permissionService,
             IWorkContext workContext,
@@ -80,9 +81,9 @@ namespace DiscountRules.HasAllProducts.Controllers
             model.Products = restrictedProductIds == null ? "" : string.Join(",", restrictedProductIds);
 
             //add a prefix
-            ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("DiscountRulesHasAllProducts{0}-{1}", discount.Id, !String.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "");
+            ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("DiscountRulesHasOneProduct{0}-{1}", discount.Id, !String.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "");
 
-            return View("~/Plugins/DiscountRules.Standard/Views/HasAllProducts/Configure.cshtml", model);
+            return View(model);
         }
 
         [HttpPost]
@@ -103,19 +104,19 @@ namespace DiscountRules.HasAllProducts.Controllers
             if (discountRequirement != null)
             {
                 //update existing rule
-                await _settingService.SetSetting(string.Format("DiscountRules.Standard.RestrictedProductIds-{0}-{1}", discount.Id, discountRequirement.Id), new RequirementProducts() { Products = productIds.Split(",") });
+                await _settingService.SetSetting(string.Format("DiscountRules.Standard.RestrictedProductIds-{0}-{1}", discount.Id, discountRequirement.Id), new RequirementProducts() { Products = productIds.Split(',') });
             }
             else
             {
                 //save new rule
                 discountRequirement = new DiscountRule
                 {
-                    DiscountRequirementRuleSystemName = "DiscountRules.HasAllProducts"
+                    DiscountRequirementRuleSystemName = "DiscountRules.HasOneProduct"
                 };
                 discount.DiscountRules.Add(discountRequirement);
                 await _discountService.UpdateDiscount(discount);
 
-                await _settingService.SetSetting(string.Format("DiscountRules.Standard.RestrictedProductIds-{0}-{1}", discount.Id, discountRequirement.Id), new RequirementProducts() { Products = productIds.Split(",") });
+                await _settingService.SetSetting(string.Format("DiscountRules.Standard.RestrictedProductIds-{0}-{1}", discount.Id, discountRequirement.Id), new RequirementProducts() { Products = productIds.Split(',') });
             }
             return new JsonResult(new { Result = true, NewRequirementId = discountRequirement.Id });
         }
@@ -147,7 +148,7 @@ namespace DiscountRules.HasAllProducts.Controllers
             ViewBag.productIdsInput = productIdsInput;
             ViewBag.btnId = btnId;
 
-            return View("~/Plugins/DiscountRules.Standard/Views/HasAllProducts/ProductAddPopup.cshtml", model);
+            return View(model);
         }
 
         [HttpPost]
@@ -162,6 +163,7 @@ namespace DiscountRules.HasAllProducts.Controllers
             {
                 model.SearchVendorId = _workContext.CurrentVendor.Id;
             }
+
             var searchCategoryIds = new List<string>();
             if (!String.IsNullOrEmpty(model.SearchCategoryId))
                 searchCategoryIds.Add(model.SearchCategoryId);
@@ -216,7 +218,7 @@ namespace DiscountRules.HasAllProducts.Controllers
                 {
                     var str2 = str1;
                     //we do not display specified quantities and ranges
-                    //parse only product names
+                    //parse only product names (before : sign)
                     if (str2.Contains(":"))
                         str2 = str2.Substring(0, str2.IndexOf(":"));
 

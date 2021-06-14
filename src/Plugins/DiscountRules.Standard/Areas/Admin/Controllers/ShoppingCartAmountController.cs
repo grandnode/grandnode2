@@ -57,7 +57,7 @@ namespace DiscountRules.Standard.Controllers
             //add a prefix
             ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("DiscountRulesShoppingCart{0}", !String.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "");
 
-            return View("~/Plugins/DiscountRules.Standard/Views/ShoppingCartAmount/Configure.cshtml", model);
+            return View(model);
         }
 
 

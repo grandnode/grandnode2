@@ -5,10 +5,9 @@ using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.Common.Services.Security;
-using Grand.Business.Customers.Interfaces;
+using Grand.Domain.Discounts;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
-using Grand.Domain.Discounts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
@@ -22,19 +21,17 @@ namespace DiscountRules.CustomerGroups.Controllers
     public class CustomerGroupsController : BasePluginController
     {
         private readonly IDiscountService _discountService;
-        private readonly ICustomerService _customerService;
         private readonly IGroupService _groupService;
         private readonly ISettingService _settingService;
         private readonly IPermissionService _permissionService;
 
-        public CustomerGroupsController(IDiscountService discountService,
-            ICustomerService customerService,
+        public CustomerGroupsController(
+            IDiscountService discountService,
             IGroupService groupService,
             ISettingService settingService,
             IPermissionService permissionService)
         {
             _discountService = discountService;
-            _customerService = customerService;
             _groupService = groupService;
             _settingService = settingService;
             _permissionService = permissionService;
@@ -71,7 +68,7 @@ namespace DiscountRules.CustomerGroups.Controllers
             //add a prefix
             ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("DiscountRulesCustomerGroups{0}", !String.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "");
 
-            return View("~/Plugins/DiscountRules.Standard/Views/CustomerGroups/Configure.cshtml", model);
+            return View(model);
         }
 
         [HttpPost]
@@ -97,8 +94,7 @@ namespace DiscountRules.CustomerGroups.Controllers
             else
             {
                 //save new rule
-                discountRequirement = new DiscountRule
-                {
+                discountRequirement = new DiscountRule {
                     DiscountRequirementRuleSystemName = "DiscountRules.Standard.MustBeAssignedToCustomerGroup"
                 };
                 discount.DiscountRules.Add(discountRequirement);
