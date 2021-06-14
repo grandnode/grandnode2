@@ -1,14 +1,8 @@
 ﻿using Authentication.Google.Models;
 using Grand.Business.Authentication.Interfaces;
 using Grand.Business.Authentication.Utilities;
-using Grand.Business.Common.Interfaces.Configuration;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
-using Grand.Web.Common.Controllers;
-using Grand.Web.Common.Filters;
-using Grand.Infrastructure;
 using Grand.SharedKernel;
+using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
@@ -22,77 +16,22 @@ namespace Authentication.Google.Controllers
     {
         #region Fields
 
-        private readonly GoogleExternalAuthSettings _googleExternalAuthSettings;
         private readonly IExternalAuthenticationService _externalAuthenticationService;
-        private readonly ITranslationService _translationService;
-        private readonly IPermissionService _permissionService;
-        private readonly ISettingService _settingService;
-
+        private readonly GoogleExternalAuthSettings _googleExternalAuthSettings;
         #endregion
 
         #region Ctor
 
-        public GoogleAuthenticationController(GoogleExternalAuthSettings googleExternalAuthSettings,
-            IExternalAuthenticationService externalAuthenticationService,
-            ITranslationService translationService,
-            IPermissionService permissionService,
-            ISettingService settingService)
+        public GoogleAuthenticationController(IExternalAuthenticationService externalAuthenticationService,
+            GoogleExternalAuthSettings googleExternalAuthSettings)
         {
-            _googleExternalAuthSettings = googleExternalAuthSettings;
             _externalAuthenticationService = externalAuthenticationService;
-            _translationService = translationService;
-            _permissionService = permissionService;
-            _settingService = settingService;
+            _googleExternalAuthSettings = googleExternalAuthSettings;
         }
 
         #endregion
 
         #region Methods
-
-        [AuthorizeAdmin]
-        [Area("Admin")]
-        public async Task<IActionResult> Configure()
-        {
-            if (!await _permissionService.Authorize(StandardPermission.ManageExternalAuthenticationMethods))
-                return AccessDeniedView();
-
-            var model = new ConfigurationModel
-            {
-                ClientKeyIdentifier = _googleExternalAuthSettings.ClientKeyIdentifier,
-                ClientSecret = _googleExternalAuthSettings.ClientSecret,
-                DisplayOrder = _googleExternalAuthSettings.DisplayOrder
-            };
-
-            return View("~/Plugins/Authentication.Google/Views/Configure.cshtml", model);
-        }
-
-        [HttpPost]
-        [AutoValidateAntiforgeryToken]
-        [AuthorizeAdmin]
-        [Area("Admin")]
-        public async Task<IActionResult> Configure(ConfigurationModel model)
-        {
-            if (!await _permissionService.Authorize(StandardPermission.ManageExternalAuthenticationMethods))
-                return AccessDeniedView();
-
-            if (!ModelState.IsValid)
-                return await Configure();
-
-            _googleExternalAuthSettings.ClientKeyIdentifier = model.ClientKeyIdentifier;
-            _googleExternalAuthSettings.ClientSecret = model.ClientSecret;
-            _googleExternalAuthSettings.DisplayOrder = model.DisplayOrder;
-
-            await _settingService.SaveSetting(_googleExternalAuthSettings);
-
-            //now clear settings cache
-            await _settingService.ClearCache();
-
-            Success(_translationService.GetResource("Admin.Plugins.Saved"));
-
-            return await Configure();
-
-        }
-
 
         public IActionResult GoogleLogin(string returnUrl)
         {
@@ -103,8 +42,7 @@ namespace Authentication.Google.Controllers
                 throw new GrandException("Google authentication module not configured");
 
             //configure login callback action
-            var authenticationProperties = new AuthenticationProperties
-            {
+            var authenticationProperties = new AuthenticationProperties {
                 RedirectUri = Url.Action("GoogleLoginCallback", "GoogleAuthentication", new { returnUrl = returnUrl })
             };
 
@@ -119,8 +57,7 @@ namespace Authentication.Google.Controllers
                 return RedirectToRoute("Login");
 
             //create external authentication parameters
-            var authenticationParameters = new ExternalAuthParam
-            {
+            var authenticationParameters = new ExternalAuthParam {
                 ProviderSystemName = GoogleAuthenticationDefaults.ProviderSystemName,
                 AccessToken = await HttpContext.GetTokenAsync(GoogleDefaults.AuthenticationScheme, "access_token"),
                 Email = authenticateResult.Principal.FindFirst(claim => claim.Type == ClaimTypes.Email)?.Value,
@@ -136,11 +73,10 @@ namespace Authentication.Google.Controllers
         public IActionResult GoogleSignInFailed(string error_message)
         {
             //handle exception and display message to user
-            var model = new FailedModel()
-            {
+            var model = new FailedModel() {
                 ErrorMessage = error_message
             };
-            return View("~/Plugins/Authentication.Google/Views/SignInFailed.cshtml", model);
+            return View(model);
         }
         #endregion
     }

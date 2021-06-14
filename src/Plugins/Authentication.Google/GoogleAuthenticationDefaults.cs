@@ -11,6 +11,6 @@ namespace Authentication.Google
         /// </summary>
         public const string ProviderSystemName = "ExternalAuth.Google";
 
-        public const string ConfigurationUrl = "../GoogleAuthentication/Configure";
+        public const string ConfigurationUrl = "../GoogleAuthenticationSettings/Configure";
     }
 }

@@ -7,7 +7,7 @@ namespace Authentication.Google.Components
     {
         public IViewComponentResult Invoke()
         {
-            return View("~/Plugins/Authentication.Google/Views/PublicInfo.cshtml");
+            return View();
         }
     }
 }
