@@ -65,7 +65,7 @@ namespace Payments.BrainTree.Components
                 ViewBag.ClientToken = gateway.ClientToken.Generate();
                 ViewBag.OrderTotal = (await _orderTotalCalculationService.GetShoppingCartTotal(cart)).shoppingCartTotal;
 
-                return View("~/Plugins/Payments.BrainTree/Views/PaymentInfo_3DS.cshtml", model);
+                return View(this.GetViewPath("PaymentInfo_3DS"), model);
             }
 
             //years
@@ -92,7 +92,7 @@ namespace Payments.BrainTree.Components
 
             //set postback values (we cannot access "Form" with "GET" requests)
             if (Request.Method == WebRequestMethods.Http.Get)
-                return View("~/Plugins/Payments.BrainTree/Views/PaymentInfo.cshtml", model);
+                return View(this.GetViewPath("PaymentInfo"), model);
 
             var form = await HttpContext.Request.ReadFormAsync();
 
@@ -117,8 +117,7 @@ namespace Payments.BrainTree.Components
                             select error.ErrorMessage;
                 model.Errors = string.Join(", ", query);
             }
-
-            return View("~/Plugins/Payments.BrainTree/Views/PaymentInfo.cshtml", model);
+            return View(this.GetViewPath("PaymentInfo"), model);
         }
     }
 }

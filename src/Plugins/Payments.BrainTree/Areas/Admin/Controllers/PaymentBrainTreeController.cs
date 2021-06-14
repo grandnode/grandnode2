@@ -52,7 +52,7 @@ namespace Payments.BrainTree.Controllers
                 DisplayOrder = _brainTreePaymentSettings.DisplayOrder
             };
 
-            return View("~/Plugins/Payments.BrainTree/Views/Configure.cshtml", model);
+            return View(model);
         }
 
         [HttpPost]

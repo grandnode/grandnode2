@@ -7,7 +7,7 @@ namespace Payments.BrainTree.Components
     {
         public IViewComponentResult Invoke()
         {
-            return View("~/Plugins/Payments.BrainTree/Views/PaymentPaymentBrainTreeScripts.cshtml");
+            return View();
         }
     }
 }
