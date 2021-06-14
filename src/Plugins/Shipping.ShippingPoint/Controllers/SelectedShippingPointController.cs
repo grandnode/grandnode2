@@ -24,8 +24,7 @@ namespace Shipping.ShippingPoint.Controllers
             var shippingPoint = await _shippingPointService.GetStoreShippingPointById(shippingOptionId);
             if (shippingPoint != null)
             {
-                var viewModel = new PointModel()
-                {
+                var viewModel = new PointModel() {
                     ShippingPointName = shippingPoint.ShippingPointName,
                     Description = shippingPoint.Description,
                     PickupFee = _priceFormatter.FormatShippingPrice(shippingPoint.PickupFee),
@@ -35,7 +34,7 @@ namespace Shipping.ShippingPoint.Controllers
                     CountryName = (await _countryService.GetCountryById(shippingPoint.CountryId))?.Name,
                     ZipPostalCode = shippingPoint.ZipPostalCode,
                 };
-                return View("~/Plugins/Shipping.ShippingPoint/Views/FormShippingOption.cshtml", viewModel);
+                return View(viewModel);
             }
             return Content("ShippingPointController: given Shipping Option doesn't exist");
         }

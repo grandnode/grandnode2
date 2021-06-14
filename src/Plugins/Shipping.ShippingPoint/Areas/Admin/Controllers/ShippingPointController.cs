@@ -51,7 +51,7 @@ namespace Shipping.ShippingPoint.Controllers
 
         public IActionResult Configure()
         {
-            return View("~/Plugins/Shipping.ShippingPoint/Views/Configure.cshtml");
+            return View();
         }
 
         [HttpPost]
@@ -97,7 +97,7 @@ namespace Shipping.ShippingPoint.Controllers
         {
             var model = new ShippingPointModel();
             await PrepareShippingPointModel(model);
-            return View("~/Plugins/Shipping.ShippingPoint/Views/Create.cshtml", model);
+            return View(model);
         }
 
         [HttpPost]
@@ -113,7 +113,7 @@ namespace Shipping.ShippingPoint.Controllers
 
             await PrepareShippingPointModel(model);
 
-            return View("~/Plugins/Shipping.ShippingPoint/Views/Create.cshtml", model);
+            return View(model);
         }
 
         public async Task<IActionResult> Edit(string id)
@@ -121,7 +121,7 @@ namespace Shipping.ShippingPoint.Controllers
             var shippingPoints = await _shippingPointService.GetStoreShippingPointById(id);
             var model = shippingPoints.ToModel();
             await PrepareShippingPointModel(model);
-            return View("~/Plugins/Shipping.ShippingPoint/Views/Edit.cshtml", model);
+            return View(model);
         }
 
         [HttpPost]
@@ -137,7 +137,7 @@ namespace Shipping.ShippingPoint.Controllers
 
             await PrepareShippingPointModel(model);
 
-            return View("~/Plugins/Shipping.ShippingPoint/Views/Edit.cshtml", model);
+            return View(model);
         }
 
         [HttpPost]
