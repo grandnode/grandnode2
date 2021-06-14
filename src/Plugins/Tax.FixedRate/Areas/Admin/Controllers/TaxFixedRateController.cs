@@ -29,7 +29,7 @@ namespace Tax.FixedRate.Controllers
 
         public IActionResult Configure()
         {
-            return View("~/Plugins/Tax.FixedRate/Views/Configure.cshtml");
+            return View();
         }
 
         [HttpPost]
@@ -37,15 +37,13 @@ namespace Tax.FixedRate.Controllers
         {
             var taxRateModels = new List<FixedTaxRateModel>();
             foreach (var taxCategory in await _taxCategoryService.GetAllTaxCategories())
-                taxRateModels.Add(new FixedTaxRateModel
-                {
+                taxRateModels.Add(new FixedTaxRateModel {
                     TaxCategoryId = taxCategory.Id,
                     TaxCategoryName = taxCategory.Name,
                     Rate = GetTaxRate(taxCategory.Id)
                 });
 
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = taxRateModels,
                 Total = taxRateModels.Count
             };
