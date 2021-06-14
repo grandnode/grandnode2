@@ -66,7 +66,7 @@ namespace Widgets.GoogleAnalytics.Controllers
             model.ConsentDescription = googleAnalyticsSettings.ConsentDescription;
             model.StoreScope = storeScope;
 
-            return View("~/Plugins/Widgets.GoogleAnalytics/Views/Configure.cshtml", model);
+            return View(model);
         }
 
         [HttpPost]

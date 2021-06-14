@@ -76,8 +76,7 @@ namespace Widgets.GoogleAnalytics.Components
             {
                 await _logger.InsertLog(LogLevel.Error, "Error creating scripts for google ecommerce tracking", ex.ToString());
             }
-
-            return View("~/Plugins/Widgets.GoogleAnalytics/Views/PublicInfo.cshtml", globalScript);
+            return View("Default", globalScript);
         }
 
         private async Task<Order> GetLastOrder()
