@@ -11,6 +11,6 @@ namespace Authentication.Facebook
         /// </summary>
         public const string ProviderSystemName = "ExternalAuth.Facebook";
 
-        public const string ConfigurationUrl = "../FacebookAuthentication/Configure";
+        public const string ConfigurationUrl = "../FacebookAuthenticationSettings/Configure";
     }
 }

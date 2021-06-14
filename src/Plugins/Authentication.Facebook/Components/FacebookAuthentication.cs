@@ -7,7 +7,7 @@ namespace Authentication.Facebook.Components
     {
         public IViewComponentResult Invoke()
         {
-            return View("~/Plugins/Authentication.Facebook/Views/PublicInfo.cshtml");
+            return View();
         }
     }
 }
