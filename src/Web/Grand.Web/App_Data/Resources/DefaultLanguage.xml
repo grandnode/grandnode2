@@ -3274,7 +3274,7 @@
     <Value>Only published</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.List.SearchPublished.ShowOnHomePage">
-    <Value>Show on homePage</Value>
+    <Value>Show on homepage</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.List.SearchPublished.UnpublishedOnly">
     <Value>Only unpublished</Value>
