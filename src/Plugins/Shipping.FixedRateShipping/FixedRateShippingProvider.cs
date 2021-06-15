@@ -4,6 +4,7 @@ using Grand.Business.Checkout.Utilities;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Common.Interfaces.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
@@ -22,6 +23,7 @@ namespace Shipping.FixedRateShipping
         private readonly IWorkContext _workContext;
         private readonly ISettingService _settingService;
         private readonly ICurrencyService _currencyService;
+        private readonly ITranslationService _translationService;
         private readonly ShippingFixedRateSettings _shippingFixedRateSettings;
 
 
@@ -30,6 +32,7 @@ namespace Shipping.FixedRateShipping
             IWorkContext workContext,
             ISettingService settingService,
             ICurrencyService currencyService,
+            ITranslationService translationService,
             ShippingFixedRateSettings shippingFixedRateSettings
             )
         {
@@ -37,6 +40,7 @@ namespace Shipping.FixedRateShipping
             _workContext = workContext;
             _settingService = settingService;
             _currencyService = currencyService;
+            _translationService = translationService;
             _shippingFixedRateSettings = shippingFixedRateSettings;
         }
         #region Utilities
@@ -133,7 +137,7 @@ namespace Shipping.FixedRateShipping
         }
         public string ConfigurationUrl => FixedRateShippingDefaults.ConfigurationUrl;
         public string SystemName => FixedRateShippingDefaults.ProviderSystemName;
-        public string FriendlyName => FixedRateShippingDefaults.FriendlyName;
+        public string FriendlyName => _translationService.GetResource(FixedRateShippingDefaults.FriendlyName);
         public int Priority => _shippingFixedRateSettings.DisplayOrder;
         public IList<string> LimitedToStores => new List<string>();
         public IList<string> LimitedToGroups => new List<string>();
