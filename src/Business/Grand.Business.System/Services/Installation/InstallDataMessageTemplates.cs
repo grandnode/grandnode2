@@ -37,7 +37,7 @@ namespace Grand.Business.System.Services.Installation
                 {{item.AttributeDescription}}
                 {% endif %}
 
-                {% if item.ShowSkuOnProductDetailsPage and item.ProductSku != null and item.ProductSku != '' %}
+                {% if item.ProductSku != null and item.ProductSku != '' %}
                 <br />
                 Sku: {{item.ProductSku}}
                 {% endif %}
@@ -115,7 +115,7 @@ namespace Grand.Business.System.Services.Installation
                 {{item.AttributeDescription}}
                 {% endif %}
 
-                {% if item.ShowSkuOnProductDetailsPage and item.ProductSku != null and item.ProductSku != '' %}
+                {% if item.ProductSku != null and item.ProductSku != '' %}
                 <br />
                 Sku: {{item.ProductSku}}
                 {% endif %}
@@ -150,7 +150,7 @@ namespace Grand.Business.System.Services.Installation
                 {{item.AttributeDescription}}
                 {% endif %}
 
-                {% if item.ShowSkuOnProductDetailsPage and item.ProductSku != null and item.ProductSku != '' %}
+                {% if item.ProductSku != null and item.ProductSku != '' %}
                 <br />
                 Sku: {{item.ProductSku}}
                 {% endif %}

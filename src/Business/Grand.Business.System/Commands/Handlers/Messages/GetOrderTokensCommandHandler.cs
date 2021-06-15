@@ -38,7 +38,6 @@ namespace Grand.Business.System.Commands.Handlers.Messages
         private readonly ITranslationService _translationService;
         private readonly IGiftVoucherService _giftVoucherService;
 
-        private readonly CatalogSettings _catalogSettings;
         private readonly TaxSettings _taxSettings;
 
         public GetOrderTokensCommandHandler(
@@ -53,7 +52,6 @@ namespace Grand.Business.System.Commands.Handlers.Messages
             IPaymentService paymentService,
             ITranslationService translationService,
             IGiftVoucherService giftVoucherService,
-            CatalogSettings catalogSettings,
             TaxSettings taxSettings)
         {
             _languageService = languageService;
@@ -67,7 +65,6 @@ namespace Grand.Business.System.Commands.Handlers.Messages
             _paymentService = paymentService;
             _translationService = translationService;
             _giftVoucherService = giftVoucherService;
-            _catalogSettings = catalogSettings;
             _taxSettings = taxSettings;
         }
 
@@ -81,7 +78,7 @@ namespace Grand.Business.System.Commands.Handlers.Messages
             {
                 var product = await _productService.GetProductById(item.ProductId);
                 Vendor vendorItem = string.IsNullOrEmpty(item.VendorId) ? null : await _vendorService.GetVendorById(item.VendorId);
-                var liqitem = new LiquidOrderItem(item, product, request.Order, language, currency, request.Store, vendorItem);
+                var liqitem = new LiquidOrderItem(item, product, language, request.Store, vendorItem);
 
                 #region Download
 
@@ -127,7 +124,6 @@ namespace Grand.Business.System.Commands.Handlers.Messages
                     sku = product.FormatSku(item.Attributes, _productAttributeParser);
 
                 liqitem.ProductSku = WebUtility.HtmlEncode(sku);
-                liqitem.ShowSkuOnProductDetailsPage = _catalogSettings.ShowSkuOnProductDetailsPage;
                 liqitem.ProductOldPrice = _priceFormatter.FormatPrice(product.OldPrice, currency, language, true);
 
                 liquidOrder.OrderItems.Add(liqitem);
@@ -149,7 +145,7 @@ namespace Grand.Business.System.Commands.Handlers.Messages
             Dictionary<string, string> dict = new Dictionary<string, string>();
             foreach (var item in request.Order.OrderTaxes)
             {
-                string taxRate = string.Format(_translationService.GetResource("Messages.Order.TaxRateLine"), _priceFormatter.FormatTaxRate(item.Percent));
+                string taxRate = string.Format(_translationService.GetResource("Messages.Order.TaxRateLine", language.Id), _priceFormatter.FormatTaxRate(item.Percent));
                 string taxValue = _priceFormatter.FormatPrice(item.Amount, currency, language, false);
                 dict.Add(taxRate, taxValue);
             }
