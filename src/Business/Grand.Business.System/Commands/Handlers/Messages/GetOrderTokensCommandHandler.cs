@@ -142,13 +142,19 @@ namespace Grand.Business.System.Commands.Handlers.Messages
             liquidOrder.PaymentMethod = paymentMethod != null ? paymentMethod.FriendlyName : request.Order.PaymentMethodSystemName;
             liquidOrder.AmountRefunded = _priceFormatter.FormatPrice(request.RefundedAmount, currency, language, false);
 
-            Dictionary<string, string> dict = new Dictionary<string, string>();
+            var dict = new Dictionary<string, string>();
             foreach (var item in request.Order.OrderTaxes)
             {
-                string taxRate = string.Format(_translationService.GetResource("Messages.Order.TaxRateLine", language.Id), _priceFormatter.FormatTaxRate(item.Percent));
-                string taxValue = _priceFormatter.FormatPrice(item.Amount, currency, language, false);
-                dict.Add(taxRate, taxValue);
+                var taxRate = string.Format(_translationService.GetResource("Messages.Order.TaxRateLine", language.Id), _priceFormatter.FormatTaxRate(item.Percent));
+                var taxValue = _priceFormatter.FormatPrice(item.Amount, currency, language, false);
+
+                if (string.IsNullOrEmpty(taxRate))
+                    taxRate = item.Percent.ToString();
+
+                if(!dict.ContainsKey(taxRate))
+                    dict.Add(taxRate, taxValue);
             }
+
             liquidOrder.TaxRates = dict;
 
             Dictionary<string, string> cards = new Dictionary<string, string>();
