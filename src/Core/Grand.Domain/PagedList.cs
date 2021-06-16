@@ -79,10 +79,10 @@ namespace Grand.Domain
             return pagelist;
         }
 
-        public int PageIndex { get; private set; }
-        public int PageSize { get; private set; }
-        public int TotalCount { get; private set; }
-        public int TotalPages { get; private set; }
+        public int PageIndex { get; protected set; }
+        public int PageSize { get; protected set; }
+        public int TotalCount { get; protected set; }
+        public int TotalPages { get; protected set; }
 
         public bool HasPreviousPage {
             get { return (PageIndex > 0); }
