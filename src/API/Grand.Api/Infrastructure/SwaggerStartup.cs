@@ -56,6 +56,7 @@ namespace Grand.Api.Infrastructure
                     });
                     c.OperationFilter<AddParamOperationFilter>();
                     c.EnableAnnotations();
+                    c.SchemaFilter<EnumSchemaFilter>();
                 });
             }
         }
