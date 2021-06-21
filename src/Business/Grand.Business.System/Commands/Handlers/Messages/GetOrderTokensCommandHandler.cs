@@ -124,8 +124,6 @@ namespace Grand.Business.System.Commands.Handlers.Messages
                     sku = product.FormatSku(item.Attributes, _productAttributeParser);
 
                 liqitem.ProductSku = WebUtility.HtmlEncode(sku);
-                liqitem.ProductOldPrice = _priceFormatter.FormatPrice(product.OldPrice, currency, language, true);
-
                 liquidOrder.OrderItems.Add(liqitem);
             }
             var billingCountry = await _countryService.GetCountryById(request.Order.BillingAddress?.CountryId);

@@ -101,10 +101,6 @@ namespace Grand.Business.Messages.DotLiquidDrops
             }
         }
 
-        public string ProductOldPrice { get; set; }
-
-
-
         public string ProductId {
             get {
                 return _orderItem.ProductId;
@@ -240,6 +236,34 @@ namespace Grand.Business.Messages.DotLiquidDrops
             get {
                 return _orderItem.ItemWeight;
             }
+        }
+
+        public double ProductWeight {
+            get { return _product.Weight; }
+        }
+
+        public double ProductLength {
+            get { return _product.Length; }
+        }
+
+        public double ProductWidth {
+            get { return _product.Width; }
+        }
+
+        public double ProductHeight {
+            get { return _product.Height; }
+        }
+
+        public double ProductCatalogPrice {
+            get { return _product.CatalogPrice; }
+        }
+
+        public double ProductOldPrice {
+            get { return _product.OldPrice; }
+        }
+
+        public string ProductFlag {
+            get { return _product.Flag; }
         }
 
         public DateTime? RentalStartDateUtc {
