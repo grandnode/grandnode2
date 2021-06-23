@@ -21,12 +21,10 @@
         <script asp-location="Footer">
             document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById('selectall').addEventListener('click', function () {
-                    document.querySelector('.subscription-list .rowcheckbox').setAttribute('checked', this.getAttribute('checked'));
-                });
-                document.querySelector('.subscription-list .rowcheckbox').addEventListener('change', function (e) {
-                    var numChkBoxes = document.querySelector('.subscription-list .rowcheckbox').length;
-                    var numChkBoxesChecked = document.querySelector('.subscription-list .rowcheckbox:checked').length;
-                    document.getElementById('selectall').setAttribute('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+                    var checked = document.getElementById("selectall").checked;
+                    document.querySelectorAll('.subscription-list .rowcheckbox').forEach(function (el) {
+                        el.checked = checked;
+                    });
                 });
             });
         </script>
