@@ -1,9 +1,7 @@
-﻿using Grand.Web.Common.Localization;
+﻿using Grand.Infrastructure.ModelBinding;
+using Grand.Infrastructure.Models;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
-using Grand.Infrastructure.ModelBinding;
-using Grand.Infrastructure.Models;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -13,7 +11,7 @@ namespace Widgets.Slider.Models
     {
         public SlideModel()
         {
-            Locales = new List<SlideLocalizedModel>();            
+            Locales = new List<SlideLocalizedModel>();
         }
         [GrandResourceDisplayName("Widgets.Slider.Name")]
         public string Name { get; set; }
@@ -45,7 +43,7 @@ namespace Widgets.Slider.Models
         //Store acl
         [GrandResourceDisplayName("Widgets.Slider.LimitedToStores")]
         [UIHint("Stores")]
-        public string[] Stores { get; set; }       
+        public string[] Stores { get; set; }
 
         [UIHint("Category")]
         [GrandResourceDisplayName("Widgets.Slider.Category")]
@@ -53,6 +51,10 @@ namespace Widgets.Slider.Models
         [UIHint("Collection")]
         [GrandResourceDisplayName("Widgets.Slider.Collection")]
         public string CollectionId { get; set; }
+
+        [UIHint("Brand")]
+        [GrandResourceDisplayName("Widgets.Slider.Brand")]
+        public string BrandId { get; set; }
 
     }
 

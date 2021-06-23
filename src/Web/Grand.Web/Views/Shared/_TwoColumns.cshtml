@@ -29,6 +29,13 @@
         currentCollectionId = Url.ActionContext.RouteData.Values["collectionId"].ToString();
     }
 
+    //current brand ID
+    string currentBrandId = "";
+    if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.OrdinalIgnoreCase) &&
+        Url.ActionContext.RouteData.Values["action"].ToString().Equals("brand", StringComparison.OrdinalIgnoreCase))
+    {
+        currentBrandId = Url.ActionContext.RouteData.Values["brandId"].ToString();
+    }
 
     //current product ID
     string currentProductId = "";
@@ -57,6 +64,10 @@
 @if (!string.IsNullOrEmpty(currentCollectionId))
 {
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_collection", additionalData = Model.Id })
+}
+@if (!string.IsNullOrEmpty(currentBrandId))
+{
+    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_brand", additionalData = Model.Id })
 }
 <div id="TwoColumns" class="row custom-container mt-3">
     <div class="d-lg-none d-block">

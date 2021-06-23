@@ -74,6 +74,11 @@ namespace Widgets.Slider.ViewComponents
                 var slides = await _sliderService.GetPictureSliders(SliderType.Collection, additionalData.ToString());
                 await PrepareModel(slides, model);
             }
+            if (widgetZone == SliderWidgetDefaults.WidgetZoneBrandPage)
+            {
+                var slides = await _sliderService.GetPictureSliders(SliderType.Brand, additionalData.ToString());
+                await PrepareModel(slides, model);
+            }
 
             if (!model.Slide.Any())
                 return Content("");

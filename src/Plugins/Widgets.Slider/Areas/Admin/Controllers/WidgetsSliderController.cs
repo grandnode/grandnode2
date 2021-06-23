@@ -1,9 +1,6 @@
-﻿using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Catalog.Interfaces.Collections;
-using Grand.Business.Common.Extensions;
+﻿using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Storage.Interfaces;
 using Grand.Web.Common.Controllers;
@@ -17,7 +14,7 @@ using System.Threading.Tasks;
 using Widgets.Slider.Models;
 using Widgets.Slider.Services;
 
-namespace Widgets.Slider.Controllers
+namespace Widgets.Slider.Areas.Admin.Controllers
 {
     [AuthorizeAdmin]
     [Area("Admin")]

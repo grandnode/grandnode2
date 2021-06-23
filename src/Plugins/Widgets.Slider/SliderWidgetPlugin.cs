@@ -114,6 +114,10 @@ namespace Widgets.Slider
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Collection", "Collection");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Collection.Hint", "Select the collection where slider should appear.");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Collection.Required", "Collection is required");
+            await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Brand", "Brand");
+            await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Brand.Hint", "Select the brand where slider should appear.");
+            await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Brand.Required", "Brand is required");
+
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Name", "Name");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Name.Hint", "Enter the name of the slider");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Widgets.Slider.Name.Required", "Name is required");
@@ -168,6 +172,9 @@ namespace Widgets.Slider
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Collection");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Collection.Hint");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Collection.Required");
+            await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Brand");
+            await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Brand.Hint");
+            await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Brand.Required");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Name");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Name.Hint");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Widgets.Slider.Name.Required");

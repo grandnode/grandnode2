@@ -9,12 +9,20 @@
             if (sliderTypeId == @(((int)SliderType.HomePage).ToString())) {
                 $('#pnlCategory').hide();
                 $('#pnlCollection').hide();
+                $('#pnlBrand').hide();
             } else if (sliderTypeId == @(((int)SliderType.Category).ToString())) {
                 $('#pnlCategory').show();
                 $('#pnlCollection').hide();
+                $('#pnlBrand').hide();
             }else if (sliderTypeId == @(((int)SliderType.Collection).ToString())) {
                 $('#pnlCategory').hide();
                 $('#pnlCollection').show();
+                $('#pnlBrand').hide();
+            }
+            else if (sliderTypeId == @(((int)SliderType.Brand).ToString())) {
+                $('#pnlCategory').hide();
+                $('#pnlCollection').hide();
+                $('#pnlBrand').show();
             }
         }
 </script>
@@ -120,7 +128,13 @@
                 <span asp-validation-for="CollectionId"></span>
             </div>
         </div>
-
+        <div class="form-group" id="pnlBrand">
+            <admin-label asp-for="BrandId" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="BrandId" />
+                <span asp-validation-for="BrandId"></span>
+            </div>
+        </div>
         <div class="form-group">
             <admin-label asp-for="DisplayOrder" />
             <div class="col-md-9 col-sm-9">

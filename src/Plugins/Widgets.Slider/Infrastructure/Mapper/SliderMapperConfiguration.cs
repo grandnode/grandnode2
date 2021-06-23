@@ -18,6 +18,9 @@ namespace Widgets.Slider.Infrastructure.Mapper
             if (model.SliderTypeId == (int)SliderType.Collection)
                 return model.CollectionId;
 
+            if (model.SliderTypeId == (int)SliderType.Brand)
+                return model.BrandId;
+
             return "";
         }
         protected string GetCategoryId(PictureSlider pictureSlider)
@@ -35,6 +38,13 @@ namespace Widgets.Slider.Infrastructure.Mapper
 
             return "";
         }
+        protected string GetBrandId(PictureSlider pictureSlider)
+        {
+            if (pictureSlider.SliderTypeId == SliderType.Brand)
+                return pictureSlider.ObjectEntry;
+
+            return "";
+        }
 
         public SliderMapperConfiguration()
         {
@@ -45,6 +55,7 @@ namespace Widgets.Slider.Infrastructure.Mapper
             CreateMap<PictureSlider, SlideModel>()
                 .ForMember(dest => dest.CategoryId, mo => mo.MapFrom(x => GetCategoryId(x)))
                 .ForMember(dest => dest.CollectionId, mo => mo.MapFrom(x => GetCollectionId(x)))
+                .ForMember(dest => dest.BrandId, mo => mo.MapFrom(x => GetBrandId(x)))
                 .ForMember(dest => dest.Locales, mo => mo.Ignore());
 
             CreateMap<SlideListModel, PictureSlider>()
