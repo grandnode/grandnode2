@@ -54,7 +54,7 @@
                     <div class="sort-container order-3 d-inline-flex ml-sm-0 ml-auto change-view">
                         <template v-for="viewmode in catalog.Model.PagingFilteringContext.AvailableViewModes">
                             <a class="viewmode-icon d-flex align-items-center" v-bind:class="{ selected: viewmode.Selected, 'text-info': viewmode.Selected }" @@click="catalog.loadProducts(viewmode.Value)" :title="viewmode.Text">
-                                <template v-if="viewmode.Text == 'Grid'">
+                                <template v-if="viewmode.Value.includes('viewmode=grid')">
                                     <template v-if="viewmode.Selected">
                                         <b-icon scale="2" icon="grid3x2-gap-fill"></b-icon>
                                     </template>
