@@ -977,6 +977,102 @@ namespace Grand.Web.Admin.Controllers
 
         #endregion
 
+        #region Recommended products
+
+        [PermissionAuthorizeAction(PermissionActionName.Preview)]
+        [HttpPost]
+        public async Task<IActionResult> RecommendedProductList(DataSourceRequest command, string productId)
+        {
+            var product = await _productService.GetProductById(productId);
+
+            var permission = await CheckAccessToProduct(product);
+            if (!permission.allow)
+                return ErrorForKendoGridJson(permission.message);
+
+            var recommendedProductsModel = new List<ProductModel.RecommendedProductModel>();
+            foreach (var x in product.RecommendedProduct)
+            {
+                recommendedProductsModel.Add(new ProductModel.RecommendedProductModel {
+                    Id = x,
+                    ProductId = product.Id,
+                    Product2Name = (await _productService.GetProductById(x))?.Name,
+                });
+            }
+            var gridModel = new DataSourceResult {
+                Data = recommendedProductsModel,
+                Total = recommendedProductsModel.Count
+            };
+
+            return Json(gridModel);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [HttpPost]
+        public async Task<IActionResult> RecommendedProductDelete(ProductModel.RecommendedProductModel model)
+        {
+            var product = await _productService.GetProductById(model.ProductId);
+            if (product == null)
+            {
+                throw new ArgumentException("Product not exists");
+            }
+            var recommendedProduct = product.RecommendedProduct.Where(x => x == model.Id).FirstOrDefault();
+            if (string.IsNullOrEmpty(recommendedProduct))
+                throw new ArgumentException("No recommended product found with the specified id");
+
+            if (ModelState.IsValid)
+            {
+                await _productViewModelService.DeleteRecommendedProduct(product.Id, recommendedProduct);
+                return new JsonResult("");
+            }
+            return ErrorForKendoGridJson(ModelState);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        public async Task<IActionResult> RecommendedProductAddPopup(string productId)
+        {
+            var model = await _productViewModelService.PrepareRecommendedProductModel();
+            model.ProductId = productId;
+            return View(model);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [HttpPost]
+        public async Task<IActionResult> RecommendedProductAddPopupList(DataSourceRequest command, ProductModel.AddRecommendedProductModel model)
+        {
+            var (products, totalCount) = await _productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+            var gridModel = new DataSourceResult {
+                Data = products.ToList(),
+                Total = totalCount
+            };
+
+            return Json(gridModel);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [HttpPost]
+        public async Task<IActionResult> RecommendedProductAddPopup(ProductModel.AddRecommendedProductModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (model.SelectedProductIds != null)
+                {
+                    await _productViewModelService.InsertRecommendedProductModel(model);
+                }
+                //a vendor should have access only to his products
+                model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
+                ViewBag.RefreshPage = true;
+            }
+            else
+            {
+                Error(ModelState);
+                model = await _productViewModelService.PrepareRecommendedProductModel();
+                model.ProductId = model.ProductId;
+            }
+            return View(model);
+        }
+
+        #endregion
+
         #region Associated products
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]

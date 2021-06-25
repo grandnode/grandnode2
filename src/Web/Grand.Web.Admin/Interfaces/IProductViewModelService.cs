@@ -28,6 +28,7 @@ namespace Grand.Web.Admin.Interfaces
         Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddSimilarProductModel model, int pageIndex, int pageSize);
         Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddBundleProductModel model, int pageIndex, int pageSize);
         Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddCrossSellProductModel model, int pageIndex, int pageSize);
+        Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddRecommendedProductModel model, int pageIndex, int pageSize);
         Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddAssociatedProductModel model, int pageIndex, int pageSize);
         Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel model, int pageIndex, int pageSize);
         Task<IList<ProductModel.ProductCategoryModel>> PrepareProductCategoryModel(Product product);
@@ -49,12 +50,15 @@ namespace Grand.Web.Admin.Interfaces
         Task DeleteBundleProductModel(ProductModel.BundleProductModel model);
         Task InsertCrossSellProductModel(ProductModel.AddCrossSellProductModel model);
         Task DeleteCrossSellProduct(string productId, string crossSellProductId);
+        Task InsertRecommendedProductModel(ProductModel.AddRecommendedProductModel model);
+        Task DeleteRecommendedProduct(string productId, string recommendedProductId);
         Task InsertAssociatedProductModel(ProductModel.AddAssociatedProductModel model);
         Task DeleteAssociatedProduct(Product product);
         Task<ProductModel.AddRelatedProductModel> PrepareRelatedProductModel();
         Task<ProductModel.AddSimilarProductModel> PrepareSimilarProductModel();
         Task<ProductModel.AddBundleProductModel> PrepareBundleProductModel();
         Task<ProductModel.AddCrossSellProductModel> PrepareCrossSellProductModel();
+        Task<ProductModel.AddRecommendedProductModel> PrepareRecommendedProductModel();
         Task<ProductModel.AddAssociatedProductModel> PrepareAssociatedProductModel();
         Task<BulkEditListModel> PrepareBulkEditListModel();
         Task<(IEnumerable<BulkEditProductModel> bulkEditProductModels, int totalCount)> PrepareBulkEditProductModel(BulkEditListModel model, int pageIndex, int pageSize);
