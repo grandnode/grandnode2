@@ -106,7 +106,11 @@ namespace Grand.Web.Common.Startup
                      var isMatch = type.GetTypeInfo().IsGenericType && ((Type)criteria).IsAssignableFrom(type.GetGenericTypeDefinition());
                      return isMatch;
                  }, typeof(IValidatorConsumer<>));
-                types.Select(c => serviceCollection.AddScoped(c, consumer));
+                foreach (var item in types)
+                {
+                    serviceCollection.AddScoped(item, consumer);
+                }
+
             }
         }
 
