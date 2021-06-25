@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Grand.Web.Components
 {
-    public class RecommendedProductsViewComponent : BaseViewComponent
+    public class CustomerRecommendedProductsViewComponent : BaseViewComponent
     {
 
         #region Fields
@@ -24,7 +24,7 @@ namespace Grand.Web.Components
 
         #region Constructors
 
-        public RecommendedProductsViewComponent(
+        public CustomerRecommendedProductsViewComponent(
             IWorkContext workContext,
             IMediator mediator,
             CatalogSettings catalogSettings)
