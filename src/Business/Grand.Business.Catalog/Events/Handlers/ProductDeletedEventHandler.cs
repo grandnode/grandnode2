@@ -55,6 +55,9 @@ namespace Grand.Business.Catalog.Events.Handlers
             //delete cross sales product
             await _productRepository.Pull(string.Empty, x => x.CrossSellProduct, notification.Entity.Id, true);
 
+            //delete recomended product
+            await _productRepository.Pull(string.Empty, x => x.RecommendedProduct, notification.Entity.Id, true);
+
             //delete review
             await _productReviewRepository.DeleteManyAsync(x=>x.ProductId == notification.Entity.Id);
 
