@@ -23,6 +23,7 @@ namespace Grand.Domain.Catalog
         private ICollection<string> _appliedDiscounts;
         private ICollection<ProductWarehouseInventory> _productWarehouseInventory;
         private ICollection<string> _crossSellProduct;
+        private ICollection<string> _recommendedProduct;
         private ICollection<RelatedProduct> _relatedProduct;
         private ICollection<SimilarProduct> _similarProduct;
         private ICollection<BundleProduct> _bundleProduct;
@@ -668,6 +669,12 @@ namespace Grand.Domain.Catalog
         {
             get { return _crossSellProduct ??= new List<string>(); }
             protected set { _crossSellProduct = value; }
+        }
+
+        public virtual ICollection<string> RecommendedProduct 
+        {
+            get { return _recommendedProduct ??= new List<string>(); }
+            protected set { _recommendedProduct = value; }
         }
 
         public virtual ICollection<RelatedProduct> RelatedProducts
