@@ -10,7 +10,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
-using Grand.Web.Common.Controllers;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using MediatR;
@@ -148,8 +147,7 @@ namespace Grand.Web.Controllers
             //if we already have the same product in the cart, then use the total quantity to validate
             var quantityToValidate = shoppingCartItem != null ? shoppingCartItem.Quantity + quantity : quantity;
             var addToCartWarnings = await _shoppingCartValidator
-              .GetShoppingCartItemWarnings(customer, new ShoppingCartItem()
-              {
+              .GetShoppingCartItemWarnings(customer, new ShoppingCartItem() {
                   ShoppingCartTypeId = cartType,
                   StoreId = _workContext.CurrentStore.Id,
                   WarehouseId = warehouseId,
@@ -182,8 +180,7 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            var addtoCartModel = await _mediator.Send(new GetAddToCart()
-            {
+            var addtoCartModel = await _mediator.Send(new GetAddToCart() {
                 Product = product,
                 Customer = customer,
                 Quantity = quantity,
@@ -219,7 +216,6 @@ namespace Grand.Web.Controllers
                         {
                             success = true,
                             message = string.Format(_translationService.GetResource("Products.ProductHasBeenAddedToTheWishlist.Link"), Url.RouteUrl("Wishlist")),
-                            html = await this.RenderPartialViewToString("_PopupAddToCart", addtoCartModel, true),
                             updatetopwishlistsectionhtml = updatetopwishlistsectionhtml,
                             wishlistqty = qty,
                             model = addtoCartModel
@@ -251,8 +247,7 @@ namespace Grand.Web.Controllers
                             _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, shoppingCartTypes.ToArray())
                                 .Sum(x => x.Quantity));
 
-                        var miniShoppingCartmodel = _shoppingCartSettings.MiniShoppingCartEnabled ? await _mediator.Send(new GetMiniShoppingCart()
-                        {
+                        var miniShoppingCartmodel = _shoppingCartSettings.MiniShoppingCartEnabled ? await _mediator.Send(new GetMiniShoppingCart() {
                             Customer = _workContext.CurrentCustomer,
                             Currency = _workContext.WorkingCurrency,
                             Language = _workContext.WorkingLanguage,
@@ -264,7 +259,6 @@ namespace Grand.Web.Controllers
                         {
                             success = true,
                             message = string.Format(_translationService.GetResource("Products.ProductHasBeenAddedToTheCart.Link"), Url.RouteUrl("ShoppingCart")),
-                            html = await this.RenderPartialViewToString("_PopupAddToCart", addtoCartModel, true),
                             updatetopcartsectionhtml = updatetopcartsectionhtml,
                             sidebarshoppingcartmodel = miniShoppingCartmodel,
                             model = addtoCartModel
@@ -517,8 +511,7 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            var addtoCartModel = await _mediator.Send(new GetAddToCart()
-            {
+            var addtoCartModel = await _mediator.Send(new GetAddToCart() {
                 Product = product,
                 Customer = _workContext.CurrentCustomer,
                 Quantity = quantity,
@@ -563,7 +556,6 @@ namespace Grand.Web.Controllers
                             message = string.Format(_translationService.GetResource("Products.ProductHasBeenAddedToTheWishlist.Link"), Url.RouteUrl("Wishlist")),
                             updatetopwishlistsectionhtml = updatetopwishlistsectionhtml,
                             wishlistqty = qty,
-                            html = await this.RenderPartialViewToString("_PopupAddToCart", addtoCartModel, true),
                             model = addtoCartModel
                         });
                     }
@@ -593,8 +585,7 @@ namespace Grand.Web.Controllers
                             _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, shoppingCartTypes.ToArray())
                                 .Sum(x => x.Quantity));
 
-                        var miniShoppingCartmodel = _shoppingCartSettings.MiniShoppingCartEnabled ? await _mediator.Send(new GetMiniShoppingCart()
-                        {
+                        var miniShoppingCartmodel = _shoppingCartSettings.MiniShoppingCartEnabled ? await _mediator.Send(new GetMiniShoppingCart() {
                             Customer = _workContext.CurrentCustomer,
                             Currency = _workContext.WorkingCurrency,
                             Language = _workContext.WorkingLanguage,
@@ -606,7 +597,6 @@ namespace Grand.Web.Controllers
                         {
                             success = true,
                             message = string.Format(_translationService.GetResource("Products.ProductHasBeenAddedToTheCart.Link"), Url.RouteUrl("ShoppingCart")),
-                            html = await this.RenderPartialViewToString("_PopupAddToCart", addtoCartModel, true),
                             updatetopcartsectionhtml = updatetopcartsectionhtml,
                             sidebarshoppingcartmodel = miniShoppingCartmodel,
                             refreshreservation = product.ProductTypeId == ProductType.Reservation && product.IntervalUnitId != IntervalUnit.Day,
@@ -669,8 +659,7 @@ namespace Grand.Web.Controllers
 
             var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ? form["WarehouseId"].ToString() : _workContext.CurrentStore.DefaultWarehouseId;
 
-            var shoppingCartItem = new ShoppingCartItem
-            {
+            var shoppingCartItem = new ShoppingCartItem {
                 Attributes = new List<CustomAttribute>(),
                 CreatedOnUtc = DateTime.UtcNow,
                 ProductId = product.Id,
@@ -705,8 +694,7 @@ namespace Grand.Web.Controllers
             //activity log
             await _customerActivityService.InsertActivity("PublicStore.AddNewBid", product.Id, _translationService.GetResource("ActivityLog.PublicStore.AddToBid"), product.Name);
 
-            var addtoCartModel = await _mediator.Send(new GetAddToCart()
-            {
+            var addtoCartModel = await _mediator.Send(new GetAddToCart() {
                 Product = product,
                 Customer = customer,
                 Quantity = 1,
@@ -721,7 +709,6 @@ namespace Grand.Web.Controllers
             {
                 success = true,
                 message = _translationService.GetResource("ShoppingCart.Yourbidhasbeenplaced"),
-                html = await this.RenderPartialViewToString("_PopupAddToCart", addtoCartModel, true),
                 model = addtoCartModel
             });
         }
