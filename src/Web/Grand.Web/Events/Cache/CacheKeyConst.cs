@@ -277,15 +277,6 @@ namespace Grand.Web.Events.Cache
         public const string PRODUCTS_RELATED_IDS_KEY = "Grand.product.id-{0}-{1}.pres.related";        
 
         /// <summary>
-        /// Key for "similar" product identifiers displayed on the product details page
-        /// </summary>
-        /// <remarks>
-        /// {0} : current product id
-        /// {1} : current store ID
-        /// </remarks>
-        public const string PRODUCTS_SIMILAR_IDS_KEY = "Grand.product.id-{0}-{1}.pres.similar";
-              
-        /// <summary>
         /// Key for blog tag list model
         /// </summary>
         /// <remarks>
