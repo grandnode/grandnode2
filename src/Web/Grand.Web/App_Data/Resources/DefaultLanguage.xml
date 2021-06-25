@@ -3597,6 +3597,15 @@
   <Resource Name="Admin.Catalog.Products.PurchasedWithOrders">
     <Value>Purchased with orders</Value>
   </Resource>
+  <Resource Name="admin.catalog.products.recommended">
+    <Value>Recommended products</Value>
+  </Resource>
+  <Resource Name="admin.catalog.products.recommended.addnew">
+    <Value>Add new recommended products</Value>
+  </Resource>
+  <Resource Name="admin.catalog.products.recommended.fields.product">
+    <Value>Products</Value>
+  </Resource>
   <Resource Name="Admin.Catalog.Products.RelatedProducts">
     <Value>Related products</Value>
   </Resource>
