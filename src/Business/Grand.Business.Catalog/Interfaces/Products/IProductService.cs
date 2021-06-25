@@ -273,6 +273,22 @@ namespace Grand.Business.Catalog.Interfaces.Products
 
         #endregion
 
+        #region Recommmended products
+
+        /// <summary>
+        /// Inserts a recommended product
+        /// </summary>
+        /// <param name="recommendedProduct">Recommended product</param>
+        Task InsertRecommendedProduct(string productId, string recommendedProductId);
+
+        /// <summary>
+        /// Deletes a recommended product
+        /// </summary>
+        /// <param name="recommendedProduct">Recommended identifier</param>
+        Task DeleteRecommendedProduct(string productId, string recommendedProductId);
+
+        #endregion
+
         #region Bundle products
 
         /// <summary>

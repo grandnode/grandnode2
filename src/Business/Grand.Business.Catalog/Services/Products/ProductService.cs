@@ -897,6 +897,47 @@ namespace Grand.Business.Catalog.Services.Products
 
         #endregion
 
+        #region Recommmended products
+
+        /// <summary>
+        /// Inserts a recommended product
+        /// </summary>
+        /// <param name="recommendedProduct">Recommended product</param>
+        public virtual async Task InsertRecommendedProduct(string productId, string recommendedProductId)
+        {
+            if (productId == null)
+                throw new ArgumentNullException(nameof(productId));
+
+            if (recommendedProductId == null)
+                throw new ArgumentNullException(nameof(recommendedProductId));
+
+            await _productRepository.AddToSet(productId, x => x.RecommendedProduct, recommendedProductId);
+
+            //cache
+            await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+            
+        }
+
+        /// <summary>
+        /// Deletes a recommended product
+        /// </summary>
+        /// <param name="recommendedProduct">Recommended identifier</param>
+        public virtual async Task DeleteRecommendedProduct(string productId, string recommendedProductId)
+        {
+            if (productId == null)
+                throw new ArgumentNullException(nameof(productId));
+
+            if (recommendedProductId == null)
+                throw new ArgumentNullException(nameof(recommendedProductId));
+
+            await _productRepository.Pull(productId, x => x.RecommendedProduct, recommendedProductId);
+
+            //cache
+            await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        }
+
+        #endregion
+
         #region Tier prices
 
 
