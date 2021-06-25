@@ -20,6 +20,7 @@ namespace Grand.Api.Infrastructure.Mapper
                 .ForMember(dest => dest.TierPrices, mo => mo.Ignore())
                 .ForMember(dest => dest.ProductWarehouseInventory, mo => mo.Ignore())
                 .ForMember(dest => dest.CrossSellProduct, mo => mo.Ignore())
+                .ForMember(dest => dest.RecommendedProduct, mo => mo.Ignore())
                 .ForMember(dest => dest.RelatedProducts, mo => mo.Ignore())
                 .ForMember(dest => dest.BundleProducts, mo => mo.Ignore())
                 .ForMember(dest => dest.ProductTags, mo => mo.Ignore())
