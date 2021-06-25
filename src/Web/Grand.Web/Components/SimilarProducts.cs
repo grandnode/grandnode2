@@ -36,6 +36,8 @@ namespace Grand.Web.Components
         public async Task<IViewComponentResult> InvokeAsync(string productId, int? productThumbPictureSize)
         {
             var productIds = (await _productService.GetProductById(productId)).SimilarProducts.OrderBy(x => x.DisplayOrder).Select(x => x.ProductId2).ToArray();
+            if (!productIds.Any())
+                return Content("");
 
             var products = await _productService.GetProductsByIds(productIds);
 
