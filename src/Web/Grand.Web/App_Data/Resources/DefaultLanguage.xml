@@ -13365,6 +13365,9 @@
   <Resource Name="ContactUs.FullName">
     <Value>Your name</Value>
   </Resource>
+  <Resource Name="ContactUs.FullName.Hint">
+    <Value>Enter your name</Value>
+  </Resource>
   <Resource Name="ContactUs.FullName.Required">
     <Value>Enter your name</Value>
   </Resource>
