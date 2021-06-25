@@ -261,6 +261,11 @@ namespace Grand.Business.Catalog.Services.Products
                 productCopy.CrossSellProduct.Add(csProduct);
             }
 
+            foreach (var reProduct in product.RecommendedProduct)
+            {
+                productCopy.RecommendedProduct.Add(reProduct);
+            }
+
             // product specifications
             foreach (var productSpecificationAttribute in product.ProductSpecificationAttributes)
             {
