@@ -1,0 +1,16 @@
+﻿@model IList<ProductOverviewModel>
+@if (Model.Any())
+{
+    <div class="recommended-products-grid product-grid col-12 px-0">
+        <h2 class="h3 generalTitle text-center">@Loc["Products.RecommendedProducts"]</h2>
+        <div class="form-row">
+            @foreach (var item in Model)
+            {
+                <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 product-container mb-2">
+                    <partial name="_CatalogProductView" model="item" />
+                </div>
+            }
+        </div>
+    </div>
+}
+

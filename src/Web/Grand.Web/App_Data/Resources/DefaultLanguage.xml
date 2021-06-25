@@ -15423,6 +15423,9 @@
   <Resource Name="Products.RecentlyViewedProducts">
     <Value>Recently viewed products</Value>
   </Resource>
+  <Resource Name="Products.RecommendedProducts">
+    <Value>Recommended products</Value>
+  </Resource>
   <Resource Name="Products.RelatedProducts">
     <Value>Related products</Value>
   </Resource>
