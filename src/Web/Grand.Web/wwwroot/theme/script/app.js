@@ -15,6 +15,7 @@
             searchblog: null,
             searchproducts: null,
             flycartfirstload: true,
+            PopupAddToCartVueModal: null,
         }
     },
     props: {

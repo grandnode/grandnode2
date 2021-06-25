@@ -148,7 +148,8 @@ var AxiosCart = {
         if (response.data.message) {
             if (response.data.success == true) {
                 //success
-                displayPopupAddToCart(response.data.html);
+                vm.PopupAddToCartVueModal = response.data.model;
+                vm.$refs['ModalAddToCart'].show();
                 if (response.data.refreshreservation == true) {
                     var param = "";
                     if ($("#parameterDropdown").val() != null) {
