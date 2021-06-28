@@ -23,35 +23,48 @@
 
         var count = 0;
 
-        <div class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList">
-            <a class="breadcrumb-item" href="@Url.RouteUrl("HomePage")" title="@Loc["Categories.Breadcrumb.Top"]">
-                <b-icon icon="house-door" scale="1.25" shift-v="1.25" aria-hidden="true"></b-icon>
-                @Loc["Categories.Breadcrumb.Top"]
-            </a>
+        <ol class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList">
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">
+                <a href="@Url.RouteUrl("HomePage")" title="@Loc["Categories.Breadcrumb.Top"]">
+                    <b-icon icon="house-door" scale="1.25" shift-v="1.25" aria-hidden="true"></b-icon>
+                    <span itemprop="name">@Loc["Products.Breadcrumb.Top"]</span>
+                    <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                          id="@Url.RouteUrl("HomePage")">
+                    </span>
+                    <meta itemprop="position" content="@count" />
+                </a>
+            </li>
             @foreach (var cat in Model.CategoryBreadcrumb)
             {
                 count++;
                 var isLastCategory = cat.Id == Model.Id;
                 @if (isLastCategory)
                 {
-                    <a class="breadcrumb-item" active>
-                        <strong class="current-item" itemprop="name">@cat.Name</strong>
-                        <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
-                              id="@Url.RouteUrl("Category", new {SeName = cat.SeName})">
-                        </span>
-                        <meta itemprop="position" content="@count" />
-                    </a>
+                    <li class="breadcrumb-item active" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">
+                        <a>
+                            <strong class="current-item" itemprop="name">@cat.Name</strong>
+                            <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                                  id="@Url.RouteUrl("Category", new {SeName = cat.SeName})">
+                            </span>
+                            <meta itemprop="position" content="@count" />
+                        </a>
+                    </li>
                 }
                 else
                 {
-                    <a class="breadcrumb-item" href="@Url.RouteUrl("Category", new { SeName = cat.SeName })" title="@cat.Name" itemprop="item">
-                        @cat.Name
-                        <meta itemprop="position" content="@count" />
-                    </a>
+                    <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">
+                        <a href="@Url.RouteUrl("Category", new { SeName = cat.SeName })" title="@cat.Name" itemprop="item">
+                            <span itemprop="name">@cat.Name</span>
+                            <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                                  id="@Url.RouteUrl("Category", new { SeName = cat.SeName })">
+                            </span>
+                            <meta itemprop="position" content="@count" />
+                         </a>
+                    </li>
                 }
 
             }
-        </div>
+        </ol>
         @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_breadcrumb", additionalData = Model.Id })
 
     }

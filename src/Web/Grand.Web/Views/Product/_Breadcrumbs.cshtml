@@ -9,6 +9,9 @@
                     <a href="@Url.RouteUrl("HomePage")" target="_self">
                         <b-icon icon="house-door" scale="1.25" shift-v="1.25" aria-hidden="true"></b-icon>
                         <span itemprop="name">@Loc["Products.Breadcrumb.Top"]</span>
+                        <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                              id="@Url.RouteUrl("HomePage")">
+                        </span>
                         <meta itemprop="position" content="@count" />
                     </a>
                 </li>
@@ -18,6 +21,9 @@
                     <li itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem" class="breadcrumb-item">
                         <a href="@Url.RouteUrl("Category", new { SeName = category.SeName })" target="_self">
                             <span itemprop="name">@category.Name</span>
+                            <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
+                                  id="@Url.RouteUrl("Category", new { SeName = category.SeName })">
+                            </span>
                             <meta itemprop="position" content="@count" />
                         </a>
                     </li>
