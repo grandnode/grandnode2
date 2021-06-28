@@ -1,4 +1,8 @@
-﻿<div class="header-nav">
+﻿@inject IWorkContext workContext
+@{ 
+    var supportRtl = workContext.WorkingLanguage.Rtl;
+}
+<div class="header-nav">
     <b-navbar type="light">
         <b-container :fluid="fluid" id="header-container">
             <div class="menu-container">
@@ -6,14 +10,15 @@
                     <button aria-label="menu-toggler" class="btn menu-toggler" v-b-toggle.sidebar-menu><span></span><span></span><span></span></button>
                     <b-sidebar id="sidebar-menu"
                                backdrop
-                               shadow>
+                               shadow
+                               @if (supportRtl) { <text>right</text> }>
                         <ul class="Menu -vertical">
                             @await Component.InvokeAsync("Menu")
                         </ul>
                     </b-sidebar>
                 </template>
             </div>
-            <partial name="_Logo"/>
+            <partial name="_Logo" />
             <ul class="navbar-nav top-header-items order-3">
                 <template>
                     <li class="nav-item">
@@ -47,7 +52,7 @@
                             <b-icon icon="gear" :variant="[darkMode ? 'white' : 'dark']" v-b-toggle.sidebar-right></b-icon>
                         </span>
                         <template>
-                            <b-sidebar id="sidebar-right" body-class="user-panel" title="@Loc["Account.MyAccount"]" right backdrop>
+                            <b-sidebar id="sidebar-right" body-class="user-panel" title="@Loc["Account.MyAccount"]" @if (!supportRtl) { <text>right</text> } backdrop>
                                 <div class="d-inline-flex flex-wrap mb-2">
                                     <partial name="_Selector_TaxType" />
                                     <partial name="_Selector_Currency" />

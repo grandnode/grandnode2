@@ -1,4 +1,8 @@
 ﻿@model int
+@inject IWorkContext workContext
+@{
+    var supportRtl = workContext.WorkingLanguage.Rtl;
+}
 <li class="nav-item">
     <ul class="sidebar-cart px-0">
         <li class="nav-item">
@@ -16,7 +20,7 @@
         </li>
         <template>
             <li>
-                <b-sidebar id="sidebar-cart" backdrop right>
+                <b-sidebar id="sidebar-cart" backdrop @if (!supportRtl) { <text>right</text> }>
                     <template v-slot:title v-if="flycartindicator > 0">
                         @Html.Raw(string.Format(Loc["ShoppingCart.Mini.ItemsText"], string.Format("<a href=\"{0}\">{1}</a>", Url.RouteUrl("ShoppingCart"), string.Format(Loc["ShoppingCart.Mini.Items"], "{{flycartindicator}}"))))
                     </template>
