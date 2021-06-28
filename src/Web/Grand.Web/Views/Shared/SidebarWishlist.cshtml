@@ -1,17 +1,21 @@
-﻿@model int  
+﻿@model int
+@inject IWorkContext workContext
+@{
+    var supportRtl = workContext.WorkingLanguage.Rtl;
+}
 <li class="nav-item">
     <ul class="sidebar-cart wishlist px-0">
-            <li class="nav-item">
-                <a href="#" target="_self" class="nav-link">
-                    <b-icon icon="heart" :variant="[darkMode ? 'white' : 'dark']" @@click="updateWishlist()" v-b-toggle.sidebar-wishlist></b-icon>
-                    <span class="qty-indicator wishlist-qty">
-                        @Loc["Wishlist.HeaderQuantity", Model]
-                    </span>
-                </a>
-            </li>
-            <template>
-                <li>
-                <b-sidebar id="sidebar-wishlist" backdrop right>
+        <li class="nav-item">
+            <a href="#" target="_self" class="nav-link">
+                <b-icon icon="heart" :variant="[darkMode ? 'white' : 'dark']" @@click="updateWishlist()" v-b-toggle.sidebar-wishlist></b-icon>
+                <span class="qty-indicator wishlist-qty">
+                    @Loc["Wishlist.HeaderQuantity", Model]
+                </span>
+            </a>
+        </li>
+        <template>
+            <li>
+                <b-sidebar id="sidebar-wishlist" backdrop @if (!supportRtl) { <text>right</text> }>
                     <template v-slot:title v-if="wishindicator > 0">
                         @Html.Raw(string.Format(Loc["Wishlist.Mini.ItemsText"], string.Format("<a href=\"{0}\">{1}</a>", Url.RouteUrl("ShoppingCart"), string.Format(Loc["Wishlist.Mini.Items"], "{{wishindicator}}"))))
                     </template>
@@ -40,13 +44,13 @@
                             <b-col cols="12" class="p-3 bg-dark">
                                 <div class="btn-group w-100">
                                     <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("Wishlist")">
-                                        <b-icon icon="heart" class="pr-2"></b-icon>
+                                        <b-icon icon="heart" class="@if (supportRtl) { <text>pl-sm-2</text> } else { <text>pr-sm-2</text> }"></b-icon>
                                         @Loc["Wishlist"]
                                     </a>
                                     <template v-if="flywish.EmailWishlistEnabled">
                                         <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("EmailWishlist")">
-                                            <b-icon icon="envelope" class="pr-sm-2 pr-0"></b-icon>
-                                            <span class="d-sm-block d-none">@Loc["Wishlist.EmailAFriend"]</span>
+                                            <b-icon icon="envelope" class="@if (supportRtl) { <text>pl-sm-2</text> } else { <text>pr-sm-2</text> }"></b-icon>
+                                            @Loc["Wishlist.EmailAFriend"]
                                         </a>
                                     </template>
                                 </div>

@@ -442,7 +442,8 @@ pre, code {
 }
 
 .left_col {
-  background: #2A3F54;
+    height: 100%;
+    background: #2A3F54;
 }
 
 .left_col .mCSB_scrollTools {
@@ -514,11 +515,11 @@ pre, code {
 }
 
 .nav-sm .container.body .col-md-3.left_col {
-  min-height: 100%;
-  width: 70px;
-  padding: 0;
-  z-index: 9999;
-  position: absolute;
+    min-height: 100%;
+    width: 90px;
+    padding: 0;
+    z-index: 9999;
+    position: fixed;
 }
 
 .nav-sm .container.body .col-md-3.left_col.menu_fixed {
@@ -535,7 +536,7 @@ pre, code {
 }
 
 .nav-sm .navbar.nav_title {
-  width: 70px;
+  width: 90px;
 }
 
 .nav-sm .navbar.nav_title a span {
@@ -1713,7 +1714,26 @@ a.hiddenanchor {
 }
 
 .main_menu_side {
-  padding: 0;
+    direction: ltr;
+    padding: 0;
+    max-height: calc(100% - 57px);
+    overflow-y: auto;
+}
+.main_menu_side * {
+    direction: rtl;
+}
+
+.main_menu_side::-webkit-scrollbar {
+  width: 8px;
+}
+ 
+.main_menu_side::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+}
+ 
+.main_menu_side::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,.3);
+  outline: 1px solid rgba(0,0,0,.25);
 }
 
 footer {
@@ -7051,6 +7071,28 @@ h2 {
 [data-theme="dark"] .permissions-table ul li:hover::before, [data-theme="dark"] .permissions-table ul li:hover::after {
     background-color: #2F3C48;
 }
+
+/* summernote */
+
+.note-editor + textarea {
+    display: none;
+}
+.note-editor.note-airframe.fullscreen, .note-editor.note-frame.fullscreen {
+    right: 90px;
+    width: calc(100% - 90px) !important;
+}
+.note-btn {
+    padding: 4px 12px;
+}
+.panel.fullscreen {
+    margin-bottom: 20px;
+    background-color: #fff;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 1px 1px rgb(0 0 0 / 5%);
+    box-shadow: 0 1px 1px rgb(0 0 0 / 5%);
+}
+
 
 @media (min-width: 992px) {
     .permissions-table .title {
