@@ -299,28 +299,27 @@
             });
 
             $('#delete-selected').click(function(e) {
+                if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
+                    var postData = {
+                        selectedIds: selectedIds
+                    };
+                    addAntiForgeryToken(postData);
 
-                e.preventDefault();
-
-                var postData = {
-                    selectedIds: selectedIds
-                };
-                addAntiForgeryToken(postData);
-
-                $.ajax({
-                    cache: false,
-                    type: "POST",
-                    url: "@(Url.Action("DeleteSelected", "Product", new { area = Constants.AreaAdmin }))",
-                    data: postData,
-                    complete: function(data) {
-                        var grid = $('#products-grid').data('kendoGrid');
-                        grid.dataSource.read();
-                    },
-                    error: function(xhr, ajaxOptions, thrownError) {
-                        alert(thrownError);
-                    },
-                    traditional: true
-                });
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "@(Url.Action("DeleteSelected", "Product", new { area = Constants.AreaAdmin }))",
+                        data: postData,
+                        complete: function (data) {
+                            var grid = $('#products-grid').data('kendoGrid');
+                            grid.dataSource.read();
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert(thrownError);
+                        },
+                        traditional: true
+                    });
+                }
                 return false;
             });
 
