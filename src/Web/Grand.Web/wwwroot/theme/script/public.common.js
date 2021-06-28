@@ -89,47 +89,6 @@ function displayPopupNewsletterCategory(html) {
     });
 }
 
-function displayPopupAddToCart(html) {
-    document.querySelector('.modal-place').innerHTML = html;
-        new Vue({
-            el: '#ModalAddToCart',
-            data: {
-                template: null,
-                darkMode: false,
-            },
-            render: function (createElement) {
-                if (!this.template) {
-                    return createElement('b-overlay', {
-                        attrs: { show: 'true' }
-                    });
-                } else {
-                    return this.template();
-                }
-            },
-            methods: {
-                showModal: function () {
-                    this.$refs['ModalAddToCart'].show()
-                },
-                onShown: function () {
-                    runScripts(document.querySelector('.script-tag'))
-                }
-            },
-            watch: {
-                darkMode: function (newValue) {
-                    localStorage.darkMode = newValue;
-                }
-            },
-            mounted: function () {
-                var self = this;
-                self.template = Vue.compile(html).render;
-                if (localStorage.darkMode == "true") this.darkMode = true;
-            },
-            updated: function () {
-                this.showModal();
-            }
-        });
-}
-
 function displayPopupQuickView(html) {
     document.querySelector('.modal-place').innerHTML = html;
     new Vue({
