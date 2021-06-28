@@ -436,6 +436,7 @@ namespace Grand.Web.Controllers
                 success = true,
                 product = true,
                 html = qhtml,
+                model = model
             });
         }
         #endregion
