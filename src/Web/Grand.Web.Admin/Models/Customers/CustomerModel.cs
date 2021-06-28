@@ -137,6 +137,9 @@ namespace Grand.Web.Admin.Models.Customers
         [GrandResourceDisplayName("Admin.Customers.Customers.Fields.IsTaxExempt")]
         public bool IsTaxExempt { get; set; }
 
+        [GrandResourceDisplayName("Admin.Customers.Customers.Fields.TwoFactorEnabled")]
+        public bool TwoFactorEnabled { get; set; }
+
         [GrandResourceDisplayName("Admin.Customers.Customers.Fields.FreeShipping")]
         public bool FreeShipping { get; set; }
 

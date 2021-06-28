@@ -263,6 +263,9 @@ namespace Grand.Web.Admin.Controllers
                 Error(customerGroupsError, false);
             }
 
+            if (model.TwoFactorEnabled)
+                Warning(_translationService.GetResource("Admin.Customers.Customers.CannotTwoFactorEnabled"));
+
             if (ModelState.IsValid)
             {
                 model.Attributes = await ParseCustomCustomerAttributes(form);
@@ -356,6 +359,9 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsSalesManager(_workContext.CurrentCustomer) && customer.Id == _workContext.CurrentCustomer.Id)
                 ModelState.AddModelError("", "You can't edit own data from admin panel");
+
+            if(!customer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled) && model.TwoFactorEnabled)
+                Warning(_translationService.GetResource("Admin.Customers.Customers.CannotTwoFactorEnabled"));
 
             if (ModelState.IsValid)
             {

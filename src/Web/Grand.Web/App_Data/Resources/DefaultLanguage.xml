@@ -6952,6 +6952,9 @@
   <Resource Name="Admin.Customers.Customers.CannotBeInVendoGroupWithoutVendorAssociated">
     <Value>A customer in the Vendors group should have a vendor account associated.</Value>
   </Resource>
+  <Resource Name="Admin.Customers.Customers.CannotTwoFactorEnabled">
+    <Value>You can't enable two-factor authentication (only disable is allowed)</Value>
+  </Resource>
   <Resource Name="Admin.Customers.Customers.CurrentShoppingCart">
     <Value>Current shopping cart</Value>
   </Resource>
@@ -7122,6 +7125,9 @@
   </Resource>
   <Resource Name="Admin.Customers.Customers.Fields.SystemName">
     <Value>System name</Value>
+  </Resource>
+  <Resource Name="Admin.Customers.Customers.Fields.TwoFactorEnabled">
+    <Value>Two-factor authentication is enabled</Value>
   </Resource>
   <Resource Name="Admin.Customers.Customers.Fields.URLReferrer">
     <Value>Created from Url</Value>

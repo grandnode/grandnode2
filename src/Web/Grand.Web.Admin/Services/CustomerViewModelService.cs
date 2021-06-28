@@ -445,6 +445,7 @@ namespace Grand.Web.Admin.Services
                     model.AdminComment = customer.AdminComment;
                     model.IsTaxExempt = customer.IsTaxExempt;
                     model.FreeShipping = customer.FreeShipping;
+                    model.TwoFactorEnabled = customer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled);
                     model.Active = customer.Active;
                     model.Owner = await _groupService.IsOwner(customer) ? "" : (await _customerService.GetCustomerById(customer.OwnerId))?.Email;
                     var result = new StringBuilder();
@@ -807,6 +808,10 @@ namespace Grand.Web.Admin.Services
             customer.FreeShipping = model.FreeShipping;
             customer.Active = model.Active;
             customer.Attributes = model.Attributes;
+
+            if(!model.TwoFactorEnabled)
+                await _userFieldService.SaveField(customer, SystemCustomerFieldNames.TwoFactorEnabled, model.TwoFactorEnabled);
+
             //email
             if (!string.IsNullOrWhiteSpace(model.Email))
             {
