@@ -13,15 +13,15 @@ namespace Grand.Web.Common.Components
             var theme = themeContext.WorkingThemeName;
 
             var viewPath = $"Views/Shared/Components/{viewComponent.ViewComponentContext.ViewComponentDescriptor.ShortName}/{viewName}.cshtml";
-            var themeViewPath = $"/Themes/{theme}{viewPath}";
+            var themeViewPath = $"/Themes/{theme}/{viewPath}";
             var viewEngine = viewComponent.ViewContext.HttpContext.RequestServices.GetRequiredService<ICompositeViewEngine>();
             var result = viewEngine.GetView("", themeViewPath, isMainPage: false);
             if (result.Success)
             {
-                viewPath = themeViewPath;
+                return themeViewPath;
             }
 
-            return viewPath;
+            return viewName;
         }
     }
 }
