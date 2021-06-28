@@ -441,7 +441,7 @@ namespace Grand.Web.Admin.Controllers
                     if (shipments.Any())
                         Error("Some orders is in associated with shipments. Please delete it first.");
 
-                    if (await CheckSalesManager(order) && !shipments.Any())
+                    if (!shipments.Any())
                     {
                         await _mediator.Send(new DeleteOrderCommand() { Order = order });
                         await customerActivityService.InsertActivity("DeleteOrder", order.Id, _translationService.GetResource("ActivityLog.DeleteOrder"), order.Id);

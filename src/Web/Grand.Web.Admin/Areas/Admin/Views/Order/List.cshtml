@@ -42,7 +42,7 @@
                             <i class="fa fa-file-pdf-o"></i>
                             @Loc["Admin.Orders.PdfInvoice.Selected"]
                         </button>
-                        <button type="button" name="delete-selected" id="delete-selected" class="btn red" onclick=" return confirm('@Loc["Admin.Common.AreYouSure"]'); ">
+                        <button type="button" name="delete-selected" id="delete-selected" class="btn red">
                             <i class="fa fa-trash-o"></i>
                             @Loc["Admin.Common.Delete.Selected"]
                         </button>
@@ -427,29 +427,28 @@
             });
 
             $('#delete-selected').click(function(e) {
+                if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
 
-                e.preventDefault();
-
-                var postData = {
-                    selectedIds: selectedIds
-                };
-                addAntiForgeryToken(postData);
-
-                $.ajax({
-                    cache: false,
-                    type: "POST",
-                    url: "@(Url.Action("DeleteSelected", "Order", new { area = Constants.AreaAdmin }))",
-                    data: postData,
-                    complete: function(data) {
-                        //reload grid
-                        var grid = $('#orders-grid').data('kendoGrid');
-                        grid.dataSource.read();
-                    },
-                    error: function(xhr, ajaxOptions, thrownError) {
-                        alert(thrownError);
-                    },
-                    traditional: true
-                });
+                    var postData = {
+                        selectedIds: selectedIds
+                    };
+                    addAntiForgeryToken(postData);
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "@(Url.Action("DeleteSelected", "Order", new { area = Constants.AreaAdmin }))",
+                        data: postData,
+                        complete: function (data) {
+                            //reload grid
+                            var grid = $('#orders-grid').data('kendoGrid');
+                            grid.dataSource.read();
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert(thrownError);
+                        },
+                        traditional: true
+                    });
+                }
                 return false;
             });
 
