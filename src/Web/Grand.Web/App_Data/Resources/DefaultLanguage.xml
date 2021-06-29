@@ -12262,7 +12262,7 @@
     <Value>Roslyn compilation</Value>
   </Resource>
   <Resource Name="Admin.System.Roslyn.Disabled">
-    <Value>Compilation of files csx are disabled. </Value>
+    <Value>Compilation of csx files are disabled.</Value>
   </Resource>
   <Resource Name="Admin.System.Roslyn.Errors">
     <Value>Errors during compilation</Value>
