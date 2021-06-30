@@ -32,7 +32,7 @@
                                                 <a v-b-toggle.accordion-qv-details class="btn btn-light collapse-button">@Loc["products.details"]</a>
                                             </div>
                                             <b-collapse class="collapse-panel" visible id="accordion-qv-details" accordion="accordion-qv-details" role="tabpanel">
-                                                <template v-if="PopupQuickViewVueModal.StockAvailability !== null">
+                                                <template v-if="PopupQuickViewVueModal.StockAvailability !== ''">
                                                     <div class="stock">
                                                         <label class="col-form-label">@Loc["Products.Availability"]:</label>
                                                         <span class="value" :id="'stock-availability-value-' + PopupQuickViewVueModal.Id">

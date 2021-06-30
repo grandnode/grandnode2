@@ -33,16 +33,16 @@
                         <b-link :href="Model.Url">{{Model.ReviewOverviewModel.TotalReviews}} @Loc["Reviews.Overview.Reviews"]</b-link>
                     </div>
                 </template>
-                <template v-if="Model.ProductType == 25">
+                <template v-if="Model.ProductType == 40">
                     <template v-if="Model.EndTime !== null">
                         <div class="countdown-box alert alert-info w-100 mb-1">
                             <template v-if="new Date(Model.EndTime).getTime() > new Date().getTime()">
                                 <countdown :end-time="new Date(Model.EndTime).getTime()">
                                     <template v-slot:process="{ timeObj }">
-                                        <span class="col-form-label">@Loc["AddToCart.Timeleft"]:</span>
-                                        <span>{{ `${timeObj.d}` }} : </span>
-                                        <span>{{ `${timeObj.h}` }} : </span>
-                                        <span>{{ `${timeObj.m}` }} : </span>
+                                        <span class="col-form-label">@Loc["AddToCart.Timeleft"]</span>
+                                        <span>{{ `${timeObj.d}` }}</span>
+                                        <span>{{ `${timeObj.h}` }}</span>
+                                        <span>{{ `${timeObj.m}` }}</span>
                                         <span>{{ `${timeObj.s}` }}</span>
                                     </template>
                                     <template v-slot:finish>

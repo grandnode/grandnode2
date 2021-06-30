@@ -6,10 +6,10 @@
                         <template v-if="new Date(PopupQuickViewVueModal.EndTime).getTime() > new Date().getTime()">
                             <countdown :end-time="new Date(PopupQuickViewVueModal.EndTime).getTime()">
                                 <template v-slot:process="{ timeObj }">
-                                    <span class="col-form-label">@Loc["AddToCart.Timeleft"]:</span>
-                                    <span>{{ `${timeObj.d}` }} : </span>
-                                    <span>{{ `${timeObj.h}` }} : </span>
-                                    <span>{{ `${timeObj.m}` }} : </span>
+                                    <span class="col-form-label">@Loc["AddToCart.Timeleft"]</span>
+                                    <span>{{ `${timeObj.d}` }}</span>
+                                    <span>{{ `${timeObj.h}` }}</span>
+                                    <span>{{ `${timeObj.m}` }}</span>
                                     <span>{{ `${timeObj.s}` }}</span>
                                 </template>
                                 <template v-slot:finish>

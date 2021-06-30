@@ -556,6 +556,15 @@ dl, ol, ul {
     width: 100%;
     display: flex;
 }
+.modal-open .image-square-tooltip {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+}
+.modal-open .image-square-tooltip img {
+    max-width: 165px;
+}
 .quick-view-overview .accordion .btn.collapse-button {
     display: inline-flex;
     justify-content: space-between;
@@ -992,6 +1001,15 @@ input:checked ~ .color-container .color::before {
 	bottom: 0;
 	right: 0;
 	margin: 0 2px 0 0;
+}
+.countdown-box > span {
+    display: inline-flex;
+    align-items: center;
+}
+.countdown-box > span span:not(:last-child)::after {
+    content: ":";
+    position: relative;
+    margin: 0 3px;
 }
 
 /* product box list */

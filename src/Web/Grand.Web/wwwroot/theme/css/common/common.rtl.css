@@ -603,6 +603,15 @@ dl, ol, ul {
     width: 100%;
     display: flex;
 }
+.modal-open .image-square-tooltip {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+}
+.modal-open .image-square-tooltip img {
+    max-width: 165px;
+}
 .quick-view-overview .prices {
     margin: 0 0 15px 0;
 }
@@ -1076,6 +1085,19 @@ input:checked ~ .color-container .color::before {
 	bottom: 0;
 	right: 0;
 	margin: 0 2px 0 0;
+}
+.countdown-box > span {
+    display: inline-flex;
+    align-items: center;
+    flex-direction: row-reverse;
+}
+.countdown-box > span .col-form-label {
+    order: 5;
+}
+.countdown-box > span span:not(.col-form-label)::before {
+    content: ":";
+    position: relative;
+    margin: 0 3px;
 }
 
 /* product box list */
