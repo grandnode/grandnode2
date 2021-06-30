@@ -143,7 +143,6 @@ var AxiosCart = {
         if (response.data.product) {
             if (response.data.success == true) {
 
-                console.log(response.data.model)
                 vm.PopupQuickViewVueModal = response.data.model;
 
                 Object.assign(vm.PopupQuickViewVueModal, { RelatedProducts: [] });
