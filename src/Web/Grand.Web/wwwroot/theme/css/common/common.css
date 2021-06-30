@@ -583,7 +583,7 @@ dl, ol, ul {
     transform: rotate( 180deg );
 }
 .quick-view-overview .collapse-panel {
-    margin: 7px 0 15px 0;
+    padding: 7px 0 15px 0;
 }
 .quick-view img {
     background-color: #F8F9FB;
