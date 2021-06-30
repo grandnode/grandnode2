@@ -54,6 +54,20 @@ namespace Grand.Web.Controllers
                         }).done(function (data) {
                             console.log(data)
                     });
+                
+                //axios
+                var data = { productId: '60c7426c072f3077f305745e'};
+                axios({
+                                    url: '/Component/Index',
+                                    method: 'post',
+                                    params: { "name": "RelatedProducts" },
+                                    data: JSON.stringify(data),
+                                    headers: { 'Content-Type': 'application/json' }                 
+                                })
+                                .then(function (response) {
+                console.log(response);
+                });
+
              */
 
             if (!ValidRequest(name, out var error))
