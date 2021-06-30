@@ -19,8 +19,6 @@
             PopupQuickViewVueModal: null,
             index: null,
             RelatedProducts: null,
-            SimilarProducts: null,
-            ProductsAlsoPurchased : null,
         }
     },
     props: {
@@ -44,6 +42,9 @@
         darkMode: function (newValue) {
             localStorage.darkMode = newValue;
         },
+        PopupQuickViewVueModal: function () {
+            vm.getLinkedProductsQV(vm.PopupQuickViewVueModal.Id);
+        }
     },
     methods: {
         updateFly: function () {
@@ -180,22 +181,8 @@
                 if (response.data.stockAvailability) {
                     vm.PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
                 }
-                if (response.data.outOfStockSubscription) {
-                    //var element = document.querySelector('#out-of-stock-subscribe-' + productId);
-                    //if (element)
-                    //    element.style.display = "block";
-                }
-                if (response.data.outOfStockSubscription == false) {
-                    //var element = document.querySelector('#out-of-stock-subscribe-' + productId);
-                    //if (element) {
-                    //    element.style.display = "none";
-                    //}
-                }
                 if (response.data.buttonTextOutOfStockSubscription) {
                     PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
-                    //var element = document.querySelector('#out-of-stock-subscribe-' + productId);
-                    //if (element)
-                    //    element.value = response.data.buttonTextOutOfStockSubscription;
                 }
                 if (response.data.enabledattributemappingids) {
                     for (var i = 0; i < response.data.enabledattributemappingids.length; i++) {
@@ -273,32 +260,6 @@
                 }
             }).then(function (response) {
                 vm.RelatedProducts = response.data;
-            });
-            axios({
-                url: '/Component/Index',
-                method: 'post',
-                params: { "name": "SimilarProducts" },
-                data: JSON.stringify(data),
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
-                }
-            }).then(function (response) {
-                vm.SimilarProducts = response.data;
-            });
-            axios({
-                url: '/Component/Index',
-                method: 'post',
-                params: { "name": "ProductsAlsoPurchased" },
-                data: JSON.stringify(data),
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
-                }
-            }).then(function (response) {
-                vm.ProductsAlsoPurchased = response.data;
             });
         }
     },
