@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Payments.PayPalStandard.Services;
 
 namespace Payments.PayPalStandard
 {
@@ -12,6 +13,7 @@ namespace Payments.PayPalStandard
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IPaymentProvider, PayPalStandardPaymentProvider>();
+            services.AddHttpClient<IPaypalHttpClient, PaypalHttpClient>();
         }
 
         public int Priority => 10;

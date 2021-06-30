@@ -1,13 +1,20 @@
 using Grand.Domain.Payments;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Payments.PayPalStandard
 {
     /// <summary>
     /// Represents paypal helper
     /// </summary>
-    public class PaypalHelper
+    public static class PaypalHelper
     {
         public static string OrderTotalSentToPayPal => "OrderTotalSentToPayPal";
+
+        public static string PayPalUrlSandbox => "https://www.sandbox.paypal.com/us/cgi-bin/webscr";
+        public static string PayPalUrl => "https://www.paypal.com/us/cgi-bin/webscr";
 
         /// <summary>
         /// Gets a payment status

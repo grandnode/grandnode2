@@ -92,105 +92,8 @@ namespace Payments.PayPalStandard
         private string GetPaypalUrl()
         {
             return _paypalStandardPaymentSettings.UseSandbox ?
-                "https://www.sandbox.paypal.com/us/cgi-bin/webscr" :
-                "https://www.paypal.com/us/cgi-bin/webscr";
-        }
-
-        /// <summary>
-        /// Gets IPN PayPal URL
-        /// </summary>
-        /// <returns></returns>
-        private string GetIpnPaypalUrl()
-        {
-            return _paypalStandardPaymentSettings.UseSandbox ?
-                "https://ipnpb.sandbox.paypal.com/cgi-bin/webscr" :
-                "https://ipnpb.paypal.com/cgi-bin/webscr";
-        }
-
-        /// <summary>
-        /// Gets PDT details
-        /// </summary>
-        /// <param name="tx">TX</param>
-        /// <param name="values">Values</param>
-        /// <param name="response">Response</param>
-        /// <returns>Result</returns>
-        public bool GetPdtDetails(string tx, out Dictionary<string, string> values, out string response)
-        {
-            var req = (HttpWebRequest)WebRequest.Create(GetPaypalUrl());
-            req.Method = WebRequestMethods.Http.Post;
-            req.ContentType = "application/x-www-form-urlencoded";
-            //now PayPal requires user-agent. otherwise, we can get 403 error
-            req.UserAgent = _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.UserAgent];
-
-            var formContent = $"cmd=_notify-synch&at={_paypalStandardPaymentSettings.PdtToken}&tx={tx}";
-            req.ContentLength = formContent.Length;
-
-            using (var sw = new StreamWriter(req.GetRequestStream(), Encoding.ASCII))
-                sw.Write(formContent);
-
-            using (var sr = new StreamReader(req.GetResponse().GetResponseStream()))
-                response = WebUtility.UrlDecode(sr.ReadToEnd());
-
-            values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            bool firstLine = true, success = false;
-            foreach (var l in response.Split('\n'))
-            {
-                var line = l.Trim();
-                if (firstLine)
-                {
-                    success = line.Equals("SUCCESS", StringComparison.OrdinalIgnoreCase);
-                    firstLine = false;
-                }
-                else
-                {
-                    var equalPox = line.IndexOf('=');
-                    if (equalPox >= 0)
-                        values.Add(line.Substring(0, equalPox), line.Substring(equalPox + 1));
-                }
-            }
-
-            return success;
-        }
-
-        /// <summary>
-        /// Verifies IPN
-        /// </summary>
-        /// <param name="formString">Form string</param>
-        /// <param name="values">Values</param>
-        /// <returns>Result</returns>
-        public bool VerifyIpn(string formString, out Dictionary<string, string> values)
-        {
-            var req = (HttpWebRequest)WebRequest.Create(GetIpnPaypalUrl());
-            req.Method = WebRequestMethods.Http.Post;
-            req.ContentType = "application/x-www-form-urlencoded";
-            //now PayPal requires user-agent. otherwise, we can get 403 error
-            req.UserAgent = _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.UserAgent];
-
-            var formContent = $"cmd=_notify-validate&{formString}";
-            req.ContentLength = formContent.Length;
-
-            using (var sw = new StreamWriter(req.GetRequestStream(), Encoding.ASCII))
-            {
-                sw.Write(formContent);
-            }
-
-            string response;
-            using (var sr = new StreamReader(req.GetResponse().GetResponseStream()))
-            {
-                response = WebUtility.UrlDecode(sr.ReadToEnd());
-            }
-            var success = response.Trim().Equals("VERIFIED", StringComparison.OrdinalIgnoreCase);
-
-            values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var l in formString.Split('&'))
-            {
-                var line = l.Trim();
-                var equalPox = line.IndexOf('=');
-                if (equalPox >= 0)
-                    values.Add(line.Substring(0, equalPox), line.Substring(equalPox + 1));
-            }
-
-            return success;
+                PaypalHelper.PayPalUrlSandbox :
+                PaypalHelper.PayPalUrl;
         }
 
         /// <summary>
@@ -239,7 +142,7 @@ namespace Payments.PayPalStandard
                 ["custom"] = order.OrderGuid.ToString(),
 
                 //PDT, IPN and cancel URL
-                ["return"] = $"{storeLocation}/Plugins/PaymentPayPalStandard/PDTHandler",
+                ["return"] = $"{storeLocation}/Plugins/PaymentPayPalStandard/PDTHandler?custom={order.OrderGuid}",
                 ["notify_url"] = $"{storeLocation}/Plugins/PaymentPayPalStandard/IPNHandler",
                 ["cancel_return"] = $"{storeLocation}/Plugins/PaymentPayPalStandard/CancelOrder",
 
