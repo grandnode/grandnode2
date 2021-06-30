@@ -56,15 +56,15 @@
                             <a class="viewmode-icon d-flex align-items-center" v-bind:class="{ selected: viewmode.Selected, 'text-info': viewmode.Selected }" @@click="catalog.loadProducts(viewmode.Value)" :title="viewmode.Text">
                                 <template v-if="viewmode.Value.includes('viewmode=grid')">
                                     <template v-if="viewmode.Selected">
-                                        <b-icon scale="2" icon="grid3x2-gap-fill"></b-icon>
+                                        <b-icon scale="2" icon="grid3x2-gap-fill" class="grid-icon"></b-icon>
                                     </template>
                                     <template v-else>
-                                        <b-icon scale="2" icon="grid3x2-gap"></b-icon>
+                                        <b-icon scale="2" icon="grid3x2-gap" class="grid-icon"></b-icon>
                                     </template>
                                     <span class="sr-only">viewmode grid</span>
                                 </template>
                                 <template v-else>
-                                    <b-icon scale="2" icon="list" class="ml-4"></b-icon>
+                                    <b-icon scale="2" icon="list" class="list-icon"></b-icon>
                                     <span class="sr-only">viewmode list</span>
                                 </template>
                             </a>
