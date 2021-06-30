@@ -603,6 +603,15 @@ dl, ol, ul {
     width: 100%;
     display: flex;
 }
+.modal-open .image-square-tooltip {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+}
+.modal-open .image-square-tooltip img {
+    max-width: 165px;
+}
 .quick-view-overview .prices {
     margin: 0 0 15px 0;
 }
