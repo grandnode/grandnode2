@@ -16,6 +16,11 @@
             searchproducts: null,
             flycartfirstload: true,
             PopupAddToCartVueModal: null,
+            PopupQuickViewVueModal: null,
+            index: null,
+            RelatedProducts: null,
+            SimilarProducts: null,
+            ProductsAlsoPurchased : null,
         }
     },
     props: {
@@ -151,5 +156,150 @@
         isMobile: function () {
             return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
         },
-    }
+        attrchange: function (productId, hasCondition, loadPicture) {
+            var form = document.getElementById('product-details-form');
+            var data = new FormData(form);
+            axios({
+                url: '/product/productdetails_attributechange?productId=' + productId + '&validateAttributeConditions=' + hasCondition + '&loadPicture=' + loadPicture,
+                data: data,
+                method: 'post',
+                params: { product: productId },
+            }).then(function (response) {
+                if (response.data.price) {
+                    vm.PopupQuickViewVueModal.ProductPrice.Price = response.data.price;
+                }
+                if (response.data.sku) {
+                    vm.PopupQuickViewVueModal.Sku = response.data.sku;
+                }
+                if (response.data.mpn) {
+                    vm.PopupQuickViewVueModal.Mpn = response.data.mpn;
+                }
+                if (response.data.gtin) {
+                    vm.PopupQuickViewVueModal.Gtin = response.data.gtin;
+                }
+                if (response.data.stockAvailability) {
+                    vm.PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
+                }
+                if (response.data.outOfStockSubscription) {
+                    //var element = document.querySelector('#out-of-stock-subscribe-' + productId);
+                    //if (element)
+                    //    element.style.display = "block";
+                }
+                if (response.data.outOfStockSubscription == false) {
+                    //var element = document.querySelector('#out-of-stock-subscribe-' + productId);
+                    //if (element) {
+                    //    element.style.display = "none";
+                    //}
+                }
+                if (response.data.buttonTextOutOfStockSubscription) {
+                    PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
+                    //var element = document.querySelector('#out-of-stock-subscribe-' + productId);
+                    //if (element)
+                    //    element.value = response.data.buttonTextOutOfStockSubscription;
+                }
+                if (response.data.enabledattributemappingids) {
+                    for (var i = 0; i < response.data.enabledattributemappingids.length; i++) {
+                        document.querySelector('#product_attribute_label_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
+                        document.querySelector('#product_attribute_input_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
+                    }
+                }
+                if (response.data.disabledattributemappingids) {
+                    for (var i = 0; i < response.data.disabledattributemappingids.length; i++) {
+                        document.querySelector('#product_attribute_label_' + response.data.disabledattributemappingids[i]).style.display = "none";
+                        document.querySelector('#product_attribute_input_' + response.data.disabledattributemappingids[i]).style.display = "none";
+                    }
+                }
+                if (response.data.pictureDefaultSizeUrl !== null) {
+                    vm.PopupQuickViewVueModal.DefaultPictureModel.ImageUrl = response.data.pictureDefaultSizeUrl;
+                }
+            });
+        },
+        uploadFile: function (e) {
+            var formData = new FormData();
+            var imagefile = e;
+            var url = imagefile.getAttribute('data-url');
+            formData.append("image", qqfile.files[0]);
+            axios.post(url, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }).then(function (response) {
+                if (response.data.success) {
+                    var message = response.data.message;
+                    var downloadGuid = response.data.downloadGuid;
+                    var downloadUrl = response.data.downloadUrl;
+                    var downloadBtn = document.querySelector('.download-file');
+                    var messageContainer = document.getElementById('download-message');
+
+                    e.setAttribute('qq-button-id', downloadGuid);
+                    document.querySelector('.hidden-upload-input').value = downloadGuid;
+
+                    messageContainer.style.display = "block";
+                    messageContainer.classList.remove('alert-danger');
+                    messageContainer.classList.add('alert-info');
+                    messageContainer.innerText = message;
+
+                    downloadBtn.style.display = "block";
+                    downloadBtn.children[0].setAttribute('href', downloadUrl);
+
+                } else {
+                    var message = response.data.message;
+                    var messageContainer = document.getElementById('download-message');
+                    messageContainer.style.display = "block";
+                    messageContainer.classList.remove('alert-info');
+                    messageContainer.classList.add('alert-danger');
+                    messageContainer.innerText = message;
+                }
+            })
+        },
+        initReservationQV: function () {
+            var productId = vm.PopupQuickViewVueModal.Id;
+            var fullDate = vm.PopupQuickViewVueModal.ReservationFullDate;
+            var year = vm.PopupQuickViewVueModal.ReservationYear;
+            var month = vm.PopupQuickViewVueModal.ReservationMonth;
+            Reservation.init(fullDate, year, month, "No available reservations", "/Product/GetDatesForMonth", productId, "/product/productdetails_attributechange?productId=" + productId + "&validateAttributeConditions=False");
+        },
+        getLinkedProductsQV: function (id) {
+            var data = { productId: id };
+            axios({
+                url: '/Component/Index',
+                method: 'post',
+                params: { "name": "RelatedProducts" },
+                data: JSON.stringify(data),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Response-View': 'Json'
+                }
+            }).then(function (response) {
+                vm.RelatedProducts = response.data;
+            });
+            axios({
+                url: '/Component/Index',
+                method: 'post',
+                params: { "name": "SimilarProducts" },
+                data: JSON.stringify(data),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Response-View': 'Json'
+                }
+            }).then(function (response) {
+                vm.SimilarProducts = response.data;
+            });
+            axios({
+                url: '/Component/Index',
+                method: 'post',
+                params: { "name": "ProductsAlsoPurchased" },
+                data: JSON.stringify(data),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Response-View': 'Json'
+                }
+            }).then(function (response) {
+                vm.ProductsAlsoPurchased = response.data;
+            });
+        }
+    },
 });

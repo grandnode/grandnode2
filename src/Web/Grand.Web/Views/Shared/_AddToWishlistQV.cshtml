@@ -1,0 +1,16 @@
+﻿@{ 
+    var addtowishlist = @Url.RouteUrl("AddProductDetails");
+}
+<template v-if="!PopupQuickViewVueModal.AddToCart.DisableWishlistButton">
+    <button id="'add-to-wishlist-button-' + PopupQuickViewVueModal.AddToCart.ProductId" class="btn btn-secondary add-to-wishlist-button mr-1" :data-productid="PopupQuickViewVueModal.AddToCart.ProductId" :onclick="'AxiosCart.addproducttocart_details(`@addtowishlist/' + PopupQuickViewVueModal.AddToCart.ProductId + '/2`, `#product-details-form`);return false;'" v-b-tooltip.hover.bottom>
+        <span class="sr-only">
+            <template v-if="PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId !== null && PopupQuickViewVueModal.AddToCart.UpdateShoppingCartItemType == 2">
+                @Loc["ShoppingCart.AddToWishlist.Update"];
+            </template>
+            <template v-else>
+                @Loc["ShoppingCart.AddToWishlist"];
+            </template>
+        </span>
+        <b-icon icon="heart"></b-icon>
+    </button>
+</template>
