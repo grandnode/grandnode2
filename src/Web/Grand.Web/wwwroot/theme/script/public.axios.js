@@ -142,13 +142,33 @@ var AxiosCart = {
         }
         if (response.data.product) {
             if (response.data.success == true) {
-                displayPopupQuickView(response.data.html);
+
+                vm.PopupQuickViewVueModal = response.data.model;
+
+                Object.assign(vm.PopupQuickViewVueModal, { RelatedProducts: [] });
+
+                vm.$refs['ModalQuickView'].show();
+
+                if (response.data.model.ProductType == 20) {
+
+                    var fullDate = new Date(response.data.model.StartDate).toLocaleDateString('en-US');
+                    var year = new Date(response.data.model.StartDate).getFullYear();
+                    var month = new Date(response.data.model.StartDate).getUTCMonth() + 1;
+
+
+                    Object.assign(vm.PopupQuickViewVueModal, { ReservationFullDate: fullDate });
+                    Object.assign(vm.PopupQuickViewVueModal, { ReservationYear: year });
+                    Object.assign(vm.PopupQuickViewVueModal, { ReservationMonth: month });
+
+                }
+
             }
         }
         if (response.data.message) {
             if (response.data.success == true) {
                 //success
                 vm.PopupAddToCartVueModal = response.data.model;
+                vm.$refs['ModalQuickView'].hide();
                 vm.$refs['ModalAddToCart'].show();
                 if (response.data.refreshreservation == true) {
                     var param = "";

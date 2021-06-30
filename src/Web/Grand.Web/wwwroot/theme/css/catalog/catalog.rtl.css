@@ -56,10 +56,10 @@
     content: "";
     position: absolute;
     top: 0;
-    left: -15px;
+    right: -15px;
     width: 10px;
     height: 105%;
-    border-left: 1px solid #e7e7e7;
+    border-right: 1px solid #e7e7e7;
 }
 .generalLeftSide .block-category-navigation li.active > .sublist > li::before {
     height: 105%;
@@ -100,7 +100,7 @@
     margin: 0 10px 0 0;
 }
 .sort-container .col-form-label {
-    margin: 0 5px 0 0;
+    margin: 0 0 0 5px;
     font-weight: 500;
     white-space: nowrap;
 }

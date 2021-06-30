@@ -370,7 +370,7 @@
                 document.querySelector("#gtin-" + Reservation.productId).innerText = response.data.gtin;
             }
             if (response.data.price) {
-                document.querySelector(".price-value-" + Reservation.productId).innerText = response.data.price;
+                document.querySelector(".price-value-" + Reservation.productId + " .actual-price").innerText = response.data.price;
             }
         })
     }

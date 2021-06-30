@@ -1,0 +1,36 @@
+﻿<template v-if="ProductsAlsoPurchased !== null">
+    <div v-if="ProductsAlsoPurchased.length > 0" class="also-purchased-products-grid linked-product-grid product-grid col-12 px-0">
+        <h2 class="h3 generalTitle text-center">@Loc["Products.AlsoPurchased"]</h2>
+        <div class="form-row">
+            <template v-for="Model in ProductsAlsoPurchased">
+                <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 product-container mb-2">
+                    <partial name="_CatalogProductViewVue"/>
+                </div>
+            </template>
+        </div>
+    </div>
+</template>
+<template v-if="SimilarProducts !== null">
+    <div v-if="SimilarProducts.length > 0" class="similar-products-grid linked-product-grid product-grid col-12 px-0">
+        <h2 class="h3 generalTitle text-center">@Loc["Products.SimilarProducts"]</h2>
+        <div class="form-row">
+            <template v-for="Model in SimilarProducts">
+                <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 product-container mb-2">
+                    <partial name="_CatalogProductViewVue" />
+                </div>
+            </template>
+        </div>
+    </div>
+</template>
+<template v-if="RelatedProducts !== null">
+    <div v-if="RelatedProducts.length > 0" class="related-products-grid linked-product-grid product-grid col-12 px-0">
+        <h2 class="h3 generalTitle text-center">@Loc["Products.RelatedProducts"]</h2>
+        <div class="form-row">
+            <template v-for="Model in RelatedProducts">
+                <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 product-container mb-2">
+                    <partial name="_CatalogProductViewVue" />
+                </div>
+            </template>
+        </div>
+    </div>
+</template>

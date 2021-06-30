@@ -9,6 +9,7 @@
     var attributeChangeScriptsBuilder = new StringBuilder();
     var productId = Model.First().ProductId;
     var attributeChangeHandlerFuncName = string.Format("attribute_change_handler_{0}", productId);
+    var fileLink = @Url.RouteUrl("UploadFileProductAttribute");
     //generate change event script
     foreach (var attribute in Model)
     {
@@ -242,7 +243,7 @@
                                                         type="file"
                                                         id="qqfile"
                                                         name="qqfile"
-                                                        :data-url="'/uploadfileproductattribute/' + attribute.Id + '?productId=' + attribute.ProductId"
+                                                        :data-url="'@fileLink/' + attribute.Id + '?productId=' + attribute.ProductId"
                                                         onchange="uploadFile(this)"
                                                     />
                                                 </div>
