@@ -277,14 +277,14 @@ namespace Grand.Web.Admin.Controllers
                 });
 
             //performance settings
-            if (!CommonHelper.IgnoreStoreLimitations && (await _storeService.GetAllStores()).Count == 1)
+            if (CommonHelper.IgnoreStoreLimitations)
             {
                 model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Warning,
                     Text = _translationService.GetResource("Admin.System.Warnings.Performance.IgnoreStoreLimitations")
                 });
             }
-            if (!CommonHelper.IgnoreAcl)
+            if (CommonHelper.IgnoreAcl)
             {
                 model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Warning,

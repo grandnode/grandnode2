@@ -12459,6 +12459,12 @@
   <Resource Name="Admin.System.Warnings.IgnoreStoreLimitations">
     <Value>In order to use this functionality you have to disable the following setting in the file appsettings.json -&gt; IgnoreStoreLimitations : set to False</Value>
   </Resource>
+  <Resource Name="admin.system.warnings.performance.ignoreacl">
+    <Value>Customer group (ACL) limitations are ignored</Value>
+  </Resource>
+  <Resource Name="admin.system.warnings.performance.ignorestorelimitations">
+    <Value>Store limitations are ignored</Value>
+  </Resource>
   <Resource Name="Admin.System.Warnings.PaymentMethods.NoActive">
     <Value>You don't have active payment methods</Value>
   </Resource>
