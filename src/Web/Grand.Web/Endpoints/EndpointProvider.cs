@@ -326,7 +326,7 @@ namespace Grand.Web.Endpoints
 
             //product attributes with "upload file" type
             endpointRouteBuilder.MapControllerRoute("UploadFileProductAttribute",
-                            pattern + "uploadfileproductattribute/{attributeId}",
+                            pattern + "uploadfileproductattribute/{attributeId?}",
                             new { controller = "Product", action = "UploadFileProductAttribute" });
         }
 
