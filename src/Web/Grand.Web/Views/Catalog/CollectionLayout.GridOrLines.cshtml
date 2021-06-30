@@ -37,12 +37,11 @@
                 <span>@Loc["Products.FeaturedProducts"]</span>
             </h2>
             <div class="form-row">
-                @foreach (var item in Model.FeaturedProducts)
-                {
+                <template v-for="Model in catalog.Model.FeaturedProducts">
                     <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-                        <partial name="_CatalogProductView" model="item" />
+                        <partial name="_CatalogProductViewVue" />
                     </div>
-                }
+                </template>                
             </div>
         </div>
     }
