@@ -33,23 +33,22 @@ namespace Grand.Business.Messages.Tests.Services
             _settings = new CatalogSettings();
             _service = new MessageTemplateService(_cacheMock.Object, _aclService.Object, _repositoryMock.Object, _mediatorMock.Object);
         }
-        
+
         [TestMethod]
         public void CopyMessageTemplate_NullArrguemnt_ThrowException()
         {
-            Assert.ThrowsExceptionAsync<ArgumentNullException>(async () =>  await _service.CopyMessageTemplate(null));
+            Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.CopyMessageTemplate(null));
         }
 
         [TestMethod]
         public async Task CopyMessageTemplate_InsertCopyEntity()
         {
-            var template = new MessageTemplate()
-            {
+            var template = new MessageTemplate() {
                 Id = "id1",
                 Name = "Name"
             };
 
-            var result=await _service.CopyMessageTemplate(template);
+            var result = await _service.CopyMessageTemplate(template);
             Assert.AreEqual(template.Name, result.Name);
             Assert.AreNotEqual(template.Id, result.Id);
             //should be insert into db

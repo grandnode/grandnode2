@@ -9,8 +9,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Messages.Tests.Services
@@ -29,7 +27,7 @@ namespace Grand.Business.Messages.Tests.Services
             _cacheMock = new Mock<ICacheBase>();
             _mediatorMock = new Mock<IMediator>();
             _repository = new Mock<IRepository<EmailAccount>>();
-            _service = new EmailAccountService(_repository.Object,_cacheMock.Object,_mediatorMock.Object);
+            _service = new EmailAccountService(_repository.Object, _cacheMock.Object, _mediatorMock.Object);
         }
 
         [TestMethod]
@@ -38,7 +36,7 @@ namespace Grand.Business.Messages.Tests.Services
             await _service.InsertEmailAccount(new EmailAccount());
             _repository.Verify(c => c.InsertAsync(It.IsAny<EmailAccount>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<EmailAccount>>(), default), Times.Once);
-            _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(),It.IsAny<bool>()), Times.Once);
+            _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
         }
 
         [TestMethod]
@@ -55,7 +53,7 @@ namespace Grand.Business.Messages.Tests.Services
         {
 
             _cacheMock.Setup(c => c.GetAsync<List<EmailAccount>>(It.IsAny<string>(), It.IsAny<Func<Task<List<EmailAccount>>>>()))
-              .Returns(Task.FromResult(new List<EmailAccount>() { new EmailAccount(),new EmailAccount() }));
+              .Returns(Task.FromResult(new List<EmailAccount>() { new EmailAccount(), new EmailAccount() }));
             await _service.DeleteEmailAccount(new EmailAccount());
             _repository.Verify(c => c.DeleteAsync(It.IsAny<EmailAccount>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<EmailAccount>>(), default), Times.Once);
@@ -63,7 +61,7 @@ namespace Grand.Business.Messages.Tests.Services
         }
 
         [TestMethod]
-        public void  DeleteEmailAccount_ExistOnlyOneAccount_ThrowException()
+        public void DeleteEmailAccount_ExistOnlyOneAccount_ThrowException()
         {
             //we can't delete account if exist only one
             _cacheMock.Setup(c => c.GetAsync<List<EmailAccount>>(It.IsAny<string>(), It.IsAny<Func<Task<List<EmailAccount>>>>()))
