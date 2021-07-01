@@ -11,9 +11,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Storage.Tests.Services
@@ -43,14 +40,14 @@ namespace Grand.Business.Storage.Tests.Services
             _cacheMock = new Mock<ICacheBase>();
             _mediaFileStoreMock = new Mock<IMediaFileStore>();
             _settings = new MediaSettings();
-            _service = new PictureService(_repoMock.Object,_logerMock.Object,_mediatorMock.Object,_webHostMock.Object,_workContextMock.Object
-                ,_cacheMock.Object, _mediaFileStoreMock.Object, _settings);
+            _service = new PictureService(_repoMock.Object, _logerMock.Object, _mediatorMock.Object, _webHostMock.Object, _workContextMock.Object
+                , _cacheMock.Object, _mediaFileStoreMock.Object, _settings);
         }
 
         [TestMethod]
         public async Task LoadPictureBinary_FromDb_InvokeRepository()
         {
-            _repoMock.Setup(c => c.GetByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(new Picture() { PictureBinary= new byte[] { } }));
+            _repoMock.Setup(c => c.GetByIdAsync(It.IsAny<string>())).Returns(Task.FromResult(new Picture() { PictureBinary = new byte[] { } }));
             await _service.LoadPictureBinary(new Picture(), true);
             _repoMock.Verify(c => c.GetByIdAsync(It.IsAny<string>()), Times.Once);
         }
@@ -60,7 +57,7 @@ namespace Grand.Business.Storage.Tests.Services
         public async Task LoadPictureBinary_FromFile_ReturnEmptyBytes()
         {
             _webHostMock.Setup(c => c.WebRootPath).Returns("~root/");
-            var result=await _service.LoadPictureBinary(new Picture() { Id="id",MimeType= "image/jpeg" }, false);
+            var result = await _service.LoadPictureBinary(new Picture() { Id = "id", MimeType = "image/jpeg" }, false);
             //we can't mock static class like File.Exist so, should return empty array
             Assert.IsTrue(result.Length == 0);
         }
@@ -69,7 +66,7 @@ namespace Grand.Business.Storage.Tests.Services
         public async Task GetPictureUrl_InovkeCacheQuery()
         {
             await _service.GetPictureUrl("picture id");
-            _cacheMock.Verify(c => c.GetAsync<string>(It.IsAny<string>(), It.IsAny<Func<Task<string>>>()), Times.Once); 
+            _cacheMock.Verify(c => c.GetAsync<string>(It.IsAny<string>(), It.IsAny<Func<Task<string>>>()), Times.Once);
         }
 
         [TestMethod]
