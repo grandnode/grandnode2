@@ -145,12 +145,18 @@ namespace Grand.Business.System.Tests.Services.ExportImport
                 Assert.IsNotNull(row1);
                 Assert.IsNotNull(row2);
                 //row1 should contains header- property name 
-                Assert.AreEqual(row1.GetCell(0).StringCellValue, "Id");
-                Assert.AreEqual(row1.GetCell(1).StringCellValue, "ProductTypeId");
-                Assert.AreEqual(row2.GetCell(0).StringCellValue, "id1");
-                Assert.AreEqual(row2.GetCell(1).StringCellValue, "Auction");
-                Assert.AreEqual(row3.GetCell(0).StringCellValue, "id2");
-                Assert.AreEqual(row3.GetCell(1).StringCellValue, "SimpleProduct");
+                var x1 = row1.GetCell(0).StringCellValue;
+                Assert.AreEqual(x1, "Id");
+                var x2 = row1.GetCell(1).StringCellValue;
+                Assert.AreEqual(x2, "ProductTypeId");
+                var x3 = row2.GetCell(0).StringCellValue;
+                Assert.AreEqual(x3, "id1");
+                var x4 = row2.GetCell(1).StringCellValue;
+                Assert.AreEqual(x4, "40");
+                var x5 = row3.GetCell(0).StringCellValue;
+                Assert.AreEqual(x5, "id2");
+                var x6 = row3.GetCell(1).StringCellValue;
+                Assert.AreEqual(x6, "0");
             }
         }
 
