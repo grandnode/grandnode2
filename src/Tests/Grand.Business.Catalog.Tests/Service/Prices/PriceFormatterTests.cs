@@ -16,7 +16,6 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
-using System.Linq;
 using System.Threading;
 
 namespace Grand.Business.Catalog.Tests.Service.Prices

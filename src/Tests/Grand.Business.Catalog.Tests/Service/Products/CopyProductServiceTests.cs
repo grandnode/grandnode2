@@ -10,8 +10,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Tests.Service.Products
@@ -45,17 +43,16 @@ namespace Grand.Business.Catalog.Tests.Service.Products
         public async Task CopyProduct_InserAndReturnNewProduct()
         {
             _langServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>())).Returns(Task.FromResult<IList<Language>>(new List<Language>()));
-            var product = new Product()
-            {
+            var product = new Product() {
                 Name = "name",
                 Price = 49,
                 CreatedOnUtc = DateTime.UtcNow,
-                ShortDescription="Desc"
+                ShortDescription = "Desc"
             };
             var copy = await _copyProductService.CopyProduct(product, "copy-product");
             Assert.AreEqual(copy.Price, product.Price);
             Assert.AreEqual(copy.ShortDescription, product.ShortDescription);
- 
+
 
             Assert.AreNotEqual(copy.SeName, product.SeName);
             Assert.AreNotEqual(copy.Id, product.Id);

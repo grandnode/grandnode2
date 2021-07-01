@@ -8,8 +8,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,7 +27,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
             _repositoryMock = new Mock<IRepository<CustomerGroupProduct>>();
             _mediatorMock = new Mock<IMediator>();
             _cacheMock = new Mock<ICacheBase>();
-            _custometGroupService = new CustomerGroupProductService(_repositoryMock.Object,_cacheMock.Object,_mediatorMock.Object);
+            _custometGroupService = new CustomerGroupProductService(_repositoryMock.Object, _cacheMock.Object, _mediatorMock.Object);
         }
 
         [TestMethod()]
@@ -56,7 +54,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
         {
             await _custometGroupService.GetCustomerGroupProducts("id");
             //get by cache 
-            _cacheMock.Verify(c => c.GetAsync<List<CustomerGroupProduct>>(It.IsAny<string>(),It.IsAny<Func<Task<List<CustomerGroupProduct>>>>()), Times.Exactly(1));
+            _cacheMock.Verify(c => c.GetAsync<List<CustomerGroupProduct>>(It.IsAny<string>(), It.IsAny<Func<Task<List<CustomerGroupProduct>>>>()), Times.Exactly(1));
         }
     }
 }

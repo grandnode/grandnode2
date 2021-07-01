@@ -1,14 +1,9 @@
 ﻿using Grand.Business.Catalog.Interfaces.Products;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Grand.Domain.Catalog;
 using Grand.Business.Catalog.Services.Products;
 using Grand.Business.Common.Interfaces.Localization;
+using Grand.Domain.Catalog;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Grand.Business.Catalog.Tests.Service.Products
 {
@@ -35,8 +30,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
         public void Can_calculate_total_quantity_when_we_do_not_use_multiple_warehouses()
         {
             //if UseMultipleWarehouses is set to false, it will ignore StockQuantity of attached Warhouses
-            var product = new Product
-            {
+            var product = new Product {
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
                 UseMultipleWarehouses = false,
                 StockQuantity = 8765
@@ -52,8 +46,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
         [TestMethod()]
         public void Can_calculate_total_quantity_when_we_do_use_multiple_warehouses_with_reserved()
         {
-            var product = new Product
-            {
+            var product = new Product {
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
                 UseMultipleWarehouses = true, //UseMultipleWarehouse is set to true, so it will show only values of Warehouses
                 StockQuantity = 333334765 //and totally ignores this
@@ -78,8 +71,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
         public void Can_calculate_total_quantity_when_we_do_use_multiple_warehouses_without_reserved()
         {
             //if UseMultipleWarehouses is set to true, it will show StockQuantity of attached Warhouses
-            var product = new Product
-            {
+            var product = new Product {
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
                 UseMultipleWarehouses = true, //so ignore this Product's StockQuantity
                 StockQuantity = 8765
@@ -100,8 +92,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
         public void Can_calculate_total_quantity_when_we_do_use_multiple_warehouses_with_warehouse_specified()
         {
             //show only specified Warehouse (by WarehouseID) 
-            var product = new Product
-            {
+            var product = new Product {
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
                 UseMultipleWarehouses = true,
                 StockQuantity = 8765

@@ -10,9 +10,6 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -38,8 +35,8 @@ namespace Grand.Business.Catalog.Tests.Service.Collections
             _mediatorMock = new Mock<IMediator>();
             _aclMock = new Mock<IAclService>();
             _settings = new CatalogSettings();
-            _collectionService = new CollectionService(_cacheMock.Object,_repositoryMock.Object,_workContextMock.Object
-                ,_mediatorMock.Object,_aclMock.Object);
+            _collectionService = new CollectionService(_cacheMock.Object, _repositoryMock.Object, _workContextMock.Object
+                , _mediatorMock.Object, _aclMock.Object);
         }
 
 
@@ -70,12 +67,12 @@ namespace Grand.Business.Catalog.Tests.Service.Collections
             _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true));
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Collection>>(), default(CancellationToken)), Times.Once);
         }
-        
+
         [TestMethod()]
         public async Task GeCollectionById_ValidArgument_GetByCache()
         {
             await _collectionService.GetCollectionById("id");
-            _cacheMock.Verify(c => c.GetAsync<Collection>(It.IsAny<string>(), It.IsAny<Func<Task<Collection>>>()),Times.Once);
+            _cacheMock.Verify(c => c.GetAsync<Collection>(It.IsAny<string>(), It.IsAny<Func<Task<Collection>>>()), Times.Once);
         }
 
         [TestMethod()]

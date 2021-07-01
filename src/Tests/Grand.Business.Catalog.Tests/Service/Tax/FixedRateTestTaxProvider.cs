@@ -2,10 +2,7 @@
 using Grand.Business.Catalog.Utilities;
 using Grand.Infrastructure.Plugins;
 using Microsoft.AspNetCore.Routing;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Tests.Service.Tax
@@ -24,7 +21,7 @@ namespace Grand.Business.Catalog.Tests.Service.Tax
 
         public IList<string> LimitedToGroups => new List<string>();
 
-      
+
         /// <summary>
         /// Gets a tax rate
         /// </summary>
@@ -54,8 +51,7 @@ namespace Grand.Business.Catalog.Tests.Service.Tax
 
         public Task<TaxResult> GetTaxRate(TaxRequest calculateTaxRequest)
         {
-            var result = new TaxResult
-            {
+            var result = new TaxResult {
                 TaxRate = GetTaxRate(calculateTaxRequest.TaxCategoryId)
             };
             return Task.FromResult(result);

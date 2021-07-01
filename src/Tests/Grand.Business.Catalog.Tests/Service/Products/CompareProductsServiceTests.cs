@@ -4,10 +4,8 @@ using Grand.Domain.Catalog;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Tests.Service.Products
