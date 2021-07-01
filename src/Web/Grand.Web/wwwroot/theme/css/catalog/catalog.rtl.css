@@ -109,7 +109,7 @@
 }
 .item-statistics .items-per-page span,
 .item-statistics .items-separator {
-    margin: 0 5px 0 0;
+    margin: 0 0 0 5px;
 }
 .block-recently-viewed-products .card {
     border: 0;
@@ -125,6 +125,12 @@
     width: auto;
     height: auto;
     border-radius: 0;
+}
+.viewmode-icon {
+    cursor: pointer;
+}
+.viewmode-icon .list-icon {
+    margin: 0 20px 0 0;
 }
 
 /* pagintaion */

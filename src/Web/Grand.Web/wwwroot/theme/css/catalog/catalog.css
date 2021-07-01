@@ -116,6 +116,12 @@
     height: auto;
     border-radius: 0;
 }
+.viewmode-icon {
+    cursor: pointer;
+}
+.viewmode-icon .list-icon {
+    margin: 0 0 0 20px;
+}
 
 /* pagintaion */
 

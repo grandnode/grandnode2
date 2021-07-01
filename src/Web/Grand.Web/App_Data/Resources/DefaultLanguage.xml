@@ -2043,6 +2043,9 @@
   <Resource Name="Admin.Catalog.Brands.Info">
     <Value>Brand Info</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.Brands.Imported">
+    <Value>Brands have been imported successfully.</Value>
+  </Resource>
   <Resource Name="Admin.Catalog.Brand.List.ImportFromExcelTip">
 	<Value>Imported brands are distinguished by ID. If the ID already exists, then its corresponding brand will be updated. The ID does not need to be provided for new brands</Value>
   </Resource>

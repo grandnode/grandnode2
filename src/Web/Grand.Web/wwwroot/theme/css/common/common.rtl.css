@@ -957,7 +957,7 @@ input:checked ~ .color-container .color::before {
     line-height: 1;
 }
 .product-box .old-price {
-    margin: 0 0 0 5px;
+    margin: 0 5px 0 0;
     color: #999;
     font-size: 16px;
     font-weight: 400;
@@ -1188,6 +1188,14 @@ input:checked ~ .color-container .color::before {
 .breadcrumb {
     padding: 15px 0;
     background-color: transparent;
+}
+.breadcrumb-item + .breadcrumb-item {
+    padding-left: 0;
+    padding-right: .5rem;
+}
+.breadcrumb-item+.breadcrumb-item::before {
+    padding-right: 0;
+    padding-left: .5rem;
 }
 .breadcrumb-item.active {
     color: #000;

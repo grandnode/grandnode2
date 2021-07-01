@@ -5,7 +5,7 @@
         <span id="vote-yes-@(Model.ProductReviewId)" class="btn btn-sm btn-outline vote"><b-icon variant="success" icon="hand-thumbs-up"></b-icon></span>
         <span id="vote-no-@(Model.ProductReviewId)" class="btn btn-sm btn-outline vote"><b-icon variant="danger" icon="hand-thumbs-down"></b-icon></span>
     </span>
-    <span class="vote-stats">
+    <span class="vote-stats d-inline-flex">
         (<span id="helpfulness-vote-yes-@(Model.ProductReviewId)">@(Model.HelpfulYesTotal)</span>/<span id="helpfulness-vote-no-@(Model.ProductReviewId)">@(Model.HelpfulNoTotal)</span>)
     </span>
 </div>
