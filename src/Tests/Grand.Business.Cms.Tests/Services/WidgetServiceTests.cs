@@ -3,10 +3,7 @@ using Grand.Business.Cms.Services;
 using Grand.Domain.Cms;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Cms.Tests.Services
@@ -61,7 +58,7 @@ namespace Grand.Business.Cms.Tests.Services
         {
             _settings.ActiveWidgetSystemNames = new List<string>() { "name1", "name2" };
             var result = await _widgedService.LoadActiveWidgetsByWidgetZone("widgetZone1");
-            Assert.IsTrue(result.Count ==1);
+            Assert.IsTrue(result.Count == 1);
         }
 
         [TestMethod()]
