@@ -1,11 +1,8 @@
 ﻿using Grand.Business.Marketing.Extensions;
 using Grand.Domain.Knowledgebase;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Tests.Extensions
 {
@@ -36,7 +33,7 @@ namespace Grand.Business.Marketing.Tests.Extensions
             var result = category.GetFormattedBreadCrumb(_allCategories);
             var category2 = new KnowledgebaseCategory() { Id = "2", Name = "category2", ParentCategoryId = "3" };
             Assert.AreEqual("category4 >> category3 >> category2 >> category1", result);
-            Assert.AreEqual("category4 // category3 // category2 // category1", category.GetFormattedBreadCrumb(_allCategories,separator:"//"));
+            Assert.AreEqual("category4 // category3 // category2 // category1", category.GetFormattedBreadCrumb(_allCategories, separator: "//"));
             Assert.AreEqual("category4 >> category3 >> category2", category2.GetFormattedBreadCrumb(_allCategories));
         }
     }

@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\PushNotifications\**" />
+    <EmbeddedResource Remove="Services\PushNotifications\**" />
+    <None Remove="Services\PushNotifications\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.3" />
@@ -19,10 +25,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Business\Grand.Business.Marketing\Grand.Business.Marketing.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\PushNotifications\" />
   </ItemGroup>
 
 </Project>
