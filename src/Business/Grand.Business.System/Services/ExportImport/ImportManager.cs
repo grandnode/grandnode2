@@ -29,6 +29,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Grand.Business.Catalog.Interfaces.Brands;
+using Grand.Domain.Stores;
+using Grand.Business.Common.Interfaces.Stores;
 
 namespace Grand.Business.System.Services.ExportImport
 {
@@ -62,6 +64,7 @@ namespace Grand.Business.System.Services.ExportImport
         private readonly ITaxCategoryService _taxService;
         private readonly IMeasureService _measureService;
         private readonly ILanguageService _languageService;
+        private readonly IStoreService _storeService;
         private readonly SeoSettings _seoSetting;
 
         #endregion
@@ -91,6 +94,7 @@ namespace Grand.Business.System.Services.ExportImport
             ITaxCategoryService taxService,
             IMeasureService measureService,
             ILanguageService languageService,
+            IStoreService storeService,
             SeoSettings seoSetting)
         {
             _productService = productService;
@@ -116,6 +120,7 @@ namespace Grand.Business.System.Services.ExportImport
             _taxService = taxService;
             _measureService = measureService;
             _languageService = languageService;
+            _storeService = storeService;
             _seoSetting = seoSetting;
         }
 
@@ -152,7 +157,8 @@ namespace Grand.Business.System.Services.ExportImport
             IList<DeliveryDate> deliveryDates,
             IList<Warehouse> warehouses,
             IList<MeasureUnit> units,
-            IList<TaxCategory> taxes)
+            IList<TaxCategory> taxes,
+            IList<Store> stores)
         {
 
             foreach (var property in manager.GetProperties)
@@ -189,7 +195,7 @@ namespace Grand.Business.System.Services.ExportImport
                         if (_vendorService.GetVendorById(vendorid) != null)
                             product.VendorId = property.StringValue;
                         break;
-                    case "ProductLayoutId":
+                    case "productlayoutid":
                         var layoutid = property.StringValue;
                         if (layouts.FirstOrDefault(x => x.Id == layoutid) != null)
                             product.ProductLayoutId = property.StringValue;
@@ -308,6 +314,16 @@ namespace Grand.Business.System.Services.ExportImport
                         if (deliveryDates.FirstOrDefault(x => x.Id == deliverydateid) != null)
                             product.DeliveryDateId = deliverydateid;
                         break;
+                    case "storeid":
+                        var storeid = property.StringValue;
+                        if (stores.FirstOrDefault(x => x.Id == storeid) != null)
+                        {
+                            if (!product.Stores.Contains(storeid))
+                                product.Stores.Add(storeid);
+
+                            product.LimitedToStores = product.Stores.Any();
+                        }
+                        break;
                     case "istaxexempt":
                         product.IsTaxExempt = property.BooleanValue;
                         break;
@@ -332,6 +348,9 @@ namespace Grand.Business.System.Services.ExportImport
                         break;
                     case "stockquantity":
                         product.StockQuantity = property.IntValue;
+                        break;
+                    case "reservedquantity":
+                        product.ReservedQuantity = property.IntValue;
                         break;
                     case "displaystockavailability":
                         product.StockAvailability = property.BooleanValue;
@@ -814,6 +833,37 @@ namespace Grand.Business.System.Services.ExportImport
             return newPicture;
         }
 
+        protected virtual bool ValidProduct(Product product)
+        {
+            if (string.IsNullOrEmpty(product.Name))
+                return false;
+
+            return true;
+        }
+        protected virtual bool ValidCategory(Category category)
+        {
+            if (string.IsNullOrEmpty(category.Name))
+                return false;
+
+            return true;
+        }
+
+        protected virtual bool ValidBrand(Brand brand)
+        {
+            if (string.IsNullOrEmpty(brand.Name))
+                return false;
+
+            return true;
+        }
+        protected virtual bool ValidCollection(Collection collection)
+        {
+            if (string.IsNullOrEmpty(collection.Name))
+                return false;
+
+            return true;
+        }
+
+
         #endregion
 
         #region Methods
@@ -836,7 +886,7 @@ namespace Grand.Business.System.Services.ExportImport
             var taxes = await _taxService.GetAllTaxCategories();
             var warehouses = await _warehouseService.GetAllWarehouses();
             var units = await _measureService.GetAllMeasureUnits();
-
+            var stores = await _storeService.GetAllStores();
             for (var iRow = 1; iRow < worksheet.PhysicalNumberOfRows; iRow++)
             {
 
@@ -868,7 +918,7 @@ namespace Grand.Business.System.Services.ExportImport
                         product.Id = productid;
                 }
 
-                PrepareProductMapping(product, manager, layouts, deliveryDates, warehouses, units, taxes);
+                PrepareProductMapping(product, manager, layouts, deliveryDates, warehouses, units, taxes, stores);
 
                 if (isNew && manager.GetProperties.All(p => p.PropertyName.ToLower() != "producttypeid"))
                     product.ProductTypeId = ProductType.SimpleProduct;
@@ -877,8 +927,11 @@ namespace Grand.Business.System.Services.ExportImport
 
                 product.UpdatedOnUtc = DateTime.UtcNow;
 
+                if (!ValidProduct(product))
+                    continue;
+
                 if (isNew)
-                {
+                {                    
                     await _productService.InsertProduct(product);
                 }
                 else
@@ -1089,6 +1142,8 @@ namespace Grand.Business.System.Services.ExportImport
 
                 PrepareBrandMapping(brand, manager, layouts);
 
+                if (!ValidBrand(brand))
+                    continue;
 
                 var picture = manager.GetProperty("picture") != null ? manager.GetProperty("sename").StringValue : "";
                 if (!string.IsNullOrEmpty(picture))
@@ -1161,6 +1216,9 @@ namespace Grand.Business.System.Services.ExportImport
                 }
                 collection.UpdatedOnUtc = DateTime.UtcNow;
 
+                if (!ValidCollection(collection))
+                    continue;
+
                 if (isNew)
                     await _collectionService.InsertCollection(collection);
                 else
@@ -1212,6 +1270,9 @@ namespace Grand.Business.System.Services.ExportImport
 
                 PrepareCategoryMapping(category, manager, layouts);
                 category.UpdatedOnUtc = DateTime.UtcNow;
+
+                if (!ValidCategory(category))
+                    continue;
 
                 if (isNew)
                     await _categoryService.InsertCategory(category);
