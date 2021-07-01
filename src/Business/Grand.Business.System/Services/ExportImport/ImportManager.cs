@@ -634,6 +634,9 @@ namespace Grand.Business.System.Services.ExportImport
                     case "searchboxdisplayorder":
                         category.SearchBoxDisplayOrder = property.IntValue;
                         break;
+                    case "externalid":
+                        category.ExternalId = property.StringValue;
+                        break;
                     case "flag":
                         category.Flag = property.StringValue;
                         break;

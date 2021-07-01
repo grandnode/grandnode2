@@ -24,34 +24,29 @@ namespace Grand.Web.Admin.Models.Catalog
         }
 
         [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.Name")]
-
         public string Name { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.Description")]
-
         public string Description { get; set; }
-        [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.BottomDescription")]
 
+        [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.BottomDescription")]
         public string BottomDescription { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.CategoryLayout")]
         public string CategoryLayoutId { get; set; }
+
         public IList<SelectListItem> AvailableCategoryLayouts { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.MetaKeywords")]
-
         public string MetaKeywords { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.MetaDescription")]
-
         public string MetaDescription { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.MetaTitle")]
-
         public string MetaTitle { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.SeName")]
-
         public string SeName { get; set; }
 
         [UIHint("Category")]
@@ -85,6 +80,9 @@ namespace Grand.Web.Admin.Models.Catalog
 
         [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }
+
+        [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.ExternalId")]
+        public string ExternalId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.Flag")]
         public string Flag { get; set; }

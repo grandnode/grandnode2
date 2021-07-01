@@ -2172,6 +2172,9 @@
   <Resource Name="Admin.Catalog.Categories.Fields.DisplayOrder">
     <Value>Display order</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.Categories.Fields.ExternalId">
+    <Value>External identifier</Value>
+  </Resource>
   <Resource Name="Admin.Catalog.Categories.Fields.FeaturedProductsOnHomePage">
     <Value>Show featured products on home page</Value>
   </Resource>

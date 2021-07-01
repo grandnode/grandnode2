@@ -134,6 +134,11 @@ namespace Grand.Domain.Catalog
         public int DisplayOrder { get; set; }
 
         /// <summary>
+        /// Gets or sets the ExternalId
+        /// </summary>
+        public string ExternalId { get; set; }
+
+        /// <summary>
         /// Gets or sets the flag
         /// </summary>
         public string Flag { get; set; }

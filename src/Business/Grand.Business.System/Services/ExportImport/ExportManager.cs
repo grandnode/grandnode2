@@ -132,6 +132,7 @@ namespace Grand.Business.System.Services.ExportImport
                 new PropertyByName<Category>("ShowOnHomePage", p => p.ShowOnHomePage),
                 new PropertyByName<Category>("IncludeInMenu", p => p.IncludeInMenu),
                 new PropertyByName<Category>("Published", p => p.Published),
+                new PropertyByName<Category>("ExternalId", p => p.ExternalId),
                 new PropertyByName<Category>("Flag", p => p.Flag),
                 new PropertyByName<Category>("FlagStyle", p => p.FlagStyle),
                 new PropertyByName<Category>("Icon", p => p.Icon),
