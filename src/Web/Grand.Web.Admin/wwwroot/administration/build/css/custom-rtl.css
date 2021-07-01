@@ -209,7 +209,7 @@ IF you want all numbers in persian use this
 
 .nav-sm .nav.side-menu li.active-sm ul ul, .nav-sm ul.nav.child_menu ul {
   position: static;
-  width: auto;
+  width: 200px;
   background: none;
 }
 
@@ -463,6 +463,7 @@ pre, code {
   font-weight: 400;
   font-size: 10px;
   padding: 10px 5px;
+  cursor: pointer;
 }
 
 .nav-sm .nav.side-menu li a i {
@@ -555,14 +556,116 @@ pre, code {
 }
 
 .nav-sm ul.nav.child_menu {
-  right: calc(100% + 5px);
-  position: absolute;
-  top: 0;
-  width: 210px;
-  z-index: 4000;
-  background: #425668;
-  display: none;
+    position: absolute;
+    top: 0;
+    bottom: 5%;
+    right: 0;
+    padding: 0;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    max-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: #3E5367;
+    display: flex !important;
+    transform: translateX(100%);
+    transition: all .3s ease-in-out;
+    z-index: -1;
 }
+.nav-sm .side-menu > li > ul.nav.child_menu {
+    margin: 0;
+    padding: 30px;
+    right: 89px;
+}
+.nav-sm .side-menu .menu-header {
+    display: none;
+}
+.nav-sm .side-menu > li > ul.nav.child_menu > .menu-header {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    right: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0;
+    background-color: transparent;
+}
+.nav-sm .side-menu > li > ul.nav.child_menu > .menu-header + li:not(.has-submenu) {
+    margin: 10px 0 0 0;
+}
+.nav-sm .side-menu > li > ul.nav.child_menu {
+    min-width: 345px;
+    padding: 75px 30px 30px 30px;
+    border-right: 1px solid #3d4957;
+    border-bottom: 1px solid #3d4957;
+}
+.nav-sm .side-menu > li > ul.nav.child_menu > li:not(.has-submenu) + li.has-submenu {
+    margin: 10px 0;
+}
+.nav-sm .side-menu .menu-header .title {
+    padding: 0 15px;
+    color: #fff;
+    font-size: 24px;
+    font-weight: 700;
+}
+.nav-sm .side-menu .menu-header .close-menu {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 22px;
+    height: 22px;
+}
+.nav-sm .side-menu .menu-header .close-menu::before, .nav-sm .side-menu .menu-header .close-menu::after {
+    content: "";
+    position: absolute;
+    top: 9px;
+    right: 0;
+    width: 20px;
+    height: 3px;
+    background: #aaa;
+    -webkit-transition: all .2s ease-in-out;
+    transition: all .2s ease-in-out;
+}
+.nav-sm .side-menu .menu-header .close-menu:hover::before, .nav-sm .side-menu .menu-header .close-menu:hover::after {
+    background: #fff;
+}
+.nav-sm .side-menu .menu-header .close-menu::before {
+    transform: rotate(45deg);
+}
+.nav-sm .side-menu .menu-header .close-menu::after {
+    transform: rotate(-45deg);
+}
+.nav-sm ul.nav.child_menu li {
+    padding: 0;
+}
+.nav-sm .side-menu > li > ul.nav.child_menu > li {
+}
+.nav-sm .side-menu > li > ul.nav.child_menu > li > a {
+    color: #efefef;
+    font-weight: 500;
+    text-transform: uppercase;
+    padding: 10px 0px 10px 10px;
+}
+.nav-sm .nav.side-menu li ul li a {
+    font-size: 15px;
+    text-align: left;
+}
+.nav-sm .side-menu > li > ul.nav.child_menu > li.has-submenu {
+    display: inline-block;
+    margin: 10px 0;
+}
+.nav-sm .side-menu > li > ul.nav.child_menu > li.has-submenu > a {
+    color: #bbb;
+    font-weight: 300;
+    pointer-events: none;
+}
+
+.nav.side-menu > li.active ul {
+    transform: translateX(0);
+}
+
 
 .nav-sm ul.nav.child_menu li {
   padding: 0 10px;
@@ -1566,9 +1669,7 @@ a.hiddenanchor {
 }
 
 .nav.side-menu>li {
-  position: relative;
   display: block;
-  cursor: pointer;
   width: 100%;
   border-bottom: 1px solid #3d4957;
 }
@@ -7092,7 +7193,37 @@ h2 {
     -webkit-box-shadow: 0 1px 1px rgb(0 0 0 / 5%);
     box-shadow: 0 1px 1px rgb(0 0 0 / 5%);
 }
+@media (min-width: 992px) {
+    .nav-sm .side-menu > li > ul.nav.child_menu.wrapped {
+        display: block !important;
+        -moz-column-count: 2;
+        -moz-column-gap: 10px;
+        -webkit-column-count: 2;
+        -webkit-column-gap: 10px;
+        column-count: 2;
+        column-gap: 10px;
+    }
+}
 
+@media screen and (max-height: 991px) {
+    .nav-sm .side-menu > li > ul.nav.child_menu.wrapped {
+        -moz-column-count: 3;
+        -webkit-column-count: 3;
+        column-count: 3;
+    }
+    .nav-sm .side-menu > li > ul.nav.child_menu.wrapped:not(.for-3) {
+        -moz-column-count: 2;
+        -webkit-column-count: 2;
+        column-count: 2;
+    }
+}
+@media screen and (max-height: 575px) {
+    .nav-sm .side-menu > li > ul.nav.child_menu.wrapped {
+        -moz-column-count: 4;
+        -webkit-column-count: 4;
+        column-count: 4;
+    }
+}
 
 @media (min-width: 992px) {
     .permissions-table .title {
