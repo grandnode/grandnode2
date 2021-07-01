@@ -6,10 +6,6 @@ using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,9 +32,9 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task InsertCustomerAttribute_ValidArguemnts_InvokeRepositoryAndCache()
         {
             await _atrService.InsertCustomerAttribute(new CustomerAttribute());
-                _repositoryMock.Verify(c => c.InsertAsync(It.IsAny<CustomerAttribute>()), Times.Once);
+            _repositoryMock.Verify(c => c.InsertAsync(It.IsAny<CustomerAttribute>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<CustomerAttribute>>(), default(CancellationToken)), Times.Once);
-            _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(),true));
+            _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true));
         }
 
         [TestMethod()]

@@ -5,10 +5,6 @@ using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,7 +22,7 @@ namespace Grand.Business.Customers.Tests.Services
         {
             _repositoryMock = new Mock<IRepository<CustomerNote>>();
             _mediatorMock = new Mock<IMediator>();
-            _noteService = new CustomerNoteService(_repositoryMock.Object,_mediatorMock.Object);
+            _noteService = new CustomerNoteService(_repositoryMock.Object, _mediatorMock.Object);
         }
 
         [TestMethod()]

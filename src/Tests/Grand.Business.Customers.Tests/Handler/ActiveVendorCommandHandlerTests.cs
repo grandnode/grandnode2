@@ -7,10 +7,7 @@ using Grand.Domain.Customers;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Customers.Tests.Handler
@@ -31,7 +28,7 @@ namespace Grand.Business.Customers.Tests.Handler
             _cumstomerServiceMock = new Mock<ICustomerService>();
             _groupServiceMock = new Mock<IGroupService>();
             _mediatorMock = new Mock<IMediator>();
-            _handler = new ActiveVendorCommandHandler(_vendorMock.Object,_cumstomerServiceMock.Object,_groupServiceMock.Object,_mediatorMock.Object);
+            _handler = new ActiveVendorCommandHandler(_vendorMock.Object, _cumstomerServiceMock.Object, _groupServiceMock.Object, _mediatorMock.Object);
         }
 
         [TestMethod()]
@@ -40,7 +37,7 @@ namespace Grand.Business.Customers.Tests.Handler
             var command = new ActiveVendorCommand() { CustomerIds = new List<string>() { "id" } };
             command.Active = true;
             command.Vendor = new Domain.Vendors.Vendor();
-            _cumstomerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>())).Returns(()=>Task.FromResult(new Customer() { Active=true }));
+            _cumstomerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>())).Returns(() => Task.FromResult(new Customer() { Active = true }));
             _groupServiceMock.Setup(c => c.IsAdmin(It.IsAny<Customer>())).Returns(() => Task.FromResult(false));
             _groupServiceMock.Setup(c => c.GetCustomerGroupBySystemName(It.IsAny<string>())).Returns(() => Task.FromResult(new CustomerGroup()));
             await _handler.Handle(command, default);

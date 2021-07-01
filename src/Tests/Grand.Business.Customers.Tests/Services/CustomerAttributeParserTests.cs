@@ -5,10 +5,8 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Customers.Tests.Services
@@ -64,7 +62,7 @@ namespace Grand.Business.Customers.Tests.Services
         public async Task ParseCustomerAttributes_ReturnEmptyList()
         {
             //not exist
-            _customerAtrServiceMock.Setup(c => c.GetCustomerAttributeById(It.IsAny<string>())).Returns(()=>Task.FromResult<CustomerAttribute>(null));
+            _customerAtrServiceMock.Setup(c => c.GetCustomerAttributeById(It.IsAny<string>())).Returns(() => Task.FromResult<CustomerAttribute>(null));
             var result = await _parser.ParseCustomerAttributes(customAtr);
             Assert.IsTrue(result.Count == 0);
         }
@@ -87,10 +85,10 @@ namespace Grand.Business.Customers.Tests.Services
         public void AddCustomerAttribute_ReturnExpectedValues()
         {
             //not exist
-            
-            var result =  _parser.AddCustomerAttribute(customAtr,new CustomerAttribute() { Id="key7"},"value7");
-            Assert.IsTrue(result.Count==5);
-            Assert.IsTrue(result.Any(c=>c.Key.Equals("key7")));
+
+            var result = _parser.AddCustomerAttribute(customAtr, new CustomerAttribute() { Id = "key7" }, "value7");
+            Assert.IsTrue(result.Count == 5);
+            Assert.IsTrue(result.Any(c => c.Key.Equals("key7")));
         }
     }
 }

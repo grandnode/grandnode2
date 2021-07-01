@@ -5,10 +5,6 @@ using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,7 +24,7 @@ namespace Grand.Business.Customers.Tests.Services
             _repoMock = new Mock<IRepository<Vendor>>();
             _vendorReviewRepositoryMock = new Mock<IRepository<VendorReview>>();
             _mediatorMock = new Mock<IMediator>();
-            _vendorService = new VendorService(_repoMock.Object,_vendorReviewRepositoryMock.Object,_mediatorMock.Object);
+            _vendorService = new VendorService(_repoMock.Object, _vendorReviewRepositoryMock.Object, _mediatorMock.Object);
         }
 
         [TestMethod()]
