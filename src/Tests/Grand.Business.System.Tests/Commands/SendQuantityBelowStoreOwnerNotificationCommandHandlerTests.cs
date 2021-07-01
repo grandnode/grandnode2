@@ -5,10 +5,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.System.Tests.Commands
@@ -32,8 +28,7 @@ namespace Grand.Business.System.Tests.Commands
         public async Task Handle_InvokeExpectedMethods()
         {
             _settings.DefaultAdminLanguageId = "1";
-            var command = new SendQuantityBelowStoreOwnerCommand()
-            {
+            var command = new SendQuantityBelowStoreOwnerCommand() {
                 Product = new Domain.Catalog.Product(),
                 ProductAttributeCombination = null
             };
@@ -42,7 +37,7 @@ namespace Grand.Business.System.Tests.Commands
             _messageProviderMock.Verify(c => c.SendQuantityBelowStoreOwnerMessage(It.IsAny<Product>(), It.IsAny<string>()), Times.Once);
             command.ProductAttributeCombination = new ProductAttributeCombination();
             await _handler.Handle(command, default);
-            _messageProviderMock.Verify(c => c.SendQuantityBelowStoreOwnerMessage(It.IsAny<Product>(),It.IsAny<ProductAttributeCombination>(), It.IsAny<string>()), Times.Once);
+            _messageProviderMock.Verify(c => c.SendQuantityBelowStoreOwnerMessage(It.IsAny<Product>(), It.IsAny<ProductAttributeCombination>(), It.IsAny<string>()), Times.Once);
         }
     }
 }

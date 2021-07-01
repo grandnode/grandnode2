@@ -3,10 +3,7 @@ using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
 using Grand.Domain.Directory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.System.Tests.Services.BackgroundService
@@ -25,7 +22,7 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
             _currencyServiceMock = new Mock<ICurrencyService>();
             _exchangeRateServiceMock = new Mock<IExchangeRateService>();
             _settings = new CurrencySettings();
-            _task = new UpdateExchangeRateScheduleTask(_currencyServiceMock.Object,_exchangeRateServiceMock.Object,_settings);
+            _task = new UpdateExchangeRateScheduleTask(_currencyServiceMock.Object, _exchangeRateServiceMock.Object, _settings);
         }
 
         [TestMethod]
@@ -34,8 +31,8 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
             _settings.AutoUpdateEnabled = true;
             _currencyServiceMock.Setup(c => c.GetPrimaryExchangeRateCurrency()).ReturnsAsync(new Currency() { CurrencyCode = "EU" });
             _exchangeRateServiceMock.Setup(c => c.GetCurrencyLiveRates(It.IsAny<string>()))
-                .ReturnsAsync(new List<ExchangeRate>() { new ExchangeRate() { CurrencyCode="PL",Rate=10} });
-            _currencyServiceMock.Setup(c => c.GetCurrencyByCode(It.IsAny<string>())).ReturnsAsync(new Currency() { Rate=10});
+                .ReturnsAsync(new List<ExchangeRate>() { new ExchangeRate() { CurrencyCode = "PL", Rate = 10 } });
+            _currencyServiceMock.Setup(c => c.GetCurrencyByCode(It.IsAny<string>())).ReturnsAsync(new Currency() { Rate = 10 });
             await _task.Execute();
 
             _currencyServiceMock.Verify(c => c.UpdateCurrency(It.IsAny<Currency>()), Times.Once);

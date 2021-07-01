@@ -4,10 +4,6 @@ using Grand.Business.System.Commands.Handlers.Catalog;
 using Grand.Domain.Catalog;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.System.Tests.Commands
@@ -18,7 +14,7 @@ namespace Grand.Business.System.Tests.Commands
         private Mock<IMessageProviderService> _messageProviderMock;
         private SendOutBidCustomerNotificationCommandHandler _handler;
 
-        [TestInitialize] 
+        [TestInitialize]
         public void Init()
         {
             _messageProviderMock = new Mock<IMessageProviderService>();
@@ -28,8 +24,7 @@ namespace Grand.Business.System.Tests.Commands
         [TestMethod]
         public async Task Handle_InvokeExpectedMethod()
         {
-            var command = new SendOutBidCustomerCommand()
-            {
+            var command = new SendOutBidCustomerCommand() {
                 Product = new Domain.Catalog.Product(),
                 Bid = new Domain.Catalog.Bid(),
                 Language = new Domain.Localization.Language()

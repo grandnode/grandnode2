@@ -4,9 +4,6 @@ using Grand.Domain.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.System.Tests.Services.BackgroundService
@@ -23,7 +20,7 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
         {
             _customerServiceMock = new Mock<ICustomerService>();
             _settings = new SystemSettings();
-            _task = new DeleteGuestsScheduleTask(_customerServiceMock.Object,_settings);
+            _task = new DeleteGuestsScheduleTask(_customerServiceMock.Object, _settings);
         }
 
         [TestMethod]
