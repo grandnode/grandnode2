@@ -4,15 +4,12 @@ using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Customers;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Authentication.Tests

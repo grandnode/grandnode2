@@ -10,9 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Authentication.Tests
@@ -35,7 +33,7 @@ namespace Grand.Business.Authentication.Tests
         public void Init()
         {
             _customerServiceMock = new Mock<ICustomerService>();
-   
+
             _httpAccessorMock = new Mock<IHttpContextAccessor>();
             _customerSettings = new CustomerSettings();
             _groupServiceMock = new Mock<IGroupService>();
@@ -43,7 +41,7 @@ namespace Grand.Business.Authentication.Tests
             _config = new AppConfig();
             _config.CookieClaimsIssuer = "grandnode";
             _config.CookiePrefix = ".Grand.";
-            _cookieAuthService = new CookieAuthenticationService(_customerSettings, _customerServiceMock.Object, _groupServiceMock.Object,_userFieldServiceMock.Object, _httpAccessorMock.Object, _config);
+            _cookieAuthService = new CookieAuthenticationService(_customerSettings, _customerServiceMock.Object, _groupServiceMock.Object, _userFieldServiceMock.Object, _httpAccessorMock.Object, _config);
             //For mock HttpContext extension methods like SignOutAsync ,SignInAsync etc..
             _authServiceMock = new Mock<IAuthenticationService>();
             serviceProviderMock = new Mock<IServiceProvider>();
@@ -94,7 +92,7 @@ namespace Grand.Business.Authentication.Tests
         public async Task GetAuthenticatedCustomer_UsernameEnableRegisterd_ReturnCustomer()
         {
             var expectedCustomer = new Customer() { Username = "John", Active = true };
-            
+
             _customerSettings.UsernamesEnabled = true;
             var cliaim = new Claim(ClaimTypes.Name, "Johny", "", "grandnode");
             IList<Claim> claims = new List<Claim>
