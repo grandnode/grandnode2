@@ -6,10 +6,6 @@ using Grand.Domain.Payments;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Tests.Commands.Orders
@@ -28,7 +24,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Orders
             _mediatorMock = new Mock<IMediator>();
             _orderSerivce = new Mock<IOrderService>();
             _settings = new OrderSettings();
-            _handler = new CheckOrderStatusCommandHandler(_mediatorMock.Object,_orderSerivce.Object,_settings);
+            _handler = new CheckOrderStatusCommandHandler(_mediatorMock.Object, _orderSerivce.Object, _settings);
         }
 
         [TestMethod]

@@ -155,7 +155,7 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
                 new ShoppingCartItem(),
                 new ShoppingCartItem()
             };
-            Assert.AreEqual(100,await _paymentService.GetAdditionalHandlingFee(cart, "systemName"));
+            Assert.AreEqual(100, await _paymentService.GetAdditionalHandlingFee(cart, "systemName"));
         }
 
         [TestMethod]

@@ -13,8 +13,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Tests.Commands.Orders
@@ -71,9 +69,8 @@ namespace Grand.Business.Checkout.Tests.Commands.Orders
         public async Task Handle_InvokeExpectedMethods()
         {
             var command = new CancelOrderCommand();
-            command.Order = new Order()
-            { 
-                Id="id"
+            command.Order = new Order() {
+                Id = "id"
             };
             _shipmentServiceMock.Setup(c => c.GetShipmentsByOrder("id")).ReturnsAsync(new List<Shipment>());
             await _handler.Handle(command, default);

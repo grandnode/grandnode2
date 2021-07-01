@@ -4,10 +4,6 @@ using Grand.Domain.Payments;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Tests.Extensions
 {
@@ -23,7 +19,7 @@ namespace Grand.Business.Checkout.Tests.Extensions
         }
 
         [TestMethod()]
-        public void IsPaymentMethodActive_ReturnExpectedResult() 
+        public void IsPaymentMethodActive_ReturnExpectedResult()
         {
             var settings = new PaymentSettings();
             _providerMock.Setup(c => c.SystemName).Returns("paypal");
@@ -45,7 +41,7 @@ namespace Grand.Business.Checkout.Tests.Extensions
         {
             IPaymentProvider provider = null;
             var settings = new PaymentSettings();
-            Assert.ThrowsException<ArgumentNullException>(() =>provider.IsPaymentMethodActive(settings));
+            Assert.ThrowsException<ArgumentNullException>(() => provider.IsPaymentMethodActive(settings));
         }
     }
 }

@@ -6,9 +6,6 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,7 +23,7 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
         {
             _repositoryMock = new Mock<IRepository<PaymentTransaction>>();
             _mediatorMock = new Mock<IMediator>();
-            _service = new PaymentTransactionService(_repositoryMock.Object,_mediatorMock.Object);
+            _service = new PaymentTransactionService(_repositoryMock.Object, _mediatorMock.Object);
         }
 
         [TestMethod]

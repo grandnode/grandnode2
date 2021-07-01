@@ -1,11 +1,8 @@
 ﻿using Grand.Business.Checkout.Extensions;
 using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Tests.Extensions
 {
@@ -25,7 +22,7 @@ namespace Grand.Business.Checkout.Tests.Extensions
             shoppingCartItems.Add(new ShoppingCartItem() { IsShipEnabled = true });
             Assert.IsTrue(shoppingCartItems.RequiresShipping());
         }
-        
+
         [TestMethod]
         public void LimitPerStore_ReturnExpectedResults()
         {

@@ -3,10 +3,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Tests.Extensions
 {
@@ -63,7 +59,7 @@ namespace Grand.Business.Checkout.Tests.Extensions
         public void HasItemsToAddToShipment_NullOrder_ThrowException()
         {
             Order order = null;
-            Assert.ThrowsException<ArgumentNullException>(()=>order.HasItemsToAddToShipment());
+            Assert.ThrowsException<ArgumentNullException>(() => order.HasItemsToAddToShipment());
         }
 
         [TestMethod]

@@ -8,9 +8,6 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,7 +27,7 @@ namespace Grand.Business.Checkout.Tests.Services.Shipping
             _repositoryMock = new Mock<IRepository<Warehouse>>();
             _mediatorMock = new Mock<IMediator>();
             _cacheMock = new Mock<ICacheBase>();
-            _service = new WarehouseService(_repositoryMock.Object,_mediatorMock.Object,_cacheMock.Object);
+            _service = new WarehouseService(_repositoryMock.Object, _mediatorMock.Object, _cacheMock.Object);
         }
 
 

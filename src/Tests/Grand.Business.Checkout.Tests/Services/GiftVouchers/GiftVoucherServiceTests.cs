@@ -9,7 +9,6 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -48,7 +47,7 @@ namespace Grand.Business.Checkout.Tests.Services.GiftVouchers
         [TestMethod]
         public async Task InsertGiftVoucher_InovokeExpectedMethods()
         {
-            await _service.InsertGiftVoucher(new GiftVoucher() { Code="code"});
+            await _service.InsertGiftVoucher(new GiftVoucher() { Code = "code" });
             _repositoryMock.Verify(c => c.InsertAsync(It.IsAny<GiftVoucher>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<GiftVoucher>>(), default(CancellationToken)), Times.Once);
         }

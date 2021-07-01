@@ -4,10 +4,6 @@ using Grand.Domain.Shipping;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Tests.Extensions
 {
@@ -49,7 +45,7 @@ namespace Grand.Business.Checkout.Tests.Extensions
             var method = new ShippingMethod();
             var countryId = "countryId";
             Assert.IsFalse(method.CountryRestrictionExists(countryId));
-            method.RestrictedCountries.Add(new Domain.Directory.Country() { Id=countryId});
+            method.RestrictedCountries.Add(new Domain.Directory.Country() { Id = countryId });
             Assert.IsTrue(method.CountryRestrictionExists(countryId));
         }
 
@@ -57,7 +53,7 @@ namespace Grand.Business.Checkout.Tests.Extensions
         public void CustomerGroupRestrictionExists_ReturnExpectedResult()
         {
             var method = new ShippingMethod();
-            var roleId= "role";
+            var roleId = "role";
             Assert.IsFalse(method.CustomerGroupRestrictionExists(roleId));
             method.RestrictedGroups.Add(roleId);
             Assert.IsTrue(method.CustomerGroupRestrictionExists(roleId));

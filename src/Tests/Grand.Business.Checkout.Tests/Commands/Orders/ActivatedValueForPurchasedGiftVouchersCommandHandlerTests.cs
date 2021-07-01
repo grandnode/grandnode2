@@ -9,9 +9,6 @@ using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Tests.Commands.Orders
@@ -36,17 +33,16 @@ namespace Grand.Business.Checkout.Tests.Commands.Orders
         [TestMethod]
         public async Task Handle_InvokeExpectedMethods()
         {
-            var command = new ActivatedValueForPurchasedGiftVouchersCommand()
-            {
+            var command = new ActivatedValueForPurchasedGiftVouchersCommand() {
                 Order = new Order()
             };
-            var gift = new GiftVoucher() { RecipientEmail = "fdsf", SenderEmail = "aaa",IsGiftVoucherActivated=false };
+            var gift = new GiftVoucher() { RecipientEmail = "fdsf", SenderEmail = "aaa", IsGiftVoucherActivated = false };
             command.Activate = true;
             command.Order.OrderItems.Add(new OrderItem() { });
             _langService.Setup(c => c.GetLanguageById(It.IsAny<string>())).ReturnsAsync(new Language());
             _giftVoucherMock.Setup(c => c.GetAllGiftVouchers(It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
                 It.IsAny<bool?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(new PagedList<GiftVoucher>() {gift });
+                .ReturnsAsync(new PagedList<GiftVoucher>() { gift });
 
             await _handler.Handle(command, default);
             Assert.IsTrue(gift.IsGiftVoucherActivated);
@@ -57,8 +53,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Orders
         [TestMethod]
         public async Task Handle_Deactivate()
         {
-            var command = new ActivatedValueForPurchasedGiftVouchersCommand()
-            {
+            var command = new ActivatedValueForPurchasedGiftVouchersCommand() {
                 Order = new Order()
             };
             var gift = new GiftVoucher() { RecipientEmail = "fdsf", SenderEmail = "aaa", IsGiftVoucherActivated = true };

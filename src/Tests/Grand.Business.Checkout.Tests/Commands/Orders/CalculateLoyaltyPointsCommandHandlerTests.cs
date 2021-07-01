@@ -2,10 +2,6 @@
 using Grand.Business.Checkout.Commands.Models.Orders;
 using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Tests.Commands.Orders
@@ -28,8 +24,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Orders
         {
             _settings.Enabled = true;
             _settings.PointsForPurchases_Amount = 20;
-            var command = new CalculateLoyaltyPointsCommand()
-            {
+            var command = new CalculateLoyaltyPointsCommand() {
                 Customer = null
             };
             var result = await _handler.Handle(command, default);
@@ -41,8 +36,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Orders
         {
             _settings.Enabled = false;
             _settings.PointsForPurchases_Amount = 20;
-            var command = new CalculateLoyaltyPointsCommand()
-            {
+            var command = new CalculateLoyaltyPointsCommand() {
                 Customer = new Domain.Customers.Customer()
             };
             var result = await _handler.Handle(command, default);
@@ -55,12 +49,11 @@ namespace Grand.Business.Checkout.Tests.Commands.Orders
             _settings.Enabled = true;
             _settings.PointsForPurchases_Amount = 10;
             _settings.PointsForPurchases_Points = 2;
-            var command = new CalculateLoyaltyPointsCommand()
-            {
+            var command = new CalculateLoyaltyPointsCommand() {
                 Customer = new Domain.Customers.Customer(),
-                Amount=100
+                Amount = 100
             };
-            
+
             Assert.AreEqual(20, await _handler.Handle(command, default));
             command.Amount = 200;
             Assert.AreEqual(40, await _handler.Handle(command, default));
