@@ -317,7 +317,7 @@ namespace Grand.Web.Admin.Controllers
                     Error(_translationService.GetResource("Admin.Common.UploadFile"));
                     return RedirectToAction("List");
                 }
-                Success(_translationService.GetResource("Admin.Catalog.Collection.Imported"));
+                Success(_translationService.GetResource("Admin.Catalog.Brands.Imported"));
                 return RedirectToAction("List");
             }
             catch (Exception exc)
