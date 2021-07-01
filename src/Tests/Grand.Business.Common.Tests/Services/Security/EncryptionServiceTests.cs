@@ -1,10 +1,6 @@
 ﻿using Grand.Business.Common.Services.Security;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Services.Security
 {
@@ -37,9 +33,9 @@ namespace Grand.Business.Common.Tests.Services.Security
             var salt = _encryptionService.CreateSaltKey(32);
             var hash1 = _encryptionService.CreatePasswordHash(password, salt);
             var hash2 = _encryptionService.CreatePasswordHash(password, salt);
-            var hash3 = _encryptionService.CreatePasswordHash(password, salt,Domain.Customers.HashedPasswordFormat.SHA384);
-            var hash4 = _encryptionService.CreatePasswordHash(password, salt,Domain.Customers.HashedPasswordFormat.SHA384);
-            var hash5 = _encryptionService.CreatePasswordHash(password, salt,Domain.Customers.HashedPasswordFormat.SHA512);
+            var hash3 = _encryptionService.CreatePasswordHash(password, salt, Domain.Customers.HashedPasswordFormat.SHA384);
+            var hash4 = _encryptionService.CreatePasswordHash(password, salt, Domain.Customers.HashedPasswordFormat.SHA384);
+            var hash5 = _encryptionService.CreatePasswordHash(password, salt, Domain.Customers.HashedPasswordFormat.SHA512);
             Assert.AreEqual(hash1, hash2);
             Assert.AreEqual(hash3, hash4);
             Assert.AreNotEqual(hash4, hash5);

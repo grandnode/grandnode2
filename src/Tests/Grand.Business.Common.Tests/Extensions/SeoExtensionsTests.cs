@@ -1,11 +1,6 @@
 ﻿using Grand.Business.Common.Extensions;
 using Grand.Domain.Catalog;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Extensions
 {

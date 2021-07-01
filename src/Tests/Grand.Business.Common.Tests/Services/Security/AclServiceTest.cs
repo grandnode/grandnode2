@@ -2,11 +2,6 @@
 using Grand.Domain.Catalog;
 using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Services.Security
 {
@@ -36,7 +31,7 @@ namespace Grand.Business.Common.Tests.Services.Security
         [TestMethod]
         public void Authorize_ReturnTrue()
         {
-            Product  product = new Product();
+            Product product = new Product();
             product.LimitedToStores = false;
             Assert.IsTrue(_aclService.Authorize(product, "id"));
             Assert.IsTrue(_aclService.Authorize(product, ""));

@@ -5,9 +5,6 @@ using Grand.Infrastructure.Caching;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Services.Configuration
@@ -24,7 +21,7 @@ namespace Grand.Business.Common.Tests.Services.Configuration
         {
             _cacheMock = new Mock<ICacheBase>();
             _repositoryMock = new Mock<IRepository<Setting>>();
-            _service = new SettingService(_cacheMock.Object, _repositoryMock.Object) ;
+            _service = new SettingService(_cacheMock.Object, _repositoryMock.Object);
         }
 
         [TestMethod()]

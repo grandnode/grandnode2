@@ -6,10 +6,6 @@ using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Services.Directory
@@ -34,8 +30,8 @@ namespace Grand.Business.Common.Tests.Services.Directory
             _muRepositoryMock = new Mock<IRepository<MeasureUnit>>();
             _settings = new MeasureSettings();
             _mediatorMock = new Mock<IMediator>();
-            _measureService = new MeasureService(_cacheMock.Object,_mdRepositoryMock.Object,_mwRepositoryMock.Object,
-                _muRepositoryMock.Object,_settings,_mediatorMock.Object);
+            _measureService = new MeasureService(_cacheMock.Object, _mdRepositoryMock.Object, _mwRepositoryMock.Object,
+                _muRepositoryMock.Object, _settings, _mediatorMock.Object);
         }
 
         [TestMethod()]

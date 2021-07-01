@@ -4,10 +4,8 @@ using Grand.Business.Common.Services.Addresses;
 using Grand.Domain.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Services.Addresses
@@ -25,7 +23,7 @@ namespace Grand.Business.Common.Tests.Services.Addresses
         {
             _atrService = new Mock<IAddressAttributeService>();
             _translationService = new Mock<ITranslationService>();
-            _parser = new AddressAttributeParser(_atrService.Object,_translationService.Object);
+            _parser = new AddressAttributeParser(_atrService.Object, _translationService.Object);
             customAtr = new List<CustomAttribute>()
             {
                 new CustomAttribute(){Key="key1",Value="value1" },
