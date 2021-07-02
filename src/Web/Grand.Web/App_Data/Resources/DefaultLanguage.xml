@@ -3858,6 +3858,9 @@
   <Resource Name="Admin.Common.ExportToExcel.Selected">
     <Value>Export to Excel (selected)</Value>
   </Resource>
+  <Resource Name="Admin.Common.Filters">
+    <Value>Filters</Value>
+  </Resource>
   <Resource Name="Admin.Common.Go">
     <Value>Go</Value>
   </Resource>
