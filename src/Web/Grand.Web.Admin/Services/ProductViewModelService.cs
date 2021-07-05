@@ -776,8 +776,10 @@ namespace Grand.Web.Admin.Services
             {
                 model.SearchVendorId = _workContext.CurrentVendor.Id;
             }
+
             //limit for store manager
-            model.SearchStoreId = _workContext.CurrentCustomer.StaffStoreId;
+            if(!string.IsNullOrEmpty(_workContext.CurrentCustomer.StaffStoreId))
+                model.SearchStoreId = _workContext.CurrentCustomer.StaffStoreId;
 
             var categoryIds = new List<string>();
             if (!string.IsNullOrEmpty(model.SearchCategoryId))
