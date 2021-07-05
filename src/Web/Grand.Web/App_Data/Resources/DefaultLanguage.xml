@@ -702,6 +702,24 @@
   <Resource Name="account.twofactorauth.disabled">
     <Value>Two factor authentication disabled</Value>
   </Resource>
+  <Resource Name="Account.TwoFactorAuth.Disable.AppVerification.FirstLine">
+    <Value>Open authenticator application.</Value>
+  </Resource>
+  <Resource Name="Account.TwoFactorAuth.Disable.AppVerification.SecondLine">
+    <Value>Enter the 6 digit code that authenticator application generates</Value>
+  </Resource>
+  <Resource Name="Account.TwoFactorAuth.Disable.EmailVerification.FirstLine">
+    <Value>Open email from our store - Email Verification Code.</Value>
+  </Resource>
+  <Resource Name="Account.TwoFactorAuth.Disable.EmailVerification.SecondLine">
+    <Value>Enter the 6 digit code that you can find in our message </Value>
+  </Resource>
+  <Resource Name="Account.TwoFactorAuth.Disable.SMSVerification.FirstLine">
+    <Value>Open SMS message from our store - Verification Code.</Value>
+  </Resource>
+  <Resource Name="Account.TwoFactorAuth.Disable.SMSVerification.SecondLine">
+    <Value>Enter the 6 digit code that you can find in our message</Value>
+  </Resource>
   <Resource Name="Account.TwoFactorAuth.EmailVerification.FirstLine">
     <Value>1. Please check your email box</Value>
   </Resource>

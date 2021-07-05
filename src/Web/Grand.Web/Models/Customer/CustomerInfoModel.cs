@@ -159,7 +159,7 @@ namespace Grand.Web.Models.Customer
         public class TwoFactorAuthorizationModel : BaseModel
         {
             public string Code { get; set; }
-            public string UserName { get; set; }
+            public TwoFactorAuthenticationType TwoFactorAuthenticationType { get; set; }
         }
 
         #endregion

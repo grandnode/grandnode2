@@ -9,15 +9,14 @@ using Grand.Business.Customers.Queries.Models;
 using Grand.Business.Customers.Utilities;
 using Grand.Business.Messages.Interfaces;
 using Grand.Business.System.Interfaces.ExportImport;
-using Grand.Web.Common.Controllers;
-using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Captcha;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
 using Grand.Web.Commands.Models.Customers;
+using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Customers;
@@ -181,8 +180,7 @@ namespace Grand.Web.Controllers
 
             if (_customerSettings.TwoFactorAuthenticationType != TwoFactorAuthenticationType.AppVerification)
             {
-                await _mediator.Send(new GetTwoFactorAuthentication()
-                {
+                await _mediator.Send(new GetTwoFactorAuthentication() {
                     Customer = customer,
                     Language = _workContext.WorkingLanguage,
                     Store = _workContext.CurrentStore,
@@ -394,8 +392,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("HomePage");
             }
 
-            var model = await _mediator.Send(new GetRegister()
-            {
+            var model = await _mediator.Send(new GetRegister() {
                 Customer = _workContext.CurrentCustomer,
                 ExcludeProperties = false,
                 Language = _workContext.WorkingLanguage,
@@ -451,8 +448,7 @@ namespace Grand.Web.Controllers
                 var registrationResult = await _customerManagerService.RegisterCustomer(registrationRequest);
                 if (registrationResult.Success)
                 {
-                    await _mediator.Send(new CustomerRegisteredCommand()
-                    {
+                    await _mediator.Send(new CustomerRegisteredCommand() {
                         Customer = _workContext.CurrentCustomer,
                         CustomerAttributes = customerAttributes,
                         Form = form,
@@ -507,8 +503,7 @@ namespace Grand.Web.Controllers
             }
 
             //If we got this far, something failed, redisplay form
-            model = await _mediator.Send(new GetRegister()
-            {
+            model = await _mediator.Send(new GetRegister() {
                 Customer = _workContext.CurrentCustomer,
                 ExcludeProperties = true,
                 Language = _workContext.WorkingLanguage,
@@ -541,8 +536,7 @@ namespace Grand.Web.Controllers
                 default:
                     break;
             }
-            var model = new RegisterResultModel
-            {
+            var model = new RegisterResultModel {
                 Result = resultText
             };
             return View(model);
@@ -617,8 +611,7 @@ namespace Grand.Web.Controllers
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
 
-            var model = await _mediator.Send(new GetInfo()
-            {
+            var model = await _mediator.Send(new GetInfo() {
                 Customer = _workContext.CurrentCustomer,
                 ExcludeProperties = false,
                 Language = _workContext.WorkingLanguage,
@@ -648,8 +641,7 @@ namespace Grand.Web.Controllers
             {
                 if (ModelState.IsValid && ModelState.ErrorCount == 0)
                 {
-                    await _mediator.Send(new UpdateCustomerInfoCommand()
-                    {
+                    await _mediator.Send(new UpdateCustomerInfoCommand() {
                         Customer = _workContext.CurrentCustomer,
                         CustomerAttributes = customerAttributes,
                         Form = form,
@@ -666,8 +658,7 @@ namespace Grand.Web.Controllers
             }
 
             //If we got this far, something failed, redisplay form
-            model = await _mediator.Send(new GetInfo()
-            {
+            model = await _mediator.Send(new GetInfo() {
                 Model = model,
                 Customer = _workContext.CurrentCustomer,
                 ExcludeProperties = true,
@@ -728,8 +719,7 @@ namespace Grand.Web.Controllers
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
 
-            var model = await _mediator.Send(new GetAddressList()
-            {
+            var model = await _mediator.Send(new GetAddressList() {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
@@ -767,10 +757,8 @@ namespace Grand.Web.Controllers
                 return Challenge();
 
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            var model = new CustomerAddressEditModel
-            {
-                Address = await _mediator.Send(new GetAddressModel()
-                {
+            var model = new CustomerAddressEditModel {
+                Address = await _mediator.Send(new GetAddressModel() {
                     Language = _workContext.WorkingLanguage,
                     Store = _workContext.CurrentStore,
                     Model = null,
@@ -814,8 +802,7 @@ namespace Grand.Web.Controllers
             }
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
             //If we got this far, something failed, redisplay form
-            model.Address = await _mediator.Send(new GetAddressModel()
-            {
+            model.Address = await _mediator.Send(new GetAddressModel() {
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
                 Model = model.Address,
@@ -841,8 +828,7 @@ namespace Grand.Web.Controllers
 
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
             var model = new CustomerAddressEditModel();
-            model.Address = await _mediator.Send(new GetAddressModel()
-            {
+            model.Address = await _mediator.Send(new GetAddressModel() {
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
                 Model = model.Address,
@@ -892,8 +878,7 @@ namespace Grand.Web.Controllers
             }
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
             //If we got this far, something failed, redisplay form
-            model.Address = await _mediator.Send(new GetAddressModel()
-            {
+            model.Address = await _mediator.Send(new GetAddressModel() {
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
                 Model = model.Address,
@@ -1095,8 +1080,7 @@ namespace Grand.Web.Controllers
             if (_customerSettings.HideDocumentsTab)
                 return RedirectToRoute("CustomerInfo");
 
-            var model = await _mediator.Send(new GetDocuments()
-            {
+            var model = await _mediator.Send(new GetDocuments() {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Command = command
@@ -1137,8 +1121,7 @@ namespace Grand.Web.Controllers
             if (_workContext.CurrentCustomer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled))
                 return RedirectToRoute("CustomerInfo");
 
-            var model = await _mediator.Send(new GetTwoFactorAuthentication()
-            {
+            var model = await _mediator.Send(new GetTwoFactorAuthentication() {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
@@ -1192,17 +1175,21 @@ namespace Grand.Web.Controllers
             if (!_workContext.CurrentCustomer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled))
                 return RedirectToRoute("CustomerInfo");
 
-            var model = await _mediator.Send(new GetTwoFactorAuthentication() {
+            _ = await _mediator.Send(new GetTwoFactorAuthentication() {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
             });
+
+            var model = new CustomerInfoModel.TwoFactorAuthorizationModel() {
+                TwoFactorAuthenticationType = _customerSettings.TwoFactorAuthenticationType
+            };
             return View(model);
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> DisableTwoFactorAuthenticator(CustomerInfoModel.TwoFactorAuthenticationModel model,
+        public async Task<IActionResult> DisableTwoFactorAuthenticator(CustomerInfoModel.TwoFactorAuthorizationModel model,
             [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService)
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
@@ -1220,7 +1207,8 @@ namespace Grand.Web.Controllers
             }
             else
             {
-                if (await twoFactorAuthenticationService.AuthenticateTwoFactor(model.SecretKey, model.Code, _workContext.CurrentCustomer, _customerSettings.TwoFactorAuthenticationType))
+                var secretKey = _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.TwoFactorSecretKey);
+                if (await twoFactorAuthenticationService.AuthenticateTwoFactor(secretKey, model.Code, _workContext.CurrentCustomer, _customerSettings.TwoFactorAuthenticationType))
                 {
                     await _userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.TwoFactorEnabled, false);
                     await _userFieldService.SaveField<string>(_workContext.CurrentCustomer, SystemCustomerFieldNames.TwoFactorSecretKey, null);
@@ -1282,8 +1270,7 @@ namespace Grand.Web.Controllers
             if (!await _groupService.IsOwner(_workContext.CurrentCustomer))
                 return Challenge();
 
-            var model = new SubAccountModel()
-            {
+            var model = new SubAccountModel() {
                 Active = true,
             };
             return View(model);
@@ -1301,8 +1288,7 @@ namespace Grand.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new SubAccountAddCommand()
-                {
+                var result = await _mediator.Send(new SubAccountAddCommand() {
                     Customer = _workContext.CurrentCustomer,
                     Model = model,
                     Form = form,
@@ -1348,8 +1334,7 @@ namespace Grand.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new SubAccountEditCommand()
-                {
+                var result = await _mediator.Send(new SubAccountEditCommand() {
                     CurrentCustomer = _workContext.CurrentCustomer,
                     Model = model,
                     Form = form,
@@ -1382,8 +1367,7 @@ namespace Grand.Web.Controllers
             //find address (ensure that it belongs to the current customer)
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new SubAccountDeleteCommand()
-                {
+                var result = await _mediator.Send(new SubAccountDeleteCommand() {
                     CurrentCustomer = _workContext.CurrentCustomer,
                     CustomerId = id,
                 });
