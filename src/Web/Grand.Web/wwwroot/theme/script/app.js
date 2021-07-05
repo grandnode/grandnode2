@@ -240,11 +240,13 @@
             })
         },
         initReservationQV: function () {
-            var productId = vm.PopupQuickViewVueModal.Id;
-            var fullDate = vm.PopupQuickViewVueModal.ReservationFullDate;
-            var year = vm.PopupQuickViewVueModal.ReservationYear;
-            var month = vm.PopupQuickViewVueModal.ReservationMonth;
-            Reservation.init(fullDate, year, month, "No available reservations", "/Product/GetDatesForMonth", productId, "/product/productdetails_attributechange?productId=" + productId + "&validateAttributeConditions=False");
+            if (vm.PopupQuickViewVueModal !== null && vm.PopupQuickViewVueModal.ProductType == 20) {
+                var productId = vm.PopupQuickViewVueModal.Id;
+                var fullDate = vm.PopupQuickViewVueModal.ReservationFullDate;
+                var year = vm.PopupQuickViewVueModal.ReservationYear;
+                var month = vm.PopupQuickViewVueModal.ReservationMonth;
+                Reservation.init(fullDate, year, month, "No available reservations", "/Product/GetDatesForMonth", productId, "/product/productdetails_attributechange?productId=" + productId + "&validateAttributeConditions=False");
+            }
         },
         getLinkedProductsQV: function (id) {
             var data = { productId: id };
@@ -261,6 +263,25 @@
             }).then(function (response) {
                 vm.RelatedProducts = response.data;
             });
+        },
+        warehouse_change_handler(id, url) {
+            var whId = document.getElementById('WarehouseId').value;
+            var data = { warehouseId: whId }
+            axios({
+                url: url + '?productId=' + id,
+                data: JSON.stringify(data),
+                params: { product: id },
+                method: 'post',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Response-View': 'Json'
+                }
+            }).then(function (response) {
+                if (response.data.stockAvailability) {
+                    vm.PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
+                }
+            })
         }
     },
 });

@@ -37,7 +37,7 @@
             </template>
             <template v-if="!(PopupQuickViewVueModal.ProductPrice.IsAuction && PopupQuickViewVueModal.ProductPrice.DisableBuyButton)">
                 <div v-bind:class="{ 'product-price col-12 px-0 d-inline-flex align-items-center': (PopupQuickViewVueModal.ProductPrice.PriceWithDiscount !== null), 'non-discounted-price col-12 px-0 d-flex align-items-center': (PopupQuickViewVueModal.ProductPrice.PriceWithDiscount == null) }">
-                    <span :class="'price-value-' + PopupQuickViewVueModal.ProductPrice.ProductId " v-bind:class="{ 'actual-price': (PopupQuickViewVueModal.ProductPrice.PriceWithDiscount == null) }">
+                    <span :class="'price-value-' + PopupQuickViewVueModal.ProductPrice.ProductId">
                         <template v-if="PopupQuickViewVueModal.ProductPrice.IsAuction">
                             <strong class="actual-price bid">@Loc["Products.BuyNowPrice"]:</strong>
                         </template>

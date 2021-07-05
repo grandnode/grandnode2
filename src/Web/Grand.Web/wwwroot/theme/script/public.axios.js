@@ -155,7 +155,6 @@ var AxiosCart = {
                     var year = new Date(response.data.model.StartDate).getFullYear();
                     var month = new Date(response.data.model.StartDate).getUTCMonth() + 1;
 
-
                     Object.assign(vm.PopupQuickViewVueModal, { ReservationFullDate: fullDate });
                     Object.assign(vm.PopupQuickViewVueModal, { ReservationYear: year });
                     Object.assign(vm.PopupQuickViewVueModal, { ReservationMonth: month });
