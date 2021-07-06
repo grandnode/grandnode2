@@ -2974,7 +2974,7 @@
     <Value>Flag</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.Fields.Flag.Hint">
-    <Value>Flag is a custom text that appears on catalog pages</Value>
+    <Value>Flag is a custom text that appears on catalog and product pages</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.Fields.FullDescription">
     <Value>Full description</Value>
