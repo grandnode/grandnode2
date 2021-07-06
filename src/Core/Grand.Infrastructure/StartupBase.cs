@@ -89,7 +89,7 @@ namespace Grand.Infrastructure
             {
                 var assemblies = typeSearcher.GetAssemblies();
                 configuration.RegisterValidatorsFromAssemblies(assemblies);
-                configuration.RunDefaultMvcValidationAfterFluentValidationExecutes = false;
+                configuration.DisableDataAnnotationsValidation = true;
                 //implicit/automatic validation of child properties
                 configuration.ImplicitlyValidateChildProperties = true;
             });
