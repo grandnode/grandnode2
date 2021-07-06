@@ -1,4 +1,4 @@
-﻿<b-modal id="ModalQuickView" ref="ModalQuickView" :dark-theme="darkMode" @@shown="initReservationQV()" size="xl" centered hide-footer hide-header>
+﻿<b-modal id="ModalQuickView" ref="ModalQuickView" :dark-theme="darkMode" @@shown="initReservationQV();QuickViewShown()" size="xl" centered hide-footer hide-header>
     <template v-if="PopupQuickViewVueModal !== null">
         <form method="post" id="product-details-form" :action="'/' + PopupQuickViewVueModal.SeName">
             <div itemscope itemtype="http://schema.org/Product" :data-productid="PopupQuickViewVueModal.Id">
