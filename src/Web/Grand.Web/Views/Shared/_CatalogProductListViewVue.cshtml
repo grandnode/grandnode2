@@ -11,6 +11,11 @@
                 <b-icon icon="search"></b-icon>
                 <span>@Loc["Products.QuickView"]</span>
             </a>
+            <template v-if="Model.Flag !== null">
+                <div class="product-label">
+                    <div class="badge badge-info">{{Model.Flag}}</div>
+                </div>
+            </template>
         </div>
         <div class="card-body">
             <h3 class="card-title mb-0">

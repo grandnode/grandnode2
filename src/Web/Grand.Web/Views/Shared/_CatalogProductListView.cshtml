@@ -49,6 +49,12 @@
                 <b-icon icon="search"></b-icon>
                 <span>@Loc["Products.QuickView"]</span>
             </a>
+            @if (!string.IsNullOrEmpty(Model.Flag))
+            {
+                <div class="product-label">
+                    <div class="badge badge-info">@Model.Flag</div>
+                </div>
+            }
         </div>
         <div class="card-body">
             <h5 class="card-title mb-0">

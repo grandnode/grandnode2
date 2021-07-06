@@ -853,6 +853,16 @@ input:checked ~ .color-container .color::before {
     border-color: rgba(0,0,0,.2);
     box-shadow: 0 0 10px rgba(0,0,0,.2);
 }
+.product-box .product-label {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    align-items: center;
+}
+.product-box .product-label .badge {
+    padding: 5px 8px;
+}
 .product-box .picture-container {
     position: relative;
     overflow: hidden;
