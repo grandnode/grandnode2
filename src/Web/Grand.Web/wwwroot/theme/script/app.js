@@ -282,6 +282,11 @@
                     vm.PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
                 }
             })
+        },
+        QuickViewShown: function () {
+            if (vm.PopupQuickViewVueModal.ProductAttributes.length > 0) {
+                vm.attrchange(vm.PopupQuickViewVueModal.Id, vm.PopupQuickViewVueModal.HasCondition, true)
+            }
         }
     },
 });
