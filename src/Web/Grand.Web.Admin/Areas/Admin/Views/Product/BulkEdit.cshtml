@@ -86,8 +86,23 @@
     </div>
 
     <script>
+            @{
+                var methods = ManageInventoryMethod.DontManageStock.ToSelectList(Context);
+            }
+            var allInventoryMethod = [
+                @foreach (var method in methods)
+                {
+                        <text>
+                        {
+                            Id: '@(method.Value)',
+                            Name: "@Html.Raw(method.Text)"
+                        },
+                        </text>
+                }
+            ];
+
         $(document).ready(function() {
-            $("#products-grid").kendoGrid({
+            var _grid = $("#products-grid").kendoGrid({
                 dataSource: {
                     transport: {
                         read: {
@@ -119,7 +134,7 @@
                                         if (member == 'Price' || member == 'OldPrice') {
                                             result["products[" + i + "]." + member] = kendo.toString(entity[member], "n4");
                                         }
-                                        
+
                                     }
                                 }
 
@@ -144,7 +159,8 @@
                                 Sku: { editable: true, type: "string" },
                                 Price: { editable: true, type: "number" },
                                 OldPrice: { editable: true, type: "number" },
-                                ManageInventoryMethod: { editable: false, type: "string" },
+                                ManageInventoryMethodId: { editable: true, type: "int" },
+                                ManageInventoryMethod: { editable: true, type: "string" },
                                 StockQuantity: { editable: true, type: "number" },
                                 Published: { editable: true, type: "boolean" },
                                 Id: { editable: false, type: "string" }
@@ -222,6 +238,25 @@
                     //integer format
                     format: "{0:0}",
                     width: 100
+                }, {
+                    field: "ManageInventoryMethod",
+                    title: "@Loc["Admin.Catalog.BulkEdit.Fields.ManageInventoryMethod"]",
+                    width: 150,
+                    editor: function (container, options) {
+                        $("<input data-bind='value:ManageInventoryMethod' />")
+                            .attr("id", "ddl_ManageInventoryMethod")
+                            .appendTo(container)
+                            .kendoDropDownList({
+                                dataSource: allInventoryMethod,
+                                dataTextField: "Name",
+                                dataValueField: "Name",
+                                template: "<span data-id='${data.id}'>${data.Name}</span>",
+                                select: function (e) {
+                                    var product = _grid.dataItem($(e.sender.element).closest("tr"));
+                                    product.ManageInventoryMethodId = e.dataItem.Id;
+                                }
+                            });
+                    }
                 },{
                     field: "Published",
                     title: "@Loc["Admin.Catalog.BulkEdit.Fields.Published"]",
@@ -232,7 +267,7 @@
                     width: 100
                 }
                 ]
-            } );
+            }).data("kendoGrid");
         });
     </script>
 
@@ -240,22 +275,22 @@
 
         $(document).ready(function () {
             $('#search-products').click(function () {
-                var grid = $('#products-grid').data('kendoGrid');
-                grid.dataSource.page(1); //new search. Set page size to 1
-                //grid.dataSource.read(); we already loaded the grid above using "page" function
-                return false;
-            });
+                    var grid = $('#products-grid').data('kendoGrid');
+                    grid.dataSource.page(1); //new search. Set page size to 1
+                                             //grid.dataSource.read(); we already loaded the grid above using "page" function
+                    return false;
+                });
 
             $("#@Html.IdFor(model => model.SearchProductName)").keydown(function (event) {
-                if (event.keyCode == 13) {
+                    if (event.keyCode == 13) {
                     $("#search-products").click();
-                    return false;
-                }
+                        return false;
+                    }
+                });
             });
-        });
 
-        function additionalData() {
-            var data = {
+            function additionalData() {
+                var data = {
                 SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
                 SearchCategoryId: $('#SearchCategoryId').val(),
                 SearchBrandId: $('#SearchBrandId').val(),
