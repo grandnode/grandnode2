@@ -20,8 +20,9 @@
         /// </summary>
         /// <remarks>
         /// {0} : customer group IDs
+        /// {1} : store ident
         /// </remarks>
-        public static string PRODUCTS_CUSTOMER_GROUP => "Grand.product.cr-{0}";
+        public static string PRODUCTS_CUSTOMER_GROUP => "Grand.product.cr-{0}-{1}";
 
         /// <summary>
         /// Key for caching

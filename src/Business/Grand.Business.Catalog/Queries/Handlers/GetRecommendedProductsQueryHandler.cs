@@ -32,7 +32,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
 
         public async Task<IList<Product>> Handle(GetRecommendedProductsQuery request, CancellationToken cancellationToken)
         {
-            return await _cacheBase.GetAsync(string.Format(CacheKey.PRODUCTS_CUSTOMER_GROUP, string.Join(",", request.CustomerGroupIds)), async () =>
+            return await _cacheBase.GetAsync(string.Format(CacheKey.PRODUCTS_CUSTOMER_GROUP, string.Join(",", request.CustomerGroupIds), request.StoreId), async () =>
             {
                 var query = from cr in _customerGroupProductRepository.Table
                             where request.CustomerGroupIds.Contains(cr.CustomerGroupId)
