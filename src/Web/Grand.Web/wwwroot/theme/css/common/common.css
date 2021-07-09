@@ -245,6 +245,9 @@ ul.Menu.-vertical {
  .Menu li.category > div > span, .Menu li.category > a {
      font-weight: 700;
  }
+ .Menu li.category .b-icon {
+     margin: 0 15px 0 0;
+ }
  .Menu li:not(.category) {
      background-color: #fff;
  }
