@@ -9,7 +9,7 @@
             <a href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">
                 @if (!string.IsNullOrEmpty(Model.Category.Icon))
                 {
-                    <span class="category-icon @Model.Category.Icon"></span>
+                    <b-icon class="category-icon" icon="@Model.Category.Icon"></b-icon>
                 }
                 <span>@Model.Category.Name</span>
                 @if (!string.IsNullOrEmpty(Model.Category.FlagStyle))
@@ -23,7 +23,7 @@
             <div>
                 @if (!string.IsNullOrEmpty(Model.Category.Icon))
                 {
-                    <span class="category-icon @Model.Category.Icon"></span>
+                    <b-icon class="category-icon" icon="@Model.Category.Icon"></b-icon>
                 }
                 <span>@Model.Category.Name</span>
                 @if (!string.IsNullOrEmpty(Model.Category.FlagStyle))

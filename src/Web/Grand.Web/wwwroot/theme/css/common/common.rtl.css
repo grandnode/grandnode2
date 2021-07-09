@@ -356,6 +356,9 @@ body:not(.modal-open) {
  .Menu li.category > div > span, .Menu li.category > a {
      font-weight: 700;
  }
+ .Menu li.category .b-icon {
+     margin: 0 0 0 15px;
+ }
  .Menu li .badge {
      position: absolute;
      top: 0;
