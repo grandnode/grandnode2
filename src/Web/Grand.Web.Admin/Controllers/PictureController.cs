@@ -251,12 +251,28 @@ namespace Grand.Web.Admin.Controllers
                     });
                 }
             }
-            return Json(new
+            else
             {
-                success = false,
-                message = "This filename exists"
-            });
-
+                var filepath = _mediaFileStore.GetDirectoryInfo("");
+                if (filepath != null)
+                {
+                    using (var stream = new FileStream(_mediaFileStore.Combine(filepath.PhysicalPath, fileName), FileMode.OpenOrCreate))
+                    {
+                        httpPostedFile.CopyTo(stream);
+                    }
+                    return Json(new
+                    {
+                        success = true,
+                        imageUrl = fileName
+                    });
+                }
+                else
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Physical path not exist"
+                    });
+            }
 
         }
     }
