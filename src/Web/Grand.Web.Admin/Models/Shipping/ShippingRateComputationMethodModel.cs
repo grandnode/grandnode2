@@ -19,9 +19,6 @@ namespace Grand.Web.Admin.Models.Shipping
         [GrandResourceDisplayName("Admin.Configuration.Shipping.Providers.Fields.IsActive")]
         public bool IsActive { get; set; }
 
-        [GrandResourceDisplayName("Admin.Configuration.Shipping.Providers.Fields.Logo")]
-        public string LogoUrl { get; set; }
-
         [GrandResourceDisplayName("Admin.Configuration.Shipping.Providers.Configure")]
         public string ConfigurationUrl { get; set; }
     }

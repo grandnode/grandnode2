@@ -89,17 +89,6 @@ namespace Shipping.ByWeight
 
         #endregion
 
-        #region Properties
-
-        /// <summary>
-        /// Gets a configuration page URL
-        /// </summary>
-        public override string ConfigurationUrl()
-        {
-            return ByWeightShippingDefaults.ConfigurationUrl;
-        }
-
-        #endregion
     }
 
 }

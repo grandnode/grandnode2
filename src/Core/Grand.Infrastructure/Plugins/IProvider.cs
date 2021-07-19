@@ -7,7 +7,7 @@ namespace Grand.Infrastructure.Plugins
         /// <summary>
         /// Gets a configuration URL
         /// </summary>
-        string ConfigurationUrl { get; }
+        string ConfigurationUrl { get; }        
         /// <summary>
         /// Gets a system name for provider 
         /// </summary>
