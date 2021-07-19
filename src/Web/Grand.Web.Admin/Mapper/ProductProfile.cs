@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
 using Grand.Business.Common.Extensions;
-using Grand.Infrastructure.Mapper;
 using Grand.Domain.Catalog;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Catalog;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Grand.Web.Admin.Mapper
@@ -23,7 +22,6 @@ namespace Grand.Web.Admin.Mapper
                 .ForMember(dest => dest.ProductTags, mo => mo.Ignore())
                 .ForMember(dest => dest.PictureThumbnailUrl, mo => mo.Ignore())
                 .ForMember(dest => dest.AvailableProductLayouts, mo => mo.Ignore())
-                .ForMember(dest => dest.Locales, mo => mo.Ignore())
                 .ForMember(dest => dest.AvailableProductAttributes, mo => mo.Ignore())
                 .ForMember(dest => dest.AddPictureModel, mo => mo.Ignore())
                 .ForMember(dest => dest.ProductPictureModels, mo => mo.Ignore())
@@ -37,7 +35,6 @@ namespace Grand.Web.Admin.Mapper
                 .ForMember(dest => dest.PrimaryStoreCurrencyCode, mo => mo.Ignore())
                 .ForMember(dest => dest.BaseDimensionIn, mo => mo.Ignore())
                 .ForMember(dest => dest.BaseWeightIn, mo => mo.Ignore())
-                .ForMember(dest => dest.Locales, mo => mo.Ignore())
                 .ForMember(dest => dest.AvailableDiscounts, mo => mo.Ignore())
                 .ForMember(dest => dest.SelectedDiscountIds, mo => mo.Ignore())
                 .ForMember(dest => dest.AvailableDeliveryDates, mo => mo.Ignore())
