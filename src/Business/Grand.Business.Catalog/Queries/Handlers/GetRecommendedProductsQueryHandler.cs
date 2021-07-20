@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Catalog.Queries.Models;
-using Grand.Infrastructure.Caching;
-using Grand.Infrastructure.Caching.Constants;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using MediatR;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +32,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
 
         public async Task<IList<Product>> Handle(GetRecommendedProductsQuery request, CancellationToken cancellationToken)
         {
-            return await _cacheBase.GetAsync(string.Format(CacheKey.PRODUCTS_CUSTOMER_GROUP, string.Join(",", request.CustomerGroupIds)), async () =>
+            return await _cacheBase.GetAsync(string.Format(CacheKey.PRODUCTS_CUSTOMER_GROUP, string.Join(",", request.CustomerGroupIds), request.StoreId), async () =>
             {
                 var query = from cr in _customerGroupProductRepository.Table
                             where request.CustomerGroupIds.Contains(cr.CustomerGroupId)
