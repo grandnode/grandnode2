@@ -36,6 +36,14 @@ namespace Grand.Api.Infrastructure.Mapper
 
             CreateMap<Product, ProductDto>();
 
+            CreateMap<ProductCategory, ProductCategoryDto>();
+            CreateMap<ProductCollection, ProductCollectionDto>();
+            CreateMap<ProductPicture, ProductPictureDto>();
+            CreateMap<ProductSpecificationAttribute, ProductSpecificationAttributeDto>();
+            CreateMap<TierPrice, ProductTierPriceDto>();
+            CreateMap<ProductWarehouseInventory, ProductWarehouseInventoryDto>();
+            CreateMap<ProductAttributeMapping, ProductAttributeMappingDto>();
+            CreateMap<ProductAttributeCombination, ProductAttributeCombinationDto>();
         }
 
         public int Order => 1;
