@@ -32,15 +32,7 @@ namespace Shipping.FixedRateShipping
         #endregion
 
         #region Methods
-
-        /// <summary>
-        /// Gets a configuration page URL
-        /// </summary>
-        public override string ConfigurationUrl()
-        {
-            return FixedRateShippingDefaults.ConfigurationUrl;
-        }
-
+       
         /// <summary>
         /// Install plugin
         /// </summary>

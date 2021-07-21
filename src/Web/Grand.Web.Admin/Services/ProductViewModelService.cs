@@ -1875,16 +1875,11 @@ namespace Grand.Web.Admin.Services
                     Sku = x.Sku,
                     OldPrice = x.OldPrice,
                     Price = x.Price,
+                    ManageInventoryMethodId = (int)x.ManageInventoryMethodId,
                     ManageInventoryMethod = x.ManageInventoryMethodId.GetTranslationEnum(_translationService, _workContext.WorkingLanguage.Id),
                     StockQuantity = x.StockQuantity,
                     Published = x.Published
                 };
-                if (x.ManageInventoryMethodId == ManageInventoryMethod.ManageStock && x.UseMultipleWarehouses)
-                {
-                    //multi-warehouse supported
-                    //TODO localize
-                    productModel.ManageInventoryMethod += " (multi-warehouse)";
-                }
                 return productModel;
             })), products.TotalCount);
         }
@@ -1915,6 +1910,7 @@ namespace Grand.Web.Admin.Services
                     product.StockQuantity = pModel.StockQuantity;
                     product.Published = pModel.Published;
                     product.Name = pModel.Name;
+                    product.ManageInventoryMethodId = (ManageInventoryMethod)pModel.ManageInventoryMethodId;
                     await _productService.UpdateProduct(product);
 
                     //out of stock notifications
