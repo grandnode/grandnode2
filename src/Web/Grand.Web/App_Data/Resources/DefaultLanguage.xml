@@ -4917,9 +4917,6 @@
   <Resource Name="Admin.Configuration.Shipping.Providers.Fields.IsActive">
     <Value>Is active</Value>
   </Resource>
-  <Resource Name="Admin.Configuration.Shipping.Providers.Fields.Logo">
-    <Value>Logo</Value>
-  </Resource>
   <Resource Name="Admin.Configuration.Shipping.Providers.Fields.SystemName">
     <Value>System name</Value>
   </Resource>

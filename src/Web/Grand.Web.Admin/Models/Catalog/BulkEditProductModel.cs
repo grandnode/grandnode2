@@ -20,7 +20,9 @@ namespace Grand.Web.Admin.Models.Catalog
         public double OldPrice { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.BulkEdit.Fields.ManageInventoryMethod")]
+        public int ManageInventoryMethodId { get; set; }
         public string ManageInventoryMethod { get; set; }
+
 
         [GrandResourceDisplayName("Admin.Catalog.BulkEdit.Fields.StockQuantity")]
         public int StockQuantity { get; set; }

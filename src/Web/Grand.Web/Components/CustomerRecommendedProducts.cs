@@ -43,7 +43,8 @@ namespace Grand.Web.Components
             if (!_catalogSettings.RecommendedProductsEnabled)
                 return Content("");
 
-            var products = await _mediator.Send(new GetRecommendedProductsQuery() { CustomerGroupIds = _workContext.CurrentCustomer.GetCustomerGroupIds(), StoreId =_workContext.CurrentStore.Id });
+            var products = await _mediator.Send(new GetRecommendedProductsQuery() { CustomerGroupIds = _workContext.CurrentCustomer.GetCustomerGroupIds(), 
+                StoreId = _workContext.CurrentStore.Id });
 
             if (!products.Any())
                 return Content("");

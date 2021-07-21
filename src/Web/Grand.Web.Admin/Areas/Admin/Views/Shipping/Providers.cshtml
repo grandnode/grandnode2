@@ -53,7 +53,6 @@ $(document).ready(function () {
                     fields: {
                         FriendlyName: { editable: false, type: "string" },
                         SystemName: { editable: false, type: "string" },
-                        LogoUrl: { editable: false, type: "string" },
                         DisplayOrder: { editable: false, type: "number" },
                         IsActive: { editable: true, type: "boolean" }
                     }
@@ -94,11 +93,6 @@ $(document).ready(function () {
             title: "@Loc["Admin.Configuration.Payment.Methods.Fields.SystemName"]",
             width: 250,
                 template: '<a class="k-link" href="#=ConfigurationUrl#">#=SystemName#</a>',
-        }, {
-            field: "LogoUrl",
-            title: "@Loc["Admin.Configuration.Payment.Methods.Fields.Logo"]",
-            width: 100,
-            template: '<img src="#=LogoUrl#" />'
         }, {
             field: "DisplayOrder",
             title: "@Loc["Admin.Configuration.Shipping.Providers.Fields.DisplayOrder"]",

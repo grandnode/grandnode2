@@ -94,14 +94,6 @@ namespace Shipping.ShippingPoint
             await base.Uninstall();
         }
 
-        /// <summary>
-        /// Gets a configuration page URL
-        /// </summary>
-        public override string ConfigurationUrl()
-        {
-            return ShippingPointRateDefaults.ConfigurationUrl;
-        }
-
         #endregion
 
     }

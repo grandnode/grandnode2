@@ -1,9 +1,8 @@
 ﻿using AutoMapper;
 using Grand.Business.Common.Extensions;
-using Grand.Infrastructure.Mapper;
 using Grand.Domain.Catalog;
+using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Catalog;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Grand.Web.Admin.Mapper
@@ -15,7 +14,6 @@ namespace Grand.Web.Admin.Mapper
             CreateMap<Category, CategoryModel>()
                 .ForMember(dest => dest.Locales, mo => mo.Ignore())
                 .ForMember(dest => dest.AvailableCategoryLayouts, mo => mo.Ignore())
-                .ForMember(dest => dest.Locales, mo => mo.Ignore())
                 .ForMember(dest => dest.Breadcrumb, mo => mo.Ignore())
                 .ForMember(dest => dest.AvailableDiscounts, mo => mo.Ignore())
                 .ForMember(dest => dest.AvailableSortOptions, mo => mo.Ignore())
