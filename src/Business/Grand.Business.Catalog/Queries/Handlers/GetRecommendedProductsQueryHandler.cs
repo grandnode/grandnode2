@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Catalog.Queries.Models;
-using Grand.Infrastructure.Caching;
-using Grand.Infrastructure.Caching.Constants;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using MediatR;
 using System.Collections.Generic;
 using System.Linq;
