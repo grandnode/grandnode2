@@ -11484,6 +11484,12 @@
   <Resource Name="Admin.Settings.Media.ProductThumbPictureSizeOnProductDetailsPage">
     <Value>Product thumbnail image size (product page)</Value>
   </Resource>
+  <Resource Name="Admin.Settings.Media.StoreLocation">
+    <Value>Image location (url)</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.Media.StoreLocation.hint">
+    <Value>This settings is only for advanced user</Value>
+  </Resource>
   <Resource Name="Admin.Settings.Media.VendorThumbPictureSize">
     <Value>Vendor thumbnail image size</Value>
   </Resource>
