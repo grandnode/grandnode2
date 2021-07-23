@@ -77,6 +77,9 @@ namespace Grand.Web.Admin.Models.Settings
         [GrandResourceDisplayName("Admin.Settings.Media.AllowedFileTypes")]
         public string AllowedFileTypes { get; set; }
 
+        [GrandResourceDisplayName("Admin.Settings.Media.StoreLocation")]
+        public string StoreLocation { get; set; }
+
         [GrandResourceDisplayName("Admin.Settings.Media.DefaultImageName")]
         public string DefaultImageName { get; set; } = "no-image.png";
 
