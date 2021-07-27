@@ -66,7 +66,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
                 async Task PrepareCategories(string categoryId)
                 {
-                    var parentCategories = await _categoryService.GetAllCategories(parentId: categoryId);
+                    var parentCategories = await _categoryService.GetAllCategories(parentId: categoryId, storeId: request.Store.Id);
                     if (parentCategories.Any())
                     {
                         categories.AddRange(parentCategories);
@@ -78,7 +78,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 }
                 if (currentCategory != null)
                 {
-                    var currentCategories = await _categoryService.GetAllCategories(parentId: currentCategory.Id);
+                    var currentCategories = await _categoryService.GetAllCategories(parentId: currentCategory.Id, storeId: request.Store.Id);
                     categories.AddRange(currentCategories);
                     await PrepareCategories(currentCategory.ParentCategoryId);
                 }
