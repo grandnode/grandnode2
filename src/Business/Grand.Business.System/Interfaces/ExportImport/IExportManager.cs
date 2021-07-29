@@ -58,6 +58,12 @@ namespace Grand.Business.System.Interfaces.ExportImport
         Task<byte[]> ExportCustomerToXlsx(Customer customer, string storeId);
 
         /// <summary>
+        /// Export states to XLSX
+        /// </summary>
+        /// <param name="countries">Countries</param>
+        byte[] ExportStatesToXlsx(IList<Country> countries);
+
+        /// <summary>
         /// Export newsletter subscribers to TXT
         /// </summary>
         /// <param name="subscriptions">Subscriptions</param>

@@ -385,6 +385,19 @@ namespace Grand.Business.System.Services.ExportImport
         }
 
         /// <summary>
+        /// Export states to XLSX
+        /// </summary>
+        /// <param name="countries">Countries</param>
+        public virtual byte[] ExportStatesToXlsx(IList<Country> countries)
+        {
+            var query = from p in countries
+                        from s in p.StateProvinces
+                        select (p, s);
+
+            return ExportToXlsx(PropertyByCountryState(), query);
+        }
+
+        /// <summary>
         /// Export newsletter subscribers to TXT
         /// </summary>
         /// <param name="subscriptions">Subscriptions</param>
@@ -608,6 +621,19 @@ namespace Grand.Business.System.Services.ExportImport
                 new PropertyByName<Customer>("Fax", p => p.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Fax)),
                 new PropertyByName<Customer>("VatNumber", p => p.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.VatNumber)),
                 new PropertyByName<Customer>("VatNumberStatusId", p => p.GetUserFieldFromEntity<int>(SystemCustomerFieldNames.VatNumberStatusId))
+            };
+            return properties;
+        }
+
+        private PropertyByName<(Country, StateProvince)>[] PropertyByCountryState()
+        {
+            var properties = new[]
+            {
+                new PropertyByName<(Country c, StateProvince s)>("Country", p => p.c.TwoLetterIsoCode),
+                new PropertyByName<(Country c, StateProvince s)>("Name", p => p.s.Name),
+                new PropertyByName<(Country c, StateProvince s)>("Abbreviation", p => p.s.Abbreviation),
+                new PropertyByName<(Country c, StateProvince s)>("DisplayOrder", p => p.s.DisplayOrder),
+                new PropertyByName<(Country c, StateProvince s)>("Published", p => p.s.Published)
             };
             return properties;
         }

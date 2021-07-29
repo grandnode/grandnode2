@@ -290,9 +290,15 @@ namespace Grand.Business.Common.Services.Directory
             if (country == null)
                 throw new ArgumentNullException(nameof(country));
 
-            var state = country.StateProvinces.FirstOrDefault(x => x.Id == stateProvince.Id);
-            state = stateProvince;
-
+            if (country.StateProvinces.FirstOrDefault(x => x.Id == stateProvince.Id) != null)
+            {
+                var state = country.StateProvinces.FirstOrDefault(x => x.Id == stateProvince.Id);
+                state.Name = stateProvince.Name;
+                state.Locales = stateProvince.Locales;
+                state.Published = stateProvince.Published;
+                state.Abbreviation = stateProvince.Abbreviation;
+                state.DisplayOrder = stateProvince.DisplayOrder;
+            }
             await UpdateCountry(country);
         }
         /// <summary>

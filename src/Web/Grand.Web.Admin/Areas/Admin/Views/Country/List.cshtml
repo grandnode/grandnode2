@@ -16,8 +16,8 @@
                     <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn green"><i class="fa fa-plus"></i><span class="d-none d-sm-inline"> @Loc["Admin.Common.AddNew"] </span></a>
                     <input type="button" id="publish-selected" class="btn default" value="@Loc["Admin.Configuration.Countries.PublishSelected"]" />
                     <input type="button" id="unpublish-selected" class="btn default" value="@Loc["Admin.Configuration.Countries.UnpublishSelected"]" />
-                    <a href="@Url.Action("ExportCsv", new { area = Constants.AreaAdmin })" class="btn blue">@Loc["Admin.Configuration.Countries.ExportToCsv"]</a>
-                    <input type="submit" id="importcsv" name="importcsv" class="btn yellow" value="@Loc["Admin.Configuration.Countries.ImportFromCsv"]" />
+                    <a href="@Url.Action("ExportExcel", new { area = Constants.AreaAdmin })" class="btn blue">@Loc["Admin.Configuration.Countries.ExportStatesToExcel"]</a>
+                    <input type="submit" id="importexcel" name="importexcel" class="btn yellow" value="@Loc["Admin.Configuration.Countries.ImportStatesFromExcel"]" />
                     <vc:admin-widget widget-zone="country_list_buttons" additional-data="null" />
                 </div>
             </div>
@@ -249,21 +249,21 @@
     }
 </script>
 
-<div id="importcsv-window" style="display:none;">
-    <form asp-area="@Constants.AreaAdmin" asp-controller="Country" asp-action="ImportCsv" method="post" enctype="multipart/form-data">
+<div id="importexcel-window" style="display:none;">
+    <form asp-area="@Constants.AreaAdmin" asp-controller="Country" asp-action="ImportExcel" method="post" enctype="multipart/form-data">
         
         <table style="text-align:left;">
             <tr>
                 <td>
-                    @Loc["Admin.Common.CsvFile"]:
+                    @Loc["Admin.Common.ExcelFile"]:
                 </td>
                 <td>
-                    <input type="file" id="importcsvfile" name="importcsvfile" />
+                    <input type="file" id="importexcelfile" name="importexcelfile" />
                 </td>
             </tr>
             <tr>
                 <td colspan="2">
-                    <input type="submit" class="k-button" value="@Loc["Admin.Common.ImportFromCsv"]" />
+                    <input type="submit" class="k-button" value="@Loc["Admin.Common.ImportFromExcel"]" />
                 </td>
             </tr>
         </table>
@@ -271,14 +271,14 @@
 </div>
 <script>
     $(document).ready(function () {
-        $("#importcsv").click(function (e) {
+        $("#importexcel").click(function (e) {
             e.preventDefault();
-            var window = $("#importcsv-window");
+            var window = $("#importexcel-window");
             if (!window.data("kendoWindow")) {
                 window.kendoWindow({
                     modal: true,
                     width: "400px",
-                    title: "@Loc["Admin.Common.ImportFromCsv"]",
+                    title: "@Loc["Admin.Common.ImportFromExcel"]",
                     actions: ["Close"]
                 });
             }

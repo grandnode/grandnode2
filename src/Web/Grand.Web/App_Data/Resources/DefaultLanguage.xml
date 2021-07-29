@@ -4053,8 +4053,8 @@
   <Resource Name="Admin.Configuration.Countries.EditCountryDetails">
     <Value>Edit country details</Value>
   </Resource>
-  <Resource Name="Admin.Configuration.Countries.ExportToCsv">
-    <Value>Export states to CSV</Value>
+  <Resource Name="Admin.Configuration.Countries.ExportStatesToExcel">
+    <Value>Export states to Excel</Value>
   </Resource>
   <Resource Name="Admin.Configuration.Countries.Fields.AllowsBilling">
     <Value>Allows billing</Value>
@@ -4104,11 +4104,11 @@
   <Resource Name="Admin.Configuration.Countries.Fields.TwoLetterIsoCode.Required">
     <Value>Two letter ISO code is required.</Value>
   </Resource>
-  <Resource Name="Admin.Configuration.Countries.ImportFromCsv">
-    <Value>Import states from CSV</Value>
+  <Resource Name="Admin.Configuration.Countries.ImportStatesFromExcel">
+    <Value>Import states from Excel</Value>
   </Resource>
   <Resource Name="Admin.Configuration.Countries.ImportSuccess">
-    <Value>{0} states have been successfully imported</Value>
+    <Value>The states have been successfully imported</Value>
   </Resource>
   <Resource Name="Admin.Configuration.Countries.Info">
     <Value>Country info</Value>

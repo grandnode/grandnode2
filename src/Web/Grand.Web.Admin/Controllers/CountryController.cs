@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Text;
+using Grand.SharedKernel.Extensions;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -348,16 +349,27 @@ namespace Grand.Web.Admin.Controllers
 
         #region Export / import
 
+        [PermissionAuthorizeAction(PermissionActionName.Export)]
+        public async Task<IActionResult> ExportExcel()
+        {
+            var countries = await _countryService.GetAllCountries();
+            var bytes = _exportManager.ExportStatesToXlsx(countries);
+
+            return File(bytes, "text/xls", "states.xlsx");
+
+        }
+
         [PermissionAuthorizeAction(PermissionActionName.Import)]
         [HttpPost]
-        public async Task<IActionResult> ImportCsv(IFormFile importcsvfile)
+        public async Task<IActionResult> ImportExcel(IFormFile importexcelfile)
         {
             try
             {
-                if (importcsvfile != null && importcsvfile.Length > 0)
+                if (importexcelfile != null && importexcelfile.Length > 0)
                 {
-                    int count = await _importManager.ImportStatesFromCsv(importcsvfile.OpenReadStream());
-                    Success(String.Format(_translationService.GetResource("Admin.Configuration.Countries.ImportSuccess"), count));
+                    await _importManager.ImportCountryStatesFromXlsx(importexcelfile.OpenReadStream());
+
+                    Success(_translationService.GetResource("Admin.Configuration.Countries.ImportSuccess"));
                     return RedirectToAction("List");
                 }
                 Error(_translationService.GetResource("Admin.Common.UploadFile"));

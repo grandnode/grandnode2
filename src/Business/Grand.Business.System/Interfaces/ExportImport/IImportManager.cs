@@ -22,14 +22,13 @@ namespace Grand.Business.System.Interfaces.ExportImport
         Task<int> ImportNewsletterSubscribersFromTxt(Stream stream);
 
         /// <summary>
-        /// Import states from TXT file
+        /// Import country states from XLSX file
         /// </summary>
         /// <param name="stream">Stream</param>
-        /// <returns>Number of imported states</returns>
-        Task<int> ImportStatesFromCsv(Stream stream);
+        Task ImportCountryStatesFromXlsx(Stream stream);
 
         /// <summary>
-        /// Import collections from XLSX file
+        /// Import brand from XLSX file
         /// </summary>
         /// <param name="stream">Stream</param>
         Task ImportBrandFromXlsx(Stream stream);

@@ -1048,67 +1048,65 @@ namespace Grand.Business.System.Services.ExportImport
         }
 
         /// <summary>
-        /// Import states from TXT file
+        /// Import country states from XLSX file
         /// </summary>
         /// <param name="stream">Stream</param>
-        /// <returns>Number of imported states</returns>
-        public virtual async Task<int> ImportStatesFromCsv(Stream stream)
+        public virtual async Task ImportCountryStatesFromXlsx(Stream stream)
         {
-            int count = 0;
-            using (var reader = new StreamReader(stream))
+            var workbook = new XSSFWorkbook(stream);
+            var worksheet = workbook.GetSheetAt(0);
+            if (worksheet == null)
+                throw new GrandException("No worksheet found");
+
+            var manager = GetPropertyManager<(string Country, string Name, string Abbreviation, int DisplayOrder, bool Published)>(worksheet);
+
+            for (var iRow = 1; iRow < worksheet.PhysicalNumberOfRows; iRow++)
             {
-                while (!reader.EndOfStream)
+                manager.ReadFromXlsx(worksheet, iRow);
+                var countryCode = manager.GetProperty("country") != null ? manager.GetProperty("country").StringValue : string.Empty;
+                var country = string.IsNullOrEmpty(countryCode) ? null : await _countryService.GetCountryByTwoLetterIsoCode(countryCode);
+
+                if (country == null)
+                    continue;
+
+                //import
+                var abbreviation = manager.GetProperty("abbreviation") != null ? manager.GetProperty("abbreviation").StringValue : string.Empty;
+                if (string.IsNullOrEmpty(abbreviation))
+                    continue;
+
+                var name = manager.GetProperty("name") != null ? manager.GetProperty("name").StringValue : string.Empty;
+                if (string.IsNullOrEmpty(name))
+                    continue;
+
+                var displayOrder = manager.GetProperty("displayorder") != null ? manager.GetProperty("displayorder").IntValue : 0;
+                var published = manager.GetProperty("published") != null ? manager.GetProperty("published").BooleanValue : true;
+
+                var states = country.StateProvinces.ToList();
+                var state = states.FirstOrDefault(x => x.Abbreviation.Equals(abbreviation, StringComparison.OrdinalIgnoreCase));
+
+                if (state != null)
                 {
-                    string line = reader.ReadLine();
-                    if (String.IsNullOrWhiteSpace(line))
-                        continue;
-                    string[] tmp = line.Split(',');
-
-                    if (tmp.Length != 5)
-                        throw new GrandException("Wrong file format");
-
-                    //parse
-                    var countryTwoLetterIsoCode = tmp[0].Trim();
-                    var name = tmp[1].Trim();
-                    var abbreviation = tmp[2].Trim();
-                    bool published = Boolean.Parse(tmp[3].Trim());
-                    int displayOrder = Int32.Parse(tmp[4].Trim());
-
-                    var country = await _countryService.GetCountryByTwoLetterIsoCode(countryTwoLetterIsoCode);
-                    if (country == null)
-                    {
-                        //country cannot be loaded. skip
-                        continue;
-                    }
-
-                    //import
-                    var states = country.StateProvinces.ToList();
-                    var state = states.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-
-                    if (state != null)
-                    {
-                        state.Abbreviation = abbreviation;
-                        state.Published = published;
-                        state.DisplayOrder = displayOrder;
-                        await _countryService.UpdateStateProvince(state, country.Id);
-                    }
-                    else
-                    {
-                        state = new StateProvince
-                        {
-                            Name = name,
-                            Abbreviation = abbreviation,
-                            Published = published,
-                            DisplayOrder = displayOrder,
-                        };
-                        await _countryService.InsertStateProvince(state, country.Id);
-                    }
-                    count++;
+                    state.Name = name;
+                    state.Abbreviation = abbreviation;
+                    state.Published = published;
+                    state.DisplayOrder = displayOrder;
+                    await _countryService.UpdateStateProvince(state, country.Id);
                 }
+                else
+                {
+                    state = new StateProvince {
+                        Name = name,
+                        Abbreviation = abbreviation,
+                        Published = published,
+                        DisplayOrder = displayOrder,
+                    };
+                    await _countryService.InsertStateProvince(state, country.Id);
+                }
+
             }
 
-            return count;
         }
+
         /// <summary>
         /// Import brands from XLSX file
         /// </summary>
