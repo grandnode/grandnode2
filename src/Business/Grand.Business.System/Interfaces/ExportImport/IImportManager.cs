@@ -26,7 +26,7 @@ namespace Grand.Business.System.Interfaces.ExportImport
         /// </summary>
         /// <param name="stream">Stream</param>
         /// <returns>Number of imported states</returns>
-        Task<int> ImportStatesFromTxt(Stream stream);
+        Task<int> ImportStatesFromCsv(Stream stream);
 
         /// <summary>
         /// Import collections from XLSX file

@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -355,7 +356,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (importcsvfile != null && importcsvfile.Length > 0)
                 {
-                    int count = await _importManager.ImportStatesFromTxt(importcsvfile.OpenReadStream());
+                    int count = await _importManager.ImportStatesFromCsv(importcsvfile.OpenReadStream());
                     Success(String.Format(_translationService.GetResource("Admin.Configuration.Countries.ImportSuccess"), count));
                     return RedirectToAction("List");
                 }

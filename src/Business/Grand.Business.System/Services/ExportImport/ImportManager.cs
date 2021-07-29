@@ -1052,7 +1052,7 @@ namespace Grand.Business.System.Services.ExportImport
         /// </summary>
         /// <param name="stream">Stream</param>
         /// <returns>Number of imported states</returns>
-        public virtual async Task<int> ImportStatesFromTxt(Stream stream)
+        public virtual async Task<int> ImportStatesFromCsv(Stream stream)
         {
             int count = 0;
             using (var reader = new StreamReader(stream))
