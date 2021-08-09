@@ -489,7 +489,7 @@ namespace Grand.Web.Admin.Models.Catalog
         {
             public string ProductId { get; set; }
 
-            [UIHint("Picture")]
+            [UIHint("MultiPicture")]
             [GrandResourceDisplayName("Admin.Catalog.Products.Pictures.Fields.Picture")]
             public string PictureId { get; set; }
 

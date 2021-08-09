@@ -8,8 +8,12 @@ using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Customers.Interfaces;
+using Grand.Business.Storage.Extensions;
+using Grand.Business.Storage.Interfaces;
 using Grand.Business.System.Interfaces.ExportImport;
 using Grand.Domain.Catalog;
+using Grand.Domain.Common;
+using Grand.Domain.Media;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
@@ -24,6 +28,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -1194,27 +1199,126 @@ namespace Grand.Web.Admin.Controllers
         #endregion
 
         #region Product pictures
-        public async Task<IActionResult> ProductPictureAdd(string pictureId, int displayOrder,
-            string overrideAltAttribute, string overrideTitleAttribute,
-            string productId)
-        {
-            if (string.IsNullOrEmpty(pictureId))
-                throw new ArgumentException();
 
-            var product = await _productService.GetProductById(productId);
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> ProductPictureAdd(Reference reference, string objectId, 
+            [FromServices] IPictureService pictureService, 
+            [FromServices] MediaSettings mediaSettings)
+        {
+            if (!await _permissionService.Authorize(PermissionSystemName.Pictures))
+                return Json(new
+                {
+                    success = false,
+                    message = "Access denied - picture permissions",
+                }); 
+
+            if (reference != Reference.Product || string.IsNullOrEmpty(objectId))
+                return Json(new
+                {
+                    success = false,
+                    message = "Please save form before upload new pictures",
+                });
+
+            var form = await HttpContext.Request.ReadFormAsync();
+            var httpPostedFiles = form.Files.ToList();
+            if (!httpPostedFiles.Any())
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "No files uploaded",
+                });
+            }
+
+            var product = await _productService.GetProductById(objectId);
 
             //a vendor should have access only to his products
             if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return Json(new { Result = false });
+                return Json(new
+                {
+                    success = false,
+                    message = "Access denied - vendor permissions",
+                });
+
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer))
                 if (!product.AccessToEntityByStore(_workContext.CurrentCustomer.StaffStoreId))
-                    return Json(new { Result = false });
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Access denied - staff permissions",
+                    });
 
-            await _productViewModelService.InsertProductPicture(product, pictureId, displayOrder, overrideAltAttribute, overrideTitleAttribute);
+            var values = new List<(string pictureUrl, string pictureId)>();
 
-            return Json(new { Result = true });
+            foreach (var file in httpPostedFiles)
+            {
+                var qqFileNameParameter = "qqfilename";
+                var fileName = file.FileName;
+                if (String.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
+                    fileName = form[qqFileNameParameter].ToString();
+
+                fileName = Path.GetFileName(fileName);
+
+                var contentType = file.ContentType;
+                var fileExtension = Path.GetExtension(fileName);
+                if (!string.IsNullOrEmpty(fileExtension))
+                    fileExtension = fileExtension.ToLowerInvariant();
+
+                if (string.IsNullOrEmpty(contentType))
+                {
+                    contentType = GetContentType(fileExtension);
+                }
+
+                if (GetAllowedFileTypes(mediaSettings).Contains(fileExtension))
+                {
+                    var fileBinary = file.GetDownloadBits();
+                    //insert picture
+                    var picture = await pictureService.InsertPicture(fileBinary, contentType, null, reference: reference, objectId: objectId);
+                    var pictureUrl = await pictureService.GetPictureUrl(picture);
+
+                    values.Add((pictureUrl, picture.Id));
+                    //assign picture to the product
+                    await _productViewModelService.InsertProductPicture(product, picture, 0, "", "");
+                }
+            }
+
+            return Json(new { success = true, data = values });
         }
+
+        protected virtual IList<string> GetAllowedFileTypes(MediaSettings mediaSettings)
+        {
+            if (string.IsNullOrEmpty(mediaSettings.AllowedFileTypes))
+                return new List<string> { ".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp" };
+            else
+                return mediaSettings.AllowedFileTypes.Split(',');
+        }
+        protected virtual string GetContentType(string fileExtension)
+        {
+            switch (fileExtension)
+            {
+                case ".bmp":
+                    return "image/bmp";
+                case ".gif":
+                    return "image/gif";
+                case ".jpeg":
+                case ".jpg":
+                case ".jpe":
+                case ".jfif":
+                case ".pjpeg":
+                case ".pjp":
+                    return "image/jpeg";
+                case ".png":
+                    return "image/png";
+                case ".tiff":
+                case ".tif":
+                    return "image/tiff";
+                default:
+                    return "";
+            }
+        }
+
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]

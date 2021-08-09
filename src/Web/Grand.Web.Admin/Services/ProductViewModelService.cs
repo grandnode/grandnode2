@@ -20,6 +20,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
 using Grand.Domain.Localization;
+using Grand.Domain.Media;
 using Grand.Domain.Seo;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
@@ -2968,13 +2969,12 @@ namespace Grand.Web.Admin.Services
             }
             return items;
         }
-        public virtual async Task InsertProductPicture(Product product, string pictureId, int displayOrder, string overrideAltAttribute, string overrideTitleAttribute)
+        public virtual async Task InsertProductPicture(Product product, Picture picture, int displayOrder, string overrideAltAttribute, string overrideTitleAttribute)
         {
-            var picture = await _pictureService.GetPictureById(pictureId);
             if (picture == null)
                 throw new ArgumentException("No picture found with the specified id");
 
-            if (product.ProductPictures.Where(x => x.PictureId == pictureId).Count() > 0)
+            if (product.ProductPictures.Where(x => x.PictureId == picture.Id).Count() > 0)
                 return;
 
             await _pictureService.UpdatePicture(picture.Id,
@@ -2986,11 +2986,11 @@ namespace Grand.Web.Admin.Services
 
             await _productService.InsertProductPicture(new ProductPicture
             {
-                PictureId = pictureId,
+                PictureId = picture.Id,
                 DisplayOrder = displayOrder,
             }, product.Id);
 
-            await _pictureService.SetSeoFilename(pictureId, _pictureService.GetPictureSeName(product.Name));
+            await _pictureService.SetSeoFilename(picture.Id, _pictureService.GetPictureSeName(product.Name));
         }
         public virtual async Task UpdateProductPicture(ProductModel.ProductPictureModel model)
         {
