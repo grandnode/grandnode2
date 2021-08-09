@@ -1,9 +1,7 @@
 @model string
-@inject Grand.Business.Storage.Interfaces.IPictureService pictureService
 @{
     var random = CommonHelper.GenerateRandomInteger();
     var clientId = "multipicture" + random;
-    var picture = await pictureService.GetPictureById(Model);
 
     var reference = ViewData["Reference"];
     var objectId = ViewData["ObjectId"];
