@@ -551,7 +551,7 @@ pre, code {
 
 .nav-sm .main_container .top_nav {
   display: block;
-  margin-right: 70px;
+  margin-right: 90px;
   z-index: 2;
 }
 
@@ -778,11 +778,10 @@ pre, code {
 
 .nav_menu {
   float: right;
-  background: #fff;
-  border-bottom: 1px solid #d9dee4;
-  margin-bottom: 10px;
-  width: 100%;
   position: relative;
+  background: #EFF4F9;
+  border-bottom: 1px solid #D9DEE4;
+  width: 100%;
 }
 
 @media (min-width: 480px) {
@@ -5919,10 +5918,10 @@ body.lock #lock_screen .unlock {
 
 #searchInput {
   margin: 10px;
-  border-color: #23527c;
+  direction: rtl;
+  border: 1px solid #ddd;
   color: #23527c;
   width: 350px;
-  direction: rtl;
 }
 
 .username-hide-on-mobile {
