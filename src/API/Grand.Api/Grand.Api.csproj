@@ -21,7 +21,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.0.1" />
-    <PackageReference Include="Microsoft.OData.Core" Version="7.9.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.5" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.1.5" />
   </ItemGroup>  
