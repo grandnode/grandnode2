@@ -5,7 +5,7 @@ using Grand.Api.DTOs.Shipping;
 using Grand.Api.Infrastructure.DependencyManagement;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Configuration;
-using Microsoft.AspNet.OData.Builder;
+using Microsoft.OData.ModelBuilder;
 using System;
 using System.Collections.Generic;
 
@@ -18,36 +18,31 @@ namespace Grand.Api.Infrastructure
             #region Language model
 
             builder.EntitySet<LanguageDto>("Language");
-            builder.EntityType<LanguageDto>().Count().Filter().OrderBy().Page();
 
             #endregion
 
             #region Currency model
 
             builder.EntitySet<CurrencyDto>("Currency");
-            builder.EntityType<CurrencyDto>().Count().Filter().OrderBy().Page();
 
             #endregion
 
             #region Store model
 
             builder.EntitySet<StoreDto>("Store");
-            builder.EntityType<StoreDto>().Count().Filter().OrderBy().Page();
-
+            
             #endregion
 
             #region Country model
 
             builder.EntitySet<CountryDto>("Country");
-            builder.EntityType<CountryDto>().Count().Filter().OrderBy().Page();
 
             #endregion
 
             #region State province model
 
             builder.EntitySet<StateProvinceDto>("StateProvince");
-            builder.EntityType<StateProvinceDto>().Count().Filter().OrderBy().Page();
-
+            
             #endregion
 
             #region layout model
@@ -56,14 +51,12 @@ namespace Grand.Api.Infrastructure
             builder.EntitySet<LayoutDto>("CollectionLayout");
             builder.EntitySet<LayoutDto>("ProductlLayout");
             builder.EntitySet<LayoutDto>("BrandlLayout");
-            builder.EntityType<LayoutDto>().Count().Filter().OrderBy().Page();
 
             #endregion
 
             #region Picture model
 
             builder.EntitySet<PictureDto>("Picture");
-            builder.EntityType<PictureDto>().Count().Filter().OrderBy().Page();
 
             #endregion
         }
@@ -71,7 +64,6 @@ namespace Grand.Api.Infrastructure
         {
             builder.EntitySet<ProductDto>("Product");
             var product = builder.EntityType<ProductDto>();
-            product.Count().Filter().OrderBy().Page();
             builder.ComplexType<ProductCategoryDto>();
             builder.ComplexType<ProductCollectionDto>();
             builder.ComplexType<ProductPictureDto>();
@@ -246,28 +238,23 @@ namespace Grand.Api.Infrastructure
             #region Category model
 
             builder.EntitySet<CategoryDto>("Category");
-            builder.EntityType<CategoryDto>().Count().Filter().OrderBy().Page();
 
             #endregion
 
             #region Brand model
 
             builder.EntitySet<BrandDto>("Brand");
-            builder.EntityType<BrandDto>().Count().Filter().OrderBy().Page();
 
             #endregion
 
             #region Collection model
 
             builder.EntitySet<CollectionDto>("Collection");
-            builder.EntityType<CollectionDto>().Count().Filter().OrderBy().Page();
-
             #endregion
 
             #region Product attribute model
 
             builder.EntitySet<ProductAttributeDto>("ProductAttribute");
-            builder.EntityType<ProductAttributeDto>().Count().Filter().OrderBy().Page();
             builder.ComplexType<PredefinedProductAttributeValueDto>();
 
             #endregion
@@ -275,7 +262,6 @@ namespace Grand.Api.Infrastructure
             #region Product attribute model
 
             builder.EntitySet<SpecificationAttributeDto>("SpecificationAttribute");
-            builder.EntityType<SpecificationAttributeDto>().Count().Filter().OrderBy().Page();
             builder.ComplexType<SpecificationAttributeOptionDto>();
 
             #endregion
@@ -341,15 +327,13 @@ namespace Grand.Api.Infrastructure
             #region Customer group model
 
             builder.EntitySet<CustomerGroupDto>("CustomerGroup");
-            builder.EntityType<CustomerGroupDto>().Count().Filter().OrderBy().Page();
 
             #endregion
 
             #region Vendors
 
             builder.EntitySet<VendorDto>("Vendor");
-            builder.EntityType<VendorDto>().Count().Filter().OrderBy().Page();
-
+            
             #endregion
         }
 
@@ -358,28 +342,24 @@ namespace Grand.Api.Infrastructure
             #region Warehouse model
 
             builder.EntitySet<WarehouseDto>("Warehouse");
-            builder.EntityType<WarehouseDto>().Count().Filter().OrderBy().Page();
-
+            
             #endregion
 
             #region Delivery date model
 
             builder.EntitySet<DeliveryDateDto>("DeliveryDate");
-            builder.EntityType<DeliveryDateDto>().Count().Filter().OrderBy().Page();
-
+            
             #endregion
 
             #region Pickup point model
 
             builder.EntitySet<PickupPointDto>("PickupPoint");
-            builder.EntityType<PickupPointDto>().Count().Filter().OrderBy().Page();
 
             #endregion
 
             #region Shipping method model
 
             builder.EntitySet<ShippingMethodDto>("ShippingMethod");
-            builder.EntityType<ShippingMethodDto>().Count().Filter().OrderBy().Page();
 
             #endregion
         }
