@@ -61,7 +61,7 @@
                 title: "@Loc["Admin.Catalog.Products.Bids.Date"]",
                 width: 200,
                 type: "date",
-                format: "{0:G}"
+                template: "#= kendo.toString(kendo.parseDate(Date, 'yyyy-MM-dd'), 'MM/dd/yyyy  h:mm tt') #"
             }, {
                 field: "CustomerId",
                 title: "@Loc["Admin.Catalog.Products.Bids.CustomerId"]",
