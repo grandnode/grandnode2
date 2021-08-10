@@ -306,7 +306,7 @@ var Order = Vue.extend({
                         document.querySelector('#pickup-points-form').style.display = 'block';
                         document.getElementById("BillToTheSameAddress").disabled = true;
 
-                        if (!document.querySelector("#shipping-address-select")) {
+                        if (!document.querySelector("#shipping-address-select").value) {
                             document.querySelector('#shipping-new-address-form').style.display = 'none';
                         }
                     }
@@ -317,7 +317,7 @@ var Order = Vue.extend({
                         document.querySelector('#pickup-points-form').style.display = 'none';
                         document.getElementById("BillToTheSameAddress").disabled = false;
 
-                        if (!document.querySelector("#shipping-address-select")) {
+                        if (!document.querySelector("#shipping-address-select").value) {
                             document.querySelector('#shipping-new-address-form').style.display = 'block';
                         }
 
