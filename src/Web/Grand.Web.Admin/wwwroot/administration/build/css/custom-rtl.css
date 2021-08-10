@@ -551,7 +551,7 @@ pre, code {
 
 .nav-sm .main_container .top_nav {
   display: block;
-  margin-right: 70px;
+  margin-right: 90px;
   z-index: 2;
 }
 
@@ -778,11 +778,10 @@ pre, code {
 
 .nav_menu {
   float: right;
-  background: #fff;
-  border-bottom: 1px solid #d9dee4;
-  margin-bottom: 10px;
-  width: 100%;
   position: relative;
+  background: #EFF4F9;
+  border-bottom: 1px solid #D9DEE4;
+  width: 100%;
 }
 
 @media (min-width: 480px) {
@@ -3341,7 +3340,9 @@ span.tag a {
 }
 
 .form-horizontal .control-label {
-  padding: 8px;
+    padding: 8px;
+    direction: rtl;
+    text-align: right;
 }
 
 .k-panelbar .k-tabstrip-items .k-state-active, .k-tabstrip-items .k-state-active {
@@ -3349,7 +3350,7 @@ span.tag a {
 }
 
 .form-horizontal .form-group {
-  display: inline-flex;
+  display: inline-block;
   margin-right: 0;
   margin-left: 0;
   width: 100%;
@@ -5898,7 +5899,9 @@ body.lock #lock_screen .unlock {
 .nav-link>i {
   display: inline-block;
 }
-
+.child_menu li a i {
+    display: none !important;
+}
 .fa-dot-circle-o {
   display: none!important;
 }
@@ -5915,10 +5918,10 @@ body.lock #lock_screen .unlock {
 
 #searchInput {
   margin: 10px;
-  border-color: #23527c;
+  direction: rtl;
+  border: 1px solid #ddd;
   color: #23527c;
   width: 350px;
-  direction: rtl;
 }
 
 .username-hide-on-mobile {
@@ -6185,6 +6188,10 @@ body.lock #lock_screen .unlock {
   background: #fff;
 }
 
+.k-datepicker {
+    width: 100%;
+}
+
 /* Disabled circle colour */
 
 .control--radio input:disabled~.control__indicator:after {
@@ -6194,7 +6201,6 @@ body.lock #lock_screen .unlock {
 .mt-checkbox, .mt-radio {
   display: inline-block;
   position: relative;
-  width: 100%;
   padding-right: 30px;
   cursor: pointer;
   font-size: 14px;
