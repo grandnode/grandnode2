@@ -1,7 +1,10 @@
 ﻿@model NewsItemModel
 @inject IPageHeadBuilder pagebuilder
+@inject IWorkContext workContext
 @{
     Layout = "_TwoColumns";
+
+    var supportRtl = workContext.WorkingLanguage.Rtl;
 
     //title
     pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Title);
@@ -74,26 +77,34 @@
                 <div class="comments">
                     @foreach (var comment in Model.Comments)
                     {
-                    <div class="card mb-3">
-                        <div class="card-header">
-                            <div class="d-inline-flex w-100">
-                                <h6 class="mb-0">@comment.CustomerName</h6>
-                                <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
-                                <small class="date text-muted">
-                                    <span>@Loc["News.Comments.CreatedOn"]:</span>
-                                    <span>@comment.CreatedOn.ToString("g")</span>
-                                </small>
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <div class="d-inline-flex w-100">
+                                    <h6 class="mb-0">@comment.CustomerName</h6>
+                                    <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                                    <small class="date d-flex text-muted">
+                                        @if (supportRtl)
+                                        {
+                                            <span class="ml-1">@Loc["News.Comments.CreatedOn"]:</span>
+                                            <span>@Convert.ToDateTime(comment.CreatedOn).ToString("tt HH:mm yyyy/MM/dd")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="mr-1">@Loc["News.Comments.CreatedOn"]:</span>
+                                            <span>@comment.CreatedOn.ToString("g")</span>
+                                        }
+                                    </small>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-12 px-0">
-                            <div class="row">
-                                <div class="col">
-                                    <h5>@comment.CommentTitle</h5>
-                                    @comment.CommentText
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col p-3">
+                                        <h5>@comment.CommentTitle</h5>
+                                        @comment.CommentText
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
                     }
                 </div>
             </div>

@@ -1,8 +1,11 @@
 ﻿@model CustomerProductReviewsModel
 @using Grand.Web.Models.Customer;
 @inject IPageHeadBuilder pagebuilder
+@inject IWorkContext workContext
 @{
     Layout = "_TwoColumns";
+
+    var supportRtl = workContext.WorkingLanguage.Rtl;
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.Account"]);
@@ -23,9 +26,17 @@
                     <header class="card-header">
                         <div class="review-info d-inline-flex w-100">
                             <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
-                            <small class="date text-muted">
-                                <span>@Loc["Reviews.Date"]:</span>
-                                <span>@review.CreatedOn.ToString("g")</span>
+                            <small class="date d-flex text-muted">
+                                @if (supportRtl)
+                                {
+                                    <span class="ml-1">@Loc["Reviews.Date"]:</span>
+                                    <span>@Convert.ToDateTime(review.CreatedOn).ToString("tt HH:mm yyyy/MM/dd")</span>
+                                }
+                                else
+                                {
+                                    <span class="mr-1">@Loc["Reviews.Date"]:</span>
+                                    <span>@review.CreatedOn.ToString("g")</span>
+                                }
                             </small>
                         </div>
                     </header>

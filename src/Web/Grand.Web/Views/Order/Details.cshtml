@@ -1,7 +1,7 @@
 @model OrderDetailsModel
 @inject SeoSettings seoSettings
 @inject IPageHeadBuilder pagebuilder
-
+@inject IWorkContext workContext
 @{
     if (!Model.PrintMode)
     {
@@ -12,6 +12,9 @@
     {
         Layout = "_Print";
     }
+
+    var supportRtl = workContext.WorkingLanguage.Rtl;
+
     //title
     pagebuilder.AddTitleParts(Loc["Title.OrderDetails"]);
 }
@@ -58,23 +61,32 @@
                         <ul class="order-overview px-0">
                             <li class="title">
                                 <h5 class="order-number h4">
-                                    <strong>@Loc["Order.Order#"]@Model.OrderNumber</strong>
+                                    <span class="d-flex"><strong>@Loc["Order.Order#"]</strong><strong>@Model.OrderNumber</strong></span>
                                 </h5>
                             </li>
                             @if (!string.IsNullOrEmpty(Model.OrderCode))
                             {
-                                <li class="order-code">
-                                    @Loc["Order.OrderCode"]: @Model.OrderCode
+                                <li class="order-code d-flex">
+                                    <span class="mx-1">@Loc["Order.OrderCode"]:</span><span>@Model.OrderCode</span>
                                 </li>
                             }
-                            <li class="order-date">
-                                @Loc["Order.OrderDate"]: @Model.CreatedOn.ToString("D")
+                            <li class="order-date d-flex">
+                                @if (supportRtl)
+                                {
+                                    <span class="mx-1">@Loc["Order.OrderDate"]:</span>
+                                    <span>@Convert.ToDateTime(Model.CreatedOn).ToString("yyyy, MMMM ,dddd")</span>
+                                }
+                                else
+                                {
+                                    <span class="mx-1">@Loc["Order.OrderDate"]:</span>
+                                    <span>@Model.CreatedOn.ToString("D")</span>
+                                }
                             </li>
-                            <li class="order-status">
-                                @Loc["Order.OrderStatus"]: @Model.OrderStatus
+                            <li class="order-status d-flex">
+                                <span class="mx-1">@Loc["Order.OrderStatus"]:</span><span>@Model.OrderStatus</span>
                             </li>
-                            <li class="order-total">
-                                @Loc["Order.OrderTotal"]: <span class="h5 mb-0"><strong>@Model.OrderTotal</strong></span>
+                            <li class="order-total d-flex">
+                                <span class="mx-1">@Loc["Order.OrderTotal"]:</span><span class="h5 mb-0"><strong>@Model.OrderTotal</strong></span>
                             </li>
                             @await Component.InvokeAsync("Widget", new { widgetZone = "orderdetails_page_overview", additionalData = Model.Id })
                         </ul>
@@ -127,8 +139,8 @@
                                 </li>
                             }
                             @if (Model.BillingAddress.CityEnabled ||
-                             Model.BillingAddress.StateProvinceEnabled ||
-                             Model.BillingAddress.ZipPostalCodeEnabled)
+                            Model.BillingAddress.StateProvinceEnabled ||
+                            Model.BillingAddress.ZipPostalCodeEnabled)
                             {
                                 <li class="city-state-zip">
                                     @if (Model.BillingAddress.CityEnabled)
@@ -366,9 +378,9 @@
                         </div>
                     }
                 </div>
-                </div>
             </div>
         </div>
+    </div>
 
     @if (Model.Items.Any())
     {
@@ -624,28 +636,48 @@
                                                 @item.TrackingNumber
                                             </div>
                                             <div class="shipped-date col-md-3 col-sm-12">
-                                                @if (item.ShippedDate.HasValue)
-                                                {
-                                                    <strong class="d-lg-none">@Loc["Order.Shipments.ShippedDate"]: </strong>
-                                                    <span>@item.ShippedDate.Value.ToString("D")</span>
-                                                }
-                                                else
-                                                {
-                                                    <strong class="d-lg-none">@Loc["Order.Shipments.ShippedDate"]: </strong>
-                                                    <span>@Loc["Order.Shipments.ShippedDate.NotYet"]</span>
-                                                }
+                                                <div class="d-flex">
+                                                    @if (item.ShippedDate.HasValue)
+                                                    {
+                                                        if (supportRtl)
+                                                        {
+                                                            <strong class="mx-1 d-lg-none">@Loc["Order.Shipments.ShippedDate"]:</strong>
+                                                            <span>@Convert.ToDateTime(item.ShippedDate.Value).ToString("yyyy, MMMM ,dddd")</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <strong class="mx-1 d-lg-none">@Loc["Order.Shipments.ShippedDate"]:</strong>
+                                                            <span>@item.ShippedDate.Value.ToString("D")</span>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <strong class="d-lg-none">@Loc["Order.Shipments.ShippedDate"]: </strong>
+                                                        <span>@Loc["Order.Shipments.ShippedDate.NotYet"]</span>
+                                                    }
+                                                </div>
                                             </div>
                                             <div class="delivery-date col-md-3 col-sm-12">
-                                                @if (item.DeliveryDate.HasValue)
-                                                {
-                                                    <strong class="d-lg-none">@Loc["Order.Shipments.DeliveryDate"]: </strong>
-                                                    <span>@item.DeliveryDate.Value.ToString("D")</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="d-lg-none">@Loc["Order.Shipments.ViewDetails"]</span>
-                                                    <span>@Loc["Order.Shipments.DeliveryDate.NotYet"]</span>
-                                                }
+                                                <div class="d-fle">
+                                                    @if (item.DeliveryDate.HasValue)
+                                                    {
+                                                        if (supportRtl)
+                                                        {
+                                                            <strong class="mx-1 d-lg-none">@Loc["Order.Shipments.OrderDate"]:</strong>
+                                                            <span>@Convert.ToDateTime(item.DeliveryDate.Value).ToString("yyyy, MMMM ,dddd")</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <strong class="mx-1 d-lg-none">@Loc["Order.Shipments.OrderDate"]:</strong>
+                                                            <span>@item.DeliveryDate.Value.ToString("D")</span>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="d-lg-none">@Loc["Order.Shipments.ViewDetails"]</span>
+                                                        <span>@Loc["Order.Shipments.DeliveryDate.NotYet"]</span>
+                                                    }
+                                                </div>
                                             </div>
                                             <div class="view-details col-md-2 col-sm-12">
                                                 <a class="btn btn-sm btn-secondary" href="@Url.RouteUrl("ShipmentDetails", new { shipmentId = item.Id })" title="@Loc["Order.Shipments.ViewDetails"]">@Loc["Order.Shipments.ViewDetails"]</a>

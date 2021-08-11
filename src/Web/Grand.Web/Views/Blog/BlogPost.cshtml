@@ -1,8 +1,11 @@
 ﻿@model BlogPostModel
 @using Grand.Web.Models.Blogs;
 @inject IPageHeadBuilder pagebuilder
+@inject IWorkContext workContext
 @{
     Layout = "_TwoColumns";
+
+    var supportRtl = workContext.WorkingLanguage.Rtl;
 
     //title
     pagebuilder.AddTitleParts(!String.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Title);
@@ -30,9 +33,9 @@
             </span>
         </div>
         @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_before_body", additionalData = Model.Id })
-    <div class="card-body">
-        @Html.Raw(Model.Body)
-    </div>
+        <div class="card-body">
+            @Html.Raw(Model.Body)
+        </div>
     </div>
 
     @await Component.InvokeAsync("Widget", new { widgetZone = "blogpost_page_before_products", additionalData = Model.Id })
@@ -71,7 +74,7 @@
                 <div class="form-fields">
                     <div class="form-group">
                         <label asp-for="AddNewComment.CommentText" class="col-form-label">@Loc["Blog.Comments.CommentText"]:</label>
-                        <textarea asp-for="AddNewComment.CommentText" class="enter-comment-text form-control" v-validate="'required'" ></textarea>
+                        <textarea asp-for="AddNewComment.CommentText" class="enter-comment-text form-control" v-validate="'required'"></textarea>
                         <span class="field-validation-error">{{veeErrors.first('AddNewComment.CommentText')}}</span>
                         <span asp-validation-for="AddNewComment.CommentText"></span>
                     </div>
@@ -99,15 +102,23 @@
                                 <div class="d-inline-flex w-100">
                                     <h6 class="mb-0">@comment.CustomerName</h6>
                                     <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
-                                    <small class="date text-muted">
-                                        <span>@Loc["Blog.Comments.CreatedOn"]:</span>
-                                        <span>@comment.CreatedOn.ToString("g")</span>
+                                    <small class="date d-flex text-muted">
+                                        @if (supportRtl)
+                                        {
+                                            <span class="ml-1">@Loc["Blog.Comments.CreatedOn"]:</span>
+                                            <span>@Convert.ToDateTime(comment.CreatedOn).ToString("tt HH:mm yyyy/MM/dd")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="mr-1">@Loc["Blog.Comments.CreatedOn"]:</span>
+                                            <span>@comment.CreatedOn.ToString("g")</span>
+                                        }
                                     </small>
                                 </div>
                             </div>
-                            <div class="col-12 px-0">
+                            <div class="col-12">
                                 <div class="row">
-                                    <div class="col">
+                                    <div class="col p-3">
                                         @comment.CommentText
                                     </div>
                                 </div>

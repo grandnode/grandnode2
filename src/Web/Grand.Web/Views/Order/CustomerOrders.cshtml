@@ -1,7 +1,10 @@
 ﻿@model CustomerOrderListModel
 @inject IPageHeadBuilder pagebuilder
+@inject IWorkContext workContext
 @{
     Layout = "_TwoColumns";
+
+    var supportRtl = workContext.WorkingLanguage.Rtl;
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.Account"]);
@@ -27,9 +30,22 @@
                             </div>
                             <div class="card-body">
                                 <ul class="info mb-0 px-0">
-                                    <li><span>@Loc["Account.CustomerOrders.OrderStatus"]:</span> <span class="order-status">@order.OrderStatus</span></li>
-                                    <li><span class="order-date"><span>@Loc["Account.CustomerOrders.OrderDate"]:</span> <span>@order.CreatedOn.ToString()</span></span></li>
-                                    <li><span>@Loc["Account.CustomerOrders.OrderTotal"]:</span> <span class="order-total">@order.OrderTotal</span></li>
+                                    <li class="d-flex"><span class="mx-1">@Loc["Account.CustomerOrders.OrderStatus"]:</span> <span class="order-status">@order.OrderStatus</span></li>
+                                    <li>
+                                        <span class="order-date d-flex">
+                                            @if (supportRtl)
+                                            {
+                                                <span class="ml-1">@Loc["Account.CustomerOrders.OrderDate"]:</span>
+                                                <span>@Convert.ToDateTime(order.CreatedOn).ToString("tt HH:mm yyyy/MM/dd")</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="mr-1">@Loc["Account.CustomerOrders.OrderDate"]:</span>
+                                                <span>@order.CreatedOn.ToString("g")</span>
+                                            }
+                                        </span>
+                                    </li>
+                                    <li class="d-flex"><span class="mx-1">@Loc["Account.CustomerOrders.OrderTotal"]:</span> <span class="order-total">@order.OrderTotal</span></li>
                                 </ul>
                             </div>
                             <div class="card-footer">
