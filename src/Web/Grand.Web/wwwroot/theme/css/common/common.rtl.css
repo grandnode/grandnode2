@@ -224,6 +224,9 @@ body:not(.modal-open) {
     background: #fff;
     transform: rotate(-45deg);
 }
+.alert {
+    text-align: right;
+}
 
 /* bootstrap slider */
 
