@@ -440,12 +440,12 @@ namespace Grand.Web.Features.Handlers.Products
                     FullSizeImageUrl = await _pictureService.GetPictureUrl(productpicture.PictureId)
                 };
                 //"title" attribute
-                pictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.TitleAttribute)) ?
-                    picture.TitleAttribute :
+                pictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id))) ?
+                    picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id) :
                     string.Format(res["Media.Product.ImageLinkTitleFormat"], name);
                 //"alt" attribute
-                pictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.AltAttribute)) ?
-                    picture.AltAttribute :
+                pictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id))) ?
+                    picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id) :
                     string.Format(res["Media.Product.ImageAlternateTextFormat"], name);
 
                 return pictureModel;
