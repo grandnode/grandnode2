@@ -485,8 +485,13 @@ namespace Grand.Web.Admin.Models.Catalog
             public IList<SelectListItem> AvailableOptions { get; set; }
         }
 
-        public partial class ProductPictureModel : BaseEntityModel
+        public partial class ProductPictureModel : BaseEntityModel, ILocalizedModel<ProductPictureModel.ProductPictureLocalizedModel>
         {
+            public ProductPictureModel()
+            {
+                Locales = new List<ProductPictureLocalizedModel>();
+            }
+
             public string ProductId { get; set; }
 
             [UIHint("MultiPicture")]
@@ -500,12 +505,25 @@ namespace Grand.Web.Admin.Models.Catalog
             public int DisplayOrder { get; set; }
 
             [GrandResourceDisplayName("Admin.Catalog.Products.Pictures.Fields.OverrideAltAttribute")]
-
-            public string OverrideAltAttribute { get; set; }
+            public string AltAttribute { get; set; }
 
             [GrandResourceDisplayName("Admin.Catalog.Products.Pictures.Fields.OverrideTitleAttribute")]
+            public string TitleAttribute { get; set; }
 
-            public string OverrideTitleAttribute { get; set; }
+            public IList<ProductPictureLocalizedModel> Locales { get; set; }
+
+            public partial class ProductPictureLocalizedModel : ILocalizedModelLocal
+            {
+                public string LanguageId { get; set; }
+
+                [GrandResourceDisplayName("Admin.Catalog.Products.Pictures.Fields.OverrideAltAttribute")]
+                public string AltAttribute { get; set; }
+
+                [GrandResourceDisplayName("Admin.Catalog.Products.Pictures.Fields.OverrideTitleAttribute")]
+                public string TitleAttribute { get; set; }
+
+            }
+
         }
 
         public partial class ProductCategoryModel : BaseEntityModel

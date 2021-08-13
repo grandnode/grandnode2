@@ -1335,7 +1335,14 @@ namespace Grand.Web.Admin.Controllers
             if (pp == null)
                 return Content("Product picture not exist");
 
-            var model = await _productViewModelService.PrepareProductPictureModel(product, pp);
+            var (model, picture) = await _productViewModelService.PrepareProductPictureModel(product, pp);
+            //locales
+            await AddLocales(_languageService, model.Locales, (locale, languageId) =>
+            {
+                locale.AltAttribute = picture?.GetTranslation(x => x.AltAttribute, languageId, false);
+                locale.TitleAttribute = picture?.GetTranslation(x => x.TitleAttribute, languageId, false);
+            });
+
             return View(model);
         }
 

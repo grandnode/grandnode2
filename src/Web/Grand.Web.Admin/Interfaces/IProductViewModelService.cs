@@ -100,7 +100,7 @@ namespace Grand.Web.Admin.Interfaces
 
         //Pictures
         Task<IList<ProductModel.ProductPictureModel>> PrepareProductPicturesModel(Product product);
-        Task<ProductModel.ProductPictureModel> PrepareProductPictureModel(Product product, ProductPicture productPicture);
+        Task<(ProductModel.ProductPictureModel model, Picture Picture)> PrepareProductPictureModel(Product product, ProductPicture productPicture);
         Task InsertProductPicture(Product product, Picture picture, int displayOrder, string overrideAltAttribute, string overrideTitleAttribute);
         Task UpdateProductPicture(ProductModel.ProductPictureModel model);
         Task DeleteProductPicture(ProductModel.ProductPictureModel model);

@@ -18,6 +18,7 @@ using Grand.Infrastructure.Extensions;
 using Grand.Business.Common.Extensions;
 using Grand.SharedKernel.Extensions;
 using Grand.Domain.Common;
+using System.Linq.Expressions;
 
 namespace Grand.Business.Storage.Services
 {
@@ -484,7 +485,8 @@ namespace Grand.Business.Storage.Services
                             SeoFilename = p.SeoFilename,
                             TitleAttribute = p.TitleAttribute,
                             Reference = p.Reference,
-                            ObjectId = p.ObjectId
+                            ObjectId = p.ObjectId,
+                            Locales = p.Locales
                         });
                 return await Task.FromResult(query.FirstOrDefault());
             });
@@ -690,6 +692,25 @@ namespace Grand.Business.Storage.Services
             return picture;
         }
 
+        /// <summary>
+        /// Updates the picture
+        /// </summary>
+        /// <param name="picture">Picture</param>
+        /// <returns>Picture</returns>
+        public virtual async Task UpdatField<T>(Picture picture, Expression<Func<Picture, T>> expression, T value)
+        {
+            if (picture == null)
+                throw new ArgumentNullException(nameof(picture));
+
+            await _pictureRepository.UpdateField<T>(picture.Id, expression, value);
+
+            //event notification
+            await _mediator.EntityUpdated(picture);
+
+            //clare cache
+            await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PICTURE_BY_ID, picture.Id));
+
+        }
         /// <summary>
         /// Save picture on file system
         /// </summary>

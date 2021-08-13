@@ -1,6 +1,8 @@
 using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
+using System;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Storage.Interfaces
@@ -154,6 +156,13 @@ namespace Grand.Business.Storage.Interfaces
         /// <param name="picture">Picture</param>
         /// <returns>Picture</returns>
         Task<Picture> UpdatePicture(Picture picture);
+
+        /// <summary>
+        /// Updates the picture field
+        /// </summary>
+        /// <param name="picture">Picture</param>
+        Task UpdatField<T>(Picture picture,
+            Expression<Func<Picture, T>> expression, T value);
 
         /// <summary>
         /// Updates a SEO filename of a picture

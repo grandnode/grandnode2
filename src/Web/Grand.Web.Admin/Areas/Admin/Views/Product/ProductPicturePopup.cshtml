@@ -1,4 +1,5 @@
-﻿
+﻿@using Microsoft.AspNetCore.Mvc.Razor;
+
 @model ProductModel.ProductPictureModel
 @{
     Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
@@ -10,6 +11,27 @@
       asp-route-Id="@Context.Request.Query["Id"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
+
+
+    <!-- #region languages template -->
+    @{ Func<int, HelperResult> template = @<div class="form-body">
+            <div class="form-group">
+                <admin-label asp-for="@Model.Locales[item].AltAttribute" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="@Model.Locales[item].AltAttribute" />
+                    <span asp-validation-for="@Model.Locales[item].AltAttribute"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <admin-label asp-for="@Model.Locales[item].TitleAttribute" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="@Model.Locales[item].TitleAttribute" />
+                    <span asp-validation-for="@Model.Locales[item].TitleAttribute"></span>
+                </div>
+            </div>
+            <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
+        </div>;
+    }
 
     <div asp-validation-summary="All"></div>
     <input asp-for="ProductId" type="hidden" />
@@ -28,20 +50,24 @@
                                     <a href="@Model.PictureUrl" target="_blank"><img src="@Model.PictureUrl" width="150" /></a>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <admin-label asp-for="OverrideAltAttribute" />
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="OverrideAltAttribute" />
-                                    <span asp-validation-for="OverrideAltAttribute"></span>
+                            <localized-editor localized-template=template name="productpicturevalue-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+                                <div class="form-body">
+                                    <div class="form-group">
+                                        <admin-label asp-for="AltAttribute" class="col-sm-3 control-label" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-input asp-for="AltAttribute" />
+                                            <span asp-validation-for="AltAttribute"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="TitleAttribute" class="col-sm-3 control-label" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <admin-input asp-for="TitleAttribute" />
+                                            <span asp-validation-for="TitleAttribute"></span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <admin-label asp-for="OverrideTitleAttribute" />
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="OverrideTitleAttribute" />
-                                    <span asp-validation-for="OverrideTitleAttribute"></span>
-                                </div>
-                            </div>
+                            </localized-editor>
                             <div class="form-group">
                                 <admin-label asp-for="DisplayOrder" />
                                 <div class="col-md-9 col-sm-9">
@@ -52,7 +78,7 @@
                             <div class="form-actions">
                                 <div class="row">
                                     <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
-                                        <button class="k-button" type="submit" name="save"><i class="fa fa-check"></i> &nbsp;@Loc["Admin.Common.Save"] </button>
+                                        <button class="k-button" type="submit" name="save"><i class="fa fa-check"></i>@Loc["Admin.Common.Save"] </button>
                                     </div>
                                 </div>
                             </div>

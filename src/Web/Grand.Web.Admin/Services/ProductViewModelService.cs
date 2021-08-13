@@ -2903,8 +2903,8 @@ namespace Grand.Web.Admin.Services
                     ProductId = product.Id,
                     PictureId = x.PictureId,
                     PictureUrl = picture != null ? await _pictureService.GetPictureUrl(picture) : null,
-                    OverrideAltAttribute = picture?.AltAttribute,
-                    OverrideTitleAttribute = picture?.TitleAttribute,
+                    AltAttribute = picture?.AltAttribute,
+                    TitleAttribute = picture?.TitleAttribute,
                     DisplayOrder = x.DisplayOrder
                 };
                 items.Add(m);
@@ -2912,7 +2912,7 @@ namespace Grand.Web.Admin.Services
             return items;
         }
 
-        public virtual async Task<ProductModel.ProductPictureModel> PrepareProductPictureModel(Product product, ProductPicture productPicture)
+        public virtual async Task<(ProductModel.ProductPictureModel model, Picture Picture)> PrepareProductPictureModel(Product product, ProductPicture productPicture)
         {
             var picture = await _pictureService.GetPictureById(productPicture.PictureId);
             var model = new ProductModel.ProductPictureModel {
@@ -2920,12 +2920,12 @@ namespace Grand.Web.Admin.Services
                 ProductId = product.Id,
                 PictureId = productPicture.PictureId,
                 PictureUrl = picture != null ? await _pictureService.GetPictureUrl(picture) : null,
-                OverrideAltAttribute = picture?.AltAttribute,
-                OverrideTitleAttribute = picture?.TitleAttribute,
-                DisplayOrder = productPicture.DisplayOrder
+                AltAttribute = picture?.AltAttribute,
+                TitleAttribute = picture?.TitleAttribute,
+                DisplayOrder = productPicture.DisplayOrder,
             };
 
-            return model;
+            return (model, picture);
         }
 
         public virtual async Task InsertProductPicture(Product product, Picture picture, int displayOrder, string overrideAltAttribute, string overrideTitleAttribute)
@@ -2957,10 +2957,10 @@ namespace Grand.Web.Admin.Services
             var productPicture = product.ProductPictures.Where(x => x.Id == model.Id).FirstOrDefault();
             if (productPicture == null)
                 throw new ArgumentException("No product picture found with the specified id");
+
             //a vendor should have access only to his products
             if (_workContext.CurrentVendor != null)
             {
-
                 if (product != null && product.VendorId != _workContext.CurrentVendor.Id)
                 {
                     throw new ArgumentException("This is not your product");
@@ -2972,15 +2972,13 @@ namespace Grand.Web.Admin.Services
                 throw new ArgumentException("No picture found with the specified id");
 
             productPicture.DisplayOrder = model.DisplayOrder;
-
             await _productService.UpdateProductPicture(productPicture, product.Id);
 
-            await _pictureService.UpdatePicture(picture.Id,
-                await _pictureService.LoadPictureBinary(picture),
-                picture.MimeType,
-                picture.SeoFilename,
-                model.OverrideAltAttribute,
-                model.OverrideTitleAttribute);
+            //Update picture fields
+            await _pictureService.UpdatField(picture, x => x.AltAttribute, model.AltAttribute);
+            await _pictureService.UpdatField(picture, x => x.TitleAttribute, model.TitleAttribute);
+            await _pictureService.UpdatField(picture, x => x.Locales, model.Locales.ToTranslationProperty());
+
         }
         public virtual async Task DeleteProductPicture(ProductModel.ProductPictureModel model)
         {
