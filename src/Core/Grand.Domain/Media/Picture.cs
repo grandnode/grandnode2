@@ -1,12 +1,19 @@
 using Grand.Domain.Common;
+using Grand.Domain.Localization;
+using System.Collections.Generic;
 
 namespace Grand.Domain.Media
 {
     /// <summary>
     /// Represents a picture
     /// </summary>
-    public partial class Picture : BaseEntity
+    public partial class Picture : BaseEntity, ITranslationEntity
     {
+        public Picture()
+        {
+            Locales = new List<TranslationEntity>();
+        }
+
         /// <summary>
         /// Gets or sets the picture binary
         /// </summary>
@@ -46,6 +53,11 @@ namespace Grand.Domain.Media
         /// Gets or sets a value indicating whether the picture is new
         /// </summary>
         public bool IsNew { get; set; }
+
+        /// <summary>
+        /// Gets or sets the collection of locales
+        /// </summary>
+        public IList<TranslationEntity> Locales { get; set; }
 
     }
 }
