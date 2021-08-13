@@ -75,7 +75,7 @@
                     columns: [{
                         field: "PictureUrl",
                         title: "@Loc["Admin.Catalog.Products.Pictures.Fields.Picture"]",
-                        template: '<a href="#=PictureUrl#" target="_blank"><img alt="#=PictureId#" src="#=PictureUrl#" width="150" /></a>',
+                        template: "<a class='k-link' href='javascript:OpenWindow(\"@Url.Action("ProductPicturePopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&Id=#=Id#&btnId=btnRefreshProductPictures&formId=product-form\", 800, 600, true);'><img alt='#=PictureId#' src='#=PictureUrl#' width='150' /></a>",
                         width: 165
                     }, {
                         field: "DisplayOrder",
@@ -95,13 +95,6 @@
                         minScreenWidth: 500,
                     }, {
                         command: [{
-                            name: "edit",
-                            text: {
-                                edit: "@Loc["Admin.Common.Edit"]",
-                                update: "@Loc["Admin.Common.Update"]",
-                                cancel: "@Loc["Admin.Common.Cancel"]"
-                            }
-                        }, {
                             name: "destroy",
                             text: "@Loc["Admin.Common.Delete"]"
                         }],

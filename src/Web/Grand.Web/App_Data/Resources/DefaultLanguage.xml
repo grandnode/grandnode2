@@ -3336,6 +3336,9 @@
   <Resource Name="Admin.Catalog.Products.Pictures.AddNew">
     <Value>Add a new picture</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.Products.Pictures.Details">
+    <Value>Picture details</Value>
+  </Resource>
   <Resource Name="Admin.Catalog.Products.Pictures.Fields.DisplayOrder">
     <Value>Display order</Value>
   </Resource>

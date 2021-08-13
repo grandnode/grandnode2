@@ -99,7 +99,8 @@ namespace Grand.Web.Admin.Interfaces
         Task DeleteProductAttributeCombinationTierPrices(Product product, ProductAttributeCombination productAttributeCombination, ProductCombinationTierPrices tierPrice);
 
         //Pictures
-        Task<IList<ProductModel.ProductPictureModel>> PrepareProductPictureModel(Product product);
+        Task<IList<ProductModel.ProductPictureModel>> PrepareProductPicturesModel(Product product);
+        Task<ProductModel.ProductPictureModel> PrepareProductPictureModel(Product product, ProductPicture productPicture);
         Task InsertProductPicture(Product product, Picture picture, int displayOrder, string overrideAltAttribute, string overrideTitleAttribute);
         Task UpdateProductPicture(ProductModel.ProductPictureModel model);
         Task DeleteProductPicture(ProductModel.ProductPictureModel model);

@@ -1,0 +1,74 @@
+﻿
+@model ProductModel.ProductPictureModel
+@{
+    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    //page title
+    ViewBag.Title = Loc["Admin.Catalog.Products.Pictures.Details"];
+}
+<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductPicturePopup" enctype="multipart/form-data" method="post"
+      asp-route-ProductId="@Context.Request.Query["ProductId"]"
+      asp-route-Id="@Context.Request.Query["Id"]"
+      asp-route-btnId="@Context.Request.Query["btnId"]"
+      asp-route-formId="@Context.Request.Query["formId"]">
+
+    <div asp-validation-summary="All"></div>
+    <input asp-for="ProductId" type="hidden" />
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="PictureUrl" type="hidden" />
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <admin-label asp-for="PictureUrl" />
+                                <div class="col-md-9 col-sm-9">
+                                    <a href="@Model.PictureUrl" target="_blank"><img src="@Model.PictureUrl" width="150" /></a>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="OverrideAltAttribute" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="OverrideAltAttribute" />
+                                    <span asp-validation-for="OverrideAltAttribute"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="OverrideTitleAttribute" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="OverrideTitleAttribute" />
+                                    <span asp-validation-for="OverrideTitleAttribute"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="DisplayOrder" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="DisplayOrder" />
+                                    <span asp-validation-for="DisplayOrder"></span>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <div class="row">
+                                    <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
+                                        <button class="k-button" type="submit" name="save"><i class="fa fa-check"></i> &nbsp;@Loc["Admin.Common.Save"] </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (ViewBag.RefreshPage == true)
+    {
+        <script>
+            try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
+            catch (e){}
+            window.close();
+        </script>
+    }
+</form>
