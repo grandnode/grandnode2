@@ -711,6 +711,7 @@ namespace Grand.Business.Storage.Services
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PICTURE_BY_ID, picture.Id));
 
         }
+        
         /// <summary>
         /// Save picture on file system
         /// </summary>
@@ -748,15 +749,15 @@ namespace Grand.Business.Storage.Services
             //update if it has been changed
             if (seoFilename != picture.SeoFilename)
             {
-                //update picture
-                picture = await UpdatePicture(picture.Id,
-                    await LoadPictureBinary(picture),
-                    picture.MimeType,
-                    seoFilename,
-                    picture.AltAttribute,
-                    picture.TitleAttribute,
-                    true,
-                    false);
+                //update SeoFilename picture
+                picture.SeoFilename = seoFilename;
+                await UpdatField(picture, p=> p.SeoFilename, seoFilename);
+
+                //event notification
+                await _mediator.EntityUpdated(picture);
+
+                //clare cache
+                await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PICTURE_BY_ID, picture.Id));
             }
             return picture;
         }
