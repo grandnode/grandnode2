@@ -13,6 +13,7 @@ using MediatR;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Grand.Business.Common.Extensions;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -55,14 +56,22 @@ namespace Grand.Web.Features.Handlers.Catalog
                 var modelBrand = brand.ToModel(request.Language);
 
                 //prepare picture model
+                var picture = !string.IsNullOrEmpty(brand.PictureId) ? await _pictureService.GetPictureById(brand.PictureId) : null;
                 modelBrand.PictureModel = new PictureModel
                 {
                     Id = brand.PictureId,
                     FullSizeImageUrl = await _pictureService.GetPictureUrl(brand.PictureId),
                     ImageUrl = await _pictureService.GetPictureUrl(brand.PictureId, _mediaSettings.BrandThumbPictureSize),
-                    Title = string.Format(_translationService.GetResource("Media.Collection.ImageLinkTitleFormat"), brand.Name),
-                    AlternateText = string.Format(_translationService.GetResource("Media.Collection.ImageAlternateTextFormat"), brand.Name)
                 };
+                //"title" attribute
+                modelBrand.PictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id))) ?
+                    picture.GetTranslation(x => x.TitleAttribute, request.Language.Id) :
+                    string.Format(_translationService.GetResource("Media.Brand.ImageLinkTitleFormat"), brand.Name);
+                //"alt" attribute
+                modelBrand.PictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id))) ?
+                    picture.GetTranslation(x => x.AltAttribute, request.Language.Id) :
+                    string.Format(_translationService.GetResource("Media.Brand.ImageAlternateTextFormat"), brand.Name);
+
                 model.Add(modelBrand);
             }
             return model;

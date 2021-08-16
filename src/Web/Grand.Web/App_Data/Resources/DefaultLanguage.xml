@@ -2079,6 +2079,15 @@
   <Resource Name="Admin.Catalog.Brands.Permisions">
     <Value>You can't edit this brand, because it can be used in many stores.</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.Brands.Picture">
+    <Value>Picture</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Brands.Picture.Fields.AltAttribute">
+    <Value>Picture alternate text</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Brands.Picture.Fields.TitleAttribute">
+    <Value>Picture title</Value>
+  </Resource>
   <Resource Name="Admin.Catalog.Brands.Updated">
     <Value>The brand has been updated successfully.</Value>
   </Resource>
@@ -14159,6 +14168,9 @@
   </Resource>
   <Resource Name="Media.Brand.ImageAlternateTextFormat">
     <Value>Picture for brand {0}</Value>
+  </Resource>
+  <Resource Name="Media.Brand.ImageLinkTitleFormat">
+    <Value>Show brand for {0}</Value>
   </Resource>
   <Resource Name="Media.Category.ImageAlternateTextFormat">
     <Value>Picture for category {0}</Value>

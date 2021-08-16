@@ -118,7 +118,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     FlagStyle = x.FlagStyle
                 };
                 //prepare picture model
-                var picture = await _pictureService.GetPictureById(x.PictureId);
+                var picture = !string.IsNullOrEmpty(x.PictureId) ? await _pictureService.GetPictureById(x.PictureId) : null;
                 subCatModel.PictureModel = new PictureModel
                 {
                     Id = x.PictureId,

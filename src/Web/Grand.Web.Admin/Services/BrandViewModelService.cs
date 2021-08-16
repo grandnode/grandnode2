@@ -9,6 +9,7 @@ using Grand.Business.Customers.Interfaces;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
+using Grand.Domain.Media;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
@@ -100,7 +101,7 @@ namespace Grand.Web.Admin.Services
         }
 
 
-        public virtual async Task PrepareDiscountModel(BrandModel model, Brand Brand, bool excludeProperties)
+        public virtual async Task PrepareDiscountModel(BrandModel model, Brand brand, bool excludeProperties)
         {
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
@@ -110,9 +111,9 @@ namespace Grand.Web.Admin.Services
                 .Select(d => d.ToModel(_dateTimeService))
                 .ToList();
 
-            if (!excludeProperties && Brand != null)
+            if (!excludeProperties && brand != null)
             {
-                model.SelectedDiscountIds = Brand.AppliedDiscounts.ToArray();
+                model.SelectedDiscountIds = brand.AppliedDiscounts.ToArray();
             }
         }
 
@@ -196,6 +197,29 @@ namespace Grand.Web.Admin.Services
             await _brandService.DeleteBrand(brand);
             //activity log
             await _customerActivityService.InsertActivity("DeleteBrand", brand.Id, _translationService.GetResource("ActivityLog.DeleteBrand"), brand.Name);
+        }
+        public virtual async Task<(BrandModel.PictureModel model, Picture Picture)> PreparePictureModel(Brand brand)
+        {
+            var picture = await _pictureService.GetPictureById(brand.PictureId);
+            var model = new BrandModel.PictureModel {
+                Id = picture.Id,
+                BrandId = brand.Id,
+                PictureUrl = picture != null ? await _pictureService.GetPictureUrl(picture) : null,
+                AltAttribute = picture?.AltAttribute,
+                TitleAttribute = picture?.TitleAttribute,
+            };
+            return (model, picture);
+        }
+        public virtual async Task UpdateBrandPicture(BrandModel.PictureModel model)
+        {
+            var picture = await _pictureService.GetPictureById(model.Id);
+            if (picture == null)
+                throw new ArgumentException("No picture found with the specified id");
+
+            //Update picture fields
+            await _pictureService.UpdatField(picture, x => x.AltAttribute, model.AltAttribute);
+            await _pictureService.UpdatField(picture, x => x.TitleAttribute, model.TitleAttribute);
+            await _pictureService.UpdatField(picture, x => x.Locales, model.Locales.ToTranslationProperty());
         }
 
         public virtual async Task<(IEnumerable<BrandModel.ActivityLogModel> activityLogModels, int totalCount)> PrepareActivityLogModel(string brandId, int pageIndex, int pageSize)

@@ -63,7 +63,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 {
                     var catModel = x.ToModel(request.Language);
                     //prepare picture model
-                    var picture = await _pictureService.GetPictureById(x.PictureId);
+                    var picture = !string.IsNullOrEmpty(x.PictureId) ? await _pictureService.GetPictureById(x.PictureId) : null;
                     catModel.PictureModel = new PictureModel
                     {
                         Id = x.PictureId,

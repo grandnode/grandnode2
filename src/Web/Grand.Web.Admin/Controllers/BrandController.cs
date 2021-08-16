@@ -65,7 +65,7 @@ namespace Grand.Web.Admin.Controllers
 
         #region Utilities
 
-        protected async Task<(bool allow, string message)> CheckAccessToCollection(Brand brand)
+        protected async Task<(bool allow, string message)> CheckAccessToBrand(Brand brand)
         {
             if (brand == null)
             {
@@ -281,6 +281,59 @@ namespace Grand.Web.Admin.Controllers
 
         #endregion
 
+        #region Picture
+
+        [PermissionAuthorizeAction(PermissionActionName.Preview)]
+        public async Task<IActionResult> PicturePopup(string brandId)
+        {
+            var brand = await _brandService.GetBrandById(brandId);
+            if (brand == null)
+                return Content("Brand not exist");
+
+            if (string.IsNullOrEmpty(brand.PictureId))
+                return Content("Picture not exist");
+
+            var permission = await CheckAccessToBrand(brand);
+            if (!permission.allow)
+                return Content(permission.message);
+
+            var (model, picture) = await _brandViewModelService.PreparePictureModel(brand);
+            //locales
+            await AddLocales(_languageService, model.Locales, (locale, languageId) =>
+            {
+                locale.AltAttribute = picture?.GetTranslation(x => x.AltAttribute, languageId, false);
+                locale.TitleAttribute = picture?.GetTranslation(x => x.TitleAttribute, languageId, false);
+            });
+
+            return View(model);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [HttpPost]
+        public async Task<IActionResult> PicturePopup(BrandModel.PictureModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var brand = await _brandService.GetBrandById(model.BrandId);
+                if (brand == null)
+                    throw new ArgumentException("No brand found with the specified id");
+
+                if (string.IsNullOrEmpty(brand.PictureId))
+                    throw new ArgumentException("No picture found with the specified id");
+
+                await _brandViewModelService.UpdateBrandPicture(model);
+
+                ViewBag.RefreshPage = true;
+                return View(model);
+            }
+
+            Error(ModelState);
+
+            return View(model);
+        }
+
+        #endregion
+
         #region Export / Import
 
         [PermissionAuthorizeAction(PermissionActionName.Export)]
@@ -335,7 +388,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> ListActivityLog(DataSourceRequest command, string brandId)
         {
             var brand = await _brandService.GetBrandById(brandId);
-            var permission = await CheckAccessToCollection(brand);
+            var permission = await CheckAccessToBrand(brand);
             if (!permission.allow)
                 return ErrorForKendoGridJson(permission.message);
 

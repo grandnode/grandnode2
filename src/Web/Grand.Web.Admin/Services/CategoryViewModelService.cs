@@ -270,8 +270,8 @@ namespace Grand.Web.Admin.Services
             await _pictureService.UpdatField(picture, x => x.AltAttribute, model.AltAttribute);
             await _pictureService.UpdatField(picture, x => x.TitleAttribute, model.TitleAttribute);
             await _pictureService.UpdatField(picture, x => x.Locales, model.Locales.ToTranslationProperty());
-
         }
+
         public virtual async Task<(IEnumerable<CategoryModel.CategoryProductModel> categoryProductModels, int totalCount)> PrepareCategoryProductModel(string categoryId, int pageIndex, int pageSize)
         {
             var productCategories = await _productCategoryService.GetProductCategoriesByCategoryId(categoryId,
