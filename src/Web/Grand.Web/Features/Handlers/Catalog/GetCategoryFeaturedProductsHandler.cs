@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Grand.Business.Common.Extensions;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -62,14 +63,22 @@ namespace Grand.Web.Features.Handlers.Catalog
                 {
                     var catModel = x.ToModel(request.Language);
                     //prepare picture model
+                    var picture = await _pictureService.GetPictureById(x.PictureId);
                     catModel.PictureModel = new PictureModel
                     {
                         Id = x.PictureId,
                         FullSizeImageUrl = await _pictureService.GetPictureUrl(x.PictureId),
                         ImageUrl = await _pictureService.GetPictureUrl(x.PictureId, _mediaSettings.CategoryThumbPictureSize),
-                        Title = string.Format(_translationService.GetResource("Media.Category.ImageLinkTitleFormat"), catModel.Name),
-                        AlternateText = string.Format(_translationService.GetResource("Media.Category.ImageAlternateTextFormat"), catModel.Name)
                     };
+                    //"title" attribute
+                    catModel.PictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id))) ?
+                        picture.GetTranslation(x => x.TitleAttribute, request.Language.Id) :
+                        string.Format(_translationService.GetResource("Media.Category.ImageLinkTitleFormat"), x.Name);
+                    //"alt" attribute
+                    catModel.PictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id))) ?
+                        picture.GetTranslation(x => x.AltAttribute, request.Language.Id) :
+                        string.Format(_translationService.GetResource("Media.Category.ImageAlternateTextFormat"), x.Name);
+
                     catlistmodel.Add(catModel);
                 }
                 return catlistmodel;

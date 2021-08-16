@@ -192,6 +192,37 @@ namespace Grand.Web.Admin.Models.Catalog
             public string CustomerEmail { get; set; }
         }
 
+        public partial class PictureModel : BaseEntityModel, ILocalizedModel<PictureModel.PictureLocalizedModel>
+        {
+            public PictureModel()
+            {
+                Locales = new List<PictureLocalizedModel>();
+            }
+
+            public string CategoryId { get; set; }
+
+            [GrandResourceDisplayName("Admin.Catalog.Categories.Picture")]
+            public string PictureUrl { get; set; }
+
+            [GrandResourceDisplayName("Admin.Catalog.Categories.Picture.Fields.AltAttribute")]
+            public string AltAttribute { get; set; }
+
+            [GrandResourceDisplayName("Admin.Catalog.Categories.Picture.Fields.TitleAttribute")]
+            public string TitleAttribute { get; set; }
+
+            public IList<PictureLocalizedModel> Locales { get; set; }
+
+            public partial class PictureLocalizedModel : ILocalizedModelLocal
+            {
+                public string LanguageId { get; set; }
+
+                [GrandResourceDisplayName("Admin.Catalog.Categories.Picture.Fields.AltAttribute")]
+                public string AltAttribute { get; set; }
+
+                [GrandResourceDisplayName("Admin.Catalog.Categories.Picture.Fields.TitleAttribute")]
+                public string TitleAttribute { get; set; }
+            }
+        }
 
         #endregion
     }

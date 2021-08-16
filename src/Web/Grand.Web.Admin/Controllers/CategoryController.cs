@@ -254,6 +254,60 @@ namespace Grand.Web.Admin.Controllers
 
         #endregion
 
+        #region Picture
+
+        [PermissionAuthorizeAction(PermissionActionName.Preview)]
+        public async Task<IActionResult> PicturePopup(string categoryId)
+        {
+            var category = await _categoryService.GetCategoryById(categoryId);
+            if (category == null)
+                return Content("Category not exist");
+
+            if (string.IsNullOrEmpty(category.PictureId))
+                return Content("Picture not exist");
+
+            var permission = await CheckAccessToCategory(category);
+            if (!permission.allow)
+                return Content(permission.message);
+
+
+            var (model, picture) = await _categoryViewModelService.PreparePictureModel(category);
+            //locales
+            await AddLocales(_languageService, model.Locales, (locale, languageId) =>
+            {
+                locale.AltAttribute = picture?.GetTranslation(x => x.AltAttribute, languageId, false);
+                locale.TitleAttribute = picture?.GetTranslation(x => x.TitleAttribute, languageId, false);
+            });
+
+            return View(model);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [HttpPost]
+        public async Task<IActionResult> PicturePopup(CategoryModel.PictureModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var category = await _categoryService.GetCategoryById(model.CategoryId);
+                if (category == null)
+                    throw new ArgumentException("No category found with the specified id");
+
+                if (string.IsNullOrEmpty(category.PictureId))
+                    throw new ArgumentException("No picture found with the specified id");
+
+                await _categoryViewModelService.UpdateCategoryPicture(model);
+
+                ViewBag.RefreshPage = true;
+                return View(model);
+            }
+
+            Error(ModelState);
+
+            return View(model);
+        }
+
+        #endregion
+
         #region Export / Import
 
 

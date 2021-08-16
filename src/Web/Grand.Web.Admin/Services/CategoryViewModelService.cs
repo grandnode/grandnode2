@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Grand.Domain.Media;
 
 namespace Grand.Web.Admin.Services
 {
@@ -34,7 +35,6 @@ namespace Grand.Web.Admin.Services
         private readonly ITranslationService _translationService;
         private readonly IStoreService _storeService;
         private readonly ICustomerService _customerService;
-        private readonly IGroupService _groupService;
         private readonly ISlugService _slugService;
         private readonly IPictureService _pictureService;
         private readonly ICustomerActivityService _customerActivityService;
@@ -46,7 +46,7 @@ namespace Grand.Web.Admin.Services
         private readonly SeoSettings _seoSettings;
 
         public CategoryViewModelService(ICategoryService categoryService, IProductCategoryService productCategoryService, ICategoryLayoutService categoryLayoutService, IDiscountService discountService,
-            ITranslationService translationService, IStoreService storeService, ICustomerService customerService, IGroupService groupService, IPictureService pictureService,
+            ITranslationService translationService, IStoreService storeService, ICustomerService customerService, IPictureService pictureService,
             ISlugService slugService, ICustomerActivityService customerActivityService, IProductService productService, 
             IVendorService vendorService, IDateTimeService dateTimeService, ILanguageService languageService, CatalogSettings catalogSettings, SeoSettings seoSettings)
         {
@@ -57,7 +57,6 @@ namespace Grand.Web.Admin.Services
             _translationService = translationService;
             _storeService = storeService;
             _customerService = customerService;
-            _groupService = groupService;
             _slugService = slugService;
             _customerActivityService = customerActivityService;
             _productService = productService;
@@ -247,6 +246,31 @@ namespace Grand.Web.Admin.Services
             await _categoryService.DeleteCategory(category);
             //activity log
             await _customerActivityService.InsertActivity("DeleteCategory", category.Id, _translationService.GetResource("ActivityLog.DeleteCategory"), category.Name);
+        }
+
+        public virtual async Task<(CategoryModel.PictureModel model, Picture Picture)> PreparePictureModel(Category category)
+        {
+            var picture = await _pictureService.GetPictureById(category.PictureId);
+            var model = new CategoryModel.PictureModel {
+                Id = picture.Id,
+                CategoryId = category.Id,
+                PictureUrl = picture != null ? await _pictureService.GetPictureUrl(picture) : null,
+                AltAttribute = picture?.AltAttribute,
+                TitleAttribute = picture?.TitleAttribute,
+            };
+            return (model, picture);
+        }
+        public virtual async Task UpdateCategoryPicture(CategoryModel.PictureModel model)
+        {
+            var picture = await _pictureService.GetPictureById(model.Id);
+            if (picture == null)
+                throw new ArgumentException("No picture found with the specified id");
+
+            //Update picture fields
+            await _pictureService.UpdatField(picture, x => x.AltAttribute, model.AltAttribute);
+            await _pictureService.UpdatField(picture, x => x.TitleAttribute, model.TitleAttribute);
+            await _pictureService.UpdatField(picture, x => x.Locales, model.Locales.ToTranslationProperty());
+
         }
         public virtual async Task<(IEnumerable<CategoryModel.CategoryProductModel> categoryProductModels, int totalCount)> PrepareCategoryProductModel(string categoryId, int pageIndex, int pageSize)
         {
