@@ -737,12 +737,11 @@ namespace Grand.Business.Storage.Services
         /// <summary>
         /// Updates a SEO filename of a picture
         /// </summary>
-        /// <param name="pictureId">The picture identifier</param>
+        /// <param name="picture">The picture</param>
         /// <param name="seoFilename">The SEO filename</param>
         /// <returns>Picture</returns>
-        public virtual async Task<Picture> SetSeoFilename(string pictureId, string seoFilename)
+        public virtual async Task<Picture> SetSeoFilename(Picture picture, string seoFilename)
         {
-            var picture = await GetPictureById(pictureId);
             if (picture == null)
                 throw new ArgumentException("No picture found with the specified id");
 

@@ -11,7 +11,7 @@ namespace Grand.Web.Admin.Extensions
             {
                 var picture = await pictureService.GetPictureById(pictureId);
                 if (picture != null)
-                    await pictureService.SetSeoFilename(picture.Id, pictureService.GetPictureSeName(name));
+                    await pictureService.SetSeoFilename(picture, pictureService.GetPictureSeName(name));
             }
         }
     }

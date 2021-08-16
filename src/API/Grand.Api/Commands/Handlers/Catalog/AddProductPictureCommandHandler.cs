@@ -36,7 +36,7 @@ namespace Grand.Api.Commands.Models.Catalog
                     PictureId = request.Model.PictureId,
                     DisplayOrder = request.Model.DisplayOrder,
                 }, request.Product.Id);
-                await _pictureService.SetSeoFilename(request.Model.PictureId, _pictureService.GetPictureSeName(request.Product.Name));
+                await _pictureService.SetSeoFilename(picture, _pictureService.GetPictureSeName(request.Product.Name));
             }
 
             return true;

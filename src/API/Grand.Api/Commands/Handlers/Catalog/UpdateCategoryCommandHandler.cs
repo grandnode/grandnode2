@@ -66,7 +66,7 @@ namespace Grand.Api.Commands.Models.Catalog
             {
                 var picture = await _pictureService.GetPictureById(category.PictureId);
                 if (picture != null)
-                    await _pictureService.SetSeoFilename(picture.Id, _pictureService.GetPictureSeName(category.Name));
+                    await _pictureService.SetSeoFilename(picture, _pictureService.GetPictureSeName(category.Name));
             }
             //activity log
             await _customerActivityService.InsertActivity("EditCategory", category.Id, _translationService.GetResource("ActivityLog.EditCategory"), category.Name);

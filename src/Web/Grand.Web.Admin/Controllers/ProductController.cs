@@ -1261,7 +1261,7 @@ namespace Grand.Web.Admin.Controllers
 
                     values.Add((pictureUrl, picture.Id));
                     //assign picture to the product
-                    await _productViewModelService.InsertProductPicture(product, picture, 0, "", "");
+                    await _productViewModelService.InsertProductPicture(product, picture, 0);
                 }
             }
 

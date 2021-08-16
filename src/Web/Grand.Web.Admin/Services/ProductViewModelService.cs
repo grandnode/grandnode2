@@ -155,8 +155,13 @@ namespace Grand.Web.Admin.Services
         }
         protected virtual async Task UpdatePictureSeoNames(Product product)
         {
+            var picturesename = _pictureService.GetPictureSeName(product.Name);
             foreach (var pp in product.ProductPictures)
-                await _pictureService.SetSeoFilename(pp.PictureId, _pictureService.GetPictureSeName(product.Name));
+            {
+                var picture = await _pictureService.GetPictureById(pp.PictureId);
+                if (picture != null)
+                    await _pictureService.SetSeoFilename(picture, picturesename);
+            }
         }
         protected virtual async Task<List<string>> GetChildCategoryIds(string parentCategoryId)
         {
@@ -2928,7 +2933,7 @@ namespace Grand.Web.Admin.Services
             return (model, picture);
         }
 
-        public virtual async Task InsertProductPicture(Product product, Picture picture, int displayOrder, string overrideAltAttribute, string overrideTitleAttribute)
+        public virtual async Task InsertProductPicture(Product product, Picture picture, int displayOrder)
         {
             if (picture == null)
                 throw new ArgumentException("No picture found with the specified id");
@@ -2936,19 +2941,12 @@ namespace Grand.Web.Admin.Services
             if (product.ProductPictures.Where(x => x.PictureId == picture.Id).Count() > 0)
                 return;
 
-            await _pictureService.UpdatePicture(picture.Id,
-                await _pictureService.LoadPictureBinary(picture),
-                picture.MimeType,
-                picture.SeoFilename,
-                overrideAltAttribute,
-                overrideTitleAttribute);
-
             await _productService.InsertProductPicture(new ProductPicture {
                 PictureId = picture.Id,
                 DisplayOrder = displayOrder,
             }, product.Id);
 
-            await _pictureService.SetSeoFilename(picture.Id, _pictureService.GetPictureSeName(product.Name));
+            await _pictureService.SetSeoFilename(picture, _pictureService.GetPictureSeName(product.Name));
         }
         public virtual async Task UpdateProductPicture(ProductModel.ProductPictureModel model)
         {

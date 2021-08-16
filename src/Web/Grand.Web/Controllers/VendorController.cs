@@ -93,7 +93,7 @@ namespace Grand.Web.Controllers
         {
             var picture = await _pictureService.GetPictureById(vendor.PictureId);
             if (picture != null)
-                await _pictureService.SetSeoFilename(picture.Id, _pictureService.GetPictureSeName(vendor.Name));
+                await _pictureService.SetSeoFilename(picture, _pictureService.GetPictureSeName(vendor.Name));
         }
 
         #endregion

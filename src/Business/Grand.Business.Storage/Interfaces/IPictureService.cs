@@ -167,10 +167,10 @@ namespace Grand.Business.Storage.Interfaces
         /// <summary>
         /// Updates a SEO filename of a picture
         /// </summary>
-        /// <param name="pictureId">The picture identifier</param>
+        /// <param name="picture">The picture</param>
         /// <param name="seoFilename">The SEO filename</param>
         /// <returns>Picture</returns>
-        Task<Picture> SetSeoFilename(string pictureId, string seoFilename);
+        Task<Picture> SetSeoFilename(Picture picture, string seoFilename);
 
         /// <summary>
         /// Validates input picture dimensions
