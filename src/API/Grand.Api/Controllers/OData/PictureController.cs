@@ -45,7 +45,7 @@ namespace Grand.Api.Controllers.OData
             if (ModelState.IsValid)
             {
                 model = await _mediator.Send(new AddPictureCommand() { PictureDto = model });
-                return Created(model);
+                return Ok(model);
             }
             return BadRequest(ModelState);
         }

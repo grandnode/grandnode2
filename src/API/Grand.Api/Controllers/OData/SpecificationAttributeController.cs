@@ -59,7 +59,7 @@ namespace Grand.Api.Controllers.OData
             if (ModelState.IsValid)
             {
                 model = await _mediator.Send(new AddSpecificationAttributeCommand() { Model = model });
-                return Created(model);
+                return Ok(model);
             }
             return BadRequest(ModelState);
         }
