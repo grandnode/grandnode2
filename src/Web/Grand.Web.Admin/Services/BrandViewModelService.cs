@@ -9,7 +9,6 @@ using Grand.Business.Customers.Interfaces;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
-using Grand.Domain.Media;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
@@ -92,8 +91,7 @@ namespace Grand.Web.Admin.Services
             var layouts = await _brandLayoutService.GetAllBrandLayouts();
             foreach (var layout in layouts)
             {
-                model.AvailableBrandLayouts.Add(new SelectListItem
-                {
+                model.AvailableBrandLayouts.Add(new SelectListItem {
                     Text = layout.Name,
                     Value = layout.Id
                 });
@@ -198,29 +196,6 @@ namespace Grand.Web.Admin.Services
             //activity log
             await _customerActivityService.InsertActivity("DeleteBrand", brand.Id, _translationService.GetResource("ActivityLog.DeleteBrand"), brand.Name);
         }
-        public virtual async Task<(BrandModel.PictureModel model, Picture Picture)> PreparePictureModel(Brand brand)
-        {
-            var picture = await _pictureService.GetPictureById(brand.PictureId);
-            var model = new BrandModel.PictureModel {
-                Id = picture.Id,
-                BrandId = brand.Id,
-                PictureUrl = picture != null ? await _pictureService.GetPictureUrl(picture) : null,
-                AltAttribute = picture?.AltAttribute,
-                TitleAttribute = picture?.TitleAttribute,
-            };
-            return (model, picture);
-        }
-        public virtual async Task UpdateBrandPicture(BrandModel.PictureModel model)
-        {
-            var picture = await _pictureService.GetPictureById(model.Id);
-            if (picture == null)
-                throw new ArgumentException("No picture found with the specified id");
-
-            //Update picture fields
-            await _pictureService.UpdatField(picture, x => x.AltAttribute, model.AltAttribute);
-            await _pictureService.UpdatField(picture, x => x.TitleAttribute, model.TitleAttribute);
-            await _pictureService.UpdatField(picture, x => x.Locales, model.Locales.ToTranslationProperty());
-        }
 
         public virtual async Task<(IEnumerable<BrandModel.ActivityLogModel> activityLogModels, int totalCount)> PrepareActivityLogModel(string brandId, int pageIndex, int pageSize)
         {
@@ -229,8 +204,7 @@ namespace Grand.Web.Admin.Services
             foreach (var x in activityLog)
             {
                 var customer = await _customerService.GetCustomerById(x.CustomerId);
-                var m = new BrandModel.ActivityLogModel
-                {
+                var m = new BrandModel.ActivityLogModel {
                     Id = x.Id,
                     ActivityLogTypeName = (await _customerActivityService.GetActivityTypeById(x.ActivityLogTypeId))?.Name,
                     Comment = x.Comment,

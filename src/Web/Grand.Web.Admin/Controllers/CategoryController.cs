@@ -11,6 +11,7 @@ using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
+using Grand.Web.Admin.Models.Common;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
@@ -37,7 +38,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
         private readonly IImportManager _importManager;
-
+        private readonly IPictureViewModelService _pictureViewModelService;
         #endregion
 
         #region Constructors
@@ -52,7 +53,8 @@ namespace Grand.Web.Admin.Controllers
             IExportManager exportManager,
             IWorkContext workContext,
             IGroupService groupService,
-            IImportManager importManager)
+            IImportManager importManager,
+            IPictureViewModelService pictureViewModelService)
         {
             _categoryService = categoryService;
             _categoryViewModelService = categoryViewModelService;
@@ -64,6 +66,7 @@ namespace Grand.Web.Admin.Controllers
             _workContext = workContext;
             _groupService = groupService;
             _importManager = importManager;
+            _pictureViewModelService = pictureViewModelService;
         }
 
         #endregion
@@ -270,40 +273,34 @@ namespace Grand.Web.Admin.Controllers
             if (!permission.allow)
                 return Content(permission.message);
 
-
-            var (model, picture) = await _categoryViewModelService.PreparePictureModel(category);
-            //locales
-            await AddLocales(_languageService, model.Locales, (locale, languageId) =>
-            {
-                locale.AltAttribute = picture?.GetTranslation(x => x.AltAttribute, languageId, false);
-                locale.TitleAttribute = picture?.GetTranslation(x => x.TitleAttribute, languageId, false);
-            });
-
-            return View(model);
+            return View("PicturePopup", await _pictureViewModelService.PreparePictureModel(category.PictureId, category.Id));
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> PicturePopup(CategoryModel.PictureModel model)
+        public async Task<IActionResult> PicturePopup(PictureModel model)
         {
             if (ModelState.IsValid)
             {
-                var category = await _categoryService.GetCategoryById(model.CategoryId);
+                var category = await _categoryService.GetCategoryById(model.ObjectId);
                 if (category == null)
                     throw new ArgumentException("No category found with the specified id");
 
                 if (string.IsNullOrEmpty(category.PictureId))
                     throw new ArgumentException("No picture found with the specified id");
 
-                await _categoryViewModelService.UpdateCategoryPicture(model);
+                if (category.PictureId != model.Id)
+                    throw new ArgumentException("Picture ident doesn't fit with category");
+
+                await _pictureViewModelService.UpdatePicture(model);
 
                 ViewBag.RefreshPage = true;
-                return View(model);
+                return View("PicturePopup", model);
             }
 
             Error(ModelState);
 
-            return View(model);
+            return View("PicturePopup", model);
         }
 
         #endregion

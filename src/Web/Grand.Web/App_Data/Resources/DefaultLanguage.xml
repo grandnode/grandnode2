@@ -2079,15 +2079,6 @@
   <Resource Name="Admin.Catalog.Brands.Permisions">
     <Value>You can't edit this brand, because it can be used in many stores.</Value>
   </Resource>
-  <Resource Name="Admin.Catalog.Brands.Picture">
-    <Value>Picture</Value>
-  </Resource>
-  <Resource Name="Admin.Catalog.Brands.Picture.Fields.AltAttribute">
-    <Value>Picture alternate text</Value>
-  </Resource>
-  <Resource Name="Admin.Catalog.Brands.Picture.Fields.TitleAttribute">
-    <Value>Picture title</Value>
-  </Resource>
   <Resource Name="Admin.Catalog.Brands.Updated">
     <Value>The brand has been updated successfully.</Value>
   </Resource>
@@ -2310,15 +2301,6 @@
   <Resource Name="Admin.Catalog.Categories.Permisions">
     <Value>You can't edit this category, because it can be used in many stores.</Value>
   </Resource>
-  <Resource Name="Admin.Catalog.Categories.Picture">
-    <Value>Picture</Value>
-  </Resource>
-  <Resource Name="Admin.Catalog.Categories.Picture.Fields.AltAttribute">
-    <Value>Picture alternate text</Value>
-  </Resource>
-  <Resource Name="Admin.Catalog.Categories.Picture.Fields.TitleAttribute">
-    <Value>Picture title</Value>
-  </Resource>
   <Resource Name="Admin.Catalog.Categories.Products">
     <Value>Products</Value>
   </Resource>
@@ -2507,6 +2489,15 @@
   </Resource>
   <Resource Name="Admin.Catalog.Collections.Updated">
     <Value>The collection has been updated successfully.</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Picture">
+    <Value>Picture</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Picture.Fields.AltAttribute">
+    <Value>Picture alternate text</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Picture.Fields.TitleAttribute">
+    <Value>Picture title</Value>
   </Resource>
   <Resource Name="Admin.Catalog.ProductReservations.CantDeleteWithOrder">
     <Value>You can't delete reservation with the order</Value>

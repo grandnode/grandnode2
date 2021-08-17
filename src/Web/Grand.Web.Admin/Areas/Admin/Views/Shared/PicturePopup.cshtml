@@ -1,15 +1,12 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Razor;
 
-@model CategoryModel.PictureModel
+@model PictureModel
 @{
     Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
     //page title
-    ViewBag.Title = Loc["Admin.Catalog.Categories.Picture"];
+    ViewBag.Title = Loc["Admin.Catalog.Picture"];
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Category" asp-action="PicturePopup" enctype="multipart/form-data" method="post"
-      asp-route-CategoryId="@Context.Request.Query["CategoryId"]">
-
-
+<form asp-area="@Constants.AreaAdmin" asp-action="PicturePopup" enctype="multipart/form-data" method="post">
     <!-- #region languages template -->
     @{ Func<int, HelperResult> template = @<div class="form-body">
             <div class="form-group">
@@ -29,10 +26,9 @@
             <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
         </div>;
     }
-
     <div asp-validation-summary="All"></div>
-    <input asp-for="CategoryId" type="hidden" />
     <input asp-for="Id" type="hidden" />
+    <input asp-for="ObjectId" type="hidden" />
     <input asp-for="PictureUrl" type="hidden" />
     <div class="row">
         <div class="col-md-12">

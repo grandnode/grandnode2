@@ -14,8 +14,6 @@ namespace Grand.Web.Admin.Interfaces
         Task<Brand> InsertBrandModel(BrandModel model);
         Task<Brand> UpdateBrandModel(Brand brand, BrandModel model);
         Task DeleteBrand(Brand brand);
-        Task<(BrandModel.PictureModel model, Picture Picture)> PreparePictureModel(Brand brand);
-        Task UpdateBrandPicture(BrandModel.PictureModel model);
         Task<(IEnumerable<BrandModel.ActivityLogModel> activityLogModels, int totalCount)> PrepareActivityLogModel(string brandId, int pageIndex, int pageSize);
     }
 }

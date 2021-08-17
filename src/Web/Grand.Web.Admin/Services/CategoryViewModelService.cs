@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Catalog.Interfaces.Categories;
 using Grand.Business.Catalog.Interfaces.Discounts;
-using Grand.Business.Catalog.Interfaces.Collections;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Directory;
@@ -13,16 +12,15 @@ using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Domain.Seo;
-using Grand.Web.Common.Extensions;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
+using Grand.Web.Common.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Grand.Domain.Media;
 
 namespace Grand.Web.Admin.Services
 {
@@ -47,7 +45,7 @@ namespace Grand.Web.Admin.Services
 
         public CategoryViewModelService(ICategoryService categoryService, IProductCategoryService productCategoryService, ICategoryLayoutService categoryLayoutService, IDiscountService discountService,
             ITranslationService translationService, IStoreService storeService, ICustomerService customerService, IPictureService pictureService,
-            ISlugService slugService, ICustomerActivityService customerActivityService, IProductService productService, 
+            ISlugService slugService, ICustomerActivityService customerActivityService, IProductService productService,
             IVendorService vendorService, IDateTimeService dateTimeService, ILanguageService languageService, CatalogSettings catalogSettings, SeoSettings seoSettings)
         {
             _categoryService = categoryService;
@@ -76,8 +74,7 @@ namespace Grand.Web.Admin.Services
             var layouts = await _categoryLayoutService.GetAllCategoryLayouts();
             foreach (var layout in layouts)
             {
-                model.AvailableCategoryLayouts.Add(new SelectListItem
-                {
+                model.AvailableCategoryLayouts.Add(new SelectListItem {
                     Text = layout.Name,
                     Value = layout.Id
                 });
@@ -120,10 +117,10 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<(IEnumerable<CategoryModel> categoryListModel, int totalCount)> PrepareCategoryListModel(CategoryListModel model, int pageIndex, int pageSize)
         {
             var categories = await _categoryService.GetAllCategories(
-                categoryName: model.SearchCategoryName, 
+                categoryName: model.SearchCategoryName,
                 storeId: model.SearchStoreId,
                 pageSize: pageSize,
-                pageIndex: pageIndex - 1, 
+                pageIndex: pageIndex - 1,
                 showHidden: true);
 
             var categoryListModel = new List<CategoryModel>();
@@ -248,30 +245,6 @@ namespace Grand.Web.Admin.Services
             await _customerActivityService.InsertActivity("DeleteCategory", category.Id, _translationService.GetResource("ActivityLog.DeleteCategory"), category.Name);
         }
 
-        public virtual async Task<(CategoryModel.PictureModel model, Picture Picture)> PreparePictureModel(Category category)
-        {
-            var picture = await _pictureService.GetPictureById(category.PictureId);
-            var model = new CategoryModel.PictureModel {
-                Id = picture.Id,
-                CategoryId = category.Id,
-                PictureUrl = picture != null ? await _pictureService.GetPictureUrl(picture) : null,
-                AltAttribute = picture?.AltAttribute,
-                TitleAttribute = picture?.TitleAttribute,
-            };
-            return (model, picture);
-        }
-        public virtual async Task UpdateCategoryPicture(CategoryModel.PictureModel model)
-        {
-            var picture = await _pictureService.GetPictureById(model.Id);
-            if (picture == null)
-                throw new ArgumentException("No picture found with the specified id");
-
-            //Update picture fields
-            await _pictureService.UpdatField(picture, x => x.AltAttribute, model.AltAttribute);
-            await _pictureService.UpdatField(picture, x => x.TitleAttribute, model.TitleAttribute);
-            await _pictureService.UpdatField(picture, x => x.Locales, model.Locales.ToTranslationProperty());
-        }
-
         public virtual async Task<(IEnumerable<CategoryModel.CategoryProductModel> categoryProductModels, int totalCount)> PrepareCategoryProductModel(string categoryId, int pageIndex, int pageSize)
         {
             var productCategories = await _productCategoryService.GetProductCategoriesByCategoryId(categoryId,
@@ -280,8 +253,7 @@ namespace Grand.Web.Admin.Services
             var categoryproducts = new List<CategoryModel.CategoryProductModel>();
             foreach (var item in productCategories)
             {
-                var pc = new CategoryModel.CategoryProductModel
-                {
+                var pc = new CategoryModel.CategoryProductModel {
                     Id = item.Id,
                     CategoryId = item.CategoryId,
                     ProductId = item.ProductId,
@@ -347,8 +319,7 @@ namespace Grand.Web.Admin.Services
                     if (product.ProductCategories.Where(x => x.CategoryId == model.CategoryId).Count() == 0)
                     {
                         await _productCategoryService.InsertProductCategory(
-                            new ProductCategory
-                            {
+                            new ProductCategory {
                                 CategoryId = model.CategoryId,
                                 IsFeaturedProduct = false,
                                 DisplayOrder = 1,
@@ -364,8 +335,7 @@ namespace Grand.Web.Admin.Services
             foreach (var item in activityLog)
             {
                 var customer = await _customerService.GetCustomerById(item.CustomerId);
-                var m = new CategoryModel.ActivityLogModel
-                {
+                var m = new CategoryModel.ActivityLogModel {
                     Id = item.Id,
                     ActivityLogTypeName = (await _customerActivityService.GetActivityTypeById(item.ActivityLogTypeId))?.Name,
                     Comment = item.Comment,

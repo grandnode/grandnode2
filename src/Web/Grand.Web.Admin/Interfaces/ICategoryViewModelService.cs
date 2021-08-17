@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Catalog;
-using Grand.Domain.Media;
 using Grand.Web.Admin.Models.Catalog;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,8 +14,6 @@ namespace Grand.Web.Admin.Interfaces
         Task<Category> InsertCategoryModel(CategoryModel model);
         Task<Category> UpdateCategoryModel(Category category, CategoryModel model);
         Task DeleteCategory(Category category);
-        Task<(CategoryModel.PictureModel model, Picture Picture)> PreparePictureModel(Category category);
-        Task UpdateCategoryPicture(CategoryModel.PictureModel model);
         Task<(IEnumerable<CategoryModel.CategoryProductModel> categoryProductModels, int totalCount)> PrepareCategoryProductModel(string categoryId, int pageIndex, int pageSize);
         Task<ProductCategory> UpdateProductCategoryModel(CategoryModel.CategoryProductModel model);
         Task DeleteProductCategoryModel(string id, string productId);
