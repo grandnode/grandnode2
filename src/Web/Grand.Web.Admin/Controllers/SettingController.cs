@@ -1071,11 +1071,22 @@ namespace Grand.Web.Admin.Controllers
             //now clear cache
             await ClearCache();
 
+            //save to file
+            SavePushNotificationsToFile(model);
+
+            Success(_translationService.GetResource("Admin.Configuration.Updated"));
+            return await PushNotifications();
+        }
+
+        private void SavePushNotificationsToFile(ConfigurationModel model)
+        {
             //edit js file needed by firebase
-            var jsFilePath = CommonPath.WebMapPath("firebase-messaging-sw.js");
-            if (System.IO.File.Exists(jsFilePath))
+            var filename = "firebase-messaging-sw.js";
+            var oryginalFilePath = CommonPath.WebHostMapPath(filename);
+            var savedFilePath = CommonPath.WebMapPath(filename);
+            if (System.IO.File.Exists(oryginalFilePath))
             {
-                string[] lines = System.IO.File.ReadAllLines(jsFilePath);
+                string[] lines = System.IO.File.ReadAllLines(oryginalFilePath);
 
                 int i = 0;
                 foreach (var line in lines)
@@ -1117,14 +1128,12 @@ namespace Grand.Web.Admin.Controllers
 
                     i++;
                 }
-
-                System.IO.File.WriteAllLines(jsFilePath, lines);
+                System.IO.File.WriteAllLines(savedFilePath, lines);
             }
+            else
+                throw new ArgumentNullException($"{oryginalFilePath} not exist");
 
-            Success(_translationService.GetResource("Admin.Configuration.Updated"));
-            return await PushNotifications();
         }
-
         public IActionResult AdminSearch()
         {
             var settings = _settingService.LoadSetting<AdminSearchSettings>();

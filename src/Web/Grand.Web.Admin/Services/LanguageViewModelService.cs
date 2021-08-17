@@ -44,7 +44,7 @@ namespace Grand.Web.Admin.Services
                 throw new ArgumentNullException(nameof(model));
 
             model.FlagFileNames = Directory
-                .EnumerateFiles(CommonPath.WebMapPath("/assets/images/flags/"), "*.png", SearchOption.TopDirectoryOnly)
+                .EnumerateFiles(CommonPath.WebHostMapPath("/assets/images/flags/"), "*.png", SearchOption.TopDirectoryOnly)
                 .Select(Path.GetFileName)
                 .ToList();
         }

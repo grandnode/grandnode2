@@ -45,6 +45,9 @@ namespace Grand.Business.Storage.Services
         //Used for thumb images
         private readonly string _thumbPath;
 
+        //path to the no image file
+        private readonly string _path_no_image = "assets/images/no-image.png";
+
         #endregion
 
         #region Ctor
@@ -282,7 +285,7 @@ namespace Grand.Business.Storage.Services
             var filePath = await GetPicturePhysicalPath(_mediaSettings.DefaultImageName);
             if (string.IsNullOrEmpty(filePath))
             {
-                return "";
+                return _path_no_image;
             }
             if (targetSize == 0)
             {

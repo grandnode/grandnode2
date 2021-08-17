@@ -108,10 +108,10 @@ namespace Grand.SharedKernel.Extensions
         public static string BaseDirectory { get; set; }
 
         /// <summary>
-        /// Maps a virtual path to a physical disk path.
+        /// Maps a virtual path to a physical disk path (for tenants).
         /// </summary>
         /// <param name="path">The path to map. E.g. "~/bin"</param>
-        /// <returns>The physical path. E.g. "c:\inetpub\wwwroot\bin"</returns>
+        /// <returns>The physical path. E.g. "c:\inetpub\wwwroot\"</returns>
         public static string WebMapPath(string path)
         {
             path = path.Replace("~/", "").TrimStart('/');
@@ -127,6 +127,17 @@ namespace Grand.SharedKernel.Extensions
             {
                 return Path.Combine(WebHostEnvironment, Param);
             } 
+        }
+
+        /// <summary>
+        /// Maps a virtual path to a physical disk path. (not for tenants)
+        /// </summary>
+        /// <param name="path">The path to map. E.g. "~/bin"</param>
+        /// <returns>The physical path. E.g. "c:\inetpub\wwwroot\"</returns>
+        public static string WebHostMapPath(string path)
+        {
+            path = path.Replace("~/", "").TrimStart('/');
+            return Path.Combine(WebHostEnvironment, path);
         }
 
         /// <summary>
