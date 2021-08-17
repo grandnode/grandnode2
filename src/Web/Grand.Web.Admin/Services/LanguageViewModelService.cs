@@ -1,7 +1,7 @@
-﻿using Grand.Infrastructure;
-using Grand.Domain.Localization;
-using Grand.Business.Common.Interfaces.Directory;
+﻿using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
+using Grand.Domain.Localization;
+using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Localization;
@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Grand.SharedKernel.Extensions;
 
 namespace Grand.Web.Admin.Services
 {
@@ -44,7 +43,7 @@ namespace Grand.Web.Admin.Services
                 throw new ArgumentNullException(nameof(model));
 
             model.FlagFileNames = Directory
-                .EnumerateFiles(CommonPath.WebMapPath("/assets/images/flags/"), "*.png", SearchOption.TopDirectoryOnly)
+                .EnumerateFiles(CommonPath.WebHostMapPath("/assets/images/flags/"), "*.png", SearchOption.TopDirectoryOnly)
                 .Select(Path.GetFileName)
                 .ToList();
         }
@@ -54,16 +53,14 @@ namespace Grand.Web.Admin.Services
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
 
-            model.AvailableCurrencies.Add(new SelectListItem
-            {
+            model.AvailableCurrencies.Add(new SelectListItem {
                 Text = "---",
                 Value = ""
             });
             var currencies = await _currencyService.GetAllCurrencies(true);
             foreach (var currency in currencies)
             {
-                model.AvailableCurrencies.Add(new SelectListItem
-                {
+                model.AvailableCurrencies.Add(new SelectListItem {
                     Text = currency.Name,
                     Value = currency.Id.ToString()
                 });
@@ -132,8 +129,7 @@ namespace Grand.Web.Admin.Services
             var resources = _translationService
                 .GetAllResources(languageId)
                 .OrderBy(x => x.Name)
-                .Select(x => new LanguageResourceModel
-                {
+                .Select(x => new LanguageResourceModel {
                     LanguageId = languageId,
                     Id = x.Id,
                     Name = x.Name,

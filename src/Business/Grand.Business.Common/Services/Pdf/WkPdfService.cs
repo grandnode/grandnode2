@@ -50,7 +50,7 @@ namespace Grand.Business.Common.Services.Pdf
             {
                 PageSize = Wkhtmltopdf.NetCore.Options.Size.A4,
                 PageMargins = new Wkhtmltopdf.NetCore.Options.Margins() { Bottom = 10, Left = 10, Right = 10, Top = 10 },
-                FooterHtml = CommonPath.WebMapPath(_orderFooter)
+                FooterHtml = CommonPath.WebHostMapPath(_orderFooter)
             });
 
             var html = await _viewRenderService.RenderToStringAsync<(IList<Order>,string)>(_orderTemaplate, new (orders, vendorId));
@@ -92,7 +92,7 @@ namespace Grand.Business.Common.Services.Pdf
             {
                 PageSize = Wkhtmltopdf.NetCore.Options.Size.A4,
                 PageMargins = new Wkhtmltopdf.NetCore.Options.Margins() { Bottom = 10, Left = 10, Right = 10, Top = 10 },
-                FooterHtml = CommonPath.WebMapPath(_shipmentFooter)
+                FooterHtml = CommonPath.WebHostMapPath(_shipmentFooter)
             });
 
             var html = await _viewRenderService.RenderToStringAsync<IList<Shipment>>(_shipmentsTemaplate, shipments);

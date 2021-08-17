@@ -119,6 +119,17 @@ namespace Grand.SharedKernel.Extensions
         }
 
         /// <summary>
+        /// Maps a virtual path to a physical disk path (wwwroot)
+        /// </summary>
+        /// <param name="path">The path to map. E.g. "~/bin"</param>
+        /// <returns>The physical path. E.g. "c:\inetpub\wwwroot\"</returns>
+        public static string WebHostMapPath(string path)
+        {
+            path = path.Replace("~/", "").TrimStart('/');
+            return Path.Combine(WebHostEnvironment, path);
+        }
+
+        /// <summary>
         /// Gets or sets web application content files
         /// </summary>
         public static string WebRootPath 
