@@ -289,6 +289,7 @@ body {
     margin: 0;
     padding: 30px;
     left: 89px;
+    overflow: auto;
 }
 .nav-sm .side-menu .menu-header {
     display: none;
@@ -6862,6 +6863,9 @@ table.tableFixHead {
 }
 
 @media (max-width: 575px) {
+    .nav-sm .side-menu > li > ul.nav.child_menu {
+        min-width: 230px;
+    }
     .table > tbody > tr > td,
     .table > thead > th {
         white-space: nowrap;

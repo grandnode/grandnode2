@@ -576,6 +576,7 @@ pre, code {
     margin: 0;
     padding: 30px;
     right: 89px;
+    overflow: auto;
 }
 .nav-sm .side-menu .menu-header {
     display: none;
@@ -6761,6 +6762,9 @@ h2 {
   }
 }
 @media (max-width: 575px) {
+    .nav-sm .side-menu > li > ul.nav.child_menu {
+        min-width: 230px;
+    }
     .table > tbody > tr > td,
     .table > thead > th {
         white-space: nowrap;
