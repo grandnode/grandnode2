@@ -63,11 +63,12 @@ namespace Grand.Api.Infrastructure
                     c.EnableAnnotations();
                     c.SchemaFilter<EnumSchemaFilter>();
                 });
+                
             }
         }
 
-        public int Priority => 90;
-        public bool BeforeConfigure => true;
+        public int Priority => 509;
+        public bool BeforeConfigure => false;
 
     }
 }
