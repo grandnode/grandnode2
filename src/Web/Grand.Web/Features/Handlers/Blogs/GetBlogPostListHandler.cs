@@ -126,13 +126,22 @@ namespace Grand.Web.Features.Handlers.Blogs
         {
             if (!string.IsNullOrEmpty(blogPost.PictureId))
             {
+                var picture = await _pictureService.GetPictureById(blogPost.PictureId);
+
                 var pictureModel = new PictureModel {
                     Id = blogPost.PictureId,
                     FullSizeImageUrl = await _pictureService.GetPictureUrl(blogPost.PictureId),
                     ImageUrl = await _pictureService.GetPictureUrl(blogPost.PictureId, _mediaSettings.BlogThumbPictureSize),
-                    Title = string.Format(_translationService.GetResource("Media.Blog.ImageLinkTitleFormat"), blogPost.Title),
-                    AlternateText = string.Format(_translationService.GetResource("Media.Blog.ImageAlternateTextFormat"), blogPost.Title)
                 };
+
+                //"title" attribute
+                pictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id))) ?
+                    picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id) :
+                    string.Format(_translationService.GetResource("Media.Blog.ImageLinkTitleFormat"), blogPost.Title);
+                //"alt" attribute
+                pictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id))) ?
+                    picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id) :
+                    string.Format(_translationService.GetResource("Media.Blog.ImageAlternateTextFormat"), blogPost.Title);
 
                 model.PictureModel = pictureModel;
             }

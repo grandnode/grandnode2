@@ -9,6 +9,7 @@ using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Blogs;
+using Grand.Web.Admin.Models.Common;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
@@ -34,6 +35,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
         private readonly IDateTimeService _dateTimeService;
+        private readonly IPictureViewModelService _pictureViewModelService;
         private readonly SeoSettings _seoSettings;
 
         #endregion
@@ -49,6 +51,7 @@ namespace Grand.Web.Admin.Controllers
             IWorkContext workContext,
             IGroupService groupService,
             IDateTimeService dateTimeService,
+            IPictureViewModelService pictureViewModelService,
             SeoSettings seoSettings)
         {
             _blogService = blogService;
@@ -59,6 +62,7 @@ namespace Grand.Web.Admin.Controllers
             _workContext = workContext;
             _groupService = groupService;
             _dateTimeService = dateTimeService;
+            _pictureViewModelService = pictureViewModelService;
             _seoSettings = seoSettings;
         }
 
@@ -227,6 +231,50 @@ namespace Grand.Web.Admin.Controllers
             }
             Error(ModelState);
             return RedirectToAction("Edit", new { id = id });
+        }
+
+        #endregion
+
+        #region Picture
+
+        [PermissionAuthorizeAction(PermissionActionName.Preview)]
+        public async Task<IActionResult> PicturePopup(string blogpostId)
+        {
+            var blogpost = await _blogService.GetBlogPostById(blogpostId);
+            if (blogpost == null)
+                return Content("Blog post not exist");
+
+            if (string.IsNullOrEmpty(blogpost.PictureId))
+                return Content("Picture not exist");
+
+            return View("PicturePopup", await _pictureViewModelService.PreparePictureModel(blogpost.PictureId, blogpost.Id));
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [HttpPost]
+        public async Task<IActionResult> PicturePopup(PictureModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var blogpost = await _blogService.GetBlogPostById(model.ObjectId);
+                if (blogpost == null)
+                    throw new ArgumentException("No blog post found with the specified id");
+
+                if (string.IsNullOrEmpty(blogpost.PictureId))
+                    throw new ArgumentException("No picture found with the specified id");
+
+                if (blogpost.PictureId != model.Id)
+                    throw new ArgumentException("Picture ident doesn't fit with blog post");
+
+                await _pictureViewModelService.UpdatePicture(model);
+
+                ViewBag.RefreshPage = true;
+                return View("PicturePopup", model);
+            }
+
+            Error(ModelState);
+
+            return View("PicturePopup", model);
         }
 
         #endregion

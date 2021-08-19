@@ -77,6 +77,8 @@ namespace Grand.Web.Features.Handlers.Blogs
                     //prepare picture model
                     if (!string.IsNullOrEmpty(post.PictureId))
                     {
+                        var picture = await _pictureService.GetPictureById(post.PictureId);
+
                         var pictureModel = new PictureModel
                         {
                             Id = post.PictureId,
@@ -85,6 +87,15 @@ namespace Grand.Web.Features.Handlers.Blogs
                             Title = string.Format(_translationService.GetResource("Media.Blog.ImageLinkTitleFormat"), post.Title),
                             AlternateText = string.Format(_translationService.GetResource("Media.Blog.ImageAlternateTextFormat"), post.Title)
                         };
+                        //"title" attribute
+                        pictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id))) ?
+                            picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id) :
+                            string.Format(_translationService.GetResource("Media.Blog.ImageLinkTitleFormat"), post.Title);
+                        //"alt" attribute
+                        pictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id))) ?
+                            picture.GetTranslation(x => x.AltAttribute, _workContext.WorkingLanguage.Id) :
+                            string.Format(_translationService.GetResource("Media.Blog.ImageAlternateTextFormat"), post.Title);
+
                         item.PictureModel = pictureModel;
                     }
                     model.Items.Add(item);
