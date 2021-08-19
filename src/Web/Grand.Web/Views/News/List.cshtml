@@ -14,11 +14,11 @@
         {
             <div class="col-xl-6 col-12">
                 <div class="card mb-3">
+                    @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl))
+                    {
+                        <b-img-lazy class="img-fluid card-img-top" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"></b-img-lazy>
+                    }
                     <div class="card-header">
-                        @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl))
-                        {
-                            <b-img-lazy class="img-fluid" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText" />
-                        }
                         <h3 class="h5 mb-0">
                             <a href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })">
                                 @item.Title
@@ -38,7 +38,7 @@
             </div>
         }
         <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingFilteringContext" />
-        
+
         @await Component.InvokeAsync("Widget", new { widgetZone = "newslist_page_after_items" })
     </div>
 
