@@ -12756,6 +12756,9 @@
   <Resource Name="Api.Catalog.Product.Fields.BackorderMode.Required">
     <Value>Backorder mode is required</Value>
   </Resource>
+  <Resource Name="Api.Catalog.Product.Fields.BrandId.Notexists">
+    <Value>Brand ident not exist</Value>
+  </Resource>
   <Resource Name="Api.Catalog.Product.Fields.DownloadActivationType.Required">
     <Value>Download activation type is required</Value>
   </Resource>
