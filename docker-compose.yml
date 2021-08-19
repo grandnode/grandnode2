@@ -1,19 +1,8 @@
 version: '3.4'
 
 services:
-  mongo:
-    container_name: mongo
-    image: mongo
-    volumes:
-      - ${WEBAPP_STORAGE_HOME}/site:/data/db
-    ports:
-      - "27017:27017"
   grand.web:
-    image: ${DOCKER_REGISTRY-}grandweb
-    depends_on:
-      - mongo
+    image: ${DOCKER_REGISTRY-}grandnode/grandnode2:latest
     build:
       context: .
       dockerfile: Dockerfile
-    links:
-      - mongo
