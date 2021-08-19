@@ -9,14 +9,18 @@
             @foreach (var item in Model.NewsItems)
             {
                 <div class="col-xl-@order.Pn_Xl col-lg-@order.Pn_Lg col-md-@order.Pn_Md col-sm-@order.Pn_Sm col-@order.Pn_Col mb-3">
-                    <div class="card" @if (item.PictureModel != null && !string.IsNullOrEmpty(item.PictureModel.ImageUrl)) { <text>img-src="@item.PictureModel.ImageUrl" img-alt="@item.PictureModel.AlternateText"</text> }>
+                    <div class="card">
+                        @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl))
+                        {
+                            <b-img-lazy class="img-fluid card-img-top" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"></b-img-lazy>
+                        }
                         <div class="card-header">
                             <h3 class="h5 mb-0">
                                 <b-link href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })">
                                     @item.Title
                                 </b-link>
                             </h3>
-                        </div> 
+                        </div>
                         <div class="card-body">
                             @Html.Raw(item.Short)
                         </div>
