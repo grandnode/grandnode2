@@ -13,7 +13,7 @@
         <div class="card-header">
             @if (!string.IsNullOrEmpty(Model.PictureModel.ImageUrl))
             {
-                <b-img-lazy class="img-fluid" src="@Model.PictureModel.ImageUrl" alt="@Model.PictureModel.AlternateText" />
+                <b-img-lazy class="img-fluid mb-3" src="@Model.PictureModel.ImageUrl" alt="@Model.PictureModel.AlternateText"></b-img-lazy>
             }
             <h1 class="h5 mb-0">
                 @Model.Title
