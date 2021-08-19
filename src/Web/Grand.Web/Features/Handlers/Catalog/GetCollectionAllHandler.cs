@@ -13,6 +13,7 @@ using MediatR;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Grand.Business.Common.Extensions;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -52,18 +53,26 @@ namespace Grand.Web.Features.Handlers.Catalog
             var collections = await _collectionService.GetAllCollections(storeId: request.Store.Id);
             foreach (var collection in collections)
             {
-                var modelMan = collection.ToModel(request.Language);
+                var modelcollection = collection.ToModel(request.Language);
 
                 //prepare picture model
-                modelMan.PictureModel = new PictureModel
+                var picture = !string.IsNullOrEmpty(collection.PictureId) ? await _pictureService.GetPictureById(collection.PictureId) : null;
+                modelcollection.PictureModel = new PictureModel
                 {
                     Id = collection.PictureId,
                     FullSizeImageUrl = await _pictureService.GetPictureUrl(collection.PictureId),
                     ImageUrl = await _pictureService.GetPictureUrl(collection.PictureId, _mediaSettings.CollectionThumbPictureSize),
-                    Title = string.Format(_translationService.GetResource("Media.Collection.ImageLinkTitleFormat"), modelMan.Name),
-                    AlternateText = string.Format(_translationService.GetResource("Media.Collection.ImageAlternateTextFormat"), modelMan.Name)
                 };
-                model.Add(modelMan);
+                //"title" attribute
+                modelcollection.PictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id))) ?
+                    picture.GetTranslation(x => x.TitleAttribute, request.Language.Id) :
+                    string.Format(_translationService.GetResource("Media.Collection.ImageLinkTitleFormat"), modelcollection.Name);
+                //"alt" attribute
+                modelcollection.PictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id))) ?
+                    picture.GetTranslation(x => x.AltAttribute, request.Language.Id) :
+                    string.Format(_translationService.GetResource("Media.Collection.ImageAlternateTextFormat"), modelcollection.Name);
+
+                model.Add(modelcollection);
             }
             return model;
         }

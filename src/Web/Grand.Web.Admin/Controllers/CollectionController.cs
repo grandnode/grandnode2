@@ -10,6 +10,7 @@ using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
+using Grand.Web.Admin.Models.Common;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
@@ -26,6 +27,7 @@ namespace Grand.Web.Admin.Controllers
     public partial class CollectionController : BaseAdminController
     {
         #region Fields
+
         private readonly ICollectionViewModelService _collectionViewModelService;
         private readonly ICollectionService _collectionService;
         private readonly IWorkContext _workContext;
@@ -35,6 +37,8 @@ namespace Grand.Web.Admin.Controllers
         private readonly IGroupService _groupService;
         private readonly IExportManager _exportManager;
         private readonly IImportManager _importManager;
+        private readonly IPictureViewModelService _pictureViewModelService;
+
         #endregion
 
         #region Constructors
@@ -48,7 +52,8 @@ namespace Grand.Web.Admin.Controllers
             ITranslationService translationService,
             IGroupService groupService,
             IExportManager exportManager,
-            IImportManager importManager)
+            IImportManager importManager,
+            IPictureViewModelService pictureViewModelService)
         {
             _collectionViewModelService = collectionViewModelService;
             _collectionService = collectionService;
@@ -59,6 +64,7 @@ namespace Grand.Web.Admin.Controllers
             _groupService = groupService;
             _exportManager = exportManager;
             _importManager = importManager;
+            _pictureViewModelService = pictureViewModelService;
         }
 
         #endregion
@@ -277,6 +283,58 @@ namespace Grand.Web.Admin.Controllers
             }
             Error(ModelState);
             return RedirectToAction("Edit", new { id = collection.Id });
+        }
+
+        #endregion
+
+        #region Picture
+
+        [PermissionAuthorizeAction(PermissionActionName.Preview)]
+        public async Task<IActionResult> PicturePopup(string collectionId)
+        {
+            var collection = await _collectionService.GetCollectionById(collectionId);
+            if (collection == null)
+                return Content("Collection not exist");
+
+            if (string.IsNullOrEmpty(collection.PictureId))
+                return Content("Picture not exist");
+
+            var permission = await CheckAccessToCollection(collection);
+            if (!permission.allow)
+                return Content(permission.message);
+
+            return View("PicturePopup", await _pictureViewModelService.PreparePictureModel(collection.PictureId, collection.Id));
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [HttpPost]
+        public async Task<IActionResult> PicturePopup(PictureModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var collection = await _collectionService.GetCollectionById(model.ObjectId);
+                if (collection == null)
+                    throw new ArgumentException("No collection found with the specified id");
+
+                var permission = await CheckAccessToCollection(collection);
+                if (!permission.allow)
+                    return Content(permission.message);
+
+                if (string.IsNullOrEmpty(collection.PictureId))
+                    throw new ArgumentException("No picture found with the specified id");
+
+                if (collection.PictureId != model.Id)
+                    throw new ArgumentException("Picture ident doesn't fit with collection");
+
+                await _pictureViewModelService.UpdatePicture(model);
+
+                ViewBag.RefreshPage = true;
+                return View("PicturePopup", model);
+            }
+
+            Error(ModelState);
+
+            return View("PicturePopup", model);
         }
 
         #endregion

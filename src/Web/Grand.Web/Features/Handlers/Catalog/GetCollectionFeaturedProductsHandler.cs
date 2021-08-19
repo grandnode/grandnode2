@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Grand.Business.Common.Extensions;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -51,29 +52,39 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<IList<CollectionModel>> Handle(GetCollectionFeaturedProducts request, CancellationToken cancellationToken)
         {
-            string manufCacheKey = string.Format(CacheKeyConst.COLLECTION_FEATURED_PRODUCT_HOMEPAGE_KEY,
+            string collectionCacheKey = string.Format(CacheKeyConst.COLLECTION_FEATURED_PRODUCT_HOMEPAGE_KEY,
                             string.Join(",", request.Customer.GetCustomerGroupIds()), request.Store.Id,
                             request.Language.Id);
 
-            var model = await _cacheBase.GetAsync(manufCacheKey, async () =>
+            var model = await _cacheBase.GetAsync(collectionCacheKey, async () =>
             {
-                var manufList = new List<CollectionModel>();
-                var manufmodel = await _collectionService.GetAllCollectionFeaturedProductsOnHomePage();
-                foreach (var x in manufmodel)
+                var collectionList = new List<CollectionModel>();
+                var collectionmodel = await _collectionService.GetAllCollectionFeaturedProductsOnHomePage();
+                foreach (var x in collectionmodel)
                 {
-                    var manModel = x.ToModel(request.Language);
+                    var colModel = x.ToModel(request.Language);
                     //prepare picture model
-                    manModel.PictureModel = new PictureModel
+                    var picture = !string.IsNullOrEmpty(x.PictureId) ? await _pictureService.GetPictureById(x.PictureId) : null;
+                    colModel.PictureModel = new PictureModel
                     {
                         Id = x.PictureId,
                         FullSizeImageUrl = await _pictureService.GetPictureUrl(x.PictureId),
                         ImageUrl = await _pictureService.GetPictureUrl(x.PictureId, _mediaSettings.CategoryThumbPictureSize),
-                        Title = string.Format(_translationService.GetResource("Media.Category.ImageLinkTitleFormat"), manModel.Name),
-                        AlternateText = string.Format(_translationService.GetResource("Media.Category.ImageAlternateTextFormat"), manModel.Name)
+                        //Title = string.Format(_translationService.GetResource("Media.Category.ImageLinkTitleFormat"), manModel.Name),
+                        //AlternateText = string.Format(_translationService.GetResource("Media.Category.ImageAlternateTextFormat"), manModel.Name)
                     };
-                    manufList.Add(manModel);
+                    //"title" attribute
+                    colModel.PictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id))) ?
+                        picture.GetTranslation(x => x.TitleAttribute, request.Language.Id) :
+                        string.Format(_translationService.GetResource("Media.Collection.ImageLinkTitleFormat"), colModel.Name);
+                    //"alt" attribute
+                    colModel.PictureModel.AlternateText = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.AltAttribute, request.Language.Id))) ?
+                        picture.GetTranslation(x => x.AltAttribute, request.Language.Id) :
+                        string.Format(_translationService.GetResource("Media.Collection.ImageAlternateTextFormat"), colModel.Name);
+
+                    collectionList.Add(colModel);
                 }
-                return manufList;
+                return collectionList;
             });
 
             foreach (var item in model)

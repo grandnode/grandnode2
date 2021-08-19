@@ -103,6 +103,12 @@
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="PictureId" />
                 <span asp-validation-for="PictureId"></span>
+                @if (!string.IsNullOrEmpty(Model.PictureId))
+                {
+                    <label class="control-label">
+                        <a class='k-link' href='javascript:OpenWindow("@Url.Action("PicturePopup", "Collection", new { area = Constants.AreaAdmin })/?collectionId=@(Model.Id)", 800, 600, true);'>@Loc["Admin.Common.Picture.Attributes"]</a>
+                    </label>
+                }
             </div>
         </div>
         <div class="form-group">
