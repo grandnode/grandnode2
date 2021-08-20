@@ -100,7 +100,7 @@ namespace Grand.Api.Controllers.OData
 
         //odata/Customer(email)/AddAddress
         [SwaggerOperation(summary: "Invoke action AddAddress", OperationId = "AddAddress")]
-        [Route("({key}/[action]")]
+        [Route("({key})/[action]")]
         [HttpPost]
         public async Task<IActionResult> AddAddress(string key, [FromBody] AddressDto address)
         {
