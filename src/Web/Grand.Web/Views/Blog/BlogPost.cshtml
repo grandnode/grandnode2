@@ -50,7 +50,7 @@
             @for (int i = 0; i < Model.Tags.Count; i++)
             {
                 var tag = Model.Tags[i];
-                <button class="btn btn-sm btn-light mr-2 mb-2" href="@Url.RouteUrl("BlogByTag", new {tag = tag})">@tag</button>
+                <a class="btn btn-sm btn-light mr-2 mb-2" href="@Url.RouteUrl("BlogByTag", new {tag = tag})">@tag</a>
             }
         </div>
     }
