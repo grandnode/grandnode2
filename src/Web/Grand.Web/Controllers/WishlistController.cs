@@ -142,6 +142,60 @@ namespace Grand.Web.Controllers
         }
 
         [HttpPost]
+        public virtual async Task<IActionResult> AddItemToCartFromWishlist(string shoppingcartId)
+        {
+            if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
+                return Json(new { success = false, message = "No permission" });
+
+
+            if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
+                return Json(new { success = false, message = "No permission" });
+
+
+            var itemCart = _workContext.CurrentCustomer.ShoppingCartItems
+                .FirstOrDefault(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist && sci.Id == shoppingcartId);
+
+            if (itemCart == null)
+                return Json(new { success = false, message = "Shopping cart ident not found" });
+
+            var warnings = await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
+                       itemCart.ProductId, ShoppingCartType.ShoppingCart,
+                       _workContext.CurrentStore.Id, itemCart.WarehouseId,
+                       itemCart.Attributes, itemCart.EnteredPrice,
+                       itemCart.RentalStartDateUtc, itemCart.RentalEndDateUtc, itemCart.Quantity, true,
+                       validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false });
+
+            if(warnings.Any())
+                return Json(new { success = false, message = string.Join(',', warnings) });
+
+            await _shoppingCartService.DeleteShoppingCartItem(_workContext.CurrentCustomer, itemCart);
+
+            return Json(new { success = true, message = "" });
+
+        }
+
+        [HttpPost]
+        public virtual async Task<IActionResult> DeleteItemFromWishlist(string shoppingcartId)
+        {
+            if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
+                return Json(new { success = false, message = "No permission" });
+
+            if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
+                return Json(new { success = false, message = "No permission" });
+
+            var itemCart = _workContext.CurrentCustomer.ShoppingCartItems
+                .FirstOrDefault(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist && sci.Id == shoppingcartId);
+
+            if (itemCart == null)
+                return Json(new { success = false, message = "Shopping cart ident not found" });
+
+            await _shoppingCartService.DeleteShoppingCartItem(_workContext.CurrentCustomer, itemCart);
+
+            return Json(new { success = true, message = "" });
+
+        }
+
+        [HttpPost]
         public virtual async Task<IActionResult> AddItemsToCartFromWishlist(Guid? customerGuid, IFormCollection form)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
