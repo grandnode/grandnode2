@@ -670,9 +670,9 @@ namespace Grand.Web.Controllers
 
 
 
-        public virtual async Task<IActionResult> UpdateItemCart(string shoppingCartItemId)
+        public virtual async Task<IActionResult> UpdateItemCart(string shoppingcartId)
         {
-            var cart = _workContext.CurrentCustomer.ShoppingCartItems.FirstOrDefault(sci => sci.Id == shoppingCartItemId);
+            var cart = _workContext.CurrentCustomer.ShoppingCartItems.FirstOrDefault(sci => sci.Id == shoppingcartId);
             if (cart == null)
                 return Json(new
                 {
