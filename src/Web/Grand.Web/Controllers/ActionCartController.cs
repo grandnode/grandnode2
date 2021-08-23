@@ -86,7 +86,7 @@ namespace Grand.Web.Controllers
                     message = "No product found with the specified ID"
                 });
 
-            //we can add only simple products and 
+            //we can add only simple products 
             if (product.ProductTypeId != ProductType.SimpleProduct || _shoppingCartSettings.AllowToSelectWarehouse)
             {
                 return Json(new
@@ -96,17 +96,16 @@ namespace Grand.Web.Controllers
             }
 
             //products with "minimum order quantity" more than a specified qty
-            if (product.OrderMinimumQuantity > quantity)
+            if (cartType == ShoppingCartType.ShoppingCart && product.OrderMinimumQuantity > quantity)
             {
                 //we cannot add to the cart such products from category pages
-                //it can confuse customers. That's why we redirect customers to the product details page
                 return Json(new
                 {
                     redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
                 });
             }
 
-            if (product.EnteredPrice)
+            if (cartType == ShoppingCartType.ShoppingCart && product.EnteredPrice)
             {
                 //cannot be added to the cart (requires a customer to enter price)
                 return Json(new
@@ -116,7 +115,7 @@ namespace Grand.Web.Controllers
             }
 
             var allowedQuantities = product.ParseAllowedQuantities();
-            if (allowedQuantities.Length > 0)
+            if (cartType == ShoppingCartType.ShoppingCart && allowedQuantities.Length > 0)
             {
                 //cannot be added to the cart (requires a customer to select a quantity from dropdownlist)
                 return Json(new
@@ -125,9 +124,9 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            if (product.ProductAttributeMappings.Any())
+            if (cartType != ShoppingCartType.Wishlist && product.ProductAttributeMappings.Any())
             {
-                //product has some attributes. let a customer see them
+                //product has some attributes
                 return Json(new
                 {
                     redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
@@ -140,10 +139,10 @@ namespace Grand.Web.Controllers
                product.UseMultipleWarehouses ? _workContext.CurrentStore.DefaultWarehouseId :
                (string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId);
 
-            //get standard warnings without attribute validations
-            //first, try to find existing shopping cart item
             var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, cartType);
+
             var shoppingCartItem = await _shoppingCartService.FindShoppingCartItem(cart, cartType, product.Id, warehouseId);
+
             //if we already have the same product in the cart, then use the total quantity to validate
             var quantityToValidate = shoppingCartItem != null ? shoppingCartItem.Quantity + quantity : quantity;
             var addToCartWarnings = await _shoppingCartValidator
@@ -152,8 +151,12 @@ namespace Grand.Web.Controllers
                   StoreId = _workContext.CurrentStore.Id,
                   WarehouseId = warehouseId,
                   Quantity = quantityToValidate
-              },
-                 product, new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false });
+              }, product, new ShoppingCartValidatorOptions() { 
+                  GetRequiredProductWarnings = false, 
+                  GetAttributesWarnings = (cartType != ShoppingCartType.Wishlist),
+                  GetGiftVoucherWarnings = (cartType != ShoppingCartType.Wishlist)
+              });
+
             if (addToCartWarnings.Any())
             {
                 //cannot be added to the cart
@@ -163,13 +166,19 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            //try adding product to the cart (now including product attribute validation, etc)
+            //try adding product to the cart 
             addToCartWarnings = await _shoppingCartService.AddToCart(customer: customer,
                 productId: productId,
                 shoppingCartType: cartType,
                 storeId: _workContext.CurrentStore.Id,
                 warehouseId: warehouseId,
-                quantity: quantity, getRequiredProductWarnings: false);
+                quantity: quantity,
+                validator: new ShoppingCartValidatorOptions() {
+                    GetRequiredProductWarnings = false,
+                    GetAttributesWarnings = (cartType != ShoppingCartType.Wishlist),
+                    GetGiftVoucherWarnings = (cartType != ShoppingCartType.Wishlist)
+                });
+
             if (addToCartWarnings.Any())
             {
                 //cannot be added to the cart
@@ -473,7 +482,7 @@ namespace Grand.Web.Controllers
                 addToCartWarnings.AddRange(await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
                     productId, cartType, _workContext.CurrentStore.Id, warehouseId,
                     attributes, customerEnteredPriceConverted,
-                    rentalStartDate, rentalEndDate, quantity, true, reservationId, parameter, duration, getRequiredProductWarnings: false));
+                    rentalStartDate, rentalEndDate, quantity, true, reservationId, parameter, duration, new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false }));
             }
             else
             {

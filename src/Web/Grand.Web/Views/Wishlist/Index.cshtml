@@ -101,6 +101,17 @@
                                                     attributes: '<div class="attributes small">@Html.Raw(item.AttributeInfo)</div>',
                                                         </text>
                                                     }
+                                                    @if (item.Warnings.Any())
+                                                    {
+                                                        var warnings = "";
+                                                        @foreach (var warning in item.Warnings)
+                                                        {
+                                                            warnings += $"<li>{warning}</li>";
+                                                        }
+                                                        <text>
+                                                            warnings: '<div class="warnings small alert alert-danger"><ul class="mb-0 p-0">@Html.Raw(warnings)</ul></div>',
+                                                        </text>
+                                                    }
                                                     @if (!String.IsNullOrEmpty(item.RecurringInfo))
                                                     {
                                                         <text>

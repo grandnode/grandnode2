@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Checkout.Commands.Models.Orders;
 using Grand.Business.Checkout.Interfaces.Orders;
+using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
@@ -54,7 +55,8 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                             _taxSettings.PricesIncludeTax ? orderItem.UnitPriceInclTax : orderItem.UnitPriceExclTax
                             : (double?)default,
                             orderItem.RentalStartDateUtc, orderItem.RentalEndDateUtc,
-                            orderItem.Quantity, false, getRequiredProductWarnings: false));
+                            orderItem.Quantity, false,
+                            validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false }));
                     }
                 }
                 else

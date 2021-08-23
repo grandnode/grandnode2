@@ -2,6 +2,7 @@
 using Grand.Business.Checkout.Commands.Models.Orders;
 using Grand.Business.Checkout.Extensions;
 using Grand.Business.Checkout.Interfaces.Orders;
+using Grand.Business.Checkout.Services.Orders;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using MediatR;
@@ -71,7 +72,8 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                                 productId: rp.Id,
                                 shoppingCartType: shoppingCartType,
                                 storeId: storeId,
-                                automaticallyAddRequiredProductsIfEnabled: false, getRequiredProductWarnings: false);
+                                automaticallyAddRequiredProductsIfEnabled: false, 
+                                validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false });
 
                             if (rp.RequireOtherProducts && addToCartWarnings.Count == 0)
                             {

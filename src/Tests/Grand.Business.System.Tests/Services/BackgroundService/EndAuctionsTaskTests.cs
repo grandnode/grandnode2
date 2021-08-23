@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Checkout.Interfaces.Orders;
+using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Customers.Interfaces;
 using Grand.Business.Messages.Interfaces;
@@ -60,7 +61,8 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
             _auctionMock.Setup(c => c.GetBidsByProductId(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(() => new PagedList<Bid>() { new Bid() });
             _shoppingCartMock.Setup(c => c.AddToCart(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<ShoppingCartType>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<IList<CustomAttribute>>(), It.IsAny<double?>(), It.IsAny<DateTime?>(),
-                It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
+                It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                new ShoppingCartValidatorOptions()))
                 .ReturnsAsync(new List<string>() { "warning" });
             await _task.Execute();
 
@@ -74,7 +76,7 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
             _auctionMock.Setup(c => c.GetBidsByProductId(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(() => new PagedList<Bid>() { new Bid() });
             _shoppingCartMock.Setup(c => c.AddToCart(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<ShoppingCartType>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<IList<CustomAttribute>>(), It.IsAny<double?>(), It.IsAny<DateTime?>(),
-                It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
+                It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), new ShoppingCartValidatorOptions()))
                 .ReturnsAsync(new List<string>());
             await _task.Execute();
 

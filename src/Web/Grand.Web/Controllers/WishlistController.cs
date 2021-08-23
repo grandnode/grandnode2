@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Checkout.Extensions;
 using Grand.Business.Checkout.Interfaces.Orders;
+using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Security;
@@ -173,7 +174,8 @@ namespace Grand.Web.Controllers
                         sci.ProductId, ShoppingCartType.ShoppingCart,
                         _workContext.CurrentStore.Id, sci.WarehouseId,
                         sci.Attributes, sci.EnteredPrice,
-                        sci.RentalStartDateUtc, sci.RentalEndDateUtc, sci.Quantity, true, getRequiredProductWarnings: false);
+                        sci.RentalStartDateUtc, sci.RentalEndDateUtc, sci.Quantity, true,
+                        validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false });
                     if (!warnings.Any())
                         numberOfAddedItems++;
                     if (_shoppingCartSettings.MoveItemsFromWishlistToCart && //settings enabled

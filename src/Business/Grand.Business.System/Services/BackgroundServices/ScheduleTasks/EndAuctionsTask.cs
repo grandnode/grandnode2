@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Checkout.Interfaces.Orders;
+using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Customers.Interfaces;
 using Grand.Business.Messages.Interfaces;
@@ -51,7 +52,8 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
                 }
 
                 var warnings = await _shoppingCartService.AddToCart(await _customerService.GetCustomerById(bid.CustomerId), bid.ProductId, Domain.Orders.ShoppingCartType.Auctions,
-                    bid.StoreId, bid.WarehouseId, customerEnteredPrice: bid.Amount, getRequiredProductWarnings: false);
+                    bid.StoreId, bid.WarehouseId, customerEnteredPrice: bid.Amount,
+                    validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false });
 
                 if (!warnings.Any())
                 {

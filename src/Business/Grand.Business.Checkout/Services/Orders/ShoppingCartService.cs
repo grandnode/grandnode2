@@ -190,7 +190,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="reservationId">ReservationId</param>
         /// <param name="parameter">Parameter for reservation</param>
         /// <param name="duration">Duration for reservation</param>
-        /// <param name="getRequiredProductWarnings">GetRequiredProductWarnings</param>
+        /// <param name="validator">ShoppingCartValidatorOptions</param>
         /// <returns>Warnings</returns>
         public virtual async Task<IList<string>> AddToCart(Customer customer, string productId,
             ShoppingCartType shoppingCartType, string storeId,
@@ -199,10 +199,13 @@ namespace Grand.Business.Checkout.Services.Orders
             DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
             int quantity = 1, bool automaticallyAddRequiredProductsIfEnabled = true,
             string reservationId = "", string parameter = "", string duration = "",
-            bool getRequiredProductWarnings = true)
+            ShoppingCartValidatorOptions validator = null)
         {
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
+
+            if (validator == null)
+                validator = new ShoppingCartValidatorOptions();
 
             var product = await _productService.GetProductById(productId);
             if (product == null)
@@ -229,7 +232,7 @@ namespace Grand.Business.Checkout.Services.Orders
             if (update)
             {
                 shoppingCartItem.Quantity += quantity;
-                warnings.AddRange(await _shoppingCartValidator.GetShoppingCartItemWarnings(customer, shoppingCartItem, product, new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = getRequiredProductWarnings }));
+                warnings.AddRange(await _shoppingCartValidator.GetShoppingCartItemWarnings(customer, shoppingCartItem, product, validator));
             }
             else
             {
@@ -258,9 +261,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 };
 
                 warnings.AddRange(await _shoppingCartValidator.GetShoppingCartItemWarnings
-                    (customer, shoppingCartItem, product,
-                    new ShoppingCartValidatorOptions()
-                    { GetRequiredProductWarnings = getRequiredProductWarnings }));
+                    (customer, shoppingCartItem, product, validator));
             }
 
             if (!warnings.Any())
@@ -560,7 +561,8 @@ namespace Grand.Business.Checkout.Services.Orders
                 var sci = fromCart[i];
                 await AddToCart(toCustomer, sci.ProductId, sci.ShoppingCartTypeId, sci.StoreId, sci.WarehouseId,
                     sci.Attributes, sci.EnteredPrice,
-                    sci.RentalStartDateUtc, sci.RentalEndDateUtc, sci.Quantity, false, sci.ReservationId, sci.Parameter, sci.Duration);
+                    sci.RentalStartDateUtc, sci.RentalEndDateUtc, sci.Quantity, false, sci.ReservationId, sci.Parameter, sci.Duration,
+                    new ShoppingCartValidatorOptions());
             }
             for (int i = 0; i < fromCart.Count; i++)
             {
