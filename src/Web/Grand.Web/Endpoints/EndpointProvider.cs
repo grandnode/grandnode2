@@ -591,9 +591,9 @@ namespace Grand.Web.Endpoints
                             new { controller = "ShoppingCart", action = "UploadFileCheckoutAttribute" });
 
             //update item cart
-            endpointRouteBuilder.MapControllerRoute("UpdateItemCart",
-                            pattern + "ActionCart/UpdateItemCart/{shoppingcartId?}",
-                            new { controller = "ActionCart", action = "UpdateItemCart" });
+            endpointRouteBuilder.MapControllerRoute("GetItemCart",
+                            pattern + "getitemcart/{shoppingcartId?}",
+                            new { controller = "ActionCart", action = "GetItemCart" });
 
             //wishlist
             endpointRouteBuilder.MapControllerRoute("Wishlist",
@@ -605,10 +605,6 @@ namespace Grand.Web.Endpoints
                             pattern + "emailwishlist",
                             new { controller = "Wishlist", action = "EmailWishlist" });
 
-            //email wishlist
-            endpointRouteBuilder.MapControllerRoute("UpdateWishlist",
-                            pattern + "updatewishlist",
-                            new { controller = "Wishlist", action = "UpdateWishlist" });
             //email wishlist
             endpointRouteBuilder.MapControllerRoute("AddItemsToCartFromWishlist",
                             pattern + "additemstocartwishlist",

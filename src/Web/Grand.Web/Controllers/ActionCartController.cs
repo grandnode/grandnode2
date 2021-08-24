@@ -328,6 +328,35 @@ namespace Grand.Web.Controllers
                 });
             }
 
+            #region Update existing shopping cart item?
+
+            string updatecartitemid = "";
+            foreach (string formKey in form.Keys)
+                if (formKey.Equals(string.Format("addtocart_{0}.UpdatedShoppingCartItemId", productId), StringComparison.OrdinalIgnoreCase))
+                {
+                    updatecartitemid = form[formKey];
+                    break;
+                }
+
+            ShoppingCartItem updatecartitem = null;
+            if (_shoppingCartSettings.AllowCartItemEditing && !string.IsNullOrEmpty(updatecartitemid))
+            {
+                var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, (ShoppingCartType)shoppingCartTypeId);
+                updatecartitem = cart.FirstOrDefault(x => x.Id == updatecartitemid);
+
+                //is it this product?
+                if (updatecartitem != null && product.Id != updatecartitem.ProductId)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "This product does not match a passed shopping cart item identifier"
+                    });
+                }
+            }
+            #endregion
+
+
             #region Customer entered price
             double? customerEnteredPriceConverted = null;
             if (product.EnteredPrice)
@@ -436,7 +465,9 @@ namespace Grand.Web.Controllers
                 }
             }
 
-            var cartType = (ShoppingCartType)shoppingCartTypeId;
+            var cartType = updatecartitem == null ? (ShoppingCartType)shoppingCartTypeId :
+                        //if the item to update is found, then we ignore the specified "shoppingCartTypeId" parameter
+                        updatecartitem.ShoppingCartTypeId;
 
             //save item
             var addToCartWarnings = new List<string>();
@@ -447,11 +478,36 @@ namespace Grand.Web.Controllers
                 product.UseMultipleWarehouses ? _workContext.CurrentStore.DefaultWarehouseId :
                 (string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId);
 
-            //add to the cart
-            addToCartWarnings.AddRange(await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
-                productId, cartType, _workContext.CurrentStore.Id, warehouseId,
-                attributes, customerEnteredPriceConverted,
-                rentalStartDate, rentalEndDate, quantity, true, reservationId, parameter, duration, new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false }));
+            if (updatecartitem == null)
+            {
+                //add to the cart
+                addToCartWarnings.AddRange(await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
+                    productId, cartType, _workContext.CurrentStore.Id, warehouseId,
+                    attributes, customerEnteredPriceConverted,
+                    rentalStartDate, rentalEndDate, quantity, true, reservationId, parameter, duration, new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false }));
+            }
+            else
+            {
+                var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, (ShoppingCartType)shoppingCartTypeId);
+                var otherCartItemWithSameParameters = await _shoppingCartService.FindShoppingCartItem(
+                    cart, updatecartitem.ShoppingCartTypeId, productId, warehouseId, attributes, customerEnteredPriceConverted,
+                    rentalStartDate, rentalEndDate);
+                if (otherCartItemWithSameParameters != null &&
+                    otherCartItemWithSameParameters.Id == updatecartitem.Id)
+                {
+                    //ensure it's other shopping cart cart item
+                    otherCartItemWithSameParameters = null;
+                }
+                //update existing item
+                addToCartWarnings.AddRange(await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
+                    updatecartitem.Id, warehouseId, attributes, customerEnteredPriceConverted,
+                    rentalStartDate, rentalEndDate, quantity, true));
+                if (otherCartItemWithSameParameters != null && !addToCartWarnings.Any())
+                {
+                    //delete the same shopping cart item (the other one)
+                    await _shoppingCartService.DeleteShoppingCartItem(_workContext.CurrentCustomer, otherCartItemWithSameParameters);
+                }
+            }
 
             #region Return result
 
@@ -670,7 +726,7 @@ namespace Grand.Web.Controllers
 
 
 
-        public virtual async Task<IActionResult> UpdateItemCart(string shoppingcartId)
+        public virtual async Task<IActionResult> GetItemCart(string shoppingcartId)
         {
             var cart = _workContext.CurrentCustomer.ShoppingCartItems.FirstOrDefault(sci => sci.Id == shoppingcartId);
             if (cart == null)
@@ -728,202 +784,6 @@ namespace Grand.Web.Controllers
                 success = true,
                 model = model,
             });
-        }
-
-        [HttpPost]
-        public virtual async Task<IActionResult> UpdateItemCart(string shoppingCartItemId, IFormCollection form)
-        {
-            var cart = _workContext.CurrentCustomer.ShoppingCartItems.FirstOrDefault(sci => sci.Id == shoppingCartItemId);
-            if (cart == null)
-                return Json(new
-                {
-                    success = false,
-                    message = "No item cart found with the specified ID"
-                });
-
-            var product = await _productService.GetProductById(cart.ProductId);
-            if (product == null)
-            {
-                return Json(new
-                {
-                    redirect = Url.RouteUrl("HomePage"),
-                });
-            }
-
-            //you can't add group products
-            if (product.ProductTypeId == ProductType.GroupedProduct)
-            {
-                return Json(new
-                {
-                    success = false,
-                    message = "Grouped products couldn't be added to the cart"
-                });
-            }
-
-            //you can't add reservation product to wishlist
-            if (product.ProductTypeId == ProductType.Reservation && cart.ShoppingCartTypeId == ShoppingCartType.Wishlist)
-            {
-                return Json(new
-                {
-                    success = false,
-                    message = "Reservation products couldn't be added to the wishlist"
-                });
-            }
-
-            //you can't add auction product to wishlist
-            if (product.ProductTypeId == ProductType.Auction)
-            {
-                return Json(new
-                {
-                    success = false,
-                    message = "Auction products couldn't be added to the wishlist"
-                });
-            }
-            //check available date
-            if (product.AvailableEndDateTimeUtc.HasValue && product.AvailableEndDateTimeUtc.Value < DateTime.UtcNow)
-            {
-                return Json(new
-                {
-                    success = false,
-                    message = _translationService.GetResource("ShoppingCart.NotAvailable")
-                });
-            }
-
-            #region Customer entered price
-            double? customerEnteredPriceConverted = null;
-            if (product.EnteredPrice)
-            {
-                foreach (string formKey in form.Keys)
-                {
-                    if (formKey.Equals(string.Format("addtocart_{0}.CustomerEnteredPrice", cart.ProductId), StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (double.TryParse(form[formKey], out double customerEnteredPrice))
-                            customerEnteredPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(customerEnteredPrice, _workContext.WorkingCurrency);
-                        break;
-                    }
-                }
-            }
-            #endregion
-
-            #region Quantity
-
-            var quantity = cart.Quantity;
-            foreach (string formKey in form.Keys)
-                if (formKey.Equals(string.Format("addtocart_{0}.EnteredQuantity", cart.ProductId), StringComparison.OrdinalIgnoreCase))
-                {
-                    int.TryParse(form[formKey], out quantity);
-                    break;
-                }
-
-            #endregion
-
-            //product and gift voucher attributes
-            var attributes = await _mediator.Send(new GetParseProductAttributes() { Product = product, Form = form });
-
-            //rental attributes
-            DateTime? rentalStartDate = cart.RentalStartDateUtc;
-            DateTime? rentalEndDate = cart.RentalEndDateUtc;
-            if (product.ProductTypeId == ProductType.Reservation)
-            {
-                product.ParseReservationDates(form, out rentalStartDate, out rentalEndDate);
-            }
-
-            //product reservation
-            string reservationId = cart.ReservationId;
-            string parameter = cart.Parameter;
-            string duration = cart.Duration;
-            if (product.ProductTypeId == ProductType.Reservation)
-            {
-                foreach (string formKey in form.Keys)
-                {
-                    if (formKey.Contains("Reservation"))
-                    {
-                        reservationId = form["Reservation"].ToString();
-                        break;
-                    }
-                }
-
-                if (product.IntervalUnitId == IntervalUnit.Hour || product.IntervalUnitId == IntervalUnit.Minute)
-                {
-                    if (string.IsNullOrEmpty(reservationId))
-                    {
-                        return Json(new
-                        {
-                            success = false,
-                            message = _translationService.GetResource("Product.Addtocart.Reservation.Required")
-                        });
-                    }
-                    var productReservationService = HttpContext.RequestServices.GetRequiredService<IProductReservationService>();
-                    var reservation = await productReservationService.GetProductReservation(reservationId);
-                    if (reservation == null)
-                    {
-                        return Json(new
-                        {
-                            success = false,
-                            message = "No reservation found"
-                        });
-                    }
-                    duration = reservation.Duration;
-                    rentalStartDate = reservation.Date;
-                    parameter = reservation.Parameter;
-                }
-                else if (product.IntervalUnitId == IntervalUnit.Day)
-                {
-                    string datefrom = "";
-                    string dateto = "";
-                    foreach (var item in form)
-                    {
-                        if (item.Key == "reservationDatepickerFrom")
-                        {
-                            datefrom = item.Value;
-                        }
-
-                        if (item.Key == "reservationDatepickerTo")
-                        {
-                            dateto = item.Value;
-                        }
-                    }
-
-                    string datePickerFormat = "MM/dd/yyyy";
-                    if (!string.IsNullOrEmpty(datefrom))
-                    {
-                        rentalStartDate = DateTime.ParseExact(datefrom, datePickerFormat, CultureInfo.InvariantCulture);
-                    }
-
-                    if (!string.IsNullOrEmpty(dateto))
-                    {
-                        rentalEndDate = DateTime.ParseExact(dateto, datePickerFormat, CultureInfo.InvariantCulture);
-                    }
-                }
-            }
-
-            //save item
-            var addToCartWarnings = new List<string>();
-
-            var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
-                form["WarehouseId"].ToString() : cart.WarehouseId;
-
-            //update existing item
-            addToCartWarnings.AddRange(await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
-                cart.Id, warehouseId, attributes, customerEnteredPriceConverted,
-                rentalStartDate, rentalEndDate, quantity, true));
-
-            if (addToCartWarnings.Any())
-            {
-                //cannot be updated the cart/wishlist
-                //display warnings
-                return Json(new
-                {
-                    success = false,
-                    message = addToCartWarnings.ToArray()
-                });
-            }
-
-            return Json(new
-            {
-                success = true,
-            });
-
         }
 
         #endregion
