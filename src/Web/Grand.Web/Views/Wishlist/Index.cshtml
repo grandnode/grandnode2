@@ -70,9 +70,11 @@
                                             <div>@Loc["ShoppingCart.ItemTotal"]</div>
                                         </th>
                                         <template v-if="wishlist.Model.IsEditable || wishlist.Model.DisplayAddToCart">
-                                            <th role="columnheader" scope="col" class="text-center">
-                                                <div>@Loc["Remove"]</div>
-                                            </th>
+                                            <template v-if="wishlist.Model.IsEditable">
+                                                <th role="columnheader" scope="col" class="text-center">
+                                                    <div>@Loc["Remove"]</div>
+                                                </th>
+                                            </template>
                                             <template v-if="wishlist.Model.DisplayAddToCart">
                                                 <th role="columnheader" scope="col" class="text-center">
                                                     <div>@Loc["addToCart"]</div>
@@ -104,7 +106,7 @@
                                                     <div class="attributes small" v-html="item.AttributeInfo"></div>
                                                 </template>
                                                 <template v-if="item.Warnings.length > 0">
-                                                    <div class="warnings small alert alert-danger">
+                                                    <div class="warnings small alert alert-danger mt-2 mb-0">
                                                         <ul class="mb-0 p-0">
                                                             <template v-for="warning in item.Warnings">
                                                                 <li>{{warning}}</li>
@@ -116,7 +118,7 @@
                                                     <div class="recurring-info" v-html="item.RecurringInfo"></div>
                                                 </template>
                                                 <template v-if="wishlist.Model.IsEditable && item.AllowItemEditing">
-                                                    <a class="btn btn-sm btn-secondary" @@click="wishlist.updateOnWishlist(item.Id)">@Loc["Common.Edit"]</a>
+                                                    <a class="btn btn-sm btn-secondary mt-2" @@click="wishlist.updateOnWishlist(item.Id)">@Loc["Common.Edit"]</a>
                                                 </template>
                                             </td>
                                             <template v-if="wishlist.Model.IsEditable">
@@ -156,16 +158,16 @@
                                             <template v-if="wishlist.Model.IsEditable || wishlist.Model.DisplayAddToCart">
                                                 <template v-if="wishlist.Model.IsEditable">
                                                     <td>
-                                                        <div @@click="wishlist.removeFromWishlist(item.Id)">
-                                                            <b-icon icon="trash" class="text-danger"></b-icon>
-                                                        </div>
+                                                        <b-button variant="link" @@click="wishlist.removeFromWishlist(item.Id)">
+                                                            <b-icon icon="trash" font-scale="1.5" class="text-danger"></b-icon>
+                                                        </b-button>
                                                     </td>
                                                 </template>
                                                 <template v-if="wishlist.Model.DisplayAddToCart">
                                                     <td>
-                                                        <div @@click="wishlist.addToCartFromWishlist(item.Id)">
-                                                            <b-icon icon="cart"></b-icon>
-                                                        </div>
+                                                        <b-button variant="link" @@click="wishlist.addToCartFromWishlist(item.Id)">
+                                                            <b-icon icon="cart" font-scale="1.5" class="text-info"></b-icon>
+                                                        </b-button>
                                                     </td>
                                                 </template>
                                             </template>

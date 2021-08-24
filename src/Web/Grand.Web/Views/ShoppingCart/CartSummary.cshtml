@@ -1,7 +1,4 @@
 ﻿@model ShoppingCartModel
-@{
-    var carturl = @Url.RouteUrl("ShoppingCart");
-}
 <div class="order-summary-content mt-3" id="ordersummarypagecart" v-if="vmorder.cart">
     @await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_content_before" })
     <div v-if="typeof vmorder.cart.Items !== 'undefined' && vmorder.cart.Items.length > 0">
@@ -351,7 +348,7 @@
             updateEditCart() {
                 axios({
                     method: 'get',
-                    url: '@carturl',
+                    url: '@Url.RouteUrl("ShoppingCart")',
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
