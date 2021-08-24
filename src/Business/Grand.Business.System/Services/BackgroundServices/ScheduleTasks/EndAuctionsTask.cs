@@ -51,9 +51,9 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
                     continue;
                 }
 
-                var warnings = await _shoppingCartService.AddToCart(await _customerService.GetCustomerById(bid.CustomerId), bid.ProductId, Domain.Orders.ShoppingCartType.Auctions,
+                var warnings = (await _shoppingCartService.AddToCart(await _customerService.GetCustomerById(bid.CustomerId), bid.ProductId, Domain.Orders.ShoppingCartType.Auctions,
                     bid.StoreId, bid.WarehouseId, customerEnteredPrice: bid.Amount,
-                    validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false });
+                    validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false })).warnings;
 
                 if (!warnings.Any())
                 {

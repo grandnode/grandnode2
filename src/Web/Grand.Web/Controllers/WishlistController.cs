@@ -158,12 +158,12 @@ namespace Grand.Web.Controllers
             if (itemCart == null)
                 return Json(new { success = false, message = "Shopping cart ident not found" });
 
-            var warnings = await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
+            var warnings = (await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
                        itemCart.ProductId, ShoppingCartType.ShoppingCart,
                        _workContext.CurrentStore.Id, itemCart.WarehouseId,
                        itemCart.Attributes, itemCart.EnteredPrice,
                        itemCart.RentalStartDateUtc, itemCart.RentalEndDateUtc, itemCart.Quantity, true,
-                       validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false });
+                       validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false })).warnings;
 
             if(warnings.Any())
                 return Json(new { success = false, message = string.Join(',', warnings) });
@@ -224,12 +224,13 @@ namespace Grand.Web.Controllers
             {
                 if (allIdsToAdd.Contains(sci.Id))
                 {
-                    var warnings = await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
+                    var warnings = (await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
                         sci.ProductId, ShoppingCartType.ShoppingCart,
                         _workContext.CurrentStore.Id, sci.WarehouseId,
                         sci.Attributes, sci.EnteredPrice,
                         sci.RentalStartDateUtc, sci.RentalEndDateUtc, sci.Quantity, true,
-                        validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false });
+                        validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false })).warnings;
+
                     if (!warnings.Any())
                         numberOfAddedItems++;
                     if (_shoppingCartSettings.MoveItemsFromWishlistToCart && //settings enabled

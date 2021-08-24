@@ -61,8 +61,8 @@ namespace Grand.Business.Checkout.Interfaces.Orders
         /// <param name="parameter">Parameter for reservation</param>
         /// <param name="duration">Duration for reservation</param>
         /// <param name="validator">ShoppingCartValidatorOptions</param>
-        /// <returns>Warnings</returns>
-        Task<IList<string>> AddToCart(Customer customer, string productId,
+        /// <returns>(warnings, shoppingCartItem)</returns>
+        Task<(IList<string> warnings, ShoppingCartItem shoppingCartItem)> AddToCart(Customer customer, string productId,
             ShoppingCartType shoppingCartType, string storeId, string warehouseId = null, IList<CustomAttribute> attributes = null,
             double? customerEnteredPrice = null,
             DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,

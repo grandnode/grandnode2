@@ -191,8 +191,8 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <param name="parameter">Parameter for reservation</param>
         /// <param name="duration">Duration for reservation</param>
         /// <param name="validator">ShoppingCartValidatorOptions</param>
-        /// <returns>Warnings</returns>
-        public virtual async Task<IList<string>> AddToCart(Customer customer, string productId,
+        /// <returns>(warnings, shoppingCartItem)</returns>
+        public virtual async Task<(IList<string> warnings, ShoppingCartItem shoppingCartItem)> AddToCart(Customer customer, string productId,
             ShoppingCartType shoppingCartType, string storeId,
             string warehouseId = null, IList<CustomAttribute> attributes = null,
             double? customerEnteredPrice = null,
@@ -220,7 +220,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 rentalEndDate, quantity, reservationId)).ToList();
 
             if (warnings.Any())
-                return warnings;
+                return (warnings, null);
 
             var shoppingCartItem = await FindShoppingCartItem(cart,
                 shoppingCartType, productId, warehouseId, attributes, customerEnteredPrice,
@@ -282,7 +282,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 await _customerService.ResetCheckoutData(customer, storeId);
             }
 
-            return warnings;
+            return (warnings, shoppingCartItem);
         }
 
         private async Task UpdateExistingShoppingCartItem(ShoppingCartItem shoppingCartItem, Customer customer,

@@ -168,7 +168,7 @@ namespace Grand.Web.Controllers
             }
 
             //try adding product to the cart 
-            addToCartWarnings = await _shoppingCartService.AddToCart(customer: customer,
+            var addToCart = await _shoppingCartService.AddToCart(customer: customer,
                 productId: productId,
                 shoppingCartType: cartType,
                 storeId: _workContext.CurrentStore.Id,
@@ -180,7 +180,7 @@ namespace Grand.Web.Controllers
                     GetGiftVoucherWarnings = (cartType != ShoppingCartType.Wishlist)
                 });
 
-            if (addToCartWarnings.Any())
+            if (addToCart.warnings.Any())
             {
                 //cannot be added to the cart
                 //but we do not display attribute and gift voucher warnings here. do it on the product details page
@@ -193,6 +193,7 @@ namespace Grand.Web.Controllers
             var addtoCartModel = await _mediator.Send(new GetAddToCart() {
                 Product = product,
                 Customer = customer,
+                ShoppingCartItem = addToCart.shoppingCartItem,
                 Quantity = quantity,
                 CartType = cartType,
                 Currency = _workContext.WorkingCurrency,
@@ -475,10 +476,13 @@ namespace Grand.Web.Controllers
             if (updatecartitem == null)
             {
                 //add to the cart
-                addToCartWarnings.AddRange(await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
+                var addToCart = await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
                     productId, cartType, _workContext.CurrentStore.Id, warehouseId,
                     attributes, customerEnteredPriceConverted,
-                    rentalStartDate, rentalEndDate, quantity, true, reservationId, parameter, duration, new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false }));
+                    rentalStartDate, rentalEndDate, quantity, true, reservationId, parameter, duration, new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false });
+
+                addToCartWarnings.AddRange(addToCart.warnings);
+                updatecartitem = addToCart.shoppingCartItem;
             }
             else
             {
@@ -519,6 +523,7 @@ namespace Grand.Web.Controllers
             var addtoCartModel = await _mediator.Send(new GetAddToCart() {
                 Product = product,
                 Customer = _workContext.CurrentCustomer,
+                ShoppingCartItem = updatecartitem,
                 Quantity = quantity,
                 CartType = cartType,
                 CustomerEnteredPrice = customerEnteredPriceConverted,
