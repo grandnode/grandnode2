@@ -4,6 +4,7 @@ using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Customers.Queries.Models;
 using Grand.Business.System.Interfaces.Reports;
 using Grand.Domain.Customers;
@@ -27,6 +28,8 @@ namespace Grand.Web.Admin.Controllers
         #region Fields
 
         private readonly ITranslationService _translationService;
+        private readonly IStoreService _storeService;
+        private readonly IUserFieldService _userFieldService;
         private readonly GoogleAnalyticsSettings _googleAnalyticsSettings;
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
@@ -42,6 +45,8 @@ namespace Grand.Web.Admin.Controllers
 
         public HomeController(
             ITranslationService translationService,
+            IStoreService storeService,
+            IUserFieldService userFieldService,
             GoogleAnalyticsSettings googleAnalyticsSettings,
             IWorkContext workContext,
             IGroupService groupService,
@@ -52,6 +57,8 @@ namespace Grand.Web.Admin.Controllers
             IMediator mediator)
         {
             _translationService = translationService;
+            _storeService = storeService;
+            _userFieldService = userFieldService;
             _googleAnalyticsSettings = googleAnalyticsSettings;
             _workContext = workContext;
             _groupService = groupService;
@@ -139,6 +146,31 @@ namespace Grand.Web.Admin.Controllers
             //prevent open redirection attack
             if (!Url.IsLocalUrl(returnUrl))
                 return RedirectToAction("Index", "Home", new { area = Constants.AreaAdmin });
+            return Redirect(returnUrl);
+        }
+
+        public async Task<IActionResult> ChangeStore(string storeid, string returnUrl = "")
+        {
+            if (storeid != null)
+                storeid = storeid.Trim();
+
+            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
+                returnUrl = Url.Action("Index", "Home", new { area = Constants.AreaAdmin });
+
+            var store = await _storeService.GetStoreById(storeid);
+            if (store != null || storeid == "")
+            {
+                await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                    SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration, storeid);
+            }
+            else
+                await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                    SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration, "");
+
+            //home page
+            if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
+                returnUrl = Url.Action("Index", "Home", new { area = Constants.AreaAdmin });
+
             return Redirect(returnUrl);
         }
 

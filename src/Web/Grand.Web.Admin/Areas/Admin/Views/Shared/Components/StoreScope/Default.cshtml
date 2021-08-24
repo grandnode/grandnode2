@@ -4,7 +4,7 @@
     var stores = Model.Stores.Select(store => new SelectListItem
     {
         Text = store.Name,
-        Value = Url.Action("ChangeStore", "Setting", new { storeid = store.Id, returnurl = rawUrl, area = Constants.AreaAdmin }),
+        Value = Url.Action("ChangeStore", "Home", new { storeid = store.Id, returnurl = rawUrl, area = Constants.AreaAdmin }),
         Selected = store.Id.Equals(Model.StoreId)
     })
     .ToList();

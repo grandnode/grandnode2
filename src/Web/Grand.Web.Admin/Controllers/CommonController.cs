@@ -12,7 +12,6 @@ using Grand.Business.Customers.Interfaces;
 using Grand.Business.Storage.Interfaces;
 using Grand.Business.System.Commands.Models.Common;
 using Grand.Business.System.Interfaces.MachineNameProvider;
-using Grand.Domain.Data;
 using Grand.Domain.Directory;
 using Grand.Domain.Media;
 using Grand.Domain.Seo;
