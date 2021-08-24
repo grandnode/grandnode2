@@ -330,13 +330,7 @@ namespace Grand.Web.Controllers
 
             #region Update existing shopping cart item?
 
-            string updatecartitemid = "";
-            foreach (string formKey in form.Keys)
-                if (formKey.Equals(string.Format("addtocart_{0}.UpdatedShoppingCartItemId", productId), StringComparison.OrdinalIgnoreCase))
-                {
-                    updatecartitemid = form[formKey];
-                    break;
-                }
+            string updatecartitemid = form.ContainsKey("UpdatedShoppingCartItemId") ? form["UpdatedShoppingCartItemId"] : "";
 
             ShoppingCartItem updatecartitem = null;
             if (_shoppingCartSettings.AllowCartItemEditing && !string.IsNullOrEmpty(updatecartitemid))
@@ -775,7 +769,6 @@ namespace Grand.Web.Controllers
             var model = await _mediator.Send(new GetProductDetailsPage() {
                 Store = _workContext.CurrentStore,
                 Product = product,
-                IsAssociatedProduct = false,
                 UpdateCartItem = cart
             });
 
