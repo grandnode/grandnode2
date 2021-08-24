@@ -69,7 +69,10 @@ var AxiosCart = {
             error.axiosFailure;
         }).then(function () {
             if (typeof wishlist !== 'undefined') {
-                wishlist.updateWishlist()
+                wishlist.updateWishlist();
+            }
+            if (typeof vmorder !== 'undefined') {
+                vmorder.updateEditCart();
             }
             this.AxiosCart.resetLoadWaiting();
         });

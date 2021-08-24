@@ -2,7 +2,12 @@
     var addtocart = @Url.RouteUrl("AddProductDetails");
 }
 <template v-if="PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId !== null">
-    <input type="hidden" id="UpdatedShoppingCartItemId" name="UpdatedShoppingCartItemId" :value="wishlist.UpdatedShoppingCartItemId" />
+    <template v-if="typeof wishlist !== 'undefined'">
+        <input type="hidden" id="UpdatedShoppingCartItemId" name="UpdatedShoppingCartItemId" :value="wishlist.UpdatedShoppingCartItemId" />
+    </template>
+    <template v-if="typeof vmorder !== 'undefined'">
+        <input type="hidden" id="UpdatedShoppingCartItemId" name="UpdatedShoppingCartItemId" :value="vmorder.UpdatedShoppingCartItemId" />
+    </template>
 </template>
 <template v-if="PopupQuickViewVueModal.AddToCart.EnteredPrice">
     <div class="customer-entered-price mb-3 d-flex w-100 flex-column">
@@ -31,7 +36,7 @@
         </template>
         <template v-else>
             <label :for="'addtocart_' + PopupQuickViewVueModal.AddToCart.ProductId + '_EnteredQuantity'" class="sr-only">@Loc["ShoppingCart.AddToCart"]</label>
-            <input :value="PopupQuickViewVueModal.AddToCart.EnteredQuantity" :id="'addtocart_' + PopupQuickViewVueModal.AddToCart.ProductId + '_EnteredQuantity'" :name="'addtocart_' + PopupQuickViewVueModal.AddToCart.ProductId + '.EnteredQuantity'" value="" class="qty-input form-control text-center" type="number" inputmode="numeric" />
+            <input v-model.number="PopupQuickViewVueModal.AddToCart.EnteredQuantity" :id="'addtocart_' + PopupQuickViewVueModal.AddToCart.ProductId + '_EnteredQuantity'" :name="'addtocart_' + PopupQuickViewVueModal.AddToCart.ProductId + '.EnteredQuantity'" class="qty-input form-control text-center" type="number" inputmode="numeric" />
             <template v-if="PopupQuickViewVueModal.AddToCart.MeasureUnit !== ''">
                 <span class="qty-unit d-flex align-items-center mr-2">
                     {{PopupQuickViewVueModal.AddToCart.MeasureUnit}}
@@ -49,6 +54,9 @@
                     </template>
                     <template v-else-if="PopupQuickViewVueModal.AddToCart.AvailableForPreOrder">
                         @Loc["ShoppingCart.PreOrder"]
+                    </template>
+                    <template v-else-if="PopupQuickViewVueModal.AddToCart.UpdateShoppingCartItemType == 1">
+                        @Loc["ShoppingCart.AddToCart.Update"]
                     </template>
                     <template v-else>
                         @Loc["ShoppingCart.AddToCart"]

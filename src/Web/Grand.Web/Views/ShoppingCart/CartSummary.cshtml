@@ -1,5 +1,7 @@
 ﻿@model ShoppingCartModel
-
+@{
+    var carturl = @Url.RouteUrl("ShoppingCart");
+}
 <div class="order-summary-content mt-3" id="ordersummarypagecart" v-if="vmorder.cart">
     @await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_content_before" })
     <div v-if="typeof vmorder.cart.Items !== 'undefined' && vmorder.cart.Items.length > 0">
@@ -74,7 +76,7 @@
                                                 <div v-if="item.RecurringInfo != null" v-html="item.RecurringInfo" class="recurring-info"></div>
                                                 <div v-if="item.ReservationInfo != null" v-html="item.ReservationInfo" class="rental-info attributes small"></div>
                                                 <div v-if="vmorder.cart.IsEditable && item.AllowItemEditing" class="edit-item mb-1 mt-1">
-                                                    <a class="btn btn-sm btn-secondary" :href="'/' + item.ProductSeName + '?updatecartitemid=' + item.Id">@Loc["Common.Edit"]</a>
+                                                    <a class="btn btn-sm btn-secondary" @@click="vmorder.updateOnCart(item.Id)">@Loc["Common.Edit"]</a>
                                                 </div>
                                                 <div v-if="typeof item.Warnings !== 'undefined' && item.Warnings.length > 0" class="message-error alert alert-danger">
                                                     <ul v-for="warning in item.Warnings" class="mb-0 p-0">
@@ -184,9 +186,9 @@
                                                 }
                                                 else
                                                 {
-                                                    <span class="read" 
+                                                    <span class="read"
                                                           onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = PageSeNameConstants.Conditionsofuse })', 450, 500, true)">
-                                                            @Loc["Checkout.TermsOfService.Read"]
+                                                        @Loc["Checkout.TermsOfService.Read"]
                                                     </span>
                                                 }
                                             </b-form-checkbox>
@@ -245,6 +247,7 @@
             cart: null,
             totals: null,
             checkoutAsGuest: false,
+            UpdatedShoppingCartItemId: null,
             // confirm order
             MinOrderTotalWarning: null,
             TermsOfServiceOnOrderConfirmPage: null,
@@ -345,13 +348,28 @@
                     this.vmorder.updateTotals();
                 });
             },
+            updateEditCart() {
+                axios({
+                    method: 'get',
+                    url: '@carturl',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Response-View': 'Json'
+                    },
+                }).then(function (response) {
+                    vmorder.cart = response.data;
+                    vm.updateFly();
+                }).then(function () {
+                    vmorder.updateTotals();
+                });
+            },
             ChangeShoppingCart(event) {
                 if (event.target.getAttribute('data-href')) {
                     var href = event.target.getAttribute('data-href');
                 } else {
                     var href = '@Url.RouteUrl("UpdateCart")';
                 }
-
                 var form = document.getElementById('shopping-cart-form');
                 var data = new FormData(form);
                 axios({
@@ -360,9 +378,23 @@
                     url: href,
                 }).then(function (response) {
                     vmorder.cart = response.data.model;
-                    vm.updateFly();
                 }).then(function () {
                     this.vmorder.updateTotals();
+                });
+            },
+            updateOnCart(id) {
+                axios({
+                    url: '/GetItemCart/' + id + '',
+                    method: 'get',
+                    headers: { 'Content-Type': 'application/json' }
+                }).then(function (response) {
+                    if (response.data.success) {
+                        vm.PopupQuickViewVueModal = response.data.model;
+                        vmorder.UpdatedShoppingCartItemId = id;
+                        vm.$refs['ModalQuickView'].show();
+                    } else {
+                        vmorder.displayWarning(response.data.message);
+                    }
                 });
             },
             deleteitem(href) {
@@ -396,6 +428,14 @@
                 }).then(function () {
                     this.vmorder.updateTotals();
                 });
+            },
+            displayWarning(message) {
+                this.$bvToast.toast(message, {
+                    title: '@Loc["common.warning"]',
+                    variant: 'danger',
+                    autoHideDelay: 5000,
+                    appendToast: true
+                })
             }
         }
     });
