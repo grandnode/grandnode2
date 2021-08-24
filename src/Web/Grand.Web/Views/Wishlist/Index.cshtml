@@ -118,7 +118,7 @@
                                                     <div class="recurring-info" v-html="item.RecurringInfo"></div>
                                                 </template>
                                                 <template v-if="wishlist.Model.IsEditable && item.AllowItemEditing">
-                                                    <a class="btn btn-sm btn-secondary mt-2" @@click="wishlist.updateOnWishlist(item.Id)">@Loc["Common.Edit"]</a>
+                                                    <a class="btn btn-sm btn-secondary mt-2" @@click="wishlist.getItemCart(item.Id)">@Loc["Common.Edit"]</a>
                                                 </template>
                                             </td>
                                             <template v-if="wishlist.Model.IsEditable">
@@ -131,7 +131,7 @@
                                                         </select>
                                                     </template>
                                                     <template v-else>
-                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" :value="item.Quantity" min="1" v-on:change="wishlist.ChangeWishlist(item.Id)" class="qty-input form-control text-center" />
+                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" :value="item.Quantity" min="1" v-on:change="wishlist.changeQuantity(item.Id)" class="qty-input form-control text-center" />
                                                     </template>
                                                 </td>
                                             </template>
@@ -158,7 +158,7 @@
                                             <template v-if="wishlist.Model.IsEditable || wishlist.Model.DisplayAddToCart">
                                                 <template v-if="wishlist.Model.IsEditable">
                                                     <td>
-                                                        <b-button variant="link" @@click="wishlist.removeFromWishlist(item.Id)">
+                                                        <b-button variant="link" @@click="wishlist.deleteFromWishlist(item.Id)">
                                                             <b-icon icon="trash" font-scale="1.5" class="text-danger"></b-icon>
                                                         </b-button>
                                                     </td>
@@ -215,14 +215,14 @@
             this.Model = @Json.Serialize(Model);
         },
         methods: {
-            removeFromWishlist(id) {
+            deleteFromWishlist(id) {
                 axios({
-                    url: '/Wishlist/DeleteItemFromWishlist/'+ id +'',
+                    url: '@Url.RouteUrl("DeleteItemFromWishlist")'+'/'+ id +'',
                     method: 'post',
                     headers: { 'Content-Type': 'application/json' }
                 }).then(function (response) {
                     if (response.data.success) {
-                        wishlist.updateWishlist();
+                        wishlist.getWishlist();
                     } else {
                         wishlist.displayWarning(response.data.message);
                     }
@@ -230,20 +230,20 @@
             },
             addToCartFromWishlist(id) {
                 axios({
-                    url: '/Wishlist/AddItemToCartFromWishlist/' + id + '',
+                    url: '@Url.RouteUrl("AddItemToCartFromWishlist")'+'/' + id,
                     method: 'post',
                     headers: { 'Content-Type': 'application/json' }
                 }).then(function (response) {
                     if (response.data.success) {
-                        wishlist.updateWishlist();
+                        wishlist.getWishlist();
                     } else {
                         wishlist.displayWarning(response.data.message);
                     }
                 });
             },
-            updateOnWishlist(id) {
+            getItemCart(id) {
                 axios({
-                    url: '/GetItemCart/' + id + '',
+                    url: '@Url.RouteUrl("GetItemCart")'+'/'+ id,
                     method: 'get',
                     headers: { 'Content-Type': 'application/json' }
                 }).then(function (response) {
@@ -256,7 +256,7 @@
                     }
                 });
             },
-            ChangeWishlist(id) {
+            changeQuantity(id) {
                 var element = document.getElementById('itemquantity' + id);
                 var data = new FormData();
                 data.append('shoppingcartId', id);
@@ -279,9 +279,9 @@
                     }
                 })
             },
-            updateWishlist() {
+            getWishlist() {
                 axios({
-                    baseURL: '/Wishlist/',
+                    baseURL: '@Url.RouteUrl("Wishlist")',
                     method: 'get',
                     headers: {
                         'Accept': 'application/json',
