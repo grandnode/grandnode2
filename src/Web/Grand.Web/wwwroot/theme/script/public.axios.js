@@ -68,8 +68,11 @@ var AxiosCart = {
         }).catch(function (error) {
             error.axiosFailure;
         }).then(function () {
+            if (typeof wishlist !== 'undefined') {
+                wishlist.updateWishlist()
+            }
             this.AxiosCart.resetLoadWaiting();
-        });  
+        });
     },
 
     //add bid

@@ -61,10 +61,10 @@
                                             <div>@Loc["ShoppingCart.Product(s)"]</div>
                                         </th>
                                         <th role="columnheader" scope="col" class="text-center">
-                                            <div>@Loc["ShoppingCart.UnitPrice"]</div>
+                                            <div>@Loc["ShoppingCart.Quantity"]</div>
                                         </th>
                                         <th role="columnheader" scope="col" class="text-center">
-                                            <div>@Loc["ShoppingCart.Quantity"]</div>
+                                            <div>@Loc["ShoppingCart.UnitPrice"]</div>
                                         </th>
                                         <th role="columnheader" scope="col" class="text-center">
                                             <div>@Loc["ShoppingCart.ItemTotal"]</div>
@@ -204,17 +204,16 @@
 </div>
 <script asp-location="Header">
     var Wishlist = Vue.extend({
-        data() {
-            return {
-                Model: null,
-            }
+        props: {
+            Model: null,
+            PopupUpdateVueModal: null,
+            UpdatedShoppingCartItemId: null
         },
         mounted() {
             this.Model = @Json.Serialize(Model);
         },
         methods: {
             removeFromWishlist(id) {
-                console.log('/Wishlist/DeleteItemFromWishlist/' + id + '');
                 axios({
                     url: '/Wishlist/DeleteItemFromWishlist/'+ id +'',
                     method: 'post',
@@ -222,6 +221,8 @@
                 }).then(function (response) {
                     if (response.data.success) {
                         wishlist.updateWishlist();
+                    } else {
+                        wishlist.displayWarning(response.data.message);
                     }
                 });
             },
@@ -233,18 +234,24 @@
                 }).then(function (response) {
                     if (response.data.success) {
                         wishlist.updateWishlist();
+                    } else {
+                        wishlist.displayWarning(response.data.message);
                     }
                 });
             },
             updateOnWishlist(id) {
                 axios({
-                    url: '/ActionCart/UpdateItemCart/' + id + '',
+                    url: '/GetItemCart/' + id + '',
                     method: 'get',
                     headers: { 'Content-Type': 'application/json' }
                 }).then(function (response) {
-                    console.log(response);
-                    //vm.PopupQuickViewVueModal = response.data.model;
-                    //vm.$refs['ModalQuickView'].show();
+                    if (response.data.success) {
+                        vm.PopupQuickViewVueModal = response.data.model;
+                        wishlist.UpdatedShoppingCartItemId = id;
+                        vm.$refs['ModalQuickView'].show();
+                    } else {
+                        wishlist.displayWarning(response.data.message);
+                    }
                 });
             },
             updateWishlist() {
@@ -258,7 +265,18 @@
                     }
                 }).then(function (response) {
                     wishlist.Model = response.data;
+                    if (document.querySelector('.wishlist-qty')) {
+                        document.querySelector('.wishlist-qty').innerHTML = response.data.Items.length;
+                    }
                 });
+            },
+            displayWarning(message) {
+                this.$bvToast.toast(message, {
+                    title: '@Loc["common.warning"]',
+                    variant: 'danger',
+                    autoHideDelay: 5000,
+                    appendToast: true
+                })
             }
         }
     });

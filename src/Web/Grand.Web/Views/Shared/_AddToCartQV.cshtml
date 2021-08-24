@@ -1,6 +1,9 @@
 ﻿@{ 
     var addtocart = @Url.RouteUrl("AddProductDetails");
 }
+<template v-if="PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId !== null">
+    <input type="hidden" id="UpdatedShoppingCartItemId" name="UpdatedShoppingCartItemId" :value="wishlist.UpdatedShoppingCartItemId" />
+</template>
 <template v-if="PopupQuickViewVueModal.AddToCart.EnteredPrice">
     <div class="customer-entered-price mb-3 d-flex w-100 flex-column">
         <div class="price-input">
