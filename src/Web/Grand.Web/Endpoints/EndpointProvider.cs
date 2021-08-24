@@ -600,15 +600,15 @@ namespace Grand.Web.Endpoints
                             pattern + "wishlist/{customerGuid?}",
                             new { controller = "Wishlist", action = "Index" });
 
-            //email wishlist
-            endpointRouteBuilder.MapControllerRoute("EmailWishlist",
-                            pattern + "emailwishlist",
-                            new { controller = "Wishlist", action = "EmailWishlist" });
+            //update wishlist
+            endpointRouteBuilder.MapControllerRoute("UpdateWishlist",
+                            $"{pattern}Wishlist/updatewishlist",
+                            new { controller = "Wishlist", action = "UpdateWishlist" });
 
             //email wishlist
-            endpointRouteBuilder.MapControllerRoute("AddItemsToCartFromWishlist",
-                            pattern + "additemstocartwishlist",
-                            new { controller = "Wishlist", action = "AddItemsToCartFromWishlist" });
+            endpointRouteBuilder.MapControllerRoute("EmailWishlist",
+                            pattern + "Wishlist/emailwishlist",
+                            new { controller = "Wishlist", action = "EmailWishlist" });
 
             //add item to wishlist
             endpointRouteBuilder.MapControllerRoute("AddItemToCartFromWishlist",

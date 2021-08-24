@@ -67,6 +67,7 @@ namespace Grand.Web.Controllers
 
         #region Wishlist
 
+        [HttpGet]
         public virtual async Task<IActionResult> Index(Guid? customerGuid)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
@@ -83,8 +84,7 @@ namespace Grand.Web.Controllers
             if (!string.IsNullOrEmpty(_workContext.CurrentStore.Id))
                 cart = cart.LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _workContext.CurrentStore.Id);
 
-            var model = await _mediator.Send(new GetWishlist()
-            {
+            var model = await _mediator.Send(new GetWishlist() {
                 Cart = cart.ToList(),
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
@@ -97,48 +97,46 @@ namespace Grand.Web.Controllers
             return View(model);
         }
 
+        [AutoValidateAntiforgeryToken]
         [HttpPost]
-        public virtual async Task<IActionResult> UpdateWishlist(IFormCollection form)
+        public virtual async Task<IActionResult> UpdateWishlist(string shoppingcartId, int quantity)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
                 return RedirectToRoute("HomePage");
 
-            var customer = _workContext.CurrentCustomer;
-
-            var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist);
-
-            var allIdsToRemove = !string.IsNullOrEmpty(form["removefromcart"].ToString())
-                ? form["removefromcart"].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x)
-                .ToList()
-                : new List<string>();
-
-            //current warnings <cart item identifier, warnings>
-            var innerWarnings = new Dictionary<string, IList<string>>();
-            foreach (var sci in cart)
+            var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist).FirstOrDefault(x => x.Id == shoppingcartId);
+            if (cart == null)
             {
-                bool remove = allIdsToRemove.Contains(sci.Id);
-                if (remove)
-                    await _shoppingCartService.DeleteShoppingCartItem(customer, sci);
-                else
+                return Json(new
                 {
-                    foreach (string formKey in form.Keys)
-                        if (formKey.Equals(string.Format("itemquantity{0}", sci.Id), StringComparison.OrdinalIgnoreCase))
-                        {
-                            if (int.TryParse(form[formKey], out int newQuantity))
-                            {
-                                var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
-                                    sci.Id, sci.WarehouseId, sci.Attributes, sci.EnteredPrice,
-                                    sci.RentalStartDateUtc, sci.RentalEndDateUtc,
-                                    newQuantity, true);
-                                innerWarnings.Add(sci.Id, currSciWarnings);
-                            }
-                            break;
-                        }
-                }
+                    success = false,
+                    warnings = "Shopping cart item not found",
+                });
+            }
+            if (quantity <= 0)
+            {
+                return Json(new
+                {
+                    success = false,
+                    warnings = "Wrong quantity ",
+                });
             }
 
-            return RedirectToAction("Index");
+
+            var warnings = new List<string>();
+            var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
+                cart.Id, cart.WarehouseId, cart.Attributes, cart.EnteredPrice,
+                cart.RentalStartDateUtc, cart.RentalEndDateUtc,
+                quantity, true);
+            warnings.AddRange(currSciWarnings);
+
+            return Json(new
+            {
+                success = !warnings.Any(),
+                warnings = string.Join(", ", warnings),
+                totalproducts = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist).Sum(x => x.Quantity),
+            });
+
         }
 
         [HttpPost]
@@ -165,7 +163,7 @@ namespace Grand.Web.Controllers
                        itemCart.RentalStartDateUtc, itemCart.RentalEndDateUtc, itemCart.Quantity, true,
                        validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false })).warnings;
 
-            if(warnings.Any())
+            if (warnings.Any())
                 return Json(new { success = false, message = string.Join(',', warnings) });
 
             await _shoppingCartService.DeleteShoppingCartItem(_workContext.CurrentCustomer, itemCart);
@@ -234,8 +232,8 @@ namespace Grand.Web.Controllers
                     if (!warnings.Any())
                         numberOfAddedItems++;
                     if (_shoppingCartSettings.MoveItemsFromWishlistToCart && //settings enabled
-                        !customerGuid.HasValue && 
-                        !warnings.Any()) 
+                        !customerGuid.HasValue &&
+                        !warnings.Any())
                     {
                         await _shoppingCartService.DeleteShoppingCartItem(_workContext.CurrentCustomer, sci);
                     }
@@ -270,8 +268,7 @@ namespace Grand.Web.Controllers
             if (!cart.Any())
                 return RedirectToRoute("HomePage");
 
-            var model = new WishlistEmailAFriendModel
-            {
+            var model = new WishlistEmailAFriendModel {
                 YourEmailAddress = _workContext.CurrentCustomer.Email,
                 DisplayCaptcha = captchaSettings.Enabled && captchaSettings.ShowOnEmailWishlistToFriendPage
             };

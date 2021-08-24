@@ -41,7 +41,7 @@
                     </ul>
                 </div>
             </template>
-            <form asp-controller="Wishlist" asp-action="Index" method="post">
+            <form asp-controller="Wishlist" asp-action="Index" method="post" id="wishlist-cart-form">
                 @if (!Model.IsEditable && Model.Items.Any())
                 {
                     <input type="hidden" asp-for="@Model.CustomerGuid" />
@@ -131,7 +131,7 @@
                                                         </select>
                                                     </template>
                                                     <template v-else>
-                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" :value="item.Quantity" min="1" class="qty-input form-control text-center" />
+                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" :value="item.Quantity" min="1" v-on:change="wishlist.ChangeWishlist(item.Id)" class="qty-input form-control text-center" />
                                                     </template>
                                                 </td>
                                             </template>
@@ -255,6 +255,29 @@
                         wishlist.displayWarning(response.data.message);
                     }
                 });
+            },
+            ChangeWishlist(id) {
+                var element = document.getElementById('itemquantity' + id);
+                var data = new FormData();
+                data.append('shoppingcartId', id);
+                data.append('quantity', element.value);
+                data.append('__RequestVerificationToken',
+                    document.querySelector('input[name=__RequestVerificationToken]').value);
+
+                axios({
+                    method: 'post',
+                    data: data,
+                    url: '@Url.RouteUrl("UpdateWishlist")',
+                }).then(function (response) {
+                    if (response.data.success) {
+                        if (document.querySelector('.wishlist-qty')) {
+                            document.querySelector('.wishlist-qty').innerHTML = response.data.totalproducts;
+                        }
+                    }
+                    else {
+                        wishlist.displayWarning(response.data.warnings);
+                    }
+                })
             },
             updateWishlist() {
                 axios({
