@@ -50,7 +50,7 @@
                                         <tr v-for="item in vmorder.cart.Items">
                                             <td v-if="vmorder.cart.IsAllowOnHold && vmorder.cart.IsEditable" class="onhold-cart">
                                                 <label class="custom-control custom-switch mb-0 pl-0">
-                                                    <input :id="'checkbox_' + item.Id" type="checkbox" :checked="item.IsCart" class="custom-control-input changeshoppingcartitem" :data-href="'@Url.RouteUrl("ChangeTypeCartItem")/' + item.Id + '?status=' + !item.IsCart" v-on:change="vmorder.ChangeShoppingCart($event)" />
+                                                    <input :id="'checkbox_' + item.Id" type="checkbox" :checked="item.IsCart" class="custom-control-input changeshoppingcartitem" v-on:change="vmorder.updateCartType(item.Id, !item.IsCart)" />
                                                     <span class="custom-control-label ml-5"></span>
                                                 </label>
                                             </td>
@@ -380,6 +380,23 @@
                     else {
                         vmorder.displayWarning(response.data.warnings);
                     }
+                }).then(function () {
+                    this.vmorder.updateTotals();
+                });
+            },
+            updateCartType(id, iscart) {
+                var data = new FormData();
+                data.append('id', id);
+                data.append('status', iscart);
+                data.append('__RequestVerificationToken',
+                    document.querySelector('input[name=__RequestVerificationToken]').value);
+                axios({
+                    method: 'post',
+                    data: data,
+                    url: '@Url.RouteUrl("ChangeTypeCartItem")',
+                }).then(function (response) {
+                    vmorder.cart = response.data.model;
+                    vm.updateFly();
                 }).then(function () {
                     this.vmorder.updateTotals();
                 });
