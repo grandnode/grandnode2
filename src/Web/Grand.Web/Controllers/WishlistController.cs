@@ -192,7 +192,7 @@ namespace Grand.Web.Controllers
             return Json(new { success = true, message = "" });
 
         }
-
+        [HttpGet]
         public virtual async Task<IActionResult> EmailWishlist([FromServices] CaptchaSettings captchaSettings)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist) || !_shoppingCartSettings.EmailWishlistEnabled)
