@@ -98,7 +98,7 @@ var AxiosCart = {
             if (response.data.success) {
                 vm.$refs['ModalQuickView'].hide();
             } else {
-                model.displayWarning(response.data.message);
+                model.displayWarning(response.data.message, 'danger');
             }
         }).catch(function (error) {
             error.axiosFailure;

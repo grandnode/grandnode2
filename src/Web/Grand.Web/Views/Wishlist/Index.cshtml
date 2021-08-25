@@ -178,15 +178,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="btn-group my-3">
-                    @if (Model.IsEditable && Model.EmailWishlistEnabled)
-                    {
-                        <button type="button" class="btn btn-secondary email-a-friend-wishlist-button d-flex align-items-center ml-1" onclick="location='@Url.RouteUrl("EmailWishlist")'">
-                            <b-icon font-scale="2" icon="envelope" class="pr-2"></b-icon>
-                            <span class="d-sm-block d-none">@Loc["Wishlist.EmailAFriend"]</span>
-                        </button>
-                    }
-                </div>
+                <template v-if="vmwishlist.Model.IsEditable && vmwishlist.Model.EmailWishlistEnabled">
+                    <button type="button" class="btn btn-secondary email-a-friend-wishlist-button d-flex align-items-center my-3" onclick="location='@Url.RouteUrl("EmailWishlist")'">
+                        <b-icon font-scale="2" icon="envelope" class="pr-2"></b-icon>
+                        <span class="d-sm-block d-none">@Loc["Wishlist.EmailAFriend"]</span>
+                    </button>
+                </template>
             </form>
         </div>
     </template>
@@ -223,7 +220,7 @@
                     if (response.data.success) {
                         vmwishlist.getModel();
                     } else {
-                        vmwishlist.displayWarning(response.data.message);
+                        vmwishlist.displayWarning(response.data.message, 'danger');
                     }
                 });
             },
@@ -236,8 +233,9 @@
                     if (response.data.success) {
                         vmwishlist.getModel();
                         vm.updateFly();
+                        vmwishlist.displayWarning('@Loc["wishlist.addedtocart"]', 'info');
                     } else {
-                        vmwishlist.displayWarning(response.data.message);
+                        vmwishlist.displayWarning(response.data.message, 'danger');
                     }
                 });
             },
@@ -252,7 +250,7 @@
                         vm.UpdatedShoppingCartItemId = id;
                         vm.$refs['ModalQuickView'].show();
                     } else {
-                        vmwishlist.displayWarning(response.data.message);
+                        vmwishlist.displayWarning(response.data.message, 'danger');
                     }
                 });
             },
@@ -297,10 +295,10 @@
                     }
                 })
             },
-            displayWarning(message) {
+            displayWarning(message, variant) {
                 this.$bvToast.toast(message, {
                     title: '@Loc["common.warning"]',
-                    variant: 'danger',
+                    variant: variant,
                     autoHideDelay: 5000,
                     appendToast: true
                 })
