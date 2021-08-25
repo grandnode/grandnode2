@@ -604,9 +604,9 @@ namespace Grand.Web.Endpoints
                             new { controller = "Wishlist", action = "Index" });
 
             //update wishlist
-            endpointRouteBuilder.MapControllerRoute("UpdateWishlist",
-                            $"{pattern}Wishlist/updatewishlist",
-                            new { controller = "Wishlist", action = "UpdateWishlist" });
+            endpointRouteBuilder.MapControllerRoute("UpdateQuantityWishlist",
+                            $"{pattern}Wishlist/updatequantity",
+                            new { controller = "Wishlist", action = "UpdateQuantity" });
 
             //email wishlist
             endpointRouteBuilder.MapControllerRoute("EmailWishlist",

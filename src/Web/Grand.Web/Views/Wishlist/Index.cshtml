@@ -267,7 +267,7 @@
                 axios({
                     method: 'post',
                     data: data,
-                    url: '@Url.RouteUrl("UpdateWishlist")',
+                    url: '@Url.RouteUrl("UpdateQuantityWishlist")',
                 }).then(function (response) {
                     if (response.data.success) {
                         if (document.querySelector('.wishlist-qty')) {

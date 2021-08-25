@@ -99,7 +99,7 @@ namespace Grand.Web.Controllers
 
         [AutoValidateAntiforgeryToken]
         [HttpPost]
-        public virtual async Task<IActionResult> UpdateWishlist(string shoppingcartId, int quantity)
+        public virtual async Task<IActionResult> UpdateQuantity(string shoppingcartId, int quantity)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
                 return RedirectToRoute("HomePage");
@@ -191,71 +191,6 @@ namespace Grand.Web.Controllers
 
             return Json(new { success = true, message = "" });
 
-        }
-
-        [HttpPost]
-        public virtual async Task<IActionResult> AddItemsToCartFromWishlist(Guid? customerGuid, IFormCollection form)
-        {
-            if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
-                return RedirectToRoute("HomePage");
-
-            if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
-                return RedirectToRoute("HomePage");
-
-            var pageCustomer = customerGuid.HasValue
-                ? await _customerService.GetCustomerByGuid(customerGuid.Value)
-                : _workContext.CurrentCustomer;
-            if (pageCustomer == null)
-                return RedirectToRoute("HomePage");
-
-            var pageCart = pageCustomer.ShoppingCartItems.Where(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist);
-            if (!string.IsNullOrEmpty(_workContext.CurrentStore.Id))
-                pageCart = pageCart.LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _workContext.CurrentStore.Id);
-
-            var allWarnings = new List<string>();
-            var numberOfAddedItems = 0;
-            var allIdsToAdd = form.ContainsKey("addtocart") ? form["addtocart"].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x)
-                .ToList()
-                : new List<string>();
-            foreach (var sci in pageCart.ToList())
-            {
-                if (allIdsToAdd.Contains(sci.Id))
-                {
-                    var warnings = (await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
-                        sci.ProductId, ShoppingCartType.ShoppingCart,
-                        _workContext.CurrentStore.Id, sci.WarehouseId,
-                        sci.Attributes, sci.EnteredPrice,
-                        sci.RentalStartDateUtc, sci.RentalEndDateUtc, sci.Quantity, true,
-                        validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false })).warnings;
-
-                    if (!warnings.Any())
-                        numberOfAddedItems++;
-                    if (_shoppingCartSettings.MoveItemsFromWishlistToCart && //settings enabled
-                        !customerGuid.HasValue &&
-                        !warnings.Any())
-                    {
-                        await _shoppingCartService.DeleteShoppingCartItem(_workContext.CurrentCustomer, sci);
-                    }
-                    allWarnings.AddRange(warnings);
-                }
-            }
-
-            if (numberOfAddedItems > 0)
-            {
-                //redirect to the shopping cart page
-
-                if (allWarnings.Any())
-                {
-                    Error(_translationService.GetResource("Wishlist.AddToCart.Error"), true);
-                }
-
-                return RedirectToRoute("ShoppingCart");
-            }
-            else
-            {
-                return RedirectToAction("Index");
-            }
         }
 
         public virtual async Task<IActionResult> EmailWishlist([FromServices] CaptchaSettings captchaSettings)
