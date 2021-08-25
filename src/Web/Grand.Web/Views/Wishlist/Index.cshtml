@@ -106,7 +106,7 @@
                                                     <div class="attributes small" v-html="item.AttributeInfo"></div>
                                                 </template>
                                                 <template v-if="item.Warnings.length > 0">
-                                                    <div class="warnings small alert alert-danger mt-2 mb-0">
+                                                    <div class="warnings message-error small alert alert-danger mt-2 mb-0">
                                                         <ul class="mb-0 p-0">
                                                             <template v-for="warning in item.Warnings">
                                                                 <li>{{warning}}</li>
@@ -291,11 +291,7 @@
                 }).then(function (response) {
                     wishlist.Model = response.data;
                     if (document.querySelector('.wishlist-qty')) {
-                        let total = 0;
-                        for (var i = 0; i < wishlist.Model.Items.length; i++) {
-                            total = total + wishlist.Model.Items[i].Quantity;
-                        }
-                        document.querySelector('.wishlist-qty').innerHTML = total;
+                        document.querySelector('.wishlist-qty').innerHTML = response.data.Items.length;
                     }
                 }).then(function () {
                     vm.updateFly();
