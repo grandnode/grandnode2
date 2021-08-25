@@ -784,6 +784,202 @@ namespace Grand.Web.Controllers
             });
         }
 
+        [HttpPost]
+        public virtual async Task<IActionResult> UpdateItemCart(string shoppingCartItemId, IFormCollection form)
+        {
+            var cart = _workContext.CurrentCustomer.ShoppingCartItems.FirstOrDefault(sci => sci.Id == shoppingCartItemId);
+            if (cart == null)
+                return Json(new
+                {
+                    success = false,
+                    message = "No item cart found with the specified ID"
+                });
+
+            var product = await _productService.GetProductById(cart.ProductId);
+            if (product == null)
+            {
+                return Json(new
+                {
+                    redirect = Url.RouteUrl("HomePage"),
+                });
+            }
+
+            //you can't add group products
+            if (product.ProductTypeId == ProductType.GroupedProduct)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Grouped products couldn't be added to the cart"
+                });
+            }
+
+            //you can't add reservation product to wishlist
+            if (product.ProductTypeId == ProductType.Reservation && cart.ShoppingCartTypeId == ShoppingCartType.Wishlist)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Reservation products couldn't be added to the wishlist"
+                });
+            }
+
+            //you can't add auction product to wishlist
+            if (product.ProductTypeId == ProductType.Auction)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Auction products couldn't be added to the wishlist"
+                });
+            }
+            //check available date
+            if (product.AvailableEndDateTimeUtc.HasValue && product.AvailableEndDateTimeUtc.Value < DateTime.UtcNow)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = _translationService.GetResource("ShoppingCart.NotAvailable")
+                });
+            }
+
+            #region Customer entered price
+            double? customerEnteredPriceConverted = null;
+            if (product.EnteredPrice)
+            {
+                foreach (string formKey in form.Keys)
+                {
+                    if (formKey.Equals(string.Format("addtocart_{0}.CustomerEnteredPrice", cart.ProductId), StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (double.TryParse(form[formKey], out double customerEnteredPrice))
+                            customerEnteredPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(customerEnteredPrice, _workContext.WorkingCurrency);
+                        break;
+                    }
+                }
+            }
+            #endregion
+
+            #region Quantity
+
+            var quantity = cart.Quantity;
+            foreach (string formKey in form.Keys)
+                if (formKey.Equals(string.Format("addtocart_{0}.EnteredQuantity", cart.ProductId), StringComparison.OrdinalIgnoreCase))
+                {
+                    int.TryParse(form[formKey], out quantity);
+                    break;
+                }
+
+            #endregion
+
+            //product and gift voucher attributes
+            var attributes = await _mediator.Send(new GetParseProductAttributes() { Product = product, Form = form });
+
+            //rental attributes
+            DateTime? rentalStartDate = cart.RentalStartDateUtc;
+            DateTime? rentalEndDate = cart.RentalEndDateUtc;
+            if (product.ProductTypeId == ProductType.Reservation)
+            {
+                product.ParseReservationDates(form, out rentalStartDate, out rentalEndDate);
+            }
+
+            //product reservation
+            string reservationId = cart.ReservationId;
+            string parameter = cart.Parameter;
+            string duration = cart.Duration;
+            if (product.ProductTypeId == ProductType.Reservation)
+            {
+                foreach (string formKey in form.Keys)
+                {
+                    if (formKey.Contains("Reservation"))
+                    {
+                        reservationId = form["Reservation"].ToString();
+                        break;
+                    }
+                }
+
+                if (product.IntervalUnitId == IntervalUnit.Hour || product.IntervalUnitId == IntervalUnit.Minute)
+                {
+                    if (string.IsNullOrEmpty(reservationId))
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = _translationService.GetResource("Product.Addtocart.Reservation.Required")
+                        });
+                    }
+                    var productReservationService = HttpContext.RequestServices.GetRequiredService<IProductReservationService>();
+                    var reservation = await productReservationService.GetProductReservation(reservationId);
+                    if (reservation == null)
+                    {
+                        return Json(new
+                        {
+                            success = false,
+                            message = "No reservation found"
+                        });
+                    }
+                    duration = reservation.Duration;
+                    rentalStartDate = reservation.Date;
+                    parameter = reservation.Parameter;
+                }
+                else if (product.IntervalUnitId == IntervalUnit.Day)
+                {
+                    string datefrom = "";
+                    string dateto = "";
+                    foreach (var item in form)
+                    {
+                        if (item.Key == "reservationDatepickerFrom")
+                        {
+                            datefrom = item.Value;
+                        }
+
+                        if (item.Key == "reservationDatepickerTo")
+                        {
+                            dateto = item.Value;
+                        }
+                    }
+
+                    string datePickerFormat = "MM/dd/yyyy";
+                    if (!string.IsNullOrEmpty(datefrom))
+                    {
+                        rentalStartDate = DateTime.ParseExact(datefrom, datePickerFormat, CultureInfo.InvariantCulture);
+                    }
+
+                    if (!string.IsNullOrEmpty(dateto))
+                    {
+                        rentalEndDate = DateTime.ParseExact(dateto, datePickerFormat, CultureInfo.InvariantCulture);
+                    }
+                }
+            }
+
+            //save item
+            var addToCartWarnings = new List<string>();
+
+            var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ?
+                form["WarehouseId"].ToString() : cart.WarehouseId;
+
+            //update existing item
+            addToCartWarnings.AddRange(await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
+                cart.Id, warehouseId, attributes, customerEnteredPriceConverted,
+                rentalStartDate, rentalEndDate, quantity, true));
+
+            if (addToCartWarnings.Any())
+            {
+                //cannot be updated the cart/wishlist
+                return Json(new
+                {
+                    success = false,
+                    message = addToCartWarnings.ToArray()
+                });
+            }
+
+            return Json(new
+            {
+                success = true,
+                message = ""
+            });
+
+        }
+
         #endregion
 
     }
