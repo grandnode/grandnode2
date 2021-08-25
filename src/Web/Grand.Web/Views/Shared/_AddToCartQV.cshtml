@@ -40,7 +40,7 @@
                 </template>
             </template>
             <div class="input-group-append w-100">
-                <template v-if="typeof wishlist !== 'undefined'">
+                <template v-if="typeof vmwishlist !== 'undefined'">
                     <button :id="'add-to-wishlist-button-' + PopupQuickViewVueModal.AddToCart.ProductId" class="btn btn-info w-100 d-inline-flex main-button" title="@Loc["ShoppingCart.AddToWishlist.Update"]" :data-productid="PopupQuickViewVueModal.AddToCart.ProductId" :onclick="'AxiosCart.updateitem(`@updateitemcart`, `#product-details-form`);return false;'" v-b-tooltip.hover.bottom>
                         <span>
                             @Loc["ShoppingCart.AddToWishlist.Update"]

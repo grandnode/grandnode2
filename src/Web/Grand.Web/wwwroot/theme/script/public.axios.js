@@ -68,8 +68,8 @@ var AxiosCart = {
         }).catch(function (error) {
             error.axiosFailure;
         }).then(function () {
-            if (typeof wishlist !== 'undefined') {
-                wishlist.getModel();
+            if (typeof vmwishlist !== 'undefined') {
+                vmwishlist.getModel();
             }
             if (typeof vmorder !== 'undefined') {
                 vmorder.getModel();
@@ -84,8 +84,8 @@ var AxiosCart = {
         var form = document.querySelector('#ModalQuickView #product-details-form');
         var data = new FormData(form);
 
-        if (typeof wishlist !== 'undefined') {
-            model = wishlist;
+        if (typeof vmwishlist !== 'undefined') {
+            model = vmwishlist;
         } else {
             model = vmorder;
         }

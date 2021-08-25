@@ -30,12 +30,12 @@
             @String.Format(Loc["Wishlist.WishlistOf"], Model.CustomerFullname)
         }
     </h2>
-    <template v-if="wishlist.Model.Items.length > 0">
+    <template v-if="vmwishlist.Model.Items.length > 0">
         <div class="wishlist-content mt-3">
-            <template v-if="wishlist.Model.Warnings.length > 0">
+            <template v-if="vmwishlist.Model.Warnings.length > 0">
                 <div class="message-error">
                     <ul>
-                        <template v-for="warning in wishlist.Model.Warnings">
+                        <template v-for="warning in vmwishlist.Model.Warnings">
                             <li>{{warning}}</li>
                         </template>
                     </ul>
@@ -52,7 +52,7 @@
                             <table id="cart-table" class="table b-table shopping-cart">
                                 <thead role="rowgroup">
                                     <tr role="row">
-                                        <template v-if="wishlist.Model.ShowProductImages">
+                                        <template v-if="vmwishlist.Model.ShowProductImages">
                                             <th role="columnheader" scope="col" class="text-center">
                                                 <div>@Loc["ShoppingCart.Image"]</div>
                                             </th>
@@ -69,13 +69,13 @@
                                         <th role="columnheader" scope="col" class="text-center">
                                             <div>@Loc["ShoppingCart.ItemTotal"]</div>
                                         </th>
-                                        <template v-if="wishlist.Model.IsEditable || wishlist.Model.DisplayAddToCart">
-                                            <template v-if="wishlist.Model.IsEditable">
+                                        <template v-if="vmwishlist.Model.IsEditable || vmwishlist.Model.DisplayAddToCart">
+                                            <template v-if="vmwishlist.Model.IsEditable">
                                                 <th role="columnheader" scope="col" class="text-center">
                                                     <div>@Loc["Remove"]</div>
                                                 </th>
                                             </template>
-                                            <template v-if="wishlist.Model.DisplayAddToCart">
+                                            <template v-if="vmwishlist.Model.DisplayAddToCart">
                                                 <th role="columnheader" scope="col" class="text-center">
                                                     <div>@Loc["addToCart"]</div>
                                                 </th>
@@ -84,9 +84,9 @@
                                     </tr>
                                 </thead>
                                 <tbody role="rowgroup">
-                                    <template v-for="item in wishlist.Model.Items">
+                                    <template v-for="item in vmwishlist.Model.Items">
                                         <tr role="row">
-                                            <template v-if="wishlist.Model.ShowProductImages">
+                                            <template v-if="vmwishlist.Model.ShowProductImages">
                                                 <td role="cell" class="text-center">
                                                     <div>
                                                         <a :href="item.ProductUrl">
@@ -99,7 +99,7 @@
                                                 <div>
                                                     <a :href="item.ProductUrl" class="product-name">{{item.ProductName}}</a>
                                                 </div>
-                                                <template v-if="wishlist.Model.ShowSku && item.Sku !== null">
+                                                <template v-if="vmwishlist.Model.ShowSku && item.Sku !== null">
                                                     <span class="sku-number">{{item.Sku}}</span>
                                                 </template>
                                                 <template v-if="item.AttributeInfo !== null">
@@ -117,21 +117,21 @@
                                                 <template v-if="item.RecurringInfo !== null">
                                                     <div class="recurring-info" v-html="item.RecurringInfo"></div>
                                                 </template>
-                                                <template v-if="wishlist.Model.IsEditable && item.AllowItemEditing">
-                                                    <a class="btn btn-sm btn-secondary mt-2" @@click="wishlist.getItemCart(item.Id)">@Loc["Common.Edit"]</a>
+                                                <template v-if="vmwishlist.Model.IsEditable && item.AllowItemEditing">
+                                                    <a class="btn btn-sm btn-secondary mt-2" @@click="vmwishlist.getItemCart(item.Id)">@Loc["Common.Edit"]</a>
                                                 </template>
                                             </td>
-                                            <template v-if="wishlist.Model.IsEditable">
+                                            <template v-if="vmwishlist.Model.IsEditable">
                                                 <td role="cell" class="text-center">
                                                     <template v-if="item.AllowedQuantities[0]">
-                                                        <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="custom-select form-control qty-dropdown" v-on:change="wishlist.updateQuantity('itemquantity', item.Id)">
+                                                        <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="custom-select form-control qty-dropdown" v-on:change="vmwishlist.updateQuantity('itemquantity', item.Id)">
                                                             <template v-for="qty in item.AllowedQuantities">
                                                                 <option :id="'itemqty' + item.Id" :selected="qty.Selected" :value="qty.Value">{{qty.Value}}</option>
                                                             </template>
                                                         </select>
                                                     </template>
                                                     <template v-else>
-                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" v-model="item.Quantity" min="1" v-on:change="wishlist.updateQuantity('itemquantity', item.Id)" class="qty-input form-control text-center" />
+                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" v-model="item.Quantity" min="1" v-on:change="vmwishlist.updateQuantity('itemquantity', item.Id)" class="qty-input form-control text-center" />
                                                     </template>
                                                 </td>
                                             </template>
@@ -155,17 +155,17 @@
                                                     <p class="mb-0 prod-total">{{item.SubTotal}}</p>
                                                 </td>
                                             </template>
-                                            <template v-if="wishlist.Model.IsEditable || wishlist.Model.DisplayAddToCart">
-                                                <template v-if="wishlist.Model.IsEditable">
+                                            <template v-if="vmwishlist.Model.IsEditable || vmwishlist.Model.DisplayAddToCart">
+                                                <template v-if="vmwishlist.Model.IsEditable">
                                                     <td>
-                                                        <b-button variant="link" @@click="wishlist.deleteFromWishlist(item.Id)">
+                                                        <b-button variant="link" @@click="vmwishlist.deleteFromWishlist(item.Id)">
                                                             <b-icon icon="trash" font-scale="1.5" class="text-danger"></b-icon>
                                                         </b-button>
                                                     </td>
                                                 </template>
-                                                <template v-if="wishlist.Model.DisplayAddToCart">
+                                                <template v-if="vmwishlist.Model.DisplayAddToCart">
                                                     <td>
-                                                        <b-button variant="link" @@click="wishlist.addToCartFromWishlist(item.Id)">
+                                                        <b-button variant="link" @@click="vmwishlist.addToCartFromWishlist(item.Id)">
                                                             <b-icon icon="cart" font-scale="1.5" class="text-info"></b-icon>
                                                         </b-button>
                                                     </td>
@@ -183,7 +183,7 @@
                     {
                         <button type="button" class="btn btn-secondary email-a-friend-wishlist-button d-flex align-items-center ml-1" onclick="location='@Url.RouteUrl("EmailWishlist")'">
                             <b-icon font-scale="2" icon="envelope" class="pr-2"></b-icon>
-                            <span class="d-sm-block d-none">@Loc["Wishlist.EmailAFriend"]</span>
+                            <span class="d-sm-block d-none">@Loc["vmwishlist.EmailAFriend"]</span>
                         </button>
                     }
                 </div>
@@ -195,7 +195,7 @@
             @Loc["Wishlist.CartIsEmpty"]
         </div>
     </template>
-    <template v-if="wishlist.Model.IsEditable && wishlist.Model.Items.length > 0">
+    <template v-if="vmwishlist.Model.IsEditable && vmwishlist.Model.Items.length > 0">
         <div class="row">
             <div class="col-12 share-info generalMarginSupporter text-center text-md-left">
                 <span class="share-label">@Loc["Wishlist.YourWishlistURL"]:</span>
@@ -221,9 +221,9 @@
                     headers: { 'Content-Type': 'application/json' }
                 }).then(function (response) {
                     if (response.data.success) {
-                        wishlist.getModel();
+                        vmwishlist.getModel();
                     } else {
-                        wishlist.displayWarning(response.data.message);
+                        vmwishlist.displayWarning(response.data.message);
                     }
                 });
             },
@@ -234,9 +234,9 @@
                     headers: { 'Content-Type': 'application/json' }
                 }).then(function (response) {
                     if (response.data.success) {
-                        wishlist.getModel();
+                        vmwishlist.getModel();
                     } else {
-                        wishlist.displayWarning(response.data.message);
+                        vmwishlist.displayWarning(response.data.message);
                     }
                 });
             },
@@ -251,7 +251,7 @@
                         vm.UpdatedShoppingCartItemId = id;
                         vm.$refs['ModalQuickView'].show();
                     } else {
-                        wishlist.displayWarning(response.data.message);
+                        vmwishlist.displayWarning(response.data.message);
                     }
                 });
             },
@@ -269,10 +269,10 @@
                     url: '@Url.RouteUrl("UpdateQuantityWishlist")',
                 }).then(function (response) {
                     if (response.data.success) {
-                        wishlist.getModel();
+                        vmwishlist.getModel();
                     }
                     else {
-                        wishlist.displayWarning(response.data.warnings, 'danger');
+                        vmwishlist.displayWarning(response.data.warnings, 'danger');
                     }
                 })
             },
@@ -286,17 +286,15 @@
                         'X-Response-View': 'Json'
                     }
                 }).then(function (response) {
-                    wishlist.Model = response.data;
+                    vmwishlist.Model = response.data;
                     if (document.querySelector('.wishlist-qty')) {
                         let total = 0;
-                        for (var i = 0; i < wishlist.Model.Items.length; i++) {
-                            total = total + wishlist.Model.Items[i].Quantity;
+                        for (var i = 0; i < vmwishlist.Model.Items.length; i++) {
+                            total = total + vmwishlist.Model.Items[i].Quantity;
                         }
                         document.querySelector('.wishlist-qty').innerHTML = total;
                     }
-                }).then(function () {
-                    vm.updateFly();
-                });
+                })
             },
             displayWarning(message) {
                 this.$bvToast.toast(message, {
@@ -308,5 +306,5 @@
             }
         }
     });
-    var wishlist = new Wishlist().$mount('#wishlistPage')
+    var vmwishlist = new Wishlist().$mount('#wishlistPage')
 </script>
