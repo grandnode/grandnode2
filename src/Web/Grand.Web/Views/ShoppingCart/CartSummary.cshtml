@@ -95,7 +95,7 @@
                                                         </select>
                                                     </div>
                                                     <div v-else>
-                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" :value="item.Quantity" min="1" v-on:change="vmorder.updateQuantity('itemquantity', item.Id)" class="qty-input form-control text-center" />
+                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" v-model="item.Quantity" min="1" v-on:change="vmorder.updateQuantity('itemquantity', item.Id)" class="qty-input form-control text-center" />
                                                     </div>
                                                 </div>
                                                 <div v-else>
@@ -355,7 +355,13 @@
                     },
                 }).then(function (response) {
                     vmorder.cart = response.data;
-                    vm.updateFly();
+                    if (document.querySelector('.qty-indicator.cart-qty')) {
+                        let total = 0;
+                        for (var i = 0; i < vmorder.cart.Items.length; i++) {
+                            total = total + vmorder.cart.Items[i].Quantity;
+                        }
+                        document.querySelector('.qty-indicator.cart-qty').innerHTML = total;
+                    }
                 }).then(function () {
                     vmorder.updateTotals();
                 });
@@ -427,6 +433,7 @@
                         vm.flycart = newfly;
                         vm.flycartitems = newfly.Items;
                         vm.flycartindicator = newfly.TotalProducts;
+                        document.querySelector('.qty-indicator.cart-qty').innerText = response.data.totalproducts;
                     } else {
                         document.querySelector('.qty-indicator.cart-qty').innerText = response.data.totalproducts;
                     }
