@@ -573,7 +573,7 @@ namespace Grand.Web.Endpoints
 
             endpointRouteBuilder.MapControllerRoute("UpdateItemCart",
                             $"{pattern}updateitemcart/",
-                            new { controller = "ShoppingCart", action = "UpdateItemCart" });
+                            new { controller = "ActionCart", action = "UpdateItemCart" });
             //get state list by country ID  (AJAX link)
             endpointRouteBuilder.MapControllerRoute("DeleteCartItem",
                             pattern + "deletecartitem/{id?}",
