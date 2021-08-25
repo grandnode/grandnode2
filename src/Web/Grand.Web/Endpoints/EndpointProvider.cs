@@ -567,9 +567,9 @@ namespace Grand.Web.Endpoints
                             $"{pattern}removegiftvouchercode/",
                             new { controller = "ShoppingCart", action = "RemoveGiftVoucherCode" });
 
-            endpointRouteBuilder.MapControllerRoute("UpdateCart",
-                            $"{pattern}updatecart/",
-                            new { controller = "ActionCart", action = "UpdateCart" });
+            endpointRouteBuilder.MapControllerRoute("UpdateQuantityCart",
+                            $"{pattern}cart/updatequantity",
+                            new { controller = "ShoppingCart", action = "UpdateQuantity" });
 
             endpointRouteBuilder.MapControllerRoute("UpdateItemCart",
                             $"{pattern}updateitemcart/",

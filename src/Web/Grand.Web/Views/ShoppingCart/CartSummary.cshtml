@@ -90,12 +90,12 @@
                                             <td class="quantity">
                                                 <div v-if="vmorder.cart.IsEditable">
                                                     <div v-if="item.AllowedQuantities[0]">
-                                                        <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="custom-select form-control qty-dropdown" v-on:change="vmorder.ChangeShoppingCart($event)">
+                                                        <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="custom-select form-control qty-dropdown" v-on:change="vmorder.updateQuantity('itemquantity', item.Id)">
                                                             <option v-for="qty in item.AllowedQuantities" :selected="qty.Selected" :value="qty.Value">{{qty.Value}}</option>
                                                         </select>
                                                     </div>
                                                     <div v-else>
-                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" :value="item.Quantity" min="1" v-on:change="vmorder.ChangeShoppingCart($event)" class="qty-input form-control text-center" />
+                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" :value="item.Quantity" min="1" v-on:change="vmorder.updateQuantity('itemquantity', item.Id)" class="qty-input form-control text-center" />
                                                     </div>
                                                 </div>
                                                 <div v-else>
@@ -361,24 +361,33 @@
                     vmorder.updateTotals();
                 });
             },
-            ChangeShoppingCart(event) {
-                if (event.target.getAttribute('data-href')) {
-                    var href = event.target.getAttribute('data-href');
-                } else {
-                    var href = '@Url.RouteUrl("UpdateCart")';
-                }
-                var form = document.getElementById('shopping-cart-form');
-                var data = new FormData(form);
+            updateQuantity(element, id) {
+                var elementById = document.getElementById(element + id);
+                var data = new FormData();
+                data.append('shoppingcartId', id);
+                data.append('quantity', elementById.value);
+                data.append('__RequestVerificationToken',
+                    document.querySelector('input[name=__RequestVerificationToken]').value);
+
                 axios({
                     method: 'post',
                     data: data,
-                    url: href,
+                    url: '@Url.RouteUrl("UpdateQuantityCart")',
                 }).then(function (response) {
-                    vmorder.cart = response.data.model;
+                    if (response.data.success) {
+                        vmorder.cart = response.data.model;
+                        if (document.querySelector('.qty-indicator.cart-qty'))
+                            document.querySelector('.qty-indicator.cart-qty').innerText = response.data.totalproducts;
+                    }
+                    else {
+                        vmorder.displayWarning(response.data.warnings);
+                    }
                 }).then(function () {
                     this.vmorder.updateTotals();
                 });
+
             },
+            
             updateOnCart(id) {
                 axios({
                     url: '/GetItemCart/' + id + '',

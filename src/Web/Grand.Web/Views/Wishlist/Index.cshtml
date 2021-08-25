@@ -124,14 +124,14 @@
                                             <template v-if="wishlist.Model.IsEditable">
                                                 <td role="cell" class="text-center">
                                                     <template v-if="item.AllowedQuantities[0]">
-                                                        <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="custom-select form-control qty-dropdown" v-on:change="wishlist.changeQuantity('itemquantity', item.Id)">
+                                                        <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="custom-select form-control qty-dropdown" v-on:change="wishlist.updateQuantity('itemquantity', item.Id)">
                                                             <template v-for="qty in item.AllowedQuantities">
                                                                 <option :id="'itemqty' + item.Id" :selected="qty.Selected" :value="qty.Value">{{qty.Value}}</option>
                                                             </template>
                                                         </select>
                                                     </template>
                                                     <template v-else>
-                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" :value="item.Quantity" min="1" v-on:change="wishlist.changeQuantity('itemquantity', item.Id)" class="qty-input form-control text-center" />
+                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" :value="item.Quantity" min="1" v-on:change="wishlist.updateQuantity('itemquantity', item.Id)" class="qty-input form-control text-center" />
                                                     </template>
                                                 </td>
                                             </template>
@@ -256,7 +256,7 @@
                     }
                 });
             },
-            changeQuantity(element, id) {
+            updateQuantity(element, id) {
                 var elementById = document.getElementById(element + id);
                 var data = new FormData();
                 data.append('shoppingcartId', id);
