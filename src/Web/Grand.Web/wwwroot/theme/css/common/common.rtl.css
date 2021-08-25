@@ -647,7 +647,7 @@ dl, ol, ul {
 .quick-view-overview .bid-input {
     height: 45px;
 }
-.quick-view .add-to-cart-button {
+.quick-view .quick-view-overview .main-button {
     font-size: 20px;
     font-weight: 500;
     height: 45px;
