@@ -116,6 +116,18 @@ namespace Grand.Web.Controllers
             }
 
             var allowedQuantities = product.ParseAllowedQuantities();
+
+            //check and set quantity for wishlist
+            if(cartType == ShoppingCartType.Wishlist && allowedQuantities.Length > 0)
+            {
+                if (quantity == 1)
+                {
+                    quantity = allowedQuantities.FirstOrDefault();
+                    if (product.OrderMinimumQuantity > quantity)
+                        quantity = product.OrderMinimumQuantity;
+                }
+            }
+
             if (cartType == ShoppingCartType.ShoppingCart && allowedQuantities.Length > 0)
             {
                 //cannot be added to the cart (requires a customer to select a quantity from dropdownlist)
@@ -142,29 +154,32 @@ namespace Grand.Web.Controllers
 
             var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, cartType);
 
-            var shoppingCartItem = await _shoppingCartService.FindShoppingCartItem(cart, cartType, product.Id, warehouseId);
-
-            //if we already have the same product in the cart, then use the total quantity to validate
-            var quantityToValidate = shoppingCartItem != null ? shoppingCartItem.Quantity + quantity : quantity;
-            var addToCartWarnings = await _shoppingCartValidator
-              .GetShoppingCartItemWarnings(customer, new ShoppingCartItem() {
-                  ShoppingCartTypeId = cartType,
-                  StoreId = _workContext.CurrentStore.Id,
-                  WarehouseId = warehouseId,
-                  Quantity = quantityToValidate
-              }, product, new ShoppingCartValidatorOptions() {
-                  GetRequiredProductWarnings = false,
-                  GetAttributesWarnings = (cartType != ShoppingCartType.Wishlist),
-                  GetGiftVoucherWarnings = (cartType != ShoppingCartType.Wishlist)
-              });
-
-            if (addToCartWarnings.Any())
+            if (cartType != ShoppingCartType.Wishlist)
             {
-                //cannot be added to the cart
-                return Json(new
+                var shoppingCartItem = await _shoppingCartService.FindShoppingCartItem(cart, cartType, product.Id, warehouseId);
+
+                //if we already have the same product in the cart, then use the total quantity to validate
+                var quantityToValidate = shoppingCartItem != null ? shoppingCartItem.Quantity + quantity : quantity;
+                var addToCartWarnings = await _shoppingCartValidator
+                  .GetShoppingCartItemWarnings(customer, new ShoppingCartItem() {
+                      ShoppingCartTypeId = cartType,
+                      StoreId = _workContext.CurrentStore.Id,
+                      WarehouseId = warehouseId,
+                      Quantity = quantityToValidate
+                  }, product, new ShoppingCartValidatorOptions() {
+                      GetRequiredProductWarnings = false,
+                      GetAttributesWarnings = (cartType != ShoppingCartType.Wishlist),
+                      GetGiftVoucherWarnings = (cartType != ShoppingCartType.Wishlist)
+                  });
+
+                if (addToCartWarnings.Any())
                 {
-                    redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
-                });
+                    //cannot be added to the cart
+                    return Json(new
+                    {
+                        redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
+                    });
+                }
             }
 
             //try adding product to the cart 
