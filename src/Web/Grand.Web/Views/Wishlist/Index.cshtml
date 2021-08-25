@@ -269,6 +269,7 @@
                     url: '@Url.RouteUrl("UpdateQuantityWishlist")',
                 }).then(function (response) {
                     if (response.data.success) {
+                        wishlist.getModel();
                         if (document.querySelector('.wishlist-qty')) {
                             document.querySelector('.wishlist-qty').innerHTML = response.data.totalproducts;
                         }
