@@ -448,10 +448,10 @@
                     this.vmorder.updateTotals();
                 });
             },
-            displayWarning(message, variant) {
+            displayWarning(message) {
                 this.$bvToast.toast(message, {
                     title: '@Loc["common.warning"]',
-                    variant: variant,
+                    variant: 'danger',
                     autoHideDelay: 5000,
                     appendToast: true
                 })

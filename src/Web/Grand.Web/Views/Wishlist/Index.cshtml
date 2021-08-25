@@ -274,7 +274,7 @@
                         }
                     }
                     else {
-                        wishlist.displayWarning(response.data.warnings);
+                        wishlist.displayWarning(response.data.warnings, 'danger');
                     }
                 })
             },
@@ -296,10 +296,10 @@
                     vm.updateFly();
                 });
             },
-            displayWarning(message, variant) {
+            displayWarning(message) {
                 this.$bvToast.toast(message, {
                     title: '@Loc["common.warning"]',
-                    variant: variant,
+                    variant: 'danger',
                     autoHideDelay: 5000,
                     appendToast: true
                 })
