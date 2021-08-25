@@ -131,7 +131,7 @@
                                                         </select>
                                                     </template>
                                                     <template v-else>
-                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" :v-model="item.Quantity" min="1" v-on:change="wishlist.updateQuantity('itemquantity', item.Id)" class="qty-input form-control text-center" />
+                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" v-model="item.Quantity" min="1" v-on:change="wishlist.updateQuantity('itemquantity', item.Id)" class="qty-input form-control text-center" />
                                                     </template>
                                                 </td>
                                             </template>
