@@ -87,7 +87,7 @@
 
                                                 <template v-if="PopupQuickViewVueModal.ProductType !== 10">
                                                     <partial name="_AddToCartQV" />
-                                                    <template v-if="!PopupQuickViewVueModal.AddToCart.DisableWishlistButton || PopupQuickViewVueModal.CompareProductsEnabled || PopupQuickViewVueModal.EmailAFriendEnabled">
+                                                    <template v-if="(!PopupQuickViewVueModal.AddToCart.DisableWishlistButton || PopupQuickViewVueModal.CompareProductsEnabled || PopupQuickViewVueModal.EmailAFriendEnabled) && PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId == null">
                                                         <div class="btn-group mt-2 mb-3 w-100">
                                                             <partial name="_AddToWishlistQV" />
                                                             <partial name="_ProductsComparisonQV" />

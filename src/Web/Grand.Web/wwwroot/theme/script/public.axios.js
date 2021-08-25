@@ -78,6 +78,30 @@ var AxiosCart = {
         });
     },
 
+    //update product on cart/wishlist
+    updateitem: function (urlupdate) {
+        console.log(urlupdate);
+        var form = document.querySelector('#ModalQuickView #product-details-form');
+        var data = new FormData(form);
+        axios({
+            url: urlupdate,
+            data: data,
+            method: 'post',
+        }).then(function (response) {
+            console.log(response);
+        }).catch(function (error) {
+            error.axiosFailure;
+        }).then(function () {
+            //if (typeof wishlist !== 'undefined') {
+            //    wishlist.updateWishlist();
+            //}
+            //if (typeof vmorder !== 'undefined') {
+            //    vmorder.updateEditCart();
+            //}
+            this.AxiosCart.resetLoadWaiting();
+        });
+    },
+
     //add bid
     addbid: function (urladd, formselector) {
         if (this.loadWaiting != false) {
