@@ -209,7 +209,6 @@
         props: {
             Model: null,
             PopupUpdateVueModal: null,
-            UpdatedShoppingCartItemId: null
         },
         mounted() {
             this.Model = @Json.Serialize(Model);
@@ -222,7 +221,7 @@
                     headers: { 'Content-Type': 'application/json' }
                 }).then(function (response) {
                     if (response.data.success) {
-                        wishlist.getWishlist();
+                        wishlist.getModel();
                     } else {
                         wishlist.displayWarning(response.data.message);
                     }
@@ -235,7 +234,7 @@
                     headers: { 'Content-Type': 'application/json' }
                 }).then(function (response) {
                     if (response.data.success) {
-                        wishlist.getWishlist();
+                        wishlist.getModel();
                     } else {
                         wishlist.displayWarning(response.data.message);
                     }
@@ -249,7 +248,7 @@
                 }).then(function (response) {
                     if (response.data.success) {
                         vm.PopupQuickViewVueModal = response.data.model;
-                        wishlist.UpdatedShoppingCartItemId = id;
+                        vm.UpdatedShoppingCartItemId = id;
                         vm.$refs['ModalQuickView'].show();
                     } else {
                         wishlist.displayWarning(response.data.message);
@@ -279,7 +278,7 @@
                     }
                 })
             },
-            getWishlist() {
+            getModel() {
                 axios({
                     baseURL: '@Url.RouteUrl("Wishlist")',
                     method: 'get',
@@ -297,10 +296,10 @@
                     vm.updateFly();
                 });
             },
-            displayWarning(message) {
+            displayWarning(message, variant) {
                 this.$bvToast.toast(message, {
                     title: '@Loc["common.warning"]',
-                    variant: 'danger',
+                    variant: variant,
                     autoHideDelay: 5000,
                     appendToast: true
                 })

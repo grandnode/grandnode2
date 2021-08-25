@@ -244,7 +244,6 @@
             cart: null,
             totals: null,
             checkoutAsGuest: false,
-            UpdatedShoppingCartItemId: null,
             // confirm order
             MinOrderTotalWarning: null,
             TermsOfServiceOnOrderConfirmPage: null,
@@ -345,7 +344,7 @@
                     this.vmorder.updateTotals();
                 });
             },
-            updateEditCart() {
+            getModel() {
                 axios({
                     method: 'get',
                     url: '@Url.RouteUrl("ShoppingCart")',
@@ -368,7 +367,6 @@
                 data.append('quantity', elementById.value);
                 data.append('__RequestVerificationToken',
                     document.querySelector('input[name=__RequestVerificationToken]').value);
-
                 axios({
                     method: 'post',
                     data: data,
@@ -385,9 +383,7 @@
                 }).then(function () {
                     this.vmorder.updateTotals();
                 });
-
             },
-            
             updateOnCart(id) {
                 axios({
                     url: '/GetItemCart/' + id + '',
@@ -396,7 +392,7 @@
                 }).then(function (response) {
                     if (response.data.success) {
                         vm.PopupQuickViewVueModal = response.data.model;
-                        vmorder.UpdatedShoppingCartItemId = id;
+                        vm.UpdatedShoppingCartItemId = id;
                         vm.$refs['ModalQuickView'].show();
                     } else {
                         vmorder.displayWarning(response.data.message);
@@ -435,10 +431,10 @@
                     this.vmorder.updateTotals();
                 });
             },
-            displayWarning(message) {
+            displayWarning(message, variant) {
                 this.$bvToast.toast(message, {
                     title: '@Loc["common.warning"]',
-                    variant: 'danger',
+                    variant: variant,
                     autoHideDelay: 5000,
                     appendToast: true
                 })
