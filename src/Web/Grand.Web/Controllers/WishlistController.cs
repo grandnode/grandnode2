@@ -166,7 +166,8 @@ namespace Grand.Web.Controllers
             if (warnings.Any())
                 return Json(new { success = false, message = string.Join(',', warnings) });
 
-            await _shoppingCartService.DeleteShoppingCartItem(_workContext.CurrentCustomer, itemCart);
+            if(_shoppingCartSettings.MoveItemsFromWishlistToCart)
+                await _shoppingCartService.DeleteShoppingCartItem(_workContext.CurrentCustomer, itemCart);
 
             return Json(new { success = true, message = "" });
 
