@@ -278,7 +278,7 @@ namespace Grand.Web.Controllers
                     warnings = "No permission",
                 });
 
-            var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart | ShoppingCartType.OnHoldCart)
+            var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes())
                 .FirstOrDefault(x => x.Id == shoppingcartId);
             if (cart == null)
             {
@@ -305,7 +305,7 @@ namespace Grand.Web.Controllers
             warnings.AddRange(currSciWarnings);
 
             var model = await _mediator.Send(new GetShoppingCart() {
-                Cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart | ShoppingCartType.OnHoldCart),
+                Cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes()),
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,
                 Language = _workContext.WorkingLanguage,
