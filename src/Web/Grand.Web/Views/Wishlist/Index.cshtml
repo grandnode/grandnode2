@@ -235,6 +235,7 @@
                 }).then(function (response) {
                     if (response.data.success) {
                         vmwishlist.getModel();
+                        vm.updateFly();
                     } else {
                         vmwishlist.displayWarning(response.data.message);
                     }
