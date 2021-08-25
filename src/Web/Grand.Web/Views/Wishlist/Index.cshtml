@@ -270,9 +270,6 @@
                 }).then(function (response) {
                     if (response.data.success) {
                         wishlist.getModel();
-                        if (document.querySelector('.wishlist-qty')) {
-                            document.querySelector('.wishlist-qty').innerHTML = response.data.totalproducts;
-                        }
                     }
                     else {
                         wishlist.displayWarning(response.data.warnings, 'danger');
@@ -291,7 +288,11 @@
                 }).then(function (response) {
                     wishlist.Model = response.data;
                     if (document.querySelector('.wishlist-qty')) {
-                        document.querySelector('.wishlist-qty').innerHTML = response.data.Items.length;
+                        let total = 0;
+                        for (var i = 0; i < wishlist.Model.Items.length; i++) {
+                            total = total + wishlist.Model.Items[i].Quantity;
+                        }
+                        document.querySelector('.wishlist-qty').innerHTML = total;
                     }
                 }).then(function () {
                     vm.updateFly();
