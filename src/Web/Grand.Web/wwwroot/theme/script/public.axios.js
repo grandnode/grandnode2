@@ -42,7 +42,13 @@ var AxiosCart = {
             this.AxiosCart.success_process(response);
         }).catch(function (error) {
             error.axiosFailure;
-        }).then(function (response) {
+        }).then(function () {
+            if (typeof vmwishlist !== 'undefined') {
+                vmwishlist.getModel();
+            }
+            if (typeof vmorder !== 'undefined') {
+                vmorder.getModel();
+            }
             this.AxiosCart.resetLoadWaiting();
         });  
     },
