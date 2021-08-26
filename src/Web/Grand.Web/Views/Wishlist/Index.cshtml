@@ -233,7 +233,7 @@
                     if (response.data.success) {
                         vmwishlist.getModel();
                         vm.updateFly();
-                        vmwishlist.displayWarning('@Loc["wishlist.addedtocart"]', 'info');
+                        vmwishlist.displayWarning('@Loc["wishlist.addedtocart"]', 'info', '@Loc["wishlist.success"]');
                     } else {
                         vmwishlist.displayWarning(response.data.message, 'danger');
                     }
@@ -295,9 +295,12 @@
                     }
                 })
             },
-            displayWarning(message, variant) {
+            displayWarning(message, variant, title) {
+                if (typeof title == 'undefined') {
+                    title = '@Loc["common.warning"]';
+                }
                 this.$bvToast.toast(message, {
-                    title: '@Loc["common.warning"]',
+                    title: title,
                     variant: variant,
                     autoHideDelay: 5000,
                     appendToast: true
