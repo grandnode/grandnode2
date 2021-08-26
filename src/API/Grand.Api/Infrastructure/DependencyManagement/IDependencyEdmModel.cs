@@ -1,5 +1,5 @@
 ﻿using Grand.Infrastructure.Configuration;
-using Microsoft.AspNet.OData.Builder;
+using Microsoft.OData.ModelBuilder;
 
 namespace Grand.Api.Infrastructure.DependencyManagement
 {
