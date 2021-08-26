@@ -72,23 +72,10 @@ namespace Grand.Web.Controllers
 
         #region Methods
 
-        [HttpPost]
-        public virtual async Task<IActionResult> AddProductCatalog(string productId, int shoppingCartTypeId,
-            int quantity, bool forceredirection = false)
+        protected IActionResult RedirectToProduct(Product product, ShoppingCartType cartType, int quantity)
         {
-            var cartType = (ShoppingCartType)shoppingCartTypeId;
-
-            var product = await _productService.GetProductById(productId);
-            if (product == null)
-                //no product found
-                return Json(new
-                {
-                    success = false,
-                    message = "No product found with the specified ID"
-                });
-
-            //we can add only simple products 
-            if (product.ProductTypeId != ProductType.SimpleProduct || _shoppingCartSettings.AllowToSelectWarehouse)
+            //we can't add grouped products 
+            if (product.ProductTypeId == ProductType.GroupedProduct)
             {
                 return Json(new
                 {
@@ -114,20 +101,7 @@ namespace Grand.Web.Controllers
                     redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
                 });
             }
-
             var allowedQuantities = product.ParseAllowedQuantities();
-
-            //check and set quantity for wishlist
-            if(cartType == ShoppingCartType.Wishlist && allowedQuantities.Length > 0)
-            {
-                if (quantity == 1)
-                {
-                    quantity = allowedQuantities.FirstOrDefault();
-                    if (product.OrderMinimumQuantity > quantity)
-                        quantity = product.OrderMinimumQuantity;
-                }
-            }
-
             if (cartType == ShoppingCartType.ShoppingCart && allowedQuantities.Length > 0)
             {
                 //cannot be added to the cart (requires a customer to select a quantity from dropdownlist)
@@ -146,11 +120,37 @@ namespace Grand.Web.Controllers
                 });
             }
 
+            return null;
+        }
+
+        protected string GetWarehouse(Product product)
+        {
+            return product.UseMultipleWarehouses ? _workContext.CurrentStore.DefaultWarehouseId :
+               (string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId);
+        }
+
+        [HttpPost]
+        public virtual async Task<IActionResult> AddProductCatalog(string productId, int shoppingCartTypeId,
+            int quantity, bool forceredirection = false)
+        {
+            var cartType = (ShoppingCartType)shoppingCartTypeId;
+
+            var product = await _productService.GetProductById(productId);
+            if (product == null)
+                //no product found
+                return Json(new
+                {
+                    success = false,
+                    message = "No product found with the specified ID"
+                });
+
+            var redirect = RedirectToProduct(product, cartType, quantity);
+            if (redirect != null)
+                return redirect;
+
             var customer = _workContext.CurrentCustomer;
 
-            string warehouseId =
-               product.UseMultipleWarehouses ? _workContext.CurrentStore.DefaultWarehouseId :
-               (string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId);
+            string warehouseId = GetWarehouse(product);
 
             var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, cartType);
 
@@ -167,9 +167,7 @@ namespace Grand.Web.Controllers
                       WarehouseId = warehouseId,
                       Quantity = quantityToValidate
                   }, product, new ShoppingCartValidatorOptions() {
-                      GetRequiredProductWarnings = false,
-                      GetAttributesWarnings = (cartType != ShoppingCartType.Wishlist),
-                      GetGiftVoucherWarnings = (cartType != ShoppingCartType.Wishlist)
+                      GetRequiredProductWarnings = false
                   });
 
                 if (addToCartWarnings.Any())
@@ -191,6 +189,7 @@ namespace Grand.Web.Controllers
                 quantity: quantity,
                 validator: new ShoppingCartValidatorOptions() {
                     GetRequiredProductWarnings = false,
+                    GetInventoryWarnings = (cartType == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist),
                     GetAttributesWarnings = (cartType != ShoppingCartType.Wishlist),
                     GetGiftVoucherWarnings = (cartType != ShoppingCartType.Wishlist)
                 });
@@ -198,7 +197,6 @@ namespace Grand.Web.Controllers
             if (addToCart.warnings.Any())
             {
                 //cannot be added to the cart
-                //but we do not display attribute and gift voucher warnings here. do it on the product details page
                 return Json(new
                 {
                     redirect = Url.RouteUrl("Product", new { SeName = product.GetSeName(_workContext.WorkingLanguage.Id) }),
@@ -293,18 +291,8 @@ namespace Grand.Web.Controllers
             }
         }
 
-        [HttpPost]
-        public virtual async Task<IActionResult> AddProductDetails(string productId, int shoppingCartTypeId, IFormCollection form)
+        protected IActionResult ReturnFailMessage(Product product, ShoppingCartType shoppingCartTypeId)
         {
-            var product = await _productService.GetProductById(productId);
-            if (product == null)
-            {
-                return Json(new
-                {
-                    redirect = Url.RouteUrl("HomePage"),
-                });
-            }
-
             //you can't add group products
             if (product.ProductTypeId == ProductType.GroupedProduct)
             {
@@ -344,47 +332,26 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            #region Update existing shopping cart item?
+            return null;
+        }
 
-            string updatecartitemid = form.ContainsKey("UpdatedShoppingCartItemId") ? form["UpdatedShoppingCartItemId"] : "";
-
-            ShoppingCartItem updatecartitem = null;
-            if (_shoppingCartSettings.AllowCartItemEditing && !string.IsNullOrEmpty(updatecartitemid))
-            {
-                var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, (ShoppingCartType)shoppingCartTypeId);
-                updatecartitem = cart.FirstOrDefault(x => x.Id == updatecartitemid);
-
-                //is it this product?
-                if (updatecartitem != null && product.Id != updatecartitem.ProductId)
-                {
-                    return Json(new
-                    {
-                        success = false,
-                        message = "This product does not match a passed shopping cart item identifier"
-                    });
-                }
-            }
-            #endregion
-
-
-            #region Customer entered price
+        private async Task<double?> GetCustomerEnteredPrice(IFormCollection form, string productId)
+        {
             double? customerEnteredPriceConverted = null;
-            if (product.EnteredPrice)
+            foreach (string formKey in form.Keys)
             {
-                foreach (string formKey in form.Keys)
+                if (formKey.Equals(string.Format("addtocart_{0}.CustomerEnteredPrice", productId), StringComparison.OrdinalIgnoreCase))
                 {
-                    if (formKey.Equals(string.Format("addtocart_{0}.CustomerEnteredPrice", productId), StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (double.TryParse(form[formKey], out double customerEnteredPrice))
-                            customerEnteredPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(customerEnteredPrice, _workContext.WorkingCurrency);
-                        break;
-                    }
+                    if (double.TryParse(form[formKey], out double customerEnteredPrice))
+                        customerEnteredPriceConverted = await _currencyService.ConvertToPrimaryStoreCurrency(customerEnteredPrice, _workContext.WorkingCurrency);
+                    break;
                 }
             }
-            #endregion
+            return customerEnteredPriceConverted;
+        }
 
-            #region Quantity
-
+        private int GetQuantity(IFormCollection form, string productId)
+        {
             int quantity = 1;
             foreach (string formKey in form.Keys)
                 if (formKey.Equals(string.Format("addtocart_{0}.EnteredQuantity", productId), StringComparison.OrdinalIgnoreCase))
@@ -393,7 +360,31 @@ namespace Grand.Web.Controllers
                     break;
                 }
 
-            #endregion
+            return quantity;
+        }
+        [HttpPost]
+        public virtual async Task<IActionResult> AddProductDetails(string productId, int shoppingCartTypeId, IFormCollection form)
+        {
+            var product = await _productService.GetProductById(productId);
+            if (product == null)
+            {
+                return Json(new
+                {
+                    redirect = Url.RouteUrl("HomePage"),
+                });
+            }
+
+            var message = ReturnFailMessage(product, (ShoppingCartType)shoppingCartTypeId);
+            if (message != null)
+                return message;
+
+            double? customerEnteredPriceConverted = null;
+            if (product.EnteredPrice)
+            {
+                customerEnteredPriceConverted = await GetCustomerEnteredPrice(form, productId);
+            }
+
+            var quantity = GetQuantity(form, productId);
 
             //product and gift voucher attributes
             var attributes = await _mediator.Send(new GetParseProductAttributes() { Product = product, Form = form });
@@ -475,9 +466,7 @@ namespace Grand.Web.Controllers
                 }
             }
 
-            var cartType = updatecartitem == null ? (ShoppingCartType)shoppingCartTypeId :
-                        //if the item to update is found, then we ignore the specified "shoppingCartTypeId" parameter
-                        updatecartitem.ShoppingCartTypeId;
+            var cartType = (ShoppingCartType)shoppingCartTypeId;
 
             //save item
             var addToCartWarnings = new List<string>();
@@ -488,40 +477,19 @@ namespace Grand.Web.Controllers
                 product.UseMultipleWarehouses ? _workContext.CurrentStore.DefaultWarehouseId :
                 (string.IsNullOrEmpty(_workContext.CurrentStore.DefaultWarehouseId) ? product.WarehouseId : _workContext.CurrentStore.DefaultWarehouseId);
 
-            if (updatecartitem == null)
-            {
-                //add to the cart
-                var addToCart = await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
-                    productId, cartType, _workContext.CurrentStore.Id, warehouseId,
-                    attributes, customerEnteredPriceConverted,
-                    rentalStartDate, rentalEndDate, quantity, true, reservationId, parameter, duration, new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false });
 
-                addToCartWarnings.AddRange(addToCart.warnings);
-                updatecartitem = addToCart.shoppingCartItem;
-            }
-            else
-            {
-                var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, (ShoppingCartType)shoppingCartTypeId);
-                var otherCartItemWithSameParameters = await _shoppingCartService.FindShoppingCartItem(
-                    cart, updatecartitem.ShoppingCartTypeId, productId, warehouseId, attributes, customerEnteredPriceConverted,
-                    rentalStartDate, rentalEndDate);
-                if (otherCartItemWithSameParameters != null &&
-                    otherCartItemWithSameParameters.Id == updatecartitem.Id)
-                {
-                    //ensure it's other shopping cart cart item
-                    otherCartItemWithSameParameters = null;
-                }
-                //update existing item
-                addToCartWarnings.AddRange(await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
-                    updatecartitem.Id, warehouseId, attributes, customerEnteredPriceConverted,
-                    rentalStartDate, rentalEndDate, quantity, true));
-                if (otherCartItemWithSameParameters != null && !addToCartWarnings.Any())
-                {
-                    //delete the same shopping cart item (the other one)
-                    await _shoppingCartService.DeleteShoppingCartItem(_workContext.CurrentCustomer, otherCartItemWithSameParameters);
-                }
-            }
+            //add to the cart
+            var (warnings, shoppingCartItem) = await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
+                productId, cartType, _workContext.CurrentStore.Id, warehouseId,
+                attributes, customerEnteredPriceConverted,
+                rentalStartDate, rentalEndDate, quantity, true, reservationId, parameter, duration,
+                new ShoppingCartValidatorOptions() {
+                    GetRequiredProductWarnings = false,
+                    GetInventoryWarnings = (cartType == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist),
+                });
 
+            addToCartWarnings.AddRange(warnings);
+            
             #region Return result
 
             if (addToCartWarnings.Any())
@@ -538,7 +506,7 @@ namespace Grand.Web.Controllers
             var addtoCartModel = await _mediator.Send(new GetAddToCart() {
                 Product = product,
                 Customer = _workContext.CurrentCustomer,
-                ShoppingCartItem = updatecartitem,
+                ShoppingCartItem = shoppingCartItem,
                 Quantity = quantity,
                 CartType = cartType,
                 CustomerEnteredPrice = customerEnteredPriceConverted,
