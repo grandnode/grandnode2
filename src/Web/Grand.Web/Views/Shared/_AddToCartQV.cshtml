@@ -48,7 +48,10 @@
                     </button>
                 </template>
                 <template v-else>
-                    <button type="button" :id="'add-to-cart-button-' + PopupQuickViewVueModal.AddToCart.ProductId" class="btn btn-info w-100 main-button d-inline-flex" data-productid="PopupQuickViewVueModal.AddToCart.ProductId" :onclick="PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId !== null ? 'AxiosCart.updateitem(`@updateitemcart`, `#product-details-form`);return false;' : 'AxiosCart.addproducttocart_details(`@addtocart/' + PopupQuickViewVueModal.AddToCart.ProductId + '/1`, `#product-details-form`);return false;'">
+                    <button type="button" :id="'add-to-cart-button-' + PopupQuickViewVueModal.AddToCart.ProductId" class="btn btn-info w-100 main-button d-inline-flex" 
+                            data-productid="PopupQuickViewVueModal.AddToCart.ProductId" :onclick="PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId !== null ?
+                                'AxiosCart.updateitem(`@updateitemcart`, `#product-details-form`);return false;' :
+                                'AxiosCart.addproducttocart_details(`@addtocart/' + PopupQuickViewVueModal.AddToCart.ProductId + '/1`, `#product-details-form`);return false;'">
                         <span>
                             <template v-if="PopupQuickViewVueModal.AddToCart.IsAuction">
                                 @Loc["ShoppingCart.BuyNow"]
@@ -59,7 +62,7 @@
                             <template v-else-if="PopupQuickViewVueModal.AddToCart.AvailableForPreOrder">
                                 @Loc["ShoppingCart.PreOrder"]
                             </template>
-                            <template v-else-if="PopupQuickViewVueModal.AddToCart.UpdateShoppingCartItemType == 1">
+                            <template v-else-if="PopupQuickViewVueModal.AddToCart.UpdateShoppingCartItemType !== null">
                                 @Loc["ShoppingCart.AddToCart.Update"]
                             </template>
                             <template v-else>
