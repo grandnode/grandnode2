@@ -74,12 +74,13 @@
                 })
             },
             getModel() {
-                var url = window.location.href;
-                url = new URL(url);
-                url.searchParams.set('timestamp', new Date().getTime());
+                var date = new Date().getTime();
                 axios({
-                    baseURL: url,
                     method: 'get',
+                    params: {
+                        'timestamp': date
+                    },
+                    baseURL: '@Url.RouteUrl("Wishlist")',
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
@@ -94,10 +95,6 @@
                         }
                         document.querySelector('.wishlist-qty').innerHTML = total;
                     }
-                }).then(function () {
-                    var stateurl = new URL(url);
-                    stateurl.searchParams.delete('timestamp');
-                    window.history.replaceState({ path: stateurl.href }, '', stateurl.href);
                 });
             },
             displayWarning(message, variant, title) {

@@ -106,9 +106,13 @@
                 });
             },
             getModel() {
+                var date = new Date().getTime();
                 axios({
                     method: 'get',
-                    url: '@Url.RouteUrl("ShoppingCart")',
+                    params: {
+                        'timestamp': date
+                    },
+                    baseURL: '@Url.RouteUrl("ShoppingCart")',
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json',
