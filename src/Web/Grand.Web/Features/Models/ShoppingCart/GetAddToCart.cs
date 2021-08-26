@@ -20,6 +20,7 @@ namespace Grand.Web.Features.Models.ShoppingCart
         public Language Language { get; set; }
         public Currency Currency { get; set; }
         public Store Store { get; set; }
+        public ShoppingCartItem ShoppingCartItem { get; set; }
         public TaxDisplayType TaxDisplayType { get; set; }
         public int Quantity { get; set; }
         public double? CustomerEnteredPrice { get; set; }

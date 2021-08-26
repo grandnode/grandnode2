@@ -1,0 +1,232 @@
+﻿@model ShoppingCartModel
+<script asp-location="Header">
+ var Order = Vue.extend({
+        props: {
+            cart: null,
+            totals: null,
+            checkoutAsGuest: false,
+            // confirm order
+            MinOrderTotalWarning: null,
+            TermsOfServiceOnOrderConfirmPage: null,
+            ConfirmWarnings: null,
+            // terms of service
+            terms: false,
+            acceptTerms: false,
+        },
+        mounted() {
+            this.cart = @Json.Serialize(Model);
+            this.updateTotals();
+            this.cartView();
+        },
+        watch: {
+            terms: function () {
+                if (this.terms == true) {
+                    this.acceptTerms = false;
+                }
+            }
+        },
+        methods: {
+            cartView() {
+                var body = document.body;
+                body.classList.add("cart-view");
+            },
+            updateCart() {
+                axios({
+                    baseURL: '/Component/Index?Name=OrderSummary',
+                    method: 'get',
+                    data: null,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Response-View': 'Json'
+                    }
+                }).then(response => {
+                    this.cart = response.data;
+                })
+            },
+            updateTotals() {
+                axios({
+                    baseURL: '/Component/Index?Name=OrderTotals',
+                    method: 'get',
+                    data: null,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Response-View': 'Json'
+                    }
+                }).then(response => {
+                    this.totals = response.data;
+                });
+            },
+            termsCheck(guest) {
+                if (vmorder.cart.MinOrderSubtotalWarning == null) {
+                    if (this.terms) {
+                        if (guest) {
+                            window.location = '@Url.RouteUrl("Checkout")';
+                        } else {
+                            document.getElementById('shopping-cart-form').setAttribute('action', '@Url.RouteUrl("StartCheckout")');
+                            document.getElementById('shopping-cart-form').submit();
+                        }
+                        vmorder.acceptTerms = false;
+                    }
+                    else {
+                        vmorder.acceptTerms = true;
+                    }
+                }
+            },
+            ApplyGiftVoucher(href) {
+                var bodyFormData = new FormData();
+                bodyFormData.append('giftvouchercouponcode', document.getElementById('giftvouchercouponcode').value);
+                bodyFormData.append('__RequestVerificationToken', document.querySelector('input[name=__RequestVerificationToken]').value);
+                axios({
+                    method: 'post',
+                    url: href,
+                    data: bodyFormData,
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                }).then(function (response) {
+                    vmorder.cart = response.data.model;
+                }).then(function () {
+                    this.vmorder.updateTotals()
+                });
+            },
+            removeGiftVoucher(href) {
+                var bodyFormData = new FormData();
+                bodyFormData.append('__RequestVerificationToken', document.querySelector('input[name=__RequestVerificationToken]').value);
+                axios({
+                    method: 'post',
+                    url: href,
+                    data: bodyFormData,
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                }).then(function (response) {
+                    vmorder.cart = response.data.model;
+                }).catch(function (error) {
+                    alert(error);
+                }).then(function () {
+                    this.vmorder.updateTotals();
+                });
+            },
+            getModel() {
+                axios({
+                    method: 'get',
+                    url: '@Url.RouteUrl("ShoppingCart")',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Response-View': 'Json'
+                    },
+                }).then(function (response) {
+                    vmorder.cart = response.data;
+                    if (document.querySelector('.qty-indicator.cart-qty')) {
+                        let total = 0;
+                        for (var i = 0; i < vmorder.cart.Items.length; i++) {
+                            total = total + vmorder.cart.Items[i].Quantity;
+                        }
+                        document.querySelector('.qty-indicator.cart-qty').innerHTML = total;
+                    }
+                }).then(function () {
+                    vmorder.updateTotals();
+                });
+            },
+            updateQuantity(element, id) {
+                var elementById = document.getElementById(element + id);
+                var data = new FormData();
+                data.append('shoppingcartId', id);
+                data.append('quantity', elementById.value);
+                data.append('__RequestVerificationToken',
+                    document.querySelector('input[name=__RequestVerificationToken]').value);
+                axios({
+                    method: 'post',
+                    data: data,
+                    url: '@Url.RouteUrl("UpdateQuantityCart")',
+                }).then(function (response) {
+                    if (response.data.success) {
+                        vmorder.cart = response.data.model;
+                        if (document.querySelector('.qty-indicator.cart-qty'))
+                            document.querySelector('.qty-indicator.cart-qty').innerText = response.data.totalproducts;
+                    }
+                    else {
+                        vmorder.displayWarning(response.data.warnings);
+                    }
+                }).then(function () {
+                    this.vmorder.updateTotals();
+                });
+            },
+            updateCartType(id, iscart) {
+                var data = new FormData();
+                data.append('id', id);
+                data.append('status', iscart);
+                data.append('__RequestVerificationToken',
+                    document.querySelector('input[name=__RequestVerificationToken]').value);
+                axios({
+                    method: 'post',
+                    data: data,
+                    url: '@Url.RouteUrl("ChangeTypeCartItem")',
+                }).then(function (response) {
+                    vmorder.cart = response.data.model;
+                    vm.updateFly();
+                }).then(function () {
+                    this.vmorder.updateTotals();
+                });
+            },
+            updateOnCart(id) {
+                axios({
+                    url: '/GetItemCart/' + id + '',
+                    method: 'get',
+                    headers: { 'Content-Type': 'application/json' }
+                }).then(function (response) {
+                    if (response.data.success) {
+                        vm.PopupQuickViewVueModal = response.data.model;
+                        vm.UpdatedShoppingCartItemId = id;
+                        vm.$refs['ModalQuickView'].show();
+                    } else {
+                        vmorder.displayWarning(response.data.message);
+                    }
+                });
+            },
+            deleteitem(href) {
+                axios({
+                    method: 'post',
+                    url: href,
+                }).then(function (response) {
+                    vmorder.cart = response.data.model;
+                    if (document.querySelector('.sidebar-cart')) {
+                        var newfly = response.data.sidebarshoppingcartmodel;
+                        vm.flycart = newfly;
+                        vm.flycartitems = newfly.Items;
+                        vm.flycartindicator = newfly.TotalProducts;
+                        document.querySelector('.qty-indicator.cart-qty').innerText = response.data.totalproducts;
+                    } else {
+                        document.querySelector('.qty-indicator.cart-qty').innerText = response.data.totalproducts;
+                    }
+                }).then(function () {
+                    this.vmorder.updateTotals();
+                });
+            },
+            ApplyDiscountCode(href) {
+                var bodyFormData = new FormData();
+                bodyFormData.append('discountcouponcode', document.getElementById('discountcouponcode').value);
+                bodyFormData.append('__RequestVerificationToken', document.querySelector('input[name=__RequestVerificationToken]').value);
+                axios({
+                    method: 'post',
+                    url: href,
+                    data: bodyFormData,
+                }).then(function (response) {
+                    vmorder.cart = response.data.model;
+                }).then(function () {
+                    this.vmorder.updateTotals();
+                });
+            },
+            displayWarning(message) {
+                this.$bvToast.toast(message, {
+                    title: '@Loc["common.warning"]',
+                    variant: 'danger',
+                    autoHideDelay: 5000,
+                    appendToast: true
+                })
+            }
+        }
+    });
+
+    var vmorder = new Order().$mount('#ordersummarypagecart')
+
+</script>

@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Checkout.Commands.Models.Orders;
 using Grand.Business.Checkout.Interfaces.Orders;
+using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
@@ -47,14 +48,15 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 {
                     if (product.ProductTypeId == ProductType.SimpleProduct)
                     {
-                        warnings.AddRange(await _shoppingCartService.AddToCart(customer, orderItem.ProductId,
+                        warnings.AddRange((await _shoppingCartService.AddToCart(customer, orderItem.ProductId,
                             ShoppingCartType.ShoppingCart, request.Order.StoreId, orderItem.WarehouseId,
                             orderItem.Attributes,
                             product.EnteredPrice ?
                             _taxSettings.PricesIncludeTax ? orderItem.UnitPriceInclTax : orderItem.UnitPriceExclTax
                             : (double?)default,
                             orderItem.RentalStartDateUtc, orderItem.RentalEndDateUtc,
-                            orderItem.Quantity, false, getRequiredProductWarnings: false));
+                            orderItem.Quantity, false,
+                            validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false })).warnings);
                     }
                 }
                 else

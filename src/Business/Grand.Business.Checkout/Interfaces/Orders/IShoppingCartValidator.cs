@@ -82,6 +82,15 @@ namespace Grand.Business.Checkout.Interfaces.Orders
         Task<IList<string>> GetReservationProductWarnings(Customer customer, Product product, ShoppingCartItem shoppingCartItem);
 
         /// <summary>
+        /// Validates shopping cart item for inventory
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <param name="Product">product</param>
+        /// <param name="shoppingCartItem">ShoppingCartItem</param>
+        /// <returns>Warnings</returns>
+        Task<IList<string>> GetInventoryProductWarnings(Customer customer, Product product, ShoppingCartItem shoppingCartItem);
+
+        /// <summary>
         /// Validates common problems
         /// </summary>
         /// <param name="customer">Customer</param>

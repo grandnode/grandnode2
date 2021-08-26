@@ -13374,6 +13374,9 @@
   <Resource Name="Common.Show">
     <Value>Show</Value>
   </Resource>
+  <Resource Name="Common.Success">
+    <Value>Success</Value>
+  </Resource>
   <Resource Name="Common.Upload">
     <Value>Upload</Value>
   </Resource>

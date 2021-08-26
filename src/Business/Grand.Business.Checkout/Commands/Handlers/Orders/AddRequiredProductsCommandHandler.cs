@@ -2,6 +2,7 @@
 using Grand.Business.Checkout.Commands.Models.Orders;
 using Grand.Business.Checkout.Extensions;
 using Grand.Business.Checkout.Interfaces.Orders;
+using Grand.Business.Checkout.Services.Orders;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using MediatR;
@@ -67,13 +68,14 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
                         if (product.AutoAddRequiredProducts)
                         {
-                            var addToCartWarnings = await _shoppingCartService.AddToCart(customer: customer,
+                            var addToCart = await _shoppingCartService.AddToCart(customer: customer,
                                 productId: rp.Id,
                                 shoppingCartType: shoppingCartType,
                                 storeId: storeId,
-                                automaticallyAddRequiredProductsIfEnabled: false, getRequiredProductWarnings: false);
+                                automaticallyAddRequiredProductsIfEnabled: false, 
+                                validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false });
 
-                            if (rp.RequireOtherProducts && addToCartWarnings.Count == 0)
+                            if (rp.RequireOtherProducts && addToCart.warnings.Count == 0)
                             {
                                 await Handle(new AddRequiredProductsCommand
                                 {

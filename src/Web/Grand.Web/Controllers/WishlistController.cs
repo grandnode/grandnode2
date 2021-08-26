@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Checkout.Extensions;
 using Grand.Business.Checkout.Interfaces.Orders;
+using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Security;
@@ -66,6 +67,7 @@ namespace Grand.Web.Controllers
 
         #region Wishlist
 
+        [HttpGet]
         public virtual async Task<IActionResult> Index(Guid? customerGuid)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
@@ -82,8 +84,7 @@ namespace Grand.Web.Controllers
             if (!string.IsNullOrEmpty(_workContext.CurrentStore.Id))
                 cart = cart.LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _workContext.CurrentStore.Id);
 
-            var model = await _mediator.Send(new GetWishlist()
-            {
+            var model = await _mediator.Send(new GetWishlist() {
                 Cart = cart.ToList(),
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
@@ -96,113 +97,103 @@ namespace Grand.Web.Controllers
             return View(model);
         }
 
+        [AutoValidateAntiforgeryToken]
         [HttpPost]
-        public virtual async Task<IActionResult> UpdateWishlist(IFormCollection form)
+        public virtual async Task<IActionResult> UpdateQuantity(string shoppingcartId, int quantity)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
                 return RedirectToRoute("HomePage");
 
-            var customer = _workContext.CurrentCustomer;
-
-            var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist);
-
-            var allIdsToRemove = !string.IsNullOrEmpty(form["removefromcart"].ToString())
-                ? form["removefromcart"].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x)
-                .ToList()
-                : new List<string>();
-
-            //current warnings <cart item identifier, warnings>
-            var innerWarnings = new Dictionary<string, IList<string>>();
-            foreach (var sci in cart)
+            var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist).FirstOrDefault(x => x.Id == shoppingcartId);
+            if (cart == null)
             {
-                bool remove = allIdsToRemove.Contains(sci.Id);
-                if (remove)
-                    await _shoppingCartService.DeleteShoppingCartItem(customer, sci);
-                else
+                return Json(new
                 {
-                    foreach (string formKey in form.Keys)
-                        if (formKey.Equals(string.Format("itemquantity{0}", sci.Id), StringComparison.OrdinalIgnoreCase))
-                        {
-                            if (int.TryParse(form[formKey], out int newQuantity))
-                            {
-                                var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
-                                    sci.Id, sci.WarehouseId, sci.Attributes, sci.EnteredPrice,
-                                    sci.RentalStartDateUtc, sci.RentalEndDateUtc,
-                                    newQuantity, true);
-                                innerWarnings.Add(sci.Id, currSciWarnings);
-                            }
-                            break;
-                        }
-                }
+                    success = false,
+                    warnings = "Shopping cart item not found",
+                });
+            }
+            if (quantity <= 0)
+            {
+                return Json(new
+                {
+                    success = false,
+                    warnings = "Wrong quantity ",
+                });
             }
 
-            return RedirectToAction("Index");
+
+            var warnings = new List<string>();
+            var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
+                cart.Id, cart.WarehouseId, cart.Attributes, cart.EnteredPrice,
+                cart.RentalStartDateUtc, cart.RentalEndDateUtc,
+                quantity, true);
+            warnings.AddRange(currSciWarnings);
+
+            return Json(new
+            {
+                success = !warnings.Any(),
+                warnings = string.Join(", ", warnings),
+                totalproducts = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist).Sum(x => x.Quantity),
+            });
+
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> AddItemsToCartFromWishlist(Guid? customerGuid, IFormCollection form)
+        public virtual async Task<IActionResult> AddItemToCartFromWishlist(string shoppingcartId)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
-                return RedirectToRoute("HomePage");
+                return Json(new { success = false, message = "No permission" });
+
 
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
-                return RedirectToRoute("HomePage");
+                return Json(new { success = false, message = "No permission" });
 
-            var pageCustomer = customerGuid.HasValue
-                ? await _customerService.GetCustomerByGuid(customerGuid.Value)
-                : _workContext.CurrentCustomer;
-            if (pageCustomer == null)
-                return RedirectToRoute("HomePage");
 
-            var pageCart = pageCustomer.ShoppingCartItems.Where(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist);
-            if (!string.IsNullOrEmpty(_workContext.CurrentStore.Id))
-                pageCart = pageCart.LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _workContext.CurrentStore.Id);
+            var itemCart = _workContext.CurrentCustomer.ShoppingCartItems
+                .FirstOrDefault(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist && sci.Id == shoppingcartId);
 
-            var allWarnings = new List<string>();
-            var numberOfAddedItems = 0;
-            var allIdsToAdd = form.ContainsKey("addtocart") ? form["addtocart"].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x)
-                .ToList()
-                : new List<string>();
-            foreach (var sci in pageCart.ToList())
-            {
-                if (allIdsToAdd.Contains(sci.Id))
-                {
-                    var warnings = await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
-                        sci.ProductId, ShoppingCartType.ShoppingCart,
-                        _workContext.CurrentStore.Id, sci.WarehouseId,
-                        sci.Attributes, sci.EnteredPrice,
-                        sci.RentalStartDateUtc, sci.RentalEndDateUtc, sci.Quantity, true, getRequiredProductWarnings: false);
-                    if (!warnings.Any())
-                        numberOfAddedItems++;
-                    if (_shoppingCartSettings.MoveItemsFromWishlistToCart && //settings enabled
-                        !customerGuid.HasValue && 
-                        !warnings.Any()) 
-                    {
-                        await _shoppingCartService.DeleteShoppingCartItem(_workContext.CurrentCustomer, sci);
-                    }
-                    allWarnings.AddRange(warnings);
-                }
-            }
+            if (itemCart == null)
+                return Json(new { success = false, message = "Shopping cart ident not found" });
 
-            if (numberOfAddedItems > 0)
-            {
-                //redirect to the shopping cart page
+            var warnings = (await _shoppingCartService.AddToCart(_workContext.CurrentCustomer,
+                       itemCart.ProductId, ShoppingCartType.ShoppingCart,
+                       _workContext.CurrentStore.Id, itemCart.WarehouseId,
+                       itemCart.Attributes, itemCart.EnteredPrice,
+                       itemCart.RentalStartDateUtc, itemCart.RentalEndDateUtc, itemCart.Quantity, true,
+                       validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false })).warnings;
 
-                if (allWarnings.Any())
-                {
-                    Error(_translationService.GetResource("Wishlist.AddToCart.Error"), true);
-                }
+            if (warnings.Any())
+                return Json(new { success = false, message = string.Join(',', warnings) });
 
-                return RedirectToRoute("ShoppingCart");
-            }
-            else
-            {
-                return RedirectToAction("Index");
-            }
+            if(_shoppingCartSettings.MoveItemsFromWishlistToCart)
+                await _shoppingCartService.DeleteShoppingCartItem(_workContext.CurrentCustomer, itemCart);
+
+            return Json(new { success = true, message = "" });
+
         }
 
+        [HttpPost]
+        public virtual async Task<IActionResult> DeleteItemFromWishlist(string shoppingcartId)
+        {
+            if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
+                return Json(new { success = false, message = "No permission" });
+
+            if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
+                return Json(new { success = false, message = "No permission" });
+
+            var itemCart = _workContext.CurrentCustomer.ShoppingCartItems
+                .FirstOrDefault(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist && sci.Id == shoppingcartId);
+
+            if (itemCart == null)
+                return Json(new { success = false, message = "Shopping cart ident not found" });
+
+            await _shoppingCartService.DeleteShoppingCartItem(_workContext.CurrentCustomer, itemCart);
+
+            return Json(new { success = true, message = "" });
+
+        }
+        [HttpGet]
         public virtual async Task<IActionResult> EmailWishlist([FromServices] CaptchaSettings captchaSettings)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist) || !_shoppingCartSettings.EmailWishlistEnabled)
@@ -213,8 +204,7 @@ namespace Grand.Web.Controllers
             if (!cart.Any())
                 return RedirectToRoute("HomePage");
 
-            var model = new WishlistEmailAFriendModel
-            {
+            var model = new WishlistEmailAFriendModel {
                 YourEmailAddress = _workContext.CurrentCustomer.Email,
                 DisplayCaptcha = captchaSettings.Enabled && captchaSettings.ShowOnEmailWishlistToFriendPage
             };

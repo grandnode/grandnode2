@@ -581,7 +581,7 @@ dl, ol, ul {
 .quick-view {
     text-align: right;
 }
-.qv-title {
+.quick-view .qv-title {
     margin: 0;
     font-size: 28px;
     font-weight: 700;
@@ -647,7 +647,7 @@ dl, ol, ul {
 .quick-view-overview .bid-input {
     height: 45px;
 }
-.quick-view .add-to-cart-button {
+.quick-view .quick-view-overview .main-button {
     font-size: 20px;
     font-weight: 500;
     height: 45px;
@@ -1360,6 +1360,22 @@ footer .list-group-item span:last-child {
     }
 }
 @media (max-width: 575px) {
+    .quick-view .qv-title {
+        font-size: 18px;
+    }
+    .quick-view .attributes table tr {
+        display: inline-flex;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    .quick-view .attributes table tr:not(:last-child) {
+        border-bottom: 1px solid #dee2e6;
+    }
+    .quick-view .attributes table tr td {
+        display: flex;
+        width: 100%;
+        border-top: 0;
+    }
     .product-box .rating .b-rating-value,
     .product-box .rating output + span {
         display: none;

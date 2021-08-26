@@ -269,42 +269,43 @@ namespace Grand.Web.Controllers
 
         [AutoValidateAntiforgeryToken]
         [HttpPost]
-        public virtual async Task<IActionResult> UpdateCart(IFormCollection form)
+        public virtual async Task<IActionResult> UpdateQuantity(string shoppingcartId, int quantity)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
-                return RedirectToRoute("HomePage");
+                return Json(new
+                {
+                    success = false,
+                    warnings = "No permission",
+                });
 
-            var shoppingCartTypes = new List<ShoppingCartType>();
-            shoppingCartTypes.Add(ShoppingCartType.ShoppingCart);
-            if (_shoppingCartSettings.AllowOnHoldCart)
-                shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
-
-            var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, shoppingCartTypes.ToArray());
-
-            //current warnings <cart item identifier, warnings>
-            var innerWarnings = new Dictionary<string, IList<string>>();
-            foreach (var sci in cart)
+            var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes())
+                .FirstOrDefault(x => x.Id == shoppingcartId);
+            if (cart == null)
             {
-                foreach (string formKey in form.Keys)
-                    if (formKey.Equals(string.Format("itemquantity{0}", sci.Id), StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (int.TryParse(form[formKey], out int newQuantity))
-                        {
-                            var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
-                                sci.Id, sci.WarehouseId, sci.Attributes, sci.EnteredPrice,
-                                sci.RentalStartDateUtc, sci.RentalEndDateUtc,
-                                newQuantity, true, sci.ReservationId, sci.Id);
-                            innerWarnings.Add(sci.Id, currSciWarnings);
-                        }
-                        break;
-                    }
+                return Json(new
+                {
+                    success = false,
+                    warnings = "Shopping cart item not found",
+                });
+            }
+            if (quantity <= 0)
+            {
+                return Json(new
+                {
+                    success = false,
+                    warnings = "Wrong quantity",
+                });
             }
 
-            cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());
+            var warnings = new List<string>();
+            var currSciWarnings = await _shoppingCartService.UpdateShoppingCartItem(_workContext.CurrentCustomer,
+                cart.Id, cart.WarehouseId, cart.Attributes, cart.EnteredPrice,
+                cart.RentalStartDateUtc, cart.RentalEndDateUtc,
+                quantity, true);
+            warnings.AddRange(currSciWarnings);
 
-            var model = await _mediator.Send(new GetShoppingCart()
-            {
-                Cart = cart,
+            var model = await _mediator.Send(new GetShoppingCart() {
+                Cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes()),
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,
                 Language = _workContext.WorkingLanguage,
@@ -312,24 +313,14 @@ namespace Grand.Web.Controllers
                 TaxDisplayType = _workContext.TaxDisplayType
             });
 
-            //update current warnings
-            foreach (var kvp in innerWarnings)
-            {
-                //kvp = <cart item identifier, warnings>
-                var sciId = kvp.Key;
-                var warnings = kvp.Value;
-                //find model
-                var sciModel = model.Items.FirstOrDefault(x => x.Id == sciId);
-                if (sciModel != null)
-                    foreach (var w in warnings)
-                        if (!sciModel.Warnings.Contains(w))
-                            sciModel.Warnings.Add(w);
-            }
             return Json(new
             {
+                success = !warnings.Any(),
+                warnings = string.Join(", ", warnings),
                 totalproducts = string.Format(_translationService.GetResource("ShoppingCart.HeaderQuantity"), model.Items.Sum(x => x.Quantity)),
                 model = model
             });
+
         }
 
         public virtual async Task<IActionResult> ClearCart()

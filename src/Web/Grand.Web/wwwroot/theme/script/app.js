@@ -28,6 +28,7 @@
         flywish: null,
         wishlistitems: null,
         wishindicator: undefined,
+        UpdatedShoppingCartItemId: null
     },
     mounted: function () {
         if (localStorage.fluid == "true") this.fluid = "fluid";
