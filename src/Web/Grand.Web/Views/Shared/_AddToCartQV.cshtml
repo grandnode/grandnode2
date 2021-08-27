@@ -1,4 +1,4 @@
-﻿@{ 
+﻿@{
     var addtocart = @Url.RouteUrl("AddProductDetails");
 }
 <template v-if="PopupQuickViewVueModal.AddToCart.EnteredPrice">
@@ -12,12 +12,12 @@
         </div>
     </div>
 </template>
-<div role="group" class="input-group product-add-to-cart flex-nowrap">
-    <template v-if="!PopupQuickViewVueModal.AddToCart.DisableBuyButton || PopupQuickViewVueModal.AddToCart.EnteredPrice">
-        <template v-if="PopupQuickViewVueModal.AddToCart.MinimumQuantityNotification !== null">
-            <div class="min-qty-notification text-danger w-100 mb-2">{{PopupQuickViewVueModal.AddToCart.MinimumQuantityNotification}}</div>
-        </template>
+<template v-if="!PopupQuickViewVueModal.AddToCart.DisableBuyButton || PopupQuickViewVueModal.AddToCart.EnteredPrice">
+    <template v-if="PopupQuickViewVueModal.AddToCart.MinimumQuantityNotification !== null">
+        <div class="min-qty-notification text-danger w-100 mb-2">{{PopupQuickViewVueModal.AddToCart.MinimumQuantityNotification}}</div>
     </template>
+</template>
+<div role="group" class="input-group product-add-to-cart flex-nowrap">
     <template v-if="!PopupQuickViewVueModal.AddToCart.DisableBuyButton">
         <template v-if="PopupQuickViewVueModal.AddToCart.AllowedQuantities.length > 0">
             <select :id="'addtocart_' + PopupQuickViewVueModal.AddToCart.ProductId + '_EnteredQuantity'" :name="'addtocart_' + PopupQuickViewVueModal.AddToCart.ProductId + '.EnteredQuantity'" class="custom-select form-control qty-dropdown mr-2">
