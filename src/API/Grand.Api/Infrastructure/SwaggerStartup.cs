@@ -4,6 +4,7 @@ using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.OData;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
@@ -16,6 +17,10 @@ namespace Grand.Api.Infrastructure
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
             var apiConfig = application.ApplicationServices.GetService<ApiConfig>();
+
+            if(apiConfig.Enabled)
+                application.UseODataQueryRequest();
+
             if (apiConfig.Enabled && apiConfig.UseSwagger)
             {
                 application.UseSwagger();
@@ -31,7 +36,7 @@ namespace Grand.Api.Infrastructure
             var apiConfig = services.BuildServiceProvider().GetService<ApiConfig>();
             if (apiConfig.Enabled && apiConfig.UseSwagger)
             {
-
+                
                 services.AddSwaggerGen(c =>
                 {
                     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Grandnode API", Version = "v1" });
@@ -58,11 +63,12 @@ namespace Grand.Api.Infrastructure
                     c.EnableAnnotations();
                     c.SchemaFilter<EnumSchemaFilter>();
                 });
+                
             }
         }
 
-        public int Priority => 90;
-        public bool BeforeConfigure => true;
+        public int Priority => 500;
+        public bool BeforeConfigure => false;
 
     }
 }

@@ -4,10 +4,10 @@ using Grand.Api.Queries.Models.Common;
 using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.Common.Services.Security;
 using MediatR;
-using Microsoft.AspNet.OData;
-using Microsoft.AspNet.OData.Query;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Formatter;
+using Microsoft.AspNetCore.OData.Query;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -62,7 +62,7 @@ namespace Grand.Api.Controllers.OData
             if (ModelState.IsValid)
             {
                 model = await _mediator.Send(new AddProductCommand() { Model = model });
-                return Created(model);
+                return Ok(model);
             }
             return BadRequest(ModelState);
         }
@@ -120,7 +120,7 @@ namespace Grand.Api.Controllers.OData
             return Ok();
         }
 
-        //odata/Product(id)/UpdateStock
+        //odata/Product/(id)/UpdateStock
         //body: { "Stock": 10 }
         [SwaggerOperation(summary: "Invoke action UpdateStock", OperationId = "UpdateStock")]
         [Route("({key})/[action]")]

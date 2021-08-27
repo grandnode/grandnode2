@@ -7,8 +7,8 @@ using Grand.Business.Customers.Interfaces;
 using Grand.Business.Customers.Utilities;
 using Grand.Domain.Customers;
 using MediatR;
-using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Formatter;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -59,7 +59,7 @@ namespace Grand.Api.Controllers.OData
             if (ModelState.IsValid)
             {
                 model = await _mediator.Send(new AddCustomerCommand() { Model = model });
-                return Created(model);
+                return Ok(model);
             }
             return BadRequest(ModelState);
         }

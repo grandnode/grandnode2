@@ -109,19 +109,8 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
             if (request.CartType != ShoppingCartType.Auctions)
             {
-                var cartItems = request.Customer.ShoppingCartItems
-                    .Where(x => x.ShoppingCartTypeId == request.CartType &&
-                    x.ProductId == request.Product.Id &&
-                    x.EnteredPrice == request.CustomerEnteredPrice);
-
-                if (request.Attributes != null && request.Attributes.Any() && cartItems.Count() > 1)
-                {
-                    cartItems = cartItems.Where(x => x.Attributes.All(y => request.Attributes.Any(z => z.Key == y.Key && z.Value == y.Value)));
-                }
-
-                var sci = cartItems.FirstOrDefault();
-
-                model.ItemQuantity = sci.Quantity;
+               
+                model.ItemQuantity = request.Quantity;
 
                 //unit prices
                 if (request.Product.CallForPrice)
@@ -130,11 +119,11 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 }
                 else
                 {
-                    var productprices = await _taxService.GetProductPrice(request.Product, (await _pricingService.GetUnitPrice(sci, request.Product)).unitprice);
+                    var productprices = await _taxService.GetProductPrice(request.Product, (await _pricingService.GetUnitPrice(request.ShoppingCartItem, request.Product)).unitprice);
                     double taxRate = productprices.taxRate;
                     model.Price = !request.CustomerEnteredPrice.HasValue ? _priceFormatter.FormatPrice(productprices.productprice) : _priceFormatter.FormatPrice(request.CustomerEnteredPrice.Value);
                     model.DecimalPrice = request.CustomerEnteredPrice ?? productprices.productprice;
-                    model.TotalPrice = _priceFormatter.FormatPrice(productprices.productprice * sci.Quantity);
+                    model.TotalPrice = _priceFormatter.FormatPrice(productprices.productprice * request.ShoppingCartItem.Quantity);
                 }
 
                 //picture

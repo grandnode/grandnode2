@@ -4,10 +4,10 @@ using Grand.Api.Queries.Models.Common;
 using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.Common.Services.Security;
 using MediatR;
-using Microsoft.AspNet.OData;
-using Microsoft.AspNet.OData.Query;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Formatter;
+using Microsoft.AspNetCore.OData.Query;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,6 +24,17 @@ namespace Grand.Api.Controllers.OData
             _permissionService = permissionService;
         }
 
+        [SwaggerOperation(summary: "Get entities from Brand", OperationId = "GetBrands")]
+        [HttpGet]
+        [EnableQuery]
+        public async Task<IActionResult> Get()
+        {
+            if (!await _permissionService.Authorize(PermissionSystemName.Brands))
+                return Forbid();
+
+            return Ok(await _mediator.Send(new GetQuery<BrandDto>()));
+        }
+
         [SwaggerOperation(summary: "Get entity from Brand by key", OperationId = "GetBrandById")]
         [HttpGet("{key}")]
         public async Task<IActionResult> Get(string key)
@@ -38,16 +49,7 @@ namespace Grand.Api.Controllers.OData
             return Ok(brand);
         }
 
-        [SwaggerOperation(summary: "Get entities from Brand", OperationId = "GetBrands")]
-        [HttpGet]
-        [EnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
-        public async Task<IActionResult> Get()
-        {
-            if (!await _permissionService.Authorize(PermissionSystemName.Brands))
-                return Forbid();
-
-            return Ok(await _mediator.Send(new GetQuery<BrandDto>()));
-        }
+        
 
         [SwaggerOperation(summary: "Add new entity to Brand", OperationId = "InsertBrand")]
         [HttpPost]
@@ -59,7 +61,7 @@ namespace Grand.Api.Controllers.OData
             if (ModelState.IsValid)
             {
                 model = await _mediator.Send(new AddBrandCommand() { Model = model });
-                return Created(model);
+                return Ok(model);
             }
             return BadRequest(ModelState);
         }

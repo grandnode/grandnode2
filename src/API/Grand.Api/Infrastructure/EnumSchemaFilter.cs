@@ -8,14 +8,17 @@ namespace Grand.Api.Infrastructure
 {
     public class EnumSchemaFilter : ISchemaFilter
     {
-        public void Apply(OpenApiSchema model, SchemaFilterContext context)
+        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
         {
             if (context.Type.IsEnum)
             {
-                model.Enum.Clear();
-                Enum.GetNames(context.Type)
-                    .ToList()
-                    .ForEach(n => model.Enum.Add(new OpenApiString(n)));
+                var enumValues = schema.Enum.ToArray();
+                foreach (var item in enumValues)
+                {
+                    var value = (OpenApiPrimitive<int>)item;
+                    var name = Enum.GetName(context.Type, value.Value);
+                    schema.Description += $"{value.Value} - {name}; ";
+                }
             }
         }
     }

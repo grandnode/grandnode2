@@ -1,3 +1,4 @@
+using Grand.Business.Checkout.Services.Orders;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -59,13 +60,15 @@ namespace Grand.Business.Checkout.Interfaces.Orders
         /// <param name="reservationId">ReservationId</param>
         /// <param name="parameter">Parameter for reservation</param>
         /// <param name="duration">Duration for reservation</param>
-        /// <param name="getRequiredProductWarnings">GetRequiredProductWarnings</param>
-        /// <returns>Warnings</returns>
-        Task<IList<string>> AddToCart(Customer customer, string productId,
+        /// <param name="validator">ShoppingCartValidatorOptions</param>
+        /// <returns>(warnings, shoppingCartItem)</returns>
+        Task<(IList<string> warnings, ShoppingCartItem shoppingCartItem)> AddToCart(Customer customer, string productId,
             ShoppingCartType shoppingCartType, string storeId, string warehouseId = null, IList<CustomAttribute> attributes = null,
             double? customerEnteredPrice = null,
             DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
-            int quantity = 1, bool automaticallyAddRequiredProductsIfEnabled = true, string reservationId = "", string parameter = "", string duration = "", bool getRequiredProductWarnings = true);
+            int quantity = 1, 
+            bool automaticallyAddRequiredProductsIfEnabled = true, string reservationId = "", string parameter = "", string duration = "",
+            ShoppingCartValidatorOptions validator = null);
 
         /// <summary>
         /// Updates the shopping cart item

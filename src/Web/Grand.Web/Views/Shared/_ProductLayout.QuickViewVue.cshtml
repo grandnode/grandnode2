@@ -5,13 +5,19 @@
                 <div class="quick-view">
                     <div class="col-12 px-0">
                         <div class="form-row">
-                            <div class="col-lg-5 col-12">
+                            <div class="col-lg-5 col-12 d-lg-block d-none">
                                 <div class="product-picture">
-                                    <img :src="PopupQuickViewVueModal.DefaultPictureModel.ImageUrl" :alt="PopupQuickViewVueModal.DefaultPictureModel.AlternateText" :title="PopupQuickViewVueModal.DefaultPictureModel.Title" class="img-fluid" id="main_qv_img" />
+                                    <picture>
+                                        <source media="(max-width: 991px)" sizes="1px" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 1w" />
+                                        <img :src="PopupQuickViewVueModal.DefaultPictureModel.ImageUrl" :alt="PopupQuickViewVueModal.DefaultPictureModel.AlternateText" :title="PopupQuickViewVueModal.DefaultPictureModel.Title" class="img-fluid" id="main_qv_img" />
+                                    </picture>
                                 </div>
                                 <div v-if="PopupQuickViewVueModal.PictureModels.length > 1" class="product-gallery">
                                     <template v-for="picture in PopupQuickViewVueModal.PictureModels">
-                                        <img class="img-thumb" :src="picture.ThumbImageUrl" :alt="picture.AlternateText" :title="picture.Title" :data-img="picture.ImageUrl" @@click="document.getElementById('main_qv_img').src = $event.target.dataset.img" />
+                                        <picture>
+                                            <source media="(max-width: 991px)" sizes="1px" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 1w" />
+                                            <img class="img-thumb" :src="picture.ThumbImageUrl" :alt="picture.AlternateText" :title="picture.Title" :data-img="picture.ImageUrl" @@click="document.getElementById('main_qv_img').src = $event.target.dataset.img" />
+                                        </picture>
                                     </template>
                                 </div>
                             </div>
@@ -87,7 +93,7 @@
 
                                                 <template v-if="PopupQuickViewVueModal.ProductType !== 10">
                                                     <partial name="_AddToCartQV" />
-                                                    <template v-if="!PopupQuickViewVueModal.AddToCart.DisableWishlistButton || PopupQuickViewVueModal.CompareProductsEnabled || PopupQuickViewVueModal.EmailAFriendEnabled">
+                                                    <template v-if="(!PopupQuickViewVueModal.AddToCart.DisableWishlistButton || PopupQuickViewVueModal.CompareProductsEnabled || PopupQuickViewVueModal.EmailAFriendEnabled) && PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId == null">
                                                         <div class="btn-group mt-2 mb-3 w-100">
                                                             <partial name="_AddToWishlistQV" />
                                                             <partial name="_ProductsComparisonQV" />
