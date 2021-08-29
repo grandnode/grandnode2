@@ -149,10 +149,13 @@ namespace Grand.Business.Storage.Services
                 {
                     try
                     {
-                        if (!File.Exists(currentFileName))
+                        if (File.Exists(currentFileName))
                             File.Delete(currentFileName);
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        _logger.InsertLog(Domain.Logging.LogLevel.Error, ex.Message);
+                    }
                 }
             }
             return Task.CompletedTask;
