@@ -6,6 +6,8 @@ using Grand.Web.Common.Components;
 using Grand.Web.Admin.Models.Settings;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Grand.Business.Common.Interfaces.Directory;
+using System.Linq;
 
 namespace Grand.Web.Admin.Components
 {
@@ -15,15 +17,17 @@ namespace Grand.Web.Admin.Components
 
         private readonly IStoreService _storeService;
         private readonly IWorkContext _workContext;
+        private readonly IGroupService _groupService;
 
         #endregion
 
         #region Constructors
 
-        public StoreScopeViewComponent(IStoreService storeService, IWorkContext workContext)
+        public StoreScopeViewComponent(IStoreService storeService, IWorkContext workContext, IGroupService groupService)
         {
             _storeService = storeService;
             _workContext = workContext;
+            _groupService = groupService;
         }
 
         #endregion
@@ -35,6 +39,9 @@ namespace Grand.Web.Admin.Components
             var allStores = await _storeService.GetAllStores();
             if (allStores.Count < 2)
                 return Content("");
+
+            if (await _groupService.IsStaff(_workContext.CurrentCustomer))
+                allStores = allStores.Where(x => x.Id == _workContext.CurrentCustomer.StaffStoreId).ToList();
 
             var model = new StoreScopeModel();
             foreach (var s in allStores)

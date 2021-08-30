@@ -4,6 +4,7 @@ using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Customers.Queries.Models;
 using Grand.Business.System.Interfaces.Reports;
 using Grand.Domain.Customers;
@@ -27,14 +28,16 @@ namespace Grand.Web.Admin.Controllers
         #region Fields
 
         private readonly ITranslationService _translationService;
-        private readonly GoogleAnalyticsSettings _googleAnalyticsSettings;
+        private readonly IStoreService _storeService;
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
         private readonly IOrderReportService _orderReportService;
         private readonly IProductsReportService _productsReportService;
         private readonly ILogger _logger;
         private readonly IGrandAuthenticationService _authenticationService;
+        private readonly IUserFieldService _userFieldService;
         private readonly IMediator _mediator;
+        private readonly GoogleAnalyticsSettings _googleAnalyticsSettings;
 
         #endregion
 
@@ -42,24 +45,28 @@ namespace Grand.Web.Admin.Controllers
 
         public HomeController(
             ITranslationService translationService,
-            GoogleAnalyticsSettings googleAnalyticsSettings,
+            IStoreService storeService,
             IWorkContext workContext,
             IGroupService groupService,
             IOrderReportService orderReportService,
             IProductsReportService productsReportService,
             ILogger logger,
             IGrandAuthenticationService authenticationService,
-            IMediator mediator)
+            IUserFieldService userFieldService,
+            IMediator mediator,
+            GoogleAnalyticsSettings googleAnalyticsSettings)
         {
             _translationService = translationService;
-            _googleAnalyticsSettings = googleAnalyticsSettings;
+            _storeService = storeService;
             _workContext = workContext;
             _groupService = groupService;
             _orderReportService = orderReportService;
             _productsReportService = productsReportService;
             _logger = logger;
             _authenticationService = authenticationService;
+            _userFieldService = userFieldService;
             _mediator = mediator;
+            _googleAnalyticsSettings = googleAnalyticsSettings;
         }
 
         #endregion
@@ -198,6 +205,31 @@ namespace Grand.Web.Admin.Controllers
 
 
             return View();
+        }
+
+        public async Task<IActionResult> ChangeStore(string storeid, string returnUrl = "")
+        {
+            if (storeid != null)
+                storeid = storeid.Trim();
+
+            var store = await _storeService.GetStoreById(storeid);
+            if (store != null || storeid == "")
+            {
+                await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                    SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration, storeid);
+            }
+            else
+                await _userFieldService.SaveField(_workContext.CurrentCustomer,
+                    SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration, "");
+
+
+            //home page
+            if (String.IsNullOrEmpty(returnUrl))
+                returnUrl = Url.Action("Index", "Home", new { area = Constants.AreaAdmin });
+            //prevent open redirection attack
+            if (!Url.IsLocalUrl(returnUrl))
+                return RedirectToAction("Index", "Home", new { area = Constants.AreaAdmin });
+            return Redirect(returnUrl);
         }
 
         public async Task<IActionResult> Logout()
