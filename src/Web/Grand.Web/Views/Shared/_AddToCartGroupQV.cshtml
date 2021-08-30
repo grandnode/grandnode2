@@ -9,12 +9,12 @@
         </div>
     </div>
 </template>
-<template v-if="!variant.AddToCart.DisableBuyButton || variant.AddToCart.EnteredPrice">
-    <template v-if="variant.AddToCart.MinimumQuantityNotification !== null">
-        <div class="min-qty-notification text-danger w-100 mb-2">{{variant.AddToCart.MinimumQuantityNotification}}</div>
-    </template>
-</template>
 <div role="group" class="input-group product-add-to-cart flex-nowrap">
+    <template v-if="!variant.AddToCart.DisableBuyButton || variant.AddToCart.EnteredPrice">
+        <template v-if="variant.AddToCart.MinimumQuantityNotification !== null">
+            <div class="min-qty-notification text-danger w-100 mb-2">{{variant.AddToCart.MinimumQuantityNotification}}</div>
+        </template>
+    </template>
     <template v-if="!variant.AddToCart.DisableBuyButton">
         <template v-if="variant.AddToCart.AllowedQuantities.length > 0">
             <select :id="'addtocart_' + variant.AddToCart.ProductId + '_EnteredQuantity'" :name="'addtocart_' + variant.AddToCart.ProductId + '.EnteredQuantity'" class="custom-select form-control qty-dropdown mr-2">
