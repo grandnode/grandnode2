@@ -68,7 +68,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
         {
             get
             {
-                return string.Format("{0}/orderdetails/shipment/{1}", (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/')), _shipment.Id);
+                return string.Format("{0}/orderdetails/shipment/{1}", url, _shipment.Id);
             }
         }
 
