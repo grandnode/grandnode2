@@ -86,11 +86,9 @@
                 </template>
                 <input class="hidden-upload-input" type="hidden" onchange="checkoutAttributeChange()" :id="'checkout_attribute_' + attribute.Id" :name="'checkout_attribute_' + attribute.Id" v-model="attribute.DefaultValue" :value="attribute.DefaultValue" />
                 <div id="download-message" class="alert my-2" style="display:none;"></div>
-                <div id="'checkout_attribute_' + attribute.Id + 'downloadurl'" class="download-file" style="display:none;">
-                    <a class="btn btn-outline-info">
-                        Download
-                    </a>
-                </div>
+                <a :id="'checkout_attribute_' + attribute.Id + 'downloadurl'" class="download-file btn btn-outline-info" style="display:none;">
+                    Download
+                </a>
                 <script asp-location="Footer">
 
                     function uploadFile(e) {
@@ -118,7 +116,7 @@
                                 messageContainer.classList.add('alert-info');
                                 messageContainer.innerText = message;
 
-                                downloadBtn.style.display = "block";
+                                downloadBtn.style.display = "inline-block";
                                 downloadBtn.setAttribute('href', downloadUrl);
 
                             } else {
