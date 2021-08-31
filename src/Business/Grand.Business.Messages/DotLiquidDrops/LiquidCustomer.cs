@@ -14,15 +14,15 @@ namespace Grand.Business.Messages.DotLiquidDrops
         private readonly Customer _customer;
         private readonly CustomerNote _customerNote;
         private readonly Store _store;
-        private readonly DomainHost _domainHost;
+        private readonly DomainHost _host;
         private readonly string url;
-        public LiquidCustomer(Customer customer, Store store, DomainHost domainHost, CustomerNote customerNote = null)
+        public LiquidCustomer(Customer customer, Store store, DomainHost host, CustomerNote customerNote = null)
         {
             _customer = customer;
             _customerNote = customerNote;
             _store = store;
-            _domainHost = domainHost;
-            url = _domainHost?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
+            _host = host;
+            url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
             AdditionalTokens = new Dictionary<string, string>();
         }
 
