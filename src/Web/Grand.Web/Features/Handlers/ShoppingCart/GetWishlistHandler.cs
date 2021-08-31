@@ -135,7 +135,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     AttributeInfo = await _productAttributeFormatter.FormatAttributes(product, sci.Attributes),
                 };
 
-                cartItemModel.AllowItemEditing = _shoppingCartSettings.AllowCartItemEditing && product.ProductTypeId == ProductType.SimpleProduct && (!String.IsNullOrEmpty(cartItemModel.AttributeInfo) || product.IsGiftVoucher) && product.VisibleIndividually;
+                cartItemModel.AllowItemEditing = _shoppingCartSettings.AllowCartItemEditing && product.VisibleIndividually; 
 
                 //allowed quantities
                 var allowedQuantities = product.ParseAllowedQuantities();

@@ -25,6 +25,7 @@
         <div class="min-qty-notification text-danger w-100 mb-2">@Model.MinimumQuantityNotification</div>
     }
     <div role="group" class="input-group product-add-to-cart flex-nowrap">
+
         @if (!Model.DisableBuyButton)
         {
         @if (Model.AllowedQuantities.Any())
@@ -100,6 +101,5 @@
         </div>
         }
         }
-
     </div>
 }

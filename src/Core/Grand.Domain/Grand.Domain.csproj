@@ -11,11 +11,11 @@
   </PropertyGroup>
 
 <ItemGroup>
-    <PackageReference Include="MongoDB.Bson" Version="2.12.4" />
-    <PackageReference Include="MongoDB.Driver" Version="2.12.4" />
-    <PackageReference Include="MongoDB.Driver.Core" Version="2.12.4" />
-    <PackageReference Include="MongoDB.Driver.GridFS" Version="2.12.4" />
-    <PackageReference Include="DotLiquid" Version="2.1.457" />
+    <PackageReference Include="MongoDB.Bson" Version="2.13.1" />
+    <PackageReference Include="MongoDB.Driver" Version="2.13.1" />
+    <PackageReference Include="MongoDB.Driver.Core" Version="2.13.1" />
+    <PackageReference Include="MongoDB.Driver.GridFS" Version="2.13.1" />
+    <PackageReference Include="DotLiquid" Version="2.2.548" />
   </ItemGroup>
 
 <ItemGroup>

@@ -1,6 +1,21 @@
 ﻿@{
     var addtocart = @Url.RouteUrl("AddProductDetails");
+    var updateitemcart = @Url.RouteUrl("UpdateItemCart");
 }
+<template v-if="PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId !== null">
+    <input type="hidden" id="shoppingCartItemId" name="shoppingCartItemId" :value="UpdatedShoppingCartItemId" />
+</template>
+<template v-if="PopupQuickViewVueModal.AddToCart.EnteredPrice">
+    <div class="customer-entered-price mb-3 d-flex w-100 flex-column">
+        <div class="price-input">
+            <label :for="'addtocart_' + PopupQuickViewVueModal.AddToCart.ProductId + '_CustomerEnteredPrice'" class="enter-price-label">@Loc["Products.EnterProductPrice"]</label>
+            <input :id="'addtocart_' + PopupQuickViewVueModal.AddToCart.ProductId + '_CustomerEnteredPrice'" :name="'addtocart_' + PopupQuickViewVueModal.AddToCart.ProductId + '.CustomerEnteredPrice'" type="text" :value="PopupQuickViewVueModal.AddToCart.CustomerEnteredPrice" class="form-control enter-price-input" />
+        </div>
+        <div class="price-range pt-1">
+            {{PopupQuickViewVueModal.AddToCart.CustomerEnteredPriceRange}}
+        </div>
+    </div>
+</template>
 <template v-if="PopupQuickViewVueModal.AddToCart.EnteredPrice">
     <div class="customer-entered-price mb-3 d-flex w-100 flex-column">
         <div class="price-input">

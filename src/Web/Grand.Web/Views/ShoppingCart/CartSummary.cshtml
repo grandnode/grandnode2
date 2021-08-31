@@ -51,7 +51,7 @@
                                         <tr v-for="item in vmorder.cart.Items">
                                             <td v-if="vmorder.cart.IsAllowOnHold && vmorder.cart.IsEditable" class="onhold-cart">
                                                 <label class="custom-control custom-switch mb-0 pl-0">
-                                                    <input :id="'checkbox_' + item.Id" type="checkbox" :checked="item.IsCart" class="custom-control-input changeshoppingcartitem" :data-href="'@Url.RouteUrl("ChangeTypeCartItem")/' + item.Id + '?status=' + !item.IsCart" v-on:change="vmorder.ChangeShoppingCart($event)" />
+                                                    <input :id="'checkbox_' + item.Id" type="checkbox" :checked="item.IsCart" class="custom-control-input changeshoppingcartitem" v-on:change="vmorder.updateCartType(item.Id, !item.IsCart)" />
                                                     <span class="custom-control-label ml-5"></span>
                                                 </label>
                                             </td>
@@ -73,13 +73,13 @@
                                                 <div v-if="item.AuctionInfo != ''" v-html="item.AuctionInfo" class="attributes small"></div>
                                                 <div v-if="item.RecurringInfo != null" v-html="item.RecurringInfo" class="recurring-info"></div>
                                                 <div v-if="item.ReservationInfo != null" v-html="item.ReservationInfo" class="rental-info attributes small"></div>
-                                                <div v-if="vmorder.cart.IsEditable && item.AllowItemEditing" class="edit-item mb-1 mt-1">
-                                                    <a class="btn btn-sm btn-secondary" :href="'/' + item.ProductSeName + '?updatecartitemid=' + item.Id">@Loc["Common.Edit"]</a>
-                                                </div>
-                                                <div v-if="typeof item.Warnings !== 'undefined' && item.Warnings.length > 0" class="message-error alert alert-danger">
+                                                <div v-if="typeof item.Warnings !== 'undefined' && item.Warnings.length > 0" class="message-error small alert alert-danger mt-2 mb-0">
                                                     <ul v-for="warning in item.Warnings" class="mb-0 p-0">
                                                         <li>{{warning}}</li>
                                                     </ul>
+                                                </div>
+                                                <div v-if="vmorder.cart.IsEditable && item.AllowItemEditing" class="edit-item mt-2">
+                                                    <a class="btn btn-sm btn-secondary" @@click="vmorder.updateOnCart(item.Id)">@Loc["Common.Edit"]</a>
                                                 </div>
                                             </td>
                                             <td class="unit-price">
@@ -91,12 +91,12 @@
                                             <td class="quantity">
                                                 <div v-if="vmorder.cart.IsEditable">
                                                     <div v-if="item.AllowedQuantities[0]">
-                                                        <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="custom-select form-control qty-dropdown" v-on:change="vmorder.ChangeShoppingCart($event)">
+                                                        <select :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" class="custom-select form-control qty-dropdown" v-on:change="vmorder.updateQuantity('itemquantity', item.Id)">
                                                             <option v-for="qty in item.AllowedQuantities" :selected="qty.Selected" :value="qty.Value">{{qty.Value}}</option>
                                                         </select>
                                                     </div>
                                                     <div v-else>
-                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" :value="item.Quantity" min="1" v-on:change="vmorder.ChangeShoppingCart($event)" class="qty-input form-control text-center" />
+                                                        <input :id="'itemquantity' + item.Id" :name="'itemquantity' + item.Id" type="number" v-model="item.Quantity" min="1" v-on:change="vmorder.updateQuantity('itemquantity', item.Id)" class="qty-input form-control text-center" />
                                                     </div>
                                                 </div>
                                                 <div v-else>
@@ -184,9 +184,9 @@
                                                 }
                                                 else
                                                 {
-                                                    <span class="read" 
+                                                    <span class="read"
                                                           onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = PageSeNameConstants.Conditionsofuse })', 450, 500, true)">
-                                                            @Loc["Checkout.TermsOfService.Read"]
+                                                        @Loc["Checkout.TermsOfService.Read"]
                                                     </span>
                                                 }
                                             </b-form-checkbox>
@@ -239,167 +239,5 @@
     </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_content_after" })
 </div>
-<script asp-location="Header">
- var Order = Vue.extend({
-        props: {
-            cart: null,
-            totals: null,
-            checkoutAsGuest: false,
-            // confirm order
-            MinOrderTotalWarning: null,
-            TermsOfServiceOnOrderConfirmPage: null,
-            ConfirmWarnings: null,
-            // terms of service
-            terms: false,
-            acceptTerms: false,
-        },
-        mounted() {
-            this.cart = @Json.Serialize(Model);
-            this.updateTotals();
-            this.cartView();
-        },
-        watch: {
-            terms: function () {
-                if (this.terms == true) {
-                    this.acceptTerms = false;
-                }
-            }
-        },
-        methods: {
-            cartView() {
-                var body = document.body;
-                body.classList.add("cart-view");
-            },
-            updateCart() {
-                axios({
-                    baseURL: '/Component/Index?Name=OrderSummary',
-                    method: 'get',
-                    data: null,
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Response-View': 'Json'
-                    }
-                }).then(response => {
-                    this.cart = response.data;
-                })
-            },
-            updateTotals() {
-                axios({
-                    baseURL: '/Component/Index?Name=OrderTotals',
-                    method: 'get',
-                    data: null,
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Response-View': 'Json'
-                    }
-                }).then(response => {
-                    this.totals = response.data;
-                });
-            },
-            termsCheck(guest) {
-                if (vmorder.cart.MinOrderSubtotalWarning == null) {
-                    if (this.terms) {
-                        if (guest) {
-                            window.location = '@Url.RouteUrl("Checkout")';
-                        } else {
-                            document.getElementById('shopping-cart-form').setAttribute('action', '@Url.RouteUrl("StartCheckout")');
-                            document.getElementById('shopping-cart-form').submit();
-                        }
-                        vmorder.acceptTerms = false;
-                    }
-                    else {
-                        vmorder.acceptTerms = true;
-                    }
-                }
-            },
-            ApplyGiftVoucher(href) {
-                var bodyFormData = new FormData();
-                bodyFormData.append('giftvouchercouponcode', document.getElementById('giftvouchercouponcode').value);
-                bodyFormData.append('__RequestVerificationToken', document.querySelector('input[name=__RequestVerificationToken]').value);
-                axios({
-                    method: 'post',
-                    url: href,
-                    data: bodyFormData,
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                }).then(function (response) {
-                    vmorder.cart = response.data.model;
-                }).then(function () {
-                    this.vmorder.updateTotals()
-                });
-            },
-            removeGiftVoucher(href) {
-                var bodyFormData = new FormData();
-                bodyFormData.append('__RequestVerificationToken', document.querySelector('input[name=__RequestVerificationToken]').value);
-                axios({
-                    method: 'post',
-                    url: href,
-                    data: bodyFormData,
-                    headers: { 'Content-Type': 'multipart/form-data' },
-                }).then(function (response) {
-                    vmorder.cart = response.data.model;
-                }).catch(function (error) {
-                    alert(error);
-                }).then(function () {
-                    this.vmorder.updateTotals();
-                });
-            },
-            ChangeShoppingCart(event) {
-                if (event.target.getAttribute('data-href')) {
-                    var href = event.target.getAttribute('data-href');
-                } else {
-                    var href = '@Url.RouteUrl("UpdateCart")';
-                }
 
-                var form = document.getElementById('shopping-cart-form');
-                var data = new FormData(form);
-                axios({
-                    method: 'post',
-                    data: data,
-                    url: href,
-                }).then(function (response) {
-                    vmorder.cart = response.data.model;
-                    vm.updateFly();
-                }).then(function () {
-                    this.vmorder.updateTotals();
-                });
-            },
-            deleteitem(href) {
-                axios({
-                    method: 'post',
-                    url: href,
-                }).then(function (response) {
-                    vmorder.cart = response.data.model;
-                    if (document.querySelector('.sidebar-cart')) {
-                        var newfly = response.data.sidebarshoppingcartmodel;
-                        vm.flycart = newfly;
-                        vm.flycartitems = newfly.Items;
-                        vm.flycartindicator = newfly.TotalProducts;
-                    } else {
-                        document.querySelector('.qty-indicator.cart-qty').innerText = response.data.totalproducts;
-                    }
-                }).then(function () {
-                    this.vmorder.updateTotals();
-                });
-            },
-            ApplyDiscountCode(href) {
-                var bodyFormData = new FormData();
-                bodyFormData.append('discountcouponcode', document.getElementById('discountcouponcode').value);
-                bodyFormData.append('__RequestVerificationToken', document.querySelector('input[name=__RequestVerificationToken]').value);
-                axios({
-                    method: 'post',
-                    url: href,
-                    data: bodyFormData,
-                }).then(function (response) {
-                    vmorder.cart = response.data.model;
-                }).then(function () {
-                    this.vmorder.updateTotals();
-                });
-            }
-        }
-    });
-
-    var vmorder = new Order().$mount('#ordersummarypagecart')
-
-</script>
+<partial name="_ModelScript" model="Model" />

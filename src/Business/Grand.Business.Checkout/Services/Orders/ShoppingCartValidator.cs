@@ -149,151 +149,6 @@ namespace Grand.Business.Checkout.Services.Orders
                 }
             }
 
-            //quantity validation
-            var hasQtyWarnings = false;
-            if (shoppingCartItem.Quantity < product.OrderMinimumQuantity)
-            {
-                warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.MinimumQuantity"), product.OrderMinimumQuantity));
-                hasQtyWarnings = true;
-            }
-            if (shoppingCartItem.Quantity > product.OrderMaximumQuantity)
-            {
-                warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.MaximumQuantity"), product.OrderMaximumQuantity));
-                hasQtyWarnings = true;
-            }
-            var allowedQuantities = product.ParseAllowedQuantities();
-            if (allowedQuantities.Length > 0 && !allowedQuantities.Contains(shoppingCartItem.Quantity))
-            {
-                warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.AllowedQuantities"), string.Join(", ", allowedQuantities)));
-            }
-
-            if (_shoppingCartSettings.AllowToSelectWarehouse && string.IsNullOrEmpty(shoppingCartItem.WarehouseId))
-            {
-                warnings.Add(_translationService.GetResource("ShoppingCart.RequiredWarehouse"));
-            }
-
-            var warehouseId = !string.IsNullOrEmpty(shoppingCartItem.WarehouseId) ? shoppingCartItem.WarehouseId : _workContext.CurrentStore?.DefaultWarehouseId;
-
-            if (!string.IsNullOrEmpty(warehouseId))
-            {
-                var warehouse = await _warehouseService.GetWarehouseById(warehouseId);
-                if (warehouse == null)
-                    warnings.Add(_translationService.GetResource("ShoppingCart.WarehouseNotExists"));
-            }
-
-            var validateOutOfStock = shoppingCartItem.ShoppingCartTypeId == ShoppingCartType.ShoppingCart || !_shoppingCartSettings.AllowOutOfStockItemsToBeAddedToWishlist;
-            if (validateOutOfStock && !hasQtyWarnings)
-            {
-                switch (product.ManageInventoryMethodId)
-                {
-                    case ManageInventoryMethod.DontManageStock:
-                        {
-                            //do nothing
-                        }
-                        break;
-                    case ManageInventoryMethod.ManageStock:
-                        {
-                            if (product.BackorderModeId == BackorderMode.NoBackorders)
-                            {
-                                var qty = shoppingCartItem.Quantity;
-
-                                qty += customer.ShoppingCartItems
-                                    .Where(x => x.ShoppingCartTypeId == shoppingCartItem.ShoppingCartTypeId &&
-                                        x.WarehouseId == warehouseId &&
-                                        x.ProductId == shoppingCartItem.ProductId &&
-                                        x.StoreId == shoppingCartItem.StoreId &&
-                                        x.Id != shoppingCartItem.Id)
-                                    .Sum(x => x.Quantity);
-
-                                var maximumQuantityCanBeAdded = _stockQuantityService.GetTotalStockQuantity(product, warehouseId: warehouseId);
-                                if (maximumQuantityCanBeAdded < qty)
-                                {
-                                    if (maximumQuantityCanBeAdded <= 0)
-                                        warnings.Add(_translationService.GetResource("ShoppingCart.OutOfStock"));
-                                    else
-                                        warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.QuantityExceedsStock"), maximumQuantityCanBeAdded));
-                                }
-                            }
-                        }
-                        break;
-                    case ManageInventoryMethod.ManageStockByBundleProducts:
-                        {
-                            foreach (var item in product.BundleProducts)
-                            {
-                                var _qty = shoppingCartItem.Quantity * item.Quantity;
-                                var p1 = await _productService.GetProductById(item.ProductId);
-                                if (p1 != null)
-                                {
-                                    if (p1.BackorderModeId == BackorderMode.NoBackorders)
-                                    {
-                                        if (p1.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
-                                        {
-                                            int maximumQuantityCanBeAdded = _stockQuantityService.GetTotalStockQuantity(p1, warehouseId: warehouseId);
-                                            if (maximumQuantityCanBeAdded < _qty)
-                                            {
-                                                warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.OutOfStock.BundleProduct"), p1.Name));
-                                            }
-                                        }
-                                        if (p1.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
-                                        {
-                                            var combination = _productAttributeParser.FindProductAttributeCombination(p1, shoppingCartItem.Attributes);
-                                            if (combination != null)
-                                            {
-                                                //combination exists - check stock level
-                                                var stockquantity = _stockQuantityService.GetTotalStockQuantityForCombination(p1, combination, warehouseId: warehouseId);
-                                                if (!combination.AllowOutOfStockOrders && stockquantity < _qty)
-                                                {
-                                                    if (stockquantity <= 0)
-                                                    {
-                                                        warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.OutOfStock.BundleProduct"), p1.Name));
-                                                    }
-                                                    else
-                                                    {
-                                                        warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.QuantityExceedsStock.BundleProduct"), p1.Name, stockquantity));
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                warnings.Add(_translationService.GetResource("ShoppingCart.Combination.NotExist"));
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    case ManageInventoryMethod.ManageStockByAttributes:
-                        {
-                            var combination = _productAttributeParser.FindProductAttributeCombination(product, shoppingCartItem.Attributes);
-                            if (combination != null)
-                            {
-                                //combination exists - check stock level
-                                var stockquantity = _stockQuantityService.GetTotalStockQuantityForCombination(product, combination, warehouseId: warehouseId);
-                                if (!combination.AllowOutOfStockOrders && stockquantity < shoppingCartItem.Quantity)
-                                {
-                                    int maximumQuantityCanBeAdded = stockquantity;
-                                    if (maximumQuantityCanBeAdded <= 0)
-                                    {
-                                        warnings.Add(_translationService.GetResource("ShoppingCart.OutOfStock"));
-                                    }
-                                    else
-                                    {
-                                        warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.QuantityExceedsStock"), maximumQuantityCanBeAdded));
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                warnings.Add(_translationService.GetResource("ShoppingCart.Combination.NotExist"));
-                            }
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
             //availability dates
             bool availableStartDateError = false;
             if (product.AvailableStartDateTimeUtc.HasValue)
@@ -563,6 +418,158 @@ namespace Grand.Business.Checkout.Services.Orders
 
             return warnings;
         }
+
+        public virtual async Task<IList<string>> GetInventoryProductWarnings(Customer customer, Product product, ShoppingCartItem shoppingCartItem)
+        {
+            var warnings = new List<string>();
+
+            //quantity validation
+            var hasQtyWarnings = false;
+            if (shoppingCartItem.Quantity < product.OrderMinimumQuantity)
+            {
+                warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.MinimumQuantity"), product.OrderMinimumQuantity));
+                hasQtyWarnings = true;
+            }
+            if (shoppingCartItem.Quantity > product.OrderMaximumQuantity)
+            {
+                warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.MaximumQuantity"), product.OrderMaximumQuantity));
+                hasQtyWarnings = true;
+            }
+            var allowedQuantities = product.ParseAllowedQuantities();
+            if (allowedQuantities.Length > 0 && !allowedQuantities.Contains(shoppingCartItem.Quantity))
+            {
+                warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.AllowedQuantities"), string.Join(", ", allowedQuantities)));
+            }
+
+            if (_shoppingCartSettings.AllowToSelectWarehouse && string.IsNullOrEmpty(shoppingCartItem.WarehouseId))
+            {
+                warnings.Add(_translationService.GetResource("ShoppingCart.RequiredWarehouse"));
+            }
+
+            var warehouseId = !string.IsNullOrEmpty(shoppingCartItem.WarehouseId) ? shoppingCartItem.WarehouseId : _workContext.CurrentStore?.DefaultWarehouseId;
+
+            if (!string.IsNullOrEmpty(warehouseId))
+            {
+                var warehouse = await _warehouseService.GetWarehouseById(warehouseId);
+                if (warehouse == null)
+                    warnings.Add(_translationService.GetResource("ShoppingCart.WarehouseNotExists"));
+            }
+
+            if (!hasQtyWarnings)
+            {
+                switch (product.ManageInventoryMethodId)
+                {
+                    case ManageInventoryMethod.DontManageStock:
+                        {
+                            //do nothing
+                        }
+                        break;
+                    case ManageInventoryMethod.ManageStock:
+                        {
+                            if (product.BackorderModeId == BackorderMode.NoBackorders)
+                            {
+                                var qty = shoppingCartItem.Quantity;
+
+                                qty += customer.ShoppingCartItems
+                                    .Where(x => x.ShoppingCartTypeId == shoppingCartItem.ShoppingCartTypeId &&
+                                        x.WarehouseId == warehouseId &&
+                                        x.ProductId == shoppingCartItem.ProductId &&
+                                        x.StoreId == shoppingCartItem.StoreId &&
+                                        x.Id != shoppingCartItem.Id)
+                                    .Sum(x => x.Quantity);
+
+                                var maximumQuantityCanBeAdded = _stockQuantityService.GetTotalStockQuantity(product, warehouseId: warehouseId);
+                                if (maximumQuantityCanBeAdded < qty)
+                                {
+                                    if (maximumQuantityCanBeAdded <= 0)
+                                        warnings.Add(_translationService.GetResource("ShoppingCart.OutOfStock"));
+                                    else
+                                        warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.QuantityExceedsStock"), maximumQuantityCanBeAdded));
+                                }
+                            }
+                        }
+                        break;
+                    case ManageInventoryMethod.ManageStockByBundleProducts:
+                        {
+                            foreach (var item in product.BundleProducts)
+                            {
+                                var _qty = shoppingCartItem.Quantity * item.Quantity;
+                                var p1 = await _productService.GetProductById(item.ProductId);
+                                if (p1 != null)
+                                {
+                                    if (p1.BackorderModeId == BackorderMode.NoBackorders)
+                                    {
+                                        if (p1.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
+                                        {
+                                            int maximumQuantityCanBeAdded = _stockQuantityService.GetTotalStockQuantity(p1, warehouseId: warehouseId);
+                                            if (maximumQuantityCanBeAdded < _qty)
+                                            {
+                                                warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.OutOfStock.BundleProduct"), p1.Name));
+                                            }
+                                        }
+                                        if (p1.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
+                                        {
+                                            var combination = _productAttributeParser.FindProductAttributeCombination(p1, shoppingCartItem.Attributes);
+                                            if (combination != null)
+                                            {
+                                                //combination exists - check stock level
+                                                var stockquantity = _stockQuantityService.GetTotalStockQuantityForCombination(p1, combination, warehouseId: warehouseId);
+                                                if (!combination.AllowOutOfStockOrders && stockquantity < _qty)
+                                                {
+                                                    if (stockquantity <= 0)
+                                                    {
+                                                        warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.OutOfStock.BundleProduct"), p1.Name));
+                                                    }
+                                                    else
+                                                    {
+                                                        warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.QuantityExceedsStock.BundleProduct"), p1.Name, stockquantity));
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                warnings.Add(_translationService.GetResource("ShoppingCart.Combination.NotExist"));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case ManageInventoryMethod.ManageStockByAttributes:
+                        {
+                            var combination = _productAttributeParser.FindProductAttributeCombination(product, shoppingCartItem.Attributes);
+                            if (combination != null)
+                            {
+                                //combination exists - check stock level
+                                var stockquantity = _stockQuantityService.GetTotalStockQuantityForCombination(product, combination, warehouseId: warehouseId);
+                                if (!combination.AllowOutOfStockOrders && stockquantity < shoppingCartItem.Quantity)
+                                {
+                                    int maximumQuantityCanBeAdded = stockquantity;
+                                    if (maximumQuantityCanBeAdded <= 0)
+                                    {
+                                        warnings.Add(_translationService.GetResource("ShoppingCart.OutOfStock"));
+                                    }
+                                    else
+                                    {
+                                        warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.QuantityExceedsStock"), maximumQuantityCanBeAdded));
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                warnings.Add(_translationService.GetResource("ShoppingCart.Combination.NotExist"));
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return warnings;
+        }
+
 
         public virtual IList<string> GetAuctionProductWarning(double bid, Product product, Customer customer)
         {
@@ -908,6 +915,10 @@ namespace Grand.Business.Checkout.Services.Orders
             //standard properties
             if (options.GetStandardWarnings)
                 warnings.AddRange(await GetStandardWarnings(customer, product, shoppingCartItem));
+
+            //inventory properties
+            if (options.GetInventoryWarnings)
+                warnings.AddRange(await GetInventoryProductWarnings(customer, product, shoppingCartItem));
 
             //selected attributes
             if (options.GetAttributesWarnings)

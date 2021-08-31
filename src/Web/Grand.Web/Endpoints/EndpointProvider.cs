@@ -567,10 +567,13 @@ namespace Grand.Web.Endpoints
                             $"{pattern}removegiftvouchercode/",
                             new { controller = "ShoppingCart", action = "RemoveGiftVoucherCode" });
 
-            endpointRouteBuilder.MapControllerRoute("UpdateCart",
-                            $"{pattern}updatecart/",
-                            new { controller = "ShoppingCart", action = "UpdateCart" });
+            endpointRouteBuilder.MapControllerRoute("UpdateQuantityCart",
+                            $"{pattern}cart/updatequantity",
+                            new { controller = "ShoppingCart", action = "UpdateQuantity" });
 
+            endpointRouteBuilder.MapControllerRoute("UpdateItemCart",
+                            $"{pattern}updateitemcart/",
+                            new { controller = "ActionCart", action = "UpdateItemCart" });
             //get state list by country ID  (AJAX link)
             endpointRouteBuilder.MapControllerRoute("DeleteCartItem",
                             pattern + "deletecartitem/{id?}",
@@ -590,24 +593,35 @@ namespace Grand.Web.Endpoints
                             pattern + "uploadfilecheckoutattribute/{attributeId}",
                             new { controller = "ShoppingCart", action = "UploadFileCheckoutAttribute" });
 
+            //update item cart
+            endpointRouteBuilder.MapControllerRoute("GetItemCart",
+                            pattern + "getitemcart/{shoppingcartId?}",
+                            new { controller = "ActionCart", action = "GetItemCart" });
+
             //wishlist
             endpointRouteBuilder.MapControllerRoute("Wishlist",
                             pattern + "wishlist/{customerGuid?}",
                             new { controller = "Wishlist", action = "Index" });
+
+            //update wishlist
+            endpointRouteBuilder.MapControllerRoute("UpdateQuantityWishlist",
+                            $"{pattern}wishlist/updatequantity",
+                            new { controller = "Wishlist", action = "UpdateQuantity" });
 
             //email wishlist
             endpointRouteBuilder.MapControllerRoute("EmailWishlist",
                             pattern + "emailwishlist",
                             new { controller = "Wishlist", action = "EmailWishlist" });
 
-            //email wishlist
-            endpointRouteBuilder.MapControllerRoute("UpdateWishlist",
-                            pattern + "updatewishlist",
-                            new { controller = "Wishlist", action = "UpdateWishlist" });
-            //email wishlist
-            endpointRouteBuilder.MapControllerRoute("AddItemsToCartFromWishlist",
-                            pattern + "additemstocartwishlist",
-                            new { controller = "Wishlist", action = "AddItemsToCartFromWishlist" });
+            //add item to wishlist
+            endpointRouteBuilder.MapControllerRoute("AddItemToCartFromWishlist",
+                            pattern + "wishlist/addItemtocartfromwishlist/{shoppingcartId?}",
+                            new { controller = "Wishlist", action = "AddItemToCartFromWishlist" });
+
+            //delete item from wishlist
+            endpointRouteBuilder.MapControllerRoute("DeleteItemFromWishlist",
+                            pattern + "wishlist/deleteitemfromwishlist/{shoppingcartId?}",
+                            new { controller = "Wishlist", action = "DeleteItemFromWishlist" });
         }
 
         private void RegisterOrderRoute(IEndpointRouteBuilder endpointRouteBuilder, string pattern)

@@ -42,7 +42,13 @@ var AxiosCart = {
             this.AxiosCart.success_process(response);
         }).catch(function (error) {
             error.axiosFailure;
-        }).then(function (response) {
+        }).then(function () {
+            if (typeof vmwishlist !== 'undefined') {
+                vmwishlist.getModel();
+            }
+            if (typeof vmorder !== 'undefined') {
+                vmorder.getModel();
+            }
             this.AxiosCart.resetLoadWaiting();
         });  
     },
@@ -68,8 +74,44 @@ var AxiosCart = {
         }).catch(function (error) {
             error.axiosFailure;
         }).then(function () {
+            if (typeof vmwishlist !== 'undefined') {
+                vmwishlist.getModel();
+            }
+            if (typeof vmorder !== 'undefined') {
+                vmorder.getModel();
+            }
             this.AxiosCart.resetLoadWaiting();
-        });  
+        });
+    },
+
+    //update product on cart/wishlist
+    updateitem: function (urlupdate) {
+        var model;
+        var form = document.querySelector('#ModalQuickView #product-details-form');
+        var data = new FormData(form);
+
+        if (typeof vmwishlist !== 'undefined') {
+            model = vmwishlist;
+        } else {
+            model = vmorder;
+        }
+
+        axios({
+            url: urlupdate,
+            data: data,
+            method: 'post',
+        }).then(function (response) {
+            if (response.data.success) {
+                vm.$refs['ModalQuickView'].hide();
+            } else {
+                model.displayWarning(response.data.message, 'danger');
+            }
+        }).catch(function (error) {
+            error.axiosFailure;
+        }).then(function () {
+            model.getModel();
+            this.AxiosCart.resetLoadWaiting();
+        });
     },
 
     //add bid
