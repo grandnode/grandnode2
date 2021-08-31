@@ -121,7 +121,7 @@ namespace Grand.Web.Features.Handlers.Common
                 var storeLocation = _workContext.CurrentHost.Url.TrimEnd('/');
 
                 //sitemaps
-                sb.AppendFormat("Sitemap: {0}sitemap.xml", storeLocation);
+                sb.AppendFormat("Sitemap: {0}/sitemap.xml", storeLocation);
                 sb.Append(newLine);
 
                 //host
