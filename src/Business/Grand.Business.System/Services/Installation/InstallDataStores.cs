@@ -28,7 +28,7 @@ namespace Grand.Business.System.Services.Installation
                     CompanyVat = null,
                     CompanyEmail = companyEmail,
                     CompanyHours = "Monday - Sunday / 8:00AM - 6:00PM",
-                    Domains = new List<DomainHost>(){ new DomainHost() { HostName = "yourstore.com", Url = storeUrl, Primary = true } }
+                    Domains = new List<DomainHost>(){ new DomainHost() { HostName = httpContextAccessor.HttpContext?.Request?.Host.Host, Url = storeUrl, Primary = true } }
                 },
             };
 
