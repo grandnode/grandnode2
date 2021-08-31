@@ -14,15 +14,20 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidOrder : Drop
     {
-        private Order _order;
-        private Language _language;
-        private Customer _customer;
-        private Currency _currency;
-        private Store _store;
-        private OrderNote _orderNote;
+        private readonly Order _order;
+        private readonly Language _language;
+        private readonly Customer _customer;
+        private readonly Currency _currency;
+        private readonly Store _store;
+        private readonly Vendor _vendor;
+        private readonly DomainHost _host;
+        private readonly OrderNote _orderNote;
+
         private ICollection<LiquidOrderItem> _orderItems;
-        private Vendor _vendor;
-        public LiquidOrder(Order order, Customer customer, Language language, Currency currency, Store store, OrderNote orderNote = null, Vendor vendor = null)
+
+        private string url;
+
+        public LiquidOrder(Order order, Customer customer, Language language, Currency currency, Store store, DomainHost host, OrderNote orderNote = null, Vendor vendor = null)
         {
 
             _order = order;
@@ -32,6 +37,11 @@ namespace Grand.Business.Messages.DotLiquidDrops
             _currency = currency;
             _store = store;
             _vendor = vendor;
+            _host = host;
+
+            url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
+
+
             _orderItems = new List<LiquidOrderItem>();
             AdditionalTokens = new Dictionary<string, string>();
         }
@@ -209,7 +219,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
 
         public string OrderURLForCustomer
         {
-            get { return string.Format("{0}/orderdetails/{1}", (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/')), _order.Id); }
+            get { return string.Format("{0}/orderdetails/{1}", url, _order.Id); }
         }
 
         public string AmountRefunded { get; set; }
@@ -223,7 +233,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
         {
             get
             {
-                return string.Format("{0}/download/ordernotefile/{1}", (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/')), _orderNote.Id);
+                return string.Format("{0}/download/ordernotefile/{1}", url, _orderNote.Id);
             }
         }
 

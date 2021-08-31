@@ -243,7 +243,7 @@ namespace Grand.Web.Admin.Services
             if (discount == null)
                 throw new ArgumentNullException(nameof(discount));
 
-            var storeLocation = _workContext.CurrentStore.SslEnabled ? _workContext.CurrentStore.SecureUrl.TrimEnd('/') : _workContext.CurrentStore.Url.TrimEnd('/');
+            var storeLocation = _workContext.CurrentHost.Url.TrimEnd('/');
 
             string url = string.Format("{0}/{1}", storeLocation, discountRequirementRule.GetConfigurationUrl(discount.Id, discountRequirementId));
             return url;

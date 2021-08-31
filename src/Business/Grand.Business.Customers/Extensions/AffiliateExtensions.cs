@@ -54,7 +54,7 @@ namespace Grand.Business.Customers.Extensions
             if (workContext == null)
                 throw new ArgumentNullException(nameof(workContext));
 
-            var storeUrl = workContext.CurrentStore.Url.TrimEnd('/');
+            var storeUrl = workContext.CurrentHost.Url.TrimEnd('/');
             var url = !String.IsNullOrEmpty(affiliate.FriendlyUrlName) ? 
                 CommonExtensions.ModifyQueryString(storeUrl, "affiliate", affiliate.FriendlyUrlName) : CommonExtensions.ModifyQueryString(storeUrl, "affiliateid", affiliate.Id);
 

@@ -41,6 +41,11 @@ namespace Grand.Infrastructure
         Vendor CurrentVendor { get; }
 
         /// <summary>
+        /// Gets the current host
+        /// </summary>
+        DomainHost CurrentHost { get; }
+
+        /// <summary>
         /// Set the current vendor (logged-in manager)
         /// </summary>
         Task<Vendor> SetCurrentVendor(Customer customer);

@@ -5,10 +5,10 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidAskQuestion : Drop
     {
-        private string message;
-        private string email;
-        private string fullName;
-        private string phone;
+        private readonly string message;
+        private readonly string email;
+        private readonly string fullName;
+        private readonly string phone;
 
         public LiquidAskQuestion(string message, string email, string fullName, string phone)
         {

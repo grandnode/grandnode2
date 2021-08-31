@@ -9,17 +9,23 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidNewsComment : Drop
     {
-        private NewsComment _newsComment;
-        private NewsItem _newsItem;
-        private Store _store;
-        private Language _language;
+        private readonly NewsComment _newsComment;
+        private readonly NewsItem _newsItem;
+        private readonly Store _store;
+        private readonly DomainHost _host;
+        private readonly Language _language;
 
-        public LiquidNewsComment(NewsItem newsItem, NewsComment newsComment, Store store, Language language)
+        private string url;
+
+        public LiquidNewsComment(NewsItem newsItem, NewsComment newsComment, Store store, DomainHost host, Language language)
         {
             _newsComment = newsComment;
             _newsItem = newsItem;
             _store = store;
             _language = language;
+            _host = host;
+
+            url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
 
             AdditionalTokens = new Dictionary<string, string>();
         }
@@ -41,7 +47,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
 
         public string NewsURL
         {
-            get { return $"{(_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'))}/{_newsItem.GetSeName(_language.Id)}"; }
+            get { return $"{url}/{_newsItem.GetSeName(_language.Id)}"; }
         }
 
         public IDictionary<string, string> AdditionalTokens { get; set; }

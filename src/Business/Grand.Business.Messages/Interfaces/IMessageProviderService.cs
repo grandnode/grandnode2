@@ -411,8 +411,6 @@ namespace Grand.Business.Messages.Interfaces
         /// <summary>
         /// Sends a blog comment notification message to a store owner
         /// </summary>
-        /// <param name="blogComment">Blog comment</param>
-        /// <param name="languageId">Message language identifier</param>
         /// <returns>Queued email identifier</returns>
         Task<int> SendBlogCommentMessage(BlogPost blogPost, BlogComment blogComment, string languageId);
 

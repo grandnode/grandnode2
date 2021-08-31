@@ -118,7 +118,7 @@ namespace Grand.Web.Features.Handlers.Common
                 sb.Append("User-agent: *");
                 sb.Append(newLine);
 
-                var storeLocation = _workContext.CurrentStore.SslEnabled ? _workContext.CurrentStore.SecureUrl.TrimEnd('/') : _workContext.CurrentStore.Url.TrimEnd('/');
+                var storeLocation = _workContext.CurrentHost.Url.TrimEnd('/');
 
                 //sitemaps
                 sb.AppendFormat("Sitemap: {0}sitemap.xml", storeLocation);

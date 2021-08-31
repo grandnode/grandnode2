@@ -8,7 +8,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
     public partial class LiquidShoppingCart : Drop
     {
         private ICollection<LiquidShoppingCartItem> _items;
-        private Customer _customer;
+        private readonly Customer _customer;
 
         public LiquidShoppingCart(Customer customer)
         {

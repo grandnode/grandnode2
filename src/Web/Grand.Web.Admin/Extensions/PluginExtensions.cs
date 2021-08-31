@@ -19,7 +19,7 @@ namespace Grand.Web.Admin.Extensions
             {
                 return null;
             }
-            var storeLocation = workContext.CurrentStore.SslEnabled ? workContext.CurrentStore.SecureUrl.TrimEnd('/') : workContext.CurrentStore.Url.TrimEnd('/');
+            var storeLocation = workContext.CurrentHost.Url.TrimEnd('/');
             var pluginDirectory = pluginDescriptor.OriginalAssemblyFile.Directory;
             var logoPluginJpg = Path.Combine(pluginDirectory.FullName, "logo.jpg");
             if (File.Exists(logoPluginJpg))

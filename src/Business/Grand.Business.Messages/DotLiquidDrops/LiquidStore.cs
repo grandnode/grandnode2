@@ -9,9 +9,9 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidStore : Drop
     {
-        private Store _store;
-        private EmailAccount _emailAccount;
-        private Language _language;
+        private readonly Store _store;
+        private readonly EmailAccount _emailAccount;
+        private readonly Language _language;
 
         public LiquidStore(Store store, Language language, EmailAccount emailAccount = null)
         {

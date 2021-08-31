@@ -104,7 +104,7 @@ namespace Payments.PayPalStandard
         private async Task<IDictionary<string, string>> CreateQueryParameters(Order order)
         {
             //get store location
-            var storeLocation = _workContext.CurrentStore.SslEnabled ? _workContext.CurrentStore.SecureUrl.TrimEnd('/') : _workContext.CurrentStore.Url.TrimEnd('/');
+            var storeLocation = _workContext.CurrentHost.Url;
             var stateProvince = "";
             var countryCode = "";
             if (!String.IsNullOrEmpty(order.ShippingAddress?.StateProvinceId))

@@ -144,7 +144,7 @@ namespace Grand.Web.Admin.Controllers
                 });
             }
             //store URL
-            var currentStoreUrl = _workContext.CurrentStore.Url;
+            var currentStoreUrl = _workContext.CurrentHost.Url;
             if (!String.IsNullOrEmpty(currentStoreUrl) && (currentStoreUrl.Equals(HttpContext.Request.Host.Host, StringComparison.OrdinalIgnoreCase)))
                 model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass,
