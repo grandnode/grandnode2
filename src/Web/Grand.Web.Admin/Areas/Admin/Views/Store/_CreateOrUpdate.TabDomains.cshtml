@@ -50,7 +50,7 @@
                             }
                         },
                         requestEnd: function (e) {
-                            if (e.type == "create") {
+                            if (e.type == "create" || e.type == "update") {
                                 this.read();
                             }
                         },
