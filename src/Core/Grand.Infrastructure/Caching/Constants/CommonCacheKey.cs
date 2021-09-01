@@ -165,29 +165,6 @@
 
         #endregion
 
-        #region Domains
-
-        /// <summary>
-        /// Key for caching
-        /// </summary>
-        public static string DOMAINS_PATTERN_KEY => "Grand.domains";
-
-        /// <summary>
-        /// Key for caching
-        /// </summary>
-        public static string DOMAINS_ALL_KEY => "Grand.domains.all";
-
-        /// <summary>
-        /// Key for caching
-        /// </summary>
-        /// <remarks>
-        /// {0} : store ID
-        /// </remarks>
-        public static string DOMAINS_BY_ID_KEY => "Grand.domains.id-{0}";
-
-        #endregion
-
-
         #region Tax
 
         /// <summary>
