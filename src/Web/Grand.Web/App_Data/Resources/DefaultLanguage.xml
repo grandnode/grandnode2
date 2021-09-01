@@ -5136,6 +5136,9 @@
   <Resource Name="Admin.Configuration.Stores.Fields.SecureUrl">
     <Value>Secure URL</Value>
   </Resource>
+  <Resource Name="Admin.Configuration.Stores.Fields.SecureUrl.WrongFormat">
+    <Value>Wrong format of the secure URL (e.g. https://google.com) </Value>
+  </Resource>
   <Resource Name="Admin.Configuration.Stores.Fields.Shortcut">
     <Value>Shortcut</Value>
   </Resource>
@@ -5153,6 +5156,9 @@
   </Resource>
   <Resource Name="Admin.Configuration.Stores.Fields.Url.Required">
     <Value>URL of the store is required</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Fields.Url.WrongFormat">
+    <Value>Wrong format of the URL (e.g. http://google.com) </Value>
   </Resource>
   <Resource Name="Admin.Configuration.Stores.Updated">
     <Value>The store has been updated successfully.</Value>
