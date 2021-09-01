@@ -6,8 +6,8 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidVendorReview : Drop
     {
-        private VendorReview _vendorReview;
-        private Vendor _vendor;
+        private readonly VendorReview _vendorReview;
+        private readonly Vendor _vendor;
         public LiquidVendorReview(Vendor vendor, VendorReview vendorReview)
         {
             _vendorReview = vendorReview;

@@ -5067,6 +5067,24 @@
   <Resource Name="Admin.Configuration.Stores.Deleted">
     <Value>The store has been deleted successfully.</Value>
   </Resource>
+    <Resource Name="Admin.Configuration.Stores.Domains.Fields.HostName">
+    <Value>Host name</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Domains.Fields.Primary">
+    <Value>Primary URL</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Domains.Fields.Url">
+    <Value>URL address</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Domains.Fields.Url.Required">
+    <Value>URL address is required</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Domains.Fields.Url.WrongFormat">
+    <Value>Wrong format for URL address</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Domains.SaveBeforeEdit">
+    <Value>You need to save the store before you can add values for domains.</Value>
+  </Resource>
   <Resource Name="Admin.Configuration.Stores.EditStoreDetails">
     <Value>Edit store details</Value>
   </Resource>
@@ -11960,6 +11978,12 @@
   </Resource>
   <Resource Name="Admin.Settings.Vendor.VendorSettings">
     <Value>Vendor settings</Value>
+  </Resource>
+  <Resource Name="Admin.Stores.Domains">
+    <Value>Domains</Value>
+  </Resource>
+  <Resource Name="Admin.Stores.Info">
+    <Value>Store info</Value>
   </Resource>
   <Resource Name="Admin.System">
     <Value>System</Value>

@@ -9,10 +9,10 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidMerchandiseReturnItem : Drop
     {
-        private MerchandiseReturnItem _item;
-        private Product _product;
-        private OrderItem _orderItem;
-        private string _languageId;
+        private readonly MerchandiseReturnItem _item;
+        private readonly Product _product;
+        private readonly OrderItem _orderItem;
+        private readonly string _languageId;
 
         public LiquidMerchandiseReturnItem(MerchandiseReturnItem item, OrderItem orderItem, Product product, string languageid)
         {

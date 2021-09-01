@@ -112,7 +112,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             var categories = new List<string>();
             var brands = new List<string>();
 
-            var storeurl = _workContext.CurrentStore.SslEnabled ? _workContext.CurrentStore.SecureUrl.TrimEnd('/') : _workContext.CurrentStore.Url.TrimEnd('/');
+            var storeurl = _workContext.CurrentHost.Url.TrimEnd('/');
 
             var displayPrices = await _permissionService.Authorize(StandardPermission.DisplayPrices, _workContext.CurrentCustomer);
 

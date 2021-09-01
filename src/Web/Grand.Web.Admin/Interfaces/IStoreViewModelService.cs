@@ -14,6 +14,9 @@ namespace Grand.Web.Admin.Interfaces
         Task<Store> InsertStoreModel(StoreModel model);
         Task<Store> UpdateStoreModel(Store store, StoreModel model);
         Task DeleteStore(Store store);
+        Task InsertDomainHostModel(Store store, DomainHostModel model);
+        Task UpdateDomainHostModel(Store store, DomainHostModel model);
+        Task DeleteDomainHostModel(Store store, string id);
 
     }
 }

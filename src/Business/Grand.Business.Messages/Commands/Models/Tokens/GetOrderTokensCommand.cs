@@ -12,6 +12,7 @@ namespace Grand.Business.Messages.Commands.Models
         public Order Order { get; set; }
         public Customer Customer { get; set; }
         public Store Store { get; set; }
+        public DomainHost Host { get; set; }
         public OrderNote OrderNote { get; set; } = null;
         public Vendor Vendor { get; set; } = null;
         public double RefundedAmount { get; set; } = 0;

@@ -10,11 +10,11 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidShoppingCartItem : Drop
     {
-        private Product _product;
-        private Language _language;
-        private string _attributeDescription;
-        private string _pictureUrl;
-        private ShoppingCartItem _shoppingCartItem;
+        private readonly Product _product;
+        private readonly Language _language;
+        private readonly string _attributeDescription;
+        private readonly string _pictureUrl;
+        private readonly ShoppingCartItem _shoppingCartItem;
 
         public LiquidShoppingCartItem(Product product,
             string attributeDescription,

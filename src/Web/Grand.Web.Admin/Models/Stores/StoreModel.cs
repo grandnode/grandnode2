@@ -11,6 +11,7 @@ namespace Grand.Web.Admin.Models.Stores
         public StoreModel()
         {
             Locales = new List<StoreLocalizedModel>();
+            Domains = new List<DomainHostModel>();
             AvailableLanguages = new List<SelectListItem>();
             AvailableWarehouses = new List<SelectListItem>();
             AvailableCountries = new List<SelectListItem>();
@@ -31,9 +32,6 @@ namespace Grand.Web.Admin.Models.Stores
 
         [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.SecureUrl")]
         public virtual string SecureUrl { get; set; }
-
-        [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.Hosts")]
-        public string Hosts { get; set; }
 
         [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.DefaultAdminTheme")]
         public string DefaultAdminTheme { get; set; }
@@ -78,6 +76,9 @@ namespace Grand.Web.Admin.Models.Stores
         [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.DefaultCurrency")]
         public string DefaultCurrencyId { get; set; }
         public IList<SelectListItem> AvailableCurrencies { get; set; }
+
+        public IList<DomainHostModel> Domains { get; set; }
+
     }
 
     public partial class StoreLocalizedModel : ILocalizedModelLocal
@@ -89,5 +90,15 @@ namespace Grand.Web.Admin.Models.Stores
 
         [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.Shortcut")]
         public string Shortcut { get; set; }
+    }
+
+    public class DomainHostModel : BaseEntityModel
+    {
+        [GrandResourceDisplayName("Admin.Configuration.Stores.Domains.Fields.HostName")]
+        public string HostName { get; set; }
+        [GrandResourceDisplayName("Admin.Configuration.Stores.Domains.Fields.Url")]
+        public string Url { get; set; }
+        [GrandResourceDisplayName("Admin.Configuration.Stores.Domains.Fields.Primary")]
+        public bool Primary { get; set; }
     }
 }

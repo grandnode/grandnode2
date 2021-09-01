@@ -224,7 +224,7 @@ namespace Grand.Business.Catalog.Services.Products
                                     fileName = WebUtility.HtmlEncode(fileName);
                                 if (allowHyperlinks)
                                 {
-                                    var downloadLink = string.Format("{0}/download/getfileupload/?downloadId={1}", _workContext.CurrentStore.Url.TrimEnd('/'), download.DownloadGuid);
+                                    var downloadLink = string.Format("{0}/download/getfileupload/?downloadId={1}", _workContext.CurrentHost.Url.TrimEnd('/'), download.DownloadGuid);
                                     attributeText = string.Format("<a href=\"{0}\" class=\"fileuploadattribute\">{1}</a>", downloadLink, fileName);
                                 }
                                 else

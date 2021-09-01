@@ -16,8 +16,6 @@
     }
     <script asp-location="Head" asp-src="/theme/script/public.checkout.js"></script>
 
-    var storeLocation = workContext.CurrentStore.SslEnabled ? workContext.CurrentStore.SecureUrl.TrimEnd('/') : workContext.CurrentStore.Url.TrimEnd('/');
-
     //title
     pagebuilder.AddTitleParts(Loc["Title.Checkout"]);
 }

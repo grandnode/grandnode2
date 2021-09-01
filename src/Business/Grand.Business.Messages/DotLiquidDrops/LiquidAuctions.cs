@@ -6,8 +6,8 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidAuctions : Drop
     {
-        private Product _product;
-        private Bid _bid;
+        private readonly Product _product;
+        private readonly Bid _bid;
 
         public LiquidAuctions(Product product, Bid bid = null)
         {

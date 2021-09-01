@@ -73,12 +73,12 @@ namespace Grand.Business.System.Commands.Handlers.Messages
             var language = await _languageService.GetLanguageById(request.Order.CustomerLanguageId);
             var currency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
 
-            var liquidOrder = new LiquidOrder(request.Order, request.Customer, language, currency, request.Store, request.OrderNote, request.Vendor);
+            var liquidOrder = new LiquidOrder(request.Order, request.Customer, language, currency, request.Store, request.Host, request.OrderNote, request.Vendor);
             foreach (var item in request.Order.OrderItems.Where(x => x.VendorId == request.Vendor?.Id || request.Vendor == null))
             {
                 var product = await _productService.GetProductById(item.ProductId);
                 Vendor vendorItem = string.IsNullOrEmpty(item.VendorId) ? null : await _vendorService.GetVendorById(item.VendorId);
-                var liqitem = new LiquidOrderItem(item, product, language, request.Store, vendorItem);
+                var liqitem = new LiquidOrderItem(item, product, language, request.Store, request.Host, vendorItem);
 
                 #region Download
 

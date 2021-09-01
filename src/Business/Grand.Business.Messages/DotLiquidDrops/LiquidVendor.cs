@@ -6,7 +6,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidVendor : Drop
     {
-        private Vendor _vendor;
+        private readonly Vendor _vendor;
 
         public LiquidVendor(Vendor vendor)
         {

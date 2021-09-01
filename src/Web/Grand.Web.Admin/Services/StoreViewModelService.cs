@@ -39,16 +39,14 @@ namespace Grand.Web.Admin.Services
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
 
-            model.AvailableLanguages.Add(new SelectListItem
-            {
+            model.AvailableLanguages.Add(new SelectListItem {
                 Text = "---",
                 Value = ""
             });
             var languages = await _languageService.GetAllLanguages(true);
             foreach (var language in languages)
             {
-                model.AvailableLanguages.Add(new SelectListItem
-                {
+                model.AvailableLanguages.Add(new SelectListItem {
                     Text = language.Name,
                     Value = language.Id
                 });
@@ -61,16 +59,14 @@ namespace Grand.Web.Admin.Services
                 throw new ArgumentNullException(nameof(model));
 
             //warehouse
-            model.AvailableWarehouses.Add(new SelectListItem
-            {
+            model.AvailableWarehouses.Add(new SelectListItem {
                 Text = "---",
                 Value = ""
             });
             var warehouses = await _warehouseService.GetAllWarehouses();
             foreach (var warehouse in warehouses)
             {
-                model.AvailableWarehouses.Add(new SelectListItem
-                {
+                model.AvailableWarehouses.Add(new SelectListItem {
                     Text = warehouse.Name,
                     Value = warehouse.Id
                 });
@@ -82,8 +78,7 @@ namespace Grand.Web.Admin.Services
                 throw new ArgumentNullException(nameof(model));
 
             //countries
-            model.AvailableCountries.Add(new SelectListItem
-            {
+            model.AvailableCountries.Add(new SelectListItem {
                 Text = "---",
                 Value = ""
             });
@@ -91,8 +86,7 @@ namespace Grand.Web.Admin.Services
             var countries = await _countryService.GetAllCountries();
             foreach (var country in countries)
             {
-                model.AvailableCountries.Add(new SelectListItem
-                {
+                model.AvailableCountries.Add(new SelectListItem {
                     Text = country.Name,
                     Value = country.Id
                 });
@@ -104,8 +98,7 @@ namespace Grand.Web.Admin.Services
                 throw new ArgumentNullException(nameof(model));
 
             //countries
-            model.AvailableCurrencies.Add(new SelectListItem
-            {
+            model.AvailableCurrencies.Add(new SelectListItem {
                 Text = "---",
                 Value = ""
             });
@@ -113,8 +106,7 @@ namespace Grand.Web.Admin.Services
             var currencies = await _currencyService.GetAllCurrencies();
             foreach (var currency in currencies)
             {
-                model.AvailableCurrencies.Add(new SelectListItem
-                {
+                model.AvailableCurrencies.Add(new SelectListItem {
                     Text = currency.Name,
                     Value = currency.Id
                 });
@@ -135,17 +127,42 @@ namespace Grand.Web.Admin.Services
             if (!string.IsNullOrEmpty(store.SecureUrl) && !store.SecureUrl.EndsWith("/"))
                 store.SecureUrl += "/";
 
+            var storeUri = new Uri(store.Url);
+            store.Domains.Add(new DomainHost() {
+                HostName = storeUri.Host,
+                Url = store.SslEnabled ? store.SecureUrl : store.Url,
+                Primary = true
+            });
+
             await _storeService.InsertStore(store);
             return store;
         }
         public virtual async Task<Store> UpdateStoreModel(Store store, StoreModel model)
         {
             store = model.ToEntity(store);
+
             //ensure we have "/" at the end
             if (!store.Url.EndsWith("/"))
                 store.Url += "/";
             if (!string.IsNullOrEmpty(store.SecureUrl) && !store.SecureUrl.EndsWith("/"))
                 store.SecureUrl += "/";
+
+            var domain = store.Domains.FirstOrDefault(x => x.Primary);
+            if (domain == null)
+            {
+                var storeUri = new Uri(store.Url);
+                store.Domains.Add(new DomainHost() {
+                    HostName = storeUri.Host,
+                    Url = store.SslEnabled ? store.SecureUrl : store.Url,
+                    Primary = true
+                });
+            }
+            else
+            {
+                var storeUri = new Uri(store.Url);
+                domain.HostName = storeUri.Host;
+                domain.Url = store.SslEnabled ? store.SecureUrl : store.Url;
+            }
 
             await _storeService.UpdateStore(store);
             return store;
@@ -173,5 +190,62 @@ namespace Grand.Web.Admin.Services
                     await _settingService.DeleteSetting(setting);
             }
         }
+
+        #region DomainHost
+
+        public virtual async Task InsertDomainHostModel(Store store, DomainHostModel model)
+        {
+            if (store == null)
+                throw new ArgumentNullException(nameof(store));
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+
+            if (!model.Url.EndsWith("/"))
+                model.Url += "/";
+
+            var storeUri = new Uri(model.Url);
+
+            store.Domains.Add(new DomainHost() {
+                HostName = storeUri.Host,
+                Url = model.Url
+            });
+            await _storeService.UpdateStore(store);
+
+        }
+
+        public virtual async Task UpdateDomainHostModel(Store store, DomainHostModel model)
+        {
+            if (store == null)
+                throw new ArgumentNullException(nameof(store));
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+            
+            if (!model.Url.EndsWith("/"))
+                model.Url += "/";
+
+            var domain = store.Domains.FirstOrDefault(x => x.Id == model.Id);
+            if (domain != null)
+            {
+                var storeUri = new Uri(model.Url);
+                domain.HostName = storeUri.Host;
+                domain.Url = model.Url;
+            }
+
+            await _storeService.UpdateStore(store);
+        }
+
+        public virtual async Task DeleteDomainHostModel(Store store, string id)
+        {
+            var domain = store.Domains.FirstOrDefault(x => x.Id == id);
+            if (domain != null)
+            {
+                store.Domains.Remove(domain);
+                await _storeService.UpdateStore(store);
+            }
+
+        }
+
+        #endregion
+
     }
 }

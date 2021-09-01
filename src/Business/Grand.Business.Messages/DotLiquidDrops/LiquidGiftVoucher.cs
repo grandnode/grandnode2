@@ -8,7 +8,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidGiftVoucher : Drop
     {
-        private GiftVoucher _giftVoucher;
+        private readonly GiftVoucher _giftVoucher;
 
         public LiquidGiftVoucher(GiftVoucher giftVoucher)
         {

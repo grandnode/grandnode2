@@ -10,20 +10,25 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidShipment : Drop
     {
-        private Shipment _shipment;
-        private Order _order;
-        private Store _store;
-        private Language _language;
+        private readonly Shipment _shipment;
+        private readonly Order _order;
+        private readonly Store _store;
+        private readonly Language _language;
+        private readonly DomainHost _host;
+        private readonly string url;
 
         private ICollection<LiquidShipmentItem> _shipmentItems;
 
 
-        public LiquidShipment(Shipment shipment, Order order, Store store, Language language)
+        public LiquidShipment(Shipment shipment, Order order, Store store, DomainHost host, Language language)
         {
             _shipment = shipment;
             _language = language;
             _store = store;
             _order = order;
+            _host = host;
+            url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
+
             _shipmentItems = new List<LiquidShipmentItem>();
             AdditionalTokens = new Dictionary<string, string>();
         }
@@ -63,7 +68,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
         {
             get
             {
-                return string.Format("{0}/orderdetails/shipment/{1}", (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/')), _shipment.Id);
+                return string.Format("{0}/orderdetails/shipment/{1}", url, _shipment.Id);
             }
         }
 

@@ -6,8 +6,8 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidProductReview : Drop
     {
-        private ProductReview _productReview;
-        private Product _product;
+        private readonly ProductReview _productReview;
+        private readonly Product _product;
 
         public LiquidProductReview(Product product, ProductReview productReview)
         {
@@ -21,6 +21,12 @@ namespace Grand.Business.Messages.DotLiquidDrops
             get
             {
                 return _product.Name;
+            }
+        }
+
+        public string ProductReviewReplyText {
+            get {
+                return _productReview.ReplyText;
             }
         }
 

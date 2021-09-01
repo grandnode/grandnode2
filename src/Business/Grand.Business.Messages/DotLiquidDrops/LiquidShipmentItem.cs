@@ -11,12 +11,12 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidShipmentItem : Drop
     {
-        private ShipmentItem _shipmentItem;
-        private Shipment _shipment;
-        private Product _product;
-        private Order _order;
-        private OrderItem _orderItem;
-        private Language _language;
+        private readonly ShipmentItem _shipmentItem;
+        private readonly Shipment _shipment;
+        private readonly Product _product;
+        private readonly Order _order;
+        private readonly OrderItem _orderItem;
+        private readonly Language _language;
 
         public LiquidShipmentItem(ShipmentItem shipmentItem, Shipment shipment, Order order, OrderItem orderItem, Product product, Language language)
         {

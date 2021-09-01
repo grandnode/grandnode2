@@ -110,7 +110,7 @@ namespace Widgets.GoogleAnalytics.Components
                 var analyticsEcommerceScript = _googleAnalyticsEcommerceSettings.EcommerceScript + "\n";
                 analyticsEcommerceScript = analyticsEcommerceScript.Replace("{GOOGLEID}", _googleAnalyticsEcommerceSettings.GoogleId);
                 analyticsEcommerceScript = analyticsEcommerceScript.Replace("{ORDERID}", order.Id.ToString());
-                analyticsEcommerceScript = analyticsEcommerceScript.Replace("{SITE}", _workContext.CurrentStore.Url.Replace("http://", "").Replace("/", ""));
+                analyticsEcommerceScript = analyticsEcommerceScript.Replace("{SITE}", _workContext.CurrentHost.Url.Replace("http://", "").Replace("/", ""));
                 analyticsEcommerceScript = analyticsEcommerceScript.Replace("{TOTAL}", order.OrderTotal.ToString("0.00", usCulture));
                 analyticsEcommerceScript = analyticsEcommerceScript.Replace("{TAX}", order.OrderTax.ToString("0.00", usCulture));
                 var orderShipping = _googleAnalyticsEcommerceSettings.IncludingTax ? order.OrderShippingInclTax : order.OrderShippingExclTax;

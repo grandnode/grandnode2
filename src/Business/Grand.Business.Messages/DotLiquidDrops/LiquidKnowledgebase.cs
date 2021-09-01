@@ -9,30 +9,40 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidKnowledgebase : Drop
     {
-        private KnowledgebaseArticle _article;
-        private KnowledgebaseArticleComment _articleComment;
-        private Store _store;
-        private Language _language;
+        private readonly KnowledgebaseArticle _article;
+        private readonly KnowledgebaseArticleComment _articleComment;
+        private readonly Store _store;
+        private readonly DomainHost _host;
+        private readonly Language _language;
 
-        public LiquidKnowledgebase(KnowledgebaseArticle article, KnowledgebaseArticleComment articleComment, Store store, Language language)
+        private string url;
+
+        public LiquidKnowledgebase(KnowledgebaseArticle article, KnowledgebaseArticleComment articleComment, Store store, DomainHost host, Language language)
         {
             _article = article;
             _articleComment = articleComment;
             _store = store;
+            _host = host;
             _language = language;
+
+            url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
+
             AdditionalTokens = new Dictionary<string, string>();
         }
 
-        public string ArticleCommentTitle
+        public string ArticleTitle
         {
             get { return _article.Name; }
+        }
+        public string ArticleCommentText {
+            get { return _articleComment.CommentText; }
         }
 
         public string ArticleCommentUrl
         {
             get
             {
-                return $"{(_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'))}/{_article.GetSeName(_language.Id)}";
+                return $"{url}/{_article.GetSeName(_language.Id)}";
             }
         }
 

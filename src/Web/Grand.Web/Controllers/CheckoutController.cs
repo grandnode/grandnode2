@@ -1010,7 +1010,7 @@ namespace Grand.Web.Controllers
                     if (paymentMethod.PaymentMethodType == PaymentMethodType.Redirection)
                     {
                         //Redirection will not work because it's AJAX request.
-                        var storeLocation = _workContext.CurrentStore.SslEnabled ? _workContext.CurrentStore.SecureUrl.TrimEnd('/') : _workContext.CurrentStore.Url.TrimEnd('/');
+                        var storeLocation = _workContext.CurrentHost.Url.TrimEnd('/');
                         //redirect
                         return Json(new
                         {

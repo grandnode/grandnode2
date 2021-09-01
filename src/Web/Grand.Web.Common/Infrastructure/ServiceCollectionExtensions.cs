@@ -275,7 +275,7 @@ namespace Grand.Web.Common.Infrastructure
                     var type = item.GetType();
                     var storeId = "";
                     var settingService = x.GetRequiredService<ISettingService>();
-                    var store = x.GetRequiredService<IStoreHelper>().HostStore;
+                    var store = x.GetRequiredService<IStoreHelper>().StoreHost;
                     if (store != null)
                         storeId = store.Id;
 

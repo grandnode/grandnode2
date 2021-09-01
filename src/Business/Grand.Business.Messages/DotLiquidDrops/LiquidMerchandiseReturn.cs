@@ -9,18 +9,27 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidMerchandiseReturn : Drop
     {
-        private MerchandiseReturn _merchandiseReturn;
-        private Order _order;
-        private Store _store;
+        private readonly MerchandiseReturn _merchandiseReturn;
+        private readonly Order _order;
+        private readonly Store _store;
+        private readonly DomainHost _host;
+
         private MerchandiseReturnNote _merchandiseReturnNote;
         private ICollection<LiquidMerchandiseReturnItem> _items;
 
-        public LiquidMerchandiseReturn(MerchandiseReturn merchandiseReturn, Store store, Order order, MerchandiseReturnNote merchandiseReturnNote = null)
+        private string url;
+
+        public LiquidMerchandiseReturn(MerchandiseReturn merchandiseReturn, Store store, DomainHost host,
+            Order order, MerchandiseReturnNote merchandiseReturnNote = null)
         {
             _merchandiseReturn = merchandiseReturn;
             _order = order;
             _store = store;
+            _host = host;
             _merchandiseReturnNote = merchandiseReturnNote;
+
+            url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
+
             _items = new List<LiquidMerchandiseReturnItem>();
             AdditionalTokens = new Dictionary<string, string>();
         }
@@ -156,7 +165,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
         {
             get
             {
-                return string.Format("{0}/download/merchandisereturnnotefile/{1}", (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/')), _merchandiseReturnNote?.Id);
+                return string.Format("{0}/download/merchandisereturnnotefile/{1}", url, _merchandiseReturnNote?.Id);
             }
         }
         public IDictionary<string, string> AdditionalTokens { get; set; }

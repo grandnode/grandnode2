@@ -5,10 +5,10 @@ namespace Grand.Infrastructure
 {
     public interface IStoreHelper
     {
-        Store HostStore { get; }
+        Store StoreHost { get; }
+        DomainHost DomainHost { get; }
 
         Task SetStoreCookie(string storeId);
-
         Task<Store> SetCurrentStore(string storeId);
     }
 }
