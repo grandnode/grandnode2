@@ -601,6 +601,24 @@ namespace Grand.Business.System.Services.Installation
                                                   Enabled = true,
                                                   Name = "Delete knowledgebase category"
                                               },
+                                            new ActivityLogType
+                                            {
+                                                SystemKeyword = "AddNewBrand",
+                                                Enabled = true,
+                                                Name = "Add a new brand"
+                                            },
+                                            new ActivityLogType
+                                            {
+                                                SystemKeyword = "EditBrand",
+                                                Enabled = true,
+                                                Name = "Edit a brand"
+                                            },
+                                            new ActivityLogType
+                                            {
+                                                SystemKeyword = "DeleteBrand",
+                                                Enabled = true,
+                                                Name = "Delete a brand"
+                                            },
                                       };
             await _activityLogTypeRepository.InsertAsync(activityLogTypes);
         }
