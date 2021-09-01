@@ -20,7 +20,7 @@ namespace Grand.Business.System.Commands.Handlers.Messages
 
         public async Task<LiquidShipment> Handle(GetShipmentTokensCommand request, CancellationToken cancellationToken)
         {
-            var liquidShipment = new LiquidShipment(request.Shipment, request.Order, request.Store, request.Language);
+            var liquidShipment = new LiquidShipment(request.Shipment, request.Order, request.Store, request.Host, request.Language);
             foreach (var shipmentItem in request.Shipment.ShipmentItems)
             {
                 var orderitem = request.Order.OrderItems.FirstOrDefault(x => x.Id == shipmentItem.OrderItemId);

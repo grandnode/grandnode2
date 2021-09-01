@@ -11,15 +11,18 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidCustomer : Drop
     {
-        private Customer _customer;
-        private CustomerNote _customerNote;
-        private Store _store;
-
-        public LiquidCustomer(Customer customer, Store store, CustomerNote customerNote = null)
+        private readonly Customer _customer;
+        private readonly CustomerNote _customerNote;
+        private readonly Store _store;
+        private readonly DomainHost _host;
+        private readonly string url;
+        public LiquidCustomer(Customer customer, Store store, DomainHost host, CustomerNote customerNote = null)
         {
             _customer = customer;
             _customerNote = customerNote;
             _store = store;
+            _host = host;
+            url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
             AdditionalTokens = new Dictionary<string, string>();
         }
 
@@ -105,17 +108,17 @@ namespace Grand.Business.Messages.DotLiquidDrops
 
         public string PasswordRecoveryURL
         {
-            get { return string.Format("{0}/passwordrecovery/confirm?token={1}&email={2}", (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/')), _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordRecoveryToken), WebUtility.UrlEncode(_customer.Email)); }
+            get { return string.Format("{0}/passwordrecovery/confirm?token={1}&email={2}", url, _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordRecoveryToken), WebUtility.UrlEncode(_customer.Email)); }
         }
 
         public string AccountActivationURL
         {
-            get { return string.Format("{0}/account/activation?token={1}&email={2}", (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/')), _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AccountActivationToken), WebUtility.UrlEncode(_customer.Email)); ; }
+            get { return string.Format("{0}/account/activation?token={1}&email={2}", url, _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AccountActivationToken), WebUtility.UrlEncode(_customer.Email)); ; }
         }
 
         public string WishlistURLForCustomer
         {
-            get { return string.Format("{0}/wishlist/{1}", (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/')), _customer.CustomerGuid); }
+            get { return string.Format("{0}/wishlist/{1}", url, _customer.CustomerGuid); }
         }
 
         public string NewNoteText
@@ -130,7 +133,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
 
         public string CustomerNoteAttachmentUrl
         {
-            get { return string.Format("{0}/download/customernotefile/{1}", (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/')), _customerNote.Id); }
+            get { return string.Format("{0}/download/customernotefile/{1}", url, _customerNote.Id); }
         }
 
         public string Token

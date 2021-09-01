@@ -21,14 +21,14 @@ namespace Grand.Business.System.Services.Installation
                     Shortcut = "Store",
                     Url = storeUrl,
                     SslEnabled = false,
-                    Hosts = "yourstore.com,www.yourstore.com",
                     DisplayOrder = 1,
                     CompanyName = companyName,
                     CompanyAddress = companyAddress,
                     CompanyPhoneNumber = companyPhoneNumber,
                     CompanyVat = null,
                     CompanyEmail = companyEmail,
-                    CompanyHours = "Monday - Sunday / 8:00AM - 6:00PM"
+                    CompanyHours = "Monday - Sunday / 8:00AM - 6:00PM",
+                    Domains = new List<DomainHost>(){ new DomainHost() { HostName = httpContextAccessor.HttpContext?.Request?.Host.Host, Url = storeUrl, Primary = true } }
                 },
             };
 

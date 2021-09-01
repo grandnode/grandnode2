@@ -9,16 +9,24 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidBlogComment : Drop
     {
-        private BlogComment _blogComment;
-        private BlogPost _blogPost;
-        private Store _store;
+        private readonly BlogComment _blogComment;
+        private readonly BlogPost _blogPost;
+        private readonly Store _store;
+        private readonly DomainHost _host;
         private readonly Language _language;
-        public LiquidBlogComment(BlogComment blogComment, BlogPost blogPost, Store store, Language language)
+        
+        private string url;
+
+        public LiquidBlogComment(BlogComment blogComment, BlogPost blogPost, Store store, DomainHost host, Language language)
         {
             _blogComment = blogComment;
             _blogPost = blogPost;
             _store = store;
+            _host = host;
             _language = language;
+
+            url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
+
             AdditionalTokens = new Dictionary<string, string>();
         }
 
@@ -31,7 +39,15 @@ namespace Grand.Business.Messages.DotLiquidDrops
         {
             get
             {
-                return $"{(_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'))}/{_blogPost.GetSeName(_language.Id)}";
+                return $"{url}/{_blogPost.GetSeName(_language.Id)}";
+            }
+        }
+
+        public string BlogPostCommentText 
+        {
+            get 
+            { 
+                return _blogComment?.CommentText; 
             }
         }
 

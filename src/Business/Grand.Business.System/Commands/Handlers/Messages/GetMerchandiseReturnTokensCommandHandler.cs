@@ -1,16 +1,11 @@
-﻿using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Catalog.Interfaces.Products;
+﻿using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Messages.Commands.Models;
 using Grand.Business.Messages.DotLiquidDrops;
-using Grand.Domain.Messages;
-using Grand.Domain.Tax;
 using MediatR;
 using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -34,15 +29,15 @@ namespace Grand.Business.System.Commands.Handlers.Messages
 
         public async Task<LiquidMerchandiseReturn> Handle(GetMerchandiseReturnTokensCommand request, CancellationToken cancellationToken)
         {
-            var liquidMerchandiseReturn = new LiquidMerchandiseReturn(request.MerchandiseReturn, request.Store, request.Order, request.MerchandiseReturnNote);
+            var liquidMerchandiseReturn = new LiquidMerchandiseReturn(request.MerchandiseReturn, request.Store, request.Host, request.Order, request.MerchandiseReturnNote);
 
             var country = await _countryService.GetCountryById(request.MerchandiseReturn.PickupAddress.CountryId);
 
             liquidMerchandiseReturn.Status = request.MerchandiseReturn.MerchandiseReturnStatus.GetTranslationEnum(_translationService, request.Language.Id);
-            
+
             liquidMerchandiseReturn.PickupAddressStateProvince =
                             !string.IsNullOrEmpty(request.MerchandiseReturn.PickupAddress.StateProvinceId) ?
-                            country?.StateProvinces.FirstOrDefault(x=>x.Id == request.MerchandiseReturn.PickupAddress.StateProvinceId)?.GetTranslation(x => x.Name, request.Language.Id) : "";
+                            country?.StateProvinces.FirstOrDefault(x => x.Id == request.MerchandiseReturn.PickupAddress.StateProvinceId)?.GetTranslation(x => x.Name, request.Language.Id) : "";
 
             liquidMerchandiseReturn.PickupAddressCountry =
                             !string.IsNullOrEmpty(request.MerchandiseReturn.PickupAddress.CountryId) ?

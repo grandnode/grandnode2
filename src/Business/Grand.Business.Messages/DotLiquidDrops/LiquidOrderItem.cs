@@ -13,19 +13,26 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidOrderItem : Drop
     {
-        private OrderItem _orderItem;
-        private Product _product;
-        private Language _language;
-        private Store _store;
-        private Vendor _vendor;
+        private readonly OrderItem _orderItem;
+        private readonly Product _product;
+        private readonly Language _language;
+        private readonly Store _store;
+        private readonly DomainHost _host;
+        private readonly Vendor _vendor;
 
-        public LiquidOrderItem(OrderItem orderItem, Product product, Language language, Store store, Vendor vendor)
+        private string url;
+
+        public LiquidOrderItem(OrderItem orderItem, Product product, Language language, Store store, DomainHost host, Vendor vendor)
         {
             _orderItem = orderItem;
             _store = store;
             _language = language;
             _product = product;
             _vendor = vendor;
+            _host = host;
+
+            url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
+
             AdditionalTokens = new Dictionary<string, string>();
         }
 
@@ -41,14 +48,14 @@ namespace Grand.Business.Messages.DotLiquidDrops
 
         public string DownloadUrl {
             get {
-                string downloadUrl = string.Format("{0}/download/getdownload/{1}", (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/')), _orderItem.OrderItemGuid);
+                string downloadUrl = string.Format("{0}/download/getdownload/{1}", url, _orderItem.OrderItemGuid);
                 return downloadUrl;
             }
         }
 
         public string LicenseUrl {
             get {
-                string licenseUrl = string.Format("{0}/download/getlicense/{1}", (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/')), _orderItem.OrderItemGuid);
+                string licenseUrl = string.Format("{0}/download/getlicense/{1}", url, _orderItem.OrderItemGuid);
                 return licenseUrl;
             }
         }

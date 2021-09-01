@@ -9,15 +9,20 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidProduct : Drop
     {
-        private Product _product;
-        private Language _language;
-        private Store _store;
+        private readonly Product _product;
+        private readonly Language _language;
+        private readonly Store _store;
+        private readonly DomainHost _host;
+        private readonly string url;
 
-        public LiquidProduct(Product product, Language language, Store store)
+        public LiquidProduct(Product product, Language language, Store store, DomainHost host)
         {
             _product = product;
             _language = language;
             _store = store;
+            _host = host;
+            url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
+
             AdditionalTokens = new Dictionary<string, string>();
         }
 
@@ -76,7 +81,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
         }
 
         public string ProductURLForCustomer {
-            get { return string.Format("{0}/{1}", (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/')), _product.GetSeName(_language.Id)); }
+            get { return string.Format("{0}/{1}", url, _product.GetSeName(_language.Id)); }
         }
 
         public double Weight {

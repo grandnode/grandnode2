@@ -101,7 +101,7 @@ namespace Grand.Business.Marketing.Services.Customers
 
             var builder = new LiquidObjectBuilder(_mediator);
             builder.AddStoreTokens(store, language, emailAccount)
-                   .AddCustomerTokens(customer, store, language)
+                   .AddCustomerTokens(customer, store, null, language)
                    .AddShoppingCartTokens(customer, store, language);
 
             LiquidObject liquidObject = await builder.BuildAsync();
@@ -171,9 +171,9 @@ namespace Grand.Business.Marketing.Services.Customers
 
             var builder = new LiquidObjectBuilder(_mediator);
             builder.AddStoreTokens(store, language, emailAccount)
-                   .AddCustomerTokens(customer, store, language)
+                   .AddCustomerTokens(customer, store, null, language)
                    .AddShoppingCartTokens(customer, store, language)
-                   .AddOrderTokens(order, customer, await _storeService.GetStoreById(order.StoreId));
+                   .AddOrderTokens(order, customer, await _storeService.GetStoreById(order.StoreId), null);
 
             var liquidObject = await builder.BuildAsync();
             var body = LiquidExtensions.Render(liquidObject, reminderLevel.Body);

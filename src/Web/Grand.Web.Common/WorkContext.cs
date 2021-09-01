@@ -519,7 +519,12 @@ namespace Grand.Web.Common
         /// <summary>
         /// Gets the current store
         /// </summary>
-        public virtual Store CurrentStore => _storeHelper.HostStore;
+        public virtual Store CurrentStore => _storeHelper.StoreHost;
+
+        /// <summary>
+        /// Gets the current domain host
+        /// </summary>
+        public virtual DomainHost CurrentHost => _storeHelper.DomainHost;
 
         #endregion
     }

@@ -5,10 +5,10 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidContactUs : Drop
     {
-        private string senderEmail;
-        private string senderName;
-        private string body;
-        private string attributeDescription;
+        private readonly string senderEmail;
+        private readonly string senderName;
+        private readonly string body;
+        private readonly string attributeDescription;
 
         public LiquidContactUs(string senderEmail, string senderName, string body, string attributeDescription)
         {

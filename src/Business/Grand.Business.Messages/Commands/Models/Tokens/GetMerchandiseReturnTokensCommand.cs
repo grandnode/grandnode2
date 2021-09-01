@@ -11,6 +11,7 @@ namespace Grand.Business.Messages.Commands.Models
         public MerchandiseReturn MerchandiseReturn { get; set; }
         public Store Store { get; set; }
         public Order Order { get; set; }
+        public DomainHost Host { get; set; }
         public Language Language { get; set; }
         public MerchandiseReturnNote MerchandiseReturnNote { get; set; } = null;
     }

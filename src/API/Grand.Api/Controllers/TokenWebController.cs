@@ -51,7 +51,7 @@ namespace Grand.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Guest()
         {
-            var customer = await _customerService.InsertGuestCustomer(_storeHelper.HostStore);
+            var customer = await _customerService.InsertGuestCustomer(_storeHelper.StoreHost);
             var claims = new Dictionary<string, string> {
                 { "Guid", customer.CustomerGuid.ToString()}
             };

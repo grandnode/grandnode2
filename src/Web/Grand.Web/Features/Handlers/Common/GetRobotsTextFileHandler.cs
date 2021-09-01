@@ -117,24 +117,14 @@ namespace Grand.Web.Features.Handlers.Common
                 const string newLine = "\r\n"; //Environment.NewLine
                 sb.Append("User-agent: *");
                 sb.Append(newLine);
+
+                var storeLocation = _workContext.CurrentHost.Url.TrimEnd('/');
+
                 //sitemaps
-                if (_config.SeoFriendlyUrlsForLanguagesEnabled)
-                {
-                    //URLs are localizable. Append SEO code
-                    foreach (var language in await _languageService.GetAllLanguages(storeId: _workContext.CurrentStore.Id))
-                    {
-                        sb.AppendFormat("Sitemap: {0}{1}/sitemap.xml", _workContext.CurrentStore.Url, language.UniqueSeoCode);
-                        sb.Append(newLine);
-                    }
-                }
-                else
-                {
-                    //localizable paths (without SEO code)
-                    sb.AppendFormat("Sitemap: {0}sitemap.xml", _workContext.CurrentStore.Url);
-                    sb.Append(newLine);
-                }
+                sb.AppendFormat("Sitemap: {0}/sitemap.xml", storeLocation);
+                sb.Append(newLine);
+
                 //host
-                var storeLocation = _workContext.CurrentStore.SslEnabled ? _workContext.CurrentStore.SecureUrl.TrimEnd('/') : _workContext.CurrentStore.Url.TrimEnd('/');
                 sb.AppendFormat("Host: {0}", storeLocation);
                 sb.Append(newLine);
 

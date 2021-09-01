@@ -5,8 +5,8 @@ namespace Grand.Business.Messages.DotLiquidDrops
 {
     public partial class LiquidVatValidationResult : Drop
     {
-        private string name;
-        private string address;
+        private readonly string name;
+        private readonly string address;
 
         public LiquidVatValidationResult(string name, string address)
         {

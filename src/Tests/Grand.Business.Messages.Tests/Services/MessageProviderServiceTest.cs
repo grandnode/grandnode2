@@ -11,6 +11,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Messages;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
+using Grand.Infrastructure;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -29,6 +30,7 @@ namespace Grand.Business.Messages.Tests.Services
         private Mock<IEmailAccountService> _emailAccountServiceMock;
         private Mock<IMessageTokenProvider> _messageTokenProviderMock;
         private Mock<IStoreService> _storeServiceMock;
+        private Mock<IStoreHelper> _storeHelperServiceMock;
         private Mock<IMediator> _mediatorMock;
         private Mock<EmailAccountSettings> _emailAccountSettingsMock;
         private Mock<CommonSettings> _commonSetting;
@@ -56,8 +58,10 @@ namespace Grand.Business.Messages.Tests.Services
             _messageTokenProviderMock = new Mock<IMessageTokenProvider>();
 
             _storeServiceMock = new Mock<IStoreService>();
-            _storeServiceMock.Setup(x => x.GetStoreById(It.IsAny<string>())).Returns(Task.FromResult(new Store()));
+            _storeServiceMock.Setup(x => x.GetStoreById(It.IsAny<string>())).Returns(Task.FromResult(new Store() { Url = "https://localhost:44350/" }));
             _storeServiceMock.Setup(x => x.GetAllStores()).Returns(Task.FromResult(new List<Store>() as IList<Store>));
+
+            _storeHelperServiceMock = new Mock<IStoreHelper>();
 
             _mediatorMock = new Mock<IMediator>();
             _mediatorMock.Setup(x => x.Send(It.IsAny<GetCustomerByIdQuery>(), default))
@@ -73,6 +77,7 @@ namespace Grand.Business.Messages.Tests.Services
                 _emailAccountServiceMock.Object,
                 _messageTokenProviderMock.Object,
                 _storeServiceMock.Object,
+                _storeHelperServiceMock.Object,
                 _groupService.Object,
                 _mediatorMock.Object,
                 _emailAccountSettingsMock.Object,
@@ -98,7 +103,7 @@ namespace Grand.Business.Messages.Tests.Services
         [TestMethod()]
         public async Task SendNewVendorAccountApplyStoreOwnerNotificationRetunsCorrectResult()
         {
-            var result = await _messageService.SendNewVendorAccountApplyStoreOwnerMessage(new Customer(), new Vendor(), new Store(), "123");
+            var result = await _messageService.SendNewVendorAccountApplyStoreOwnerMessage(new Customer(), new Vendor(), new Store() { Url = "https://localhost:44350/" }, "123");
             Assert.AreEqual(result, 1);
         }
 

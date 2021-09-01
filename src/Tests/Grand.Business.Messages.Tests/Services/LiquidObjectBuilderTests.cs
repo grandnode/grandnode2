@@ -33,7 +33,7 @@ namespace Grand.Business.Messages.Tests.Services
             var liquidObject = await builder
                 .AddVendorReviewTokens(vendor, vendorReview)
                 .AddVendorTokens(vendor, new Language())
-                .AddOutOfStockTokens(product, new OutOfStockSubscription(), new Store(), new Language())
+                .AddOutOfStockTokens(product, new OutOfStockSubscription(), new Store(), new DomainHost() { Url = "https://localhost:44350/" }, new Language())
                 .BuildAsync();
 
 

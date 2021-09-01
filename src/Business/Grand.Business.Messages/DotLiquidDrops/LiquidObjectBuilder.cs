@@ -49,7 +49,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             return this;
         }
 
-        public LiquidObjectBuilder AddOrderTokens(Order order, Customer customer, Store store, OrderNote orderNote = null, Vendor vendor = null, double refundedAmount = 0)
+        public LiquidObjectBuilder AddOrderTokens(Order order, Customer customer, Store store, DomainHost host, OrderNote orderNote = null, Vendor vendor = null, double refundedAmount = 0)
         {
             _chain.Add(async liquidObject =>
             {
@@ -58,6 +58,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
                     Customer = customer,
                     Vendor = vendor,
                     Store = store,
+                    Host = host,
                     OrderNote = orderNote,
                     RefundedAmount = refundedAmount
                 });
@@ -67,23 +68,23 @@ namespace Grand.Business.Messages.DotLiquidDrops
             return this;
         }
 
-        public LiquidObjectBuilder AddShipmentTokens(Shipment shipment, Order order, Store store, Language language)
+        public LiquidObjectBuilder AddShipmentTokens(Shipment shipment, Order order, Store store, DomainHost host, Language language)
         {
             _chain.Add(async liquidObject =>
             {
 
-                var liquidShipment = await _mediator.Send(new GetShipmentTokensCommand() { Shipment = shipment, Order = order, Store = store, Language = language });
+                var liquidShipment = await _mediator.Send(new GetShipmentTokensCommand() { Shipment = shipment, Order = order, Store = store, Host = host, Language = language });
                 liquidObject.Shipment = liquidShipment;
                 await _mediator.EntityTokensAdded(shipment, liquidShipment, liquidObject);
             });
             return this;
         }
 
-        public LiquidObjectBuilder AddMerchandiseReturnTokens(MerchandiseReturn merchandiseReturn, Store store, Order order, Language language, MerchandiseReturnNote merchandiseReturnNote = null)
+        public LiquidObjectBuilder AddMerchandiseReturnTokens(MerchandiseReturn merchandiseReturn, Store store, DomainHost host, Order order, Language language, MerchandiseReturnNote merchandiseReturnNote = null)
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidMerchandiseReturn = await _mediator.Send(new GetMerchandiseReturnTokensCommand() { Order = order, Language = language, MerchandiseReturn = merchandiseReturn, MerchandiseReturnNote = merchandiseReturnNote, Store = store });
+                var liquidMerchandiseReturn = await _mediator.Send(new GetMerchandiseReturnTokensCommand() { Order = order, Language = language, MerchandiseReturn = merchandiseReturn, MerchandiseReturnNote = merchandiseReturnNote, Store = store, Host = host });
                 liquidObject.MerchandiseReturn = liquidMerchandiseReturn;
                 await _mediator.EntityTokensAdded(merchandiseReturn, liquidMerchandiseReturn, liquidObject);
             });
@@ -101,11 +102,11 @@ namespace Grand.Business.Messages.DotLiquidDrops
             return this;
         }
 
-        public LiquidObjectBuilder AddCustomerTokens(Customer customer, Store store, Language language, CustomerNote customerNote = null)
+        public LiquidObjectBuilder AddCustomerTokens(Customer customer, Store store, DomainHost host, Language language, CustomerNote customerNote = null)
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidCustomer = new LiquidCustomer(customer, store, customerNote);
+                var liquidCustomer = new LiquidCustomer(customer, store, host, customerNote);
                 liquidObject.Customer = liquidCustomer;
 
                 await _mediator.EntityTokensAdded(customer, liquidCustomer, liquidObject);
@@ -142,11 +143,11 @@ namespace Grand.Business.Messages.DotLiquidDrops
             return this;
         }
 
-        public LiquidObjectBuilder AddNewsLetterSubscriptionTokens(NewsLetterSubscription subscription, Store store)
+        public LiquidObjectBuilder AddNewsLetterSubscriptionTokens(NewsLetterSubscription subscription, Store store, DomainHost host)
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidNewsletterSubscription = new LiquidNewsLetterSubscription(subscription, store);
+                var liquidNewsletterSubscription = new LiquidNewsLetterSubscription(subscription, store, host);
                 liquidObject.NewsLetterSubscription = liquidNewsletterSubscription;
                 await _mediator.EntityTokensAdded(subscription, liquidNewsletterSubscription, liquidObject);
             });
@@ -175,44 +176,44 @@ namespace Grand.Business.Messages.DotLiquidDrops
             return this;
         }
 
-        public LiquidObjectBuilder AddBlogCommentTokens(BlogPost blogPost, BlogComment blogComment, Store store, Language language)
+        public LiquidObjectBuilder AddBlogCommentTokens(BlogPost blogPost, BlogComment blogComment, Store store, DomainHost host, Language language)
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidBlogComment = new LiquidBlogComment(blogComment, blogPost, store, language);
+                var liquidBlogComment = new LiquidBlogComment(blogComment, blogPost, store, host, language);
                 liquidObject.BlogComment = liquidBlogComment;
                 await _mediator.EntityTokensAdded(blogComment, liquidBlogComment, liquidObject);
             });
             return this;
         }
 
-        public LiquidObjectBuilder AddArticleCommentTokens(KnowledgebaseArticle article, KnowledgebaseArticleComment articleComment, Store store, Language language)
+        public LiquidObjectBuilder AddArticleCommentTokens(KnowledgebaseArticle article, KnowledgebaseArticleComment articleComment, Store store, DomainHost host, Language language)
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidKnowledgebase = new LiquidKnowledgebase(article, articleComment, store, language);
+                var liquidKnowledgebase = new LiquidKnowledgebase(article, articleComment, store, host, language);
                 liquidObject.Knowledgebase = liquidKnowledgebase;
                 await _mediator.EntityTokensAdded(articleComment, liquidKnowledgebase, liquidObject);
             });
             return this;
         }
 
-        public LiquidObjectBuilder AddNewsCommentTokens(NewsItem newsItem, NewsComment newsComment, Store store, Language language)
+        public LiquidObjectBuilder AddNewsCommentTokens(NewsItem newsItem, NewsComment newsComment, Store store, DomainHost host, Language language)
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidNewsComment = new LiquidNewsComment(newsItem, newsComment, store, language);
+                var liquidNewsComment = new LiquidNewsComment(newsItem, newsComment, store, host, language);
                 liquidObject.NewsComment = liquidNewsComment;
                 await _mediator.EntityTokensAdded(newsComment, liquidNewsComment, liquidObject);
             });
             return this;
         }
 
-        public LiquidObjectBuilder AddProductTokens(Product product, Language language, Store store)
+        public LiquidObjectBuilder AddProductTokens(Product product, Language language, Store store, DomainHost host)
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidProduct = new LiquidProduct(product, language, store);
+                var liquidProduct = new LiquidProduct(product, language, store, host);
                 liquidObject.Product = liquidProduct;
                 await _mediator.EntityTokensAdded(product, liquidProduct, liquidObject);
             });
@@ -231,11 +232,11 @@ namespace Grand.Business.Messages.DotLiquidDrops
             return this;
         }
 
-        public LiquidObjectBuilder AddOutOfStockTokens(Product product, OutOfStockSubscription subscription, Store store, Language language)
+        public LiquidObjectBuilder AddOutOfStockTokens(Product product, OutOfStockSubscription subscription, Store store, DomainHost host, Language language)
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidOutOfStockSubscription = new LiquidOutOfStockSubscription(product, subscription, store, language);
+                var liquidOutOfStockSubscription = new LiquidOutOfStockSubscription(product, subscription, store, host, language);
                 liquidObject.OutOfStockSubscription = liquidOutOfStockSubscription;
                 await _mediator.EntityTokensAdded(subscription, liquidOutOfStockSubscription, liquidObject);
             });

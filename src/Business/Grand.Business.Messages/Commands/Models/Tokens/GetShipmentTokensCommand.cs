@@ -12,6 +12,7 @@ namespace Grand.Business.Messages.Commands.Models
         public Shipment Shipment { get; set; }
         public Order Order { get; set; }
         public Store Store { get; set; }
+        public DomainHost Host { get; set; }
         public Language Language { get; set; }
     }
 }

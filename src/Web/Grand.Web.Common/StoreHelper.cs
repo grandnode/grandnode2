@@ -16,7 +16,9 @@ namespace Grand.Web.Common
 
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IStoreService _storeService;
+
         private Store _cachedStore;
+        private DomainHost _cachedDomainHost;
 
         private const string STORE_COOKIE_NAME = ".Grand.Store";
 
@@ -24,7 +26,9 @@ namespace Grand.Web.Common
 
         #region Ctor
 
-        public StoreHelper(IHttpContextAccessor httpContextAccessor, IStoreService storeService)
+        public StoreHelper(
+            IHttpContextAccessor httpContextAccessor,
+            IStoreService storeService)
         {
             _httpContextAccessor = httpContextAccessor;
             _storeService = storeService;
@@ -44,10 +48,8 @@ namespace Grand.Web.Common
         }
         #endregion
 
-        public Store HostStore
-        {
-            get
-            {
+        public Store StoreHost {
+            get {
                 if (_cachedStore == null)
                 {
                     //try to determine the current store by HOST header
@@ -83,6 +85,35 @@ namespace Grand.Web.Common
                 }
                 return _cachedStore;
             }
+        }
+
+        public DomainHost DomainHost {
+            get 
+                {
+                    if (_cachedDomainHost == null)
+                    {
+                        //try to determine the current HOST header
+                        string host = _httpContextAccessor.HttpContext?.Request?.Headers[HeaderNames.Host];
+                        if (StoreHost != null)
+                        {
+                            _cachedDomainHost = StoreHost.HostValue(host) ?? new DomainHost() {
+                                Id = int.MinValue.ToString(),
+                                Url = StoreHost.SslEnabled ? StoreHost.SecureUrl : StoreHost.Url,
+                                HostName = "temporary-store"
+                            };
+                        }
+                        if (_cachedDomainHost == null)
+                        {
+                            _cachedDomainHost = new DomainHost() {
+                                Id = int.MinValue.ToString(),
+                                Url = host,
+                                HostName = "temporary"
+                            };
+                        }
+                        return _cachedDomainHost;
+                    }
+                    return _cachedDomainHost;
+                }
         }
 
         /// <summary>
@@ -124,8 +155,7 @@ namespace Grand.Web.Common
             var cookieExpiresDate = DateTime.UtcNow.AddHours(CommonHelper.CookieAuthExpires);
 
             //set new cookie value
-            var options = new CookieOptions
-            {
+            var options = new CookieOptions {
                 HttpOnly = true,
                 Expires = cookieExpiresDate
             };
