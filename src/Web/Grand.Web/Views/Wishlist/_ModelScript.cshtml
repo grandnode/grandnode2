@@ -31,7 +31,7 @@
                     if (response.data.success) {
                         vmwishlist.getModel();
                         vm.updateFly();
-                        vmwishlist.displayWarning('@Loc["wishlist.addedtocart"]', 'info', '@Loc["common.success"]');
+                        vmwishlist.displayWarning('@Loc["Wishlist.AddedToCart"]', 'info', '@Loc["common.success"]');
                     } else {
                         vmwishlist.displayWarning(response.data.message, 'danger');
                     }

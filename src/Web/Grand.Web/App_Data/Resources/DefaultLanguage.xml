@@ -16512,6 +16512,9 @@
   <Resource Name="Wishlist">
     <Value>Wishlist</Value>
   </Resource>
+  <Resource Name="Wishlist.AddedToCart">
+    <Value>Added to the cart</Value>
+  </Resource>
   <Resource Name="Wishlist.AddToCart.Error">
     <Value>Some product(s) from wishlist could not be moved to the cart for some reasons.</Value>
   </Resource>
