@@ -5124,9 +5124,6 @@
   <Resource Name="Admin.Configuration.Stores.Fields.DisplayOrder">
     <Value>Display order</Value>
   </Resource>
-  <Resource Name="Admin.Configuration.Stores.Fields.Hosts">
-    <Value>HOST values</Value>
-  </Resource>
   <Resource Name="Admin.Configuration.Stores.Fields.Name">
     <Value>Store name</Value>
   </Resource>
