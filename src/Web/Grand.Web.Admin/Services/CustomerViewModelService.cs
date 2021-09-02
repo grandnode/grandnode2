@@ -1199,6 +1199,7 @@ namespace Grand.Web.Admin.Services
             model.Address.FaxEnabled = _addressSettings.FaxEnabled;
             model.Address.FaxRequired = _addressSettings.FaxRequired;
             model.Address.NoteEnabled = _addressSettings.NoteEnabled;
+            model.Address.AddressTypeEnabled = _addressSettings.AddressTypeEnabled;
 
             //countries
             model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });

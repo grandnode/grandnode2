@@ -114,6 +114,8 @@ namespace Grand.Web.Admin.Models.Common
         public bool FaxEnabled { get; set; }
         public bool FaxRequired { get; set; }
         public bool NoteEnabled { get; set; }
+
+        public bool AddressTypeEnabled { get; set; }
         [GrandResourceDisplayName("Address.Fields.AddressType")]
         public AddressType AddressType { get; set; }
 

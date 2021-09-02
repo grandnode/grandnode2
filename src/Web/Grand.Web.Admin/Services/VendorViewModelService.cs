@@ -136,6 +136,7 @@ namespace Grand.Web.Admin.Services
             model.Address.FaxEnabled = _vendorSettings.AddressSettings.FaxEnabled;
             model.Address.FaxRequired = _vendorSettings.AddressSettings.FaxRequired;
             model.Address.NoteEnabled = _vendorSettings.AddressSettings.NoteEnabled;
+            model.Address.AddressTypeEnabled = false;
 
             //address
             model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });

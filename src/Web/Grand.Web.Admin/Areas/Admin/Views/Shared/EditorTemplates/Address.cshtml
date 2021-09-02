@@ -194,13 +194,16 @@
                 </div>
             </div>
         }
-        <div class="form-group">
-            <admin-label asp-for="AddressType" />
-            <div class="col-md-9 col-sm-9">
-                <select asp-for="AddressType" asp-items="@AddressType.Any.ToSelectList(Context, false).ToList()" class="form-control custom-select"></select>
-                <span asp-validation-for="AddressType"></span>
+        @if (Model.AddressTypeEnabled)
+        {
+            <div class="form-group">
+                <admin-label asp-for="AddressType" />
+                <div class="col-md-9 col-sm-9">
+                    <select asp-for="AddressType" asp-items="@AddressType.Any.ToSelectList(Context, false).ToList()" class="form-control custom-select"></select>
+                    <span asp-validation-for="AddressType"></span>
+                </div>
             </div>
-        </div>
+        }
         @if (Model.CustomAddressAttributes.Count > 0)
         {
             <partial name="_AddressAttributes" model="Model.CustomAddressAttributes" />

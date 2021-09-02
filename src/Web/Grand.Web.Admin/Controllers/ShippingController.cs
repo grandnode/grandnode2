@@ -333,6 +333,7 @@ namespace Grand.Web.Admin.Controllers
             model.ShippingOriginAddress.StreetAddressEnabled = true;
             model.ShippingOriginAddress.ZipPostalCodeEnabled = true;
             model.ShippingOriginAddress.ZipPostalCodeRequired = true;
+            model.ShippingOriginAddress.AddressTypeEnabled = false;
 
             return View(model);
         }
