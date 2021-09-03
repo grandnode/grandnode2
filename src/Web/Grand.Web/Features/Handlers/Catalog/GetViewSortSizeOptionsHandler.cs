@@ -54,8 +54,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 .Except(_catalogSettings.ProductSortingEnumDisabled)
                 .Select((idOption) =>
                 {
-                    int order;
-                    return new KeyValuePair<int, int>(idOption, _catalogSettings.ProductSortingEnumDisplayOrder.TryGetValue(idOption, out order) ? order : idOption);
+                    return new KeyValuePair<int, int>(idOption, _catalogSettings.ProductSortingEnumDisplayOrder.TryGetValue(idOption, out var order) ? order : idOption);
                 })
                 .OrderBy(x => x.Value);
             if (request.Command.OrderBy == null)
