@@ -1,4 +1,7 @@
 ﻿@model WishlistModel
+@{ 
+    var addToCartUrl = Model.EmailWishlistEnabled && !Model.IsEditable ? Url.RouteUrl("AddItemToCartFromWishlist", new { customerGuid = @Model.CustomerGuid }) + "&shoppingcartId=" : Url.RouteUrl("AddItemToCartFromWishlist") + "?shoppingcartId=";
+}
 <script asp-location="Header">
     var Wishlist = Vue.extend({
         props: {
@@ -11,7 +14,7 @@
         methods: {
             deleteFromWishlist(id) {
                 axios({
-                    url: '@Url.RouteUrl("DeleteItemFromWishlist")'+'/'+ id +'',
+                    url: '@Url.RouteUrl("DeleteItemFromWishlist")'+'/'+ id,
                     method: 'post',
                     headers: { 'Content-Type': 'application/json' }
                 }).then(function (response) {
@@ -24,7 +27,7 @@
             },
             addToCartFromWishlist(id) {
                 axios({
-                    url: '@Url.RouteUrl("AddItemToCartFromWishlist")'+'/' + id,
+                    url: '@Html.Raw(addToCartUrl)' + id,
                     method: 'post',
                     headers: { 'Content-Type': 'application/json' }
                 }).then(function (response) {
