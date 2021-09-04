@@ -86,7 +86,7 @@ namespace Grand.Web.Controllers
 
             var model = await _mediator.Send(new GetWishlist() {
                 Cart = cart.ToList(),
-                Customer = _workContext.CurrentCustomer,
+                Customer = customer,
                 Language = _workContext.WorkingLanguage,
                 Currency = _workContext.WorkingCurrency,
                 Store = _workContext.CurrentStore,
@@ -140,17 +140,21 @@ namespace Grand.Web.Controllers
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> AddItemToCartFromWishlist(string shoppingcartId)
+        public virtual async Task<IActionResult> AddItemToCartFromWishlist(Guid? customerGuid, string shoppingcartId)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
                 return Json(new { success = false, message = "No permission" });
 
-
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
                 return Json(new { success = false, message = "No permission" });
 
+            var pageCustomer = customerGuid.HasValue
+                ? await _customerService.GetCustomerByGuid(customerGuid.Value)
+                : _workContext.CurrentCustomer;
+            if (pageCustomer == null)
+                return Json(new { success = false, message = "Customer not found" });
 
-            var itemCart = _workContext.CurrentCustomer.ShoppingCartItems
+            var itemCart = pageCustomer.ShoppingCartItems
                 .FirstOrDefault(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist && sci.Id == shoppingcartId);
 
             if (itemCart == null)
