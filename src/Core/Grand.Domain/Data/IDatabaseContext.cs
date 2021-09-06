@@ -5,6 +5,7 @@ namespace Grand.Domain.Data
 {
     public interface IDatabaseContext
     {
+        string ConnectionString { get; }
         IQueryable<T> Table<T>(string collectionName);
         Task<byte[]> GridFSBucketDownload(string id);
         Task<string> GridFSBucketUploadFromBytesAsync(string filename, byte[] source);

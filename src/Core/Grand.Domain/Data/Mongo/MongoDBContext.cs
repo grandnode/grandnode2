@@ -8,6 +8,7 @@ namespace Grand.Domain.Data.Mongo
 {
     public class MongoDBContext : IDatabaseContext
     {
+        private string _connectionString;
         protected IMongoDatabase _database;
 
         public MongoDBContext()
@@ -16,9 +17,20 @@ namespace Grand.Domain.Data.Mongo
         }
         public MongoDBContext(string connectionString)
         {
-            var mongourl = new MongoUrl(connectionString);
+            _connectionString = connectionString;
+
+            var mongourl = new MongoUrl(_connectionString);
             var databaseName = mongourl.DatabaseName;
             _database = new MongoClient(connectionString).GetDatabase(databaseName);
+        }
+
+        public string ConnectionString {
+            get {
+                if (string.IsNullOrEmpty(_connectionString))
+                    TryReadMongoDatabase();
+
+                return _connectionString;
+            }
         }
 
         public MongoDBContext(IMongoDatabase mongodatabase)
@@ -38,11 +50,11 @@ namespace Grand.Domain.Data.Mongo
 
         protected IMongoDatabase TryReadMongoDatabase()
         {
-            var connectionString = DataSettingsManager.LoadSettings().ConnectionString;
+            _connectionString = DataSettingsManager.LoadSettings().ConnectionString;
 
-            var mongourl = new MongoUrl(connectionString);
+            var mongourl = new MongoUrl(_connectionString);
             var databaseName = mongourl.DatabaseName;
-            var mongodb = new MongoClient(connectionString).GetDatabase(databaseName);
+            var mongodb = new MongoClient(_connectionString).GetDatabase(databaseName);
             return mongodb;
         }
 

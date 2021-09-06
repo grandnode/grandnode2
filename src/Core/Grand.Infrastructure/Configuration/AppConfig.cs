@@ -33,6 +33,12 @@ namespace Grand.Infrastructure.Configuration
         public bool IgnoreStoreLimitations { get; set; }
 
         /// <summary>
+        /// A value indicating whether to ignore the migration process 
+        /// </summary>
+        public bool SkipMigrationProcess { get; set; }
+
+
+        /// <summary>
         /// Gets or sets a value indicating whether to clear /Plugins/bin directory on application startup
         /// </summary>
         public bool ClearPluginShadowDirectoryOnStartup { get; set; }
