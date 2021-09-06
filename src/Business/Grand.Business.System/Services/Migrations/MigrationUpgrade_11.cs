@@ -17,7 +17,7 @@ namespace Grand.Business.System.Services.Migrations
 
         public Guid Identity => new("6BDB7093-4C31-4D78-9604-58188DF728D3");
 
-        public string Name => "Upgrade database to version 1.1";
+        public string Name => "Upgrade version of the database to 1.1";
 
         /// <summary>
         /// Upgrade process
