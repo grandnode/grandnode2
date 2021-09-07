@@ -9,10 +9,12 @@ using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
 using Grand.Business.System.Services.ExportImport;
 using Grand.Business.System.Services.Installation;
 using Grand.Business.System.Services.MachineNameProvider;
+using Grand.Business.System.Services.Migrations;
 using Grand.Business.System.Services.Reports;
 using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure.Migrations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -91,6 +93,8 @@ namespace Grand.Business.System.Startup
                 serviceCollection.AddScoped<IInstallationLocalizedService, InstallationLocalizedService>();
                 serviceCollection.AddScoped<IInstallationService, InstallationService>();
             }
+
+            serviceCollection.AddScoped<IMigrationProcess, MigrationProcess>();
         }
 
         private void RegisterExportImportService(IServiceCollection serviceCollection)

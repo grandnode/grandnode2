@@ -17,7 +17,7 @@ namespace Grand.Business.Storage.Services
         #region Fields
 
         private readonly IRepository<Download> _downloadRepository;
-        private readonly IDatabaseContext _dbContext;
+        private readonly IStoreFilesContext _storeFilesContext;
         private readonly IMediator _mediator;
 
         #endregion
@@ -28,14 +28,14 @@ namespace Grand.Business.Storage.Services
         /// Ctor
         /// </summary>
         /// <param name="downloadRepository">Download repository</param>
-        /// <param name="dbContext">DbContext</param>
+        /// <param name="storeFilesContext">Store Files Context</param>
         /// <param name="mediator">Mediator</param>
         public DownloadService(IRepository<Download> downloadRepository,
-            IDatabaseContext dbContext,
+            IStoreFilesContext storeFilesContext,
             IMediator mediator)
         {
             _downloadRepository = downloadRepository;
-            _dbContext = dbContext;
+            _storeFilesContext = storeFilesContext;
             _mediator = mediator;
         }
 
@@ -62,7 +62,7 @@ namespace Grand.Business.Storage.Services
 
         protected virtual async Task<byte[]> DownloadAsBytes(string objectId)
         {
-            var binary = await _dbContext.GridFSBucketDownload(objectId);
+            var binary = await _storeFilesContext.BucketDownload(objectId);
             return binary;
         }
         /// <summary>
@@ -96,7 +96,7 @@ namespace Grand.Business.Storage.Services
                 throw new ArgumentNullException(nameof(download));
             if (!download.UseDownloadUrl)
             {
-                download.DownloadObjectId = await _dbContext.GridFSBucketUploadFromBytesAsync(download.Filename, download.DownloadBinary);
+                download.DownloadObjectId = await _storeFilesContext.BucketUploadFromBytesAsync(download.Filename, download.DownloadBinary);
             }
 
             download.DownloadBinary = null;

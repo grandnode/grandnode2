@@ -41,9 +41,12 @@ namespace Grand.Infrastructure.Startup
 
             }
 
+            //database context
             serviceCollection.AddScoped<IDatabaseContext, MongoDBContext>();
+            //store files context - gridfs
+            serviceCollection.AddScoped<IStoreFilesContext, MongoStoreFilesContext>();
 
-            //MongoDbRepository
+            //Mongo Repository
             serviceCollection.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
 
         }
