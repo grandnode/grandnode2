@@ -7,8 +7,6 @@ namespace Grand.Domain.Data
     {
         string ConnectionString { get; }
         IQueryable<T> Table<T>(string collectionName);
-        Task<byte[]> GridFSBucketDownload(string id);
-        Task<string> GridFSBucketUploadFromBytesAsync(string filename, byte[] source);
         Task<bool> DatabaseExist(string connectionString);
         Task CreateTable(string name, string collation);
         Task DeleteTable(string name);

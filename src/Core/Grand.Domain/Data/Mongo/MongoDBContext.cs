@@ -62,21 +62,6 @@ namespace Grand.Domain.Data.Mongo
             return mongodb;
         }
 
-        public async Task<byte[]> GridFSBucketDownload(string id)
-        {
-            var bucket = new MongoDB.Driver.GridFS.GridFSBucket(_database);
-            var binary = await bucket.DownloadAsBytesAsync(new ObjectId(id), new MongoDB.Driver.GridFS.GridFSDownloadOptions() { CheckMD5 = true });
-            return binary;
-
-        }
-        public async Task<string> GridFSBucketUploadFromBytesAsync(string filename, byte[] source)
-        {
-            var database = _database ?? TryReadMongoDatabase();
-            var bucket = new MongoDB.Driver.GridFS.GridFSBucket(database);
-            var id = await bucket.UploadFromBytesAsync(filename, source);
-            return id.ToString();
-        }
-
         public async Task<bool> DatabaseExist(string connectionString)
         {
             if (string.IsNullOrEmpty(connectionString))
