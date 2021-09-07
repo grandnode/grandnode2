@@ -6,9 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 
-namespace Grand.Business.System.Services.Migrations
+namespace Grand.Business.System.Services.Migrations._1._1
 {
-    public class MigrationUpgrade_11 : IMigration
+    public class MigrationUpgradeDbVersion_11 : IMigration
     {
 
         public int Priority => 0;
