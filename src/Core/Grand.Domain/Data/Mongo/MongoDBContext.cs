@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -45,6 +46,9 @@ namespace Grand.Domain.Data.Mongo
 
         public IQueryable<T> Table<T>(string collectionName)
         {
+            if (string.IsNullOrEmpty(collectionName))
+                throw new ArgumentNullException(nameof(collectionName));
+
             return _database.GetCollection<T>(collectionName).AsQueryable();
         }
 
@@ -61,7 +65,7 @@ namespace Grand.Domain.Data.Mongo
         public async Task<byte[]> GridFSBucketDownload(string id)
         {
             var bucket = new MongoDB.Driver.GridFS.GridFSBucket(_database);
-            var binary = await bucket.DownloadAsBytesAsync(new ObjectId(id), new MongoDB.Driver.GridFS.GridFSDownloadOptions() { CheckMD5 = true});
+            var binary = await bucket.DownloadAsBytesAsync(new ObjectId(id), new MongoDB.Driver.GridFS.GridFSDownloadOptions() { CheckMD5 = true });
             return binary;
 
         }
@@ -75,6 +79,9 @@ namespace Grand.Domain.Data.Mongo
 
         public async Task<bool> DatabaseExist(string connectionString)
         {
+            if (string.IsNullOrEmpty(connectionString))
+                throw new ArgumentNullException(nameof(connectionString));
+
             var client = new MongoClient(connectionString);
             var databaseName = new MongoUrl(connectionString).DatabaseName;
             var database = client.GetDatabase(databaseName);
@@ -90,6 +97,9 @@ namespace Grand.Domain.Data.Mongo
 
         public async Task CreateTable(string name, string collation)
         {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
+
             var database = _database ?? TryReadMongoDatabase();
 
             if (!string.IsNullOrEmpty(collation))
@@ -102,9 +112,21 @@ namespace Grand.Domain.Data.Mongo
                 await database.CreateCollectionAsync(name);
 
         }
+        public async Task DeleteTable(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException(nameof(name));
+
+            var database = _database ?? TryReadMongoDatabase();
+
+            await database.DropCollectionAsync(name);
+        }
 
         public async Task CreateIndex<T>(IRepository<T> repository, OrderBuilder<T> orderBuilder, string indexName, bool unique = false) where T : BaseEntity
         {
+            if (string.IsNullOrEmpty(indexName))
+                throw new ArgumentNullException(nameof(indexName));
+
             IList<IndexKeysDefinition<T>> keys = new List<IndexKeysDefinition<T>>();
             foreach (var item in orderBuilder.Fields)
             {
@@ -136,6 +158,17 @@ namespace Grand.Domain.Data.Mongo
             {
                 await ((MongoRepository<T>)repository).Collection.Indexes.CreateOneAsync(new CreateIndexModel<T>(Builders<T>.IndexKeys.Combine(keys),
                     new CreateIndexOptions() { Name = indexName, Unique = unique }));
+            }
+            catch { }
+        }
+
+        public async Task DeleteIndex<T>(IRepository<T> repository, string indexName) where T : BaseEntity
+        {
+            if (string.IsNullOrEmpty(indexName))
+                throw new ArgumentNullException(nameof(indexName));
+            try
+            {
+                await ((MongoRepository<T>)repository).Collection.Indexes.DropOneAsync(indexName);
             }
             catch { }
         }
