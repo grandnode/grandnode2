@@ -1,4 +1,5 @@
-﻿using Grand.Infrastructure;
+﻿using Grand.Domain.Data;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Migrations;
 using Microsoft.AspNetCore.Builder;
@@ -29,6 +30,9 @@ namespace Grand.Web.Common.Startup
         /// <param name="webHostEnvironment">WebHostEnvironment</param>
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
+            if (!DataSettingsManager.DatabaseIsInstalled())
+                return;
+
             var serviceProvider = application.ApplicationServices;
             var appConfig = serviceProvider.GetRequiredService<AppConfig>();
             if (!appConfig.SkipMigrationProcess)
