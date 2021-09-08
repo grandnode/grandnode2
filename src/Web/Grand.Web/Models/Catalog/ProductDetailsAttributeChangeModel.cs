@@ -9,6 +9,7 @@ namespace Grand.Web.Models.Catalog
         {
             EnabledAttributeMappingIds = new List<string>();
             DisabledAttributeMappingids = new List<string>();
+            NotAvailableAttributeMappingids = new List<string>();
         }
         public string Gtin { get; set; }
         public string Mpn { get; set; }
@@ -19,6 +20,7 @@ namespace Grand.Web.Models.Catalog
         public string ButtonTextOutOfStockSubscription { get; set; }
         public IList<string> EnabledAttributeMappingIds { get; set; }
         public IList<string> DisabledAttributeMappingids { get; set; }
+        public IList<string> NotAvailableAttributeMappingids { get; set; }
         public string PictureFullSizeUrl { get; set; }
         public string PictureDefaultSizeUrl { get; set; }
 

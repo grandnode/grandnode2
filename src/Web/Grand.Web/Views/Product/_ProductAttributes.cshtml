@@ -59,16 +59,20 @@
                             document.querySelector('.price-value-@productId').innerText = response.data.price;
                         }
                         if (response.data.sku) {
-                            document.querySelector('#sku-@productId').innerText = response.data.sku;
+                            if(document.querySelector('#sku-@productId'))
+                                document.querySelector('#sku-@productId').innerText = response.data.sku;
                         }
                         if (response.data.mpn) {
-                            document.querySelector('#mpn-@productId').innerText = response.data.mpn;
+                            if(document.querySelector('#mpn-@productId'))
+                                document.querySelector('#mpn-@productId').innerText = response.data.mpn;
                         }
                         if (response.data.gtin) {
-                            document.querySelector('#gtin-@productId').innerText = response.data.gtin;
+                            if(document.querySelector('#gtin-@productId'))
+                                document.querySelector('#gtin-@productId').innerText = response.data.gtin;
                         }
                         if (response.data.stockAvailability) {
-                            document.querySelector('#stock-availability-value-@productId').innerText = response.data.stockAvailability;
+                            if(document.querySelector('#stock-availability-value-@productId'))
+                                document.querySelector('#stock-availability-value-@productId').innerText = response.data.stockAvailability;
                         }
                         if (response.data.outOfStockSubscription) {
                             var element = document.querySelector('#out-of-stock-subscribe-@productId');
@@ -98,6 +102,15 @@
                                 document.querySelector('#product_attribute_input_' + response.data.disabledattributemappingids[i]).style.display = "none";
                             }
                         }
+                        if (response.data.notAvailableAttributeMappingids) {
+                            document.querySelectorAll('[data-disable]').forEach((element) => element.disabled = false);
+                            for (var i = 0; i < response.data.notAvailableAttributeMappingids.length; i++) {
+                                if (document.querySelectorAll("[data-disable='" + response.data.notAvailableAttributeMappingids[i] + "']").length > 0) {
+                                    document.querySelectorAll("[data-disable='" + response.data.notAvailableAttributeMappingids[i] + "']")[0].disabled = true;
+                                }
+                            }
+                        }
+
                         var product = this.product;
                         setTimeout(function () {
                             if (response.data.pictureDefaultSizeUrl) {
@@ -172,7 +185,7 @@
                                             <label :for="'product_attribute_' + attribute.Id" class="sr-only">product_attribute_{{attribute.Id}}</label>
                                             <select :id="'product_attribute_' + attribute.Id" class="form-control custom-select" :name="'product_attribute_' + attribute.Id">
                                                 <template v-if="attribute.IsRequired==false"> <option value="">---</option> </template>
-                                                <option v-for="attributeValue in attribute.Values" :selected="attributeValue.IsPreSelected" :value="attributeValue.Id">
+                                                <option v-for="attributeValue in attribute.Values" :selected="attributeValue.IsPreSelected" :value="attributeValue.Id" :data-disable="attributeValue.Id">
                                                     <template v-if="attributeValue.PriceAdjustment==null">{{attributeValue.Name}}</template> <template v-else>{{attributeValue.Name}}[{{attributeValue.PriceAdjustment}}] </template>
                                                 </option>
                                             </select>
@@ -190,6 +203,7 @@
                                                                 :name="'product_attribute_' + attribute.Id"
                                                                 :value="attributeValue.Id"
                                                                 :checked="attributeValue.IsPreSelected"
+                                                                :data-disable="attributeValue.Id"
                                                             />
                                                             <span class="custom-control-label"></span>
                                                             <span class="custom-control-description" :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id">
@@ -224,6 +238,7 @@
                                                                 :name="'product_attribute_' + attribute.Id"
                                                                 :value="attributeValue.Id"
                                                                 :checked="attributeValue.IsPreSelected"
+                                                                :data-disable="attributeValue.Id"
                                                             />
                                                             <span class="custom-control-label"></span>
                                                             <span class="custom-control-description" :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id">

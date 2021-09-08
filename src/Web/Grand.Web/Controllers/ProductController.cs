@@ -213,6 +213,7 @@ namespace Grand.Web.Controllers
                 buttonTextOutOfStockSubscription = model.ButtonTextOutOfStockSubscription,
                 enabledattributemappingids = model.EnabledAttributeMappingIds.ToArray(),
                 disabledattributemappingids = model.DisabledAttributeMappingids.ToArray(),
+                notAvailableAttributeMappingids = model.NotAvailableAttributeMappingids.ToArray(),
                 pictureFullSizeUrl = model.PictureFullSizeUrl,
                 pictureDefaultSizeUrl = model.PictureDefaultSizeUrl,
             });

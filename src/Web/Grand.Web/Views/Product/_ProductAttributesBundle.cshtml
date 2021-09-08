@@ -59,13 +59,16 @@
                             document.querySelector('.price-value-@productId').innerText = response.data.price;
                         }
                         if (response.data.sku) {
-                            document.querySelector('#sku-@productId').innerText = response.data.sku;
+                            if(document.querySelector('#sku-@productId'))
+                                document.querySelector('#sku-@productId').innerText = response.data.sku;
                         }
                         if (response.data.mpn) {
-                            document.querySelector('#mpn-@productId').innerText = response.data.mpn;
+                            if(document.querySelector('#mpn-@productId'))
+                                document.querySelector('#mpn-@productId').innerText = response.data.mpn;
                         }
                         if (response.data.gtin) {
-                            document.querySelector('#gtin-@productId').innerText = response.data.gtin;
+                            if(document.querySelector('#gtin-@productId'))
+                                document.querySelector('#gtin-@productId').innerText = response.data.gtin;
                         }
                         if (response.data.stockAvailability) {
                             document.querySelector('#stock-availability-value-@productId').innerText = response.data.stockAvailability;

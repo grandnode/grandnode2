@@ -11,6 +11,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
+using Grand.SharedKernel.Extensions;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Features.Models.ShoppingCart;
@@ -141,7 +142,28 @@ namespace Grand.Web.Features.Handlers.Products
                     model.ButtonTextOutOfStockSubscription = _translationService.GetResource("OutOfStockSubscriptions.NotifyMeWhenAvailable");
 
             }
+            if (request.Product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
+            {
+                var combination = _productAttributeParser.FindProductAttributeCombination(request.Product, customAttributes);
+                foreach (var customAttribute in customAttributes)
+                {
+                    //find all combinations with attributes
+                    var combinations = request.Product.ProductAttributeCombinations
+                        .Where(x => x.Attributes.Any(z => z.Key == customAttribute.Key && z.Value == customAttribute.Value)).ToList();
 
+                    //limit to without existing combination
+                    combinations = combinations.Where(x => x.Id != combination?.Id).ToList();
+                    //where the stock is unavailable
+                    combinations = combinations.Where(x => x.StockQuantity - x.ReservedQuantity <= 0).ToList();
+
+                    if (combinations.Count > 0)
+                    {
+                        var x = combinations.SelectMany(x => x.Attributes).Where(x => x.Value != customAttribute.Value);
+                        var notAvailable = x.Select(x => x.Value).Distinct().ToList();
+                        notAvailable.ForEach((x) => model.NotAvailableAttributeMappingids.Add(x));
+                    }
+                }
+            }
 
             //conditional attributes
             if (request.ValidateAttributeConditions)
@@ -173,8 +195,7 @@ namespace Grand.Web.Features.Handlers.Products
 
                 if (!string.IsNullOrEmpty(pictureId))
                 {
-                    var pictureModel = new PictureModel
-                    {
+                    var pictureModel = new PictureModel {
                         Id = pictureId,
                         FullSizeImageUrl = await _pictureService.GetPictureUrl(pictureId),
                         ImageUrl = await _pictureService.GetPictureUrl(pictureId, _mediaSettings.ProductDetailsPictureSize)
