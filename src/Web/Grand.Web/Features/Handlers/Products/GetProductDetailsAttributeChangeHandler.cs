@@ -144,25 +144,7 @@ namespace Grand.Web.Features.Handlers.Products
             }
             if (request.Product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
             {
-                var combination = _productAttributeParser.FindProductAttributeCombination(request.Product, customAttributes);
-                foreach (var customAttribute in customAttributes)
-                {
-                    //find all combinations with attributes
-                    var combinations = request.Product.ProductAttributeCombinations
-                        .Where(x => x.Attributes.Any(z => z.Key == customAttribute.Key && z.Value == customAttribute.Value)).ToList();
-
-                    //limit to without existing combination
-                    combinations = combinations.Where(x => x.Id != combination?.Id).ToList();
-                    //where the stock is unavailable
-                    combinations = combinations.Where(x => x.StockQuantity - x.ReservedQuantity <= 0).ToList();
-
-                    if (combinations.Count > 0)
-                    {
-                        var x = combinations.SelectMany(x => x.Attributes).Where(x => x.Value != customAttribute.Value);
-                        var notAvailable = x.Select(x => x.Value).Distinct().ToList();
-                        notAvailable.ForEach((x) => model.NotAvailableAttributeMappingids.Add(x));
-                    }
-                }
+                model.NotAvailableAttributeMappingids = PrepareNotAvailableAttributeMapping(request, customAttributes);
             }
 
             //conditional attributes
@@ -206,5 +188,108 @@ namespace Grand.Web.Features.Handlers.Products
             }
             return model;
         }
+
+        private List<string> PrepareNotAvailableAttributeMapping(GetProductDetailsAttributeChange request, IList<CustomAttribute> customAttributes)
+        {
+            var model = new List<string>();
+
+            var combination = _productAttributeParser.FindProductAttributeCombination(request.Product, customAttributes);
+            foreach (var customAttribute in customAttributes)
+            {
+                //find all combinations with attributes
+                var combinations = request.Product.ProductAttributeCombinations
+                    .Where(x => x.Attributes.Any(z => z.Key == customAttribute.Key && z.Value == customAttribute.Value)).ToList();
+
+                //limit to without existing combination
+                combinations = combinations.Where(x => x.Id != combination?.Id).ToList();
+                //where the stock is unavailable
+                var combinationsStockUnavailable = combinations.Where(x => x.StockQuantity - x.ReservedQuantity <= 0).ToList();
+                
+                //where the stock is available
+                var combinationsStockAvailable = combinations
+                    .Where(x => x.StockQuantity - x.ReservedQuantity > 0).ToList();
+
+                if (combinationsStockUnavailable.Count > 0)
+                {
+                    var x = combinationsStockUnavailable.SelectMany(x => x.Attributes).Where(x => x.Value != customAttribute.Value);
+                    var notAvailable = x.Select(x => x.Value).Distinct().ToList();
+                    notAvailable.ForEach((x) =>
+                    {
+                        if (!model.Contains(x))
+                            model.Add(x);
+                    });
+                }
+                if (combinationsStockAvailable.Count > 0)
+                {
+                    var x = combinationsStockAvailable.SelectMany(x => x.Attributes).Where(x => x.Value != customAttribute.Value);
+                    var available = x.Select(x => x.Value).Distinct().ToList();
+                    available.ForEach((x) =>
+                    {
+                        if (model.Contains(x))
+                            model.Remove(x);
+                    });
+                }
+
+                // another way to list available combinations                 
+                /*
+                var combinations = request.Product.ProductAttributeCombinations.ToList();
+
+                //limit to without existing combination
+                combinations = combinations.Where(x => x.Id != combination?.Id).ToList();
+                //where the stock is unavailable
+                var combinationsStockUnavailable = combinations.Where(x => x.StockQuantity - x.ReservedQuantity <= 0).ToList();
+                
+                //where the stock is available
+                var combinationsStockAvailable = combinations
+                    .Where(x => x.Attributes.Any(z => z.Key == customAttribute.Key && z.Value == customAttribute.Value))
+                    .Where(x => x.StockQuantity - x.ReservedQuantity > 0).ToList();
+
+                if (combinationsStockUnavailable.Count > 0)
+                {
+                    var x = combinationsStockUnavailable.SelectMany(x => x.Attributes).Where(x => x.Value != customAttribute.Value);
+                    var notAvailable = x.Select(x => x.Value).Distinct().ToList();
+                    notAvailable.ForEach((x) =>
+                    {
+                        if (!model.Contains(x))
+                            model.Add(x);
+                    });
+                }
+                if (combinationsStockAvailable.Count > 0)
+                {
+                    var x = combinationsStockAvailable.SelectMany(x => x.Attributes).Where(x => x.Value != customAttribute.Value);
+                    var available = x.Select(x => x.Value).Distinct().ToList();
+                    available.ForEach((x) =>
+                    {
+                        if (model.Contains(x))
+                            model.Remove(x);
+                    });
+                }
+                */
+            }
+            if (customAttributes.Any())
+            {
+                customAttributes.ToList().ForEach((x) =>
+                {
+                    if (model.Contains(x.Value))
+                        model.Remove(x.Value);
+                });
+            }
+            //?? Should we disable any value if no one attributes selected ?
+            else
+            {
+                var combinationsInStock = request.Product.ProductAttributeCombinations
+                    .Where(x => x.StockQuantity - x.ReservedQuantity > 0)
+                    .SelectMany(x => x.Attributes)
+                    .Select(x => x.Value).Distinct();
+                var combinationsOutofStock = request.Product.ProductAttributeCombinations
+                    .Where(x => x.StockQuantity - x.ReservedQuantity <= 0)
+                    .SelectMany(x => x.Attributes)
+                    .Select(x => x.Value).Distinct();
+                model = combinationsOutofStock.Except(combinationsInStock).ToList();
+            }
+
+            return model;
+        }
+
     }
 }
