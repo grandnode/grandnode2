@@ -227,6 +227,9 @@ body:not(.modal-open) {
 .alert {
     text-align: right;
 }
+select option:disabled {
+    color: #aaa;
+}
 
 /* bootstrap slider */
 
@@ -731,6 +734,23 @@ input:checked ~ .color-container .color::before {
     top: 0;
     left: 5px;
     color: #efefef;
+}
+.color-squares .color-container {
+    position: relative;
+}
+.color-squares input:disabled + .color-container::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: -4px;
+    width: 32px;
+    height: 2px;
+    background: #dc3545;
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+}
+.color-squares input:disabled + .color-container .color {
+    opacity: .5;
 }
 
 /* search box */
