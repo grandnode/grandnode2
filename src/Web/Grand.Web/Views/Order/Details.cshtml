@@ -392,48 +392,92 @@
                         <div class="col-xl-8 col-12 cart-out-container">
                             <h5 class="generalTitle">@Loc["Order.Product(s)"]</h5>
                             <div class="shopping-cart-container">
-                                <div id="order-details"></div>
-                                <script>
-                                    var OrderDetails = Vue.extend({
-                                    template: '<b-table :fields="fields" :items="items" class="shopping-cart"> <template v-slot:cell(picture)="data"> <div v-html="data.value.picture"></div></template> <template v-slot:cell(product)="data"> <div v-html="data.value.product"></div></template> <template v-slot:cell(unitprice)="data"> <div v-html="data.value.unitprice"></div></template> <template v-slot:cell(quantity)="data"> <div v-html="data.value.quantity"></div></template> <template v-slot:cell(subtotal)="data"> <div v-html="data.value.subtotal"></div></template> </b-table>',
-                                    data: function () {
-                                    return {
-                                         fields: [
-                                            { key: 'picture', label: '@Loc["Order.Product(s).Picture"]', class: 'text-center' },
-                                            { key: 'product', label: '@Loc["Order.Product(s).Name"]', class: 'text-center' },
-                                            { key: 'unitprice', label: '@Loc["Order.Product(s).Price"]', class: 'text-center'  },
-                                            { key: 'quantity', label: '@Loc["Order.Product(s).Quantity"]',  class: 'text-center' },
-                                            { key: 'subtotal', label: '@Loc["Order.Product(s).Total"]', class: 'text-center' },
-                                        ],
-                                        items: [
-                                             @foreach (var item in Model.Items)
-                                             {
-                                             <text>
-                                             {
-                                                picture: {
-                                                     picture: '<a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })"><img alt="@item.Picture.AlternateText" src="@item.Picture.ImageUrl" title="@item.Picture.Title" /></a>'
-                                                },
-                                                product: {
-                                                    product: '@if (!Model.PrintMode){<em><a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a></em>}else{@item.ProductName}@if (Model.ShowSku){<div class="sku w-100 text-center text-md-left">@item.Sku</div>}@if (!string.IsNullOrEmpty(item.AttributeInfo)){<div class="attributes">@Html.Raw(item.AttributeInfo)</div>}@if (!string.IsNullOrEmpty(item.RentalInfo)){<div class="rental-info">@Html.Raw(item.RentalInfo)</div>}@if (!String.IsNullOrEmpty(item.DownloadId)){<div class="download"><a href="@Url.RouteUrl("GetDownload", new { orderItemId = item.OrderItemGuid })">@Loc["DownloadableProducts.Fields.Download"]</a></div>}@if (!String.IsNullOrEmpty(item.LicenseId)){<div class="download license"><a href="@Url.RouteUrl("GetLicense", new {orderItemId = item.OrderItemGuid})">@Loc["DownloadableProducts.Fields.DownloadLicense"]</a></div>}@await Component.InvokeAsync("Widget", new { widgetZone = "orderdetails_product_line", additionalData = item.Id })'
-                                                },
-                                                unitprice: {
-                                                    unitprice: '<span class="product-unit-price price">@item.UnitPrice</span>@if (item.UnitPriceWithoutDiscountValue != item.UnitPriceValue && item.UnitPriceWithoutDiscountValue > 0){<div class="text-center"><del class="small text-danger">(@item.UnitPriceWithoutDiscount)</del></div>}'
-                                                },
-                                                quantity: {
-                                                    quantity: '<span class="d-inline-block d-xl-none mr-1">@Loc["shoppingcart.quantity"]:</span> @item.Quantity',
-                                                },
-                                                subtotal: {
-                                                    subtotal: '<span class="product-subtotal price prod-total">@item.SubTotal</span>@if (!string.IsNullOrEmpty(item.Discount)) {<div class="discount text-success text-center"><span>@Loc["ShoppingCart.Discount"]: </span><span>@item.Discount</span></div>}',
-                                                }
-                                             },
-                                            </text>
+                                <div id="order-details" class="table-responsive">
+                                    <table class="table">
+                                        <thead role="rowgroup">
+                                            <tr role="row">
+                                                <th role="columnheader" class="text-center"><div>@Loc["Order.Product(s).Picture"]</div></th>
+                                                <th role="columnheader" class="text-center"><div>@Loc["Order.Product(s).Name"]</div></th>
+                                                <th role="columnheader" class="text-center"><div>@Loc["Order.Product(s).Price"]</div></th>
+                                                <th role="columnheader" class="text-center"><div>@Loc["Order.Product(s).Quantity"]</div></th>
+                                                <th role="columnheader" class="text-center"><div>@Loc["Order.Product(s).Total"]</div></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody role="rowgroup">
+                                            @foreach (var item in Model.Items)
+                                            {
+                                                <tr role="row">
+                                                    <td class="text-center">
+                                                        <div>
+                                                            <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">
+                                                                <img alt="@item.Picture.AlternateText" src="@item.Picture.ImageUrl" title="@item.Picture.Title" />
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <div>
+                                                            @if (!Model.PrintMode)
+                                                            {
+                                                                <em><a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a></em>}
+                                                            else
+                                                            {
+                                                                @item.ProductName
+                                                            }
+                                                            @if (Model.ShowSku)
+                                                            {
+                                                                <div class="sku w-100 text-center text-md-left">@item.Sku</div>
+                                                            }
+                                                            @if (!string.IsNullOrEmpty(item.AttributeInfo))
+                                                            {
+                                                                <div class="attributes">@Html.Raw(item.AttributeInfo)</div>
+                                                            }
+                                                            @if (!string.IsNullOrEmpty(item.RentalInfo))
+                                                            {
+                                                                <div class="rental-info">@Html.Raw(item.RentalInfo)</div>
+                                                            }
+                                                            @if (!String.IsNullOrEmpty(item.DownloadId))
+                                                            {
+                                                                <div class="download"><a href="@Url.RouteUrl("GetDownload", new { orderItemId = item.OrderItemGuid })">@Loc["DownloadableProducts.Fields.Download"]</a></div>
+                                                            }
+                                                            @if (!String.IsNullOrEmpty(item.LicenseId))
+                                                            {
+                                                                <div class="download license">
+                                                                    <a href="@Url.RouteUrl("GetLicense", new {orderItemId = item.OrderItemGuid})">@Loc["DownloadableProducts.Fields.DownloadLicense"]</a>
+                                                                </div>
+                                                            }
+                                                            @await Component.InvokeAsync("Widget", new { widgetZone = "orderdetails_product_line", additionalData = item.Id })
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <div>
+                                                            <span class="product-unit-price price">@item.UnitPrice</span>
+                                                            @if (item.UnitPriceWithoutDiscountValue != item.UnitPriceValue && item.UnitPriceWithoutDiscountValue > 0)
+                                                            {
+                                                                <div class="text-center">
+                                                                    <del class="small text-danger">(@item.UnitPriceWithoutDiscount)</del>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <div>
+                                                            <span class="d-inline-block d-xl-none mr-1">@Loc["shoppingcart.quantity"]:</span> @item.Quantity
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <div>
+                                                            <span class="product-subtotal price prod-total">@item.SubTotal</span>
+                                                            @if (!string.IsNullOrEmpty(item.Discount))
+                                                            {
+                                                                <div class="discount text-success text-center"><span>@Loc["ShoppingCart.Discount"]: </span><span>@item.Discount</span></div>
+                                                            }
+                                                        </div>
+                                                    </td>
+                                                </tr>
                                             }
-                                                ]
-                                    }
-                                }
-                            })
-                        new OrderDetails().$mount('#order-details')
-                                </script>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                         <div class="col-lg-4 col-12 totals">
