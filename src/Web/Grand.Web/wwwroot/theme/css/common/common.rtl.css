@@ -981,6 +981,9 @@ input:checked ~ .color-container .color::before {
     content: "/";
     margin: 0 3px;
 }
+.product-box .countdown-box .count-date {
+    margin: 0 5px 0 0;
+}
 .product-box .prices {
     display: inline-flex;
     align-items: flex-end;

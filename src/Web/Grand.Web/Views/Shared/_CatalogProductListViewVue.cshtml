@@ -57,8 +57,8 @@
                             </template>
                             <template v-else>
                                 <div class="d-inline-flex flex-wrap justify-content-center">
-                                    <label class="ended-label">@Loc["ShoppingCart.Auctionends"]:</label>
-                                    <div class="count-date">{{Model.EndTimeLocalTime.Value}}</div>
+                                    <label class="ended-label mb-0">@Loc["ShoppingCart.Auctionends"]:</label>
+                                    <div class="count-date" v-html="new Date(Model.EndTimeLocalTime).toLocaleString()"></div>
                                 </div>
                             </template>
                         </div>
