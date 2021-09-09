@@ -876,6 +876,9 @@ input:checked ~ .color-container .color::before {
     font-size: 16px;
     font-weight: 500;
 }
+.product-box .countdown-box .count-date {
+    margin: 0 0 0 5px;
+}
 .product-box .rating {
     display: inline-flex;
     align-items: center;
