@@ -72,8 +72,8 @@ namespace Grand.Business.Common.Services.Security
 
             var tDES = TripleDES.Create();
 
-            tDES.Key = new ASCIIEncoding().GetBytes(privateKey.Substring(0, 24));
-            tDES.IV = new ASCIIEncoding().GetBytes(privateKey.Substring(16, 8));
+            tDES.Key = new ASCIIEncoding().GetBytes(privateKey);
+            tDES.IV = new ASCIIEncoding().GetBytes(privateKey[^8..]);
 
             byte[] encryptedBinary = EncryptTextToMemory(plainText, tDES.Key, tDES.IV);
             return Convert.ToBase64String(encryptedBinary);
@@ -94,8 +94,8 @@ namespace Grand.Business.Common.Services.Security
                 throw new Exception("Wrong encryp private key");
 
             var tDES = TripleDES.Create();
-            tDES.Key = new ASCIIEncoding().GetBytes(encryptionPrivateKey.Substring(0, 24));
-            tDES.IV = new ASCIIEncoding().GetBytes(encryptionPrivateKey.Substring(16, 8));
+            tDES.Key = new ASCIIEncoding().GetBytes(encryptionPrivateKey);
+            tDES.IV = new ASCIIEncoding().GetBytes(encryptionPrivateKey[^8..]);
 
             byte[] buffer = Convert.FromBase64String(cipherText);
             return DecryptTextFromMemory(buffer, tDES.Key, tDES.IV);

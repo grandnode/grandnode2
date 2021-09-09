@@ -687,7 +687,7 @@ namespace Grand.Web.Admin.Controllers
             string orderItemId = "";
             foreach (var formValue in form.Keys)
                 if (formValue.StartsWith("btnSaveOrderItem", StringComparison.OrdinalIgnoreCase))
-                    orderItemId = formValue.Substring("btnSaveOrderItem".Length);
+                    orderItemId = formValue["btnSaveOrderItem".Length..];
 
             var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
             if (orderItem == null)
@@ -761,7 +761,7 @@ namespace Grand.Web.Admin.Controllers
             string orderItemId = "";
             foreach (var formValue in form.Keys)
                 if (formValue.StartsWith("btnDeleteOrderItem", StringComparison.OrdinalIgnoreCase))
-                    orderItemId = formValue.Substring("btnDeleteOrderItem".Length);
+                    orderItemId = formValue["btnDeleteOrderItem".Length..];
 
             var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
             if (orderItem == null)
@@ -799,7 +799,7 @@ namespace Grand.Web.Admin.Controllers
             string orderItemId = "";
             foreach (var formValue in form.Keys)
                 if (formValue.StartsWith("btnCancelOrderItem", StringComparison.OrdinalIgnoreCase))
-                    orderItemId = formValue.Substring("btnCancelOrderItem".Length);
+                    orderItemId = formValue["btnCancelOrderItem".Length..];
 
             var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
             if (orderItem == null)
@@ -836,7 +836,7 @@ namespace Grand.Web.Admin.Controllers
             string orderItemId = "";
             foreach (var formValue in form.Keys)
                 if (formValue.StartsWith("btnResetDownloadCount", StringComparison.OrdinalIgnoreCase))
-                    orderItemId = formValue.Substring("btnResetDownloadCount".Length);
+                    orderItemId = formValue["btnResetDownloadCount".Length..];
 
             var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
             if (orderItem == null)
@@ -877,7 +877,7 @@ namespace Grand.Web.Admin.Controllers
             string orderItemId = "";
             foreach (var formValue in form.Keys)
                 if (formValue.StartsWith("btnPvActivateDownload", StringComparison.OrdinalIgnoreCase))
-                    orderItemId = formValue.Substring("btnPvActivateDownload".Length);
+                    orderItemId = formValue["btnPvActivateDownload".Length..];
 
             var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
             if (orderItem == null)

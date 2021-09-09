@@ -170,7 +170,7 @@ namespace Grand.Web.Admin.Controllers
                 string systemName = null;
                 foreach (var formValue in form.Keys)
                     if (formValue.StartsWith("install-plugin-link-", StringComparison.OrdinalIgnoreCase))
-                        systemName = formValue.Substring("install-plugin-link-".Length);
+                        systemName = formValue["install-plugin-link-".Length..];
 
                 var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName);
                 if (pluginInfo == null)
@@ -212,7 +212,7 @@ namespace Grand.Web.Admin.Controllers
                 string systemName = null;
                 foreach (var formValue in form.Keys)
                     if (formValue.StartsWith("uninstall-plugin-link-", StringComparison.OrdinalIgnoreCase))
-                        systemName = formValue.Substring("uninstall-plugin-link-".Length);
+                        systemName = formValue["uninstall-plugin-link-".Length..];
 
                 var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName);
                 if (pluginInfo == null)
@@ -255,7 +255,7 @@ namespace Grand.Web.Admin.Controllers
                 string systemName = null;
                 foreach (var formValue in form.Keys)
                     if (formValue.StartsWith("remove-plugin-link-", StringComparison.OrdinalIgnoreCase))
-                        systemName = formValue.Substring("remove-plugin-link-".Length);
+                        systemName = formValue["remove-plugin-link-".Length..];
 
                 var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName);
                 if (pluginInfo == null)
@@ -436,7 +436,7 @@ namespace Grand.Web.Admin.Controllers
                                     if (pluginInfo.SupportedVersion == GrandVersion.SupportedPluginVersion)
                                     {
                                         supportedVersion = true;
-                                        _fpath = entry.FullName.Substring(0, entry.FullName.LastIndexOf("/"));
+                                        _fpath = entry.FullName[..entry.FullName.LastIndexOf("/")];
                                         archive.Entries.Where(x => !x.FullName.Contains(_fpath)).ToList()
                                         .ForEach(y => { archive.GetEntry(y.FullName).Delete(); });
 
@@ -455,7 +455,7 @@ namespace Grand.Web.Admin.Controllers
                         throw new Exception($"This plugin doesn't support the current version - {GrandVersion.SupportedPluginVersion}");
                     else
                     {
-                        var pluginname = _fpath.Substring(_fpath.LastIndexOf('/') + 1);
+                        var pluginname = _fpath[(_fpath.LastIndexOf('/') + 1)..];
                         var _path = "";
 
                         var entries = archive.Entries.ToArray();

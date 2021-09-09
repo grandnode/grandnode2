@@ -76,7 +76,7 @@ namespace Grand.Web.Controllers
             url = WebUtility.UrlDecode(resultpath);
 
             url = url.TrimStart('/');
-            var result = url.Contains('/') ? url.Substring(url.IndexOf('/')) : string.Empty;
+            var result = url.Contains('/') ? url[url.IndexOf('/')..] : string.Empty;
 
             result = pathBase + result;
             return result;
