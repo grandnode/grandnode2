@@ -335,7 +335,7 @@ namespace Grand.Web.Features.Handlers.Products
 
             if (product.ProductTypeId == ProductType.BundledProduct)
             {
-                model.ProductBundleModels = await PrepareProductBundleModel(product);
+                model.ProductBundleModels = await PrepareProductBundleModel(product, updateCartItem);
             }
             #endregion
 
@@ -1049,7 +1049,7 @@ namespace Grand.Web.Features.Handlers.Products
             }
         }
 
-        private async Task<IList<ProductDetailsModel.ProductBundleModel>> PrepareProductBundleModel(Product product)
+        private async Task<IList<ProductDetailsModel.ProductBundleModel>> PrepareProductBundleModel(Product product, ShoppingCartItem updateCartItem)
         {
             var model = new List<ProductDetailsModel.ProductBundleModel>();
             var displayPrices = await _permissionService.Authorize(StandardPermission.DisplayPrices);
@@ -1101,7 +1101,7 @@ namespace Grand.Web.Features.Handlers.Products
 
                     bundleProduct.DefaultPictureModel = pictureModel;
 
-                    bundleProduct.ProductAttributes = await PrepareProductAttributeModel(p1, _mediaSettings.ProductBundlePictureSize);
+                    bundleProduct.ProductAttributes = await PrepareProductAttributeModel(p1, _mediaSettings.ProductBundlePictureSize, updateCartItem);
 
                     model.Add(bundleProduct);
                 }
