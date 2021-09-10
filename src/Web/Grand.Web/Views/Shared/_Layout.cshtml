@@ -23,8 +23,11 @@
     <resources asp-type="HeadScript" />
     @RenderSection("head", required: false)    
 </head>
-<body>   
+<body>
+
+    <resources asp-type="TemplateHeader" />
     <resources asp-type="ScriptHeader" />
+
     @await Component.InvokeAsync("Widget", new { widgetZone = "body_start_html_tag_after" })
 
     <div id="app" :dark-theme="darkMode" v-cloak>
@@ -48,5 +51,6 @@
     </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = "body_end_html_tag_before" })
     <resources asp-type="ScriptFooter" />
+
 </body>
 </html>

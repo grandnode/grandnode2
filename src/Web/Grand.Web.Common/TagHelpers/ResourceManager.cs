@@ -11,6 +11,7 @@ namespace Grand.Web.Common.TagHelpers
         private List<IHtmlContent> _headScripts;
         private List<IHtmlContent> _headerScripts;
         private List<IHtmlContent> _footScripts;
+        private List<IHtmlContent> _templates;
         private List<LinkEntry> _links;
 
         public ResourceManager()
@@ -29,6 +30,10 @@ namespace Grand.Web.Common.TagHelpers
         public IEnumerable<IHtmlContent> GetRegisteredFootScripts()
         {
             return _footScripts == null ? Enumerable.Empty<IHtmlContent>() : _footScripts;
+        }
+        public IEnumerable<IHtmlContent> GetRegisteredTemplates()
+        {
+            return _templates == null ? Enumerable.Empty<IHtmlContent>() : _templates;
         }
 
         public void RegisterHeadScript(IHtmlContent script)
@@ -57,6 +62,15 @@ namespace Grand.Web.Common.TagHelpers
             }
 
             _footScripts.Add(script);
+        }
+        public void RegisterTemplate(IHtmlContent script)
+        {
+            if (_templates == null)
+            {
+                _templates = new List<IHtmlContent>();
+            }
+
+            _templates.Add(script);
         }
         /// <summary>
         /// Renders the registered head script tags.
@@ -128,7 +142,21 @@ namespace Grand.Web.Common.TagHelpers
                 builder.AppendHtml(link.GetTag());
             }
         }
+        public void RenderTemplate(IHtmlContentBuilder builder)
+        {
+            var first = true;
+            foreach (var context in GetRegisteredTemplates())
+            {
+                if (!first)
+                {
+                    builder.AppendHtml(Environment.NewLine);
+                }
 
+                first = false;
+
+                builder.AppendHtml(context);
+            }
+        }
         public void RegisterLink(LinkEntry link)
         {
             _links.Add(link);

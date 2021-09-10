@@ -24,6 +24,12 @@ namespace Grand.Web.Common.TagHelpers
         void RegisterFootScript(IHtmlContent script);
 
         /// <summary>
+        /// Registers a custom template tag.
+        /// </summary>
+        /// <param name="script"></param>
+        void RegisterTemplate(IHtmlContent script);
+
+        /// <summary>
         /// Returns the registered head script resources.
         /// </summary>
         IEnumerable<IHtmlContent> GetRegisteredHeadScripts();
@@ -57,6 +63,11 @@ namespace Grand.Web.Common.TagHelpers
         /// Renders the registered header link tags.
         /// </summary>
         void RenderHeadLink(IHtmlContentBuilder builder);
+
+        /// <summary>
+        /// Renders the registered template tags.
+        /// </summary>
+        void RenderTemplate(IHtmlContentBuilder builder);
 
         /// <summary>
         /// Registers a link tag.
