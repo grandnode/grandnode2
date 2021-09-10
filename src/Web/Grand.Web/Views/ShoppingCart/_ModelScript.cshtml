@@ -174,7 +174,7 @@
             },
             updateOnCart(id) {
                 axios({
-                    url: '/GetItemCart/' + id + '',
+                    url: '@Url.RouteUrl("GetItemCart")/' + id + '',
                     method: 'get',
                     headers: { 'Content-Type': 'application/json' }
                 }).then(function (response) {
