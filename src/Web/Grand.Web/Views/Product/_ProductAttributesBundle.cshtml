@@ -56,6 +56,9 @@
                 params: { product: '@bundleProductId' },
             }).then(function (response, url) {
                 @*TODO*@
+                if (response.data.price) {
+                    document.querySelector('.price-value-@bundleProductId').innerText = response.data.price;
+                }
             });
         }        
         Vue.component('product-attributes-bundle-@(productId)', {
