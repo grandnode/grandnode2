@@ -1,7 +1,5 @@
 ﻿@model ProductReviewsModel
-@using Grand.Web.Common.Themes
-@inject IPageHeadBuilder pagebuilder
-<script asp-location="Footer" src="/theme/script/product.reviews.js"></script>
+
 <div class="mb-3">
     <a class="btn btn-info" href="@Url.RouteUrl("ProductReviews", new { productId = Model.ProductId })">@Loc["Reviews.Overview.AddNew"]</a>
 </div>
