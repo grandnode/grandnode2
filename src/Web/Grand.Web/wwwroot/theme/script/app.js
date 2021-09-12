@@ -161,52 +161,66 @@
         attrchange: function (productId, hasCondition, loadPicture) {
             var form = document.getElementById('product-details-form');
             var data = new FormData(form);
+            var pId;
+
+            if (vm.PopupQuickViewVueModal.ProductBundleModels.length > 0) {
+                pId = vm.PopupQuickViewVueModal.Id;
+            } else {
+                pId = productId;
+            }
+
             axios({
-                url: '/product/productdetails_attributechange?productId=' + productId + '&validateAttributeConditions=' + hasCondition + '&loadPicture=' + loadPicture,
+                url: '/product/productdetails_attributechange?productId=' + pId + '&validateAttributeConditions=' + hasCondition + '&loadPicture=' + loadPicture,
                 data: data,
                 method: 'post',
-                params: { product: productId },
+                params: { product: pId },
             }).then(function (response) {
-                if (response.data.price) {
-                    vm.PopupQuickViewVueModal.ProductPrice.Price = response.data.price;
-                }
-                if (response.data.sku) {
-                    vm.PopupQuickViewVueModal.Sku = response.data.sku;
-                }
-                if (response.data.mpn) {
-                    vm.PopupQuickViewVueModal.Mpn = response.data.mpn;
-                }
-                if (response.data.gtin) {
-                    vm.PopupQuickViewVueModal.Gtin = response.data.gtin;
-                }
-                if (response.data.stockAvailability) {
-                    vm.PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
-                }
-                if (response.data.buttonTextOutOfStockSubscription) {
-                    PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
-                }
-                if (response.data.enabledattributemappingids) {
-                    for (var i = 0; i < response.data.enabledattributemappingids.length; i++) {
-                        document.querySelector('#product_attribute_label_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
-                        document.querySelector('#product_attribute_input_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
+                if (vm.PopupQuickViewVueModal.ProductBundleModels.length > 0) {
+                    if (response.data.price) {
+                        vm.PopupQuickViewVueModal.ProductPrice.Price = response.data.price;
                     }
-                }
-                if (response.data.disabledattributemappingids) {
-                    for (var i = 0; i < response.data.disabledattributemappingids.length; i++) {
-                        document.querySelector('#product_attribute_label_' + response.data.disabledattributemappingids[i]).style.display = "none";
-                        document.querySelector('#product_attribute_input_' + response.data.disabledattributemappingids[i]).style.display = "none";
+                } else {
+                    if (response.data.price) {
+                        vm.PopupQuickViewVueModal.ProductPrice.Price = response.data.price;
                     }
-                }
-                if (response.data.notAvailableAttributeMappingids) {
-                    document.querySelectorAll('[data-disable]').forEach((element) => element.disabled = false);
-                    for (var i = 0; i < response.data.notAvailableAttributeMappingids.length; i++) {
-                        if (document.querySelectorAll("[data-disable='" + response.data.notAvailableAttributeMappingids[i] + "']").length > 0) {
-                            document.querySelectorAll("[data-disable='" + response.data.notAvailableAttributeMappingids[i] + "']")[0].disabled = true;
+                    if (response.data.sku) {
+                        vm.PopupQuickViewVueModal.Sku = response.data.sku;
+                    }
+                    if (response.data.mpn) {
+                        vm.PopupQuickViewVueModal.Mpn = response.data.mpn;
+                    }
+                    if (response.data.gtin) {
+                        vm.PopupQuickViewVueModal.Gtin = response.data.gtin;
+                    }
+                    if (response.data.stockAvailability) {
+                        vm.PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
+                    }
+                    if (response.data.buttonTextOutOfStockSubscription) {
+                        PopupQuickViewVueModal.StockAvailability = response.data.stockAvailability;
+                    }
+                    if (response.data.enabledattributemappingids) {
+                        for (var i = 0; i < response.data.enabledattributemappingids.length; i++) {
+                            document.querySelector('#product_attribute_label_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
+                            document.querySelector('#product_attribute_input_' + response.data.enabledattributemappingids[i]).style.display = "table-cell";
                         }
                     }
-                }
-                if (response.data.pictureDefaultSizeUrl !== null) {
-                    vm.PopupQuickViewVueModal.DefaultPictureModel.ImageUrl = response.data.pictureDefaultSizeUrl;
+                    if (response.data.disabledattributemappingids) {
+                        for (var i = 0; i < response.data.disabledattributemappingids.length; i++) {
+                            document.querySelector('#product_attribute_label_' + response.data.disabledattributemappingids[i]).style.display = "none";
+                            document.querySelector('#product_attribute_input_' + response.data.disabledattributemappingids[i]).style.display = "none";
+                        }
+                    }
+                    if (response.data.notAvailableAttributeMappingids) {
+                        document.querySelectorAll('[data-disable]').forEach((element) => element.disabled = false);
+                        for (var i = 0; i < response.data.notAvailableAttributeMappingids.length; i++) {
+                            if (document.querySelectorAll("[data-disable='" + response.data.notAvailableAttributeMappingids[i] + "']").length > 0) {
+                                document.querySelectorAll("[data-disable='" + response.data.notAvailableAttributeMappingids[i] + "']")[0].disabled = true;
+                            }
+                        }
+                    }
+                    if (response.data.pictureDefaultSizeUrl !== null) {
+                        vm.PopupQuickViewVueModal.DefaultPictureModel.ImageUrl = response.data.pictureDefaultSizeUrl;
+                    }
                 }
             });
         },
@@ -295,6 +309,11 @@
         QuickViewShown: function () {
             if (vm.PopupQuickViewVueModal.ProductAttributes.length > 0) {
                 vm.attrchange(vm.PopupQuickViewVueModal.Id, vm.PopupQuickViewVueModal.HasCondition, true)
+            } else {
+                var bundleProducts = vm.PopupQuickViewVueModal.ProductBundleModels;
+                if (bundleProducts.length > 0) {
+                    vm.attrchange(vm.PopupQuickViewVueModal.Id, vm.PopupQuickViewVueModal.HasCondition, true)
+                }
             }
         }
     },
