@@ -2,9 +2,10 @@
   {
     "outputFileName": "wwwroot/bundles/site.min.css",
     "inputFiles": [
-      "wwwroot/theme/bootstrap-vue/bootstrap.min.css",
-      "wwwroot/theme/bootstrap-vue/bootstrap-vue.min.css",
-      "wwwroot/theme/css/animate.min.css"
+      "wwwroot/lib/bootstrap/dist/css/bootstrap.min.css",
+      "wwwroot/lib/bootstrap-vue/dist/bootstrap-vue.min.css",
+      "wwwroot/lib/animate/animate.min.css",
+      "wwwroot/lib/pikaday/css/pikaday.css"
     ],
     "minify": {
       "enabled": true,
@@ -15,13 +16,16 @@
   {
     "outputFileName": "wwwroot/bundles/site.min.js",
     "inputFiles": [
-      "wwwroot/theme/lib/vue.min.js",
-      "wwwroot/theme/lib/portal-vue.umd.min.js",
-      "wwwroot/theme/lib/bootstrap-vue.min.js",
-      "wwwroot/theme/lib/bootstrap-vue-icons-slim.min.js",
-      "wwwroot/theme/lib/axios.min.js",
-      "wwwroot/theme/lib/vue-awesome-countdown.umd.min.js",
-      "wwwroot/theme/lib/vee-validate.minimal.min.js"
+      "wwwroot/lib/vue/dist/vue.min.js",
+      "wwwroot/lib/portal-vue/dist/portal-vue.umd.min.js",
+      "wwwroot/lib/bootstrap-vue/dist/bootstrap-vue.min.js",
+      "wwwroot/lib/bootstrap-vue/dist/bootstrap-vue-icons-slim.min.js",
+      "wwwroot/lib/poper/dist/poper.js",
+      "wwwroot/lib/vue-awesome-countdown/dist/vue-awesome-countdown.umd.min.js",
+      "wwwroot/lib/vee-validate/dist/vee-validate.minimal.min.js",
+      "wwwroot/lib/vee-validate/dist/validation-config.min.js",
+      "wwwroot/lib/axios/dist/axios.min.js",
+      "wwwroot/lib/pikaday/pikaday.js"
     ],
     "minify": {
       "enabled": false,

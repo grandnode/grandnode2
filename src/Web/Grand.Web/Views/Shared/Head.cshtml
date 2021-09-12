@@ -4,15 +4,15 @@
     var supportRtl = workContext.WorkingLanguage.Rtl;
 
     <environment include="Development">
-        <link rel="stylesheet" type="text/css" href="/theme/bootstrap-vue/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="/theme/bootstrap-vue/bootstrap-vue.min.css">
-        <link rel="stylesheet" type="text/css" href="/theme/css/animate.min.css">
+        <link rel="stylesheet" type="text/css" href="/lib/bootstrap/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="/lib/bootstrap-vue/dist/bootstrap-vue.min.css">
+        <link rel="stylesheet" type="text/css" href="/lib/animate/animate.min.css">
+        <link rel="stylesheet" type="text/css" href="/lib/pikaday/css/pikaday.css">
     </environment>
     <environment include="Production">
         <link rel="stylesheet" type="text/css" href="/bundles/site.min.css">
     </environment>
 
-    <link href="/theme/css/pikaday.min.css" type="text/css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="/assets/custom/style.css">
 
     if (supportRtl)
@@ -26,26 +26,26 @@
         <link rel="stylesheet" type="text/css" href="/theme/css/header/header.css">
     }
     <environment include="Development">
-        <script src="/theme/lib/vue.min.js"></script>
-        <script src="/theme/lib/portal-vue.umd.min.js"></script>
-        <script src="/theme/lib/bootstrap-vue.min.js"></script>
-        <script src="/theme/lib/bootstrap-vue-icons-slim.min.js"></script>
-        <script src="/theme/lib/axios.min.js"></script>
-        <script src="/theme/lib/vue-awesome-countdown.umd.min.js"></script>
-        <script src="/theme/lib/vee-validate.minimal.min.js"></script>
+        <script src="/lib/vue/dist/vue.min.js"></script>
+        <script src="/lib/portal-vue/dist/portal-vue.umd.min.js"></script>
+        <script src="/lib/bootstrap-vue/dist/bootstrap-vue.min.js"></script>
+        <script src="/lib/bootstrap-vue/dist/bootstrap-vue-icons-slim.min.js"></script>
+        <script src="/lib/poper/dist/poper.js"></script>
+        <script src="/lib/vue-awesome-countdown/dist/vue-awesome-countdown.umd.min.js"></script>
+        <script src="/lib/vee-validate/dist/vee-validate.minimal.min.js"></script>
+        <script src="/lib/vee-validate/dist/validation-config.min.js"></script>
+        <script src="/lib/axios/dist/axios.min.js"></script>
+        <script src="/lib/pikaday/pikaday.js"></script>
     </environment>
     <environment include="Production">
         <script src="/bundles/site.min.js"></script>
     </environment>
 
-    <script src="/theme/script/validation-config.min.js"></script>
     <script src="/theme/script/public.common.js"></script>
     <script src="/theme/script/public.axios.js"></script>
-    <script src="/theme/lib/pikaday.min.js"></script>
     <script src="/theme/script/public.reservation.js"></script>
 
     <script asp-location="Footer" asp-src="/theme/script/menu.js"></script>
-    <script asp-location="Footer" asp-src="/theme/lib/popper.min.js"></script>
     <script asp-location="Footer" asp-src="/theme/script/app.js"></script>
 
     <script asp-location="Footer" asp-src="/assets/custom/script.js"></script>
