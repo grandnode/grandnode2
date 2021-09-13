@@ -308,5 +308,9 @@
             }
         });
         var standardProductAttributes = new StandardProductAttributes().$mount('#product-attributes');
+
+        document.addEventListener("DOMContentLoaded", function () {
+            standardProductAttributes.attrchange();
+        });
     </script>
 }
