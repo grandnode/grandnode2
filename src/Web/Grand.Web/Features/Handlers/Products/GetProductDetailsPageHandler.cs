@@ -1004,9 +1004,13 @@ namespace Grand.Web.Features.Handlers.Products
         {
             if (product.ProductTypeId == ProductType.Reservation)
             {
+                model.AddToCart.IsReservation = true;
+                model.IntervalUnit = product.IntervalUnitId;
+                model.Interval = product.Interval;
+                model.IncBothDate = product.IncBothDate;
+
                 if (updateCartItem == null)
                 {
-                    model.AddToCart.IsReservation = true;
                     var reservations = await _productReservationService.GetProductReservationsByProductId(product.Id, true, null);
                     var inCart = _workContext.CurrentCustomer.ShoppingCartItems.Where(x => !string.IsNullOrEmpty(x.ReservationId)).ToList();
                     foreach (var cartItem in inCart)
@@ -1030,11 +1034,6 @@ namespace Grand.Web.Features.Handlers.Products
                             model.StartDate = DateTime.UtcNow;
                         }
                     }
-
-                    model.IntervalUnit = product.IntervalUnitId;
-                    model.Interval = product.Interval;
-                    model.IncBothDate = product.IncBothDate;
-
                     var list = reservations.GroupBy(x => x.Parameter).ToList().Select(x => x.Key);
                     foreach (var item in list)
                     {
