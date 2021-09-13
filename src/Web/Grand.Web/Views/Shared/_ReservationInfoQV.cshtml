@@ -13,17 +13,17 @@
         <template v-if="PopupQuickViewVueModal.IntervalUnit == 10">
             <div>
                 <h5>@Loc["Products.Reservation.DateFrom"]:</h5>
-                <input :name="'reservationDatepickerFrom_' + PopupQuickViewVueModal.Id" id="reservationDatepickerFrom" class="form-control datepicker" />
+                <input :name="'reservationDatepickerFrom_' + PopupQuickViewVueModal.Id" id="reservationDatepickerFrom" class="form-control datepicker" v-model="PopupQuickViewVueModal.RentalStartDateUtc" />
             </div>
             <div>
                 <h5>@Loc["Products.Reservation.DateTo"]:</h5>
-                <input :name="'reservationDatepickerTo_' + PopupQuickViewVueModal.Id" id="reservationDatepickerTo" class="form-control datepicker" />
+                <input :name="'reservationDatepickerTo_' + PopupQuickViewVueModal.Id" id="reservationDatepickerTo" class="form-control datepicker" v-model="PopupQuickViewVueModal.RentalEndDateUtc" />
             </div>
         </template>
         <template v-else>
             <div>
                 <h5>@Loc["Products.Reservation.Date"]:</h5>
-                <input id="reservationDatepicker" class="form-control datepicker" />
+                <input id="reservationDatepicker" class="form-control datepicker" v-model="PopupQuickViewVueModal.RentalStartDateUtc" />
             </div>
             <div>
                 <h5 style="margin-top:10px">@Loc["Products.Reservation.Hour"]:</h5>

@@ -306,6 +306,19 @@
                 }
             })
         },
+        formatDate(date) {
+            var d = new Date(date),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+            if (month.length < 2)
+                month = '0' + month;
+            if (day.length < 2)
+                day = '0' + day;
+
+            return [month, day, year].join('/');
+        },
         QuickViewShown: function () {
             if (vm.PopupQuickViewVueModal.ProductAttributes.length > 0) {
                 vm.attrchange(vm.PopupQuickViewVueModal.Id, vm.PopupQuickViewVueModal.HasCondition, true)
@@ -314,6 +327,12 @@
                 if (bundleProducts.length > 0) {
                     vm.attrchange(vm.PopupQuickViewVueModal.Id, vm.PopupQuickViewVueModal.HasCondition, true)
                 }
+            }
+            if (vm.PopupQuickViewVueModal.ProductType == 20) {
+                var StartDate = this.formatDate(vm.PopupQuickViewVueModal.RentalStartDateUtc);
+                var EndDate = this.formatDate(vm.PopupQuickViewVueModal.RentalEndDateUtc);
+                vm.PopupQuickViewVueModal.RentalStartDateUtc = StartDate;
+                vm.PopupQuickViewVueModal.RentalEndDateUtc = EndDate;
             }
         }
     },
