@@ -1051,7 +1051,7 @@ namespace Grand.Web.Features.Handlers.Products
                 else
                 {
                     model.RentalStartDateUtc = updateCartItem.RentalStartDateUtc;
-                    model.RentalStartDateUtc = updateCartItem.RentalEndDateUtc;
+                    model.RentalEndDateUtc = updateCartItem.RentalEndDateUtc;
                     model.RentalReservationId = updateCartItem.ReservationId;
                 }
             }
