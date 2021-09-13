@@ -14,14 +14,14 @@ using Wkhtmltopdf.NetCore;
 namespace Grand.Business.Common.Services.Pdf
 {
     /// <summary>
-    /// Generate invoice  products , shipment as pdf (from html template to pdf)
+    /// Generate invoice, shipment as pdf (from html template to pdf)
     /// </summary>
     public class WkPdfService : IPdfService
     {
         private const string _orderTemaplate = "~/Views/PdfTemplates/OrderPdfTemplate.cshtml";
         private const string _shipmentsTemaplate = "~/Views/PdfTemplates/ShipmentPdfTemplate.cshtml";
-        private const string _orderFooter = "pdf/footers/order.html";
-        private const string _shipmentFooter = "pdf/footers/shipment.html";
+        private const string _paginationFooter = "assets/pdf/pagination.html";
+
         private readonly IGeneratePdf _generatePdf;
         private readonly IViewRenderService _viewRenderService;
         private readonly ILanguageService _languageService;
@@ -50,7 +50,7 @@ namespace Grand.Business.Common.Services.Pdf
             {
                 PageSize = Wkhtmltopdf.NetCore.Options.Size.A4,
                 PageMargins = new Wkhtmltopdf.NetCore.Options.Margins() { Bottom = 10, Left = 10, Right = 10, Top = 10 },
-                FooterHtml = CommonPath.WebHostMapPath(_orderFooter)
+                FooterHtml = CommonPath.WebHostMapPath(_paginationFooter)
             });
 
             var html = await _viewRenderService.RenderToStringAsync<(IList<Order>,string)>(_orderTemaplate, new (orders, vendorId));
@@ -92,7 +92,7 @@ namespace Grand.Business.Common.Services.Pdf
             {
                 PageSize = Wkhtmltopdf.NetCore.Options.Size.A4,
                 PageMargins = new Wkhtmltopdf.NetCore.Options.Margins() { Bottom = 10, Left = 10, Right = 10, Top = 10 },
-                FooterHtml = CommonPath.WebHostMapPath(_shipmentFooter)
+                FooterHtml = CommonPath.WebHostMapPath(_paginationFooter)
             });
 
             var html = await _viewRenderService.RenderToStringAsync<IList<Shipment>>(_shipmentsTemaplate, shipments);
