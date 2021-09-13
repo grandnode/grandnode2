@@ -148,7 +148,7 @@ namespace Grand.Web.Features.Handlers.Products
             }
 
             //conditional attributes
-            if (request.ValidateAttributeConditions)
+            if (request.Product.ProductAttributeMappings.Where(x=>x.ConditionAttribute.Any()).Any())
             {
                 var attributes = request.Product.ProductAttributeMappings;
                 foreach (var attribute in attributes)

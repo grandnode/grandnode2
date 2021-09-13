@@ -2,7 +2,6 @@
 @using System.Text;
 @{
     //dynamic update support
-    var attributesHaveConditions = Model.Any(x => x.HasCondition);
     var attributesHaveAssociatedPictures = true;
     var attributeChangeScriptsBuilder = new StringBuilder();
     var bundleProductId = ViewData["BundleProductId"]?.ToString();
@@ -50,7 +49,7 @@
             var form = document.getElementById('product-details-form');
             var data = new FormData(form);
             axios({
-                url: '@Html.Raw(Url.Action("productdetails_attributechange", "product", new { productId = bundleProductId, validateAttributeConditions = attributesHaveConditions, loadPicture = attributesHaveAssociatedPictures }))',
+                url: '@Html.Raw(Url.Action("productdetails_attributechange", "product", new { productId = bundleProductId, loadPicture = attributesHaveAssociatedPictures }))',
                 data: data,
                 method: 'post',
                 params: { product: '@bundleProductId' },

@@ -158,7 +158,7 @@
         isMobile: function () {
             return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
         },
-        attrchange: function (productId, hasCondition, loadPicture) {
+        attrchange: function (productId, loadPicture) {
             var form = document.getElementById('product-details-form');
             var data = new FormData(form);
             var pId;
@@ -170,7 +170,7 @@
             }
 
             axios({
-                url: '/product/productdetails_attributechange?productId=' + pId + '&validateAttributeConditions=' + hasCondition + '&loadPicture=' + loadPicture,
+                url: '/product/productdetails_attributechange?productId=' + pId + '&loadPicture=' + loadPicture,
                 data: data,
                 method: 'post',
                 params: { product: pId },
@@ -268,7 +268,7 @@
                 var fullDate = vm.PopupQuickViewVueModal.ReservationFullDate;
                 var year = vm.PopupQuickViewVueModal.ReservationYear;
                 var month = vm.PopupQuickViewVueModal.ReservationMonth;
-                Reservation.init(fullDate, year, month, "No available reservations", "/Product/GetDatesForMonth", productId, "/product/productdetails_attributechange?productId=" + productId + "&validateAttributeConditions=False");
+                Reservation.init(fullDate, year, month, "No available reservations", "/Product/GetDatesForMonth", productId, "/product/productdetails_attributechange?productId=" + productId);
             }
         },
         getLinkedProductsQV: function (id) {
@@ -321,11 +321,11 @@
         },
         QuickViewShown: function () {
             if (vm.PopupQuickViewVueModal.ProductAttributes.length > 0) {
-                vm.attrchange(vm.PopupQuickViewVueModal.Id, vm.PopupQuickViewVueModal.HasCondition, true)
+                vm.attrchange(vm.PopupQuickViewVueModal.Id, true)
             } else {
                 var bundleProducts = vm.PopupQuickViewVueModal.ProductBundleModels;
                 if (bundleProducts.length > 0) {
-                    vm.attrchange(vm.PopupQuickViewVueModal.Id, vm.PopupQuickViewVueModal.HasCondition, true)
+                    vm.attrchange(vm.PopupQuickViewVueModal.Id, true)
                 }
             }
             if (vm.PopupQuickViewVueModal.ProductType == 20) {

@@ -43,6 +43,6 @@
     document.addEventListener("DOMContentLoaded", function () {
         Reservation.init("@Model.StartDate.ToString("d", CultureInfo.CreateSpecificCulture("en-US"))", "@Model.StartDate.Year", "@Model.StartDate.Month", "@Loc["Products.Noavailablereservations"]",
             "@(Url.Action("GetDatesForMonth", "Product"))", "@Model.Id",
-            "@Html.Raw(Url.Action("productdetails_attributechange", "product", new { productId = Model.Id, validateAttributeConditions = false }))");
+            "@Html.Raw(Url.Action("productdetails_attributechange", "product", new { productId = Model.Id }))");
     });
 </script>

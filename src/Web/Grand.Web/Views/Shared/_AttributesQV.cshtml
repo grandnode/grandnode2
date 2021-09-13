@@ -13,11 +13,11 @@
 <td :id="'product_attribute_input_' + attribute.Id">
     <template v-if="attribute.AttributeControlType==4">
         <label :for="'product_attribute_' + attribute.Id" class="sr-only">product_attribute_{{attribute.Id}}</label>
-        <input :name="'product_attribute_' + attribute.Id" type="text" class="form-control textbox" :id="'product_attribute_' + attribute.Id" :value="attribute.DefaultValue" @@change="vm.attrchange(attribute.ProductId, attribute.HasCondition, true)" />
+        <input :name="'product_attribute_' + attribute.Id" type="text" class="form-control textbox" :id="'product_attribute_' + attribute.Id" :value="attribute.DefaultValue" @@change="vm.attrchange(attribute.ProductId, true)" />
     </template>
     <template v-if="attribute.AttributeControlType==1">
         <label :for="'product_attribute_' + attribute.Id" class="sr-only">product_attribute_{{attribute.Id}}</label>
-        <select :id="'product_attribute_' + attribute.Id" class="form-control custom-select" :name="'product_attribute_' + attribute.Id" @@change="vm.attrchange(attribute.ProductId, attribute.HasCondition, true)">
+        <select :id="'product_attribute_' + attribute.Id" class="form-control custom-select" :name="'product_attribute_' + attribute.Id" @@change="vm.attrchange(attribute.ProductId, true)">
             <template v-if="attribute.IsRequired==false">
                 <option value="">---</option>
             </template>
@@ -44,7 +44,7 @@
                                :value="attributeValue.Id"
                                :checked="attributeValue.IsPreSelected"
                                :data-disable="attributeValue.Id"
-                               @@change="vm.attrchange(attribute.ProductId, attribute.HasCondition, true)" />
+                               @@change="vm.attrchange(attribute.ProductId, true)" />
                         <span class="custom-control-label"></span>
                         <span class="custom-control-description" :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id">
                             <template v-if="attributeValue.PriceAdjustment==null">
@@ -72,7 +72,7 @@
                                :name="'product_attribute_' + attribute.Id"
                                :value="attributeValue.Id"
                                :checked="attributeValue.IsPreSelected"
-                               @@change="vm.attrchange(attribute.ProductId, attribute.HasCondition, true)"
+                               @@change="vm.attrchange(attribute.ProductId, true)"
                                disabled="disabled" />
                         <input v-else
                                class="custom-control-input"
@@ -82,7 +82,7 @@
                                :value="attributeValue.Id"
                                :checked="attributeValue.IsPreSelected"
                                :data-disable="attributeValue.Id"
-                               @@change="vm.attrchange(attribute.ProductId, attribute.HasCondition, true)" />
+                               @@change="vm.attrchange(attribute.ProductId, true)" />
                         <span class="custom-control-label"></span>
                         <span class="custom-control-description" :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id">
                             <template v-if="attributeValue.PriceAdjustment==null">
@@ -124,7 +124,7 @@
         <ul class="option-list color-squares w-100 d-inline-flex flex-wrap px-0 mb-0" :id="'color-squares-' + attribute.Id">
             <li v-for="attributeValue in attribute.Values" class="mr-1 p-0">
                 <label :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" class="mb-0">
-                    <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'product_attribute_' + attribute.Id" :value="attributeValue.Id" :data-disable="attributeValue.Id" :checked="attributeValue.IsPreSelected" @@change="vm.attrchange(attribute.ProductId, attribute.HasCondition, true)" />
+                    <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'product_attribute_' + attribute.Id" :value="attributeValue.Id" :data-disable="attributeValue.Id" :checked="attributeValue.IsPreSelected" @@change="vm.attrchange(attribute.ProductId, true)" />
                     <template v-if="attributeValue.PriceAdjustment==null">
                         <span class="color-container" :title="attributeValue.Name"> <span class="color" :style="'background-color:' + attributeValue.ColorSquaresRgb"></span> </span>
                     </template>
@@ -140,7 +140,7 @@
             <li v-for="attributeValue in attribute.Values" class="mr-1 p-0">
                 <label :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" class="mb-0">
                     <template v-if="attributeValue.PriceAdjustment==null">
-                        <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'product_attribute_' + attribute.Id" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected" :data-disable="attributeValue.Id" @@change="vm.attrchange(attribute.ProductId, attribute.HasCondition, true)" />
+                        <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'product_attribute_' + attribute.Id" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected" :data-disable="attributeValue.Id" @@change="vm.attrchange(attribute.ProductId, true)" />
                         <span :id="'imgSqr_' + attributeValue.Id" class="color-container">
                             <span class="color" :style="'background: url(' + attributeValue.ImageSquaresPictureModel.ImageUrl + ') 50% 50% no-repeat;'"></span>
                         </span>
@@ -149,7 +149,7 @@
                         </b-tooltip>
                     </template>
                     <template v-else>
-                        <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'product_attribute_' + attribute.Id" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected" :data-disable="attributeValue.Id" @@change="vm.attrchange(attribute.ProductId, attribute.HasCondition, true)" />
+                        <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'product_attribute_' + attribute.Id" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected" :data-disable="attributeValue.Id" @@change="vm.attrchange(attribute.ProductId, true)" />
                         <span class="color-container"> <span class="color" :style="'background: url(' + attributeValue.ImageSquaresPictureModel.ImageUrl + ') 50% 50% no-repeat;'"></span> </span>
                         <b-tooltip :target="'imgSqr_' + attributeValue.Id" placement="bottom">
                             <div class="image-square-tooltip">

@@ -4,7 +4,6 @@
 <div id="product-attributes"></div>
 @{
     //dynamic update support
-    var attributesHaveConditions = Model.Any(x => x.HasCondition);
     var attributesHaveAssociatedPictures = true;
     var attributeChangeScriptsBuilder = new StringBuilder();
     var productId = Model.First().ProductId;
@@ -229,7 +228,7 @@
                     var form = document.getElementById('product-details-form');
                     var data = new FormData(form);
                     axios({
-                        url: '@Html.Raw(Url.Action("productdetails_attributechange", "product", new { productId = productId, validateAttributeConditions = attributesHaveConditions, loadPicture = attributesHaveAssociatedPictures }))',
+                        url: '@Html.Raw(Url.Action("productdetails_attributechange", "product", new { productId = productId, loadPicture = attributesHaveAssociatedPictures }))',
                         data: data,
                         method: 'post',
                         params: { product: '@productId' },
