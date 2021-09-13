@@ -329,10 +329,24 @@
                 }
             }
             if (vm.PopupQuickViewVueModal.ProductType == 20) {
-                var StartDate = this.formatDate(vm.PopupQuickViewVueModal.RentalStartDateUtc);
-                var EndDate = this.formatDate(vm.PopupQuickViewVueModal.RentalEndDateUtc);
-                vm.PopupQuickViewVueModal.RentalStartDateUtc = StartDate;
-                vm.PopupQuickViewVueModal.RentalEndDateUtc = EndDate;
+                var StartDate;
+                var EndDate;
+                if (vm.PopupQuickViewVueModal.RentalStartDateUtc !== null) {
+                    StartDate = this.formatDate(vm.PopupQuickViewVueModal.RentalStartDateUtc);
+                    vm.PopupQuickViewVueModal.RentalStartDateUtc = StartDate;
+                }
+                if (vm.PopupQuickViewVueModal.RentalEndDateUtc !== null) {
+                    EndDate = this.formatDate(vm.PopupQuickViewVueModal.RentalEndDateUtc);
+                    vm.PopupQuickViewVueModal.RentalEndDateUtc = EndDate;
+                }
+                if (vm.PopupQuickViewVueModal.IntervalUnit !== 10) {
+                    StartDate = this.formatDate(vm.PopupQuickViewVueModal.RentalStartDateUtc);
+                    if (vm.PopupQuickViewVueModal.RentalStartDateUtc !== null) {
+                        vm.PopupQuickViewVueModal.StartDate = this.formatDate(vm.PopupQuickViewVueModal.StartDate);
+                    } else {
+                        vm.PopupQuickViewVueModal.StartDate = null;
+                    }
+                }
             }
         }
     },
