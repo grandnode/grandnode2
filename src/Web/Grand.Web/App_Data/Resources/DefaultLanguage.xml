@@ -12087,6 +12087,9 @@
   <Resource Name="Admin.System.Log.ClearLog">
     <Value>Clear log</Value>
   </Resource>
+  <Resource Name="Admin.System.Log.Deleted">
+    <Value>Log was successfully deleted</Value>
+  </Resource>
   <Resource Name="Admin.System.Log.DeleteSelected">
     <Value>Delete selected</Value>
   </Resource>
