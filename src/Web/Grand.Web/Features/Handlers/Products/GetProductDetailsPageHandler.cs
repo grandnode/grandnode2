@@ -327,7 +327,7 @@ namespace Grand.Web.Features.Handlers.Products
 
             #region Product reservations
 
-            await PrepareProductReservation(model, product);
+            await PrepareProductReservation(model, product, updateCartItem);
 
             #endregion Product reservations
 
@@ -1000,51 +1000,60 @@ namespace Grand.Web.Features.Handlers.Products
             return model;
         }
 
-        private async Task PrepareProductReservation(ProductDetailsModel model, Product product)
+        private async Task PrepareProductReservation(ProductDetailsModel model, Product product, ShoppingCartItem updateCartItem)
         {
             if (product.ProductTypeId == ProductType.Reservation)
             {
-                model.AddToCart.IsReservation = true;
-                var reservations = await _productReservationService.GetProductReservationsByProductId(product.Id, true, null);
-                var inCart = _workContext.CurrentCustomer.ShoppingCartItems.Where(x => !string.IsNullOrEmpty(x.ReservationId)).ToList();
-                foreach (var cartItem in inCart)
+                if (updateCartItem == null)
                 {
-                    var matching = reservations.Where(x => x.Id == cartItem.ReservationId);
-                    if (matching.Any())
+                    model.AddToCart.IsReservation = true;
+                    var reservations = await _productReservationService.GetProductReservationsByProductId(product.Id, true, null);
+                    var inCart = _workContext.CurrentCustomer.ShoppingCartItems.Where(x => !string.IsNullOrEmpty(x.ReservationId)).ToList();
+                    foreach (var cartItem in inCart)
                     {
-                        reservations.Remove(matching.First());
+                        var matching = reservations.Where(x => x.Id == cartItem.ReservationId);
+                        if (matching.Any())
+                        {
+                            reservations.Remove(matching.First());
+                        }
+                    }
+
+                    if (reservations.Any())
+                    {
+                        var first = reservations.Where(x => x.Date >= DateTime.UtcNow).OrderBy(x => x.Date).FirstOrDefault();
+                        if (first != null)
+                        {
+                            model.StartDate = first.Date;
+                        }
+                        else
+                        {
+                            model.StartDate = DateTime.UtcNow;
+                        }
+                    }
+
+                    model.IntervalUnit = product.IntervalUnitId;
+                    model.Interval = product.Interval;
+                    model.IncBothDate = product.IncBothDate;
+
+                    var list = reservations.GroupBy(x => x.Parameter).ToList().Select(x => x.Key);
+                    foreach (var item in list)
+                    {
+                        if (!string.IsNullOrEmpty(item))
+                        {
+                            model.Parameters.Add(new SelectListItem { Text = item, Value = item });
+                        }
+                    }
+
+                    if (model.Parameters.Any())
+                    {
+                        model.Parameters.Insert(0, new SelectListItem { Text = "", Value = "" });
                     }
                 }
-
-                if (reservations.Any())
+                else
                 {
-                    var first = reservations.Where(x => x.Date >= DateTime.UtcNow).OrderBy(x => x.Date).FirstOrDefault();
-                    if (first != null)
-                    {
-                        model.StartDate = first.Date;
-                    }
-                    else
-                    {
-                        model.StartDate = DateTime.UtcNow;
-                    }
-                }
-
-                model.IntervalUnit = product.IntervalUnitId;
-                model.Interval = product.Interval;
-                model.IncBothDate = product.IncBothDate;
-
-                var list = reservations.GroupBy(x => x.Parameter).ToList().Select(x => x.Key);
-                foreach (var item in list)
-                {
-                    if (!string.IsNullOrEmpty(item))
-                    {
-                        model.Parameters.Add(new SelectListItem { Text = item, Value = item });
-                    }
-                }
-
-                if (model.Parameters.Any())
-                {
-                    model.Parameters.Insert(0, new SelectListItem { Text = "", Value = "" });
+                    model.RentalStartDateUtc = updateCartItem.RentalStartDateUtc;
+                    model.RentalStartDateUtc = updateCartItem.RentalEndDateUtc;
+                    model.RentalReservationId = updateCartItem.ReservationId;
                 }
             }
         }
