@@ -49,8 +49,8 @@ namespace Grand.Api.Infrastructure
 
             builder.EntitySet<LayoutDto>("CategoryLayout");
             builder.EntitySet<LayoutDto>("CollectionLayout");
-            builder.EntitySet<LayoutDto>("ProductlLayout");
-            builder.EntitySet<LayoutDto>("BrandlLayout");
+            builder.EntitySet<LayoutDto>("ProductLayout");
+            builder.EntitySet<LayoutDto>("BrandLayout");
 
             #endregion
 
