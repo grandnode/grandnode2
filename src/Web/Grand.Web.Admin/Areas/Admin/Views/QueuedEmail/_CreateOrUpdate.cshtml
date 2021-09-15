@@ -168,6 +168,15 @@
                 <label class="control-label">@Model.EmailAccountName</label>
             </div>
         </div>
+        @if (!string.IsNullOrEmpty(Model.ObjectId))
+        {
+            <div class="form-group">
+                <admin-label asp-for="Reference" />
+                <div class="col-md-9 col-sm-9">
+                    <label class="control-label">@Model.Reference - @Model.ObjectId</label>
+                </div>
+            </div>
+        }
     </div>
     <vc:admin-widget widget-zone="queued_email_details_bottom" additional-data="Model" />
 </div>

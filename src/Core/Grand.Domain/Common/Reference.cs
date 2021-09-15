@@ -59,6 +59,18 @@
         /// </summary>
         Widget = 120,
         /// <summary>
+        /// Campaign
+        /// </summary>
+        Campaign = 130,
+        /// <summary>
+        /// Customer reminder
+        /// </summary>
+        CustomerReminder = 140,
+        /// <summary>
+        /// Customer 
+        /// </summary>
+        Customer = 150,
+        /// <summary>
         /// Other 1
         /// </summary>
         Other1 = 901,

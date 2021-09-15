@@ -6,6 +6,7 @@
     //has "Manage Documents" permission?
     var canManageDocuments = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageDocuments);
     var canManageUserFields = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageUserFields);
+    var canManageMessageQueue = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageMessageQueue);
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="Edit" method="post" id="order-form">
    <input type="hidden" asp-for="Id" /> 
@@ -114,6 +115,16 @@
                                                 }
                                                 <partial name="_UserFields" model="Model" view-data="ViewData" />
                                             </div>
+                                        </div>
+                                    </content>
+                                </tabstrip-item>
+                            }
+                            @if (canManageMessageQueue)
+                            {
+                                <tabstrip-item text="@Loc["Admin.Orders.Notifications"]" tab-index="7">
+                                    <content>
+                                        <div>
+                                            <partial name="_OrderDetails.Notifications" model="Model" />
                                         </div>
                                     </content>
                                 </tabstrip-item>

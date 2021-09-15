@@ -33,7 +33,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
         public async Task Execute()
         {
             var maxTries = 3;
-            var queuedEmails = await _queuedEmailService.SearchEmails(null, null, null, null, null, true, true, maxTries, false, 0, 500);
+            var queuedEmails = await _queuedEmailService.SearchEmails(null, null, null, null, null, true, true, maxTries, false, -1, null, 0, 500);
             foreach (var queuedEmail in queuedEmails)
             {
                 var bcc = String.IsNullOrWhiteSpace(queuedEmail.Bcc)

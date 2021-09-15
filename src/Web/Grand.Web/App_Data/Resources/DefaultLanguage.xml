@@ -9304,6 +9304,9 @@
   <Resource Name="Admin.Orders.MerchandiseReturns.View">
     <Value>View</Value>
   </Resource>
+  <Resource Name="Admin.Orders.Notifications">
+    <Value>Notifications</Value>
+  </Resource>
   <Resource Name="Admin.Orders.OrderNotes">
     <Value>Order notes</Value>
   </Resource>
@@ -12264,8 +12267,11 @@
   <Resource Name="Admin.System.QueuedEmails.Fields.ReadOn.notread">
     <Value>Not read</Value>
   </Resource>
-  <Resource Name="Admin.System.QueuedEmails.Fields.ReplyTo">
-    <Value>ReplyTo</Value>
+  <Resource Name="Admin.System.QueuedEmails.Fields.ReadOn.notread">
+    <Value>Not read</Value>
+  </Resource>
+  <Resource Name="Admin.System.QueuedEmails.Fields.Reference">
+    <Value>Reference to the object</Value>
   </Resource>
   <Resource Name="Admin.System.QueuedEmails.Fields.ReplyToName">
     <Value>ReplyTo name</Value>

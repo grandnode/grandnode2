@@ -1141,19 +1141,8 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 }
 
                 //send email notifications
-                int orderPlacedStoreOwnerNotificationQueuedEmailId = await messageProviderService.SendOrderPlacedStoreOwnerMessage(order, customer, languageSettings.DefaultAdminLanguageId);
-                if (orderPlacedStoreOwnerNotificationQueuedEmailId > 0)
-                {
-                    await orderService.InsertOrderNote(new OrderNote
-                    {
-                        Note = "Order placed email (to store owner) has been queued",
-                        DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = order.Id,
-
-                    });
-                }
-
+                await messageProviderService.SendOrderPlacedStoreOwnerMessage(order, customer, languageSettings.DefaultAdminLanguageId);
+                
                 string orderPlacedAttachmentFilePath = string.Empty, orderPlacedAttachmentFileName = string.Empty;
                 var orderPlacedAttachments = new List<string>();
 
@@ -1171,36 +1160,15 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     _logger.Error($"Error - order placed attachment file {order.OrderNumber}", ex);
                 }
 
-                int orderPlacedCustomerNotificationQueuedEmailId = await messageProviderService
+                await messageProviderService
                     .SendOrderPlacedCustomerMessage(order, customer, order.CustomerLanguageId, orderPlacedAttachmentFilePath, orderPlacedAttachmentFileName, orderPlacedAttachments);
 
-                if (orderPlacedCustomerNotificationQueuedEmailId > 0)
-                {
-                    await orderService.InsertOrderNote(new OrderNote
-                    {
-                        Note = "Order placed email (to customer) has been queued",
-                        DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = order.Id,
-
-                    });
-                }
                 if (order.OrderItems.Any(x => !string.IsNullOrEmpty(x.VendorId)))
                 {
                     var vendors = await mediator.Send(new GetVendorsInOrderQuery() { Order = order });
                     foreach (var vendor in vendors)
                     {
-                        int orderPlacedVendorNotificationQueuedEmailId = await messageProviderService.SendOrderPlacedVendorMessage(order, customer, vendor, languageSettings.DefaultAdminLanguageId);
-                        if (orderPlacedVendorNotificationQueuedEmailId > 0)
-                        {
-                            await orderService.InsertOrderNote(new OrderNote
-                            {
-                                Note = "Order placed email (to vendor) has been queued",
-                                DisplayToCustomer = false,
-                                CreatedOnUtc = DateTime.UtcNow,
-                                OrderId = order.Id,
-                            });
-                        }
+                        await messageProviderService.SendOrderPlacedVendorMessage(order, customer, vendor, languageSettings.DefaultAdminLanguageId);                        
                     }
                 }
             }

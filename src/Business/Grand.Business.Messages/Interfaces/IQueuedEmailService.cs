@@ -56,14 +56,18 @@ namespace Grand.Business.Messages.Interfaces
         /// <param name="createdToUtc">Created date to (UTC); null to load all records</param>
         /// <param name="loadNotSentItemsOnly">A value indicating whether to load only not sent emails</param>
         /// <param name="maxSendTries">Maximum send tries</param>
+        /// <param name="loadOnlyItemsToBeSent">Load only items to be sent</param>
         /// <param name="loadNewest">A value indicating whether we should sort queued email descending; otherwise, ascending.</param>
+        /// <param name="referenceId">Reference object</param>
+        /// <param name="objectId">Object reference id</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Queued emails</returns>
         Task<IPagedList<QueuedEmail>> SearchEmails(string fromEmail,
             string toEmail, string text, DateTime? createdFromUtc, DateTime? createdToUtc, 
             bool loadNotSentItemsOnly, bool loadOnlyItemsToBeSent, int maxSendTries,
-            bool loadNewest, int pageIndex = 0, int pageSize = int.MaxValue);
+            bool loadNewest, int referenceId = -1, string objectId = "",
+            int pageIndex = 0, int pageSize = int.MaxValue);
 
         /// <summary>
         /// Delete all queued emails

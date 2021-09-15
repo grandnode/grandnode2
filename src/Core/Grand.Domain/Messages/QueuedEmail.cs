@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Grand.Domain.Common;
+using System;
 using System.Collections.Generic;
 
 namespace Grand.Domain.Messages
@@ -112,6 +113,14 @@ namespace Grand.Domain.Messages
         /// </summary>
         public string EmailAccountId { get; set; }
 
+        /// <summary>
+        /// Gets or sets an reference identifier
+        /// </summary>
+        public Reference Reference { get; set; }
 
+        /// <summary>
+        /// Gets or sets an object reference identifier
+        /// </summary>
+        public string ObjectId { get; set; }
     }
 }
