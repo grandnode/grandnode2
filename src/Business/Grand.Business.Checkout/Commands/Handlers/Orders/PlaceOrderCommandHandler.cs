@@ -433,7 +433,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             var customerCurrency = (currencyTmp != null && currencyTmp.Published) ? currencyTmp : _workContext.WorkingCurrency;
             details.Currency = customerCurrency;
             var primaryStoreCurrency = await _currencyService.GetPrimaryStoreCurrency();
-            details.CurrencyRate = customerCurrency.Rate / primaryStoreCurrency.Rate;
+            details.CurrencyRate = Math.Round(customerCurrency.Rate / primaryStoreCurrency.Rate, 6);
             details.PrimaryCurrencyCode = primaryStoreCurrency.CurrencyCode;
 
             //customer language
