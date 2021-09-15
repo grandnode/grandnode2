@@ -31,7 +31,7 @@
                                 <admin-label asp-for="AmountToPaid" />
                                 <div class="col-md-9 col-sm-9">
                                     <admin-input asp-for="AmountToPaid" /> &nbsp; <span style="white-space: nowrap">
-                                        @string.Format(Loc["Admin.PaymentTransaction.Fields.PartialPaid.AmountToPaid.Max"], Model.MaxAmountToPaid.ToString("G29"), Model.CurrencyCode)
+                                        @string.Format(Loc["Admin.PaymentTransaction.Fields.PartialPaid.AmountToPaid.Max"], Model.MaxAmountToPaid.ToString("N2"), Model.CurrencyCode)
                                     </span>
                                 </div>
                             </div>
