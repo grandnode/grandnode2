@@ -1195,6 +1195,7 @@ namespace Grand.Web.Admin.Controllers
             model.DefaultGridPageSize = adminsettings.DefaultGridPageSize;
             model.GridPageSizes = adminsettings.GridPageSizes;
             model.UseIsoDateTimeConverterInJson = adminsettings.UseIsoDateTimeConverterInJson;
+            model.HideStoreColumn = adminsettings.HideStoreColumn;
 
             //language settings 
             var langsettings = _settingService.LoadSetting<LanguageSettings>();
@@ -1231,6 +1232,7 @@ namespace Grand.Web.Admin.Controllers
             adminAreaSettings.DefaultGridPageSize = model.DefaultGridPageSize;
             adminAreaSettings.GridPageSizes = model.GridPageSizes;
             adminAreaSettings.UseIsoDateTimeConverterInJson = model.UseIsoDateTimeConverterInJson;
+            adminAreaSettings.HideStoreColumn = model.HideStoreColumn;
 
             await _settingService.SaveSetting(adminAreaSettings);
 

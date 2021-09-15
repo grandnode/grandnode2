@@ -17,5 +17,10 @@ namespace Grand.Domain.Common
         /// </summary>
         public bool UseIsoDateTimeConverterInJson { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to hide column Store in a grid list
+        /// </summary>
+        public bool HideStoreColumn { get; set; }
+
     }
 }

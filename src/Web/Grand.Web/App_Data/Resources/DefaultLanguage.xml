@@ -11862,6 +11862,9 @@
   <Resource Name="Admin.Settings.System.GridPageSizes">
     <Value>Grid Page Sizes</Value>
   </Resource>
+  <Resource Name="Admin.Settings.System.HideStoreColumn">
+    <Value>Hide column The Store on the grid</Value>
+  </Resource>
   <Resource Name="Admin.Settings.System.IgnoreRtlPropertyForAdminArea">
     <Value>Ignore RTL language property for admin area</Value>
   </Resource>

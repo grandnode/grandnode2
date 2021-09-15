@@ -1,4 +1,5 @@
 ﻿@model bool
+@inject AdminAreaSettings adminAreaSettings
 
 <div id="latest-orders-grid"></div>
 
@@ -65,13 +66,18 @@
                             </text>
                         }
                     },
+                    @if (!adminAreaSettings.HideStoreColumn)
                     {
-                        field: "StoreName",
-                        title: "@Loc["Admin.Orders.Fields.Store"]",
-                        width: 200,
-                        headerAttributes: { style: "text-align:center" },
-                        attributes: { style: "text-align:center" },
-                    },
+                        <text>
+                        {
+                            field: "StoreName",
+                            title: "@Loc["Admin.Orders.Fields.Store"]",
+                            width: 200,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                        },
+                        </text>
+                    }
                     {
                         field: "PaymentStatus",
                         title: "@Loc["Admin.Orders.Fields.PaymentStatus"]",

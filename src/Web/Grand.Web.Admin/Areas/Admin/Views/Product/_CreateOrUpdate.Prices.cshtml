@@ -1,4 +1,5 @@
 ﻿@model ProductModel
+@inject AdminAreaSettings adminAreaSettings
 <vc:admin-widget widget-zone="product_details_prices_top" additional-data="Model" />
 <div class="form-horizontal portlet bg-inverse form-fit" id="group-prices">
     <div class="form-body">
@@ -45,7 +46,7 @@
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
                     <admin-input asp-for="DisableBuyButton" />
-                     <div class="control__indicator"></div>
+                    <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="DisableBuyButton"></span>
             </div>
@@ -55,7 +56,7 @@
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
                     <admin-input asp-for="DisableWishlistButton" />
-                     <div class="control__indicator"></div>
+                    <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="DisableWishlistButton"></span>
             </div>
@@ -65,7 +66,7 @@
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
                     <admin-input asp-for="AvailableForPreOrder" />
-                     <div class="control__indicator"></div>
+                    <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="AvailableForPreOrder"></span>
             </div>
@@ -82,7 +83,7 @@
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
                     <admin-input asp-for="CallForPrice" />
-                     <div class="control__indicator"></div>
+                    <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="CallForPrice"></span>
             </div>
@@ -92,7 +93,7 @@
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
                     <admin-input asp-for="EnteredPrice" />
-                     <div class="control__indicator"></div>
+                    <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="EnteredPrice"></span>
             </div>
@@ -116,7 +117,7 @@
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
                     <admin-input asp-for="BasepriceEnabled" />
-                     <div class="control__indicator"></div>
+                    <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="BasepriceEnabled"></span>
             </div>
@@ -154,7 +155,7 @@
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
                     <admin-input asp-for="IsTaxExempt" />
-                     <div class="control__indicator"></div>
+                    <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="IsTaxExempt"></span>
             </div>
@@ -253,11 +254,17 @@
                     mode: "inline"
                 },
                 scrollable: false,
-                columns: [{
-                    field: "StoreId",
-                    title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.Store"]",
-                    template: "#:Store#"
-                },
+                columns: [
+                @if (!adminAreaSettings.HideStoreColumn)
+                {
+                    <text>
+                    {
+                        field: "StoreId",
+                        title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.Store"]",
+                        template: "#:Store#"
+                    },
+                    </text>
+                }
                 {
                     field: "CustomerGroupId",
                     title: "@Loc["Admin.Catalog.Products.TierPrices.Fields.CustomerGroup"]",
@@ -318,10 +325,10 @@ else
                 {
                     <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
                         <input type="checkbox" name="SelectedDiscountIds" value="@discount.Id"
-                               @if (Model.SelectedDiscountIds != null && Model.SelectedDiscountIds.Contains(discount.Id)) { <text> checked="checked" </text>     } />@discount.Name
-                             <div class="control__indicator"></div>
+                               @if (Model.SelectedDiscountIds != null && Model.SelectedDiscountIds.Contains(discount.Id)) { <text> checked="checked" </text> } />@discount.Name
+                            <div class="control__indicator"></div>
                         </label>
-                }
+                    }
             </div>
         </div>
     </div>
@@ -332,4 +339,4 @@ else
         @Html.Raw(@Loc["Admin.Catalog.Collections.Discounts.NoDiscounts"])
     </div>
 }
-    <vc:admin-widget widget-zone="product_details_prices_bottom" additional-data="Model" />
+<vc:admin-widget widget-zone="product_details_prices_bottom" additional-data="Model" />
