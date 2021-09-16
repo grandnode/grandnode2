@@ -67,11 +67,20 @@ function tabstrip_on_tab_select(e) {
 }
 
 
-function tabstrip_on_tab_show(e) {
-    $('.k-state-active').find('[data-role="grid"]').each(function (x) {
-        var grid = $(this).data('kendoGrid');
-        grid.dataSource.page(1);
-    });
+function tabstrip_on_tab_show(e, load) {
+    var element = '.k-state-active';
+    if (load === undefined) {
+        $(e.contentElement).find('[data-role="grid"]').each(function (x) {
+            var grid = $(this).data('kendoGrid');
+            grid.dataSource.page(1);
+        });
+    }
+    else {
+        $(element).find('[data-role="grid"]').each(function (x) {
+            var grid = $(this).data('kendoGrid');
+            grid.dataSource.page(1);
+        });
+    }
 
 }
 

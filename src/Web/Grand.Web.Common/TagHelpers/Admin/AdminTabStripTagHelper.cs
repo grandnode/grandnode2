@@ -79,7 +79,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
             {
                 sb.AppendLine("$(window).load(function() {");
                 sb.AppendLine($"  var selectedtab_{rnd} = $('#{Name}').data('kendoTabStrip').select(); ");
-                sb.AppendLine($"  tabstrip_on_tab_show(selectedtab_{rnd}); ");
+                sb.AppendLine($"  tabstrip_on_tab_show(selectedtab_{rnd}, true); ");
                 sb.AppendLine("});");
             }
 
