@@ -27,6 +27,9 @@ namespace Grand.Web.Common.TagHelpers.Admin
         [HtmlAttributeName("SetTabPos")]
         public bool SetTabPos { get; set; } = false;
 
+        [HtmlAttributeName("BindGrid")]
+        public bool BindGrid { get; set; } = false;
+
         [HtmlAttributeName("Name")]
         public string Name { get; set; }
 
@@ -50,9 +53,11 @@ namespace Grand.Web.Common.TagHelpers.Admin
             sb.AppendLine("$(document).ready(function () {");
             sb.AppendLine($"$('#{Name}').show();");
             sb.AppendLine($"var tab_{rnd} = $('#{Name}').kendoTabStrip({{ ");
-            sb.AppendLine($"     tabPosition: '{(SetTabPos ? "left" : "top")}',");
-            sb.AppendLine($"     animation: {{ open: {{ effects: 'fadeIn'}} }},");
-            sb.AppendLine("     select: tabstrip_on_tab_select");
+            sb.AppendLine($"    tabPosition: '{(SetTabPos ? "left" : "top")}',");
+            sb.AppendLine($"    animation: {{ open: {{ effects: 'fadeIn'}} }},");
+            sb.AppendLine("     select: tabstrip_on_tab_select,");
+            if(BindGrid)
+                sb.AppendLine("     show: tabstrip_on_tab_show");
             sb.AppendLine("  }).data('kendoTabStrip');");
 
             var eventMessage = new AdminTabStripCreated(Name);
