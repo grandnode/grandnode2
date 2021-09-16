@@ -44,6 +44,8 @@ namespace Grand.Web.Common.TagHelpers.Admin
             if (_detectionService.Device.Type == Device.Mobile || _detectionService.Device.Type == Device.Tablet)
                 SetTabPos = false;
 
+            var selectedTabIndex = GetSelectedTabIndex();
+
             output.TagName = "div";
             output.Attributes.SetAttribute("id", Name);
             output.Attributes.SetAttribute("style", "display:none");
@@ -56,7 +58,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
             sb.AppendLine($"    tabPosition: '{(SetTabPos ? "left" : "top")}',");
             sb.AppendLine($"    animation: {{ open: {{ effects: 'fadeIn'}} }},");
             sb.AppendLine("     select: tabstrip_on_tab_select,");
-            if(BindGrid)
+            if (BindGrid)
                 sb.AppendLine("     show: tabstrip_on_tab_show");
             sb.AppendLine("  }).data('kendoTabStrip');");
 
@@ -72,10 +74,21 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 sb.AppendLine("});");
             }
 
+
+            if (BindGrid && selectedTabIndex > 0)
+            {
+                sb.AppendLine("$(window).load(function() {");
+                sb.AppendLine($"  var selectedtab_{rnd} = $('#{Name}').data('kendoTabStrip').select(); ");
+                sb.AppendLine($"  tabstrip_on_tab_show(selectedtab_{rnd}); ");
+                sb.AppendLine("});");
+            }
+
             sb.AppendLine("})");
 
+            
+
             sb.AppendLine("</script>");
-            sb.AppendLine($"<input type='hidden' id='selected-tab-index' name='selected-tab-index' value='{GetSelectedTabIndex()}'>");
+            sb.AppendLine($"<input type='hidden' id='selected-tab-index' name='selected-tab-index' value='{selectedTabIndex}'>");
 
 
             output.PostContent.AppendHtml(string.Concat(list));
@@ -84,8 +97,6 @@ namespace Grand.Web.Common.TagHelpers.Admin
 
         private int GetSelectedTabIndex()
         {
-            //keep this method synchornized with
-            //"SetSelectedTabIndex" method of \Administration\Controllers\BaseGrandController.cs
             int index = 0;
             string dataKey = "Grand.selected-tab-index";
             if (ViewContext.ViewData[dataKey] is int)

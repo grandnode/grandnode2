@@ -72,6 +72,7 @@ function tabstrip_on_tab_show(e) {
         var grid = $(this).data('kendoGrid');
         grid.dataSource.page(1);
     });
+
 }
 
 
