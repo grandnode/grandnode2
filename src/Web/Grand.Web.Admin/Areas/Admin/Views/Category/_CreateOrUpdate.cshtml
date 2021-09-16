@@ -7,7 +7,7 @@
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />
 
-<admin-tabstrip name="category-edit">
+<admin-tabstrip name="category-edit" BindGrid="true">
     <items>
         <tabstrip-item text="@Loc["Admin.Catalog.Categories.Info"]" tab-index="0">
             <content>
