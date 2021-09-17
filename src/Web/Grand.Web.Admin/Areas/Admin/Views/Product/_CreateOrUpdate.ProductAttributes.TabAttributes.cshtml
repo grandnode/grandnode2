@@ -78,6 +78,17 @@
                     serverSorting: true
                 },
                 autoBind: false,
+                //values grid
+                detailInit: detailInit,
+                dataBound: function () {
+                    var data = this.dataSource.data();
+                    $.each(data, function (i, row) {
+                        if (row.get("AttributeControlTypeId") == "4" || row.get("AttributeControlTypeId") == "10"
+                            || row.get("AttributeControlTypeId") == "30") {
+                            $('tr[data-uid="' + row.uid + '"] ').find(".k-hierarchy-cell a").remove();;
+                        }
+                    });
+                },
                 pageable: {
                     refresh: true,
                     numeric: false,
@@ -114,12 +125,6 @@
                         template: "#:AttributeControlType# <br> # if(ValidationRulesAllowed) {# <a href='javascript:OpenWindow(\"@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form\", 800, 300, true);'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.ViewLink"]</a><br />#=ValidationRulesString# #}  #"
                     },
                     {
-                        field: "ShouldHaveValues",
-                        title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values"]",
-                        width: 60,
-                        template: '# if(ShouldHaveValues) {# <a href="@Url.Action("EditAttributeValues", "Product", new { area = Constants.AreaAdmin })/?productAttributeMappingId=#=Id#&productId=@(Model.Id)">@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.ViewLink"]</a><br />@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.TotalValues"] #=TotalValues# #}  #'
-                    },
-                    {
                         field: "ConditionAllowed",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Condition"]",
                         width: 80,
@@ -138,18 +143,101 @@
             });
         });
 
+    //details grid
+    function toolbar_click_newProductAttributeValue(id) {
+        javascript: OpenWindow('@Url.Action("ProductAttributeValueCreatePopup", "Product", new { area = Constants.AreaAdmin })/' + '?productAttributeMappingId=' + id + '&productId=@Model.Id&formId=product-form&btnId=btnRefreshProductAttributesValues', 800, 550, true);
+        return false;
+    }
+    function toolbar_click_editProductAttributeValue(id, pam) {
+        javascript: OpenWindow('@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = Constants.AreaAdmin })/' + id + '?productId=@(Model.Id)&productAttributeMappingId=' + pam + '&btnId=btnRefreshProductAttributesValues&formId=product-form', 800, 500, true);
+        return false;
+    }
+    function detailInit(e) {
+            $("<div data-name='productattributevalue' data-id='" + e.data.id+"' />").appendTo(e.detailCell).kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("ProductAttributeValueList", "Product", new { area = Constants.AreaAdmin }))?productAttributeMappingId=" + e.data.Id + "&productId=@Model.Id",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("ProductAttributeValueDelete", "Product", new {area = Constants.AreaAdmin }))?pam=" + e.data.Id + "&productId=@Model.Id",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                toolbar: [
+                    {
+                        template: "<a class='k-button' href='\\#' onclick=\"return toolbar_click_newProductAttributeValue('"+e.data.Id+"')\">@Loc["Admin.Common.AddNew"]</a>"
+                    }
+                ],
+                scrollable: false,
+                sortable: false,
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: true,
+                    mode: "inline"
+                },
+                columns: [
+                    {
+                        field: "Name",
+                        title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Name"]",
+                        template: "<a class='k-link' href='\\#' onclick=\"toolbar_click_editProductAttributeValue('#=Id#', '" + e.data.Id + "')\">#=Name#</a>"
+                    }, {
+                        command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                        title: "@Loc["Admin.Common.Delete"]"
+                    }
+                ]
+            });
+        }
 
 </script>
 <input type="submit" id="btnRefreshProductAttributes" style="display: none" />
+<input type="button" id="btnRefreshProductAttributesValues" style="display: none" />
 <script>
-        $(document).ready(function () {
-            $('#btnRefreshProductAttributes').click(function () {
-                //refresh grid
-                var grid = $("#productattributemappings-grid").data('kendoGrid');
-                grid.dataSource.read();
+    $(document).ready(function () {
+        $('#btnRefreshProductAttributes').click(function () {
+            //refresh grid
+            var grid = $("#productattributemappings-grid").data('kendoGrid');
+            grid.dataSource.read();
 
-                //return false to don't reload a page
-                return false;
-            });
+            //return false to don't reload a page
+            return false;
         });
+        $('#btnRefreshProductAttributesValues').click(function (e) {
+            //refresh grid value
+            var dataid = $(this).attr("data-id");
+            var grid = $('[data-id="' + dataid + '"]').data('kendoGrid');
+            grid.dataSource.read();
+
+            //return false to don't reload a page
+            return false;
+        });
+    });
+
 </script>
