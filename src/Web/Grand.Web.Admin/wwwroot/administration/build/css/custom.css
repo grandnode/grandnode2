@@ -6738,7 +6738,7 @@ form>h4 {
     background-color: #e6e6e6 !important;
     border-bottom: 2px solid #1ABB9C;
 }
-.k-tabstrip-items-wrapper, .k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-hstack, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-textbox {
+.k-tabstrip-items-wrapper, .k-autocomplete, .k-tabstrip-items-wrapper, .k-hstack, .k-draghandle, .k-dropdown-wrap, .k-hstack, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-textbox {
     background-color: #f5f5f5;
 }
 .k-tabstrip-items .k-item .k-link {
@@ -7066,13 +7066,13 @@ table.tableFixHead {
     border: 1px solid #666;
     border-top: 0;
 }
-[data-theme="dark"] .k-autocomplete, [data-theme="dark"] .tableFixHead thead th, [data-theme="dark"] .k-draghandle, [data-theme="dark"] .k-dropdown-wrap, [data-theme="dark"] .k-header, [data-theme="dark"] .k-grid-header .k-header, [data-theme="dark"] .k-numeric-wrap, [data-theme="dark"] .k-panelbar .k-tabstrip-items .k-item, [data-theme="dark"] .k-picker-wrap, .k-progressbar, [data-theme="dark"] .k-state-highlight, [data-theme="dark"] .k-tabstrip-items .k-item, [data-theme="dark"] .k-textbox {
+[data-theme="dark"] .k-autocomplete, [data-theme="dark"] .k-tabstrip-items-wrapper, [data-theme="dark"] .k-hstack , [data-theme="dark"] .tableFixHead thead th, [data-theme="dark"] .k-draghandle, [data-theme="dark"] .k-dropdown-wrap, [data-theme="dark"] .k-header, [data-theme="dark"] .k-grid-header .k-header, [data-theme="dark"] .k-numeric-wrap, [data-theme="dark"] .k-panelbar .k-tabstrip-items .k-item, [data-theme="dark"] .k-picker-wrap, .k-progressbar, [data-theme="dark"] .k-state-highlight, [data-theme="dark"] .k-tabstrip-items .k-item, [data-theme="dark"] .k-textbox {
     background-color: #616F7D;
 }
 [data-theme="dark"] .k-tabstrip-items .k-item .k-link {
     color: #f9f9f9;
 }
-[data-theme="dark"] .k-panelbar .k-tabstrip-items .k-state-active, [data-theme="dark"] .k-tabstrip-items .k-state-active {
+[data-theme="dark"] .k-panelbar .k-tabstrip-items .k-state-active, [data-theme="dark"] .k-tabstrip-items .k-state-active, .k-tabstrip-items .k-state-active, .k-tabstrip-top > .k-tabstrip-items-wrapper .k-item.k-state-active {
     background-color: #1D2E40 !important;
 }
 [data-theme="dark"] .k-tabstrip-items .k-item.k-state-hover {
