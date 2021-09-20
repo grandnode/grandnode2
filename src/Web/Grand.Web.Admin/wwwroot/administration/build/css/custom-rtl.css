@@ -1224,10 +1224,16 @@ table.dataTable td.focus {
   outline-offset: -1px;
 }
 
-.k-tabstrip-left > .k-tabstrip-items .k-state-active, .k-tabstrip-left > .k-tabstrip-items .k-tab-on-top {
+.k-tabstrip-left > .k-tabstrip-items .k-state-active, .k-tabstrip-left > .k-tabstrip-items-wrapper .k-item.k-state-active,  .k-tabstrip-left > .k-tabstrip-items .k-tab-on-top {
     margin-right: -5px;
     border-right-color: #1ABB9C;
     border-right-width: 5px;
+    border-bottom: 0;
+}
+
+.k-tabstrip-items .k-item .k-link {
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 table.display {
@@ -4654,6 +4660,18 @@ textarea:focus {
   background-position: 0 -135px;
   color: #00aeef;
 }
+.panel-default > .panel-heading {
+    font-weight: 500;
+}
+.k-button {
+    border-radius: 2px;
+    border-color: #f5f5f5;
+    color: #444;
+    background-color: #f5f5f5;
+    background-position: 50% 50%;
+    box-shadow: none;
+    font-weight: 500;
+}
 
 header {
   width: 100%;
@@ -4968,7 +4986,7 @@ fieldset {
 .k-window-title {
     color: #000;
 }
-.modal-dialog.k-window-content.k-content {
+.modal-dialog.k-window-content {
     max-width: unset;
     margin: 8px;
     pointer-events: all;
@@ -5192,7 +5210,7 @@ fieldset {
 .k-tabstrip-items .k-item .k-link {
     color: #34495E;
 }
-.k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-textbox {
+.k-tabstrip-items-wrapper, .k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-header, .k-window-titlebar, k-hstack, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-textbox {
     background-color: #f5f5f5;
 }
 .k-panelbar .k-tabstrip-items .k-state-active, .k-tabstrip-items .k-state-active {
@@ -6655,7 +6673,7 @@ h2 {
   overflow: scroll;
 }
 @media screen and (min-width: 768px) {
-    .modal-dialog.k-window-content.k-content {
+    .modal-dialog.k-window-content {
         width: 600px;
         margin: 30px auto;
     }
