@@ -1,11 +1,11 @@
 ﻿@using Grand.Domain.Catalog
 @model ProductModel.ProductAttributeMappingModel
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.Details"];
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductAttributeMappingPopup" enctype="multipart/form-data" method="post"
+<form id="ProductAttributeMappingPopup" asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductAttributeMappingPopup" enctype="multipart/form-data" method="post"
       asp-route-ProductId="@Context.Request.Query["ProductId"]"
       asp-route-productAttributeMappingId="@Context.Request.Query["ProductAttributeMappingId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
@@ -111,6 +111,7 @@
     @if (ViewBag.RefreshPage == true)
     {
         <script>
+            alert('test');
             try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
             catch (e){}
             window.close();

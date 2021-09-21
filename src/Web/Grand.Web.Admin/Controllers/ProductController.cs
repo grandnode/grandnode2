@@ -649,15 +649,15 @@ namespace Grand.Web.Admin.Controllers
 
                 //a vendor should have access only to his products
                 model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
-                ViewBag.RefreshPage = true;
+                return Content("");
             }
             else
             {
                 Error(ModelState);
                 model = await _productViewModelService.PrepareRelatedProductModel();
                 model.ProductId = model.ProductId;
+                return View(model);
             }
-            return View(model);
         }
 
         #endregion
@@ -1968,8 +1968,7 @@ namespace Grand.Web.Admin.Controllers
                 else
                     await _productViewModelService.UpdateProductAttributeMappingModel(model);
 
-                ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
             Error(ModelState);
             model = await _productViewModelService.PrepareProductAttributeMappingModel(model);
