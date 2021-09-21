@@ -121,13 +121,14 @@ namespace Grand.Web.Admin.Services
         {
             var store = model.ToEntity();
             //ensure we have "/" at the end
-            if (!store.Url.EndsWith("/"))
-                store.Url += "/";
+            if (!store.Url.Trim().EndsWith("/"))
+                store.Url = store.Url.Trim() + "/";
 
-            if (!string.IsNullOrEmpty(store.SecureUrl) && !store.SecureUrl.EndsWith("/"))
-                store.SecureUrl += "/";
+            if (!string.IsNullOrEmpty(store.SecureUrl) && !store.SecureUrl.Trim().EndsWith("/"))
+                store.SecureUrl = store.SecureUrl.Trim() + "/";
 
             var storeUri = new Uri(store.Url);
+
             store.Domains.Add(new DomainHost() {
                 HostName = storeUri.Host,
                 Url = store.SslEnabled ? store.SecureUrl : store.Url,
@@ -142,10 +143,10 @@ namespace Grand.Web.Admin.Services
             store = model.ToEntity(store);
 
             //ensure we have "/" at the end
-            if (!store.Url.EndsWith("/"))
-                store.Url += "/";
-            if (!string.IsNullOrEmpty(store.SecureUrl) && !store.SecureUrl.EndsWith("/"))
-                store.SecureUrl += "/";
+            if (!store.Url.Trim().EndsWith("/"))
+                store.Url = store.Url.Trim() + "/";
+            if (!string.IsNullOrEmpty(store.SecureUrl) && !store.SecureUrl.Trim().EndsWith("/"))
+                store.SecureUrl = store.SecureUrl.Trim() + "/";
 
             var domain = store.Domains.FirstOrDefault(x => x.Primary);
             if (domain == null)
