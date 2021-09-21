@@ -4750,6 +4750,29 @@ div[data-role="editor-toolbar"] {
   border: 1px solid #ccc;
 }
 
+/* magnific popup */
+
+.mfp-bg {
+    z-index: 10000 !important;
+}
+.mfp-wrap {
+    z-index: 10001 !important;
+}
+.mfp-container {
+    padding: 8px;
+}
+.mfp-content {
+    max-width: 800px;
+    padding: 15px;
+    background-color: #fff;
+}
+.nav-sm .mfp-content .container.body .right_col {
+    margin: 0;
+}
+.mfp-content .x_title .caption, .mfp-content .x_panel {
+    padding: 0;
+}
+
 /* store news */
 
 .store-news {
