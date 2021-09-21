@@ -1,9 +1,9 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 
-namespace Grand.Web.Admin.Models.PushNotifications
+namespace Grand.Web.Admin.Models.Settings
 {
-    public class ConfigurationModel : BaseModel
+    public class PushNotificationsSettingsModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Settings.PushNotifications.NotificationsEnabled")]
         public bool Enabled { get; set; }

@@ -1001,39 +1001,19 @@ namespace Grand.Web.Admin.Controllers
         {
             var storeScope = await GetActiveStore();
             var settings = _settingService.LoadSetting<PushNotificationsSettings>(storeScope);
-
-            var model = new ConfigurationModel {
-                AllowGuestNotifications = settings.AllowGuestNotifications,
-                AuthDomain = settings.AuthDomain,
-                DatabaseUrl = settings.DatabaseUrl,
-                ProjectId = settings.ProjectId,
-                PushApiKey = settings.PublicApiKey,
-                SenderId = settings.SenderId,
-                StorageBucket = settings.StorageBucket,
-                PrivateApiKey = settings.PrivateApiKey,
-                AppId = settings.AppId,
-                Enabled = settings.Enabled
-            };
+            var model = settings.ToModel();            
 
             return View(model);
         }
 
         [HttpPost]
         [IgnoreAntiforgeryToken]
-        public async Task<IActionResult> PushNotifications(ConfigurationModel model)
+        public async Task<IActionResult> PushNotifications(PushNotificationsSettingsModel model)
         {
             var storeScope = await GetActiveStore();
             var settings = _settingService.LoadSetting<PushNotificationsSettings>(storeScope);
-            settings.AllowGuestNotifications = model.AllowGuestNotifications;
-            settings.AuthDomain = model.AuthDomain;
-            settings.DatabaseUrl = model.DatabaseUrl;
-            settings.ProjectId = model.ProjectId;
-            settings.PublicApiKey = model.PushApiKey;
-            settings.SenderId = model.SenderId;
-            settings.StorageBucket = model.StorageBucket;
-            settings.PrivateApiKey = model.PrivateApiKey;
-            settings.AppId = model.AppId;
-            settings.Enabled = model.Enabled;
+            settings = model.ToEntity(settings);
+
             await _settingService.SaveSetting(settings);
 
             //now clear cache
@@ -1046,7 +1026,7 @@ namespace Grand.Web.Admin.Controllers
             return await PushNotifications();
         }
 
-        private void SavePushNotificationsToFile(ConfigurationModel model)
+        private void SavePushNotificationsToFile(PushNotificationsSettingsModel model)
         {
             //edit js file needed by firebase
             var filename = "firebase-messaging-sw.js";
