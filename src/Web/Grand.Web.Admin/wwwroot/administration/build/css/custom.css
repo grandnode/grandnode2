@@ -7072,7 +7072,7 @@ table.tableFixHead {
 [data-theme="dark"] .k-tabstrip-items .k-item .k-link {
     color: #f9f9f9;
 }
-[data-theme="dark"] .k-panelbar .k-tabstrip-items .k-state-active, [data-theme="dark"] .k-tabstrip-items .k-state-active, .k-tabstrip-items .k-state-active, .k-tabstrip-top > .k-tabstrip-items-wrapper .k-item.k-state-active {
+[data-theme="dark"] .k-panelbar .k-tabstrip-items .k-state-active, [data-theme="dark"] .k-tabstrip-items .k-state-active, [data-theme="dark"] .k-tabstrip-items .k-state-active, [data-theme="dark"] .k-tabstrip-top > .k-tabstrip-items-wrapper .k-item.k-state-active {
     background-color: #1D2E40 !important;
 }
 [data-theme="dark"] .k-tabstrip-items .k-item.k-state-hover {
