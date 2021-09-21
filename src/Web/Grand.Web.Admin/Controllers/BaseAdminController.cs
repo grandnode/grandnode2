@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -61,8 +62,11 @@ namespace Grand.Web.Admin.Controllers
         /// <param name="storeService">Store service</param>
         /// <param name="workContext">Work context</param>
         /// <returns>Store ID; 0 if we are in a shared mode</returns>
-        protected virtual async Task<string> GetActiveStore(IStoreService storeService, IWorkContext workContext)
+        protected virtual async Task<string> GetActiveStore()
         {
+            var storeService = HttpContext.RequestServices.GetRequiredService<IStoreService>();
+            var workContext = HttpContext.RequestServices.GetRequiredService<IWorkContext>();
+
             var stores = await storeService.GetAllStores();
             if (stores.Count < 2)
                 return stores.FirstOrDefault().Id;
