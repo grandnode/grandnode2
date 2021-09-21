@@ -1224,10 +1224,16 @@ table.dataTable td.focus {
   outline-offset: -1px;
 }
 
-.k-tabstrip-left > .k-tabstrip-items .k-state-active, .k-tabstrip-left > .k-tabstrip-items .k-tab-on-top {
+.k-tabstrip-left > .k-tabstrip-items .k-state-active, .k-tabstrip-left > .k-tabstrip-items-wrapper .k-item.k-state-active,  .k-tabstrip-left > .k-tabstrip-items .k-tab-on-top {
     margin-right: -5px;
     border-right-color: #1ABB9C;
     border-right-width: 5px;
+    border-bottom: 0;
+}
+
+.k-tabstrip-items .k-item .k-link {
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 table.display {
@@ -4654,7 +4660,21 @@ textarea:focus {
   background-position: 0 -135px;
   color: #00aeef;
 }
-
+.panel-default > .panel-heading {
+    font-weight: 500;
+}
+.k-button {
+    border-radius: 2px;
+    border-color: #f5f5f5;
+    color: #444;
+    background-color: #f5f5f5;
+    background-position: 50% 50%;
+    box-shadow: none;
+    font-weight: 500;
+}
+.k-tabstrip-top > .k-tabstrip-items-wrapper .k-item.k-state-active {
+    border-bottom-color: #1abb9c;
+}
 header {
   width: 100%;
 }
@@ -4968,7 +4988,7 @@ fieldset {
 .k-window-title {
     color: #000;
 }
-.modal-dialog.k-window-content.k-content {
+.modal-dialog.k-window-content {
     max-width: unset;
     margin: 8px;
     pointer-events: all;
@@ -5192,7 +5212,7 @@ fieldset {
 .k-tabstrip-items .k-item .k-link {
     color: #34495E;
 }
-.k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-textbox {
+.k-tabstrip-items-wrapper, .k-autocomplete, .k-draghandle, .k-dropdown-wrap, .k-header, .k-window-titlebar, k-hstack, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-textbox {
     background-color: #f5f5f5;
 }
 .k-panelbar .k-tabstrip-items .k-state-active, .k-tabstrip-items .k-state-active {
@@ -6655,7 +6675,7 @@ h2 {
   overflow: scroll;
 }
 @media screen and (min-width: 768px) {
-    .modal-dialog.k-window-content.k-content {
+    .modal-dialog.k-window-content {
         width: 600px;
         margin: 30px auto;
     }
@@ -6952,7 +6972,7 @@ h2 {
     border: 1px solid #666;
     border-top: 0;
 }
-[data-theme="dark"] .k-autocomplete, [data-theme="dark"] .x_title, [data-theme="dark"] .x_title .caption, [data-theme="dark"] .tableFixHead thead th, [data-theme="dark"] .k-draghandle, [data-theme="dark"] .k-dropdown-wrap, [data-theme="dark"] .k-header, [data-theme="dark"] .k-grid-header .k-header, [data-theme="dark"] .k-numeric-wrap, [data-theme="dark"] .k-panelbar .k-tabstrip-items .k-item, [data-theme="dark"] .k-picker-wrap, .k-progressbar, [data-theme="dark"] .k-state-highlight, [data-theme="dark"] .k-tabstrip-items .k-item, [data-theme="dark"] .k-textbox {
+[data-theme="dark"] .k-hstack, [data-theme="dark"] .k-tabstrip-items-wrapper, [data-theme="dark"] .k-autocomplete, [data-theme="dark"] .x_title, [data-theme="dark"] .x_title .caption, [data-theme="dark"] .tableFixHead thead th, [data-theme="dark"] .k-draghandle, [data-theme="dark"] .k-dropdown-wrap, [data-theme="dark"] .k-header, [data-theme="dark"] .k-grid-header .k-header, [data-theme="dark"] .k-numeric-wrap, [data-theme="dark"] .k-panelbar .k-tabstrip-items .k-item, [data-theme="dark"] .k-picker-wrap, .k-progressbar, [data-theme="dark"] .k-state-highlight, [data-theme="dark"] .k-tabstrip-items .k-item, [data-theme="dark"] .k-textbox {
     background-color: #616F7D;
 }
 [data-theme="dark"] .k-tabstrip-items .k-item .k-link {
