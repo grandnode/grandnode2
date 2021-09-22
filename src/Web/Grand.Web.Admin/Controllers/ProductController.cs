@@ -2037,7 +2037,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _productViewModelService.UpdateProductAttributeValidationRulesModel(productAttributeMapping, model);
                 ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
             Error(ModelState);
             model = await _productViewModelService.PrepareProductAttributeMappingModel(productAttributeMapping);

@@ -89,6 +89,20 @@
                     serverFiltering: true,
                     serverSorting: true
                 },
+                dataBound: function (e) {
+                    $('#btnProductAttributeValidationRulesPopup').magnificPopup({
+                        type: 'ajax',
+                        settings: { cache: false, async: false },
+                        callbacks: {
+                            parseAjax: function (mfpResponse) {
+                                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                            },
+                            ajaxContentAdded: function () {
+                                $('.mfp-wrap').removeAttr('tabindex');
+                            }
+                        }
+                    });
+                },
                 pageable: {
                     refresh: true,
                     numeric: false,
@@ -122,7 +136,7 @@
                         field: "AttributeControlTypeId",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Fields.AttributeControlType"]",
                         width: 140,
-                        template: "#:AttributeControlType# <br> # if(ValidationRulesAllowed) {# <a href='javascript:OpenWindow(\"@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form\", 800, 300, true);'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.ViewLink"]</a><br />#=ValidationRulesString# #}  #"
+                        template: "#:AttributeControlType# <br> # if(ValidationRulesAllowed) {# <a id='btnProductAttributeValidationRulesPopup' href='@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form\'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.ViewLink"]</a><br />#=ValidationRulesString# #}  #"
                     },
                     {
                         field: "ShouldHaveValues",
@@ -153,7 +167,7 @@
 </script>
 <input type="submit" id="btnRefreshProductAttributes" style="display: none" />
 <script>
-        $(document).ready(function () {
+    $(document).ready(function () {
             $('#btnRefreshProductAttributes').click(function () {
                 //refresh grid
                 var grid = $("#productattributemappings-grid").data('kendoGrid');
