@@ -12,6 +12,7 @@ namespace Grand.Web.Admin.Models.Settings
         public GeneralCommonSettingsModel()
         {
             StoreInformationSettings = new StoreInformationSettingsModel();
+            CommonSettings = new CommonSettingsModel();
             DateTimeSettings = new DateTimeSettingsModel();
             SeoSettings = new SeoSettingsModel();
             SecuritySettings = new SecuritySettingsModel();
@@ -21,6 +22,7 @@ namespace Grand.Web.Admin.Models.Settings
         }
         public string ActiveStore { get; set; }
         public StoreInformationSettingsModel StoreInformationSettings { get; set; }
+        public CommonSettingsModel CommonSettings { get; set; }
         public DateTimeSettingsModel DateTimeSettings { get; set; }
         public SeoSettingsModel SeoSettings { get; set; }
         public SecuritySettingsModel SecuritySettings { get; set; }
@@ -79,7 +81,26 @@ namespace Grand.Web.Admin.Models.Settings
 
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.PinterestLink")]
             public string PinterestLink { get; set; }
+           
+            #region Nested classes
 
+            public partial class ThemeConfigurationModel
+            {
+                public string ThemeName { get; set; }
+                public string ThemeVersion { get; set; }
+                public string ThemeTitle { get; set; }
+                public string PreviewImageUrl { get; set; }
+                public string PreviewText { get; set; }
+                public bool SupportRtl { get; set; }
+                public bool Selected { get; set; }
+            }
+
+            #endregion
+        }
+
+        public partial class CommonSettingsModel : BaseModel
+        {
+           
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.StoreInDatabaseContactUsForm")]
             public bool StoreInDatabaseContactUsForm { get; set; }
 
@@ -117,22 +138,7 @@ namespace Grand.Web.Admin.Models.Settings
             public bool SitemapIncludeProducts { get; set; }
 
 
-            #region Nested classes
-
-            public partial class ThemeConfigurationModel
-            {
-                public string ThemeName { get; set; }
-                public string ThemeVersion { get; set; }
-                public string ThemeTitle { get; set; }
-                public string PreviewImageUrl { get; set; }
-                public string PreviewText { get; set; }
-                public bool SupportRtl { get; set; }
-                public bool Selected { get; set; }
-            }
-
-            #endregion
         }
-
         public partial class DateTimeSettingsModel : BaseModel
         {
             public DateTimeSettingsModel()

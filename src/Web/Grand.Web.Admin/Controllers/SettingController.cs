@@ -665,20 +665,16 @@ namespace Grand.Web.Admin.Controllers
 
             return RedirectToAction("Customer");
         }
+        
         public async Task<IActionResult> GeneralCommon()
         {
             var model = new GeneralCommonSettingsModel();
             var storeScope = await GetActiveStore();
             model.ActiveStore = storeScope;
-            //store information
-            var storeInformationSettings = _settingService.LoadSetting<StoreInformationSettings>(storeScope);
-            var commonSettings = _settingService.LoadSetting<CommonSettings>(storeScope);
-            var googleAnalyticsSettings = _settingService.LoadSetting<GoogleAnalyticsSettings>(storeScope);
-            var adminareasettings = _settingService.LoadSetting<AdminAreaSettings>(storeScope);
+            //datettime settings
             var dateTimeSettings = _settingService.LoadSetting<DateTimeSettings>(storeScope);
-
             model.DateTimeSettings.DefaultStoreTimeZoneId = dateTimeSettings.DefaultStoreTimeZoneId;
-            var iswindows = Grand.Infrastructure.OperatingSystem.IsWindows();
+            var iswindows = Infrastructure.OperatingSystem.IsWindows();
             foreach (TimeZoneInfo timeZone in _dateTimeService.GetSystemTimeZones())
             {
                 var name = iswindows ? timeZone.DisplayName : $"{timeZone.StandardName} ({timeZone.Id})";
@@ -688,11 +684,10 @@ namespace Grand.Web.Admin.Controllers
                     Selected = timeZone.Id.Equals(dateTimeSettings.DefaultStoreTimeZoneId, StringComparison.OrdinalIgnoreCase)
                 });
             }
+            //store information
+            var storeInformationSettings = _settingService.LoadSetting<StoreInformationSettings>(storeScope);
+            model.StoreInformationSettings = storeInformationSettings.ToModel();
 
-            model.StoreInformationSettings.StoreClosed = storeInformationSettings.StoreClosed;
-
-            //themes
-            model.StoreInformationSettings.DefaultStoreTheme = storeInformationSettings.DefaultStoreTheme;
             model.StoreInformationSettings.AvailableStoreThemes = _themeProvider
                 .GetConfigurations()
                 .Select(x => new GeneralCommonSettingsModel.StoreInformationSettingsModel.ThemeConfigurationModel {
@@ -705,56 +700,21 @@ namespace Grand.Web.Admin.Controllers
                     Selected = x.Name.Equals(storeInformationSettings.DefaultStoreTheme, StringComparison.OrdinalIgnoreCase)
                 })
                 .ToList();
-            model.StoreInformationSettings.AllowCustomerToSelectTheme = storeInformationSettings.AllowCustomerToSelectTheme;
-            model.StoreInformationSettings.AllowToSelectAdminTheme = storeInformationSettings.AllowToSelectAdminTheme;
-
-            model.StoreInformationSettings.LogoPicture = storeInformationSettings.LogoPicture;
-            //EU Cookie law
-            model.StoreInformationSettings.DisplayCookieInformation = storeInformationSettings.DisplayCookieInformation;
-            model.StoreInformationSettings.DisplayPrivacyPreference = storeInformationSettings.DisplayPrivacyPreference;
-            //social pages
-            model.StoreInformationSettings.FacebookLink = storeInformationSettings.FacebookLink;
-            model.StoreInformationSettings.TwitterLink = storeInformationSettings.TwitterLink;
-            model.StoreInformationSettings.YoutubeLink = storeInformationSettings.YoutubeLink;
-            model.StoreInformationSettings.InstagramLink = storeInformationSettings.InstagramLink;
-            model.StoreInformationSettings.LinkedInLink = storeInformationSettings.LinkedInLink;
-            model.StoreInformationSettings.PinterestLink = storeInformationSettings.PinterestLink;
 
             //common
-            model.StoreInformationSettings.StoreInDatabaseContactUsForm = commonSettings.StoreInDatabaseContactUsForm;
-            model.StoreInformationSettings.SubjectFieldOnContactUsForm = commonSettings.SubjectFieldOnContactUsForm;
-            model.StoreInformationSettings.UseSystemEmailForContactUsForm = commonSettings.UseSystemEmailForContactUsForm;
-            model.StoreInformationSettings.SitemapEnabled = commonSettings.SitemapEnabled;
-            model.StoreInformationSettings.SitemapIncludeCategories = commonSettings.SitemapIncludeCategories;
-            model.StoreInformationSettings.SitemapIncludeImage = commonSettings.SitemapIncludeBrands;
-            model.StoreInformationSettings.SitemapIncludeBrands = commonSettings.SitemapIncludeBrands;
-            model.StoreInformationSettings.SitemapIncludeProducts = commonSettings.SitemapIncludeProducts;
-            model.StoreInformationSettings.AllowToSelectStore = commonSettings.AllowToSelectStore;
-            model.StoreInformationSettings.AllowToReadLetsEncryptFile = commonSettings.AllowToReadLetsEncryptFile;
-            model.StoreInformationSettings.Log404Errors = commonSettings.Log404Errors;
-            model.StoreInformationSettings.PopupForTermsOfServiceLinks = commonSettings.PopupForTermsOfServiceLinks;
+            var commonSettings = _settingService.LoadSetting<CommonSettings>(storeScope);
+            model.CommonSettings = commonSettings.ToModel();
 
             //seo settings
             var seoSettings = _settingService.LoadSetting<SeoSettings>(storeScope);
-            model.SeoSettings.PageTitleSeparator = seoSettings.PageTitleSeparator;
-            model.SeoSettings.PageTitleSeoAdjustment = seoSettings.PageTitleSeoAdjustment;
-            model.SeoSettings.DefaultTitle = seoSettings.DefaultTitle;
-            model.SeoSettings.DefaultMetaKeywords = seoSettings.DefaultMetaKeywords;
-            model.SeoSettings.DefaultMetaDescription = seoSettings.DefaultMetaDescription;
-            model.SeoSettings.GenerateProductMetaDescription = seoSettings.GenerateProductMetaDescription;
-            model.SeoSettings.ConvertNonWesternChars = seoSettings.ConvertNonWesternChars;
-            model.SeoSettings.SeoCharConversion = seoSettings.SeoCharConversion;
-            model.SeoSettings.CanonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
-            model.SeoSettings.TwitterMetaTags = seoSettings.TwitterMetaTags;
-            model.SeoSettings.OpenGraphMetaTags = seoSettings.OpenGraphMetaTags;
-            model.SeoSettings.StorePictureId = seoSettings.StorePictureId;
-            model.SeoSettings.AllowSlashChar = seoSettings.AllowSlashChar;
-            model.SeoSettings.AllowUnicodeCharsInUrls = seoSettings.AllowUnicodeCharsInUrls;
-            model.SeoSettings.CustomHeadTags = seoSettings.CustomHeadTags;
+            model.SeoSettings = seoSettings.ToModel();
 
             //security settings
             var securitySettings = _settingService.LoadSetting<SecuritySettings>(storeScope);
+            //captcha settings
             var captchaSettings = _settingService.LoadSetting<CaptchaSettings>(storeScope);
+            model.SecuritySettings = captchaSettings.ToModel();
+
             if (securitySettings.AdminAreaAllowedIpAddresses != null)
                 for (int i = 0; i < securitySettings.AdminAreaAllowedIpAddresses.Count; i++)
                 {
@@ -762,45 +722,21 @@ namespace Grand.Web.Admin.Controllers
                     if (i != securitySettings.AdminAreaAllowedIpAddresses.Count - 1)
                         model.SecuritySettings.AdminAreaAllowedIpAddresses += ",";
                 }
-            model.SecuritySettings.CaptchaEnabled = captchaSettings.Enabled;
-            model.SecuritySettings.CaptchaShowOnLoginPage = captchaSettings.ShowOnLoginPage;
-            model.SecuritySettings.CaptchaShowOnRegistrationPage = captchaSettings.ShowOnRegistrationPage;
-            model.SecuritySettings.CaptchaShowOnPasswordRecoveryPage = captchaSettings.ShowOnPasswordRecoveryPage;
-            model.SecuritySettings.CaptchaShowOnContactUsPage = captchaSettings.ShowOnContactUsPage;
-            model.SecuritySettings.CaptchaShowOnEmailWishlistToFriendPage = captchaSettings.ShowOnEmailWishlistToFriendPage;
-            model.SecuritySettings.CaptchaShowOnEmailProductToFriendPage = captchaSettings.ShowOnEmailProductToFriendPage;
-            model.SecuritySettings.CaptchaShowOnAskQuestionPage = captchaSettings.ShowOnAskQuestionPage;
-            model.SecuritySettings.CaptchaShowOnBlogCommentPage = captchaSettings.ShowOnBlogCommentPage;
-            model.SecuritySettings.CaptchaShowOnArticleCommentPage = captchaSettings.ShowOnArticleCommentPage;
-            model.SecuritySettings.CaptchaShowOnNewsCommentPage = captchaSettings.ShowOnNewsCommentPage;
-            model.SecuritySettings.CaptchaShowOnProductReviewPage = captchaSettings.ShowOnProductReviewPage;
-            model.SecuritySettings.CaptchaShowOnApplyVendorPage = captchaSettings.ShowOnApplyVendorPage;
-            model.SecuritySettings.ReCaptchaVersion = captchaSettings.ReCaptchaVersion;
+
             model.SecuritySettings.AvailableReCaptchaVersions = GoogleReCaptchaVersion.V2.ToSelectList(HttpContext, false).ToList();
-            model.SecuritySettings.ReCaptchaPublicKey = captchaSettings.ReCaptchaPublicKey;
-            model.SecuritySettings.ReCaptchaPrivateKey = captchaSettings.ReCaptchaPrivateKey;
 
             //PDF settings
             var pdfSettings = _settingService.LoadSetting<PdfSettings>(storeScope);
-            model.PdfSettings.LogoPictureId = pdfSettings.LogoPictureId;
-            model.PdfSettings.DisablePdfInvoicesForPendingOrders = pdfSettings.DisablePdfInvoicesForPendingOrders;
-            model.PdfSettings.InvoiceHeaderText = pdfSettings.InvoiceHeaderText;
-            model.PdfSettings.InvoiceFooterText = pdfSettings.InvoiceFooterText;
+            model.PdfSettings = pdfSettings.ToModel();
 
             //google analytics
-            model.GoogleAnalyticsSettings.GaprivateKey = googleAnalyticsSettings.gaprivateKey;
-            model.GoogleAnalyticsSettings.GaserviceAccountEmail = googleAnalyticsSettings.gaserviceAccountEmail;
-            model.GoogleAnalyticsSettings.GaviewID = googleAnalyticsSettings.gaviewID;
+            var googleAnalyticsSettings = _settingService.LoadSetting<GoogleAnalyticsSettings>(storeScope);
+            model.GoogleAnalyticsSettings = googleAnalyticsSettings.ToModel();
 
             //display menu settings
             var displayMenuItemSettings = _settingService.LoadSetting<MenuItemSettings>(storeScope);
-            model.DisplayMenuSettings.DisplayHomePageMenu = displayMenuItemSettings.DisplayHomePageMenu;
-            model.DisplayMenuSettings.DisplayNewProductsMenu = displayMenuItemSettings.DisplayNewProductsMenu;
-            model.DisplayMenuSettings.DisplaySearchMenu = displayMenuItemSettings.DisplaySearchMenu;
-            model.DisplayMenuSettings.DisplayCustomerMenu = displayMenuItemSettings.DisplayCustomerMenu;
-            model.DisplayMenuSettings.DisplayBlogMenu = displayMenuItemSettings.DisplayBlogMenu;
-            model.DisplayMenuSettings.DisplayContactUsMenu = displayMenuItemSettings.DisplayContactUsMenu;
-
+            model.DisplayMenuSettings = displayMenuItemSettings.ToModel();
+          
             return View(model);
         }
 
@@ -812,97 +748,43 @@ namespace Grand.Web.Admin.Controllers
 
             //store information settings
             var storeInformationSettings = _settingService.LoadSetting<StoreInformationSettings>(storeScope);
-            var commonSettings = _settingService.LoadSetting<CommonSettings>(storeScope);
-
-            storeInformationSettings.StoreClosed = model.StoreInformationSettings.StoreClosed;
-            storeInformationSettings.DefaultStoreTheme = model.StoreInformationSettings.DefaultStoreTheme;
-            storeInformationSettings.AllowCustomerToSelectTheme = model.StoreInformationSettings.AllowCustomerToSelectTheme;
-            storeInformationSettings.AllowToSelectAdminTheme = model.StoreInformationSettings.AllowToSelectAdminTheme;
-            storeInformationSettings.LogoPicture = model.StoreInformationSettings.LogoPicture;
-            //EU Cookie law
-            storeInformationSettings.DisplayCookieInformation = model.StoreInformationSettings.DisplayCookieInformation;
-            storeInformationSettings.DisplayPrivacyPreference = model.StoreInformationSettings.DisplayPrivacyPreference;
-            //social pages
-            storeInformationSettings.FacebookLink = model.StoreInformationSettings.FacebookLink;
-            storeInformationSettings.TwitterLink = model.StoreInformationSettings.TwitterLink;
-            storeInformationSettings.YoutubeLink = model.StoreInformationSettings.YoutubeLink;
-            storeInformationSettings.InstagramLink = model.StoreInformationSettings.InstagramLink;
-            storeInformationSettings.LinkedInLink = model.StoreInformationSettings.LinkedInLink;
-            storeInformationSettings.PinterestLink = model.StoreInformationSettings.PinterestLink;
-
+            storeInformationSettings = model.StoreInformationSettings.ToEntity(storeInformationSettings);
             await _settingService.SaveSetting(storeInformationSettings, storeScope);
 
+            //datetime settings
             var dateTimeSettings = _settingService.LoadSetting<DateTimeSettings>(storeScope);
             dateTimeSettings.DefaultStoreTimeZoneId = model.DateTimeSettings.DefaultStoreTimeZoneId;
             await _settingService.SaveSetting(dateTimeSettings, storeScope);
 
-            //contact us
-            commonSettings.StoreInDatabaseContactUsForm = model.StoreInformationSettings.StoreInDatabaseContactUsForm;
-            commonSettings.SubjectFieldOnContactUsForm = model.StoreInformationSettings.SubjectFieldOnContactUsForm;
-            commonSettings.UseSystemEmailForContactUsForm = model.StoreInformationSettings.UseSystemEmailForContactUsForm;
-            commonSettings.SitemapEnabled = model.StoreInformationSettings.SitemapEnabled;
-            commonSettings.SitemapIncludeCategories = model.StoreInformationSettings.SitemapIncludeCategories;
-            commonSettings.SitemapIncludeImage = model.StoreInformationSettings.SitemapIncludeImage;
-            commonSettings.SitemapIncludeBrands = model.StoreInformationSettings.SitemapIncludeBrands;
-            commonSettings.SitemapIncludeProducts = model.StoreInformationSettings.SitemapIncludeProducts;
-            commonSettings.AllowToSelectStore = model.StoreInformationSettings.AllowToSelectStore;
-            commonSettings.AllowToReadLetsEncryptFile = model.StoreInformationSettings.AllowToReadLetsEncryptFile;
-            commonSettings.Log404Errors = model.StoreInformationSettings.Log404Errors;
-            commonSettings.PopupForTermsOfServiceLinks = model.StoreInformationSettings.PopupForTermsOfServiceLinks;
-
+            //common settings
+            var commonSettings = _settingService.LoadSetting<CommonSettings>(storeScope);
+            commonSettings = model.CommonSettings.ToEntity(commonSettings);
             await _settingService.SaveSetting(commonSettings, storeScope);
 
             //seo settings
             var seoSettings = _settingService.LoadSetting<SeoSettings>(storeScope);
-            seoSettings.PageTitleSeparator = model.SeoSettings.PageTitleSeparator;
-            seoSettings.PageTitleSeoAdjustment = model.SeoSettings.PageTitleSeoAdjustment;
-            seoSettings.DefaultTitle = model.SeoSettings.DefaultTitle;
-            seoSettings.DefaultMetaKeywords = model.SeoSettings.DefaultMetaKeywords;
-            seoSettings.DefaultMetaDescription = model.SeoSettings.DefaultMetaDescription;
-            seoSettings.GenerateProductMetaDescription = model.SeoSettings.GenerateProductMetaDescription;
-            seoSettings.ConvertNonWesternChars = model.SeoSettings.ConvertNonWesternChars;
-            seoSettings.SeoCharConversion = model.SeoSettings.SeoCharConversion;
-            seoSettings.CanonicalUrlsEnabled = model.SeoSettings.CanonicalUrlsEnabled;
-            seoSettings.TwitterMetaTags = model.SeoSettings.TwitterMetaTags;
-            seoSettings.OpenGraphMetaTags = model.SeoSettings.OpenGraphMetaTags;
-            seoSettings.StorePictureId = model.SeoSettings.StorePictureId;
-            seoSettings.AllowSlashChar = model.SeoSettings.AllowSlashChar;
-            seoSettings.AllowUnicodeCharsInUrls = model.SeoSettings.AllowUnicodeCharsInUrls;
-            seoSettings.CustomHeadTags = model.SeoSettings.CustomHeadTags;
-
+            seoSettings = model.SeoSettings.ToEntity(seoSettings);
             await _settingService.SaveSetting(seoSettings, storeScope);
 
             //security settings
             var securitySettings = _settingService.LoadSetting<SecuritySettings>(storeScope);
-            var captchaSettings = _settingService.LoadSetting<CaptchaSettings>(storeScope);
+            
             if (securitySettings.AdminAreaAllowedIpAddresses == null)
                 securitySettings.AdminAreaAllowedIpAddresses = new List<string>();
             securitySettings.AdminAreaAllowedIpAddresses.Clear();
-            if (!String.IsNullOrEmpty(model.SecuritySettings.AdminAreaAllowedIpAddresses))
-                foreach (string s in model.SecuritySettings.AdminAreaAllowedIpAddresses.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    if (!String.IsNullOrWhiteSpace(s))
+            if (!string.IsNullOrEmpty(model.SecuritySettings.AdminAreaAllowedIpAddresses))
+                foreach (var s in model.SecuritySettings.AdminAreaAllowedIpAddresses.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    if (!string.IsNullOrWhiteSpace(s))
                         securitySettings.AdminAreaAllowedIpAddresses.Add(s.Trim());
 
             await _settingService.SaveSetting(securitySettings);
-            captchaSettings.Enabled = model.SecuritySettings.CaptchaEnabled;
-            captchaSettings.ShowOnLoginPage = model.SecuritySettings.CaptchaShowOnLoginPage;
-            captchaSettings.ShowOnRegistrationPage = model.SecuritySettings.CaptchaShowOnRegistrationPage;
-            captchaSettings.ShowOnPasswordRecoveryPage = model.SecuritySettings.CaptchaShowOnPasswordRecoveryPage;
-            captchaSettings.ShowOnContactUsPage = model.SecuritySettings.CaptchaShowOnContactUsPage;
-            captchaSettings.ShowOnEmailWishlistToFriendPage = model.SecuritySettings.CaptchaShowOnEmailWishlistToFriendPage;
-            captchaSettings.ShowOnAskQuestionPage = model.SecuritySettings.CaptchaShowOnAskQuestionPage;
-            captchaSettings.ShowOnEmailProductToFriendPage = model.SecuritySettings.CaptchaShowOnEmailProductToFriendPage;
-            captchaSettings.ShowOnBlogCommentPage = model.SecuritySettings.CaptchaShowOnBlogCommentPage;
-            captchaSettings.ShowOnArticleCommentPage = model.SecuritySettings.CaptchaShowOnArticleCommentPage;
-            captchaSettings.ShowOnNewsCommentPage = model.SecuritySettings.CaptchaShowOnNewsCommentPage;
-            captchaSettings.ShowOnProductReviewPage = model.SecuritySettings.CaptchaShowOnProductReviewPage;
-            captchaSettings.ShowOnApplyVendorPage = model.SecuritySettings.CaptchaShowOnApplyVendorPage;
-            captchaSettings.ReCaptchaVersion = model.SecuritySettings.ReCaptchaVersion;
-            captchaSettings.ReCaptchaPublicKey = model.SecuritySettings.ReCaptchaPublicKey;
-            captchaSettings.ReCaptchaPrivateKey = model.SecuritySettings.ReCaptchaPrivateKey;
+
+            //captcha settings
+            var captchaSettings = _settingService.LoadSetting<CaptchaSettings>(storeScope);
+            captchaSettings = model.SecuritySettings.ToEntity(captchaSettings);
             await _settingService.SaveSetting(captchaSettings);
             if (captchaSettings.Enabled &&
-                (String.IsNullOrWhiteSpace(captchaSettings.ReCaptchaPublicKey) || String.IsNullOrWhiteSpace(captchaSettings.ReCaptchaPrivateKey)))
+                (string.IsNullOrWhiteSpace(captchaSettings.ReCaptchaPublicKey) || string.IsNullOrWhiteSpace(captchaSettings.ReCaptchaPrivateKey)))
             {
                 //captcha is enabled but the keys are not entered
                 Error("Captcha is enabled but the appropriate keys are not entered");
@@ -910,34 +792,17 @@ namespace Grand.Web.Admin.Controllers
 
             //PDF settings
             var pdfSettings = _settingService.LoadSetting<PdfSettings>(storeScope);
-            pdfSettings.LogoPictureId = model.PdfSettings.LogoPictureId;
-            pdfSettings.DisablePdfInvoicesForPendingOrders = model.PdfSettings.DisablePdfInvoicesForPendingOrders;
-            pdfSettings.InvoiceHeaderText = model.PdfSettings.InvoiceHeaderText;
-            pdfSettings.InvoiceFooterText = model.PdfSettings.InvoiceFooterText;
+            pdfSettings = model.PdfSettings.ToEntity(pdfSettings);
             await _settingService.SaveSetting(pdfSettings, storeScope);
-
-            //admin settings
-            var adminareasettings = _settingService.LoadSetting<AdminAreaSettings>(storeScope);
-
-            await _settingService.SaveSetting(adminareasettings);
-
+           
             //googleanalytics settings
             var googleAnalyticsSettings = _settingService.LoadSetting<GoogleAnalyticsSettings>(storeScope);
-            googleAnalyticsSettings.gaprivateKey = model.GoogleAnalyticsSettings.GaprivateKey;
-            googleAnalyticsSettings.gaserviceAccountEmail = model.GoogleAnalyticsSettings.GaserviceAccountEmail;
-            googleAnalyticsSettings.gaviewID = model.GoogleAnalyticsSettings.GaviewID;
-
+            googleAnalyticsSettings = model.GoogleAnalyticsSettings.ToEntity(googleAnalyticsSettings);
             await _settingService.SaveSetting(googleAnalyticsSettings, storeScope);
 
-            //Menu item settings
+            //menu item settings
             var displayMenuItemSettings = _settingService.LoadSetting<MenuItemSettings>(storeScope);
-            displayMenuItemSettings.DisplayHomePageMenu = model.DisplayMenuSettings.DisplayHomePageMenu;
-            displayMenuItemSettings.DisplayNewProductsMenu = model.DisplayMenuSettings.DisplayNewProductsMenu;
-            displayMenuItemSettings.DisplaySearchMenu = model.DisplayMenuSettings.DisplaySearchMenu;
-            displayMenuItemSettings.DisplayCustomerMenu = model.DisplayMenuSettings.DisplayCustomerMenu;
-            displayMenuItemSettings.DisplayBlogMenu = model.DisplayMenuSettings.DisplayBlogMenu;
-            displayMenuItemSettings.DisplayContactUsMenu = model.DisplayMenuSettings.DisplayContactUsMenu;
-
+            displayMenuItemSettings = model.DisplayMenuSettings.ToEntity(displayMenuItemSettings);
             await _settingService.SaveSetting(displayMenuItemSettings, storeScope);
 
             //now clear cache
