@@ -2443,7 +2443,7 @@ namespace Grand.Web.Admin.Controllers
             if (!warnings.Any())
             {
                 ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
             //If we got this far, something failed, redisplay form
             await _productViewModelService.PrepareAddProductAttributeCombinationModel(model, product);
