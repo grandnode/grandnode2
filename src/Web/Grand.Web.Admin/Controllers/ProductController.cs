@@ -1833,15 +1833,15 @@ namespace Grand.Web.Admin.Controllers
                 var tierPrice = model.ToEntity(_dateTimeService);
                 await _productService.InsertTierPrice(tierPrice, product.Id);
                 ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
             else
             {
                 Error(ModelState);
+                //If we got this far, something failed, redisplay form
+                await _productViewModelService.PrepareTierPriceModel(model);
+                return View(model);
             }
-            //If we got this far, something failed, redisplay form
-            await _productViewModelService.PrepareTierPriceModel(model);
-            return View(model);
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
