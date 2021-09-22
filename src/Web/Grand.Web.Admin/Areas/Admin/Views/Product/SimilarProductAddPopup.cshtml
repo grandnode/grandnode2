@@ -100,6 +100,36 @@
     </script>
     }
     <script>
+            var mfp = $.magnificPopup.instance;
+            $("#SimilarProductAddPopup").submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data == "") {
+                            mfp.close();
+                            $('#btnRefreshSimilarProducts').click();
+                        } else {
+                            $.magnificPopup.open({
+                                items: {
+                                    src: data,
+                                    type: 'inline'
+                                },
+                                callbacks: {
+                                    open: function () {
+                                        $('.mfp-wrap').removeAttr('tabindex');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+
             function additionalData() {
                 var data = {
                     SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
