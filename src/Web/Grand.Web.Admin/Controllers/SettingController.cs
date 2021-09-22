@@ -907,34 +907,7 @@ namespace Grand.Web.Admin.Controllers
         public IActionResult AdminSearch()
         {
             var settings = _settingService.LoadSetting<AdminSearchSettings>();
-            var model = new AdminSearchSettingsModel {
-                SearchInBlogs = settings.SearchInBlogs,
-                SearchInCategories = settings.SearchInCategories,
-                SearchInCustomers = settings.SearchInCustomers,
-                SearchInCollections = settings.SearchInCollections,
-                SearchInNews = settings.SearchInNews,
-                SearchInOrders = settings.SearchInOrders,
-                SearchInProducts = settings.SearchInProducts,
-                SearchInPages = settings.SearchInPages,
-                MinSearchTermLength = settings.MinSearchTermLength,
-                MaxSearchResultsCount = settings.MaxSearchResultsCount,
-                ProductsDisplayOrder = settings.ProductsDisplayOrder,
-                CategoriesDisplayOrder = settings.CategoriesDisplayOrder,
-                CollectionsDisplayOrder = settings.CollectionsDisplayOrder,
-                PagesDisplayOrder = settings.PagesDisplayOrder,
-                NewsDisplayOrder = settings.NewsDisplayOrder,
-                BlogsDisplayOrder = settings.BlogsDisplayOrder,
-                CustomersDisplayOrder = settings.CustomersDisplayOrder,
-                OrdersDisplayOrder = settings.OrdersDisplayOrder,
-                SearchInMenu = settings.SearchInMenu,
-                MenuDisplayOrder = settings.MenuDisplayOrder,
-                CategorySizeLimit = settings.CategorySizeLimit,
-                BrandSizeLimit = settings.BrandSizeLimit,
-                CollectionSizeLimit = settings.CollectionSizeLimit,
-                VendorSizeLimit = settings.VendorSizeLimit,
-                CustomerGroupSizeLimit = settings.CustomerGroupSizeLimit
-            };
-
+            var model = settings.ToModel();
             return View(model);
         }
 
@@ -943,32 +916,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> AdminSearch(AdminSearchSettingsModel model)
         {
             var settings = _settingService.LoadSetting<AdminSearchSettings>();
-            settings.SearchInBlogs = model.SearchInBlogs;
-            settings.SearchInCategories = model.SearchInCategories;
-            settings.SearchInCustomers = model.SearchInCustomers;
-            settings.SearchInCollections = model.SearchInCollections;
-            settings.SearchInNews = model.SearchInNews;
-            settings.SearchInOrders = model.SearchInOrders;
-            settings.SearchInProducts = model.SearchInProducts;
-            settings.SearchInPages = model.SearchInPages;
-            settings.MinSearchTermLength = model.MinSearchTermLength;
-            settings.MaxSearchResultsCount = model.MaxSearchResultsCount;
-            settings.ProductsDisplayOrder = model.ProductsDisplayOrder;
-            settings.CategoriesDisplayOrder = model.CategoriesDisplayOrder;
-            settings.CollectionsDisplayOrder = model.CollectionsDisplayOrder;
-            settings.PagesDisplayOrder = model.PagesDisplayOrder;
-            settings.NewsDisplayOrder = model.NewsDisplayOrder;
-            settings.BlogsDisplayOrder = model.BlogsDisplayOrder;
-            settings.CustomersDisplayOrder = model.CustomersDisplayOrder;
-            settings.OrdersDisplayOrder = model.OrdersDisplayOrder;
-            settings.SearchInMenu = model.SearchInMenu;
-            settings.MenuDisplayOrder = model.MenuDisplayOrder;
-            settings.CategorySizeLimit = model.CategorySizeLimit;
-            settings.BrandSizeLimit = model.BrandSizeLimit;
-            settings.CollectionSizeLimit = model.CollectionSizeLimit;
-            settings.VendorSizeLimit = model.VendorSizeLimit;
-            settings.CustomerGroupSizeLimit = model.CustomerGroupSizeLimit;
-
+            settings = model.ToEntity(settings);
             await _settingService.SaveSetting(settings);
 
             //now clear cache
