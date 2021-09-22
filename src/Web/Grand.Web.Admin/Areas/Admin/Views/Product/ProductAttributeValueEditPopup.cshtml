@@ -4,7 +4,7 @@
     ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.EditValueDetails"];
 }
 @model ProductModel.ProductAttributeValueModel
-<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductAttributeValueEditPopup" method="post"
+<form id="ProductAttributeValueEditPopup" asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductAttributeValueEditPopup" method="post"
       asp-route-ProductId="@Context.Request.Query["ProductId"]"
       asp-route-productAttributeMappingId="@Context.Request.Query["ProductAttributeMappingId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
@@ -31,3 +31,34 @@
         </div>
     </div>
 </form>
+<script>
+            var mfp = $.magnificPopup.instance;
+            $("#ProductAttributeValueEditPopup").submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data == "") {
+                            mfp.close();
+                            $('#btnRefresh').click();
+                        } else {
+                            $.magnificPopup.open({
+                                items: {
+                                    src: data,
+                                    type: 'inline'
+                                },
+                                callbacks: {
+                                    open: function () {
+                                        $('.mfp-wrap').removeAttr('tabindex');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+</script>

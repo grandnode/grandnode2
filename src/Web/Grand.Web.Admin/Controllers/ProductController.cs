@@ -2205,7 +2205,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _productViewModelService.InsertProductAttributeValueModel(model);
                 ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
             //If we got this far, something failed, redisplay form
             await _productViewModelService.PrepareProductAttributeValueModel(product, model);
@@ -2273,7 +2273,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _productViewModelService.UpdateProductAttributeValueModel(pav, model);
                 ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
             //If we got this far, something failed, redisplay form
             await _productViewModelService.PrepareProductAttributeValueModel(product, model);

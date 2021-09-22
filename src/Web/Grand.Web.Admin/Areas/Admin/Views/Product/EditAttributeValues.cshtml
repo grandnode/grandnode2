@@ -1,14 +1,14 @@
 ﻿@model ProductModel.ProductAttributeValueListModel
 
-@{    
+@{
     //page title
     ViewBag.Title = string.Format(Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.EditAttributeDetails"], Model.ProductAttributeName, Model.ProductName);
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="EditAttributeValues" id="productattribute-form" 
+<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="EditAttributeValues" id="productattribute-form"
       asp-route-ProductId="@Context.Request.Query["ProductId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -18,24 +18,40 @@
                         @string.Format(Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.EditAttributeDetails"], Model.ProductAttributeName, Model.ProductName)
                         <small>
                             <i class="fa fa-arrow-circle-left"></i>
-                        @Html.ActionLink(Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.BackToProduct"], "Edit", "Product", new { Id = Model.ProductId }, null)</small>
+                            @Html.ActionLink(Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.BackToProduct"], "Edit", "Product", new { Id = Model.ProductId }, null)
+                        </small>
                     </div>
                     <div class="actions">
                         <div class="btn-group btn-group-devided">
-                            <input type="submit" id="btnAddNewValue" value="@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.AddNew"]" onclick="javascript:OpenWindow('@(Url.Action("ProductAttributeValueCreatePopup", "Product", new { productAttributeMappingId = Model.ProductAttributeMappingId, productId = Model.ProductId, btnId = "btnRefresh", formId = "productattribute-form", area = Constants.AreaAdmin }))', 800, 550, true); return false;" class="k-button" />
+                            <a id="btnAddNewValue" href="@(Url.Action("ProductAttributeValueCreatePopup", "Product", new { productAttributeMappingId = Model.ProductAttributeMappingId, productId = Model.ProductId, btnId = "btnRefresh", formId = "productattribute-form", area = Constants.AreaAdmin }))" class="k-button">
+                                @Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.AddNew"]
+                            </a>
                             <input type="submit" id="btnRefresh" style="display: none" />
                         </div>
                     </div>
                 </div>
                 <div class="x_content form">
-                    <div id="productattributevalues-grid"></div>  
+                    <div id="productattributevalues-grid"></div>
                 </div>
             </div>
         </div>
     </div>
-                              
+
     <script>
         $(document).ready(function () {
+            $('#btnAddNewValue').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+
             $("#productattributevalues-grid").kendoGrid({
                 dataSource: {
                     transport: {
@@ -71,6 +87,20 @@
                     serverPaging: true,
                     serverFiltering: true,
                     serverSorting: true
+                },
+                dataBound: function (e) {
+                    $('#btnProductAttributeValueEditPopup').magnificPopup({
+                        type: 'ajax',
+                        settings: { cache: false, async: false },
+                        callbacks: {
+                            parseAjax: function (mfpResponse) {
+                                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                            },
+                            ajaxContentAdded: function () {
+                                $('.mfp-wrap').removeAttr('tabindex');
+                            }
+                        }
+                    });
                 },
                 pageable: {
                     refresh: true,
@@ -124,7 +154,7 @@
                         field: "Id",
                         title: "@Loc["Admin.Common.Edit"]",
                         width: 100,
-                        template: "<input type='submit' value='@Loc["Admin.Common.Edit"]' onclick=\"javascript:OpenWindow('@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?productId=@(Model.ProductId)&productAttributeMappingId=@(Model.ProductAttributeMappingId)&btnId=btnRefresh&formId=productattribute-form', 800, 500, true); return false;\" class='k-button' />"
+                        template: "<a id='btnProductAttributeValueEditPopup' href='@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?productId=@(Model.ProductId)&productAttributeMappingId=@(Model.ProductAttributeMappingId)&btnId=btnRefresh&formId=productattribute-form' class='k-button'>@Loc["Admin.Common.Edit"]</a>"
                     }, {
                         command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
                         title: "@Loc["Admin.Common.Delete"]",
@@ -132,11 +162,7 @@
                     }
                 ]
             });
-        });
-    </script>
-            
-    <script>
-        $(document).ready(function () {
+
             $('#btnRefresh').click(function () {
                 //refresh grid
                 var grid = $("#productattributevalues-grid").data('kendoGrid');
