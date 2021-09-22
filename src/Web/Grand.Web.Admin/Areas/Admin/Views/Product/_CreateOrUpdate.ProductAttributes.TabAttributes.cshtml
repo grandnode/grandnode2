@@ -21,26 +21,7 @@
                         mfpResponse.data = $('<div></div>').html(mfpResponse.data);
                     },
                     ajaxContentAdded: function () {
-                        var mfp = this;
                         $('.mfp-wrap').removeAttr('tabindex');
-                        $("#ProductAttributeMappingPopup").submit(function (e) {
-                            e.preventDefault(); // prevent actual form submit
-                            var form = $(this);
-                            var url = form.attr('action'); //get submit url [replace url here if desired]
-                            $.ajax({
-                                type: "POST",
-                                url: url,
-                                data: form.serialize(), // serializes form input
-                                success: function (data) {
-                                    if (data == "") {
-                                        mfp.close();
-                                        $('#btnRefreshProductAttributes').click();
-                                    } else {
-                                        mfp.contentContainer.context.innerHTML = data;
-                                    }
-                                }
-                            });
-                        });
                     }
                 }
 	        });

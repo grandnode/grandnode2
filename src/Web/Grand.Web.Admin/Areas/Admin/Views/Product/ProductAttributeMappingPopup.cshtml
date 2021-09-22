@@ -118,3 +118,34 @@
         </script>
     }
 </form>
+<script>
+    var mfp = $.magnificPopup.instance;
+    $("#ProductAttributeMappingPopup").submit(function (e) {
+        e.preventDefault();
+        var form = $(this);
+        var url = form.attr('action');
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: form.serialize(),
+            success: function (data) {
+                if (data == "") {
+                    mfp.close();
+                    $('#btnRefreshProductAttributes').click();
+                } else {
+                    $.magnificPopup.open({
+                        items: {
+                            src: data,
+                            type: 'inline'
+                        },
+                        callbacks: {
+                            open: function () {
+                                $('.mfp-wrap').removeAttr('tabindex');
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>
