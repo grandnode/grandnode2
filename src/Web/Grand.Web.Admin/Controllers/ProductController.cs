@@ -2092,8 +2092,7 @@ namespace Grand.Web.Admin.Controllers
                 formcollection.Add(item.Key, item.Value);
             }
             await _productViewModelService.UpdateProductAttributeConditionModel(product, productAttributeMapping, model, formcollection);
-            ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
 
         #endregion

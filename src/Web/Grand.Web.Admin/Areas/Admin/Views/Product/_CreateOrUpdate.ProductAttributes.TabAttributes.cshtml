@@ -90,7 +90,7 @@
                     serverSorting: true
                 },
                 dataBound: function (e) {
-                    $('#btnProductAttributeValidationRulesPopup').magnificPopup({
+                    $('.btnMagnificPopup').magnificPopup({
                         type: 'ajax',
                         settings: { cache: false, async: false },
                         callbacks: {
@@ -136,7 +136,7 @@
                         field: "AttributeControlTypeId",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Fields.AttributeControlType"]",
                         width: 140,
-                        template: "#:AttributeControlType# <br> # if(ValidationRulesAllowed) {# <a id='btnProductAttributeValidationRulesPopup' href='@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form\'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.ViewLink"]</a><br />#=ValidationRulesString# #}  #"
+                        template: "#:AttributeControlType# <br> # if(ValidationRulesAllowed) {# <a class='btnMagnificPopup' href='@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form\'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.ViewLink"]</a><br />#=ValidationRulesString# #}  #"
                     },
                     {
                         field: "ShouldHaveValues",
@@ -148,7 +148,7 @@
                         field: "ConditionAllowed",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Condition"]",
                         width: 80,
-                        template: "# if(ConditionAllowed) {# <a href='javascript:OpenWindow(\"@Url.Action("ProductAttributeConditionPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#&btnId=btnRefreshProductAttributes&formId=product-form\", 800, 400, true);'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Condition.ViewLink"]</a><br /> #}  #"
+                        template: "# if(ConditionAllowed) {# <a class='btnMagnificPopup' href='@Url.Action("ProductAttributeConditionPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#&btnId=btnRefreshProductAttributes&formId=product-form\'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Condition.ViewLink"]</a><br /> #}  #"
                     },
                     {
                         command: [
