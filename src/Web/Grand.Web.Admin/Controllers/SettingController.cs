@@ -1,15 +1,11 @@
-﻿using Grand.Business.Catalog.Interfaces.Tax;
-using Grand.Business.Checkout.Commands.Models.Orders;
+﻿using Grand.Business.Checkout.Commands.Models.Orders;
 using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Common.Services.Security;
-using Grand.Business.Customers.Interfaces;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.AdminSearch;
 using Grand.Domain.Blogs;
@@ -32,7 +28,6 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
-using Grand.Web.Admin.Models.PushNotifications;
 using Grand.Web.Admin.Models.Settings;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
@@ -62,7 +57,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly IDateTimeService _dateTimeService;
         private readonly IThemeProvider _themeProvider;
         private readonly ICustomerActivityService _customerActivityService;
-        private readonly IStoreService _storeService;
         private readonly IWorkContext _workContext;
         private readonly IMediator _mediator;
         private readonly IMerchandiseReturnService _merchandiseReturnService;
@@ -81,7 +75,6 @@ namespace Grand.Web.Admin.Controllers
             IDateTimeService dateTimeService,
             IThemeProvider themeProvider,
             ICustomerActivityService customerActivityService,
-            IStoreService storeService,
             IWorkContext workContext,
             IMediator mediator,
             IMerchandiseReturnService merchandiseReturnService,
@@ -96,7 +89,6 @@ namespace Grand.Web.Admin.Controllers
             _dateTimeService = dateTimeService;
             _themeProvider = themeProvider;
             _customerActivityService = customerActivityService;
-            _storeService = storeService;
             _workContext = workContext;
             _mediator = mediator;
             _merchandiseReturnService = merchandiseReturnService;
@@ -1001,7 +993,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var storeScope = await GetActiveStore();
             var settings = _settingService.LoadSetting<PushNotificationsSettings>(storeScope);
-            var model = settings.ToModel();            
+            var model = settings.ToModel();
 
             return View(model);
         }
