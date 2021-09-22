@@ -28,26 +28,7 @@
                         mfpResponse.data = $('<div></div>').html(mfpResponse.data);
                     },
                     ajaxContentAdded: function () {
-                        var mfp = this;
                         $('.mfp-wrap').removeAttr('tabindex');
-                        $("#RecommendedProductAddPopup").submit(function (e) {
-                            e.preventDefault();
-                            var form = $(this);
-                            var url = form.attr('action');
-                            $.ajax({
-                                type: "POST",
-                                url: url,
-                                data: form.serialize(),
-                                success: function (data) {
-                                    if (data == "") {
-                                        mfp.close();
-                                        $('#btnRefreshRecommendedProducts').click();
-                                    } else {
-                                        mfp.contentContainer.context.innerHTML = data;
-                                    }
-                                }
-                            });
-                        });
                     }
                 }
             });
