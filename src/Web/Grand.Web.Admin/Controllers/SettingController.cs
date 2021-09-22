@@ -116,12 +116,10 @@ namespace Grand.Web.Admin.Controllers
             var knowledgebaseSettings = _settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
             var model = new ContentSettingsModel() {
                 BlogSettings = blogSettings.ToModel(),
-                NewsSettings = newsSettings.ToModel()
+                NewsSettings = newsSettings.ToModel(),
+                KnowledgebaseSettings = knowledgebaseSettings.ToModel()
             };
-            model.KnowledgebaseSettings.Enabled = knowledgebaseSettings.Enabled;
-            model.KnowledgebaseSettings.AllowNotRegisteredUsersToLeaveComments = knowledgebaseSettings.AllowNotRegisteredUsersToLeaveComments;
-            model.KnowledgebaseSettings.NotifyAboutNewArticleComments = knowledgebaseSettings.NotifyAboutNewArticleComments;
-
+            
             model.ActiveStore = storeScope;
             return View(model);
         }
@@ -142,9 +140,7 @@ namespace Grand.Web.Admin.Controllers
 
             //knowledgebase
             var knowledgeBaseSettings = _settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
-            knowledgeBaseSettings.Enabled = model.KnowledgebaseSettings.Enabled;
-            knowledgeBaseSettings.AllowNotRegisteredUsersToLeaveComments = model.KnowledgebaseSettings.AllowNotRegisteredUsersToLeaveComments;
-            knowledgeBaseSettings.NotifyAboutNewArticleComments = model.KnowledgebaseSettings.NotifyAboutNewArticleComments;
+            knowledgeBaseSettings = model.KnowledgebaseSettings.ToEntity(knowledgeBaseSettings);
             await _settingService.SaveSetting(knowledgeBaseSettings, storeScope);
 
             //selected tab
