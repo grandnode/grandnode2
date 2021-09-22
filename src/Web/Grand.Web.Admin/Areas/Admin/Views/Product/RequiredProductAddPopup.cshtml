@@ -1,7 +1,7 @@
 ﻿@model ProductModel.AddRequiredProductModel
 @inject AdminAreaSettings adminAreaSettings
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Products.Fields.RequiredProductIds.Choose"];
 }
@@ -91,7 +91,34 @@
     </div>
 
     <script>
-        $(document).ready(function () {
+             function additionalData() {
+            var data = {
+                SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
+                SearchCategoryId: $('#SearchCategoryId').val(),
+                SearchBrandId: $('#SearchBrandId').val(),
+                SearchCollectionId: $('#SearchCollectionId').val(),
+                SearchStoreId: $('#SearchStoreId').val(),
+                SearchVendorId: $('#SearchVendorId').val(),
+                SearchProductTypeId: $('#SearchProductTypeId').val()
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+
+        function selectRequiredProduct(productid) {
+                try {
+                    var currentValue = document.getElementById('@(Context.Request.Query["productIdsInput"])').value;
+                    if (currentValue) {
+                        //add comma
+                        document.getElementById('@(Context.Request.Query["productIdsInput"])').value += ', ';
+                    }
+                    document.getElementById('@(Context.Request.Query["productIdsInput"])').value += productid;
+                    document.getElementById('@(Context.Request.Query["btnId"])').click();
+                }
+                catch (e){}
+                $.magnificPopup.instance.close();
+            }
+
             $("#products-grid").kendoGrid({
                 dataSource: {
                     transport: {
@@ -143,19 +170,13 @@
                     template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
                 }]
             });
-        });
-    </script>
 
-
-    <script>
-        $(document).ready(function () {
             $('#search-products').click(function () {
                 var grid = $('#products-grid').data('kendoGrid');
                 grid.dataSource.page(1); //new search. Set page size to 1
                 //grid.dataSource.read(); we already loaded the grid above using "page" function
                 return false;
             });
-        });
 
         $("#@Html.IdFor(model => model.SearchProductName)").keydown(function (event) {
             if (event.keyCode == 13) {
@@ -164,31 +185,4 @@
             }
         });
 
-        function additionalData() {
-            var data = {
-                SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
-                SearchCategoryId: $('#SearchCategoryId').val(),
-                SearchBrandId: $('#SearchBrandId').val(),
-                SearchCollectionId: $('#SearchCollectionId').val(),
-                SearchStoreId: $('#SearchStoreId').val(),
-                SearchVendorId: $('#SearchVendorId').val(),
-                SearchProductTypeId: $('#SearchProductTypeId').val()
-            };
-            addAntiForgeryToken(data);
-            return data;
-        }
-
-        function selectRequiredProduct(productid) {
-                try {
-                    var currentValue = window.opener.document.getElementById('@(Context.Request.Query["productIdsInput"])').value;
-                    if (currentValue) {
-                        //add comma
-                        window.opener.document.getElementById('@(Context.Request.Query["productIdsInput"])').value += ', ';
-                    }
-                    window.opener.document.getElementById('@(Context.Request.Query["productIdsInput"])').value += productid;
-                    window.opener.document.getElementById('@(Context.Request.Query["btnId"])').click();
-                }
-                catch (e){}
-                window.close();
-            }
     </script>

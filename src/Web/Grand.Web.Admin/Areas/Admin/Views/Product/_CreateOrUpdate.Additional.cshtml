@@ -203,12 +203,26 @@
                 <admin-input asp-for="RequiredProductIds" />
                 <span asp-validation-for="RequiredProductIds"></span>
                 <span id="required-products-check-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
-                <input type="submit" id="btnAddNewRequiredProduct" value="@Loc["Admin.Catalog.Products.Fields.RequiredProductIds.AddNew"]"
-                       onclick="javascript:OpenWindow('@(Url.Action("RequiredProductAddPopup", "Product",
-                                                       new { btnId = "btnRefreshRequiredProducts", productIdsInput = "RequiredProductIds", area = Constants.AreaAdmin }))', 800, 800, true); return false;" class="k-button" />
+                <a id="btnAddNewRequiredProduct"
+                    href="@(Url.Action("RequiredProductAddPopup", "Product", new { btnId = "btnRefreshRequiredProducts", productIdsInput = "RequiredProductIds", area = Constants.AreaAdmin }))"
+                    class="k-button">
+                    @Loc["Admin.Catalog.Products.Fields.RequiredProductIds.AddNew"]
+                </a>
                 <input type="submit" id="btnRefreshRequiredProducts" style="display: none" />
-                <script>
+                <script>                  
                     $(document).ready(function () {
+                        $('#btnAddNewRequiredProduct').magnificPopup({
+                            type: 'ajax',
+                            settings: { cache: false, async: false },
+                            callbacks: {
+                                parseAjax: function (mfpResponse) {
+                                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                                },
+                                ajaxContentAdded: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
                         $('#btnRefreshRequiredProducts').click(function () {
                             loadRequiredProductFriendlyNames();
                             return false;
