@@ -101,7 +101,6 @@ namespace Grand.Web.Admin.Controllers
 
         #region Utilities
 
-
         protected async Task ClearCache()
         {
             await _cacheBase.Clear();
@@ -698,16 +697,7 @@ namespace Grand.Web.Admin.Controllers
 
             model.StoreInformationSettings.AvailableStoreThemes = _themeProvider
                 .GetConfigurations()
-                .Select(x => new GeneralCommonSettingsModel.StoreInformationSettingsModel.ThemeConfigurationModel {
-                    ThemeTitle = x.Title,
-                    ThemeName = x.Name,
-                    ThemeVersion = x.Version,
-                    PreviewImageUrl = x.PreviewImageUrl,
-                    PreviewText = x.PreviewText,
-                    SupportRtl = x.SupportRtl,
-                    Selected = x.Name.Equals(storeInformationSettings.DefaultStoreTheme, StringComparison.OrdinalIgnoreCase)
-                })
-                .ToList();
+                .Select(x => x.ToModel(storeInformationSettings.DefaultStoreTheme)).ToList();
 
             //common
             var commonSettings = _settingService.LoadSetting<CommonSettings>(storeScope);
@@ -864,7 +854,6 @@ namespace Grand.Web.Admin.Controllers
             if (System.IO.File.Exists(oryginalFilePath))
             {
                 string[] lines = System.IO.File.ReadAllLines(oryginalFilePath);
-
                 int i = 0;
                 foreach (var line in lines)
                 {
@@ -872,37 +861,30 @@ namespace Grand.Web.Admin.Controllers
                     {
                         lines[i] = "apiKey: \"" + model.PushApiKey + "\",";
                     }
-
                     if (line.Contains("authDomain"))
                     {
                         lines[i] = "authDomain: \"" + model.AuthDomain + "\",";
                     }
-
                     if (line.Contains("databaseURL"))
                     {
                         lines[i] = "databaseURL: \"" + model.DatabaseUrl + "\",";
                     }
-
                     if (line.Contains("projectId"))
                     {
                         lines[i] = "projectId: \"" + model.ProjectId + "\",";
                     }
-
                     if (line.Contains("storageBucket"))
                     {
                         lines[i] = "storageBucket: \"" + model.StorageBucket + "\",";
                     }
-
                     if (line.Contains("messagingSenderId"))
                     {
                         lines[i] = "messagingSenderId: \"" + model.SenderId + "\",";
                     }
-
                     if (line.Contains("appId"))
                     {
                         lines[i] = "appId: \"" + model.AppId + "\",";
                     }
-
                     i++;
                 }
                 System.IO.File.WriteAllLines(savedFilePath, lines);
@@ -939,13 +921,13 @@ namespace Grand.Web.Admin.Controllers
         {
             var settings = _settingService.LoadSetting<SystemSettings>();
 
-            var model = new SystemSettingsModel();
-
-            //order ident
-            model.OrderIdent = await _mediator.Send(new MaxOrderNumberCommand());
-            //system settings
-            model.DaysToCancelUnpaidOrder = settings.DaysToCancelUnpaidOrder;
-            model.DeleteGuestTaskOlderThanMinutes = settings.DeleteGuestTaskOlderThanMinutes;
+            var model = new SystemSettingsModel {
+                //order ident
+                OrderIdent = await _mediator.Send(new MaxOrderNumberCommand()),
+                //system settings
+                DaysToCancelUnpaidOrder = settings.DaysToCancelUnpaidOrder,
+                DeleteGuestTaskOlderThanMinutes = settings.DeleteGuestTaskOlderThanMinutes
+            };
 
             //area admin settings
             var adminsettings = _settingService.LoadSetting<AdminAreaSettings>();
@@ -976,7 +958,6 @@ namespace Grand.Web.Admin.Controllers
             settings.DeleteGuestTaskOlderThanMinutes = model.DeleteGuestTaskOlderThanMinutes;
             await _settingService.SaveSetting(settings);
 
-
             //order ident
             if (model.OrderIdent.HasValue && model.OrderIdent.Value > 0)
             {
@@ -989,9 +970,7 @@ namespace Grand.Web.Admin.Controllers
             adminAreaSettings.GridPageSizes = model.GridPageSizes;
             adminAreaSettings.UseIsoDateTimeConverterInJson = model.UseIsoDateTimeConverterInJson;
             adminAreaSettings.HideStoreColumn = model.HideStoreColumn;
-
             await _settingService.SaveSetting(adminAreaSettings);
-
 
             //language settings 
             var langsettings = _settingService.LoadSetting<LanguageSettings>();
