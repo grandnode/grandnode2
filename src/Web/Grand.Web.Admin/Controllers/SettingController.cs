@@ -829,7 +829,6 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [HttpPost]
-        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> PushNotifications(PushNotificationsSettingsModel model)
         {
             var storeScope = await GetActiveStore();
@@ -904,6 +903,7 @@ namespace Grand.Web.Admin.Controllers
                 throw new ArgumentNullException($"{oryginalFilePath} not exist");
 
         }
+        
         public IActionResult AdminSearch()
         {
             var settings = _settingService.LoadSetting<AdminSearchSettings>();
@@ -912,7 +912,6 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [HttpPost]
-        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> AdminSearch(AdminSearchSettingsModel model)
         {
             var settings = _settingService.LoadSetting<AdminSearchSettings>();
@@ -961,7 +960,6 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [HttpPost]
-        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> SystemSetting(SystemSettingsModel model)
         {
             //system 
