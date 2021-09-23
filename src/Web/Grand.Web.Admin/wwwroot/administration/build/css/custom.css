@@ -5653,6 +5653,9 @@ a span.username {
 .mfp-content .x_title .caption, .mfp-content .x_panel {
     padding: 0;
 }
+.mfp-content .x_title .actions {
+    padding: 25px 0 10px 0;
+}
 
 .form-control,
 /* if this class is applied to a Kendo UI widget, its layout may change */

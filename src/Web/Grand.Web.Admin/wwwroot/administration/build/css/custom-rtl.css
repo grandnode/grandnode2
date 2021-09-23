@@ -4772,6 +4772,9 @@ div[data-role="editor-toolbar"] {
 .mfp-content .x_title .caption, .mfp-content .x_panel {
     padding: 0;
 }
+.mfp-content .x_title .actions {
+    padding: 25px 0 10px 0;
+}
 
 /* store news */
 
