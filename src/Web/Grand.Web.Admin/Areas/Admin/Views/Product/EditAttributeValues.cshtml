@@ -89,7 +89,7 @@
                     serverSorting: true
                 },
                 dataBound: function (e) {
-                    $('#btnProductAttributeValueEditPopup').magnificPopup({
+                    $('.btnProductAttributeValueEditPopup').magnificPopup({
                         type: 'ajax',
                         settings: { cache: false, async: false },
                         callbacks: {
@@ -98,6 +98,22 @@
                             },
                             ajaxContentAdded: function () {
                                 $('.mfp-wrap').removeAttr('tabindex');
+                                $('.mfp-wrap').attr("data-id", $(this.ev).data("id"));
+
+                                if (document.querySelector('.mfp-wrap').dataset.prodid !== undefined) {
+                                    var id = document.querySelector('.mfp-wrap').dataset.prodid;
+                                    var name = document.querySelector('.mfp-wrap').dataset.prodname;
+                                 
+                                    $('#AttributeValueTypeId').val('10').change();
+                                    $('#AssociatedProductId').val(id);
+                                    $('#associate-product-name').html(name);
+                                }
+
+                            },
+                            close: function () {
+                                $('.mfp-wrap').removeAttr("data-prodid");
+                                $('.mfp-wrap').removeAttr("data-prodname");
+                                $('#AttributeValueTypeId').val('0').change();
                             }
                         }
                     });
@@ -154,7 +170,7 @@
                         field: "Id",
                         title: "@Loc["Admin.Common.Edit"]",
                         width: 100,
-                        template: "<a id='btnProductAttributeValueEditPopup' href='@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?productId=@(Model.ProductId)&productAttributeMappingId=@(Model.ProductAttributeMappingId)&btnId=btnRefresh&formId=productattribute-form' class='k-button'>@Loc["Admin.Common.Edit"]</a>"
+                        template: "<a id='btnProductAttributeValueEditPopup' data-id='@(Model.ProductAttributeMappingId)' href='@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?productId=@(Model.ProductId)&productAttributeMappingId=@(Model.ProductAttributeMappingId)&btnId=btnRefresh&formId=productattribute-form' class='k-button btnProductAttributeValueEditPopup'>@Loc["Admin.Common.Edit"]</a>"
                     }, {
                         command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
                         title: "@Loc["Admin.Common.Delete"]",

@@ -2344,7 +2344,7 @@ namespace Grand.Web.Admin.Controllers
             ViewBag.RefreshPage = true;
             ViewBag.productId = associatedProduct.Id;
             ViewBag.productName = associatedProduct.Name;
-            return View(model);
+            return Content("");
         }
 
         #endregion

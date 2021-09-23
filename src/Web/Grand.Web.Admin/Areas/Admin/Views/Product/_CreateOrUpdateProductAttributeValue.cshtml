@@ -25,6 +25,19 @@
         $("#@Html.IdFor(model => model.AttributeValueTypeId)").change(toggleProductType);
 
         toggleProductType();
+
+        $('#btnAssociateProductToAttributeValuePopup').magnificPopup({
+            type: 'ajax',
+            settings: { cache: false, async: false },
+            callbacks: {
+                parseAjax: function (mfpResponse) {
+                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                },
+                ajaxContentAdded: function () {
+                    $('.mfp-wrap').removeAttr('tabindex');
+                }
+            }
+        });
     });
 
     function toggleProductType() {
@@ -72,7 +85,9 @@
                 <input asp-for="AssociatedProductId" type="hidden" />
                 <span id="associate-product-name">@Model.AssociatedProductName</span>
                 <span asp-validation-for="AssociatedProductId"></span>
-                <input type="submit" value=@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"] onclick="javascript:OpenWindow('@(Url.Action("AssociateProductToAttributeValuePopup", "Product", new { productIdInput = Html.IdFor(model => model.AssociatedProductId), productNameInput = "associate-product-name", area = Constants.AreaAdmin }))', 800, 800, true); return false;" class="k-button" />
+                <a id="btnAssociateProductToAttributeValuePopup" href="@(Url.Action("AssociateProductToAttributeValuePopup", "Product", new { productIdInput = Html.IdFor(model => model.AssociatedProductId), productNameInput = "associate-product-name", area = Constants.AreaAdmin }))" class="k-button">
+                    @Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"]
+                </a>
             </div>
         </div>
         <div class="form-group" id="group-quantity">
