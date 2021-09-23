@@ -575,6 +575,7 @@ namespace Grand.Web.Admin.Controllers
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Media");
         }
+
         [HttpPost]
         public async Task<IActionResult> ChangePictureStorage()
         {
@@ -585,6 +586,21 @@ namespace Grand.Web.Admin.Controllers
             //save the new setting value
             await _settingService.SaveSetting(mediaSettings);
 
+            //save picture
+            await SavePictureStorage(storeIdDb);
+
+            //activity log
+            await _customerActivityService.InsertActivity("EditSettings", "", _translationService.GetResource("ActivityLog.EditSettings"));
+
+            //now clear cache
+            await ClearCache();
+
+            Success(_translationService.GetResource("Admin.Configuration.Updated"));
+            return RedirectToAction("Media");
+        }
+
+        private async Task SavePictureStorage(bool storeIdDb)
+        {
             int pageIndex = 0;
             const int pageSize = 100;
             try
@@ -615,14 +631,6 @@ namespace Grand.Web.Admin.Controllers
             {
             }
 
-            //activity log
-            await _customerActivityService.InsertActivity("EditSettings", "", _translationService.GetResource("ActivityLog.EditSettings"));
-
-            //now clear cache
-            await ClearCache();
-
-            Success(_translationService.GetResource("Admin.Configuration.Updated"));
-            return RedirectToAction("Media");
         }
 
         public async Task<IActionResult> Customer()
