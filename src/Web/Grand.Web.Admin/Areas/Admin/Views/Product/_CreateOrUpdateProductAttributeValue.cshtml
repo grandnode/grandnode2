@@ -14,7 +14,11 @@
 @if (ViewBag.RefreshPage == true)
 {
     <script>
-        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
+    try {
+        window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).setAttribute('data-id', '@Model.ProductAttributeMappingId');
+        window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();
+
+    }
         catch (e){}
         window.close();
     </script>
@@ -25,19 +29,19 @@
         $("#@Html.IdFor(model => model.AttributeValueTypeId)").change(toggleProductType);
 
         toggleProductType();
+    });
 
-        $('#btnAssociateProductToAttributeValuePopup').magnificPopup({
-            type: 'ajax',
-            settings: { cache: false, async: false },
-            callbacks: {
-                parseAjax: function (mfpResponse) {
-                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
-                },
-                ajaxContentAdded: function () {
-                    $('.mfp-wrap').removeAttr('tabindex');
-                }
+    $('#btnAssociateProductToAttributeValuePopup').magnificPopup({
+        type: 'ajax',
+        settings: { cache: false, async: false },
+        callbacks: {
+            parseAjax: function (mfpResponse) {
+                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+            },
+            ajaxContentAdded: function () {
+                $('.mfp-wrap').removeAttr('tabindex');
             }
-        });
+        }
     });
 
     function toggleProductType() {
@@ -57,7 +61,7 @@
 </script>
 <!-- #region languages template -->
 @{ Func<int, HelperResult>
-            template = @<div class="form-body">
+              template = @<div class="form-body">
         <div class="form-group">
             <admin-label asp-for="@Model.Locales[item].Name" class="col-sm-3 control-label" />
             <div class="col-md-9 col-sm-9">
@@ -216,4 +220,3 @@
     </div>
 
 </div>
-

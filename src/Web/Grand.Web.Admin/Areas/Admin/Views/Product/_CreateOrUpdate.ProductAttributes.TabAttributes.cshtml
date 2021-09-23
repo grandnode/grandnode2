@@ -24,7 +24,7 @@
                         $('.mfp-wrap').removeAttr('tabindex');
                     }
                 }
-	        });
+            });
             $("#productattributemappings-grid").kendoGrid({
                 dataSource: {
                     transport: {
@@ -89,7 +89,17 @@
                     serverFiltering: true,
                     serverSorting: true
                 },
-                dataBound: function (e) {
+                autoBind: false,
+                //values grid
+                detailInit: detailInit,
+                dataBound: function () {
+                    var data = this.dataSource.data();
+                    $.each(data, function (i, row) {
+                        if (row.get("AttributeControlTypeId") == "4" || row.get("AttributeControlTypeId") == "10"
+                            || row.get("AttributeControlTypeId") == "30") {
+                            $('tr[data-uid="' + row.uid + '"] ').find(".k-hierarchy-cell a").remove();;
+                        }
+                    });
                     $('.btnMagnificPopup').magnificPopup({
                         type: 'ajax',
                         settings: { cache: false, async: false },
@@ -119,7 +129,7 @@
                         field: "ProductAttributeId",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute"]",
                         width: 190,
-                        template: "<a class='k-link' href='javascript:OpenWindow(\"@Url.Action("ProductAttributeMappingPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#&btnId=btnRefreshProductAttributes&formId=product-form\", 800, 600, true);'>#=kendo.htmlEncode(ProductAttribute)#<br /></a>"
+                        template: "<a class='k-link btnMagnificPopup' href='@Url.Action("ProductAttributeMappingPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#&btnId=btnRefreshProductAttributes&formId=product-form'>#=kendo.htmlEncode(ProductAttribute)#<br /></a>"
                     }, {
                         field: "TextPrompt",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Fields.TextPrompt"]",
@@ -136,13 +146,7 @@
                         field: "AttributeControlTypeId",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Fields.AttributeControlType"]",
                         width: 140,
-                        template: "#:AttributeControlType# <br> # if(ValidationRulesAllowed) {# <a class='btnMagnificPopup' href='@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form\'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.ViewLink"]</a><br />#=ValidationRulesString# #}  #"
-                    },
-                    {
-                        field: "ShouldHaveValues",
-                        title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values"]",
-                        width: 60,
-                        template: '# if(ShouldHaveValues) {# <a href="@Url.Action("EditAttributeValues", "Product", new { area = Constants.AreaAdmin })/?productAttributeMappingId=#=Id#&productId=@(Model.Id)">@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.ViewLink"]</a><br />@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.TotalValues"] #=TotalValues# #}  #'
+                        template: "#:AttributeControlType# <br> # if(ValidationRulesAllowed) {# <a class='btnMagnificPopup' href='@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.ViewLink"]</a><br />#=ValidationRulesString# #}  #"
                     },
                     {
                         field: "ConditionAllowed",
@@ -163,18 +167,132 @@
             });
         });
 
+    //details grid
+    function toolbar_click_newProductAttributeValue(id) {
+        javascript: OpenWindow('@Url.Action("ProductAttributeValueCreatePopup", "Product", new { area = Constants.AreaAdmin })/' + '?productAttributeMappingId=' + id + '&productId=@Model.Id&formId=product-form&btnId=btnRefreshProductAttributesValues', 800, 550, true);
+        return false;
+    }
+    function toolbar_click_editProductAttributeValue(id, pam) {
+        javascript: OpenWindow('@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = Constants.AreaAdmin })/' + id + '?productId=@(Model.Id)&productAttributeMappingId=' + pam + '&btnId=btnRefreshProductAttributesValues&formId=product-form', 800, 500, true);
+        return false;
+    }
+    function detailInit(e) {
+            $("<div data-name='productattributevalue' data-id='" + e.data.id+"' />").appendTo(e.detailCell).kendoGrid({
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("ProductAttributeValueList", "Product", new { area = Constants.AreaAdmin }))?productAttributeMappingId=" + e.data.Id + "&productId=@Model.Id",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        },
+                        destroy: {
+                            url: "@Html.Raw(Url.Action("ProductAttributeValueDelete", "Product", new {area = Constants.AreaAdmin }))?pam=" + e.data.Id + "&productId=@Model.Id",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors",
+                        model: {
+                            id: "Id",
+                        }
+                    },
+                    error: function(e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                dataBound: function () {
+                    $('.btnProductAttributeValueEditPopup').magnificPopup({
+                        type: 'ajax',
+                        settings: { cache: false, async: false },
+                        callbacks: {
+                            parseAjax: function (mfpResponse) {
+                                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                            },
+                            ajaxContentAdded: function () {
+                                $('.mfp-wrap').removeAttr('tabindex');
+                                $('.mfp-wrap').attr("data-id", $('.btnProductAttributeValueEditPopup.active').data("id"));
+
+                                if (document.querySelector('.mfp-wrap').dataset.prodid !== undefined) {
+                                    var id = document.querySelector('.mfp-wrap').dataset.prodid;
+                                    var name = document.querySelector('.mfp-wrap').dataset.prodname;
+
+                                    $('#AttributeValueTypeId').val('10').change();
+                                    $('#AssociatedProductId').val(id);
+                                    $('#associate-product-name').html(name);
+                                }
+                            },
+                            close: function () {
+                                $('.mfp-wrap').removeAttr("data-prodid");
+                                $('.mfp-wrap').removeAttr("data-prodname");
+                                $('#AttributeValueTypeId').val('0').change();
+                                $('.btnProductAttributeValueEditPopup.active').removeClass('active');
+                            }
+                        }
+                    });
+                },
+                toolbar: [
+                    {
+                        template: "<a class='k-button btnProductAttributeValueEditPopup' data-id='" + e.data.Id + "' onclick=\"this.classList.add('active')\" href='@Url.Action("ProductAttributeValueCreatePopup", "Product", new { area = Constants.AreaAdmin })/?productAttributeMappingId=" + e.data.Id + "&productId=@Model.Id&formId=product-form&btnId=btnRefreshProductAttributesValues'>@Loc["Admin.Common.AddNew"]</a>"
+                    }
+                ],
+                scrollable: false,
+                sortable: false,
+                pageable: {
+                    refresh: true,
+                    numeric: false,
+                    previousNext: false,
+                    info: false
+                },
+                editable: {
+                    confirmation: true,
+                    mode: "inline"
+                },
+                columns: [
+                    {
+                        field: "Name",
+                        title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Name"]",
+                        template: "<a class='k-link btnProductAttributeValueEditPopup' data-id='#=Id#' onclick=\"this.classList.add('active')\" href='@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?productId=@(Model.Id)&productAttributeMappingId=" + e.data.Id + "&btnId=btnRefreshProductAttributesValues&formId=product-form'>#=Name#</a>"
+                    }, {
+                        command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
+                        title: "@Loc["Admin.Common.Delete"]"
+                    }
+                ]
+            });
+        }
 
 </script>
 <input type="submit" id="btnRefreshProductAttributes" style="display: none" />
+<input type="button" id="btnRefreshProductAttributesValues" style="display: none" />
 <script>
     $(document).ready(function () {
-            $('#btnRefreshProductAttributes').click(function () {
-                //refresh grid
-                var grid = $("#productattributemappings-grid").data('kendoGrid');
-                grid.dataSource.read();
+        $('#btnRefreshProductAttributes').click(function () {
+            //refresh grid
+            var grid = $("#productattributemappings-grid").data('kendoGrid');
+            grid.dataSource.read();
 
-                //return false to don't reload a page
-                return false;
-            });
+            //return false to don't reload a page
+            return false;
         });
+        $('#btnRefreshProductAttributesValues').click(function (e) {
+            //refresh grid value
+            var dataid = $(this).attr("data-id");
+            var grid = $('[data-id="' + dataid + '"]').data('kendoGrid');
+            grid.dataSource.read();
+
+            //return false to don't reload a page
+            return false;
+        });
+        $('#btnRefreshProductAttributes').click();
+    });
+
 </script>

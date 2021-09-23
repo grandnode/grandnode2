@@ -145,6 +145,7 @@
                             },
                             callbacks: {
                                 open: function () {
+                                    $.magnificPopup.instance.updateItemHTML();
                                     $('.mfp-wrap').removeAttr('tabindex');
                                 }
                             }
