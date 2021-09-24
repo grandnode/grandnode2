@@ -32,7 +32,6 @@
     </div>
 </form>
 <script>
-    var mfp = $.magnificPopup.instance;
     $("#ProductAttributeValueCreatePopup").submit(function (e) {
         e.preventDefault();
         var form = $(this);
@@ -43,8 +42,8 @@
             data: form.serialize(),
             success: function (data) {
                 if (data == "") {
-                    mfp.close();
-                    $('#btnRefresh').click();
+                    $.magnificPopup.instance.close();
+                    $('#btnRefreshProductAttributes').click();
                 } else {
                     $.magnificPopup.open({
                         items: {

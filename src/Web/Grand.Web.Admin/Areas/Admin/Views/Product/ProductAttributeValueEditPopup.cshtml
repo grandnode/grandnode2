@@ -1,5 +1,5 @@
 ﻿@{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.EditValueDetails"];
 }
@@ -32,7 +32,6 @@
     </div>
 </form>
 <script>
-            var mfp = $.magnificPopup.instance;
             $("#ProductAttributeValueEditPopup").submit(function (e) {
                 e.preventDefault();
                 var form = $(this);
@@ -43,8 +42,8 @@
                     data: form.serialize(),
                     success: function (data) {
                         if (data == "") {
-                            mfp.close();
-                            $('#btnRefresh').click();
+                            $.magnificPopup.instance.close();
+                            $('#btnRefreshProductAttributes').click();
                         } else {
                             $.magnificPopup.open({
                                 items: {

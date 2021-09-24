@@ -1,7 +1,7 @@
 ﻿@model ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel
 @inject AdminAreaSettings adminAreaSettings
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"];
 }
@@ -125,18 +125,12 @@
                         var productId = $("#@Html.IdFor(model => model.AssociatedToProductId)").val();
                         var productName = $("#@Html.IdFor(model => model.AssociatedToProductId)").data("name");
                         var id = $('.mfp-wrap').data("id");
-                        var button = $('a[data-id="' + id + '"]');
-                        var buttonHref = button.attr("href");
+                        var button = $('.btnProductAttributeValueEditPopup[data-id="' + id + '"]');
 
                         $('.mfp-wrap').attr("data-prodid", productId);
                         $('.mfp-wrap').attr("data-prodname", productName);
 
-                        $.magnificPopup.open({
-                            items: {
-                                src: buttonHref,
-                                type: 'ajax'
-                            },
-                        });
+                        button.click();
                     } else {
                         $.magnificPopup.open({
                             items: {
@@ -145,7 +139,6 @@
                             },
                             callbacks: {
                                 open: function () {
-                                    $.magnificPopup.instance.updateItemHTML();
                                     $('.mfp-wrap').removeAttr('tabindex');
                                 }
                             }
