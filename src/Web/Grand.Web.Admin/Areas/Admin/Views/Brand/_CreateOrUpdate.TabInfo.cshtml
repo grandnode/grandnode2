@@ -105,8 +105,24 @@
                 @if (!string.IsNullOrEmpty(Model.PictureId))
                 {
                     <label class="control-label">
-                        <a class='k-link' href='javascript:OpenWindow("@Url.Action("PicturePopup", "Brand", new { area = Constants.AreaAdmin })/?brandId=@(Model.Id)", 800, 600, true);'>@Loc["Admin.Common.Picture.Attributes"]</a>
+                        <a class='k-link editpicture' href="@Url.Action("PicturePopup", "Brand", new { area = Constants.AreaAdmin })/?brandId=@(Model.Id)">@Loc["Admin.Common.Picture.Attributes"]</a>
                     </label>
+                    <script>
+                        $(document).ready(function () {
+                            $('.editpicture').magnificPopup({
+                                type: 'ajax',
+                                settings: { cache: false, async: false },
+                                callbacks: {
+                                    parseAjax: function (mfpResponse) {
+                                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                                    },
+                                    ajaxContentAdded: function () {
+                                        $('.mfp-wrap').removeAttr('tabindex');
+                                    }
+                                }
+                            });
+                        });
+                    </script>
                 }
             </div>
         </div>
