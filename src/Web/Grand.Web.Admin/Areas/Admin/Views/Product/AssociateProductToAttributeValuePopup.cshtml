@@ -124,25 +124,21 @@
                     if (data == "") {
                         var productId = $("#@Html.IdFor(model => model.AssociatedToProductId)").val();
                         var productName = $("#@Html.IdFor(model => model.AssociatedToProductId)").data("name");
-                        var id = $('.mfp-wrap').data("id");
+                        var id = $('.btnProductAttributeValueEditPopup.active').data("id");
                         var button = $('.btnProductAttributeValueEditPopup[data-id="' + id + '"]');
+                        var mfp = $('.mfp-wrap');
 
-                        $('.mfp-wrap').attr("data-prodid", productId);
-                        $('.mfp-wrap').attr("data-prodname", productName);
+                        mfp.attr("data-id", id);
+                        mfp.attr("data-prodid", productId);
+                        mfp.attr("data-prodname", productName);
+
+                        $('.btnProductAttributeValueEditPopup.active').removeClass('active');
 
                         button.click();
+
                     } else {
-                        $.magnificPopup.open({
-                            items: {
-                                src: data,
-                                type: 'inline'
-                            },
-                            callbacks: {
-                                open: function () {
-                                    $('.mfp-wrap').removeAttr('tabindex');
-                                }
-                            }
-                        });
+                        $.magnificPopup.instance.currItem.src = data;
+                        $.magnificPopup.instance.updateItemHTML();
                     }
                 }
             });

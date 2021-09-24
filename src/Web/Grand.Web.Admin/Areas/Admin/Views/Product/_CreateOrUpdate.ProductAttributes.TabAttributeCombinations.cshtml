@@ -37,6 +37,20 @@
             }
         });
         $("#attributecombinations-grid").kendoGrid({
+            dataBound: function () {
+                $('.editcombinationlink').magnificPopup({
+                    type: 'ajax',
+                    settings: { cache: false, async: false },
+                    callbacks: {
+                        parseAjax: function (mfpResponse) {
+                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                        },
+                        ajaxContentAdded: function () {
+                            $('.mfp-wrap').removeAttr('tabindex');
+                        }
+                    }
+                });
+            },
             dataSource: {
                 transport: {
                     read: {
@@ -105,7 +119,7 @@
                     title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Attributes"]",
                     width: 340,
                     encoded: false,
-                    template: "<a class='k-link' href='javascript:OpenWindow(\"@Url.Action("AttributeCombinationPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&Id=#=Id#&btnId=btnRefreshCombinations&formId=product-form\", 800, 600, true);'>#=Attributes#<br /> # if(Warnings !== null) {# <span style=\"color: red\">#=Warnings#</span> #}  #</a>"
+                    template: "<a class='k-link editcombinationlink' href=\"@Url.Action("AttributeCombinationPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&Id=#=Id#&btnId=btnRefreshCombinations&formId=product-form\">#=Attributes#<br /> # if(Warnings !== null) {# <span style=\"color: red\">#=Warnings#</span> #}  #</a>"
                 }, {
                     field: "StockQuantity",
                     title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.StockQuantity"]",
