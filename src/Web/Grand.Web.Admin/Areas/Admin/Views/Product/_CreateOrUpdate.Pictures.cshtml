@@ -56,8 +56,8 @@
                                 fields: {
                                     PictureUrl: {editable: false, type: "string" },
                                     DisplayOrder: {editable: true, type: "number" },
-                                    OverrideAltAttribute: {editable: true, type: "string" },
-                                    OverrideTitleAttribute: {editable: true, type: "string" }
+                                    AltAttribute: {editable: true, type: "string" },
+                                    TitleAttribute: {editable: true, type: "string" }
                                 }
                             }
                         },
@@ -100,11 +100,11 @@
                         attributes: { style: "text-align:center" },
                         format: "{0:0}",
                     }, {
-                        field: "OverrideAltAttribute",
+                        field: "AltAttribute",
                         minScreenWidth: 500,
                         title: "@Loc["Admin.Catalog.Products.Pictures.Fields.OverrideAltAttribute"]",
                     }, {
-                        field: "OverrideTitleAttribute",
+                        field: "TitleAttribute",
                         title: "@Loc["Admin.Catalog.Products.Pictures.Fields.OverrideTitleAttribute"]",
                         minScreenWidth: 500,
                     }, {
