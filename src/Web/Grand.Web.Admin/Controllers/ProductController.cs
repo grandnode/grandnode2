@@ -1885,7 +1885,7 @@ namespace Grand.Web.Admin.Controllers
                 await _productService.UpdateTierPrice(tierPrice, product.Id);
 
                 ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
             Error(ModelState);
             //stores
