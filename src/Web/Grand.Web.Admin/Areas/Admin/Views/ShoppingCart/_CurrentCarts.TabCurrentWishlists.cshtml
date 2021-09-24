@@ -106,11 +106,18 @@
                     field: "Total",
                     title: "@Loc["Admin.CurrentCarts.Total"]",
                     width: 150
-                },{
-                    field: "Store",
-                    title: "@Loc["Admin.CurrentCarts.Store"]",
-                    width: 150
-                },{
+                },
+                @if (!adminAreaSettings.HideStoreColumn)
+                {
+                    <text>
+                    {
+                        field: "Store",
+                        title: "@Loc["Admin.CurrentCarts.Store"]",
+                        width: 150
+                    },
+                    </text>
+                }
+                {
                     field: "UpdatedOn",
                     title: "@Loc["Admin.CurrentCarts.UpdatedOn"]",
                     width: 150,

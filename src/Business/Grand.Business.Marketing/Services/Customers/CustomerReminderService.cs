@@ -129,6 +129,8 @@ namespace Grand.Business.Marketing.Services.Customers
             email.AttachedDownloads = null;
             email.CreatedOnUtc = DateTime.UtcNow;
             email.EmailAccountId = emailAccount.Id;
+            email.Reference = Reference.CustomerReminder;
+            email.ObjectId = customerReminder.Id;
 
             await _queuedEmailService.InsertQueuedEmail(email);
             //activity log
@@ -199,6 +201,8 @@ namespace Grand.Business.Marketing.Services.Customers
                 AttachedDownloads = null,
                 CreatedOnUtc = DateTime.UtcNow,
                 EmailAccountId = emailAccount.Id,
+                Reference = Reference.CustomerReminder,
+                ObjectId = customerReminder.Id,
             };
 
             await _queuedEmailService.InsertQueuedEmail(email);

@@ -63,10 +63,27 @@ function checkOverriddenStoreValue(obj, selector) {
 }
 
 function tabstrip_on_tab_select(e) {
-    //we use this function to store selected tab index into HML input
-    //this way we can persist selected tab between HTTP requests
     $("#selected-tab-index").val($(e.item).index());
 }
+
+
+function tabstrip_on_tab_show(e, load) {
+    var element = '.k-state-active';
+    if (load === undefined) {
+        $(e.contentElement).find('[data-role="grid"]').each(function (x) {
+            var grid = $(this).data('kendoGrid');
+            grid.dataSource.page(1);
+        });
+    }
+    else {
+        $(element).find('[data-role="grid"]').each(function (x) {
+            var grid = $(this).data('kendoGrid');
+            grid.dataSource.page(1);
+        });
+    }
+
+}
+
 
 function display_kendoui_grid_error(e) {
     if (e.errors) {

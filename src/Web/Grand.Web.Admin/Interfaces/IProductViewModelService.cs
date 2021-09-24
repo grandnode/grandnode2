@@ -24,14 +24,7 @@ namespace Grand.Web.Admin.Interfaces
         Task DeleteProduct(Product product);
         Task DeleteSelected(IList<string> selectedIds);
         Task<ProductModel.AddRequiredProductModel> PrepareAddRequiredProductModel();
-        Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddRequiredProductModel model, int pageIndex, int pageSize);
-        Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddRelatedProductModel model, int pageIndex, int pageSize);
-        Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddSimilarProductModel model, int pageIndex, int pageSize);
-        Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddBundleProductModel model, int pageIndex, int pageSize);
-        Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddCrossSellProductModel model, int pageIndex, int pageSize);
-        Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddRecommendedProductModel model, int pageIndex, int pageSize);
-        Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddAssociatedProductModel model, int pageIndex, int pageSize);
-        Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel model, int pageIndex, int pageSize);
+        Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddProductModel model, int pageIndex, int pageSize);
         Task<IList<ProductModel.ProductCategoryModel>> PrepareProductCategoryModel(Product product);
         Task InsertProductCategoryModel(ProductModel.ProductCategoryModel model);
         Task UpdateProductCategoryModel(ProductModel.ProductCategoryModel model);

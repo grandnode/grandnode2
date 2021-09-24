@@ -8,7 +8,6 @@ using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Messages.Interfaces;
 using Grand.Domain.Localization;
 using Grand.Domain.Logging;
-using Grand.Domain.Orders;
 using Grand.SharedKernel;
 using MediatR;
 using System;
@@ -92,30 +91,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                         await _mediator.Send(new CheckOrderStatusCommand() { Order = order });
 
                         //notifications
-                        var orderRefundedStoreOwnerNotificationQueuedEmailId = await _messageProviderService.SendOrderRefundedStoreOwnerMessage(order, amountToRefund, _languageSettings.DefaultAdminLanguageId);
-                        if (orderRefundedStoreOwnerNotificationQueuedEmailId > 0)
-                        {
-                            await _orderService.InsertOrderNote(new OrderNote
-                            {
-                                Note = "Order refunded email (to store owner) has been queued.",
-                                DisplayToCustomer = false,
-                                CreatedOnUtc = DateTime.UtcNow,
-                                OrderId = order.Id,
-                            });
-                        }
+                        await _messageProviderService.SendOrderRefundedStoreOwnerMessage(order, amountToRefund, _languageSettings.DefaultAdminLanguageId);
 
+                        await _messageProviderService.SendOrderRefundedCustomerMessage(order, amountToRefund, order.CustomerLanguageId);
 
-                        var orderRefundedCustomerNotificationQueuedEmailId = await _messageProviderService.SendOrderRefundedCustomerMessage(order, amountToRefund, order.CustomerLanguageId);
-                        if (orderRefundedCustomerNotificationQueuedEmailId > 0)
-                        {
-                            await _orderService.InsertOrderNote(new OrderNote
-                            {
-                                Note = "Order refunded email (to customer) has been queued.",
-                                DisplayToCustomer = false,
-                                CreatedOnUtc = DateTime.UtcNow,
-                                OrderId = order.Id,
-                            });
-                        }
                     }
                     //raise event       
                     await _mediator.Publish(new PaymentTransactionRefundedEvent(paymentTransaction, amountToRefund));

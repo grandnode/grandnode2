@@ -1,4 +1,4 @@
-﻿@model ProductModel
+@model ProductModel
 
 <div class="panel panel-default">
     <vc:admin-widget widget-zone="product_details_product_attributes_top" additional-data="Model" />
@@ -166,7 +166,6 @@
                 ]
             });
         });
-
     //details grid
     function toolbar_click_newProductAttributeValue(id) {
         javascript: OpenWindow('@Url.Action("ProductAttributeValueCreatePopup", "Product", new { area = Constants.AreaAdmin })/' + '?productAttributeMappingId=' + id + '&productId=@Model.Id&formId=product-form&btnId=btnRefreshProductAttributesValues', 800, 550, true);
@@ -221,11 +220,9 @@
                             ajaxContentAdded: function () {
                                 $('.mfp-wrap').removeAttr('tabindex');
                                 $('.mfp-wrap').attr("data-id", $('.btnProductAttributeValueEditPopup.active').data("id"));
-
                                 if (document.querySelector('.mfp-wrap').dataset.prodid !== undefined) {
                                     var id = document.querySelector('.mfp-wrap').dataset.prodid;
                                     var name = document.querySelector('.mfp-wrap').dataset.prodname;
-
                                     $('#AttributeValueTypeId').val('10').change();
                                     $('#AssociatedProductId').val(id);
                                     $('#associate-product-name').html(name);
@@ -269,7 +266,6 @@
                 ]
             });
         }
-
 </script>
 <input type="submit" id="btnRefreshProductAttributes" style="display: none" />
 <input type="button" id="btnRefreshProductAttributesValues" style="display: none" />
@@ -279,7 +275,6 @@
             //refresh grid
             var grid = $("#productattributemappings-grid").data('kendoGrid');
             grid.dataSource.read();
-
             //return false to don't reload a page
             return false;
         });
@@ -288,11 +283,9 @@
             var dataid = $(this).attr("data-id");
             var grid = $('[data-id="' + dataid + '"]').data('kendoGrid');
             grid.dataSource.read();
-
             //return false to don't reload a page
             return false;
         });
         $('#btnRefreshProductAttributes').click();
     });
-
 </script>

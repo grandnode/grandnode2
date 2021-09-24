@@ -415,9 +415,9 @@ namespace Grand.Web.Admin.Models.Catalog
 
         #region Nested classes
 
-        public partial class AddRequiredProductModel : BaseModel
+        public partial class AddProductModel : BaseModel
         {
-            public AddRequiredProductModel()
+            public AddProductModel()
             {
                 AvailableStores = new List<SelectListItem>();
                 AvailableVendors = new List<SelectListItem>();
@@ -449,6 +449,12 @@ namespace Grand.Web.Admin.Models.Catalog
 
             //vendor
             public bool IsLoggedInAsVendor { get; set; }
+        }
+
+
+        public partial class AddRequiredProductModel : AddProductModel 
+        {
+            
         }
 
         public partial class AddProductSpecificationAttributeModel : BaseModel
@@ -569,44 +575,10 @@ namespace Grand.Web.Admin.Models.Catalog
             [GrandResourceDisplayName("Admin.Catalog.Products.RelatedProducts.Fields.DisplayOrder")]
             public int DisplayOrder { get; set; }
         }
-        public partial class AddRelatedProductModel : BaseModel
+        public partial class AddRelatedProductModel : AddProductModel
         {
-            public AddRelatedProductModel()
-            {
-                AvailableStores = new List<SelectListItem>();
-                AvailableVendors = new List<SelectListItem>();
-                AvailableProductTypes = new List<SelectListItem>();
-            }
-
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
-
-            public string SearchProductName { get; set; }
-            [UIHint("Category")]
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCategory")]
-            public string SearchCategoryId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.Brand")]
-            [UIHint("Brand")]
-            public string SearchBrandId { get; set; }
-            [UIHint("Collection")]
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCollection")]
-            public string SearchCollectionId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchStore")]
-            public string SearchStoreId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchVendor")]
-            public string SearchVendorId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
-            public int SearchProductTypeId { get; set; }
-
-            public IList<SelectListItem> AvailableStores { get; set; }
-            public IList<SelectListItem> AvailableVendors { get; set; }
-            public IList<SelectListItem> AvailableProductTypes { get; set; }
-
             public string ProductId { get; set; }
-
             public string[] SelectedProductIds { get; set; }
-
-            //vendor
-            public bool IsLoggedInAsVendor { get; set; }
         }
 
         public partial class SimilarProductModel : BaseEntityModel
@@ -621,43 +593,11 @@ namespace Grand.Web.Admin.Models.Catalog
             public int DisplayOrder { get; set; }
         }
 
-        public partial class AddSimilarProductModel : BaseModel
+        public partial class AddSimilarProductModel : AddProductModel
         {
-            public AddSimilarProductModel()
-            {
-                AvailableStores = new List<SelectListItem>();
-                AvailableVendors = new List<SelectListItem>();
-                AvailableProductTypes = new List<SelectListItem>();
-            }
-
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
-
-            public string SearchProductName { get; set; }
-            [UIHint("Category")]
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCategory")]
-            public string SearchCategoryId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.Brand")]
-            [UIHint("Brand")]
-            public string SearchBrandId { get; set; }
-            [UIHint("Collection")]
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCollection")]
-            public string SearchCollectionId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchStore")]
-            public string SearchStoreId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchVendor")]
-            public string SearchVendorId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
-            public int SearchProductTypeId { get; set; }
-            public IList<SelectListItem> AvailableStores { get; set; }
-            public IList<SelectListItem> AvailableVendors { get; set; }
-            public IList<SelectListItem> AvailableProductTypes { get; set; }
-
             public string ProductId { get; set; }
 
             public string[] SelectedProductIds { get; set; }
-
-            //vendor
-            public bool IsLoggedInAsVendor { get; set; }
         }
 
         public partial class BundleProductModel : BaseEntityModel
@@ -675,39 +615,11 @@ namespace Grand.Web.Admin.Models.Catalog
             public int DisplayOrder { get; set; }
         }
 
-        public partial class AddBundleProductModel : BaseModel
+        public partial class AddBundleProductModel : AddProductModel
         {
-            public AddBundleProductModel()
-            {
-                AvailableStores = new List<SelectListItem>();
-                AvailableVendors = new List<SelectListItem>();
-            }
-
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
-
-            public string SearchProductName { get; set; }
-            [UIHint("Category")]
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCategory")]
-            public string SearchCategoryId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.Brand")]
-            [UIHint("Brand")]
-            public string SearchBrandId { get; set; }
-            [UIHint("Collection")]
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCollection")]
-            public string SearchCollectionId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchStore")]
-            public string SearchStoreId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchVendor")]
-            public string SearchVendorId { get; set; }
-            public IList<SelectListItem> AvailableStores { get; set; }
-            public IList<SelectListItem> AvailableVendors { get; set; }
-
             public string ProductId { get; set; }
 
             public string[] SelectedProductIds { get; set; }
-
-            //vendor
-            public bool IsLoggedInAsVendor { get; set; }
         }
 
         public partial class AssociatedProductModel : BaseEntityModel
@@ -719,44 +631,11 @@ namespace Grand.Web.Admin.Models.Catalog
             public int DisplayOrder { get; set; }
         }
 
-        public partial class AddAssociatedProductModel : BaseModel
+        public partial class AddAssociatedProductModel : AddProductModel
         {
-            public AddAssociatedProductModel()
-            {
-                AvailableStores = new List<SelectListItem>();
-                AvailableVendors = new List<SelectListItem>();
-                AvailableProductTypes = new List<SelectListItem>();
-            }
-
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
-
-            public string SearchProductName { get; set; }
-            [UIHint("Category")]
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCategory")]
-            public string SearchCategoryId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.Brand")]
-            [UIHint("Brand")]
-            public string SearchBrandId { get; set; }
-            [UIHint("Collection")]
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCollection")]
-            public string SearchCollectionId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchStore")]
-            public string SearchStoreId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchVendor")]
-            public string SearchVendorId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
-            public int SearchProductTypeId { get; set; }
-
-            public IList<SelectListItem> AvailableStores { get; set; }
-            public IList<SelectListItem> AvailableVendors { get; set; }
-            public IList<SelectListItem> AvailableProductTypes { get; set; }
-
             public string ProductId { get; set; }
 
             public string[] SelectedProductIds { get; set; }
-
-            //vendor
-            public bool IsLoggedInAsVendor { get; set; }
         }
 
         public partial class CrossSellProductModel : BaseEntityModel
@@ -767,44 +646,11 @@ namespace Grand.Web.Admin.Models.Catalog
             public string Product2Name { get; set; }
         }
 
-        public partial class AddCrossSellProductModel : BaseModel
+        public partial class AddCrossSellProductModel : AddProductModel
         {
-            public AddCrossSellProductModel()
-            {
-                AvailableStores = new List<SelectListItem>();
-                AvailableVendors = new List<SelectListItem>();
-                AvailableProductTypes = new List<SelectListItem>();
-            }
-
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
-
-            public string SearchProductName { get; set; }
-            [UIHint("Category")]
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCategory")]
-            public string SearchCategoryId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.Brand")]
-            [UIHint("Brand")]
-            public string SearchBrandId { get; set; }
-            [UIHint("Collection")]
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCollection")]
-            public string SearchCollectionId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchStore")]
-            public string SearchStoreId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchVendor")]
-            public string SearchVendorId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
-            public int SearchProductTypeId { get; set; }
-
-            public IList<SelectListItem> AvailableStores { get; set; }
-            public IList<SelectListItem> AvailableVendors { get; set; }
-            public IList<SelectListItem> AvailableProductTypes { get; set; }
-
             public string ProductId { get; set; }
 
             public string[] SelectedProductIds { get; set; }
-
-            //vendor
-            public bool IsLoggedInAsVendor { get; set; }
         }
 
         public partial class RecommendedProductModel : BaseEntityModel
@@ -814,44 +660,11 @@ namespace Grand.Web.Admin.Models.Catalog
             [GrandResourceDisplayName("Admin.Catalog.Products.Recommended.Fields.Product")]
             public string Product2Name { get; set; }
         }
-        public partial class AddRecommendedProductModel : BaseModel
+        public partial class AddRecommendedProductModel : AddProductModel
         {
-            public AddRecommendedProductModel()
-            {
-                AvailableStores = new List<SelectListItem>();
-                AvailableVendors = new List<SelectListItem>();
-                AvailableProductTypes = new List<SelectListItem>();
-            }
-
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
-
-            public string SearchProductName { get; set; }
-            [UIHint("Category")]
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCategory")]
-            public string SearchCategoryId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.Brand")]
-            [UIHint("Brand")]
-            public string SearchBrandId { get; set; }
-            [UIHint("Collection")]
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCollection")]
-            public string SearchCollectionId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchStore")]
-            public string SearchStoreId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchVendor")]
-            public string SearchVendorId { get; set; }
-            [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
-            public int SearchProductTypeId { get; set; }
-
-            public IList<SelectListItem> AvailableStores { get; set; }
-            public IList<SelectListItem> AvailableVendors { get; set; }
-            public IList<SelectListItem> AvailableProductTypes { get; set; }
-
             public string ProductId { get; set; }
 
             public string[] SelectedProductIds { get; set; }
-
-            //vendor
-            public bool IsLoggedInAsVendor { get; set; }
         }
 
         public partial class ProductPriceModel : BaseEntityModel
@@ -1149,42 +962,8 @@ namespace Grand.Web.Admin.Models.Catalog
 
             #region Nested classes
 
-            public partial class AssociateProductToAttributeValueModel : BaseModel
+            public partial class AssociateProductToAttributeValueModel : AddProductModel
             {
-                public AssociateProductToAttributeValueModel()
-                {
-                    AvailableStores = new List<SelectListItem>();
-                    AvailableVendors = new List<SelectListItem>();
-                    AvailableProductTypes = new List<SelectListItem>();
-                }
-
-                [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
-
-                public string SearchProductName { get; set; }
-                [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCategory")]
-                [UIHint("Category")]
-                public string SearchCategoryId { get; set; }
-                [GrandResourceDisplayName("Admin.Catalog.Products.List.Brand")]
-                [UIHint("Brand")]
-                public string SearchBrandId { get; set; }
-                [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCollection")]
-                [UIHint("Collection")]
-                public string SearchCollectionId { get; set; }
-                [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchStore")]
-                public string SearchStoreId { get; set; }
-                [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchVendor")]
-                public string SearchVendorId { get; set; }
-                [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
-                public int SearchProductTypeId { get; set; }
-
-                public IList<SelectListItem> AvailableStores { get; set; }
-                public IList<SelectListItem> AvailableVendors { get; set; }
-                public IList<SelectListItem> AvailableProductTypes { get; set; }
-
-                //vendor
-                public bool IsLoggedInAsVendor { get; set; }
-
-
                 public string AssociatedToProductId { get; set; }
             }
 

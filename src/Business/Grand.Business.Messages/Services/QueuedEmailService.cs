@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Grand.Domain.Common;
 
 namespace Grand.Business.Messages.Services
 {
@@ -133,14 +134,17 @@ namespace Grand.Business.Messages.Services
         /// <param name="createdToUtc">Created date to (UTC); null to load all records</param>
         /// <param name="loadNotSentItemsOnly">A value indicating whether to load only not sent emails</param>
         /// <param name="maxSendTries">Maximum send tries</param>
+        /// <param name="loadOnlyItemsToBeSent">Load only items to be sent</param>
         /// <param name="loadNewest">A value indicating whether we should sort queued email descending; otherwise, ascending.</param>
+        /// <param name="referenceId">Reference object</param>
+        /// <param name="objectId">Object reference id</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Email item list</returns>
         public virtual async Task<IPagedList<QueuedEmail>> SearchEmails(string fromEmail,
             string toEmail, string text, DateTime? createdFromUtc, DateTime? createdToUtc,
             bool loadNotSentItemsOnly, bool loadOnlyItemsToBeSent, int maxSendTries,
-            bool loadNewest, int pageIndex = 0, int pageSize = int.MaxValue)
+            bool loadNewest, int referenceId = -1, string objectId = "", int pageIndex = 0, int pageSize = int.MaxValue)
         {
             fromEmail = (fromEmail ?? string.Empty).Trim();
             toEmail = (toEmail ?? string.Empty).Trim();
@@ -167,8 +171,13 @@ namespace Grand.Business.Messages.Services
                 var nowUtc = DateTime.UtcNow;
                 query = query.Where(qe => !qe.DontSendBeforeDateUtc.HasValue || qe.DontSendBeforeDateUtc.Value <= nowUtc);
             }
+            if (referenceId >= 0)
+            {
+                query = query.Where(qe => qe.Reference == (Reference)referenceId && qe.ObjectId == objectId);
+            }
+            if (maxSendTries > 0)
+                query = query.Where(qe => qe.SentTries < maxSendTries);
 
-            query = query.Where(qe => qe.SentTries < maxSendTries);
             if (loadNewest)
             {
                 //load the newest records

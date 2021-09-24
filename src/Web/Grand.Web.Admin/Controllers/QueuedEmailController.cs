@@ -3,6 +3,7 @@ using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Messages.Interfaces;
+using Grand.Domain;
 using Grand.Domain.Messages;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
@@ -40,6 +41,29 @@ namespace Grand.Web.Admin.Controllers
             _workContext = workContext;
         }
 
+        private DataSourceResult PrepareDataSource(IPagedList<QueuedEmail> queuedEmails)
+        {
+            return new DataSourceResult {
+                Data = queuedEmails.Select((Func<QueuedEmail, QueuedEmailModel>)(x =>
+                {
+                    var m = x.ToModel();
+                    m.PriorityName = TranslateExtensions.GetTranslationEnum<QueuedEmailPriority>(x.PriorityId, (ITranslationService)_translationService, (IWorkContext)_workContext);
+                    m.CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
+                    if (x.DontSendBeforeDateUtc.HasValue)
+                        m.DontSendBeforeDate = _dateTimeService.ConvertToUserTime(x.DontSendBeforeDateUtc.Value, DateTimeKind.Utc);
+                    if (x.SentOnUtc.HasValue)
+                        m.SentOn = _dateTimeService.ConvertToUserTime(x.SentOnUtc.Value, DateTimeKind.Utc);
+                    if (x.ReadOnUtc.HasValue)
+                        m.ReadOn = _dateTimeService.ConvertToUserTime(x.ReadOnUtc.Value, DateTimeKind.Utc);
+
+                    m.Body = "";
+
+                    return m;
+                })),
+                Total = queuedEmails.TotalCount
+            };
+        }
+
         public IActionResult Index() => RedirectToAction("List");
 
         [PermissionAuthorizeAction(PermissionActionName.List)]
@@ -65,29 +89,10 @@ namespace Grand.Web.Admin.Controllers
 
             var queuedEmails = await _queuedEmailService.SearchEmails(model.SearchFromEmail, model.SearchToEmail, model.SearchText,
                 startDateValue, endDateValue,
-                model.SearchLoadNotSent, false, model.SearchMaxSentTries, true,
+                model.SearchLoadNotSent, false, model.SearchMaxSentTries, true,-1, null,
                 command.Page - 1, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
-                Data = queuedEmails.Select((Func<QueuedEmail, QueuedEmailModel>)(x =>
-                {
-                    var m = x.ToModel();
-                    m.PriorityName = TranslateExtensions.GetTranslationEnum<QueuedEmailPriority>(x.PriorityId, (ITranslationService)_translationService, (IWorkContext)_workContext);
-                    m.CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
-                    if (x.DontSendBeforeDateUtc.HasValue)
-                        m.DontSendBeforeDate = _dateTimeService.ConvertToUserTime(x.DontSendBeforeDateUtc.Value, DateTimeKind.Utc);
-                    if (x.SentOnUtc.HasValue)
-                        m.SentOn = _dateTimeService.ConvertToUserTime(x.SentOnUtc.Value, DateTimeKind.Utc);
-                    if (x.ReadOnUtc.HasValue)
-                        m.ReadOn = _dateTimeService.ConvertToUserTime(x.ReadOnUtc.Value, DateTimeKind.Utc);
-
-                    m.Body = "";
-
-                    return m;
-                })),
-                Total = queuedEmails.TotalCount
-            };
-            return Json(gridModel);
+           
+            return Json(PrepareDataSource(queuedEmails));
         }
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
@@ -99,6 +104,19 @@ namespace Grand.Web.Admin.Controllers
 
             return RedirectToAction("Edit", "QueuedEmail", new { id = queuedEmail.Id });
         }
+
+        [PermissionAuthorizeAction(PermissionActionName.List)]
+        [HttpPost]
+        public async Task<IActionResult> QueuedEmailByReference(DataSourceRequest command, int reference, string objectId)
+        {
+            var queuedEmails = await _queuedEmailService.SearchEmails(null, null, null,
+                null, null,
+                false, false, 10, true, reference, objectId,
+                command.Page - 1, command.PageSize);
+
+            return Json(PrepareDataSource(queuedEmails));
+        }
+
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         public async Task<IActionResult> Edit(string id)
         {

@@ -1,0 +1,72 @@
+﻿@model OrderModel
+@inject AdminAreaSettings adminAreaSettings
+<div class="panel panel-default">
+    <vc:admin-widget widget-zone="order_details_notifications_top" additional-data="Model" />
+    <div class="panel-body">
+        <div id="order-notifications-grid"></div>
+    </div>
+    <vc:admin-widget widget-zone="order_details_notifications_bottom" additional-data="Model" />
+</div>
+
+<script>
+$(document).ready(function () {
+    $("#order-notifications-grid").kendoGrid({
+        dataSource: {
+            transport: {
+                read: {
+                    url: "@Html.Raw(Url.Action("QueuedEmailByReference", "QueuedEmail", new { reference = (int)Reference.Order, ObjectId = Model.Id, area = Constants.AreaAdmin }))",
+                    type: "POST",
+                    dataType: "json",
+                    data: addAntiForgeryToken
+                },
+            },
+            schema: {
+                data: "Data",
+                total: "Total",
+                errors: "Errors",
+            },
+            error: function(e) {
+                display_kendoui_grid_error(e);
+                // Cancel the changes
+                this.cancelChanges();
+            },
+            pageSize: @(adminAreaSettings.DefaultGridPageSize),
+            serverPaging: true,
+            serverFiltering: true,
+            serverSorting: true
+        },
+        autoBind: false,
+        pageable: {
+            refresh: true,
+            pageSizes: [@(adminAreaSettings.GridPageSizes)]
+        },
+        editable: {
+            confirmation: true,
+            mode: "inline"
+        },
+        scrollable: false,
+        columns: [{
+                    field: "Subject",
+                    title: "@Loc["Admin.System.QueuedEmails.Fields.Subject"]",
+                    width: 300,
+                    template: '<a class="k-link" href="@Url.Action("Edit", "QueuedEmail")/#=Id#">#=kendo.htmlEncode(Subject)#</a>',
+                }, {
+                    field: "To",
+                    title: "@Loc["Admin.System.QueuedEmails.Fields.To"]",
+                    width: 100
+                }, {
+                    field: "CreatedOn",
+                    title: "@Loc["Admin.System.QueuedEmails.Fields.CreatedOn"]",
+                    width: 100,
+                    type: "date",
+                    format: "{0:G}"
+                }, {
+                    field: "SentOn",
+                    title: "@Loc["Admin.System.QueuedEmails.Fields.SentOn"]",
+                    width: 100,
+                    type: "date",
+                    format: "{0:G}"
+                }]
+    });
+});
+</script>

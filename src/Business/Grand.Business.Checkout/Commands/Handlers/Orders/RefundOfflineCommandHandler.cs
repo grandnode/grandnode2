@@ -5,7 +5,6 @@ using Grand.Business.Checkout.Interfaces.Payments;
 using Grand.Business.Checkout.Queries.Models.Orders;
 using Grand.Business.Messages.Interfaces;
 using Grand.Domain.Localization;
-using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.SharedKernel;
 using MediatR;
@@ -24,10 +23,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         private readonly LanguageSettings _languageSettings;
 
         public RefundOfflineCommandHandler(
-            IMediator mediator, 
+            IMediator mediator,
             IOrderService orderService,
             IPaymentTransactionService paymentTransactionService,
-            IMessageProviderService messageProviderService, 
+            IMessageProviderService messageProviderService,
             LanguageSettings languageSettings)
         {
             _mediator = mediator;
@@ -72,32 +71,11 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             //check order status
             await _mediator.Send(new CheckOrderStatusCommand() { Order = order });
 
-            //notifications
-            var orderRefundedStoreOwnerNotificationQueuedEmailId = await _messageProviderService.SendOrderRefundedStoreOwnerMessage(order, amountToRefund, _languageSettings.DefaultAdminLanguageId);
-            if (orderRefundedStoreOwnerNotificationQueuedEmailId > 0)
-            {
-                await _orderService.InsertOrderNote(new OrderNote
-                {
-                    Note = "Order refunded email (to store owner) has been queued.",
-                    DisplayToCustomer = false,
-                    CreatedOnUtc = DateTime.UtcNow,
-                    OrderId = order.Id,
-                });
+            //notifications for store owner
+            await _messageProviderService.SendOrderRefundedStoreOwnerMessage(order, amountToRefund, _languageSettings.DefaultAdminLanguageId);
 
-            }
-
-
-            var orderRefundedCustomerNotificationQueuedEmailId = await _messageProviderService.SendOrderRefundedCustomerMessage(order, amountToRefund, order.CustomerLanguageId);
-            if (orderRefundedCustomerNotificationQueuedEmailId > 0)
-            {
-                await _orderService.InsertOrderNote(new OrderNote
-                {
-                    Note = "\"Order refunded\" email (to customer) has been queued.",
-                    DisplayToCustomer = false,
-                    CreatedOnUtc = DateTime.UtcNow,
-                    OrderId = order.Id,
-                });
-            }
+            //notifications for customer
+            await _messageProviderService.SendOrderRefundedCustomerMessage(order, amountToRefund, order.CustomerLanguageId);
 
             //raise event       
             await _mediator.Publish(new PaymentTransactionRefundedEvent(paymentTransaction, amountToRefund));

@@ -11,18 +11,7 @@
 <input asp-for="DisplayColorSquaresRgb" type="hidden" />
 <input asp-for="DisplayImageSquaresPicture" type="hidden" />
 
-@if (ViewBag.RefreshPage == true)
-{
-    <script>
-    try {
-        window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).setAttribute('data-id', '@Model.ProductAttributeMappingId');
-        window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();
 
-    }
-        catch (e){}
-        window.close();
-    </script>
-}
 <script>
     $(document).ready(function () {
 

@@ -354,6 +354,8 @@ namespace Grand.Business.Marketing.Services.Campaigns
                 email.Body = body;
                 email.CreatedOnUtc = DateTime.UtcNow;
                 email.EmailAccountId = emailAccount.Id;
+                email.Reference = Domain.Common.Reference.Campaign;
+                email.ObjectId = campaign.Id;
 
                 await _queuedEmailService.InsertQueuedEmail(email);
                 await InsertCampaignHistory(new CampaignHistory() { CampaignId = campaign.Id, CustomerId = subscription.CustomerId, Email = subscription.Email, CreatedDateUtc = DateTime.UtcNow, StoreId = campaign.StoreId });

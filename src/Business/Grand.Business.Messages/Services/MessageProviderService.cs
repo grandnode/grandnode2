@@ -176,7 +176,7 @@ namespace Grand.Business.Messages.Services
             var toName = toEmailAccount ? emailAccount.DisplayName : customer.GetFullName();
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName, reference: Reference.Customer, objectId: customer.Id);
         }
 
         /// <summary>
@@ -341,7 +341,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Order, objectId: order.Id);
         }
 
 
@@ -463,7 +464,8 @@ namespace Grand.Business.Messages.Services
                 toEmail, toName,
                 attachmentFilePath,
                 attachmentFileName,
-                attachments);
+                attachments,
+                reference: Reference.Order, objectId: order.Id);
         }
 
 
@@ -545,7 +547,8 @@ namespace Grand.Business.Messages.Services
             var toName = vendor.Name;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Order, objectId: order.Id);
         }
 
 
@@ -614,7 +617,8 @@ namespace Grand.Business.Messages.Services
             var toName = string.Format("{0} {1}", order.BillingAddress.FirstName, order.BillingAddress.LastName);
             return await SendNotification(messageTemplate, emailAccount,
                 language.Id, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Shipment, objectId: shipment.Id);
         }
 
 
@@ -658,7 +662,8 @@ namespace Grand.Business.Messages.Services
             var toName = string.Format("{0} {1}", order.BillingAddress.FirstName, order.BillingAddress.LastName);
             return await SendNotification(messageTemplate, emailAccount,
                 language.Id, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Order, objectId: order.Id);
         }
 
         #endregion
@@ -724,7 +729,8 @@ namespace Grand.Business.Messages.Services
             var toName = "";
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: subscription.CustomerId);
         }
         #endregion
 
@@ -773,7 +779,8 @@ namespace Grand.Business.Messages.Services
             var toName = "";
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer.Id);
         }
 
         /// <summary>
@@ -816,7 +823,8 @@ namespace Grand.Business.Messages.Services
             var toName = "";
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer.Id);
         }
 
 
@@ -894,7 +902,8 @@ namespace Grand.Business.Messages.Services
             }
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName, replyToEmailAddress: customerEmail);
+                toEmail, toName, replyToEmailAddress: customerEmail,
+                reference: Reference.Customer, objectId: customer.Id);
         }
 
         #endregion
@@ -954,7 +963,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.MerchandiseReturn, objectId: merchandiseReturn.Id);
         }
 
         /// <summary>
@@ -1000,7 +1010,8 @@ namespace Grand.Business.Messages.Services
                 customer.GetFullName();
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.MerchandiseReturn, objectId: merchandiseReturn.Id);
         }
 
         /// <summary>
@@ -1045,7 +1056,8 @@ namespace Grand.Business.Messages.Services
                 customer.GetFullName();
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.MerchandiseReturn, objectId: merchandiseReturn.Id);
         }
 
         /// <summary>
@@ -1093,7 +1105,8 @@ namespace Grand.Business.Messages.Services
                 customer.GetFullName();
             return await SendNotification(messageTemplate, emailAccount,
                 language.Id, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.MerchandiseReturn, objectId: merchandiseReturn.Id);
         }
 
         #endregion
@@ -1137,7 +1150,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer.Id);
         }
 
         /// <summary>
@@ -1171,7 +1185,8 @@ namespace Grand.Business.Messages.Services
             var toEmail = emailAccount.Email;
             var toName = emailAccount.DisplayName;
 
-            return await SendNotification(messageTemplate, emailAccount, languageId, liquidObject, toEmail, toName);
+            return await SendNotification(messageTemplate, emailAccount, languageId, liquidObject, toEmail, toName,
+                reference: Reference.Vendor, objectId: vendor.Id);
         }
 
 
@@ -1255,7 +1270,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Product, objectId: product.Id);
         }
 
 
@@ -1302,7 +1318,8 @@ namespace Grand.Business.Messages.Services
             var toName = vendor.Name;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer?.Id);
         }
 
         /// <summary>
@@ -1337,7 +1354,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Product, objectId: product.Id);
         }
 
         /// <summary>
@@ -1373,7 +1391,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Product, objectId: product.Id);
         }
 
         /// <summary>
@@ -1409,7 +1428,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer.Id);
         }
 
         /// <summary>
@@ -1447,7 +1467,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Blog, objectId: blogPost.Id);
         }
 
         /// <summary>
@@ -1565,7 +1586,8 @@ namespace Grand.Business.Messages.Services
             var toName = customer.GetFullName();
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer?.Id);
         }
 
         /// <summary>
@@ -1641,7 +1663,7 @@ namespace Grand.Business.Messages.Services
                 fromName: fromName,
                 subject: subject,
                 replyToEmailAddress: senderEmail,
-                replyToName: senderName);
+                replyToName: senderName, reference: Reference.Customer, objectId: customer?.Id);
         }
 
         /// <summary>
@@ -1719,7 +1741,8 @@ namespace Grand.Business.Messages.Services
                 fromName: fromName,
                 subject: subject,
                 replyToEmailAddress: senderEmail,
-                replyToName: senderName);
+                replyToName: senderName,
+                reference: Reference.Vendor, objectId: vendor?.Id);
         }
 
         #region Customer Action Event
@@ -1765,7 +1788,8 @@ namespace Grand.Business.Messages.Services
 
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer?.Id);
         }
 
 
@@ -1819,7 +1843,8 @@ namespace Grand.Business.Messages.Services
 
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer?.Id);
 
         }
 
@@ -1861,7 +1886,8 @@ namespace Grand.Business.Messages.Services
                 var toName = customer.GetFullName();
                 return await SendNotification(messageTemplate, emailAccount,
                     languageId, liquidObject,
-                    toEmail, toName);
+                    toEmail, toName,
+                    reference: Reference.Customer, objectId: customer.Id);
             }
             return 0;
         }
@@ -1909,7 +1935,8 @@ namespace Grand.Business.Messages.Services
                     var toName = customer.GetFullName();
                     await SendNotification(messageTemplate, emailAccount,
                         languageId, liquidObject2,
-                        toEmail, toName);
+                        toEmail, toName,
+                        reference: Reference.Customer, objectId: customer?.Id);
                 }
             }
             return 0;
@@ -1955,7 +1982,8 @@ namespace Grand.Business.Messages.Services
                     var toName = customer.GetFullName();
                     await SendNotification(messageTemplate, emailAccount,
                         languageId, liquidObject2,
-                        toEmail, toName);
+                        toEmail, toName,
+                        reference: Reference.Customer, objectId: customer.Id);
                 }
             }
 
@@ -2056,7 +2084,8 @@ namespace Grand.Business.Messages.Services
             var toName = customer.GetFullName();
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer?.Id);
         }
         #endregion
 
@@ -2097,7 +2126,8 @@ namespace Grand.Business.Messages.Services
 
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer.Id);
         }
 
         #endregion
@@ -2108,15 +2138,16 @@ namespace Grand.Business.Messages.Services
             string attachmentFilePath = null, string attachmentFileName = null,
             IEnumerable<string> attachedDownloads = null,
             string replyToEmailAddress = null, string replyToName = null,
-            string fromEmail = null, string fromName = null, string subject = null)
+            string fromEmail = null, string fromName = null, string subject = null,
+            Reference reference = Reference.None, string objectId = "")
         {
-            if (String.IsNullOrEmpty(toEmailAddress))
+            if (string.IsNullOrEmpty(toEmailAddress))
                 return 0;
 
             //retrieve translation message template data
             var bcc = messageTemplate.GetTranslation(mt => mt.BccEmailAddresses, languageId);
 
-            if (String.IsNullOrEmpty(subject))
+            if (string.IsNullOrEmpty(subject))
                 subject = messageTemplate.GetTranslation(mt => mt.Subject, languageId);
 
             var body = messageTemplate.GetTranslation(mt => mt.Body, languageId);
@@ -2153,6 +2184,8 @@ namespace Grand.Business.Messages.Services
             email.EmailAccountId = emailAccount.Id;
             email.DontSendBeforeDateUtc = !messageTemplate.DelayBeforeSend.HasValue ? null
                     : (DateTime?)(DateTime.UtcNow + TimeSpan.FromHours(messageTemplate.DelayPeriodId.ToHours(messageTemplate.DelayBeforeSend.Value)));
+            email.Reference = reference;
+            email.ObjectId = objectId;
 
             await _queuedEmailService.InsertQueuedEmail(email);
             return 1;

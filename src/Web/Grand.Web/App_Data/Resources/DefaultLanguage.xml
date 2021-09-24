@@ -9304,6 +9304,9 @@
   <Resource Name="Admin.Orders.MerchandiseReturns.View">
     <Value>View</Value>
   </Resource>
+  <Resource Name="Admin.Orders.Notifications">
+    <Value>Notifications</Value>
+  </Resource>
   <Resource Name="Admin.Orders.OrderNotes">
     <Value>Order notes</Value>
   </Resource>
@@ -11862,6 +11865,9 @@
   <Resource Name="Admin.Settings.System.GridPageSizes">
     <Value>Grid Page Sizes</Value>
   </Resource>
+  <Resource Name="Admin.Settings.System.HideStoreColumn">
+    <Value>Hide column The Store on the grid</Value>
+  </Resource>
   <Resource Name="Admin.Settings.System.IgnoreRtlPropertyForAdminArea">
     <Value>Ignore RTL language property for admin area</Value>
   </Resource>
@@ -12261,8 +12267,11 @@
   <Resource Name="Admin.System.QueuedEmails.Fields.ReadOn.notread">
     <Value>Not read</Value>
   </Resource>
-  <Resource Name="Admin.System.QueuedEmails.Fields.ReplyTo">
-    <Value>ReplyTo</Value>
+  <Resource Name="Admin.System.QueuedEmails.Fields.ReadOn.notread">
+    <Value>Not read</Value>
+  </Resource>
+  <Resource Name="Admin.System.QueuedEmails.Fields.Reference">
+    <Value>Reference to the object</Value>
   </Resource>
   <Resource Name="Admin.System.QueuedEmails.Fields.ReplyToName">
     <Value>ReplyTo name</Value>
@@ -15262,7 +15271,7 @@
     <Value>Attribute combinations not exists.</Value>
   </Resource>
   <Resource Name="Products.Availability.Attributes.Backordering">
-    <Value>Out of Stock - on backorder and will be dispatched once in stock.</Value>
+    <Value>Out of Stock - on backorder and will be dispatched once back in stock.</Value>
   </Resource>
   <Resource Name="Products.Availability.Attributes.InStock">
     <Value>In stock</Value>
@@ -15271,7 +15280,7 @@
     <Value>Out of stock</Value>
   </Resource>
   <Resource Name="Products.Availability.Backordering">
-    <Value>Out of Stock - on backorder and will be dispatched once in stock.</Value>
+    <Value>Out of Stock - on backorder and will be dispatched once back in stock.</Value>
   </Resource>
   <Resource Name="Products.Availability.InStock">
     <Value>In stock</Value>
