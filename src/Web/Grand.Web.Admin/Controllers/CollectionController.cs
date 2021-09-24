@@ -469,11 +469,14 @@ namespace Grand.Web.Admin.Controllers
                     await _collectionViewModelService.InsertCollectionProductModel(model);
                 }
                 ViewBag.RefreshPage = true;
+                return Content("");
             }
             else
+            {
                 Error(ModelState);
+                return View(model);
+            }
 
-            return View(model);
         }
         #endregion
 
