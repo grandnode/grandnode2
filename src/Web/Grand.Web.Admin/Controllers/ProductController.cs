@@ -1367,7 +1367,7 @@ namespace Grand.Web.Admin.Controllers
                 await _productViewModelService.UpdateProductPicture(model);
 
                 ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
 
             Error(ModelState);
