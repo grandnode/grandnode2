@@ -294,7 +294,6 @@ namespace Grand.Web.Admin.Controllers
 
                 await _pictureViewModelService.UpdatePicture(model);
 
-                ViewBag.RefreshPage = true;
                 return Content("");
             }
 
@@ -430,7 +429,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     await _categoryViewModelService.InsertCategoryProductModel(model);
                 }
-                ViewBag.RefreshPage = true;
+
                 return Content("");
             }
             else
