@@ -118,13 +118,11 @@
                 {
                     field: "Attributes",
                     title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Attributes"]",
-                    width: 340,
                     encoded: false,
                     template: "<a class='k-link editcombinationlink' href=\"@Url.Action("AttributeCombinationPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&Id=#=Id#&btnId=btnRefreshCombinations&formId=product-form\">#=Attributes#<br /> # if(Warnings !== null) {# <span style=\"color: red\">#=Warnings#</span> #}  #</a>"
                 }, {
                     field: "StockQuantity",
                     title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.StockQuantity"]",
-                    width: 80,
                     headerAttributes: { style: "text-align:center" },
                     attributes: { style: "text-align:center" },
                     //integer format
@@ -132,26 +130,15 @@
                 }, {
                     field: "AllowOutOfStockOrders",
                     title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.AllowOutOfStockOrders"]",
-                    width: 80,
                     headerAttributes: { style: "text-align:center" },
                     attributes: { style: "text-align:center" },
                     template: '# if(AllowOutOfStockOrders) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
                 }, {
                     field: "Sku",
                     title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Sku"]",
-                    width: 100
-                }, {
-                    field: "Mpn",
-                    title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Mpn"]",
-                    width: 100
-                }, {
-                    field: "Gtin",
-                    title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Gtin"]",
-                    width: 100
                 }, {
                     field: "OverriddenPrice",
                     title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.OverriddenPrice"]",
-                    width: 80,
                     headerAttributes: { style: "text-align:center" },
                     attributes: { style: "text-align:center" },
                     editor: function (container, options) {
