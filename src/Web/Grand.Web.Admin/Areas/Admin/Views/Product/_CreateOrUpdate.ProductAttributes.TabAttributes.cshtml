@@ -112,7 +112,7 @@
                             }
                         }
                     });
-                },
+                },                
                 pageable: {
                     refresh: true,
                     numeric: false,
@@ -209,6 +209,7 @@
                     serverFiltering: true,
                     serverSorting: true
                 },
+
                 dataBound: function () {
                     $('.btnProductAttributeValueEditPopup').magnificPopup({
                         type: 'ajax',
@@ -285,7 +286,6 @@
             grid.dataSource.read();
             //return false to don't reload a page
             return false;
-        });
-        $('#btnRefreshProductAttributes').click();
+        });        
     });
 </script>
