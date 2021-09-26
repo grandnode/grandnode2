@@ -9,9 +9,6 @@
 <form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="AssociateProductToAttributeValuePopup"
      asp-route-productIdInput="@Context.Request.Query["productIdInput"]"
       asp-route-productNameInput="@Context.Request.Query["productNameInput"]" id="associateproduct">
-
-    
-
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit popup-window">
@@ -93,23 +90,7 @@
             </div>
         </div>
     </div>
-
-    @if (ViewBag.RefreshPage == true)
-    {
-<script>
-            try {
-                //window.opener.document.getElementById('@(ViewBag.productIdInput)').value = '@(ViewBag.productId)';
-                //window.opener.document.getElementById('@(ViewBag.productNameInput)').innerHTML = '@(ViewBag.productName)';
-                window.opener.$('#@(Context.Request.Query["productIdInput"])').val('@(ViewBag.productId)');
-                window.opener.document.getElementById('@(Context.Request.Query["productNameInput"])').innerHTML = '@(ViewBag.productName)';
-            }
-            catch (e){}
-            window.close();
-</script>
-    }
-
     <input asp-for="AssociatedToProductId" type="hidden" />
-
     <script>
         var mfp = $.magnificPopup.instance;
         $("#associateproduct").submit(function (e) {
