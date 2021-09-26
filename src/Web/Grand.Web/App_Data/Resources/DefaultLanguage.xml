@@ -3507,8 +3507,8 @@
   <Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.MinLength">
     <Value>Minimum length</Value>
   </Resource>
-  <Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.ViewLink">
-    <Value>View/Edit rules</Value>
+  <Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.Link">
+    <Value>Edit rules</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.Values">
     <Value>Values</Value>

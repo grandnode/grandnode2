@@ -146,7 +146,7 @@
                         field: "AttributeControlTypeId",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Fields.AttributeControlType"]",
                         width: 140,
-                        template: "#:AttributeControlType# <br> # if(ValidationRulesAllowed) {# <a class='btnMagnificPopup' href='@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.ViewLink"]</a><br />#=ValidationRulesString# #}  #"
+                        template: "#:AttributeControlType# <br> # if(ValidationRulesAllowed) {# <a class='btnMagnificPopup' href='@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.Link"]</a><br />#=ValidationRulesString# #}  #"
                     },
                     {
                         field: "ConditionAllowed",
