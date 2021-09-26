@@ -6768,7 +6768,10 @@ form>h4 {
 .k-tabstrip-items-wrapper, .k-autocomplete, .k-tabstrip-items-wrapper, .k-hstack, .k-draghandle, .k-dropdown-wrap, .k-hstack, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-textbox {
     background-color: #f5f5f5;
 }
-
+.k-tabstrip-items .k-item .k-link {
+    color: #34495E;
+    font-weight: 500;
+}
 .k-link, .k-nav-current.k-state-hover {
     color: #1ABB9C;
 }
