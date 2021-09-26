@@ -12,7 +12,7 @@
             <div id="recommendedproducts-grid"></div>
         </div>
         <div class="panel-footer">
-            <button type="submit" id="btnAddNewRecommendedProduct" onclick="javascript:OpenWindow('@(Url.Action("RecommendedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshRecommendedProducts", formId = "product-form", area = Constants.AreaAdmin }))    ', 1000, 1000, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.Recommended.AddNew"]</button>
+            <a id="btnAddNewRecommendedProduct" href="@(Url.Action("RecommendedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshRecommendedProducts", formId = "product-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.Recommended.AddNew"]</a>
             <input type="submit" id="btnRefreshRecommendedProducts" style="display: none" />
         </div>
         <vc:admin-widget widget-zone="product_details_recommended_bottom" additional-data="Model" />
@@ -20,6 +20,18 @@
 
     <script>
         $(document).ready(function () {
+            $('#btnAddNewRecommendedProduct').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
             $("#recommendedproducts-grid").kendoGrid({
                 dataSource: {
                     transport: {

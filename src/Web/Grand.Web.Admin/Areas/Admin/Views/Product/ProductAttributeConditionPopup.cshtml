@@ -1,10 +1,10 @@
 ﻿@using Grand.Domain.Catalog
 @model ProductAttributeConditionModel
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Condition"];
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductAttributeConditionPopup" enctype="multipart/form-data" method="post"
+<form id="ProductAttributeConditionPopup" asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductAttributeConditionPopup" enctype="multipart/form-data" method="post"
       asp-route-ProductId="@Context.Request.Query["ProductId"]"
       asp-route-productAttributeMappingId="@Context.Request.Query["ProductAttributeMappingId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
@@ -168,13 +168,37 @@
 
 
 
-        <script>
-            $(document).ready(function() {
-                $("#@Html.IdFor(model => model.EnableCondition)").click(toggleEnableCondition);
-
-                toggleEnableCondition();
+<script>
+            var mfp = $.magnificPopup.instance;
+            $("#ProductAttributeConditionPopup").submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data == "") {
+                            mfp.close();
+                            $('#btnRefreshProductAttributes').click();
+                        } else {
+                            $.magnificPopup.open({
+                                items: {
+                                    src: data,
+                                    type: 'inline'
+                                },
+                                callbacks: {
+                                    open: function () {
+                                        $('.mfp-wrap').removeAttr('tabindex');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
             });
-
+        
             function toggleEnableCondition() {
                 if ($('#@Html.IdFor(model => model.EnableCondition)').is(':checked')) {
                     $('#pnlAttributes').show();
@@ -182,6 +206,10 @@
                     $('#pnlAttributes').hide();
                 }
             }
-        </script>
+
+           $("#@Html.IdFor(model => model.EnableCondition)").click(toggleEnableCondition);
+
+           toggleEnableCondition();
+</script>
 
 </form>

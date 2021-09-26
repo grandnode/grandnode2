@@ -11,13 +11,27 @@
             <div id="associatedproducts-grid"></div>
         </div>
         <div class="panel-footer">
-            <input type="submit" id="btnAddNewAssociatedProduct" value="@Loc["Admin.Catalog.Products.AssociatedProducts.AddNew"]" onclick="javascript:OpenWindow('@(Url.Action("AssociatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshAssociatedProducts", formId = "product-form", area = Constants.AreaAdmin }))    ', 1000, 1000, true); return false;" class="k-button" />
+            <a id="btnAddNewAssociatedProduct" href="@(Url.Action("AssociatedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshAssociatedProducts", formId = "product-form", area = Constants.AreaAdmin }))" class="k-button">
+                @Loc["Admin.Catalog.Products.AssociatedProducts.AddNew"]
+            </a>
             <input type="submit" id="btnRefreshAssociatedProducts" style="display: none" />
         </div>
         <vc:admin-widget widget-zone="product_details_associated_products_bottom" additional-data="Model" />
     </div>
     <script>
         $(document).ready(function () {
+            $('#btnAddNewAssociatedProduct').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
             $("#associatedproducts-grid").kendoGrid({
                 dataSource: {
                     transport: {

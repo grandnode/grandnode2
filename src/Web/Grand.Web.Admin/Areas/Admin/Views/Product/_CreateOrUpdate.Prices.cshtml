@@ -191,14 +191,40 @@
             <div id="tierprices-grid"></div>
         </div>
         <div class="panel-footer">
-            <button type="submit" id="btnAddNewTierPrice" onclick="javascript:OpenWindow('@(Url.Action("TierPriceCreatePopup", "Product", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaAdmin }))', 800, 600, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.TierPrices.AddNew"]</button>
+            <a id="btnAddNewTierPrice" href="@(Url.Action("TierPriceCreatePopup", "Product", new { productId = Model.Id, btnId = "btnRefreshTierPrices", formId = "product-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.TierPrices.AddNew"]</a>
             <input type="submit" id="btnRefreshTierPrices" style="display: none" />
         </div>
     </div>
 
     <script>
         $(document).ready(function () {
+            $('#btnAddNewTierPrice').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
             $("#tierprices-grid").kendoGrid({
+                dataBound: function () {
+                    $('.tierpriceedit').magnificPopup({
+                        type: 'ajax',
+                        settings: { cache: false, async: false },
+                        callbacks: {
+                            parseAjax: function (mfpResponse) {
+                                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                            },
+                            ajaxContentAdded: function () {
+                                $('.mfp-wrap').removeAttr('tabindex');
+                            }
+                        }
+                    });
+                },
                 dataSource: {
                     transport: {
                         read: {
@@ -289,7 +315,7 @@
                 }, {
                     field: "Id",
                     title: "@Loc["Admin.Common.Edit"]",
-                    template: "<button type=\"button\" onclick=\"javascript:OpenWindow('@Url.Action("TierPriceEditPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?productId=@(Model.Id)&btnId=btnRefreshTierPrices&formId=product-form', 800, 600, true); return false;\" class=\"k-button\"><span class=\"k-icon k-i-edit\"></span>&nbsp;@Loc["Admin.Common.Edit"]</button>"
+                    template: "<a class='tierpriceedit' href=\"@Url.Action("TierPriceEditPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?productId=@(Model.Id)&btnId=btnRefreshTierPrices&formId=product-form\" class=\"k-button\"><span class=\"k-icon k-i-edit\"></span>&nbsp;@Loc["Admin.Common.Edit"]</a>"
                 }, {
                     command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
                     title: "@Loc["Admin.Common.Delete"]"

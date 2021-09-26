@@ -1,12 +1,12 @@
 ﻿@model CollectionModel.AddCollectionProductModel
 @inject AdminAreaSettings adminAreaSettings
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Collections.Products.AddNew"];
 }
 
-<form asp-area="@Constants.AreaAdmin" asp-controller="Collection" asp-action="ProductAddPopup" method="post"
+<form id="ProductAddPopup" asp-area="@Constants.AreaAdmin" asp-controller="Collection" asp-action="ProductAddPopup" method="post"
       asp-route-CollectionId="@Context.Request.Query["CollectionId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
@@ -106,7 +106,35 @@
     </script>
     }
     <script>
-        $(document).ready(function () {
+            var mfp = $.magnificPopup.instance;
+            $("#ProductAddPopup").submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data == "") {
+                            mfp.close();
+                            $('#btnRefreshProducts').click();
+                        } else {
+                            $.magnificPopup.open({
+                                items: {
+                                    src: data,
+                                    type: 'inline'
+                                },
+                                callbacks: {
+                                    open: function () {
+                                        $('.mfp-wrap').removeAttr('tabindex');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            });
 
             $('.extend-collapse').hide();
             $('.filter-extend-button').click(function () {
@@ -169,10 +197,7 @@
                     template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
                 }]
             });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
+
             $('#search-products').click(function () {
                 var grid = $('#products-grid').data('kendoGrid');
                 grid.dataSource.page(1); //new search. Set page size to 1
@@ -197,7 +222,6 @@
             $('#products-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function(e) {
                 updateMasterCheckbox();
             });
-        });
 
         function additionalData() {
             var data = {

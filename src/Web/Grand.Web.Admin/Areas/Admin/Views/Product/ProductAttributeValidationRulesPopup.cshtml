@@ -1,17 +1,17 @@
 ﻿@model ProductModel.ProductAttributeMappingModel
 @using Grand.Domain.Catalog
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules"];
 
     var attributeControlType = (AttributeControlType)Model.AttributeControlTypeId;
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductAttributeValidationRulesPopup" enctype="multipart/form-data" method="post"
+<form id="ProductAttributeValidationRulesPopup" asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductAttributeValidationRulesPopup" enctype="multipart/form-data" method="post"
       asp-route-ProductId="@Context.Request.Query["ProductId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -85,6 +85,37 @@
     }
     @if (!Model.ValidationRulesAllowed)
     {
-        <div class="note note-danger">>This attribute type cannot have validation rules</div>
+        <div class="note note-danger">This attribute type cannot have validation rules</div>
     }
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#ProductAttributeValidationRulesPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefreshProductAttributes').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 </form>

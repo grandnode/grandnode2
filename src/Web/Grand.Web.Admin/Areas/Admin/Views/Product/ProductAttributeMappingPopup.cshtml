@@ -1,17 +1,17 @@
 ﻿@using Grand.Domain.Catalog
 @model ProductModel.ProductAttributeMappingModel
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.Details"];
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductAttributeMappingPopup" enctype="multipart/form-data" method="post"
+<form id="ProductAttributeMappingPopup" asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductAttributeMappingPopup" enctype="multipart/form-data" method="post"
       asp-route-ProductId="@Context.Request.Query["ProductId"]"
       asp-route-productAttributeMappingId="@Context.Request.Query["ProductAttributeMappingId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
 
-    
+
     <div asp-validation-summary="All"></div>
     <input asp-for="ProductId" type="hidden" />
     <input asp-for="Id" type="hidden" />
@@ -111,9 +111,41 @@
     @if (ViewBag.RefreshPage == true)
     {
         <script>
+            alert('test');
             try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
             catch (e){}
             window.close();
         </script>
     }
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#ProductAttributeMappingPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefreshProductAttributes').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 </form>

@@ -2,11 +2,11 @@
 
 @model ProductModel.ProductPictureModel
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Products.Pictures.Details"];
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductPicturePopup" enctype="multipart/form-data" method="post"
+<form id="ProductPicturePopup" asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductPicturePopup" enctype="multipart/form-data" method="post"
       asp-route-ProductId="@Context.Request.Query["ProductId"]"
       asp-route-Id="@Context.Request.Query["Id"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
@@ -97,4 +97,35 @@
             window.close();
         </script>
     }
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#ProductPicturePopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefreshProductPictures').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 </form>

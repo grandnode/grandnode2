@@ -1,7 +1,7 @@
 ﻿@model ProductModel.ProductAttributeValueModel.AssociateProductToAttributeValueModel
 @inject AdminAreaSettings adminAreaSettings
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.AssociatedProduct.AddNew"];
 }
@@ -96,7 +96,7 @@
 
     @if (ViewBag.RefreshPage == true)
     {
-    <script>
+<script>
             try {
                 //window.opener.document.getElementById('@(ViewBag.productIdInput)').value = '@(ViewBag.productId)';
                 //window.opener.document.getElementById('@(ViewBag.productNameInput)').innerHTML = '@(ViewBag.productName)';
@@ -105,13 +105,65 @@
             }
             catch (e){}
             window.close();
-    </script>
+</script>
     }
 
     <input asp-for="AssociatedToProductId" type="hidden" />
 
     <script>
-    $(document).ready(function () {
+        var mfp = $.magnificPopup.instance;
+        $("#associateproduct").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        var productId = $("#@Html.IdFor(model => model.AssociatedToProductId)").val();
+                        var productName = $("#@Html.IdFor(model => model.AssociatedToProductId)").data("name");
+                        var id = $('.btnProductAttributeValueEditPopup.active').data("id");
+                        var button = $('.btnProductAttributeValueEditPopup[data-id="' + id + '"]');
+                        var mfp = $('.mfp-wrap');
+
+                        mfp.attr("data-id", id);
+                        mfp.attr("data-prodid", productId);
+                        mfp.attr("data-prodname", productName);
+
+                        $('.btnProductAttributeValueEditPopup.active').removeClass('active');
+
+                        button.click();
+
+                    } else {
+                        $.magnificPopup.instance.currItem.src = data;
+                        $.magnificPopup.instance.updateItemHTML();
+                    }
+                }
+            });
+        });
+
+        function additionalData() {
+            var data = {
+                SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
+                SearchCategoryId: $('#SearchCategoryId').val(),
+                SearchBrandId: $('#SearchBrandId').val(),
+                SearchCollectionId: $('#SearchCollectionId').val(),
+                SearchStoreId: $('#SearchStoreId').val(),
+                SearchVendorId: $('#SearchVendorId').val(),
+                SearchProductTypeId: $('#SearchProductTypeId').val()
+            };
+            addAntiForgeryToken(data);
+            return data;
+        }
+
+        function selectAssociatedProduct(productid, productname) {
+            $("#@Html.IdFor(model => model.AssociatedToProductId)").val(productid);
+            $("#@Html.IdFor(model => model.AssociatedToProductId)").attr("data-name", productname);
+            $('#associateproduct').submit();
+        }
+
         $("#products-grid").kendoGrid({
             dataSource: {
                 transport: {
@@ -156,7 +208,7 @@
                 field: "Name",
                 title: "@Loc["Admin.Common.Select"]",
                 width: 50,
-                template: '<input type="button" value="@Loc["Admin.Common.Select"]" onclick="selectAssociatedProduct(\'#=Id#\')" class="k-button" />'
+                template: '<input type="button" value="@Loc["Admin.Common.Select"]" onclick="selectAssociatedProduct(\'#=Id#\',\'#=Name#\')" class="k-button" />'
             },{
                 field: "Name",
                 title: "@Loc["Admin.Catalog.Products.Fields.Name"]"
@@ -169,19 +221,13 @@
                 template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
             }]
         });
-    });
-    </script>
 
-
-    <script>
-        $(document).ready(function () {
             $('#search-products').click(function () {
                 var grid = $('#products-grid').data('kendoGrid');
                 grid.dataSource.page(1); //new search. Set page size to 1
                 //grid.dataSource.read(); we already loaded the grid above using "page" function
                 return false;
             });
-        });
 
         $("#@Html.IdFor(model => model.SearchProductName)").keydown(function (event) {
             if (event.keyCode == 13) {
@@ -190,23 +236,5 @@
             }
         });
 
-        function additionalData() {
-            var data = {
-                SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
-                SearchCategoryId: $('#SearchCategoryId').val(),
-                SearchBrandId: $('#SearchBrandId').val(),
-                SearchCollectionId: $('#SearchCollectionId').val(),
-                SearchStoreId: $('#SearchStoreId').val(),
-                SearchVendorId: $('#SearchVendorId').val(),
-                SearchProductTypeId: $('#SearchProductTypeId').val()
-            };
-            addAntiForgeryToken(data);
-            return data;
-        }
-
-        function selectAssociatedProduct(productid) {
-            $("#@Html.IdFor(model => model.AssociatedToProductId)").val(productid);
-            $('#associateproduct').submit();
-        }
     </script>
 </form>

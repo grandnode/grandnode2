@@ -5643,6 +5643,33 @@ a span.username {
     padding: 0px 10px 0px 0px;
 }
 
+/* magnific popup */
+
+.mfp-bg {
+    z-index: 10000 !important;
+}
+.mfp-wrap {
+    z-index: 10001 !important;
+}
+.mfp-container {
+    padding: 8px;
+}
+.mfp-content {
+    max-width: 800px;
+    padding: 15px;
+    background-color: #fff;
+}
+.nav-sm .mfp-content .container.body .right_col {
+    margin: 0;
+    border: 0;
+}
+.mfp-content .x_title .caption, .mfp-content .x_panel {
+    padding: 0;
+}
+.mfp-content .x_title .actions {
+    padding: 25px 0 10px 0;
+}
+
 .form-control,
 /* if this class is applied to a Kendo UI widget, its layout may change */
 
@@ -6741,10 +6768,6 @@ form>h4 {
 .k-tabstrip-items-wrapper, .k-autocomplete, .k-tabstrip-items-wrapper, .k-hstack, .k-draghandle, .k-dropdown-wrap, .k-hstack, .k-header, .k-numeric-wrap, .k-panelbar .k-tabstrip-items .k-item, .k-picker-wrap, .k-progressbar, .k-state-highlight, .k-tabstrip-items .k-item, .k-textbox {
     background-color: #f5f5f5;
 }
-.k-tabstrip-items .k-item .k-link {
-    color: #34495E;
-    font-weight: 500;
-}
 
 .k-link, .k-nav-current.k-state-hover {
     color: #1ABB9C;
@@ -6988,7 +7011,7 @@ table.tableFixHead {
 }
 [data-theme="dark"] body .container.body .right_col,
 [data-theme="dark"] .x_panel,
-[data-theme="dark"] .top_nav .nav > li > a:focus, [data-theme="dark"] .top_nav .nav > li > a:hover, [data-theme="dark"] .top_nav .nav .open > a, [data-theme="dark"] .top_nav .nav .open > a:focus, [data-theme="dark"] .top_nav .nav .open > a:hover {
+[data-theme="dark"] .top_nav .nav > li > a:focus, [data-theme="dark"] .mfp-content, [data-theme="dark"] .top_nav .nav > li > a:hover, [data-theme="dark"] .top_nav .nav .open > a, [data-theme="dark"] .top_nav .nav .open > a:focus, [data-theme="dark"] .top_nav .nav .open > a:hover {
     background: #2F3C48;
 }
 [data-theme="dark"] .whiteBg,

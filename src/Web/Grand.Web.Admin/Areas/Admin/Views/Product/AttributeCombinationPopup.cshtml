@@ -2,7 +2,7 @@
 @inject Grand.Business.Common.Interfaces.Stores.IStoreService _storeService
 @inject Grand.Business.Common.Interfaces.Directory.IGroupService _groupService
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     if (string.IsNullOrEmpty(Model.Id))
     {
         ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.AddTitle"];
@@ -12,7 +12,7 @@
         ViewBag.Title = Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Update"];
     }
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="AttributeCombinationPopup" enctype="multipart/form-data"
+<form id="AttributeCombinationPopup" asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="AttributeCombinationPopup" enctype="multipart/form-data"
       asp-route-productId="@Context.Request.Query["productId"]"
       asp-route-Id="@Context.Request.Query["Id"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
@@ -262,188 +262,218 @@
         window.close();
         </script>
     }
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#AttributeCombinationPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefreshCombinations').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
     @if (!string.IsNullOrEmpty(Model.Id))
     {
         <script>
-        $(document).ready(function () {
-            $("#tierprices-grid").kendoGrid({
-                dataSource: {
-                    transport: {
-                        read: {
-                            url: "@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceList", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        create: {
-                            url: "@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceInsert", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        update: {
-                            url:"@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceUpdate", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        },
-                        destroy: {
-                            url: "@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceDelete", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin }))",
-                            type: "POST",
-                            dataType: "json",
-                            data: addAntiForgeryToken
-                        }
-                    },
-                    schema: {
-                        data: "Data",
-                        total: "Total",
-                        errors: "Errors",
-                        model: {
-                            id: "Id",
-                            fields: {
-                                Store: { editable: true, type: "string" },
-                                StoreId: { editable: true, type: "string" },
-                                CustomerGroup: { editable: true, type: "string" },
-                                CustomerGroupId: { editable: true, type: "string" },
-                                Quantity: { editable: true, type: "number" },
-                                Price: { editable: true, type: "number" },
-                                Id: { editable: false, type: "string" }
-                            }
-                        }
-                    },
-                    requestEnd: function (e) {
-                        if (e.type == "create" || e.type == "update") {
-                            this.read();
-                        }
-                    },
-                    error: function (e) {
-                        display_kendoui_grid_error(e);
-                        // Cancel the changes
-                        this.cancelChanges();
-                    },
-                    serverPaging: true,
-                    serverFiltering: true,
-                    serverSorting: true
-                },
-                pageable: {
-                    refresh: true,
-                    numeric: false,
-                    previousNext: false,
-                    info: false
-                },
-                toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
-                editable: {
-                    confirmation: false,
-                    mode: "inline"
-                },
-                scrollable: false,
-                columns: [{
-                    field: "StoreId",
-                    title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Store"]",
-                    width: 250,
-                    editor: storeDropDownEditor,
-                    template: "#:Store#"
-                },
-                {
-                    field: "CustomerGroupId",
-                    title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.CustomerGroup"]",
-                    width: 250,
-                    editor: customerGroupDropDownEditor,
-                    template: "#:CustomerGroup#"
-                },
-
-                {
-                    field: "Quantity",
-                    title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Quantity"]",
-                    width: 150,
-                    format: "{0:0}"
-                }, {
-                    field: "Price",
-                    title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Price"]",
-                    width: 150,
-                    editor: function (container, options) {
-                        $('<input name="' + options.field + '"/>')
-                                .appendTo(container)
-                                .kendoNumericTextBox({
-                                    format: "{0:n4}",
-                                    decimals: 4
-                                });
+                //local datasource
+                var allStores = [
+                    {
+                        Id : ' ',
+                        Name : "@Loc["Admin.Settings.AllSettings.Fields.StoreName.AllStores"]"
                     }
-                },{
-                    command: [{
-                        name: "edit",
-                        text: {
-                            edit: "@Loc["Admin.Common.Edit"]",
-                            update: "@Loc["Admin.Common.Update"]",
-                            cancel: "@Loc["Admin.Common.Cancel"]"
-                        }
-                    }, {
-                        name: "destroy",
-                        text: "@Loc["Admin.Common.Delete"]"
-                    }],
-                    width: 200
-                }]
-            });
-        });
+                    @{
+                        var allStores = await _storeService.GetAllStores();
+                    }
+                    @foreach (var store in allStores)
+                    {
+                        <text>
+                                , {
+                                    Id: "@(store.Id)",
+                                    Name: "@(Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(string.IsNullOrEmpty(store.Shortcut) ? "" : store.Shortcut)))"
+                                }
+                                </text>
+                    }
 
-        //local datasource
-        var allStores = [
-            {
-                Id : ' ',
-                Name : "@Loc["Admin.Settings.AllSettings.Fields.StoreName.AllStores"]"
-            }
-            @{
-                var allStores = await _storeService.GetAllStores();
-            }
-            @foreach (var store in allStores)
-            {
-                <text>
-                        , {
-                            Id: "@(store.Id)",
-                            Name: "@(Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(string.IsNullOrEmpty(store.Shortcut) ? "" : store.Shortcut)))"
-                        }
-                        </text>
-            }
+                ];
 
-        ];
-
-        var allCustomerGroups = [
-            {
-                Id : ' ',
-                Name : "@Loc["Admin.Catalog.Products.TierPrices.Fields.CustomerGroup.All"]"
-            }
-            @{
-                var allCustomerGroups = await _groupService.GetAllCustomerGroups(showHidden: true);
-            }
-            @foreach (var customerGroup in allCustomerGroups)
-            {
-                <text>
-                    , {
+                var allCustomerGroups = [
+                    {
+                        Id : ' ',
+                        Name : "@Loc["Admin.Catalog.Products.TierPrices.Fields.CustomerGroup.All"]"
+                    }
+                    @{
+                        var allCustomerGroups = await _groupService.GetAllCustomerGroups(showHidden: true);
+                    }
+                    @foreach (var customerGroup in allCustomerGroups)
+                    {
+                        <text>
+                            , {
                     Id: "@(customerGroup.Id)",
-                    Name: "@(Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(string.IsNullOrEmpty(customerGroup.Name) ? "": customerGroup.Name)))"
-                    }
+                    Name: "@(Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(string.IsNullOrEmpty(customerGroup.Name) ? "": customerGroup.Name))))"
+                }
                 </text>
-            }
-        ];
+                    }
+                ];
 
-        function storeDropDownEditor(container, options) {
-            $('<input required data-text-field="Name" data-value-field="Id" data-bind="value:StoreId"/>')
-                .appendTo(container)
-                .kendoDropDownList({
-                    autoBind: true,
-                    dataSource: allStores,
-                });
-        }
+                function storeDropDownEditor(container, options) {
+                    $('<input required data-text-field="Name" data-value-field="Id" data-bind="value:StoreId"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            autoBind: true,
+                            dataSource: allStores,
+                        });
+                }
 
-        function customerGroupDropDownEditor(container, options) {
-            $('<input required data-text-field="Name" data-value-field="Id" data-bind="value:CustomerGroupId"/>')
-                .appendTo(container)
-                .kendoDropDownList({
-                    autoBind: true,
-                    dataSource: allCustomerGroups,
+                function customerGroupDropDownEditor(container, options) {
+                    $('<input required data-text-field="Name" data-value-field="Id" data-bind="value:CustomerGroupId"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            autoBind: true,
+                            dataSource: allCustomerGroups,
 
-                });
-        }
+                        });
+                }
+
+                    $("#tierprices-grid").kendoGrid({
+                        dataSource: {
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceList", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                },
+                                create: {
+                                    url: "@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceInsert", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                },
+                                update: {
+                                    url:"@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceUpdate", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                },
+                                destroy: {
+                                    url: "@Html.Raw(Url.Action("ProductAttributeCombinationTierPriceDelete", "Product", new { productId = Model.ProductId, productAttributeCombinationId = Model.Id, area = Constants.AreaAdmin }))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: addAntiForgeryToken
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors",
+                                model: {
+                                    id: "Id",
+                                    fields: {
+                                        Store: { editable: true, type: "string" },
+                                        StoreId: { editable: true, type: "string" },
+                                        CustomerGroup: { editable: true, type: "string" },
+                                        CustomerGroupId: { editable: true, type: "string" },
+                                        Quantity: { editable: true, type: "number" },
+                                        Price: { editable: true, type: "number" },
+                                        Id: { editable: false, type: "string" }
+                                    }
+                                }
+                            },
+                            requestEnd: function (e) {
+                                if (e.type == "create" || e.type == "update") {
+                                    this.read();
+                                }
+                            },
+                            error: function (e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            numeric: false,
+                            previousNext: false,
+                            info: false
+                        },
+                        toolbar: [{ name: "create", text: "@Loc["Admin.Common.AddNewRecord"]" }],
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "StoreId",
+                            title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Store"]",
+                            width: 250,
+                            editor: storeDropDownEditor,
+                            template: "#:Store#"
+                        },
+                        {
+                            field: "CustomerGroupId",
+                            title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.CustomerGroup"]",
+                            width: 250,
+                            editor: customerGroupDropDownEditor,
+                            template: "#:CustomerGroup#"
+                        },
+
+                        {
+                            field: "Quantity",
+                            title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Quantity"]",
+                            width: 150,
+                            format: "{0:0}"
+                        }, {
+                            field: "Price",
+                            title: "@Loc["Admin.Catalog.Products.ProductAttributes.AttributeCombinations.TierPrices.Price"]",
+                            width: 150,
+                            editor: function (container, options) {
+                                $('<input name="' + options.field + '"/>')
+                                        .appendTo(container)
+                                        .kendoNumericTextBox({
+                                            format: "{0:n4}",
+                                            decimals: 4
+                                        });
+                            }
+                        },{
+                            command: [{
+                                name: "edit",
+                                text: {
+                                    edit: "@Loc["Admin.Common.Edit"]",
+                                    update: "@Loc["Admin.Common.Update"]",
+                                    cancel: "@Loc["Admin.Common.Cancel"]"
+                                }
+                            }, {
+                                name: "destroy",
+                                text: "@Loc["Admin.Common.Delete"]"
+                            }],
+                            width: 200
+                        }]
+                    });
+
         </script>
     }
 </form>

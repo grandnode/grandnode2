@@ -2,11 +2,11 @@
 
 @model PictureModel
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Picture"];
 }
-<form asp-area="@Constants.AreaAdmin" asp-action="PicturePopup" enctype="multipart/form-data" method="post">
+<form id="PicturePopup" asp-area="@Constants.AreaAdmin" asp-action="PicturePopup" enctype="multipart/form-data" method="post">
     <!-- #region languages template -->
     @{ Func<int, HelperResult> template = @<div class="form-body">
             <div class="form-group">
@@ -80,4 +80,34 @@
             window.close();
         </script>
     }
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#PicturePopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 </form>

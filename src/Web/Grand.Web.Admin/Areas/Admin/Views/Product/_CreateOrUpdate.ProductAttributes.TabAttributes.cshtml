@@ -1,4 +1,4 @@
-﻿@model ProductModel
+@model ProductModel
 
 <div class="panel panel-default">
     <vc:admin-widget widget-zone="product_details_product_attributes_top" additional-data="Model" />
@@ -7,12 +7,24 @@
     </div>
     <vc:admin-widget widget-zone="product_details_product_attributes_bottom" additional-data="Model" />
     <div class="panel-footer">
-        <button type="submit" id="btnAddNewAttributes" onclick="javascript:OpenWindow('@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshProductAttributes", formId = "product-form", area = Constants.AreaAdmin }))', 800, 600, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.ProductAttributes.AddNew"]</button>
+        <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshProductAttributes", formId = "product-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.ProductAttributes.AddNew"]</a>
     </div>
 </div>
 
 <script>
-        $(document).ready(function() {
+    $(document).ready(function () {
+            $('#btnAddNewAttributes').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
             $("#productattributemappings-grid").kendoGrid({
                 dataSource: {
                     transport: {
@@ -88,6 +100,18 @@
                             $('tr[data-uid="' + row.uid + '"] ').find(".k-hierarchy-cell a").remove();;
                         }
                     });
+                    $('.btnMagnificPopup').magnificPopup({
+                        type: 'ajax',
+                        settings: { cache: false, async: false },
+                        callbacks: {
+                            parseAjax: function (mfpResponse) {
+                                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                            },
+                            ajaxContentAdded: function () {
+                                $('.mfp-wrap').removeAttr('tabindex');
+                            }
+                        }
+                    });
                 },
                 pageable: {
                     refresh: true,
@@ -105,7 +129,7 @@
                         field: "ProductAttributeId",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute"]",
                         width: 190,
-                        template: "<a class='k-link' href='javascript:OpenWindow(\"@Url.Action("ProductAttributeMappingPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#&btnId=btnRefreshProductAttributes&formId=product-form\", 800, 600, true);'>#=kendo.htmlEncode(ProductAttribute)#<br /></a>"
+                        template: "<a class='k-link btnMagnificPopup' href='@Url.Action("ProductAttributeMappingPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#&btnId=btnRefreshProductAttributes&formId=product-form'>#=kendo.htmlEncode(ProductAttribute)#<br /></a>"
                     }, {
                         field: "TextPrompt",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Fields.TextPrompt"]",
@@ -122,13 +146,13 @@
                         field: "AttributeControlTypeId",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Fields.AttributeControlType"]",
                         width: 140,
-                        template: "#:AttributeControlType# <br> # if(ValidationRulesAllowed) {# <a href='javascript:OpenWindow(\"@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form\", 800, 300, true);'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.ViewLink"]</a><br />#=ValidationRulesString# #}  #"
+                        template: "#:AttributeControlType# <br> # if(ValidationRulesAllowed) {# <a class='btnMagnificPopup' href='@Url.Action("ProductAttributeValidationRulesPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?&productId=@(Model.Id)&btnId=btnRefreshProductAttributes&formId=product-form'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.ViewLink"]</a><br />#=ValidationRulesString# #}  #"
                     },
                     {
                         field: "ConditionAllowed",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Condition"]",
                         width: 80,
-                        template: "# if(ConditionAllowed) {# <a href='javascript:OpenWindow(\"@Url.Action("ProductAttributeConditionPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#&btnId=btnRefreshProductAttributes&formId=product-form\", 800, 400, true);'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Condition.ViewLink"]</a><br /> #}  #"
+                        template: "# if(ConditionAllowed) {# <a class='btnMagnificPopup' href='@Url.Action("ProductAttributeConditionPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#&btnId=btnRefreshProductAttributes&formId=product-form\'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Condition.ViewLink"]</a><br /> #}  #"
                     },
                     {
                         command: [
@@ -142,7 +166,6 @@
                 ]
             });
         });
-
     //details grid
     function toolbar_click_newProductAttributeValue(id) {
         javascript: OpenWindow('@Url.Action("ProductAttributeValueCreatePopup", "Product", new { area = Constants.AreaAdmin })/' + '?productAttributeMappingId=' + id + '&productId=@Model.Id&formId=product-form&btnId=btnRefreshProductAttributesValues', 800, 550, true);
@@ -186,9 +209,37 @@
                     serverFiltering: true,
                     serverSorting: true
                 },
+                dataBound: function () {
+                    $('.btnProductAttributeValueEditPopup').magnificPopup({
+                        type: 'ajax',
+                        settings: { cache: false, async: false },
+                        callbacks: {
+                            parseAjax: function (mfpResponse) {
+                                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                            },
+                            ajaxContentAdded: function () {
+                                $('.mfp-wrap').removeAttr('tabindex');
+                                $('.mfp-wrap').attr("data-id", $('.btnProductAttributeValueEditPopup.active').data("id"));
+                                if (document.querySelector('.mfp-wrap').dataset.prodid !== undefined) {
+                                    var id = document.querySelector('.mfp-wrap').dataset.prodid;
+                                    var name = document.querySelector('.mfp-wrap').dataset.prodname;
+                                    $('#AttributeValueTypeId').val('10').change();
+                                    $('#AssociatedProductId').val(id);
+                                    $('#associate-product-name').html(name);
+                                }
+                            },
+                            close: function () {
+                                $('.mfp-wrap').removeAttr('data-prodid');
+                                $('.mfp-wrap').removeAttr('data-prodname');
+                                $('.btnProductAttributeValueEditPopup.active').removeClass('active');
+                                $('#AttributeValueTypeId').val('0').change();
+                            }
+                        }
+                    });
+                },
                 toolbar: [
                     {
-                        template: "<a class='k-button' href='\\#' onclick=\"return toolbar_click_newProductAttributeValue('"+e.data.Id+"')\">@Loc["Admin.Common.AddNew"]</a>"
+                        template: "<a class='k-button btnProductAttributeValueEditPopup' data-id='" + e.data.Id + "' onclick=\"this.classList.add('active')\" href='@Url.Action("ProductAttributeValueCreatePopup", "Product", new { area = Constants.AreaAdmin })/?productAttributeMappingId=" + e.data.Id + "&productId=@Model.Id&formId=product-form&btnId=btnRefreshProductAttributesValues'>@Loc["Admin.Common.AddNew"]</a>"
                     }
                 ],
                 scrollable: false,
@@ -207,7 +258,7 @@
                     {
                         field: "Name",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Name"]",
-                        template: "<a class='k-link' href='\\#' onclick=\"toolbar_click_editProductAttributeValue('#=Id#', '" + e.data.Id + "')\">#=Name#</a>"
+                        template: "<a class='k-link btnProductAttributeValueEditPopup' data-id='#=Id#' onclick=\"this.classList.add('active')\" href='@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = Constants.AreaAdmin })/#=Id#?productId=@(Model.Id)&productAttributeMappingId=" + e.data.Id + "&btnId=btnRefreshProductAttributesValues&formId=product-form'>#=Name#</a>"
                     }, {
                         command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
                         title: "@Loc["Admin.Common.Delete"]"
@@ -215,7 +266,6 @@
                 ]
             });
         }
-
 </script>
 <input type="submit" id="btnRefreshProductAttributes" style="display: none" />
 <input type="button" id="btnRefreshProductAttributesValues" style="display: none" />
@@ -225,7 +275,6 @@
             //refresh grid
             var grid = $("#productattributemappings-grid").data('kendoGrid');
             grid.dataSource.read();
-
             //return false to don't reload a page
             return false;
         });
@@ -234,10 +283,9 @@
             var dataid = $(this).attr("data-id");
             var grid = $('[data-id="' + dataid + '"]').data('kendoGrid');
             grid.dataSource.read();
-
             //return false to don't reload a page
             return false;
         });
+        $('#btnRefreshProductAttributes').click();
     });
-
 </script>

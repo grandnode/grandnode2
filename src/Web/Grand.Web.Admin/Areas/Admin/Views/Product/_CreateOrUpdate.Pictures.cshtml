@@ -12,6 +12,20 @@
 <script>
             $(document).ready(function () {
                 $("#productpictures-grid").kendoGrid({
+                    dataBound: function () {
+                        $('.editpicture').magnificPopup({
+                            type: 'ajax',
+                            settings: { cache: false, async: false },
+                            callbacks: {
+                                parseAjax: function (mfpResponse) {
+                                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                                },
+                                ajaxContentAdded: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    },
                     dataSource: {
                         transport: {
                             read: {
@@ -42,8 +56,8 @@
                                 fields: {
                                     PictureUrl: {editable: false, type: "string" },
                                     DisplayOrder: {editable: true, type: "number" },
-                                    OverrideAltAttribute: {editable: true, type: "string" },
-                                    OverrideTitleAttribute: {editable: true, type: "string" }
+                                    AltAttribute: {editable: true, type: "string" },
+                                    TitleAttribute: {editable: true, type: "string" }
                                 }
                             }
                         },
@@ -76,7 +90,7 @@
                     columns: [{
                         field: "PictureUrl",
                         title: "@Loc["Admin.Catalog.Products.Pictures.Fields.Picture"]",
-                        template: "<a class='k-link' href='javascript:OpenWindow(\"@Url.Action("ProductPicturePopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&Id=#=Id#&btnId=btnRefreshProductPictures&formId=product-form\", 800, 600, true);'><img alt='#=PictureId#' src='#=PictureUrl#' width='150' /></a>",
+                        template: "<a class='k-link editpicture' href=\"@Url.Action("ProductPicturePopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&Id=#=Id#&btnId=btnRefreshProductPictures&formId=product-form\"><img alt='#=PictureId#' src='#=PictureUrl#' width='150' /></a>",
                         width: 165
                     }, {
                         field: "DisplayOrder",
@@ -87,11 +101,11 @@
                         attributes: { style: "text-align:center" },
                         format: "{0:0}",
                     }, {
-                        field: "OverrideAltAttribute",
+                        field: "AltAttribute",
                         minScreenWidth: 500,
                         title: "@Loc["Admin.Catalog.Products.Pictures.Fields.OverrideAltAttribute"]",
                     }, {
-                        field: "OverrideTitleAttribute",
+                        field: "TitleAttribute",
                         title: "@Loc["Admin.Catalog.Products.Pictures.Fields.OverrideTitleAttribute"]",
                         minScreenWidth: 500,
                     }, {
