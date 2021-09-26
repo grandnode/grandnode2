@@ -152,7 +152,7 @@
                         field: "ConditionAllowed",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Condition"]",
                         width: 80,
-                        template: "# if(ConditionAllowed) {# <a class='btnMagnificPopup' href='@Url.Action("ProductAttributeConditionPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#&btnId=btnRefreshProductAttributes&formId=product-form\'>@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Condition.ViewLink"]</a><br /> #}  #"
+                        template: "# if(ConditionAllowed) {# <a class='btnMagnificPopup' href='@Url.Action("ProductAttributeConditionPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#&btnId=btnRefreshProductAttributes&formId=product-form\'>@Loc["Admin.Common.Edit"]</a><br /> #}  #"
                     },
                     {
                         command: [

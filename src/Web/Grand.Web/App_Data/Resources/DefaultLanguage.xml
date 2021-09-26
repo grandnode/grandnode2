@@ -3468,9 +3468,6 @@
   <Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.Condition.EnableCondition">
     <Value>Enable condition</Value>
   </Resource>
-  <Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.Condition.ViewLink">
-    <Value>View/Edit condition</Value>
-  </Resource>
   <Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute">
     <Value>Attribute</Value>
   </Resource>
