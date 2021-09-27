@@ -1,17 +1,17 @@
 ﻿@{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
 }
 @model SpecificationAttributeOptionModel
 @{    
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew"];
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="SpecificationAttribute" asp-action="OptionCreatePopup" 
-    method="post" id="specificationattribute-form"
+<form asp-area="@Constants.AreaAdmin" asp-controller="SpecificationAttribute" asp-action="OptionCreatePopup"
+      method="post" id="specificationattribute-form"
       asp-route-Id="@Context.Request.Query["Id"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -26,9 +26,40 @@
                     </div>
                 </div>
                 <div class="x_content form">
-                   <partial name="_CreateOrUpdateOption" model="Model" />
+                    <partial name="_CreateOrUpdateOption" model="Model" />
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#specificationattribute-form").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefresh').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 </form>
