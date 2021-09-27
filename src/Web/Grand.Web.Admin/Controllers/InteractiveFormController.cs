@@ -395,7 +395,7 @@ namespace Grand.Web.Admin.Controllers
                 ViewBag.RefreshPage = true;
                 ViewBag.btnId = btnId;
                 ViewBag.formId = formId;
-                return View(model);
+                return Content("");
             }
 
             return View(model);
@@ -452,7 +452,7 @@ namespace Grand.Web.Admin.Controllers
                 ViewBag.RefreshPage = true;
                 ViewBag.btnId = btnId;
                 ViewBag.formId = formId;
-                return View(model);
+                return Content("");
             }
 
             return View(model);
