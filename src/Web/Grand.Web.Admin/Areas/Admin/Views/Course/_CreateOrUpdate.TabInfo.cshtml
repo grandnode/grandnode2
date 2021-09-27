@@ -124,19 +124,30 @@
         <div class="form-group">
             <div class="col-md-3 col-sm-3"></div>
             <div class="col-md-9 col-sm-9">
-                <button type="button"
-                        onclick="javascript:OpenWindow('@(Url.Action("AssociateProductToCoursePopup", "Course",
+                <a id="btnAssociateProductToCoursePopup" href="@(Url.Action("AssociateProductToCoursePopup", "Course",
                                 new { productIdInput = Html.IdFor(model => model.ProductId),
                                     productNameInput = "purchased-with-product-name",
-                                    btnId = "btnRefreshPurchasedWithProduct", area = Constants.AreaAdmin }))', 800, 800, true); return false;" class="k-button">
+                                    btnId = "btnRefreshPurchasedWithProduct", area = Constants.AreaAdmin }))" class="k-button">
                     @Loc["Admin.Courses.Course.Fields.PurchasedWithProduct.Choose"]
-                </button>
+                </a>
                 <button type="button" id="purchased-with-product-name-remove" class="k-button">
                     @Loc["Admin.Courses.Course.Fields.PurchasedWithProduct.Remove"]
                 </button>
                 <input type="button" id="btnRefreshPurchasedWithProduct" style="display: none" />
                 <script>
                             $(document).ready(function () {
+                                $('#btnAssociateProductToCoursePopup').magnificPopup({
+                                    type: 'ajax',
+                                    settings: { cache: false, async: false },
+                                    callbacks: {
+                                        parseAjax: function (mfpResponse) {
+                                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                                        },
+                                        ajaxContentAdded: function () {
+                                            $('.mfp-wrap').removeAttr('tabindex');
+                                        }
+                                    }
+                                });
                                 $('#purchased-with-product-name-remove').click(function () {
                                     $('#purchased-with-product-name').text('');
                                     $("#@Html.IdFor(model => model.ProductId)").val('');
