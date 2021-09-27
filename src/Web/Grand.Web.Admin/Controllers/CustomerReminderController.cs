@@ -481,7 +481,7 @@ namespace Grand.Web.Admin.Controllers
                 await _customerReminderViewModelService.InsertProductToConditionModel(model);
             }
             ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
 
 
