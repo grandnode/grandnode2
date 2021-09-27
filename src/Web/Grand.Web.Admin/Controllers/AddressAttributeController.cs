@@ -191,7 +191,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _addressAttributeViewModelService.InsertAddressAttributeValueModel(model);
                 ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
             //If we got this far, something failed, redisplay form
             return View(model);
@@ -236,7 +236,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _addressAttributeViewModelService.UpdateAddressAttributeValueModel(model, cav);
                 ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
 
             //If we got this far, something failed, redisplay form
