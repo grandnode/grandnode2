@@ -374,7 +374,7 @@ namespace Grand.Web.Admin.Controllers
                 await _customerReminderViewModelService.InsertCategoryConditionModel(model);
             }
             ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
 
         #endregion
