@@ -989,7 +989,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
