@@ -266,7 +266,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _countryViewModelService.InsertStateProvinceModel(model);
                 ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
 
             //If we got this far, something failed, redisplay form
@@ -317,7 +317,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _countryViewModelService.UpdateStateProvinceModel(sp, model);
                 ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
 
             //If we got this far, something failed, redisplay form

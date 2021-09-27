@@ -8,14 +8,40 @@
                 <div id="states-grid"></div>
             </div>
             <div class="panel-footer">
-                <button type="submit" id="btnAddNewState" onclick="javascript:OpenWindow('@(Url.Action("StateCreatePopup", "Country", new { countryId = Model.Id, btnId = "btnRefresh", formId = "country-form", area = Constants.AreaAdmin }))', 800, 500, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Configuration.Countries.States.AddNew"]</button>
+                <a id="btnAddNewState" href="@(Url.Action("StateCreatePopup", "Country", new { countryId = Model.Id, btnId = "btnRefresh", formId = "country-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Configuration.Countries.States.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display: none" />
             </div>
         </div>
 
         <script>
             $(document).ready(function () {
+                $('#btnAddNewState').magnificPopup({
+                    type: 'ajax',
+                    settings: { cache: false, async: false },
+                    callbacks: {
+                        parseAjax: function (mfpResponse) {
+                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                        },
+                        ajaxContentAdded: function () {
+                            $('.mfp-wrap').removeAttr('tabindex');
+                        }
+                    }
+                });
                 $("#states-grid").kendoGrid({
+                    dataBound: function () {
+                        $('.editstate').magnificPopup({
+                            type: 'ajax',
+                            settings: { cache: false, async: false },
+                            callbacks: {
+                                parseAjax: function (mfpResponse) {
+                                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                                },
+                                ajaxContentAdded: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    },
                     dataSource: {
                         transport: {
                             read: {
@@ -63,7 +89,7 @@
                         field: "Name",
                         title: "@Loc["Admin.Configuration.Countries.States.Fields.Name"]",
                         width: 300,
-                        template: "<a class=\"k-link\" onclick=\"javascript:OpenWindow('@Url.Action("StateEditPopup", "Country", new { area = Constants.AreaAdmin })/#=Id#?countryId=@(Model.Id)&btnId=btnRefresh&formId=country-form', 800, 500, true); return false;\">#=Name#</a>",
+                        template: "<a class=\"k-link editstate\" href=\"@Url.Action("StateEditPopup", "Country", new { area = Constants.AreaAdmin })/#=Id#?countryId=@(Model.Id)&btnId=btnRefresh&formId=country-form\">#=Name#</a>",
                     }, {
                         field: "Abbreviation",
                         title: "@Loc["Admin.Configuration.Countries.States.Fields.Abbreviation"]",
