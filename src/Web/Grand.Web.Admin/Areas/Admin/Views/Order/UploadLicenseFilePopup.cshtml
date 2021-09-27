@@ -1,10 +1,10 @@
 ﻿@model OrderModel.UploadLicenseModel
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Orders.Products.License.UploadFile"];
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="UploadLicenseFilePopup" method="post">
+<form id="UploadLicenseFilePopup" asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="UploadLicenseFilePopup" method="post">
     
     <div class="row">
         <div class="col-md-12">
@@ -31,14 +31,34 @@
     {
         <script>
             try {
-                window.opener.location.href = window.opener.location.href;
+                window.location.href = window.location.href;
             }
             catch (e){}
-            window.close();
         </script>
     }
 
     <input asp-for="OrderId" type="hidden" />
     <input asp-for="OrderItemId" type="hidden" />
     <admin-input asp-for="LicenseDownloadId" />
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#UploadLicenseFilePopup").submit(function (e) {
+            e.preventDefault();
+            var url;
+            var form = $(this);
+            if (e.originalEvent.submitter.id == "deletelicense") {
+                url = e.originalEvent.submitter.getAttribute('formaction');
+            } else {
+                url = form.attr('action');
+            }
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    window.location.href = window.location.href;
+                }
+            });
+        });
+    </script>
 </form>
