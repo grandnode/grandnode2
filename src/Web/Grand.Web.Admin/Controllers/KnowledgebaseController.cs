@@ -335,7 +335,7 @@ namespace Grand.Web.Admin.Controllers
                 await _knowledgebaseViewModelService.InsertKnowledgebaseRelatedArticle(model);
             }
             ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
