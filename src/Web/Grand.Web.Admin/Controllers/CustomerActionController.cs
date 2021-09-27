@@ -373,7 +373,7 @@ namespace Grand.Web.Admin.Controllers
                 await _customerActionViewModelService.InsertProductToConditionModel(model);
             }
             ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
         #endregion
 
