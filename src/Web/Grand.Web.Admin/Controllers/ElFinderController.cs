@@ -29,7 +29,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly IPermissionService _permissionService;
 
         private readonly IMediaFileStore _mediaFileStore;
-        private readonly IElFinderViewModelService _elFinderViewModelService;
         private string fullPathToUpload;
         #endregion
 
@@ -37,12 +36,10 @@ namespace Grand.Web.Admin.Controllers
 
         public ElFinderController(
             IWebHostEnvironment hostingEnvironment,
-            IPermissionService permissionService,
-            IElFinderViewModelService elFinderViewModelService)
+            IPermissionService permissionService)
         {
             _hostingEnvironment = hostingEnvironment;
             _permissionService = permissionService;
-            _elFinderViewModelService = elFinderViewModelService;
             fullPathToUpload = Path.Combine(CommonPath.WebRootPath, Path.Combine("assets", "images", "uploaded"));
             if (!Directory.Exists(fullPathToUpload))
                 Directory.CreateDirectory(fullPathToUpload);
