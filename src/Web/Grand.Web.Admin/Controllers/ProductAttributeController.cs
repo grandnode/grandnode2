@@ -285,8 +285,6 @@ namespace Grand.Web.Admin.Controllers
                 var ppav = model.ToEntity();
                 productAttribute.PredefinedProductAttributeValues.Add(ppav);
                 await _productAttributeService.UpdateProductAttribute(productAttribute);
-
-                ViewBag.RefreshPage = true;
                 return Content("");
             }
             //If we got this far, something failed, redisplay form
@@ -323,8 +321,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 ppav = model.ToEntity(ppav);
                 await _productAttributeService.UpdateProductAttribute(productAttribute);
-
-                ViewBag.RefreshPage = true;
                 return Content("");
             }
             //If we got this far, something failed, redisplay form

@@ -183,7 +183,6 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await _customerAttributeViewModelService.InsertCustomerAttributeValueModel(model);
-                ViewBag.RefreshPage = true;
                 return Content("");
             }
 
@@ -224,8 +223,6 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await _customerAttributeViewModelService.UpdateCustomerAttributeValueModel(model, cav);
-
-                ViewBag.RefreshPage = true;
                 return Content("");
             }
 

@@ -987,8 +987,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _customerViewModelService.InsertCustomerAddProductModel(customerId, personalized, model);
             }
-
-            ViewBag.RefreshPage = true;
             return Content("");
         }
 

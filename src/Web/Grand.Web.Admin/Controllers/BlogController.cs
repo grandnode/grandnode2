@@ -268,7 +268,6 @@ namespace Grand.Web.Admin.Controllers
 
                 await _pictureViewModelService.UpdatePicture(model);
 
-                ViewBag.RefreshPage = true;
                 return Content("");
             }
 
@@ -541,7 +540,7 @@ namespace Grand.Web.Admin.Controllers
                         }
                     }
             }
-            ViewBag.RefreshPage = true;
+
             return Content("");
         }
 
@@ -640,8 +639,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _blogViewModelService.InsertProductModel(blogPostId, model);
             }
-
-            ViewBag.RefreshPage = true;
             return Content("");
         }
 

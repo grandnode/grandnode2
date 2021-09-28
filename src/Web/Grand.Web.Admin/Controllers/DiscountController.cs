@@ -428,8 +428,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _discountViewModelService.InsertProductToDiscountModel(model);
             }
-
-            ViewBag.RefreshPage = true;
             return Content("");
         }
 
@@ -524,7 +522,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _discountViewModelService.InsertCategoryToDiscountModel(model);
             }
-            ViewBag.RefreshPage = true;
             return Content("");
         }
 
@@ -606,7 +603,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _discountViewModelService.InsertBrandToDiscountModel(model);
             }
-            ViewBag.RefreshPage = true;
             return Content("");
         }
 
@@ -689,7 +685,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _discountViewModelService.InsertCollectionToDiscountModel(model);
             }
-            ViewBag.RefreshPage = true;
             return Content("");
         }
 
@@ -778,7 +773,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _discountViewModelService.InsertVendorToDiscountModel(model);
             }
-            ViewBag.RefreshPage = true;
             return Content("");
         }
 

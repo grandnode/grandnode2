@@ -246,9 +246,6 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _customerGroupViewModelService.InsertProductModel(model);
             }
-
-            //a vendor should have access only to his products
-            ViewBag.RefreshPage = true;
             return Content("");
         }
         #endregion
