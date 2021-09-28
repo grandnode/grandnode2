@@ -22,13 +22,41 @@
             <div id="shipping-byweight-grid"></div>
         </div>
         <div class="panel-footer">
-            <input type="submit" id="btnAddNewOption" value="@Loc["Plugins.Shipping.ByWeight.AddRecord"]" onclick="javascript:OpenWindow('@(addNewUrl)', 800, 550, true); return false;" class="btn default" />
+            <a id="btnAddNewOption" href="@(addNewUrl)" class="btn default">
+                @Loc["Plugins.Shipping.ByWeight.AddRecord"]
+            </a>
             <input type="submit" id="btnRefresh" style="display: none" />
         </div>
     </div>
     <script>
         $(document).ready(function () {
+            $('#btnAddNewOption').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
             $("#shipping-byweight-grid").kendoGrid({
+                dataBound: function() {
+                    $('.editpopup').magnificPopup({
+                        type: 'ajax',
+                        settings: { cache: false, async: false },
+                        callbacks: {
+                            parseAjax: function (mfpResponse) {
+                                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                            },
+                            ajaxContentAdded: function () {
+                                $('.mfp-wrap').removeAttr('tabindex');
+                            }
+                        }
+                    });
+                },
                 dataSource: {
                     transport: {
                         read: {
@@ -109,7 +137,7 @@
                     field: "Id",
                     title: "@Loc["Admin.Common.Edit"]",
                     width: 100,
-                    template: "<input type='submit' value='@Loc["Admin.Common.Edit"]' onclick=\"javascript:OpenWindow('@Url.Action("EditPopup","ShippingByWeight")?id=#=Id#&btnId=btnRefresh&formId=shipping-byweight-form', 800, 400, true); return false;\" class='k-button k-button-icontext' />"
+                    template: "<a href=\"@Url.Action("EditPopup","ShippingByWeight")?id=#=Id#&btnId=btnRefresh&formId=shipping-byweight-form\" class='k-button editpopup k-button-icontext'>@Loc["Admin.Common.Edit"]</a>"
                 },  {
                     command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
                     title: "@Loc["Admin.Common.Delete"]",
