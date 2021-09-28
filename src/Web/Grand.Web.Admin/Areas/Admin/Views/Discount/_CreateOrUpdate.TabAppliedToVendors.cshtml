@@ -2,19 +2,19 @@
 @{
     if (!String.IsNullOrEmpty(Model.Id))
     {
-<div class="panel panel-default">
-    <vc:admin-widget widget-zone="discount_details_applied_to_vendors_top" additional-data="Model" />
-    <div class="panel-body">
-        <div id="vendors-grid"></div>
-    </div>
-    <div class="panel-footer">
-        <a id="btnAddNewVendor" href="@(Url.Action("VendorAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshVendors", formId = "discount-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToVendors.AddNew"]</a>
-        <input type="button" id="btnRefreshVendors" style="display: none" />
-    </div>
-    <vc:admin-widget widget-zone="discount_details_applied_to_vendors_bottom" additional-data="Model" />
-</div>
+        <div class="panel panel-default">
+            <vc:admin-widget widget-zone="discount_details_applied_to_vendors_top" additional-data="Model" />
+            <div class="panel-body">
+                <div id="vendors-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <a id="btnAddNewVendor" href="@(Url.Action("VendorAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshVendors", formId = "discount-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToVendors.AddNew"]</a>
+                <input type="button" id="btnRefreshVendors" style="display: none" />
+            </div>
+            <vc:admin-widget widget-zone="discount_details_applied_to_vendors_bottom" additional-data="Model" />
+        </div>
 
-<script>
+        <script>
     $(document).ready(function () {
                 $('#btnAddNewVendor').magnificPopup({
                     type: 'ajax',
@@ -89,7 +89,7 @@
                     }]
                 });
             });
-</script>
+        </script>
         <script>
             $(document).ready(function () {
                 $('#btnRefreshVendors').click(function () {
