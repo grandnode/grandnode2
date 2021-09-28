@@ -14,9 +14,9 @@
         <div class="btn-group-sm">
             @foreach (var item in Model.Tags)
             {
-                <button class="btn btn-light d-flex align-items-center mr-2 mb-2" href="@Url.RouteUrl("ProductsByTagName", new { SeName = item.SeName })" style="font-size:@(Model.GetFontSize(item))%;">
+                <a class="btn btn-light d-flex align-items-center mr-2 mb-2" href="@Url.RouteUrl("ProductsByTagName", new { SeName = item.SeName })" style="font-size:@(Model.GetFontSize(item))%;">
                     @item.Name
-                </button>
+                </a>
             }
         </div>
     }
