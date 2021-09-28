@@ -15,8 +15,7 @@
         </div>
         <script>
             $(document).ready(function() {
-                $(document).ready(function () {
-                    $('#btnAddNewValue').magnificPopup({
+                $('#btnAddNewValue').magnificPopup({
                         type: 'ajax',
                         settings: { cache: false, async: false },
                         callbacks: {
@@ -27,7 +26,6 @@
                                 $('.mfp-wrap').removeAttr('tabindex');
                             }
                         }
-                    });
                 });
                 $("#productattributevalues-grid").kendoGrid({
                     dataBound: function () {
@@ -123,10 +121,7 @@
                         }
                     ]
                 });
-            });
-        </script>
-        <script>
-            $(document).ready(function () {
+
                 $('#btnRefresh').click(function () {
                     //refresh grid
                     var grid = $("#productattributevalues-grid").data('kendoGrid');
