@@ -1,6 +1,5 @@
 ﻿@{
     var productlink = @Url.RouteUrl("Product");
-    var formaction = @Url.RouteUrl("ProductReviews");
 }
 
 <b-modal id="ModalProductReview" ref="ModalProductReview" :dark-theme="darkMode" size="xl" centered hide-footer hide-header>
@@ -87,9 +86,18 @@
                                 </blockquote>
                             </div>
                         </template>
-                        @*<div class="card-footer">
-                            <partial name="_ProductReviewHelpfulness" model="review.Helpfulness" />
-                        </div>*@
+                        <div class="card-footer">
+                            <div class="product-review-helpfulness d-inline-flex justify-content-end align-items-center flex-wrap">
+                                <span class="question">@Loc["Reviews.Helpfulness.WasHelpful?"]</span>
+                                <span class="vote-options btn-group">
+                                    <span :id="'vote-yes-' + review.Helpfulness.ProductReviewId" class="btn btn-sm btn-outline vote"><b-icon variant="success" icon="hand-thumbs-up"></b-icon></span>
+                                    <span :id="'vote-no-' + review.Helpfulness.ProductReviewId" class="btn btn-sm btn-outline vote"><b-icon variant="danger" icon="hand-thumbs-down"></b-icon></span>
+                                </span>
+                                <span class="vote-stats d-inline-flex">
+                                    (<span :id="'helpfulness-vote-yes-' + review.Helpfulness.ProductReviewId">{{review.Helpfulness.HelpfulYesTotal}}</span>/<span :id="'helpfulness-vote-no-' + review.Helpfulness.ProductReviewId">{{review.Helpfulness.HelpfulNoTotal}}</span>)
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </template>
             </div>

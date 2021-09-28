@@ -365,7 +365,7 @@
             });
         },
         submitProductReview: function (id) {
-            this.$validator.validate('AddProductReview.*').then((result) => {
+            this.$validator.validateAll(['AddProductReview.Title', 'AddProductReview.ReviewText', 'AddProductReview_Rating']).then((result) => {
                 if (result) {
                     var form = document.getElementById(id);
                     var url = form.getAttribute("action");
