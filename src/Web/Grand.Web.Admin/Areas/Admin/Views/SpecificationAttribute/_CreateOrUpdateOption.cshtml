@@ -11,15 +11,6 @@
     }
 }
 
-@if (ViewBag.RefreshPage == true)
-{
-    <script>
-        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-        catch (e){}
-        window.close();
-    </script>
-}
-
 <script>
 
     $("#@Html.IdFor(model => model.EnableColorSquaresRgb)").click(toggleEnableColorSquaresRgb);

@@ -6,15 +6,6 @@
 <input asp-for="FormId" type="hidden" />
 <input asp-for="AttributeId" type="hidden" />
 
-@if (ViewBag.RefreshPage == true)
-{
-    <script>
-        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-        catch (e){}
-        window.close();
-    </script>
-}
-
 @{ Func<int, HelperResult>
         template = @<div class="form-body">
     <div class="form-group">

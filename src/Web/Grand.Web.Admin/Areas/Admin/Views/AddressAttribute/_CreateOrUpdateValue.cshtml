@@ -4,14 +4,6 @@
 <input asp-for="Id" type="hidden" />
 <input asp-for="AddressAttributeId" type="hidden" />
 
-@if (ViewBag.RefreshPage == true)
-{
-    <script>
-        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-        catch (e){}
-        window.close();
-    </script>
-}
 <vc:admin-widget widget-zone="address_attribute_value_details_top" additional-data="Model" />
 @{ Func<int, HelperResult>
          template = @<div class="form-body">

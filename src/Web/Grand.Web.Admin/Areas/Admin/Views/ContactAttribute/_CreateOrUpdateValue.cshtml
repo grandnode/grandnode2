@@ -9,14 +9,6 @@
 <input asp-for="ContactAttributeId" type="hidden" />
 <input asp-for="DisplayColorSquaresRgb" type="hidden" />
 
-@if (ViewBag.RefreshPage == true)
-{
-    <script>
-        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-        catch (e){}
-        window.close();
-    </script>
-}
 <vc:admin-widget widget-zone="contact_attribute_top" additional-data="Model" />
 
 @{ Func<int, HelperResult>

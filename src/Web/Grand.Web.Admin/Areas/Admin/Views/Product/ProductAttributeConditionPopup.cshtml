@@ -156,19 +156,7 @@
             </div>
         </div>
 
-
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-            try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-            catch (e){}
-            window.close();
-        </script>
-    }
-
-
-
-<script>
+    <script>
             var mfp = $.magnificPopup.instance;
             $("#ProductAttributeConditionPopup").submit(function (e) {
                 e.preventDefault();
@@ -210,6 +198,6 @@
            $("#@Html.IdFor(model => model.EnableCondition)").click(toggleEnableCondition);
 
            toggleEnableCondition();
-</script>
+    </script>
 
 </form>
