@@ -9376,6 +9376,9 @@
   <Resource Name="Admin.Orders.PaymentTransaction.BackToList">
     <Value>back to the payment transactions list</Value>
   </Resource>
+  <Resource Name="Admin.Orders.PaymentTransaction.Deleted">
+    <Value>The payment transaction has been deleted successfully.</Value>
+  </Resource>
   <Resource Name="Admin.Orders.PaymentTransaction.Details">
     <Value>Payment Transaction Details</Value>
   </Resource>
