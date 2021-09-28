@@ -1282,6 +1282,10 @@ body.nav-md .nav.side-menu > li.current-page, body.nav-md .nav.side-menu > li.ac
     margin-right: -5px;
     border-right-color: #1ABB9C;
 }
+.k-link .k-image {
+    margin: 0 3px 0 0;
+    vertical-align: middle;
+}
 
 .side-menu {
     display: none;
@@ -6825,6 +6829,9 @@ a.k-link.orderstatuslist:hover {
 
 .k-widget.k-tabstrip {
     border: 1px solid #e6e6e6;
+}
+.k-widget.k-tabstrip.k-tabstrip-top {
+    margin-bottom: 15px;
 }
 .k-pager-wrap {
     justify-content: flex-end;

@@ -6557,6 +6557,13 @@ h2 {
 .k-panelbar .k-tabstrip-items .k-item .k-image, .k-panelbar .k-tabstrip-items .k-item .k-sprite, .k-tabstrip-items .k-item .k-image, .k-tabstrip-items .k-item .k-sprite {
   margin: -3px -1px 0 0;
 }
+.k-link .k-image {
+    margin: 0 3px 0 0;
+    vertical-align: middle;
+}
+.k-widget.k-tabstrip.k-tabstrip-top {
+    margin-bottom: 15px;
+}
 
 .whiteBg {
   background-color: #fff;
