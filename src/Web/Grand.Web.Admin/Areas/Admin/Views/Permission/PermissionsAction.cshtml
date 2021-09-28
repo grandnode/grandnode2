@@ -1,16 +1,10 @@
 ﻿@model PermissionActionModel
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Configuration.Permissions"];
 }
-@if (ViewBag.ClosePage == true)
-{
-    <script>
-        window.close();
-    </script>
-}
-<form asp-area="@Constants.AreaAdmin" asp-controller="Permission" asp-action="PermissionsAction" method="post">
+<form id="PermissionsAction" asp-area="@Constants.AreaAdmin" asp-controller="Permission" asp-action="PermissionsAction" method="post">
     <input asp-for="SystemName" type="hidden" />
     <input asp-for="CustomerGroupId" type="hidden" />
     <div class="row">
@@ -48,4 +42,20 @@
             </div>
         </div>
     </div>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#PermissionsAction").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    mfp.close();
+                }
+            });
+        });
+    </script>
 </form>
