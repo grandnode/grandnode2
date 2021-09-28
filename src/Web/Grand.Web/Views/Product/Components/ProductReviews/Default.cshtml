@@ -1,7 +1,7 @@
 ﻿@model ProductReviewsModel
 
 <div class="mb-3">
-    <a class="btn btn-info" href="@Url.RouteUrl("ProductReviews", new { productId = Model.ProductId })">@Loc["Reviews.Overview.AddNew"]</a>
+    <a class="btn btn-info" @@click="addProductReview('@Url.RouteUrl("ProductReviews", new { productId = Model.ProductId })')">@Loc["Reviews.Overview.AddNew"]</a>
 </div>
 
 @if (Model.Items.Any())

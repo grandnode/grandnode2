@@ -1,0 +1,99 @@
+﻿@{
+    var productlink = @Url.RouteUrl("Product");
+    var formaction = @Url.RouteUrl("ProductReviews");
+}
+
+<b-modal id="ModalProductReview" ref="ModalProductReview" :dark-theme="darkMode" size="xl" centered hide-footer hide-header>
+    <template v-if="PopupProductReviewVueModal !== null">
+        <h2 class="generalTitle h3">@Loc["Reviews.ProductReviewsFor"] <a :href="'@productlink' + PopupProductReviewVueModal.ProductSeName">{{PopupProductReviewVueModal.ProductName}}</a></h2>
+
+        <template v-if="PopupProductReviewVueModal.AddProductReview.SuccessfullyAdded">
+            <div class="alert alert-success d-block">{{PopupProductReviewVueModal.AddProductReview.Result}}</div>
+        </template>
+
+        <template v-else>
+            <div class="write-review" id="review-form">
+                <h5 class="generalTitle"><strong>@Loc["Reviews.Write"]</strong></h5>
+                <form id="addReviewForm" :action="'/productreviews/' + PopupProductReviewVueModal.ProductId" method="post" v-on:submit.prevent="validateBeforeSubmit($event)">
+                    <input type="hidden" name="productId" :value="PopupProductReviewVueModal.ProductId" />
+                    <div asp-validation-summary="ModelOnly" class="message-error alert alert-danger my-3"></div>
+                    <fieldset>
+                        <div class="form-fields">
+                            <div class="form-group">
+                                <label for="AddProductReview_Title" class="col-form-label">@Loc["Reviews.Fields.Title"]:</label>
+                                <input id="AddProductReview_Title" name="AddProductReview.Title" class="form-control review-title" :disabled="!PopupProductReviewVueModal.AddProductReview.CanCurrentCustomerLeaveReview" v-validate="'required'" />
+                                <span class="field-validation-error">{{veeErrors.first('AddProductReview.Title')}}</span>
+                            </div>
+                            <label for="AddProductReview_ReviewText" class="col-form-label">@Loc["Reviews.Fields.ReviewText"]:</label>
+                            <textarea id="AddProductReview_ReviewText" name="AddProductReview.ReviewText" class="form-control review-text" :disabled="!PopupProductReviewVueModal.AddProductReview.CanCurrentCustomerLeaveReview" v-validate="'required'"></textarea>
+                            <span class="field-validation-error">{{veeErrors.first('AddProductReview.ReviewText')}}</span>
+                            <div class="form-group review-rating d-flex flex-wrap">
+                                <label for="AddProductReview_Rating" class="col-form-label w-100">@Loc["Reviews.Fields.Rating"]:</label>
+                                <b-form-rating v-model="value" variant="warning" show-value value="5" inline></b-form-rating>
+                                <input class="sr-only" id="AddProductReview_Rating" name="AddProductReview.Rating" v-model="value" />
+                            </div>
+                            <template v-if="PopupProductReviewVueModal.AddProductReview.DisplayCaptcha">
+                                @*
+                                <div class="captcha-box">
+                                    <captcha />
+                                </div>*@
+                            </template>
+                        </div>
+                    </fieldset>
+                    <div class="buttons my-3">
+                        <input type="button" @@click="submitProductReview('addReviewForm')" class="btn btn-info write-product-review-button" value="@Loc[" Reviews.SubmitButton"]" :disabled="!PopupProductReviewVueModal.AddProductReview.CanCurrentCustomerLeaveReview" />
+                    </div>
+                </form>
+            </div>
+        </template>
+
+        <template v-if="PopupProductReviewVueModal.Items.length > 0">
+            <div id="product-review-list" class="product-review-list">
+                <h5 class="mb-3"><strong>@Loc["Reviews.ExistingReviews"]</strong></h5>
+                <template v-for="review in PopupProductReviewVueModal.Items">
+                    <div class="card product-review-item mb-3" data-url="@Url.RouteUrl(" SetProductReviewHelpfulness")" :data-id="PopupProductReviewVueModal.ProductId" :data-reviewid="review.Id" data-title="@Loc[" Reviews.Helpfulness.WasHelpful?"]">
+                        <div class="card-header">
+                            <div class="review-info d-inline-flex w-100">
+                                <div class="user d-inline-flex align-items-center">
+                                    <small class="text-muted mr-2">@Loc["Reviews.From"]:</small>
+                                    <h6 class="mb-0">{{review.CustomerName}}</h6>
+                                </div>
+                                <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                                <small class="date text-muted">
+                                    <span class="ml-1">@Loc["Reviews.Date"]:</span>
+                                    <span>{{review.WrittenOnStr}}</span>
+                                </small>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="review-title mb-3">
+                                <h5 class="mb-0">{{review.Title}}</h5>
+                                <b-form-rating id='rating-inline2' class='p-0' variant='warning' no-border size='sm' show-value precision='2' readonly inline :value='review.Rating'></b-form-rating>
+                            </div>
+                            <div class="review-content">
+                                <div class="review-text">
+                                    {{review.ReviewText}}
+                                </div>
+                            </div>
+                        </div>
+                        <template v-if="review.ReplyText !== null">
+                            <div class="reply-content">
+                                <blockquote class="administration-response px-3">
+                                    <h5 class="administration-response-header">@Loc["Reviews.AdministrationResponse"]</h5>
+                                    <span>{{review.ReplyText}}</span>
+                                    <figcaption class="blockquote-footer">
+                                        {{review.Signature}}
+                                    </figcaption>
+                                </blockquote>
+                            </div>
+                        </template>
+                        @*<div class="card-footer">
+                            <partial name="_ProductReviewHelpfulness" model="review.Helpfulness" />
+                        </div>*@
+                    </div>
+                </template>
+            </div>
+        </template>
+
+    </template>
+</b-modal>

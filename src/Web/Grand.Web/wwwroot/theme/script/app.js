@@ -17,6 +17,7 @@
             flycartfirstload: true,
             PopupAddToCartVueModal: null,
             PopupQuickViewVueModal: null,
+            PopupProductReviewVueModal: null,
             index: null,
             RelatedProducts: null,
         }
@@ -348,6 +349,42 @@
                     }
                 }
             }
+        },
+        addProductReview: function (url) {
+            axios({
+                url: url,
+                method: 'get',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Response-View': 'Json'
+                }
+            }).then(function (response) {
+                vm.PopupProductReviewVueModal = response.data;
+                vm.$refs['ModalProductReview'].show();
+            });
+        },
+        submitProductReview: function (id) {
+            this.$validator.validate('AddProductReview.*').then((result) => {
+                if (result) {
+                    var form = document.getElementById(id);
+                    var url = form.getAttribute("action");
+                    var bodyFormData = new FormData(form);
+                    axios({
+                        method: "post",
+                        url: url,
+                        data: bodyFormData,
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                            'X-Response-View': 'Json'
+                        },
+                    }).then(function (response) {
+                        console.log(response);
+                        vm.PopupProductReviewVueModal = response.data;
+                    });
+                    return
+                }
+            });
         }
     },
 });
