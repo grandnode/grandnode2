@@ -13,8 +13,7 @@
 
     <input asp-for="CustomerActionId" type="hidden" />
     <input asp-for="CustomerActionConditionId" type="hidden" />
-
-    
+   
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit popup-window">
@@ -98,14 +97,6 @@
         </div>
     </div>
 
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-            try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-            catch (e){}
-            window.close();
-        </script>
-    }
     <script>
             var mfp = $.magnificPopup.instance;
             $("#ProductAddPopup").submit(function (e) {

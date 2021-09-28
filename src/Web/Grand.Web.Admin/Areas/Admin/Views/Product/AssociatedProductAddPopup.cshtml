@@ -1,7 +1,7 @@
 ﻿@model ProductModel.AddAssociatedProductModel
 @inject AdminAreaSettings adminAreaSettings
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Catalog.Products.AssociatedProducts.AddNew"];
 }
@@ -94,19 +94,7 @@
             </div>
         </div>
     </div>
-
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-            try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-            catch (e){}
-            window.close();
-        </script>
-    }
-
-
     <script>
-
             var mfp = $.magnificPopup.instance;
             $("#AssociatedProductAddPopup").submit(function (e) {
                 e.preventDefault();

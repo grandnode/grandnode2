@@ -2,7 +2,7 @@
 @inject AdminAreaSettings adminAreaSettings
 @{
     ViewBag.Title = Loc["Admin.Content.Knowledgebase.KnowledgebaseArticle.Related.AddNew"];
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
 }
 <form id="ArticlesPopup" asp-area="@Constants.AreaAdmin" asp-controller="Knowledgebase" asp-action="ArticlesPopup" method="post"
       asp-route-KnowledgebaseId="@Context.Request.Query["KnowledgebaseId"]"
@@ -49,16 +49,6 @@
             </div>
         </div>
     </div>
-
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-                    try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-                    catch (e){}
-                    window.close();
-        </script>
-    }
-
     <script>
         var mfp = $.magnificPopup.instance;
         $("#ArticlesPopup").submit(function (e) {

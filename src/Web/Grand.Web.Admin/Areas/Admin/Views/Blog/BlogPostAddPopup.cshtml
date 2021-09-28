@@ -10,7 +10,7 @@
       asp-route-CategoryId="@Context.Request.Query["CategoryId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -52,18 +52,7 @@
             </div>
         </div>
     </div>
-
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-                try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-                catch (e){}
-                window.close();
-        </script>
-    }
-</form>
-
-<script>
+    <script>
         var mfp = $.magnificPopup.instance;
         $("#BlogPostAddPopup").submit(function (e) {
             e.preventDefault();
@@ -181,5 +170,5 @@
             $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
         }
 
-</script>
-
+    </script>
+</form>

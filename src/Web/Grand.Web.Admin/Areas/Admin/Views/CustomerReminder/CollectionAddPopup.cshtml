@@ -10,11 +10,10 @@
       asp-route-CustomerReminderId="@Context.Request.Query["CustomerReminderId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
-    <input asp-for="CustomerReminderId" type="hidden" />
 
+    <input asp-for="CustomerReminderId" type="hidden" />
     <input asp-for="ConditionId" type="hidden" />
     
-
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -55,16 +54,6 @@
         </div>
     </div>
 
-
-
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-            try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-            catch (e){}
-            window.close();
-        </script>
-    }
     <script>
         var mfp = $.magnificPopup.instance;
         $("#CollectionAddPopup").submit(function (e) {

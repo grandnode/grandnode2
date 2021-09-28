@@ -54,11 +54,11 @@
                                                 <div class="col-md-9 col-sm-9">
                                                     <admin-select asp-for="SelectedProductAttributeId" asp-items="@(attributesList)" />
                                                     <script>
-                                                        $(document).ready(function() {
+                                                        
                                                             $("#@Html.IdFor(model => model.SelectedProductAttributeId)").change(toggleProductAttributes);
 
                                                             toggleProductAttributes();
-                                                        });
+                                                        
 
                                                         function toggleProductAttributes() {
                                                             var selectedProductAttributeId = $("#@Html.IdFor(model => model.SelectedProductAttributeId)").val();

@@ -14,17 +14,6 @@
     <input asp-for="CustomerReminderId" type="hidden" />
     <input asp-for="ConditionId" type="hidden" />
 
-    
-
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-            try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-            catch (e){}
-            window.close();
-        </script>
-    }
-
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit popup-window">

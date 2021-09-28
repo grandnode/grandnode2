@@ -9,18 +9,7 @@
 <form id="CategoryAddPopup" asp-area="@Constants.AreaAdmin" asp-controller="Discount" asp-action="CategoryAddPopup" method="post"
       asp-route-DiscountId="@Context.Request.Query["DiscountId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
-    
-
-
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-            try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-            catch (e){}
-            window.close();
-        </script>
-    }
+      asp-route-formId="@Context.Request.Query["formId"]">   
 
     <div class="row">
         <div class="col-md-12">
@@ -61,7 +50,6 @@
             </div>
         </div>
     </div>
-
 
     <script>
         var mfp = $.magnificPopup.instance;
