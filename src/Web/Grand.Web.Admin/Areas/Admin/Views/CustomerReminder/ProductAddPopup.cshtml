@@ -1,29 +1,18 @@
 ﻿@model CustomerReminderModel.ConditionModel.AddProductToConditionModel
 @inject AdminAreaSettings adminAreaSettings
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Customers.CustomerReminder.Condition.Products.AddNew"];
 }
 
-<form asp-area="@Constants.AreaAdmin" asp-controller="CustomerReminder" asp-action="ProductAddPopup" method="post" 
+<form id="ProductAddPopup" asp-area="@Constants.AreaAdmin" asp-controller="CustomerReminder" asp-action="ProductAddPopup" method="post" 
       asp-route-CustomerReminderId="@Context.Request.Query["CustomerReminderId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
 
     <input asp-for="CustomerReminderId" type="hidden" />
     <input asp-for="ConditionId" type="hidden" />
-
-    
-
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-            try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-            catch (e){}
-            window.close();
-        </script>
-    }
 
     <div class="row">
         <div class="col-md-12">
@@ -109,7 +98,35 @@
     </div>
 
     <script>
-    $(document).ready(function () {
+        var mfp = $.magnificPopup.instance;
+        $("#ProductAddPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefreshProducts').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
 
         $('.extend-collapse').hide();
         $('.filter-extend-button').click(function () {
@@ -170,11 +187,8 @@
                 template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
             }]
         });
-    });
-    </script>
 
-    <script>
-        $(document).ready(function() {
+        
             $('#search-products').click(function() {
                 var grid = $('#products-grid').data('kendoGrid');
                 grid.dataSource.page(1);
@@ -197,7 +211,7 @@
             $('#products-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function(e) {
                 updateMasterCheckbox();
             });
-        });
+        
 
         function additionalData() {
             var data = {

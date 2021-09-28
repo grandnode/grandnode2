@@ -166,15 +166,6 @@
                 ]
             });
         });
-    //details grid
-    function toolbar_click_newProductAttributeValue(id) {
-        javascript: OpenWindow('@Url.Action("ProductAttributeValueCreatePopup", "Product", new { area = Constants.AreaAdmin })/' + '?productAttributeMappingId=' + id + '&productId=@Model.Id&formId=product-form&btnId=btnRefreshProductAttributesValues', 800, 550, true);
-        return false;
-    }
-    function toolbar_click_editProductAttributeValue(id, pam) {
-        javascript: OpenWindow('@Url.Action("ProductAttributeValueEditPopup", "Product", new { area = Constants.AreaAdmin })/' + id + '?productId=@(Model.Id)&productAttributeMappingId=' + pam + '&btnId=btnRefreshProductAttributesValues&formId=product-form', 800, 500, true);
-        return false;
-    }
     function detailInit(e) {
             $("<div data-name='productattributevalue' data-id='" + e.data.id+"' />").appendTo(e.detailCell).kendoGrid({
                 dataSource: {

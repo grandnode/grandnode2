@@ -9,13 +9,39 @@
                 <vc:admin-widget widget-zone="address_attribute_details_values_bottom" additional-data="Model" />
             </div>
             <div class="panel-footer">
-                <button type="submit" id="btnAddNewValue" onclick="javascript:OpenWindow('@(Url.Action("ValueCreatePopup", "AddressAttribute", new { addressAttributeId = Model.Id, btnId = "btnRefresh", formId = "addressattribute-form", area = Constants.AreaAdmin }))', 800, 350, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Address.AddressAttributes.Values.AddNew"]</button>
+                <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "AddressAttribute", new { addressAttributeId = Model.Id, btnId = "btnRefresh", formId = "addressattribute-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Address.AddressAttributes.Values.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display: none" />
             </div>
         </div>
         <script>
             $(document).ready(function () {
+                $('#btnAddNewValue').magnificPopup({
+                    type: 'ajax',
+                    settings: { cache: false, async: false },
+                    callbacks: {
+                        parseAjax: function (mfpResponse) {
+                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                        },
+                        ajaxContentAdded: function () {
+                            $('.mfp-wrap').removeAttr('tabindex');
+                        }
+                    }
+                });
                 $("#addressattributevalues-grid").kendoGrid({
+                    dataBound: function () {
+                        $('.editvalue').magnificPopup({
+                            type: 'ajax',
+                            settings: { cache: false, async: false },
+                            callbacks: {
+                                parseAjax: function (mfpResponse) {
+                                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                                },
+                                ajaxContentAdded: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    },
                     dataSource: {
                         transport: {
                             read: {
@@ -62,7 +88,7 @@
                     columns: [{
                         field: "Name",
                         title: "@Loc["Admin.Address.AddressAttributes.Values.Fields.Name"]",
-                        template: "<a class='k-link' onclick=\"javascript:OpenWindow('@Url.Action("ValueEditPopup", "AddressAttribute", new { area = Constants.AreaAdmin })/#=Id#?addressAttributeId=@(Model.Id)&btnId=btnRefresh&formId=addressattribute-form', 800, 350, true); return false;\">#=Name#</a>",
+                        template: "<a class='k-link editvalue' href=\"@Url.Action("ValueEditPopup", "AddressAttribute", new { area = Constants.AreaAdmin })/#=Id#?addressAttributeId=@(Model.Id)&btnId=btnRefresh&formId=addressattribute-form\">#=Name#</a>",
                     }, {
                         field: "IsPreSelected",
                         title: "@Loc["Admin.Address.AddressAttributes.Values.Fields.IsPreSelected"]",

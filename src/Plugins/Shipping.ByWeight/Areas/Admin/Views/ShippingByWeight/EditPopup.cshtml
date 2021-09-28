@@ -3,11 +3,11 @@
 }
 @model ShippingByWeightModel
 @using Shipping.ByWeight.Models;
-<form asp-controller="ShippingByWeight" asp-action="EditPopup" method="post"
+<form id="EditPopup" asp-controller="ShippingByWeight" asp-action="EditPopup" method="post"
       asp-route-ShippingByWeightId="@Context.Request.Query["ShippingByWeightId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -28,4 +28,21 @@
             </div>
         </div>
     </div>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#EditPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    mfp.close();
+                    $('#btnRefresh').click();
+                }
+            });
+        });
+    </script>
 </form>

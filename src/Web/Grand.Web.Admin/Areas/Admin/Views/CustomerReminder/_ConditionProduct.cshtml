@@ -12,13 +12,25 @@
             <div id="products-grid"></div>
         </div>
         <div class="panel-footer">
-            <button type="submit" id="btnAddNewProduct" onclick="javascript:OpenWindow('@(Url.Action("ProductAddPopup", "CustomerReminder", new { customerReminderId = Model.CustomerReminderId, conditionId = Model.Id, btnId = "btnRefreshProducts", formId = "customer-reminder-condition-form", area = Constants.AreaAdmin }))    ', 800, 800, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.CustomerReminder.Condition.Products.AddNew"]</button>
+            <a id="btnAddNewProduct" href="@(Url.Action("ProductAddPopup", "CustomerReminder", new { customerReminderId = Model.CustomerReminderId, conditionId = Model.Id, btnId = "btnRefreshProducts", formId = "customer-reminder-condition-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Customers.CustomerReminder.Condition.Products.AddNew"]</a>
             <input type="submit" id="btnRefreshProducts" style="display: none" />
         </div>
     </div>
 
     <script>
             $(document).ready(function () {
+                $('#btnAddNewProduct').magnificPopup({
+                    type: 'ajax',
+                    settings: { cache: false, async: false },
+                    callbacks: {
+                        parseAjax: function (mfpResponse) {
+                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                        },
+                        ajaxContentAdded: function () {
+                            $('.mfp-wrap').removeAttr('tabindex');
+                        }
+                    }
+                });
                 $("#products-grid").kendoGrid({
                     dataSource: {
                         transport: {

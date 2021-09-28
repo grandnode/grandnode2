@@ -91,15 +91,6 @@
             </div>
         </div>
     </div>
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-            catch (e){}
-            window.close();
-        </script>
-    }
-
 <script>
         var mfp = $.magnificPopup.instance;
         $("#RecommendedProductAddPopup").submit(function (e) {

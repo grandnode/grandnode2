@@ -373,7 +373,7 @@ namespace Grand.Web.Admin.Controllers
                 await _customerActionViewModelService.InsertProductToConditionModel(model);
             }
             ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
         #endregion
 
@@ -437,7 +437,7 @@ namespace Grand.Web.Admin.Controllers
                 await _customerActionViewModelService.InsertCategoryConditionModel(model);
             }
             ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
 
         #endregion
@@ -495,7 +495,7 @@ namespace Grand.Web.Admin.Controllers
                 await _customerActionViewModelService.InsertCollectionConditionModel(model);
             }
             ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
 
         #endregion

@@ -1,23 +1,53 @@
 ﻿@model SpecificationAttributeModel
+
+<link rel="stylesheet" type="text/css" asp-src="/_content/Grand.Web.Admin/administration/farbtastic/farbtastic.css" />
+<script asp-location="Footer" asp-src="/_content/Grand.Web.Admin/administration/farbtastic/farbtastic.js"></script>
+
 @{
     if (!String.IsNullOrEmpty(Model.Id))
     {
 
-<div class="panel panel-default">
-    <vc:admin-widget widget-zone="specification_attribute_details_options_top" additional-data="null" />
-    <div class="panel-body">
-        <div id="specificationattributeoptions-grid"></div>
-    </div>
-    <div class="panel-footer">
-        <button type="submit" id="btnAddNewOption" onclick="javascript:OpenWindow('@(Url.Action("OptionCreatePopup", "SpecificationAttribute", new { specificationAttributeId = Model.Id, btnId = "btnRefresh", formId = "specificationattribute-form", area = Constants.AreaAdmin }))', 800, 350, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew"]</button>
-        <input type="submit" id="btnRefresh" style="display: none" />
-    </div>
-    <vc:admin-widget widget-zone="specification_attribute_details_options_bottom" additional-data="Model" />
-</div>
+        <div class="panel panel-default">
+            <vc:admin-widget widget-zone="specification_attribute_details_options_top" additional-data="null" />
+            <div class="panel-body">
+                <div id="specificationattributeoptions-grid"></div>
+            </div>
+            <div class="panel-footer">
+                <a id="btnAddNewOption" href="@(Url.Action("OptionCreatePopup", "SpecificationAttribute", new { specificationAttributeId = Model.Id, btnId = "btnRefresh", formId = "specificationattribute-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew"]</a>
+                <input type="submit" id="btnRefresh" style="display: none" />
+            </div>
+            <vc:admin-widget widget-zone="specification_attribute_details_options_bottom" additional-data="Model" />
+        </div>
 
-<script>
+        <script>
             $(document).ready(function () {
+                $('#btnAddNewOption').magnificPopup({
+                    type: 'ajax',
+                    settings: { cache: false, async: false },
+                    callbacks: {
+                        parseAjax: function (mfpResponse) {
+                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                        },
+                        ajaxContentAdded: function () {
+                            $('.mfp-wrap').removeAttr('tabindex');
+                        }
+                    }
+                });
                 $("#specificationattributeoptions-grid").kendoGrid({
+                    dataBound: function () {
+                        $('.editoption').magnificPopup({
+                            type: 'ajax',
+                            settings: { cache: false, async: false },
+                            callbacks: {
+                                parseAjax: function (mfpResponse) {
+                                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                                },
+                                ajaxContentAdded: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    },
                     dataSource: {
                         transport: {
                             read: {
@@ -64,7 +94,7 @@
                     columns: [{
                         field: "Name",
                         title: "@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.Name"]",
-                        template: "<a class='k-link' onclick=\"javascript:OpenWindow('@Url.Action("OptionEditPopup", "SpecificationAttribute", new { area = Constants.AreaAdmin })/#=Id#?btnId=btnRefresh&formId=specificationattribute-form', 800, 450, true); return false;\">#=kendo.htmlEncode(Name)#</a>"
+                        template: "<a class='k-link editoption' href=\"@Url.Action("OptionEditPopup", "SpecificationAttribute", new { area = Constants.AreaAdmin })/#=Id#?btnId=btnRefresh&formId=specificationattribute-form\">#=kendo.htmlEncode(Name)#</a>"
                     }, {
                         field: "DisplayOrder",
                         title: "@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.DisplayOrder"]",
@@ -80,7 +110,7 @@
                     }]
                 });
             });
-</script>
+        </script>
         <script>
             $(document).ready(function () {
                 $('#btnRefresh').click(function () {
@@ -100,5 +130,5 @@
             @Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.SaveBeforeEdit"]
         </div>
     }
-    
+
 }

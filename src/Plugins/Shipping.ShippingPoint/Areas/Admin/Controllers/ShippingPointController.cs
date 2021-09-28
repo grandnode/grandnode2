@@ -109,6 +109,7 @@ namespace Shipping.ShippingPoint.Controllers
                 await _shippingPointService.InsertStoreShippingPoint(shippingPoint);
 
                 ViewBag.RefreshPage = true;
+                return Content("");
             }
 
             await PrepareShippingPointModel(model);
@@ -132,6 +133,8 @@ namespace Shipping.ShippingPoint.Controllers
                 var shippingPoint = await _shippingPointService.GetStoreShippingPointById(model.Id);
                 shippingPoint = model.ToEntity();
                 await _shippingPointService.UpdateStoreShippingPoint(shippingPoint);
+
+                return Content("");
             }
             ViewBag.RefreshPage = true;
 

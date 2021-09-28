@@ -72,17 +72,6 @@
             </div>
         </div>
     </div>
-
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-        try {
-            window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();
-        } catch (e) {
-        }
-        window.close();
-        </script>
-    }
     @if (!Model.ValidationRulesAllowed)
     {
         <div class="note note-danger">This attribute type cannot have validation rules</div>

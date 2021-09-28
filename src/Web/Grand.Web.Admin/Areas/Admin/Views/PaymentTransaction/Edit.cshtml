@@ -31,11 +31,12 @@
                             }
                             @if (Model.CanPartiallyPaidOffline)
                             {
-                                <input type="submit" id="partiallypaidpaymenttransactionoffline" name="partiallypaidpaymenttransactionoffline"
-                                       value="@Loc["Admin.PaymentTransaction.Fields.PartialPaidOffline"]"
-                                       onclick="javascript:OpenWindow('@(Url.Action("PartiallyPaidPopup", "PaymentTransaction",
-                                       new { id = Model.Id, online = false, btnId = "btnRefreshPage", formId = "order-form", area = Constants.AreaAdmin }))', 500, 300, true); return false; "
-                                       class="k-button" />
+                                <a id="partiallypaidpaymenttransactionoffline" name="partiallypaidpaymenttransactionoffline"
+                                       href="@(Url.Action("PartiallyPaidPopup", "PaymentTransaction",
+                                       new { id = Model.Id, online = false, btnId = "btnRefreshPage", formId = "order-form", area = Constants.AreaAdmin }))"
+                                       class="k-button">
+                                    @Loc["Admin.PaymentTransaction.Fields.PartialPaidOffline"]
+                                </a>
                                 <text>&nbsp;</text>
                             }
                             @if (Model.CanRefund)
@@ -52,20 +53,23 @@
                             }
                             @if (Model.CanPartiallyRefund)
                             {
-                                <input type="submit" id="partiallyrefundpaymenttransaction" name="partiallyrefundpaymenttransaction"
+                                <a id="partiallyrefundpaymenttransaction" name="partiallyrefundpaymenttransaction"
                                        value="@Loc["Admin.PaymentTransaction.Fields.PartialRefund"]"
-                                       onclick="javascript:OpenWindow('@(Url.Action("PartiallyRefundPopup", "PaymentTransaction",
-                                       new { id = Model.Id, online = true, btnId = "btnRefreshPage", formId = "order-form", area = Constants.AreaAdmin }))', 500, 300, true); return false; "
-                                       class="k-button" />
+                                       href="@(Url.Action("PartiallyRefundPopup", "PaymentTransaction",
+                                       new { id = Model.Id, online = true, btnId = "btnRefreshPage", formId = "order-form", area = Constants.AreaAdmin }))"
+                                       class="k-button">
+                                    @Loc["Admin.PaymentTransaction.Fields.PartialRefund"]
+                                </a>
                                 <text>&nbsp;</text>
                             }
                             @if (Model.CanPartiallyRefundOffline)
                             {
-                                <input type="submit" id="partiallyrefundpaymenttransactionoffline" name="partiallyrefundpaymenttransactionoffline"
-                                       value="@Loc["Admin.PaymentTransaction.Fields.PartialRefundOffline"]"
-                                       onclick="javascript:OpenWindow('@(Url.Action("PartiallyRefundPopup", "PaymentTransaction",
-                                       new { id = Model.Id, online = false, btnId = "btnRefreshPage", formId = "order-form", area = Constants.AreaAdmin }))', 500, 300, true); return false; "
-                                       class="k-button" />
+                                <a id="partiallyrefundpaymenttransactionoffline" name="partiallyrefundpaymenttransactionoffline"
+                                       href="@(Url.Action("PartiallyRefundPopup", "PaymentTransaction",
+                                       new { id = Model.Id, online = false, btnId = "btnRefreshPage", formId = "order-form", area = Constants.AreaAdmin }))"
+                                       class="k-button">
+                                    @Loc["Admin.PaymentTransaction.Fields.PartialRefundOffline"]
+                                </a>
                                 <text>&nbsp;</text>
                             }
                             @if (Model.CanVoid)
@@ -93,5 +97,45 @@
             </div>
         </div>
     </div>
+    <script>
+        $(document).ready(function () {
+            $('#partiallypaidpaymenttransactionoffline').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+            $('#partiallyrefundpaymenttransaction').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+            $('#partiallyrefundpaymenttransactionoffline').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+        });
+    </script>
 </form>
 <admin-delete-confirmation button-id="paymenttransaction-delete"/>

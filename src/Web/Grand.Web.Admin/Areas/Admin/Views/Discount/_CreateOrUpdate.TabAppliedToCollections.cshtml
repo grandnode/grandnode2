@@ -9,13 +9,25 @@
         <div id="collections-grid"></div>
     </div>
     <div class="panel-footer">
-        <button type="submit" id="btnAddNewCollection" onclick="javascript:OpenWindow('@(Url.Action("CollectionAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshCollections", formId = "discount-form", area = Constants.AreaAdmin }))', 800, 800, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToCollections.AddNew"]</button>
+        <a id="btnAddNewCollection" href="@(Url.Action("CollectionAddPopup", "Discount", new { discountId = Model.Id, btnId = "btnRefreshCollections", formId = "discount-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["admin.marketing.Discounts.AppliedToCollections.AddNew"]</a>
         <input type="submit" id="btnRefreshCollections" style="display: none" />
     </div>
     <vc:admin-widget widget-zone="discount_details_applied_to_collections_bottom" additional-data="Model" />
 </div>
         <script>
             $(document).ready(function () {
+                $('#btnAddNewCollection').magnificPopup({
+                    type: 'ajax',
+                    settings: { cache: false, async: false },
+                    callbacks: {
+                        parseAjax: function (mfpResponse) {
+                            mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                        },
+                        ajaxContentAdded: function () {
+                            $('.mfp-wrap').removeAttr('tabindex');
+                        }
+                    }
+                });
                 $("#collections-grid").kendoGrid({
                     dataSource: {
                         transport: {

@@ -8,14 +8,42 @@
                 <div id="productattributevalues-grid"></div>
             </div>
             <div class="panel-footer">
-                <button type="submit" id="btnAddNewValue" onclick=" javascript:OpenWindow('@(Url.Action("PredefinedProductAttributeValueCreatePopup", "ProductAttribute", new {productAttributeId = Model.Id, btnId = "btnRefresh", formId = "productattribute-form", area = Constants.AreaAdmin }))', 800, 550, true); return false; " class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.AddNew"]</button>
+                <a id="btnAddNewValue" href="@(Url.Action("PredefinedProductAttributeValueCreatePopup", "ProductAttribute", new {productAttributeId = Model.Id, btnId = "btnRefresh", formId = "productattribute-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display:none" />
             </div>
             <vc:admin-widget widget-zone="product_attribute_details_predefined_values_bottom" additional-data="Model" />
         </div>
         <script>
             $(document).ready(function() {
+                $(document).ready(function () {
+                    $('#btnAddNewValue').magnificPopup({
+                        type: 'ajax',
+                        settings: { cache: false, async: false },
+                        callbacks: {
+                            parseAjax: function (mfpResponse) {
+                                mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                            },
+                            ajaxContentAdded: function () {
+                                $('.mfp-wrap').removeAttr('tabindex');
+                            }
+                        }
+                    });
+                });
                 $("#productattributevalues-grid").kendoGrid({
+                    dataBound: function () {
+                        $('.editvalue').magnificPopup({
+                            type: 'ajax',
+                            settings: { cache: false, async: false },
+                            callbacks: {
+                                parseAjax: function (mfpResponse) {
+                                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                                },
+                                ajaxContentAdded: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    },
                     dataSource: {
                         transport: {
                             read: {
@@ -68,7 +96,7 @@
                             field: "Name",
                             title: "@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.Name"]",
                             width: 200,
-                            template: "<a class='k-link' onclick=\"javascript:OpenWindow('@Url.Action("PredefinedProductAttributeValueEditPopup", "ProductAttribute", new { area = Constants.AreaAdmin })/#=Id#?productAttributeId=@Model.Id&btnId=btnRefresh&formId=productattribute-form', 800, 500, true); return false;\">#=kendo.htmlEncode(Name)#</a>"
+                            template: "<a class='k-link editvalue' href=\"@Url.Action("PredefinedProductAttributeValueEditPopup", "ProductAttribute", new { area = Constants.AreaAdmin })/#=Id#?productAttributeId=@Model.Id&btnId=btnRefresh&formId=productattribute-form\">#=kendo.htmlEncode(Name)#</a>"
                         }, {
                             field: "PriceAdjustmentStr",
                             title: "@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.PriceAdjustment"]",

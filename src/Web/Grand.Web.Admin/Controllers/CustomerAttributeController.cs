@@ -184,7 +184,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _customerAttributeViewModelService.InsertCustomerAttributeValueModel(model);
                 ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
 
             //If we got this far, something failed, redisplay form
@@ -226,7 +226,7 @@ namespace Grand.Web.Admin.Controllers
                 await _customerAttributeViewModelService.UpdateCustomerAttributeValueModel(model, cav);
 
                 ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
 
             //If we got this far, something failed, redisplay form

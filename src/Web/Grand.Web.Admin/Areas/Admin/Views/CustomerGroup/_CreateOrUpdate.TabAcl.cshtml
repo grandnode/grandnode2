@@ -17,6 +17,20 @@
     <script>
                 $(document).ready(function () {
                     $("#acl-grid").kendoGrid({
+                        dataBound: function () {
+                            $('.permissionlink').magnificPopup({
+                                type: 'ajax',
+                                settings: { cache: false, async: false },
+                                callbacks: {
+                                    parseAjax: function (mfpResponse) {
+                                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                                    },
+                                    ajaxContentAdded: function () {
+                                        $('.mfp-wrap').removeAttr('tabindex');
+                                    }
+                                }
+                            });
+                        },
                         dataSource: {
                             transport: {
                                 read: {
@@ -86,7 +100,7 @@
                             width: 10,
                             headerAttributes: { style: "text-align:center" },
                             attributes: { style: "text-align:center" },
-                            template: '# if(Actions.length > 0) {# <a class="k-link" onclick="javascript:OpenWindow(\'@Url.Action("PermissionsAction", "Permission", new { area = Constants.AreaAdmin })/?systemname=#=SystemName#&customeGroupId=@Model.Id\', 600, 400, true); return false;"><i class="icon-settings"></i></a> #} #'
+                            template: '# if(Actions.length > 0) {# <a class="k-link permissionlink" href="\@Url.Action("PermissionsAction", "Permission", new { area = Constants.AreaAdmin })/?systemname=#=SystemName#&customeGroupId=@Model.Id\"><i class="icon-settings"></i></a> #} #'
 
                         },
                         {

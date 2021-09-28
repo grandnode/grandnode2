@@ -275,7 +275,7 @@ namespace Grand.Web.Admin.Controllers
 
             //a vendor should have access only to his products
             ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
         #endregion
     }

@@ -2,15 +2,15 @@
 @inject AdminAreaSettings adminAreaSettings
 
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Content.Blog.BlogCategory.AddNewPost"];
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Blog" asp-action="BlogPostAddPopup" method="post"
+<form id="BlogPostAddPopup" asp-area="@Constants.AreaAdmin" asp-controller="Blog" asp-action="BlogPostAddPopup" method="post"
       asp-route-CategoryId="@Context.Request.Query["CategoryId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
-    
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -52,19 +52,36 @@
             </div>
         </div>
     </div>
-
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-                try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-                catch (e){}
-                window.close();
-        </script>
-    }
-</form>
-
-<script>
-    $(document).ready(function () {
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#BlogPostAddPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefreshPosts').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
 
         $("#blogposts-grid").kendoGrid({
             dataSource: {
@@ -112,10 +129,7 @@
                 title: "@Loc["Admin.Content.Blog.BlogCategory.Fields.Post"]"
             }]
         });
-    });
-</script>
-<script>
-        $(document).ready(function() {
+
             $('#search-posts').click(function() {
                 var grid = $('#blogposts-grid').data('kendoGrid');
                 grid.dataSource.page(1); //new search. Set page size to 1
@@ -140,7 +154,6 @@
             $('#blogposts-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function(e) {
                 updateMasterCheckbox();
             });
-        });
 
         function additionalData() {
             var data = {
@@ -157,5 +170,5 @@
             $('#mastercheckbox').prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
         }
 
-</script>
-
+    </script>
+</form>

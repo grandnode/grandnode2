@@ -1,9 +1,9 @@
 ﻿@model StateProvinceModel
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     ViewBag.Title = Loc["Admin.Configuration.Countries.States.EditStateDetails"];
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Country" asp-action="StateEditPopup"
+<form id="StateEditPopup" asp-area="@Constants.AreaAdmin" asp-controller="Country" asp-action="StateEditPopup"
       asp-route-countryId="@Context.Request.Query["countryId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
@@ -27,4 +27,35 @@
             </div>
         </div>
     </div>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#StateEditPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefresh').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 </form>

@@ -374,7 +374,7 @@ namespace Grand.Web.Admin.Controllers
                 await _customerReminderViewModelService.InsertCategoryConditionModel(model);
             }
             ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
 
         #endregion
@@ -431,7 +431,7 @@ namespace Grand.Web.Admin.Controllers
                 await _customerReminderViewModelService.InsertCollectionConditionModel(model);
             }
             ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
         #endregion
 
@@ -481,7 +481,7 @@ namespace Grand.Web.Admin.Controllers
                 await _customerReminderViewModelService.InsertProductToConditionModel(model);
             }
             ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
 
 

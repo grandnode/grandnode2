@@ -269,7 +269,7 @@ namespace Grand.Web.Admin.Controllers
                 await _pictureViewModelService.UpdatePicture(model);
 
                 ViewBag.RefreshPage = true;
-                return View("PicturePopup", model);
+                return Content("");
             }
 
             Error(ModelState);
@@ -542,7 +542,7 @@ namespace Grand.Web.Admin.Controllers
                     }
             }
             ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
 
         #endregion
@@ -642,7 +642,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]

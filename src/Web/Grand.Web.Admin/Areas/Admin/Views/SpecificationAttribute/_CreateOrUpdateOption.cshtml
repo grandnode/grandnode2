@@ -1,9 +1,6 @@
 ﻿@model SpecificationAttributeOptionModel
 @using Microsoft.AspNetCore.Mvc.Razor;
 
-<link rel="stylesheet" type="text/css" asp-src="/_content/Grand.Web.Admin/administration/farbtastic/farbtastic.css" />
-<script asp-location="Footer" asp-src="/_content/Grand.Web.Admin/administration/farbtastic/farbtastic.js"></script>
-
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />
 <input asp-for="SpecificationAttributeId" type="hidden" />
@@ -24,10 +21,10 @@
 }
 
 <script>
-$(document).ready(function() {
+
     $("#@Html.IdFor(model => model.EnableColorSquaresRgb)").click(toggleEnableColorSquaresRgb);
     toggleEnableColorSquaresRgb();
-});
+
 
 function toggleEnableColorSquaresRgb() {
     if ($('#@Html.IdFor(model => model.EnableColorSquaresRgb)').is(':checked')) {
@@ -89,9 +86,7 @@ function toggleEnableColorSquaresRgb() {
                 <admin-input asp-for="ColorSquaresRgb" />
                 <div id="color-picker"></div>
                 <script>
-                    $(document).ready(function(){
-                        $('#color-picker').farbtastic('#@Html.IdFor(model => model.ColorSquaresRgb)');
-                    });
+                    $('#color-picker').farbtastic('#@Html.IdFor(model => model.ColorSquaresRgb)');
                 </script>
                 <span asp-validation-for="ColorSquaresRgb"></span>
             </div>
