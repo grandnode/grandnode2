@@ -1,13 +1,13 @@
 ﻿@{
-    Layout = "_AdminPopupLayout";
+    Layout = "";
 }
 @model Shipping.ShippingPoint.Models.ShippingPointModel
 
-<form asp-controller="ShippingPoint" asp-action="Edit" method="post"
-        asp-route-ShippingPointId="@Context.Request.Query["ShippingPointId"]"
-        asp-route-btnId="@Context.Request.Query["btnId"]"
-        asp-route-formId="@Context.Request.Query["formId"]">
-    
+<form id="EditPopup" asp-controller="ShippingPoint" asp-action="Edit" method="post"
+      asp-route-ShippingPointId="@Context.Request.Query["ShippingPointId"]"
+      asp-route-btnId="@Context.Request.Query["btnId"]"
+      asp-route-formId="@Context.Request.Query["formId"]">
+
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -29,4 +29,35 @@
             <partial name="_CreateOrUpdate" model="Model" />
         </div>
     </div>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#EditPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefresh').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 </form>
