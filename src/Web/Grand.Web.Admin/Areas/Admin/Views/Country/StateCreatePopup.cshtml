@@ -1,15 +1,9 @@
 ﻿@model StateProvinceModel
 @{
     Layout = "";
-    //page title
-    ViewBag.Title = Loc["Admin.Configuration.Countries.States.AddNew"];
 }
-
 <form id="StateCreatePopup" asp-area="@Constants.AreaAdmin" asp-controller="Country" asp-action="StateCreatePopup"
-      asp-route-countryId="@Context.Request.Query["countryId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
-    
+      asp-route-countryId="@Context.Request.Query["countryId"]">
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">

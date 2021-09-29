@@ -8,7 +8,7 @@
                 <div id="states-grid"></div>
             </div>
             <div class="panel-footer">
-                <a id="btnAddNewState" href="@(Url.Action("StateCreatePopup", "Country", new { countryId = Model.Id, btnId = "btnRefresh", formId = "country-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Configuration.Countries.States.AddNew"]</a>
+                <a id="btnAddNewState" href="@(Url.Action("StateCreatePopup", "Country", new { countryId = Model.Id, area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Configuration.Countries.States.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display: none" />
             </div>
         </div>
@@ -89,7 +89,7 @@
                         field: "Name",
                         title: "@Loc["Admin.Configuration.Countries.States.Fields.Name"]",
                         width: 300,
-                        template: "<a class=\"k-link editstate\" href=\"@Url.Action("StateEditPopup", "Country", new { area = Constants.AreaAdmin })/#=Id#?countryId=@(Model.Id)&btnId=btnRefresh&formId=country-form\">#=Name#</a>",
+                        template: "<a class=\"k-link editstate\" href=\"@Url.Action("StateEditPopup", "Country", new { area = Constants.AreaAdmin })/#=Id#?countryId=@(Model.Id)\">#=Name#</a>",
                     }, {
                         field: "Abbreviation",
                         title: "@Loc["Admin.Configuration.Countries.States.Fields.Abbreviation"]",
