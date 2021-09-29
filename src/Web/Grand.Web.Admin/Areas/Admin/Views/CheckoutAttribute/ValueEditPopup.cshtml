@@ -1,8 +1,6 @@
 ﻿@model CheckoutAttributeValueModel
 @{
     Layout = "";
-    //page title
-    ViewBag.Title = Loc["Admin.Orders.CheckoutAttributes.Values.EditValueDetails"];
 }
 <form id="ValueEditPopup" asp-area="@Constants.AreaAdmin" asp-controller="CheckoutAttribute" asp-action="ValueEditPopup"
       asp-route-checkoutAttributeId="@Context.Request.Query["checkoutAttributeId"]">
