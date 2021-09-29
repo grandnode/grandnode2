@@ -8,7 +8,7 @@
                 <div id="productattributevalues-grid"></div>
             </div>
             <div class="panel-footer">
-                <a id="btnAddNewValue" href="@(Url.Action("PredefinedProductAttributeValueCreatePopup", "ProductAttribute", new {productAttributeId = Model.Id, btnId = "btnRefresh", formId = "productattribute-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.AddNew"]</a>
+                <a id="btnAddNewValue" href="@(Url.Action("PredefinedProductAttributeValueCreatePopup", "ProductAttribute", new { productAttributeId = Model.Id, area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display:none" />
             </div>
             <vc:admin-widget widget-zone="product_attribute_details_predefined_values_bottom" additional-data="Model" />
@@ -94,7 +94,7 @@
                             field: "Name",
                             title: "@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.Name"]",
                             width: 200,
-                            template: "<a class='k-link editvalue' href=\"@Url.Action("PredefinedProductAttributeValueEditPopup", "ProductAttribute", new { area = Constants.AreaAdmin })/#=Id#?productAttributeId=@Model.Id&btnId=btnRefresh&formId=productattribute-form\">#=kendo.htmlEncode(Name)#</a>"
+                            template: "<a class='k-link editvalue' href=\"@Url.Action("PredefinedProductAttributeValueEditPopup", "ProductAttribute", new { area = Constants.AreaAdmin })/#=Id#?productAttributeId=@Model.Id\">#=kendo.htmlEncode(Name)#</a>"
                         }, {
                             field: "PriceAdjustmentStr",
                             title: "@Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.PriceAdjustment"]",

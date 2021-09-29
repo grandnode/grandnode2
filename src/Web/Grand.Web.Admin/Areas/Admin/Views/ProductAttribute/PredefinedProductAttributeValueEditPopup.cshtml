@@ -2,13 +2,8 @@
 @{    
     // layout
     Layout = "";
-    //page title
-    ViewBag.Title = Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.EditValueDetails"];
 }
-<form id="PredefinedProductAttributeValueEditPopup" asp-area="@Constants.AreaAdmin" asp-controller="ProductAttribute" asp-action="PredefinedProductAttributeValueEditPopup" method="post"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
-
+<form id="PredefinedProductAttributeValueEditPopup" asp-area="@Constants.AreaAdmin" asp-controller="ProductAttribute" asp-action="PredefinedProductAttributeValueEditPopup" method="post">
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">

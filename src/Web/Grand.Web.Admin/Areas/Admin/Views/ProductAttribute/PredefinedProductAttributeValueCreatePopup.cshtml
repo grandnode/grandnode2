@@ -1,15 +1,8 @@
 ﻿@model PredefinedProductAttributeValueModel
 @{    
-    // layout
     Layout = "";
-
-    //page title
-    ViewBag.Title = Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.AddNew"];
 }
-<form id="PredefinedProductAttributeValueCreatePopup" asp-area="@Constants.AreaAdmin" asp-controller="ProductAttribute" asp-action="PredefinedProductAttributeValueCreatePopup" method="post"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]"> 
-    
+<form id="PredefinedProductAttributeValueCreatePopup" asp-area="@Constants.AreaAdmin" asp-controller="ProductAttribute" asp-action="PredefinedProductAttributeValueCreatePopup" method="post">
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
