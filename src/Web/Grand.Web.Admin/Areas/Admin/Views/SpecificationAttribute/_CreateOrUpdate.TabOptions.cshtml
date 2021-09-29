@@ -13,7 +13,7 @@
                 <div id="specificationattributeoptions-grid"></div>
             </div>
             <div class="panel-footer">
-                <a id="btnAddNewOption" href="@(Url.Action("OptionCreatePopup", "SpecificationAttribute", new { specificationAttributeId = Model.Id, btnId = "btnRefresh", formId = "specificationattribute-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew"]</a>
+                <a id="btnAddNewOption" href="@(Url.Action("OptionCreatePopup", "SpecificationAttribute", new { specificationAttributeId = Model.Id, area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display: none" />
             </div>
             <vc:admin-widget widget-zone="specification_attribute_details_options_bottom" additional-data="Model" />
@@ -94,7 +94,7 @@
                     columns: [{
                         field: "Name",
                         title: "@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.Name"]",
-                        template: "<a class='k-link editoption' href=\"@Url.Action("OptionEditPopup", "SpecificationAttribute", new { area = Constants.AreaAdmin })/#=Id#?btnId=btnRefresh&formId=specificationattribute-form\">#=kendo.htmlEncode(Name)#</a>"
+                        template: "<a class='k-link editoption' href=\"@Url.Action("OptionEditPopup", "SpecificationAttribute", new { area = Constants.AreaAdmin })/#=Id#\">#=kendo.htmlEncode(Name)#</a>"
                     }, {
                         field: "DisplayOrder",
                         title: "@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.DisplayOrder"]",

@@ -7,9 +7,7 @@
     ViewBag.Title = Loc["Admin.Catalog.Attributes.SpecificationAttributes.Options.EditOptionDetails"];
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="SpecificationAttribute" asp-action="OptionEditPopup" method="post" id="specificationattribute-form"
-      asp-route-SpecificationAttributeId="@Context.Request.Query["SpecificationAttributeId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
+      asp-route-SpecificationAttributeId="@Context.Request.Query["SpecificationAttributeId"]">
 
     <div class="row">
         <div class="col-md-12">
