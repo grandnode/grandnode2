@@ -369,6 +369,7 @@
                 if (result) {
                     var form = document.getElementById(id);
                     var url = form.getAttribute("action");
+                    var resultTitle = form.getAttribute("data-title");
                     var bodyFormData = new FormData(form);
                     axios({
                         method: "post",
@@ -379,8 +380,36 @@
                             'X-Response-View': 'Json'
                         },
                     }).then(function (response) {
-                        console.log(response);
                         vm.PopupProductReviewVueModal = response.data;
+                        productreviews.Model = response.data.Items;
+
+                        vm.$refs['ModalProductReview'].hide();
+
+                        var result = response.data.AddProductReview.Result;
+                        var variant = "";
+
+                        if (response.data.AddProductReview.SuccessfullyAdded) {
+                            variant = "info";
+                        } else {
+                            variant = "danger";
+                        }
+
+                        new Vue({
+                            el: ".modal-place",
+                            methods: {
+                                toast() {
+                                    this.$bvToast.toast(result, {
+                                        title: resultTitle,
+                                        variant: variant,
+                                        autoHideDelay: 3000,
+                                        solid: true
+                                    })
+                                }
+                            },
+                            mounted: function () {
+                                this.toast();
+                            }
+                        });
                     });
                     return
                 }
