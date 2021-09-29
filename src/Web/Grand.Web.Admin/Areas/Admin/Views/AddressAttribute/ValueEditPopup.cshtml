@@ -4,10 +4,7 @@
     ViewBag.Title = Loc["Admin.Address.AddressAttributes.Values.EditValueDetails"];
 }
 
-<form id="ValueEditPopup" asp-area="@Constants.AreaAdmin" asp-controller="AddressAttribute" asp-action="ValueEditPopup"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
-
+<form id="ValueEditPopup" asp-area="@Constants.AreaAdmin" asp-controller="AddressAttribute" asp-action="ValueEditPopup">
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">

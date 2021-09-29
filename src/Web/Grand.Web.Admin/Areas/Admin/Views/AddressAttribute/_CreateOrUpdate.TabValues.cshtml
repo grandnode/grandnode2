@@ -9,7 +9,7 @@
                 <vc:admin-widget widget-zone="address_attribute_details_values_bottom" additional-data="Model" />
             </div>
             <div class="panel-footer">
-                <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "AddressAttribute", new { addressAttributeId = Model.Id, btnId = "btnRefresh", formId = "addressattribute-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Address.AddressAttributes.Values.AddNew"]</a>
+                <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "AddressAttribute", new { addressAttributeId = Model.Id, area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Address.AddressAttributes.Values.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display: none" />
             </div>
         </div>
@@ -88,7 +88,7 @@
                     columns: [{
                         field: "Name",
                         title: "@Loc["Admin.Address.AddressAttributes.Values.Fields.Name"]",
-                        template: "<a class='k-link editvalue' href=\"@Url.Action("ValueEditPopup", "AddressAttribute", new { area = Constants.AreaAdmin })/#=Id#?addressAttributeId=@(Model.Id)&btnId=btnRefresh&formId=addressattribute-form\">#=Name#</a>",
+                        template: "<a class='k-link editvalue' href=\"@Url.Action("ValueEditPopup", "AddressAttribute", new { area = Constants.AreaAdmin })/#=Id#?addressAttributeId=@(Model.Id)\">#=Name#</a>",
                     }, {
                         field: "IsPreSelected",
                         title: "@Loc["Admin.Address.AddressAttributes.Values.Fields.IsPreSelected"]",

@@ -4,10 +4,7 @@
     ViewBag.Title = Loc["Admin.Address.AddressAttributes.Values.AddNew"];
 }
 <form id="ValueCreatePopup" asp-area="@Constants.AreaAdmin" asp-controller="AddressAttribute" asp-action="ValueCreatePopup"
-      asp-route-addressAttributeId="@Context.Request.Query["addressAttributeId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
-
+      asp-route-addressAttributeId="@Context.Request.Query["addressAttributeId"]">
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
