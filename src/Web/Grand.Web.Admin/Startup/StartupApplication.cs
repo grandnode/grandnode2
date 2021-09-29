@@ -1,3 +1,5 @@
+using elFinder.Net.AspNetCore.Extensions;
+using elFinder.Net.Drivers.FileSystem.Extensions;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Services;
@@ -12,6 +14,12 @@ namespace Grand.Web.Admin.Startup
     {
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
+            #region elFinder
+
+            services.AddElFinderAspNetCore().AddFileSystemDriver();
+            
+            #endregion
+
             services.AddScoped<IActivityLogViewModelService, ActivityLogViewModelService>();
             services.AddScoped<IAddressAttributeViewModelService, AddressAttributeViewModelService>();
             services.AddScoped<IAffiliateViewModelService, AffiliateViewModelService>();
