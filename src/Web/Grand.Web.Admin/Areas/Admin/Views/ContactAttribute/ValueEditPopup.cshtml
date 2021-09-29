@@ -1,14 +1,9 @@
 ﻿@model ContactAttributeValueModel
 @{
     Layout = "";
-    //page title
-    ViewBag.Title = Loc["Admin.Catalog.Attributes.ContactAttributes.Values.EditValueDetails"];
 }
 <form id="ValueEditPopup" asp-area="@Constants.AreaAdmin" asp-controller="ContactAttribute" asp-action="ValueEditPopup"
-      asp-route-contactAttributeId="@Context.Request.Query["contactAttributeId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
-
+      asp-route-contactAttributeId="@Context.Request.Query["contactAttributeId"]">
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">

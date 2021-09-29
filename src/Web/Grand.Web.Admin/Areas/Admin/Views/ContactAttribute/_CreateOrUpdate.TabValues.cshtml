@@ -9,7 +9,7 @@
                 <div id="contactattributevalues-grid"></div>
             </div>
             <div class="panel-footer">
-                <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "ContactAttribute", new { contactAttributeId = Model.Id, btnId = "btnRefresh", formId = "contactattribute-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.AddNew"]</a>
+                <a id="btnAddNewValue" href="@(Url.Action("ValueCreatePopup", "ContactAttribute", new { contactAttributeId = Model.Id, area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.AddNew"]</a>
                 <input type="submit" id="btnRefresh" style="display: none" />
             </div>
         </div>
@@ -89,7 +89,7 @@
                     columns: [{
                         field: "Name",
                         title: "@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.Fields.Name"]",
-                        template: "<a class='k-link editvalue' href=\"@Url.Action("ValueEditPopup", "ContactAttribute", new { area = Constants.AreaAdmin })/#=Id#?contactAttributeId=@Model.Id&btnId=btnRefresh&formId=contactattribute-form\">#=kendo.htmlEncode(Name)#</a>"
+                        template: "<a class='k-link editvalue' href=\"@Url.Action("ValueEditPopup", "ContactAttribute", new { area = Constants.AreaAdmin })/#=Id#?contactAttributeId=@Model.Id\">#=kendo.htmlEncode(Name)#</a>"
                     }, {
                         field: "IsPreSelected",
                         title: "@Loc["Admin.Catalog.Attributes.ContactAttributes.Values.Fields.IsPreSelected"]",
