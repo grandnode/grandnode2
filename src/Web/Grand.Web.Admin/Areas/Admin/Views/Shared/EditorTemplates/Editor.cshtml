@@ -32,7 +32,22 @@
                 ]
             },
             getFileCallback: function (file, fm) {
-                $('#s-@(random)-summernote').summernote('editor.insertImage', file.url);
+                var fulltype = file.mime;
+                if (fulltype.includes("video")) {
+                    var node = document.createElement('iframe');
+                    node.src = file.url;
+                    $('#s-@(random)-summernote').summernote('editor.insertNode', node);
+                }
+                if (fulltype.includes("image")) {
+                    $('#s-@(random)-summernote').summernote('editor.insertImage', file.url);
+                }
+                if (!fulltype.includes("image") && !fulltype.includes("video")) {
+                    $('#s-@(random)-summernote').summernote('editor.createLink', {
+                        text: file.name,
+                        url: file.url,
+                        isNewWindow: false
+                    });
+                }
             },
             commandsOptions: {
                 getfile: {
