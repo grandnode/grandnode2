@@ -4,8 +4,7 @@
 @using Grand.Business.Common.Services.Security
 @{
     var allowRoxyFileman = await permissionService.Authorize(StandardPermission.HtmlEditorManagePictures);
-    var random = CommonHelper.GenerateRandomInteger();
-    var param = string.IsNullOrEmpty(CommonPath.Param) ? "" : $"/{CommonPath.Param}";
+    var random = CommonHelper.GenerateRandomInteger();    
 }
 <div id="s-@(random)-summernote" class="summernote" data-name="null" data-file="null" data-format="null">
     @Html.Raw(ViewData.TemplateInfo.FormattedModelValue)
@@ -14,7 +13,7 @@
     ViewData.TemplateInfo.FormattedModelValue /* Initial value */
 )
 <script>
-    function elfinderDialog(context) { // <------------------ +context
+    function elfinderDialog@(random)(context) { // <------------------ +context
         var fm = $('<div/>').dialogelfinder({
             url: '@Url.Action("Connector", "ElFinder")',
             lang: 'en',
@@ -46,6 +45,19 @@
 </script>
 <script>
     $(document).ready(function () {
+         var FileManager = function (context) {
+            var ui = $.summernote.ui;
+            // create button
+            var button = ui.button({
+                contents: '<i class="fa fa-list-alt"/>@Loc["Admin.FileManager.Picture"]',
+                tooltip: 'elfinder',
+                click: function () {
+                    elfinderDialog@(random)();
+                }
+            });
+            return button.render();   // return button as jquery object
+        }
+
         $('#s-@(random)-summernote').summernote({
             toolbar: [
                 ['style', ['style']],
@@ -57,6 +69,9 @@
                 ['insert', ['link', 'image', 'elfinder', 'hr']],
                 ['view', ['fullscreen', 'codeview', 'help']],
             ],
+            buttons: {
+                elfinder: FileManager,
+            },
             callbacks: {
                     onChange: function (contents) {
                             var textarea = this.nextSibling.nextElementSibling;

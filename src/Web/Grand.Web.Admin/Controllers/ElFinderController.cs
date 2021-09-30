@@ -1,26 +1,15 @@
 ﻿using elFinder.Net.AspNetCore.Extensions;
 using elFinder.Net.AspNetCore.Helper;
 using elFinder.Net.Core;
-using elFinder.Net.Core.Http;
-using elFinder.Net.Core.Models.Command;
-using elFinder.Net.Core.Models.Response;
-using elFinder.Net.Core.Models.Result;
-using elFinder.Net.Core.Services.Drawing;
 using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.Common.Services.Security;
-using Grand.Business.Storage.Interfaces;
-using Grand.Business.Storage.Services;
+using Grand.Domain.Media;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Security.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Controllers
@@ -31,38 +20,37 @@ namespace Grand.Web.Admin.Controllers
 
         #region Fields
 
-        private Dictionary<string, string> _settings;
-        private Dictionary<string, string> _languageResources;
-        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IPermissionService _permissionService;
-
-        private readonly IMediaFileStore _mediaFileStore;
-        private string fullPathToUpload;
-
         private readonly IConnector _connector;
         private readonly IDriver _driver;
+        private readonly MediaSettings _mediaSettings;
+
+        private readonly string _fullPathToUpload;
+        private readonly string _fullPathToThumbs;
+
 
         #endregion
 
         #region Ctor
 
         public ElFinderController(
-            IWebHostEnvironment hostingEnvironment,
             IPermissionService permissionService,
-            IConnector connector, IDriver driver
+            IConnector connector,
+            IDriver driver,
+            MediaSettings mediaSettings
             )
         {
+            _mediaSettings = mediaSettings;
             _connector = connector;
             _driver = driver;
-            _hostingEnvironment = hostingEnvironment;
             _permissionService = permissionService;
-            fullPathToUpload = Path.Combine(CommonPath.WebRootPath, Path.Combine("assets", "images", "uploaded"));
-            if (!Directory.Exists(fullPathToUpload))
-                Directory.CreateDirectory(fullPathToUpload);
+            _fullPathToUpload = Path.Combine(CommonPath.WebRootPath, Path.Combine("assets", "images", "uploaded"));
+            if (!Directory.Exists(_fullPathToUpload))
+                Directory.CreateDirectory(_fullPathToUpload);
 
-            var fullPath = Path.Combine(CommonPath.WebRootPath, Path.Combine("assets", "images"));
-            var fileStore = new FileSystemStore(fullPath);
-            _mediaFileStore = new DefaultMediaFileStore(fileStore);
+            _fullPathToThumbs = Path.Combine(CommonPath.WebRootPath, Path.Combine("assets", "images", "thumbs"));
+            if (!Directory.Exists(_fullPathToThumbs))
+                Directory.CreateDirectory(_fullPathToThumbs);
 
         }
 
@@ -84,55 +72,54 @@ namespace Grand.Web.Admin.Controllers
             return actionResult;
         }
 
+        public async Task<IActionResult> Thumb(string id)
+        {
+            if (!await _permissionService.Authorize(StandardPermission.HtmlEditorManagePictures))
+                return new JsonResult(new { error = "You don't have required permission" });
+
+            await SetupConnectorAsync();
+            var thumb = await _connector.GetThumbAsync(id, HttpContext.RequestAborted);
+            var actionResult = ConnectorHelper.GetThumbResult(thumb);
+            return actionResult;
+        }
+
         private async Task SetupConnectorAsync()
         {
             var volume = new Volume(_driver,
-                fullPathToUpload,
-                Path.GetTempPath(),
-                "/assets/images/uploaded",
-                "/assets/images/thumb") {
-                StartDirectory = fullPathToUpload,
-                Name = $"Volume",
+                _fullPathToUpload,
+                _fullPathToThumbs,
+                "/assets/images/uploaded/",
+                $"{Url.Action("Thumb")}/"
+                ) {
+                Name = "Volume",
                 MaxUploadConnections = 3
             };
-
+            volume.ObjectAttributes = new List<FilteredObjectAttribute>()
+            {
+                new FilteredObjectAttribute()
+                {
+                    FileFilter = (file) => !CanAllowedExtensions(file.Extension),
+                    Visible = false,
+                    Access = false,
+                    Write = false,
+                    Read = false
+                },
+            };
             _connector.AddVolume(volume);
             await volume.Driver.SetupVolumeAsync(volume);
 
-            // Events
-            _driver.OnBeforeMove += (sender, args) =>
-            {
-                Console.WriteLine("Move: " + args.FileSystem.FullName);
-                Console.WriteLine("To: " + args.NewDest);
-            };
         }
 
-        //private Connector GetConnector()
-        //{
-        //    var driver = new FileSystemDriver();
+        private bool CanAllowedExtensions(string extensions)
+        {
+            var allowedFileTypes = new List<string>();
+            if (string.IsNullOrEmpty(_mediaSettings.AllowedFileTypes))
+                allowedFileTypes = new List<string> { ".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp" };
+            else
+                allowedFileTypes = _mediaSettings.AllowedFileTypes.Split(',').Select(x => x.ToLowerInvariant()).ToList();
 
-        //    string absoluteUrl = UriHelper.BuildAbsolute(Request.Scheme, Request.Host);
-        //    var uri = new Uri(absoluteUrl);
-
-        //    var root = new RootVolume(
-        //        fullPathToUpload,
-        //        $"{uri.Scheme}://{uri.Authority}/assets/images/upload/",
-        //        $"") {
-        //        //IsReadOnly = !User.IsInRole("Administrators")
-        //        IsReadOnly = false, // Can be readonly according to user's membership permission
-        //        IsLocked = false, // If locked, files and directories cannot be deleted, renamed or moved
-        //        Alias = "", // Beautiful name given to the root/home folder
-        //                         //MaxUploadSizeInKb = 2048, // Limit imposed to user uploaded file <= 2048 KB
-
-        //    };
-
-        //    driver.AddRoot(root);
-
-        //    return new Connector(driver) {
-        //        // This allows support for the "onlyMimes" option on the client.
-        //        MimeDetect = MimeDetectOption.Internal
-        //    };
-        //}
+            return allowedFileTypes.Contains(extensions.ToLowerInvariant());
+        }
 
         #endregion
     }
