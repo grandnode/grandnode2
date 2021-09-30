@@ -5,11 +5,13 @@
 </div>
 @if (Model.AddProductReview.DisplayCaptcha)
 {
-    <div class="captcha-box">
-        <captcha />
+    <div id="captcha-container">
+        <div class="captcha-box" id="captcha-box">
+            <captcha />
+        </div>
     </div>
 }
-
+<partial name="_ProductReview.VueModal" />
 <template id="product-review-list" v-if="productreviews.Model !== null">
     <div class="product-review-list">
         <h5 class="mb-3"><strong>@Loc["Reviews.ExistingReviews"]</strong></h5>
@@ -74,7 +76,8 @@
     var ProductReviews = Vue.extend({
         data: function () {
             return {
-                Model: null
+                Model: null,
+                captcha: null
             }
         },
         mounted: function() {

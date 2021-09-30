@@ -2,7 +2,7 @@
     var productlink = @Url.RouteUrl("Product");
 }
 
-<b-modal id="ModalProductReview" ref="ModalProductReview" :dark-theme="darkMode" size="xl" centered hide-footer hide-header>
+<b-modal id="ModalProductReview" ref="ModalProductReview" :dark-theme="darkMode" size="xl" @@shown="modalReviewShown()" @@hide="modalReviewClose()" centered hide-footer hide-header>
     <template v-if="PopupProductReviewVueModal !== null">
         <h2 class="generalTitle h3">@Loc["Reviews.ProductReviewsFor"] <a :href="'@productlink' + PopupProductReviewVueModal.ProductSeName">{{PopupProductReviewVueModal.ProductName}}</a></h2>
         <template v-if="!PopupProductReviewVueModal.AddProductReview.SuccessfullyAdded">
@@ -27,10 +27,7 @@
                                 <input class="sr-only" id="AddProductReview_Rating" name="AddProductReview.Rating" v-model="value" />
                             </div>
                             <template v-if="PopupProductReviewVueModal.AddProductReview.DisplayCaptcha">
-                                @*
-                                <div class="captcha-box">
-                                    <captcha />
-                                </div>*@
+                                <div id="captcha-popup"></div>
                             </template>
                         </div>
                     </fieldset>

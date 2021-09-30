@@ -364,6 +364,18 @@
                 vm.$refs['ModalProductReview'].show();
             });
         },
+        modalReviewShown: function () {
+            if (vm.PopupProductReviewVueModal.AddProductReview.DisplayCaptcha && document.querySelector("#ModalProductReview .captcha-box") == null) {
+                var html = document.getElementById("captcha-box");
+                document.getElementById("captcha-popup").prepend(html);
+            }
+        },
+        modalReviewClose: function () {
+            if (vm.PopupProductReviewVueModal.AddProductReview.DisplayCaptcha && document.querySelector("#ModalProductReview .captcha-box") !== null) {
+                var html = document.getElementById("captcha-box");
+                document.getElementById("captcha-container").prepend(html);
+            }
+        },
         submitProductReview: function (id) {
             this.$validator.validateAll(['AddProductReview.Title', 'AddProductReview.ReviewText', 'AddProductReview_Rating']).then((result) => {
                 if (result) {
@@ -383,13 +395,14 @@
                         vm.PopupProductReviewVueModal = response.data;
                         productreviews.Model = response.data.Items;
 
-                        vm.$refs['ModalProductReview'].hide();
-
                         var result = response.data.AddProductReview.Result;
                         var variant = "";
 
                         if (response.data.AddProductReview.SuccessfullyAdded) {
+
                             variant = "info";
+                            vm.$refs['ModalProductReview'].hide();
+
                         } else {
                             variant = "danger";
                         }
