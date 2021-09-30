@@ -1,0 +1,41 @@
+﻿@{
+    var productlink = @Url.RouteUrl("Product");
+}
+
+<b-modal id="ModalProductReview" ref="ModalProductReview" :dark-theme="darkMode" size="xl" @@shown="modalReviewShown()" @@hide="modalReviewClose()" centered hide-footer hide-header>
+    <template v-if="PopupProductReviewVueModal !== null">
+        <h2 class="generalTitle h3">@Loc["Reviews.ProductReviewsFor"] <a :href="'@productlink' + PopupProductReviewVueModal.ProductSeName">{{PopupProductReviewVueModal.ProductName}}</a></h2>
+        <template v-if="!PopupProductReviewVueModal.AddProductReview.SuccessfullyAdded">
+            <div class="write-review" id="review-form">
+                <h5 class="generalTitle"><strong>@Loc["Reviews.Write"]</strong></h5>
+                <form id="addReviewForm" :action="'/productreviews/' + PopupProductReviewVueModal.ProductId" method="post" v-on:submit.prevent="validateBeforeSubmit($event)" :data-title="'@Loc["Reviews.ProductReviewsFor"] ' + PopupProductReviewVueModal.ProductName">
+                    <input type="hidden" name="productId" :value="PopupProductReviewVueModal.ProductId" />
+                    <div asp-validation-summary="ModelOnly" class="message-error alert alert-danger my-3"></div>
+                    <fieldset>
+                        <div class="form-fields">
+                            <div class="form-group">
+                                <label for="AddProductReview_Title" class="col-form-label">@Loc["Reviews.Fields.Title"]:</label>
+                                <input data-val-required="@Loc["reviews.fields.title.required"]" id="AddProductReview_Title" name="AddProductReview.Title" class="form-control review-title" :disabled="!PopupProductReviewVueModal.AddProductReview.CanCurrentCustomerLeaveReview" v-validate="'required'" />
+                                <span class="field-validation-error">{{veeErrors.first('AddProductReview.Title')}}</span>
+                            </div>
+                            <label for="AddProductReview_ReviewText" class="col-form-label">@Loc["Reviews.Fields.ReviewText"]:</label>
+                            <textarea data-val-required="@Loc["reviews.fields.reviewtext.required"]" id="AddProductReview_ReviewText" name="AddProductReview.ReviewText" class="form-control review-text" :disabled="!PopupProductReviewVueModal.AddProductReview.CanCurrentCustomerLeaveReview" v-validate="'required'"></textarea>
+                            <span class="field-validation-error">{{veeErrors.first('AddProductReview.ReviewText')}}</span>
+                            <div class="form-group review-rating d-flex flex-wrap">
+                                <label for="AddProductReview_Rating" class="col-form-label w-100">@Loc["Reviews.Fields.Rating"]:</label>
+                                <b-form-rating v-model="value" variant="warning" show-value value="5" inline></b-form-rating>
+                                <input class="sr-only" id="AddProductReview_Rating" name="AddProductReview.Rating" v-model="value" />
+                            </div>
+                            <template v-if="PopupProductReviewVueModal.AddProductReview.DisplayCaptcha">
+                                <div id="captcha-popup"></div>
+                            </template>
+                        </div>
+                    </fieldset>
+                    <div class="buttons my-3">
+                        <input type="button" @@click="submitProductReview('addReviewForm')" class="btn btn-info write-product-review-button" value="@Loc[" Reviews.SubmitButton"]" :disabled="!PopupProductReviewVueModal.AddProductReview.CanCurrentCustomerLeaveReview" />
+                    </div>
+                </form>
+            </div>
+        </template>
+    </template>
+</b-modal>

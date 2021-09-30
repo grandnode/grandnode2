@@ -582,6 +582,7 @@ namespace Grand.Web.Controllers
             newmodel.AddProductReview.Rating = model.AddProductReview.Rating;
             newmodel.AddProductReview.ReviewText = model.AddProductReview.ReviewText;
             newmodel.AddProductReview.Title = model.AddProductReview.Title;
+            newmodel.AddProductReview.Result = string.Join(",", ModelState.Values.SelectMany(m => m.Errors).Select(e => e.ErrorMessage).ToList());
 
             return View(newmodel);
         }

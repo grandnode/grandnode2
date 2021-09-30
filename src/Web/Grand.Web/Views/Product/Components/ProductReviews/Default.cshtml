@@ -1,60 +1,121 @@
 ﻿@model ProductReviewsModel
 
 <div class="mb-3">
-    <a class="btn btn-info" href="@Url.RouteUrl("ProductReviews", new { productId = Model.ProductId })">@Loc["Reviews.Overview.AddNew"]</a>
+    <a class="btn btn-info" @@click="addProductReview('@Url.RouteUrl("ProductReviews", new { productId = Model.ProductId })')">@Loc["Reviews.Overview.AddNew"]</a>
 </div>
-
-@if (Model.Items.Any())
+@if (Model.AddProductReview.DisplayCaptcha)
 {
-    <div id="product-review-list" class="product-review-list">
+    <div id="captcha-container">
+        <div class="captcha-box" id="captcha-box">
+            <captcha />
+        </div>
+    </div>
+}
+<partial name="_ProductReview.Modal" />
+<template id="product-review-list" v-if="productreviews.Model !== null">
+    <div class="product-review-list">
         <h5 class="mb-3"><strong>@Loc["Reviews.ExistingReviews"]</strong></h5>
-        @foreach (var review in Model.Items)
-        {
-            int ratingStars = review.Rating;
-            <div header-tag="header" footer-tag="footer" class="card product-review-item mb-3" data-url="@Url.RouteUrl("SetProductReviewHelpfulness")" data-id="@Model.ProductId" data-reviewid="@review.Id" data-title="@Loc["Reviews.Helpfulness.WasHelpful?"]">
-                <header class="card-header">
+        <template v-for="review in productreviews.Model">
+            <div class="card product-review-item mb-3">
+                <div class="card-header">
                     <div class="review-info d-inline-flex w-100">
                         <div class="user d-inline-flex align-items-center">
                             <small class="text-muted mr-2">@Loc["Reviews.From"]:</small>
-                            <h6 class="mb-0">@review.CustomerName</h6>
+                            <h6 class="mb-0">{{review.CustomerName}}</h6>
                         </div>
                         <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
                         <small class="date text-muted">
-                            <span>@Loc["Reviews.Date"]:</span>
-                            <span>@review.WrittenOnStr</span>
+                            <span class="ml-1">@Loc["Reviews.Date"]:</span>
+                            <span>{{review.WrittenOnStr}}</span>
                         </small>
                     </div>
-                </header>
+                </div>
                 <div class="card-body">
                     <div class="review-title mb-3">
-                        <h5 class="mb-0">@review.Title</h5>
-                        <b-form-rating id='rating-@review.Id' class='p-0' variant='warning' no-border size='sm' show-value precision='2' readonly inline value='@(ratingStars)'></b-form-rating>
+                        <h5 class="mb-0">{{review.Title}}</h5>
+                        <b-form-rating id='rating-inline2' class='p-0' variant='warning' no-border size='sm' show-value precision='2' readonly inline :value='review.Rating'></b-form-rating>
                     </div>
                     <div class="review-content">
                         <div class="review-text">
-                            @review.ReviewText
+                            {{review.ReviewText}}
                         </div>
                     </div>
-                    @if (!string.IsNullOrEmpty(review.ReplyText))
-                    {
-                        <hr />
-                        <div class="reply-content mt-2">
-                            <blockquote class="administration-response">
-                                <h5 class="administration-response-header">@Loc["Reviews.AdministrationResponse"]</h5>
-                                @review.ReplyText
-                                <p>@review.Signature</p>
-                            </blockquote>
-                        </div>
-                    }
                 </div>
-                <footer class="card-footer">
-                    <partial name="_ProductReviewHelpfulness" model="review.Helpfulness" />
-                </footer>
+                <template v-if="review.ReplyText !== null">
+                    <div class="reply-content">
+                        <blockquote class="administration-response px-3">
+                            <h5 class="administration-response-header">@Loc["Reviews.AdministrationResponse"]</h5>
+                            <span>{{review.ReplyText}}</span>
+                            <figcaption class="blockquote-footer">
+                                {{review.Signature}}
+                            </figcaption>
+                        </blockquote>
+                    </div>
+                </template>
+                <div class="card-footer">
+                    <div class="product-review-helpfulness d-inline-flex justify-content-end align-items-center flex-wrap">
+                        <span class="question">@Loc["Reviews.Helpfulness.WasHelpful?"]</span>
+                        <span class="vote-options btn-group">
+                            <span :id="'vote-yes-' + review.Helpfulness.ProductReviewId" @@click="productreviews.setProductReviewHelpfulness('@Url.RouteUrl("SetProductReviewHelpfulness")', 'true', review.Id, '@Model.ProductId', '@Loc[" Reviews.Helpfulness.WasHelpful?"]')" class="btn btn-sm btn-outline vote"><b-icon variant="success" icon="hand-thumbs-up"></b-icon></span>
+                            <span :id="'vote-no-' + review.Helpfulness.ProductReviewId" @@click="productreviews.setProductReviewHelpfulness('@Url.RouteUrl("SetProductReviewHelpfulness")', 'false', review.Id, '@Model.ProductId', '@Loc[" Reviews.Helpfulness.WasHelpful?"]')" class="btn btn-sm btn-outline vote"><b-icon variant="danger" icon="hand-thumbs-down"></b-icon></span>
+                        </span>
+                        <span class="vote-stats d-inline-flex">
+                            (<span :id="'helpfulness-vote-yes-' + review.Helpfulness.ProductReviewId">{{review.Helpfulness.HelpfulYesTotal}}</span>/<span :id="'helpfulness-vote-no-' + review.Helpfulness.ProductReviewId">{{review.Helpfulness.HelpfulNoTotal}}</span>)
+                        </span>
+                    </div>
+                </div>
             </div>
-        }
+        </template>
+        <template v-else>
+            <p class="text-muted">@Loc["Products.Reviews.Empty"]</p>
+        </template>
     </div>
-}
-else
-{
-    <p class="text-muted">@Loc["Products.Reviews.Empty"]</p>
-}
+</template>
+
+<script asp-location="Header">
+    var ProductReviews = Vue.extend({
+        data: function () {
+            return {
+                Model: null,
+                captcha: null
+            }
+        },
+        mounted: function() {
+            this.Model = @Json.Serialize(Model.Items);
+        },
+        methods: {
+            setProductReviewHelpfulness(url, wasHelpful, reviewId, productId, toastTitle) {
+                axios({
+                    url: url,
+                    method: 'post',
+                    params: { "productReviewId": reviewId, "productId": productId, "washelpful": wasHelpful },
+                    headers: {
+                        'X-Response-View': 'Json'
+                    },
+                }).then(function (response) {
+                    document.getElementById("helpfulness-vote-yes-" + reviewId + "").innerHTML = response.data.TotalYes
+                    document.getElementById("helpfulness-vote-no-" + reviewId + "").innerHTML = response.data.TotalNo;
+                    new Vue({
+                        el: ".modal-place",
+                        methods: {
+                            toast() {
+                                this.$bvToast.toast(response.data.Result, {
+                                    title: toastTitle,
+                                    variant: 'info',
+                                    autoHideDelay: 3000,
+                                    solid: true
+                                })
+                            }
+                        },
+                        mounted: function () {
+                            this.toast();
+                        }
+                    });
+                }).catch(function (error) {
+                    alert(error);
+                })
+            }
+        }
+    });
+    var productreviews = new ProductReviews().$mount('#product-review-list');
+</script>

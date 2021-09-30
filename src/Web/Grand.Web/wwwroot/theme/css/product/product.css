@@ -88,6 +88,12 @@
     max-width: 165px;
 }
 
+/* captcha */
+
+#captcha-container .captcha-box {
+    display: none;
+}
+
 /* product price */
 
 .product-details-page .overview .actual-price {
