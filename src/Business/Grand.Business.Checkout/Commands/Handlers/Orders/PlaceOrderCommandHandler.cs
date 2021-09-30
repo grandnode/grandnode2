@@ -205,7 +205,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     //check order status
                     await _mediator.Send(new CheckOrderStatusCommand() { Order = result.PlacedOrder });
 
-                    //raise event       
+                    //raise event
                     await _mediator.Publish(new OrderPlacedEvent(result.PlacedOrder));
 
                     if (result.PlacedOrder.PaymentStatusId == PaymentStatus.Paid)
@@ -599,7 +599,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             details.OrderShippingTotalInclTax = orderShippingTotalInclTax.Value;
             details.OrderShippingTotalExclTax = orderShippingTotalExclTax.Value;
 
-            //payment 
+            //payment
             var paymentMethodSystemName = _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.SelectedPaymentMethod, _workContext.CurrentStore.Id);
             details.PaymentMethodSystemName = paymentMethodSystemName;
             double paymentAdditionalFee = await _paymentService.GetAdditionalHandlingFee(details.Cart, paymentMethodSystemName);
@@ -1099,12 +1099,18 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         }
 
         /// <summary>
-        /// Send notification order 
+        /// Send notification order
         /// </summary>
         /// <param name="order">Order</param>
         protected virtual async Task SendNotification(IServiceScopeFactory scopeFactory, Order order, Customer customer, Customer originalCustomerIfImpersonated)
         {
             using var scope = scopeFactory.CreateScope();
+
+            var workContext = scope.ServiceProvider.GetService<IWorkContext>();
+            await workContext.SetCurrentCustomer(customer);
+            await workContext.SetWorkingLanguage(customer);
+            await workContext.SetWorkingCurrency(customer);
+            await workContext.SetTaxDisplayType(customer);
 
             var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
             var messageProviderService = scope.ServiceProvider.GetRequiredService<IMessageProviderService>();
