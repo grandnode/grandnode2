@@ -121,7 +121,7 @@ namespace Grand.Web.Admin.Controllers
             if (string.IsNullOrEmpty(_mediaSettings.AllowedFileTypes))
                 allowedFileTypes = new List<string> { ".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp" };
             else
-                allowedFileTypes = _mediaSettings.AllowedFileTypes.Split(',').Select(x => x.ToLowerInvariant()).ToList();
+                allowedFileTypes = _mediaSettings.AllowedFileTypes.Split(',').Select(x => x.Trim().ToLowerInvariant()).ToList();
 
             return allowedFileTypes.Contains(extensions.ToLowerInvariant());
         }
