@@ -27,7 +27,7 @@ namespace Grand.Web.Admin.Controllers
 
         private readonly string _fullPathToUpload;
         private readonly string _fullPathToThumbs;
-
+        private readonly string _pathToUpload;
 
         #endregion
 
@@ -41,10 +41,15 @@ namespace Grand.Web.Admin.Controllers
             )
         {
             _mediaSettings = mediaSettings;
-            _connector = connector;
             _driver = driver;
             _permissionService = permissionService;
-            _fullPathToUpload = Path.Combine(CommonPath.WebRootPath, Path.Combine("assets", "images", "uploaded"));
+            _connector = connector;
+            _connector.Options.EnabledCommands = _mediaSettings.FileManagerEnabledCommands.Split(',').Select(x => x.Trim()).ToList();
+            _connector.Options.DisabledUICommands = _mediaSettings.FileManagerDisabledUICommands.Split(',').Select(x => x.Trim()).ToList();
+
+            _pathToUpload = Path.Combine("assets", "images", "uploaded");
+
+            _fullPathToUpload = Path.Combine(CommonPath.WebRootPath, _pathToUpload);
             if (!Directory.Exists(_fullPathToUpload))
                 Directory.CreateDirectory(_fullPathToUpload);
 
@@ -88,7 +93,7 @@ namespace Grand.Web.Admin.Controllers
             var volume = new Volume(_driver,
                 _fullPathToUpload,
                 _fullPathToThumbs,
-                "/assets/images/uploaded/",
+                _pathToUpload,
                 $"{Url.Action("Thumb")}/"
                 ) {
                 Name = "Volume",
