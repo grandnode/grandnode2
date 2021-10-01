@@ -93,7 +93,7 @@ namespace Grand.Web.Admin.Controllers
             var volume = new Volume(_driver,
                 _fullPathToUpload,
                 _fullPathToThumbs,
-                _pathToUpload,
+                "/assets/images/uploaded/",
                 $"{Url.Action("Thumb")}/"
                 ) {
                 Name = "Volume",
