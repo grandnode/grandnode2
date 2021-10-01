@@ -349,6 +349,7 @@ src/Web/Grand.Web/wwwroot/assets/images/thumbs/*.jpg
 src/Web/Grand.Web/wwwroot/assets/images/thumbs/*.jpeg
 src/Web/Grand.Web/wwwroot/assets/images/thumbs/*.png
 src/Web/Grand.Web/wwwroot/assets/images/thumbs/*.webp
+src/Web/Grand.Web/wwwroot/assets/images/thumbs/.tmb/*
 !src/Web/Grand.Web/wwwroot/assets/files/exportimport/Index.htm
 src/Web/Grand.Web/wwwroot/assets/images/uploaded/*
 !src/Web/Grand.Web/wwwroot/assets/images/uploaded/placeholder.txt
