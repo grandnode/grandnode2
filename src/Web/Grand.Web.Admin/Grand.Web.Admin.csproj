@@ -11,6 +11,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="elFinder.Net.AspNetCore" Version="1.3.3.1" />
+    <PackageReference Include="elFinder.Net.Core" Version="1.3.3.1" />
+    <PackageReference Include="elFinder.Net.Drivers.FileSystem" Version="1.3.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Business\Grand.Business.Authentication\Grand.Business.Authentication.csproj" />
     <ProjectReference Include="..\..\Business\Grand.Business.Catalog\Grand.Business.Catalog.csproj" />
     <ProjectReference Include="..\..\Business\Grand.Business.Checkout\Grand.Business.Checkout.csproj" />
