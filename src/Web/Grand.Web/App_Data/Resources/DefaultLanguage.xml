@@ -7870,6 +7870,9 @@
   <Resource Name="Admin.Download.UseDownloadURL">
     <Value>Use download URL</Value>
   </Resource>
+  <Resource Name="Admin.FileManager.Picture">
+    <Value>Manage pictures</Value>
+  </Resource>
   <Resource Name="Admin.GiftVouchers">
     <Value>Gift vouchers</Value>
   </Resource>
@@ -11477,6 +11480,12 @@
   </Resource>
   <Resource Name="Admin.Settings.Media.DefaultPictureZoomEnabled">
     <Value>Default picture zoom enabled</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.Media.FileManagerEnabledCommands">
+    <Value>File manager - enabled commands</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.Media.FileManagerDisabledUICommands">
+    <Value>File manager - disabled UI commands</Value>
   </Resource>
   <Resource Name="Admin.Settings.Media.ImageSquarePictureSize">
     <Value>Image square attribute picture size</Value>
