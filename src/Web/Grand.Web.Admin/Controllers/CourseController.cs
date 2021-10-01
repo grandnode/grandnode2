@@ -133,7 +133,7 @@ namespace Grand.Web.Admin.Controllers
             var gridModel = new DataSourceResult
             {
                 Data = courses,
-                Total = courses.Count
+                Total = courses.TotalCount
             };
             return Json(gridModel);
         }
