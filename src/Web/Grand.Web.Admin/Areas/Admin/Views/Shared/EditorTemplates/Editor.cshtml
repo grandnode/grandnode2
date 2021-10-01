@@ -3,7 +3,7 @@
 @using Grand.SharedKernel.Extensions
 @using Grand.Business.Common.Services.Security
 @{
-    var allowRoxyFileman = await permissionService.Authorize(StandardPermission.HtmlEditorManagePictures);
+    var allowFileman = await permissionService.Authorize(StandardPermission.HtmlEditorManagePictures);
     var random = CommonHelper.GenerateRandomInteger();    
 }
 <div id="s-@(random)-summernote" class="summernote" data-name="null" data-file="null" data-format="null">
@@ -85,7 +85,10 @@
                 ['view', ['fullscreen', 'codeview', 'help']],
             ],
             buttons: {
-                elfinder: FileManager,
+                @if(allowFileman)
+                { 
+                    <text> elfinder: FileManager, </text>
+                }
             },
             callbacks: {
                     onChange: function (contents) {
