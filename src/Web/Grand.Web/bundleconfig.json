@@ -16,15 +16,12 @@
   {
     "outputFileName": "wwwroot/bundles/site.min.js",
     "inputFiles": [
-      "wwwroot/lib/vue/dist/vue.min.js",
-      "wwwroot/lib/portal-vue/dist/portal-vue.umd.min.js",
-      "wwwroot/lib/bootstrap-vue/dist/bootstrap-vue.min.js",
+      "wwwroot/dist/app.js",
       "wwwroot/lib/bootstrap-vue/dist/bootstrap-vue-icons-slim.min.js",
       "wwwroot/lib/poper/dist/poper.js",
       "wwwroot/lib/vue-awesome-countdown/dist/vue-awesome-countdown.umd.min.js",
       "wwwroot/lib/vee-validate/dist/vee-validate.minimal.min.js",
       "wwwroot/lib/vee-validate/dist/validation-config.min.js",
-      "wwwroot/lib/axios/dist/axios.min.js",
       "wwwroot/lib/pikaday/pikaday.js"
     ],
     "minify": {
