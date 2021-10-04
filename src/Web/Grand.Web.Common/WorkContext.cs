@@ -368,7 +368,7 @@ namespace Grand.Web.Common
             var adminAreaUrl = _httpContextAccessor.HttpContext?.Request?.Path.StartsWithSegments(new PathString("/Admin"));
             var allStoreLanguages = await _languageService.GetAllLanguages(showHidden: adminAreaUrl ?? false);
 
-            if (allStoreLanguages.Count() == 1)
+            if (allStoreLanguages.Count == 1)
                 return _cachedLanguage = allStoreLanguages.FirstOrDefault();
 
             if (_config.SeoFriendlyUrlsForLanguagesEnabled)
