@@ -1,18 +1,15 @@
-////import Vue from 'vue'
-////import App from './App.vue'
-
-////Vue.config.productionTip = false
-
-////new Vue({
-////  render: h => h(App),
-////}).$mount('#app')
-
 import Vue from 'vue'
 Vue.config.productionTip = false
-window.Vue = Vue;
+
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'animate.css'
+import 'pikaday/css/pikaday.css'
 
 import { CardPlugin } from 'bootstrap-vue'
 Vue.use(CardPlugin)
+import { ButtonPlugin } from 'bootstrap-vue'
+Vue.use(ButtonPlugin)
 import { LayoutPlugin } from 'bootstrap-vue'
 Vue.use(LayoutPlugin)
 import { ModalPlugin } from 'bootstrap-vue'
@@ -36,5 +33,119 @@ Vue.use(ToastPlugin)
 import { TabsPlugin } from 'bootstrap-vue'
 Vue.use(TabsPlugin)
 
-import Axios from 'axios'
-import Pikaday from 'pikaday'
+import {
+    BIcon,
+    BIconAspectRatio,
+    BIconCalendar2Check,
+    BIconSearch,
+    BIconTrash,
+    BIconEnvelope,
+    BIconHandThumbsDown,
+    BIconHandThumbsUp,
+    BIconHouseDoor,
+    BIconList,
+    BIconGrid3x2Gap,
+    BIconGrid3x3GapFill,
+    BIconXCircleFill,
+    BIconClipboardPlus,
+    BIconServer,
+    BIconX,
+    BIconHeart,
+    BIconShuffle,
+    BIconTruck,
+    BIconQuestionCircle,
+    BIconGear,
+    BIconWrench,
+    BIconCart,
+    BIconCashStack,
+    BIconCartCheck,
+    BIconPerson,
+    BIconFileEarmarkEasel,
+    BIconFileEarmarkFont,
+    BIconFileEarmarkCheck,
+    BIconArrowReturnLeft,
+    BIconCloudDownload,
+    BIconSkipBackward,
+    BIconChevronLeft,
+    BIconTrophy,
+    BIconPersonCircle,
+    BIconFileRuled,
+    BIconShop,
+    BIconStar,
+    BIconStarFill,
+    BIconStarHalf,
+    BIconPersonPlus,
+    BIconHandbag,
+    BIconLock,
+    BIconShieldLock,
+    BIconCartX,
+    BIconCart2,
+    BIconLayoutSidebarInset,
+    BIconArrowClockwise,
+    BIconFileEarmarkLock2,
+    BIconFileEarmarkRuled,
+    BIconMoon,
+    BIconSun
+} from 'bootstrap-vue'
+Vue.component('BIcon', BIcon)
+Vue.component('BIconAspectRatio', BIconAspectRatio)
+Vue.component('BIconCalendar2Check', BIconCalendar2Check)
+Vue.component('BIconSearch', BIconSearch)
+Vue.component('BIconTrash', BIconTrash)
+Vue.component('BIconEnvelope', BIconEnvelope)
+Vue.component('BIconHandThumbsDown', BIconHandThumbsDown)
+Vue.component('BIconHandThumbsUp', BIconHandThumbsUp)
+Vue.component('BIconHouseDoor', BIconHouseDoor)
+Vue.component('BIconList', BIconList)
+Vue.component('BIconGrid3x2Gap', BIconGrid3x2Gap)
+Vue.component('BIconGrid3x3GapFill', BIconGrid3x3GapFill)
+Vue.component('BIconXCircleFill', BIconXCircleFill)
+Vue.component('BIconClipboardPlus', BIconClipboardPlus)
+Vue.component('BIconServer', BIconServer)
+Vue.component('BIconX', BIconX)
+Vue.component('BIconHeart', BIconHeart)
+Vue.component('BIconShuffle', BIconShuffle)
+Vue.component('BIconTruck', BIconTruck)
+Vue.component('BIconQuestionCircle', BIconQuestionCircle)
+Vue.component('BIconGear', BIconGear)
+Vue.component('BIconWrench', BIconWrench)
+Vue.component('BIconCart', BIconCart)
+Vue.component('BIconCashStack', BIconCashStack)
+Vue.component('BIconCartCheck', BIconCartCheck)
+Vue.component('BIconPerson', BIconPerson)
+Vue.component('BIconFileEarmarkEasel', BIconFileEarmarkEasel)
+Vue.component('BIconFileEarmarkFont', BIconFileEarmarkFont)
+Vue.component('BIconFileEarmarkCheck', BIconFileEarmarkCheck)
+Vue.component('BIconArrowReturnLeft', BIconArrowReturnLeft)
+Vue.component('BIconCloudDownload', BIconCloudDownload)
+Vue.component('BIconSkipBackward', BIconSkipBackward)
+Vue.component('BIconChevronLeft', BIconChevronLeft)
+Vue.component('BIconTrophy', BIconTrophy)
+Vue.component('BIconPersonCircle', BIconPersonCircle)
+Vue.component('BIconFileRuled', BIconFileRuled)
+Vue.component('BIconShop', BIconShop)
+Vue.component('BIconStar', BIconStar)
+Vue.component('BIconStarFill', BIconStarFill)
+Vue.component('BIconStarHalf', BIconStarHalf)
+Vue.component('BIconPersonPlus', BIconPersonPlus)
+Vue.component('BIconHandbag', BIconHandbag)
+Vue.component('BIconLock', BIconLock)
+Vue.component('BIconShieldLock', BIconShieldLock)
+Vue.component('BIconCartX', BIconCartX)
+Vue.component('BIconCart2', BIconCart2)
+Vue.component('BIconLayoutSidebarInset', BIconLayoutSidebarInset)
+Vue.component('BIconArrowClockwise', BIconArrowClockwise)
+Vue.component('BIconFileEarmarkLock2', BIconFileEarmarkLock2)
+Vue.component('BIconFileEarmarkRuled', BIconFileEarmarkRuled)
+Vue.component('BIconMoon', BIconMoon)
+Vue.component('BIconSun', BIconSun)
+
+import axios from 'axios'
+import pikaday from 'pikaday'
+import vueAwesomeCountdown from 'vue-awesome-countdown'
+
+window.axios = require('axios').default;
+window.pikaday = require('pikaday');
+Vue.use(vueAwesomeCountdown, 'vac')
+
+window.Vue = Vue;

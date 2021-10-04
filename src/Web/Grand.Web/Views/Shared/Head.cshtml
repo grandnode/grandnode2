@@ -4,10 +4,11 @@
     var supportRtl = workContext.WorkingLanguage.Rtl;
 
     <environment include="Development">
-        <link rel="stylesheet" type="text/css" href="/lib/bootstrap/dist/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="/lib/bootstrap-vue/dist/bootstrap-vue.min.css">
-        <link rel="stylesheet" type="text/css" href="/lib/animate/animate.min.css">
-        <link rel="stylesheet" type="text/css" href="/lib/pikaday/css/pikaday.css">
+        <link rel="stylesheet" type="text/css" href="/dist/app.css" />
+        @*<link rel="stylesheet" type="text/css" href="/lib/bootstrap/dist/css/bootstrap.min.css">
+            <link rel="stylesheet" type="text/css" href="/lib/bootstrap-vue/dist/bootstrap-vue.min.css">*@
+        @*<link rel="stylesheet" type="text/css" href="/lib/animate/animate.min.css">
+            <link rel="stylesheet" type="text/css" href="/lib/pikaday/css/pikaday.css">*@
     </environment>
     <environment include="Production">
         <link rel="stylesheet" type="text/css" href="/bundles/site.min.css">
@@ -17,21 +18,21 @@
 
     if (supportRtl)
     {
-        <link rel="stylesheet" type="text/css" href="/theme/css/common/common.rtl.css">
-        <link rel="stylesheet" type="text/css" href="/theme/css/header/header.rtl.css">
+    <link rel="stylesheet" type="text/css" href="/theme/css/common/common.rtl.css">
+    <link rel="stylesheet" type="text/css" href="/theme/css/header/header.rtl.css">
     }
     else
     {
-        <link rel="stylesheet" type="text/css" href="/theme/css/common/common.css">
-        <link rel="stylesheet" type="text/css" href="/theme/css/header/header.css">
+    <link rel="stylesheet" type="text/css" href="/theme/css/common/common.css">
+    <link rel="stylesheet" type="text/css" href="/theme/css/header/header.css">
     }
     <environment include="Development">
         <script src="/dist/app.js"></script>
         @*<script src="/lib/portal-vue/dist/portal-vue.umd.min.js"></script>
-        <script src="/lib/bootstrap-vue/dist/bootstrap-vue.min.js"></script>*@
-        <script src="/lib/bootstrap-vue/dist/bootstrap-vue-icons-slim.min.js"></script>
+            <script src="/lib/bootstrap-vue/dist/bootstrap-vue.min.js"></script>*@
+        @*<script src="/lib/bootstrap-vue/dist/bootstrap-vue-icons-slim.min.js"></script>*@
         @*<script src="/lib/poper/dist/poper.js"></script>*@
-        <script src="/lib/vue-awesome-countdown/dist/vue-awesome-countdown.umd.min.js"></script>
+        @*<script src="/lib/vue-awesome-countdown/dist/vue-awesome-countdown.umd.min.js"></script>*@
         <script src="/lib/vee-validate/dist/vee-validate.minimal.min.js"></script>
         <script src="/lib/vee-validate/dist/validation-config.min.js"></script>
         @*<script src="/lib/axios/dist/axios.min.js"></script>*@
