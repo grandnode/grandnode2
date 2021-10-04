@@ -27,14 +27,11 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
         protected virtual async Task<IList<Vendor>> GetVendorsInOrder(Order order)
         {
             var vendors = new List<Vendor>();
-            foreach (var orderItem in order.OrderItems)
+            foreach (var vendorKey in order.OrderItems.GroupBy(x => x.VendorId))
             {
-                //find existing
-                var vendor = vendors.FirstOrDefault(v => v.Id == orderItem.VendorId);
-                if (vendor == null && !string.IsNullOrEmpty(orderItem.VendorId))
+                if (!string.IsNullOrEmpty(vendorKey.Key))
                 {
-                    //not found. load by Id
-                    vendor = await _vendorService.GetVendorById(orderItem.VendorId);
+                    var vendor = await _vendorService.GetVendorById(vendorKey.Key);
                     if (vendor != null && !vendor.Deleted && vendor.Active)
                     {
                         vendors.Add(vendor);
