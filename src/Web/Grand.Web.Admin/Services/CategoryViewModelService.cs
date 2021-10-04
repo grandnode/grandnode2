@@ -202,10 +202,6 @@ namespace Grand.Web.Admin.Services
             category.SeName = model.SeName;
             //locales
             category.Locales = await model.Locales.ToTranslationProperty(category, x => x.Name, _seoSettings, _slugService, _languageService);
-            await _categoryService.UpdateCategory(category);
-            //search engine name
-            await _slugService.SaveSlug(category, model.SeName, "");
-
             //discounts
             var allDiscounts = await _discountService.GetAllDiscounts(DiscountType.AssignedToCategories, showHidden: true);
             foreach (var discount in allDiscounts)
@@ -224,8 +220,12 @@ namespace Grand.Web.Admin.Services
                 }
             }
             await _categoryService.UpdateCategory(category);
+
+            //search engine name
+            await _slugService.SaveSlug(category, model.SeName, "");
+
             //delete an old picture (if deleted or updated)
-            if (!String.IsNullOrEmpty(prevPictureId) && prevPictureId != category.PictureId)
+            if (!string.IsNullOrEmpty(prevPictureId) && prevPictureId != category.PictureId)
             {
                 var prevPicture = await _pictureService.GetPictureById(prevPictureId);
                 if (prevPicture != null)

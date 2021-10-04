@@ -417,7 +417,7 @@ namespace Grand.Business.Catalog.Services.Categories
         {
             if (category == null)
                 throw new ArgumentNullException(nameof(category));
-            if (String.IsNullOrEmpty(category.ParentCategoryId))
+            if (string.IsNullOrEmpty(category.ParentCategoryId))
                 category.ParentCategoryId = "";
 
             //validate category hierarchy
