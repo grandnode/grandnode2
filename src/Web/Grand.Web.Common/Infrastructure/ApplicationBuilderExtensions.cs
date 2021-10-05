@@ -291,6 +291,7 @@ namespace Grand.Web.Common.Infrastructure
         {
             var policyCollection = new HeaderPolicyCollection()
                 .AddXssProtectionBlock()
+                .AddFrameOptionsDeny()
                 .AddContentTypeOptionsNoSniff()
                 .AddStrictTransportSecurityMaxAgeIncludeSubDomains(maxAgeInSeconds: 60 * 60 * 24 * 365) // maxage = one year in seconds
                 .AddReferrerPolicyStrictOriginWhenCrossOrigin()
@@ -307,6 +308,22 @@ namespace Grand.Web.Common.Infrastructure
                     builder.AddObjectSrc().From("*");
                     builder.AddScriptSrc().From("*").UnsafeInline().UnsafeEval();
                     builder.AddStyleSrc().From("*").UnsafeEval().UnsafeInline();
+                })
+                .AddPermissionsPolicy(builder =>
+                {                    
+                    builder.AddAutoplay().Self();
+                    builder.AddCamera().None();
+                    builder.AddEncryptedMedia().Self();
+                    builder.AddFullscreen().All();
+                    builder.AddGeolocation().Self();
+                    builder.AddGyroscope().None();
+                    builder.AddMagnetometer().None();
+                    builder.AddMicrophone().None();
+                    builder.AddMidi().None();
+                    builder.AddPayment().None();
+                    builder.AddPictureInPicture().None();
+                    builder.AddSyncXHR().None();
+                    builder.AddUsb().None();
                 })
                 .RemoveServerHeader();
 
