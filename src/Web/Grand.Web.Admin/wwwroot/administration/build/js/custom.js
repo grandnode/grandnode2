@@ -265,6 +265,10 @@ var randNum = function () {
     return (Math.floor(Math.random() * (1 + 40 - 20))) + 20;
 };
 
+function sidebarToggle(el) {
+    var container = $(".container.body");
+    container.toggleClass("wide");
+}
 
 // Panel toolbox
 $(document).ready(function () {

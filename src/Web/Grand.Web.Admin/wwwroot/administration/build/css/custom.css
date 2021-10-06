@@ -526,6 +526,7 @@ body {
     border-bottom: 1px solid #D9DEE4;
     width: 100%;
     position: relative;
+    z-index: 10000;
 }
 
 @media (min-width: 480px) {
@@ -566,7 +567,14 @@ body .container.body .right_col {
     height: 57px;
 }
 
+.sidebar_button {
+    display: none;
+}
+
 @media (max-width: 991px) {
+    .nav-sm ul.nav.child_menu {
+        top: 58px;
+    }
     .nav-sm ul.nav.child_menu {
         overflow-x: hidden;
         overflow-y: auto;
@@ -6459,7 +6467,7 @@ form>h4 {
         max-height: calc(100% - 50px);
     }
     .nav_title {
-        height: 50px;
+        height: 58px;
     }
     .nav-sm .nav.side-menu li ul li a {
         font-size: 14px;
@@ -6619,6 +6627,51 @@ form>h4 {
 }
 
 @media screen and (max-width: 768px) {
+    .sidebar_button {
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+        align-items: center;
+        width: 57px;
+        height: 57px;
+        padding: 15px 10px;
+        background-color: #2F3C48;
+        transform: translateX(90px);
+        -webkit-transform: translateX(90px);
+        z-index: 10001;
+    }
+    .sidebar_button span {
+        width: 100%;
+        height: 3px;
+        background: #fff;
+    }
+    .nav-sm .container.body .col-md-3.left_col, body .container.body .right_col, .nav-sm .main_container .top_nav, .sidebar_button, .sidebar_button span {
+        transition: all .2s ease-in-out;
+        -webkit-transition: all .2s ease-in-out;
+    }
+    .nav-sm .container.body.wide .col-md-3.left_col {
+        transform: translateX(-100%);
+    }
+    body .container.body.wide .right_col, .nav-sm .container.body.wide .main_container .top_nav {
+        margin-left: 0;
+    }
+    .container.body.wide .sidebar_button {
+        transform: translateX(0);
+        -webkit-transform: translateX(0);
+    }
+    .container.body:not(.wide) .sidebar_button span:first-child {
+        transform: rotate(45deg) translate(8px, 9px);
+    }
+    .container.body:not(.wide) .sidebar_button span:nth-child(2) {
+        opacity: 0;
+        visibility: hidden;
+    }
+    .container.body:not(.wide) .sidebar_button span:last-child {
+        transform: rotate(-45deg) translate(7px, -8px);
+    }
     .control__indicator_custom {
         top: -25px;
         left: 3px;
