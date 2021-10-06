@@ -1,16 +1,5 @@
-﻿@inject IWorkContext workContext
-@{
+﻿@{
     Layout = "_Layout";
-
-    var supportRtl = workContext.WorkingLanguage.Rtl;
-    if (supportRtl)
-    {
-        <link rel="stylesheet" type="text/css" asp-src="/theme/css/catalog/catalog.rtl.css">
-    }
-    else
-    {
-        <link rel="stylesheet" type="text/css" asp-src="/theme/css/catalog/catalog.css">
-    }
 
     //current category ID
     string currentCategoryId = "";

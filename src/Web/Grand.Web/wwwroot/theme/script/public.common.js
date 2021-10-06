@@ -426,7 +426,7 @@ function displayPopupNotification(message, messagetype) {
     //we do not encode displayed message
     var htmlcode = '';
     if ((typeof message) == 'string') {
-        htmlcode = '<b-modal ref="grandModal" id="grandModal" centered hide-footer hide-header><b-alert class="mb-0" show>' + message + '</b-alert></b-modal>';
+        htmlcode = '<b-modal ref="grandModal" id="grandModal" centered hide-footer hide-header><div class="alert alert-info d-block mb-0">' + message + '</div></b-modal>';
         document.querySelector('.modal-place').innerHTML = htmlcode;
         new Vue({
             el: '#grandModal',
@@ -634,7 +634,7 @@ var Reservation = {
             onSelect: this.onDatePickerDateChange,
             disableDayFn: this.daysToMark,
             format: 'MM/DD/YYYY',
-            toString(date, format) {
+            toString: function(date, format) {
                 // you should do formatting based on the passed format,
                 // but we will just return 'D/M/YYYY' for simplicity
                 const day = ("0" + date.getDate()).slice(-2);
@@ -642,7 +642,7 @@ var Reservation = {
                 const year = date.getFullYear();
                 return `${month}/${day}/${year}`;
             },
-            parse(dateString, format) {
+            parse: function(dateString, format) {
                 // dateString is the result of `toString` method
                 const parts = dateString.split('/');
                 const day = parts[0];
@@ -668,7 +668,7 @@ var Reservation = {
             onSelect: this.onDatePickerSelect,
             disableDayFn: this.daysToMarkFrom,
             format: 'MM/DD/YYYY',
-            toString(date, format) {
+            toString: function (date, format) {
                 // you should do formatting based on the passed format,
                 // but we will just return 'D/M/YYYY' for simplicity
                 const day = ("0" + date.getDate()).slice(-2);
@@ -676,7 +676,7 @@ var Reservation = {
                 const year = date.getFullYear();
                 return `${month}/${day}/${year}`;
             },
-            parse(dateString, format) {
+            parse: function (dateString, format) {
                 // dateString is the result of `toString` method
                 const parts = dateString.split('/');
                 const day = parseInt(parts[0], 10);
@@ -698,7 +698,7 @@ var Reservation = {
             onSelect: this.onDatePickerSelect,
             disableDayFn: this.daysToMarkTo,
             format: 'MM/DD/YYYY',
-            toString(date, format) {
+            toString: function (date, format) {
                 // you should do formatting based on the passed format,
                 // but we will just return 'D/M/YYYY' for simplicity
                 const day = ("0" + date.getDate()).slice(-2);
@@ -706,7 +706,7 @@ var Reservation = {
                 const year = date.getFullYear();
                 return `${month}/${day}/${year}`;
             },
-            parse(dateString, format) {
+            parse: function (dateString, format) {
                 // dateString is the result of `toString` method
                 const parts = dateString.split('/');
                 const day = parseInt(parts[0], 10);
@@ -748,7 +748,7 @@ var Reservation = {
             onSelect: this.onDatePickerDateChange,
             disableDayFn: this.daysToMark,
             format: 'MM/DD/YYYY',
-            toString(date, format) {
+            toString: function(date, format) {
                 // you should do formatting based on the passed format,
                 // but we will just return 'D/M/YYYY' for simplicity
                 const day = ("0" + date.getDate()).slice(-2);
@@ -756,7 +756,7 @@ var Reservation = {
                 const year = date.getFullYear();
                 return `${month}/${day}/${year}`;
             },
-            parse(dateString, format) {
+            parse: function (dateString, format) {
                 // dateString is the result of `toString` method
                 const parts = dateString.split('/');
                 const day = parseInt(parts[0], 10);
@@ -968,3 +968,77 @@ var Reservation = {
 }
 
 /* END RESERVATION */
+
+/* AUTOCOMPLETE */
+var delayTimer;
+function autocompleteVue(e) {
+    function getCategories(item) {
+        if (item.SearchType == 'Category') {
+            return item
+        }
+    }
+    function getBrands(item) {
+        if (item.SearchType == 'Brand') {
+            return item
+        }
+    }
+    function getBlog(item) {
+        if (item.SearchType == 'Blog') {
+            return item
+        }
+    }
+    function getProducts(item) {
+        if (item.SearchType == 'Product') {
+            return item
+        }
+    }
+    clearTimeout(delayTimer);
+    delayTimer = setTimeout(function () {
+        if (e.checkValidity()) {
+            var searchResult = document.getElementById('adv_search');
+            if (searchResult) {
+                if (e.value != '') {
+                    searchResult.style.display = 'block';
+                }
+            }
+            var value = e.value;
+            var category = '';
+            if (document.getElementById("SearchCategoryId")) {
+                category = document.getElementById("SearchCategoryId").value;
+            }
+            axios({
+                url: '/catalog/searchtermautocomplete',
+                method: 'get',
+                params: {
+                    term: value,
+                    categoryId: category
+                }
+            }).then(function (response) {
+                if (response.data) {
+                    vm.searchitems = response.data;
+                    var categories = response.data.map(getCategories).filter(function (element) {
+                        return element !== undefined;
+                    });
+                    var brands = response.data.map(getBrands).filter(function (element) {
+                        return element !== undefined;
+                    });
+                    var blog = response.data.map(getBlog).filter(function (element) {
+                        return element !== undefined;
+                    });
+                    var products = response.data.map(getProducts).filter(function (element) {
+                        return element !== undefined;
+                    });
+                    vm.searchcategories = categories;
+                    vm.searchbrands = brands;
+                    vm.searchblog = blog;
+                    vm.searchproducts = products;
+                }
+            })
+        } else {
+            var searchResult = document.getElementById('adv_search');
+            if (searchResult) {
+                searchResult.style.display = 'none';
+            }
+        }
+    }, 600);
+}

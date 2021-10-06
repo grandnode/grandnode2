@@ -1,17 +1,4 @@
-﻿@inject IWorkContext workContext
-
-@model CustomerNavigationModel
-@{
-    var supportRtl = workContext.WorkingLanguage.Rtl;
-    if (supportRtl)
-    {
-        <link rel="stylesheet" type="text/css" asp-src="/theme/css/customer/customer.rtl.css">
-    }
-    else
-    {
-        <link rel="stylesheet" type="text/css" asp-src="/theme/css/customer/customer.css">
-    }
-}
+﻿@model CustomerNavigationModel
 <div id="block-account-navigation" class="block block-account-navigation mt-2">
     <h2 class="h5"><strong>@Loc["Account.Navigation"]</strong></h2>
     <ul class="list viewBox">

@@ -3,48 +3,51 @@
 @{
     var supportRtl = workContext.WorkingLanguage.Rtl;
 
-    <environment include="Development">
-        <link rel="stylesheet" type="text/css" href="/lib/bootstrap/dist/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="/lib/bootstrap-vue/dist/bootstrap-vue.min.css">
-        <link rel="stylesheet" type="text/css" href="/lib/animate/animate.min.css">
-        <link rel="stylesheet" type="text/css" href="/lib/pikaday/css/pikaday.css">
-    </environment>
-    <environment include="Production">
-        <link rel="stylesheet" type="text/css" href="/bundles/site.min.css">
-    </environment>
+    <link rel="stylesheet" type="text/css" href="/bundles/libs.css" />
 
     <link rel="stylesheet" type="text/css" href="/assets/custom/style.css">
 
-    if (supportRtl)
-    {
-        <link rel="stylesheet" type="text/css" href="/theme/css/common/common.rtl.css">
-        <link rel="stylesheet" type="text/css" href="/theme/css/header/header.rtl.css">
-    }
-    else
-    {
-        <link rel="stylesheet" type="text/css" href="/theme/css/common/common.css">
-        <link rel="stylesheet" type="text/css" href="/theme/css/header/header.css">
-    }
     <environment include="Development">
-        <script src="/lib/vue/dist/vue.min.js"></script>
-        <script src="/lib/portal-vue/dist/portal-vue.umd.min.js"></script>
-        <script src="/lib/bootstrap-vue/dist/bootstrap-vue.min.js"></script>
-        <script src="/lib/bootstrap-vue/dist/bootstrap-vue-icons-slim.min.js"></script>
-        <script src="/lib/poper/dist/poper.js"></script>
-        <script src="/lib/vue-awesome-countdown/dist/vue-awesome-countdown.umd.min.js"></script>
-        <script src="/lib/vee-validate/dist/vee-validate.minimal.min.js"></script>
-        <script src="/lib/vee-validate/dist/validation-config.min.js"></script>
-        <script src="/lib/axios/dist/axios.min.js"></script>
-        <script src="/lib/pikaday/pikaday.js"></script>
+        @if (supportRtl)
+        {
+            <link rel="stylesheet" type="text/css" asp-src="/theme/css/common/common.rtl.css">
+            <link rel="stylesheet" type="text/css" asp-src="/theme/css/header/header.rtl.css">
+            <link rel="stylesheet" type="text/css" asp-src="/theme/css/catalog/catalog.rtl.css">
+            <link rel="stylesheet" type="text/css" asp-src="/theme/css/product/product.rtl.css">
+            <link rel="stylesheet" type="text/css" asp-src="/theme/css/customer/customer.rtl.css">
+            <link rel="stylesheet" type="text/css" asp-src="/theme/css/cart/cart.rtl.css">
+        }
+        else
+        {
+            <link rel="stylesheet" type="text/css" asp-src="/theme/css/common/common.css">
+            <link rel="stylesheet" type="text/css" asp-src="/theme/css/header/header.css">
+            <link rel="stylesheet" type="text/css" asp-src="/theme/css/catalog/catalog.css">
+            <link rel="stylesheet" type="text/css" asp-src="/theme/css/product/product.css">
+            <link rel="stylesheet" type="text/css" asp-src="/theme/css/customer/customer.css">
+            <link rel="stylesheet" type="text/css" asp-src="/theme/css/cart/cart.css">
+        }
+    </environment>
+    <environment include="Production">
+        @if (supportRtl)
+        {
+            <link rel="stylesheet" type="text/css" href="/bundles/style.rtl.min.css">
+        }
+        else
+        {
+            <link rel="stylesheet" type="text/css" href="/bundles/style.min.css">
+        }
+    </environment>
+
+    <environment include="Development">
+        <script src="/bundles/libs.js"></script>
+        <script src="/theme/script/validation-config.min.js"></script>
+        <script src="/theme/script/public.common.js"></script>
+        <script src="/theme/script/public.axios.js"></script>
     </environment>
     <environment include="Production">
         <script src="/bundles/site.min.js"></script>
     </environment>
 
-    <script src="/theme/script/public.common.js"></script>
-    <script src="/theme/script/public.axios.js"></script>
-
     <script asp-location="Footer" asp-src="/theme/script/app.js"></script>
-
     <script asp-location="Footer" asp-src="/assets/custom/script.js"></script>
 }

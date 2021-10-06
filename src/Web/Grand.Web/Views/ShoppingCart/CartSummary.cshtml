@@ -190,7 +190,7 @@
                                                     </span>
                                                 }
                                             </b-form-checkbox>
-                                            <b-alert variant="info" class="my-2" :show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</b-alert>
+                                            <div class="alert alert-info my-2" v-show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</div>
                                         </div>
                                         <div class="checkout-buttons text-center mt-3">
                                             <b-button type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="vmorder.termsCheck(true)" variant="secondary" class="checkout-as-guest-button mx-1">

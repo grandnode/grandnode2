@@ -1,18 +1,7 @@
-﻿@inject IWorkContext workContext
-@inject IPageHeadBuilder pagebuilder
+﻿@inject IPageHeadBuilder pagebuilder
 @model ShoppingCartModel
 @{
     Layout = "_SingleColumn";
-
-    var supportRtl = workContext.WorkingLanguage.Rtl;
-    if (supportRtl)
-    {
-        <link rel="stylesheet" type="text/css" asp-src="/theme/css/cart/cart.rtl.css">
-    }
-    else
-    {
-        <link rel="stylesheet" type="text/css" asp-src="/theme/css/cart/cart.css">
-    }
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.ShoppingCart"]);
