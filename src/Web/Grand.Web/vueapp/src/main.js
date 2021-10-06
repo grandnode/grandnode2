@@ -10,6 +10,8 @@ import { CardPlugin } from 'bootstrap-vue'
 Vue.use(CardPlugin)
 import { ButtonPlugin } from 'bootstrap-vue'
 Vue.use(ButtonPlugin)
+import { ButtonGroupPlugin } from 'bootstrap-vue'
+Vue.use(ButtonGroupPlugin)
 import { LayoutPlugin } from 'bootstrap-vue'
 Vue.use(LayoutPlugin)
 import { ModalPlugin } from 'bootstrap-vue'
