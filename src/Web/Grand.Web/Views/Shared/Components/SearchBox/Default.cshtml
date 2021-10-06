@@ -1,9 +1,5 @@
 ﻿@model SearchBoxModel
 @inject Grand.Domain.Blogs.BlogSettings blogSettings
-@if (Model.AutoCompleteEnabled)
-{
-    <script asp-location="Footer" asp-src="/theme/script/public.autocomplete.js"></script>
-}
 
 <form asp-route="ProductSearch" method="get" :dark-theme="darkMode" id="small-search-box-form" class="searchBox w-100">
     <input type="hidden" asp-for="Box" value="true" />

@@ -33,12 +33,34 @@
     "sourceMap": false
   },
   {
+    "outputFileName": "wwwroot/theme/script/public.common.min.js",
+    "inputFiles": [
+      "wwwroot/theme/script/public.common.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": false
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/theme/script/public.axios.min.js",
+    "inputFiles": [
+      "wwwroot/theme/script/public.axios.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": false
+    },
+    "sourceMap": false
+  },
+  {
     "outputFileName": "wwwroot/bundles/site.min.js",
     "inputFiles": [
-      "wwwroot/dist/app.js",
-      "wwwroot/lib/vee-validate/dist/validation-config.min.js",
-      "wwwroot/theme/script/public.common.js",
-      "wwwroot/theme/script/public.axios.js"
+      "wwwroot/bundles/libs.js",
+      "wwwroot/theme/script/validation-config.min.js",
+      "wwwroot/theme/script/public.common.min.js",
+      "wwwroot/theme/script/public.axios.min.js"
     ],
     "minify": {
       "enabled": false,

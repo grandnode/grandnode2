@@ -139,12 +139,14 @@ Vue.component('BIconMoon', BIconMoon)
 Vue.component('BIconSun', BIconSun)
 
 import axios from 'axios'
-import pikaday from 'pikaday'
+import Pikaday from 'pikaday'
 import VeeValidate from 'vee-validate/dist/vee-validate.minimal'
+import VueGallerySlideshow from 'vue-gallery-slideshow'
 
 window.axios = require('axios').default;
-window.pikaday = require('pikaday');
+window.Pikaday = require('pikaday');
 window.VeeValidate = VeeValidate;
+window.VueGallerySlideshow = VueGallerySlideshow;
 
 import vueAwesomeCountdown from 'vue-awesome-countdown'
 Vue.use(vueAwesomeCountdown, 'vac')

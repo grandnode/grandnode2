@@ -353,7 +353,6 @@ src/Web/Grand.Web/wwwroot/assets/images/thumbs/.tmb/*
 !src/Web/Grand.Web/wwwroot/assets/files/exportimport/Index.htm
 src/Web/Grand.Web/wwwroot/assets/images/uploaded/*
 !src/Web/Grand.Web/wwwroot/assets/images/uploaded/placeholder.txt
-src/Web/Grand.Web/wwwroot/bundles/*
 src/Web/Grand.Web/App_Data/InstalledPlugins.cfg
 src/Web/Grand.Web/App_Data/Settings.cfg
 src/Web/Grand.Web/Plugins/*
