@@ -6,6 +6,7 @@ using Grand.Business.System.Interfaces.Installation;
 using Grand.Domain.Data;
 using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Migrations;
 using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Models.Install;
@@ -196,6 +197,10 @@ namespace Grand.Web.Controllers
                         var provider = (IPermissionProvider)Activator.CreateInstance(providerType);
                         await _mediator.Send(new InstallPermissionsCommand() { PermissionProvider = provider });
                     }
+
+                    //install migration process - install only header
+                    var migrationProcess = _serviceProvider.GetRequiredService<IMigrationProcess>();
+                    migrationProcess.InstallApplication();
 
                     //restart application
                     await _cacheBase.SetAsync("Installed", true, 120);

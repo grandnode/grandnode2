@@ -23,5 +23,10 @@ namespace Grand.Domain.Data
         /// Gets or sets the date and time of migration creation
         /// </summary>
         public DateTime CreatedOnUtc { get; set; }
+
+        /// <summary>
+        /// Gets or sets the migration creation from installation
+        /// </summary>
+        public bool InstallApp { get; set; }
     }
 }

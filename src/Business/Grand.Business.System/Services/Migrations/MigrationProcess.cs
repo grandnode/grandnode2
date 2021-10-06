@@ -53,13 +53,14 @@ namespace Grand.Business.System.Services.Migrations
             return model;
         }
 
-        private void SaveMigration(MigrationResult migrationResult)
+        private void SaveMigration(MigrationResult migrationResult, bool install = false)
         {
             _repositoryMigration.Insert(new MigrationDb() {
                 Identity = migrationResult.Migration.Identity,
                 Name = migrationResult.Migration.Name,
                 Version = migrationResult.Migration.Version.ToString(),
                 CreatedOnUtc = DateTime.UtcNow,
+                InstallApp = install
             });
         }
 
@@ -78,6 +79,18 @@ namespace Grand.Business.System.Services.Migrations
                 {
                     RunProcess(item);
                 }
+            }
+        }
+
+        public virtual void InstallApplication()
+        {
+            var migrationManager = new MigrationManager();
+            foreach (var item in migrationManager.GetCurrentMigrations())
+            {
+                SaveMigration(new MigrationResult() {
+                    Migration = item,
+                    Success = true
+                }, true);
             }
         }
 
