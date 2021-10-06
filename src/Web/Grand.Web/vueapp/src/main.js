@@ -1,5 +1,5 @@
 import Vue from 'vue'
-Vue.config.productionTip = false
+Vue.config.productionTip = true
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -45,7 +45,6 @@ import {
     BIconHouseDoor,
     BIconList,
     BIconGrid3x2Gap,
-    BIconGrid3x3GapFill,
     BIconXCircleFill,
     BIconClipboardPlus,
     BIconServer,
@@ -98,7 +97,6 @@ Vue.component('BIconHandThumbsUp', BIconHandThumbsUp)
 Vue.component('BIconHouseDoor', BIconHouseDoor)
 Vue.component('BIconList', BIconList)
 Vue.component('BIconGrid3x2Gap', BIconGrid3x2Gap)
-Vue.component('BIconGrid3x3GapFill', BIconGrid3x3GapFill)
 Vue.component('BIconXCircleFill', BIconXCircleFill)
 Vue.component('BIconClipboardPlus', BIconClipboardPlus)
 Vue.component('BIconServer', BIconServer)
@@ -142,10 +140,13 @@ Vue.component('BIconSun', BIconSun)
 
 import axios from 'axios'
 import pikaday from 'pikaday'
-import vueAwesomeCountdown from 'vue-awesome-countdown'
+import VeeValidate from 'vee-validate/dist/vee-validate.minimal'
 
 window.axios = require('axios').default;
 window.pikaday = require('pikaday');
+window.VeeValidate = VeeValidate;
+
+import vueAwesomeCountdown from 'vue-awesome-countdown'
 Vue.use(vueAwesomeCountdown, 'vac')
 
 window.Vue = Vue;

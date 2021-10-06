@@ -6,18 +6,6 @@
 @inject IPageHeadBuilder pagebuilder
 
 @{
-    var themeName = themeContext.WorkingThemeName;
-    var supportRtl = workContext.WorkingLanguage.Rtl;
-    if (supportRtl)
-    {
-        <link rel="stylesheet" type="text/css" asp-src="/theme/css/product/product.rtl.css">
-    }
-    else
-    {
-        <link rel="stylesheet" type="text/css" asp-src="/theme/css/product/product.css">
-    }
-}
-@{
     Layout = "_SingleColumn";
 
     //title, meta

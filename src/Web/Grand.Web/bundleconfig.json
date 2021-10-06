@@ -1,11 +1,30 @@
 ﻿[
   {
-    "outputFileName": "wwwroot/bundles/site.min.css",
+    "outputFileName": "wwwroot/bundles/style.rtl.min.css",
     "inputFiles": [
-      "wwwroot/lib/bootstrap/dist/css/bootstrap.min.css",
-      "wwwroot/lib/bootstrap-vue/dist/bootstrap-vue.min.css",
-      "wwwroot/lib/animate/animate.min.css",
-      "wwwroot/lib/pikaday/css/pikaday.css"
+      "wwwroot/theme/css/common/common.rtl.css",
+      "wwwroot/theme/css/header/header.rtl.css",
+      "wwwroot/theme/css/catalog/catalog.rtl.css",
+      "wwwroot/theme/css/product/product.rtl.css",
+      "wwwroot/theme/css/customer/customer.rtl.css",
+      "wwwroot/theme/css/cart/cart.rtl.css"
+
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/bundles/style.min.css",
+    "inputFiles": [
+      "wwwroot/theme/css/common/common.css",
+      "wwwroot/theme/css/header/header.css",
+      "wwwroot/theme/css/catalog/catalog.css",
+      "wwwroot/theme/css/product/product.css",
+      "wwwroot/theme/css/customer/customer.css",
+      "wwwroot/theme/css/cart/cart.css"
     ],
     "minify": {
       "enabled": true,
@@ -17,12 +36,9 @@
     "outputFileName": "wwwroot/bundles/site.min.js",
     "inputFiles": [
       "wwwroot/dist/app.js",
-      "wwwroot/lib/bootstrap-vue/dist/bootstrap-vue-icons-slim.min.js",
-      "wwwroot/lib/poper/dist/poper.js",
-      "wwwroot/lib/vue-awesome-countdown/dist/vue-awesome-countdown.umd.min.js",
-      "wwwroot/lib/vee-validate/dist/vee-validate.minimal.min.js",
       "wwwroot/lib/vee-validate/dist/validation-config.min.js",
-      "wwwroot/lib/pikaday/pikaday.js"
+      "wwwroot/theme/script/public.common.js",
+      "wwwroot/theme/script/public.axios.js"
     ],
     "minify": {
       "enabled": false,

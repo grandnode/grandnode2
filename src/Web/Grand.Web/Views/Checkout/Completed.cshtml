@@ -18,7 +18,7 @@
 <div class="page checkout-page order-completed-page text-xs-center">
     <div class="checkout-data mt-3">
         @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_completed_top", additionalData = Model.OrderId })
-        <b-jumbotron header="@Loc["Checkout.ThankYou"]" lead="@Loc["Checkout.YourOrderHasBeenSuccessfullyProcessed"]">
+        <b-card title="@Loc["Checkout.ThankYou"]" sub-title="@Loc["Checkout.YourOrderHasBeenSuccessfullyProcessed"]">
             <div class="h5 mb-0">@Loc["Checkout.OrderNumber"]: <span class="text-info">@Model.OrderNumber</span></div>
             <hr class="my-4">
             <div class="buttons">
@@ -27,7 +27,7 @@
                     @Loc["Checkout.ThankYou.Continue"]
                 </button>
             </div>
-        </b-jumbotron>
+        </b-card>
         @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_completed_bottom", additionalData = Model.OrderId })
     </div>
 </div>

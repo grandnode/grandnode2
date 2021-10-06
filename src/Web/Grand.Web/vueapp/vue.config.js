@@ -1,11 +1,11 @@
 ﻿module.exports = {
-  outputDir: './wwwroot/dist',
+  outputDir: '../wwwroot/bundles',
   lintOnSave: false,
   productionSourceMap: false,
   filenameHashing: false,
   css: {
     extract: {
-      filename: '[name].css'
+      filename: 'libs.css'
     }
   },
   configureWebpack: {
@@ -13,12 +13,12 @@
       splitChunks: false
     },
     output: {
-      filename: '[name].js'
+      filename: 'libs.js'
     },
     resolve: {
       alias: {
         'vue$': 'vue/dist/vue.esm.js'
       }
-    }
+    },
   },
 }
