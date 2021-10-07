@@ -86,7 +86,9 @@ import {
     BIconFileEarmarkLock2,
     BIconFileEarmarkRuled,
     BIconMoon,
-    BIconSun
+    BIconSun,
+    BIconFileEarmarkRichtext,
+    BIconHammer
 } from 'bootstrap-vue'
 Vue.component('BIcon', BIcon)
 Vue.component('BIconAspectRatio', BIconAspectRatio)
@@ -139,6 +141,8 @@ Vue.component('BIconFileEarmarkLock2', BIconFileEarmarkLock2)
 Vue.component('BIconFileEarmarkRuled', BIconFileEarmarkRuled)
 Vue.component('BIconMoon', BIconMoon)
 Vue.component('BIconSun', BIconSun)
+Vue.component('BIconFileEarmarkRichtext', BIconFileEarmarkRichtext)
+Vue.component('BIconHammer', BIconHammer)
 
 import axios from 'axios'
 import Pikaday from 'pikaday'
