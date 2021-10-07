@@ -6,6 +6,8 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import 'animate.css'
 import 'pikaday/css/pikaday.css'
 
+import { LinkPlugin } from 'bootstrap-vue'
+Vue.use(LinkPlugin)
 import { CardPlugin } from 'bootstrap-vue'
 Vue.use(CardPlugin)
 import { ButtonPlugin } from 'bootstrap-vue'
