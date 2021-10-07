@@ -3,9 +3,8 @@
 @{
     var supportRtl = workContext.WorkingLanguage.Rtl;
 
-    <link rel="stylesheet" type="text/css" href="/bundles/libs.css" />
-
-    <link rel="stylesheet" type="text/css" href="/assets/custom/style.css">
+    <link rel="stylesheet" type="text/css" asp-src="/bundles/libs.css">
+    <link rel="stylesheet" type="text/css" asp-src="/assets/custom/style.css">
 
     <environment include="Development">
         @if (supportRtl)
@@ -30,19 +29,19 @@
     <environment include="Production">
         @if (supportRtl)
         {
-            <link rel="stylesheet" type="text/css" href="/bundles/style.rtl.min.css">
+            <link rel="stylesheet" type="text/css" asp-src="/bundles/style.rtl.min.css">
         }
         else
         {
-            <link rel="stylesheet" type="text/css" href="/bundles/style.min.css">
+            <link rel="stylesheet" type="text/css" asp-src="/bundles/style.min.css">
         }
     </environment>
 
     <environment include="Development">
-        <script src="/bundles/libs.js"></script>
-        <script src="/theme/script/validation-config.min.js"></script>
-        <script src="/theme/script/public.common.js"></script>
-        <script src="/theme/script/public.axios.js"></script>
+        <script asp-src="/bundles/libs.js"></script>
+        <script asp-src="/theme/script/validation-config.min.js"></script>
+        <script asp-src="/theme/script/public.common.js"></script>
+        <script asp-src="/theme/script/public.axios.js"></script>
     </environment>
     <environment include="Production">
         <script src="/bundles/site.min.js"></script>
