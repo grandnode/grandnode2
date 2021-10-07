@@ -783,6 +783,7 @@ pre, code {
   background: #EFF4F9;
   border-bottom: 1px solid #D9DEE4;
   width: 100%;
+  z-index: 10000;
 }
 
 @media (min-width: 480px) {
@@ -5472,10 +5473,59 @@ article.media {
   width: 16.66666667%;
 }
 
+.sidebar_button {
+    display: none;
+}
+
 @media (max-width: 768px) {
   .weather-days .col-sm-2 {
     float: right;
   }
+  .sidebar_button {
+        position: fixed;
+        top: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+        align-items: center;
+        width: 58px;
+        height: 58px;
+        padding: 15px 10px;
+        background-color: #2F3C48;
+        transform: translateX(-90px);
+        -webkit-transform: translateX(-90px);
+        z-index: 10001;
+    }
+    .sidebar_button span {
+        width: 100%;
+        height: 3px;
+        background: #fff;
+    }
+    .nav-sm .container.body .col-md-3.left_col, body .container.body .right_col, .nav-sm .main_container .top_nav, .sidebar_button, .sidebar_button span {
+        transition: all .2s ease-in-out;
+        -webkit-transition: all .2s ease-in-out;
+    }
+    .nav-sm .container.body.wide .col-md-3.left_col {
+        transform: translateX(100%);
+    }
+    body .container.body.wide .right_col, .nav-sm .container.body.wide .main_container .top_nav {
+        margin-right: 0;
+    }
+    .container.body.wide .sidebar_button {
+        transform: translateX(0);
+        -webkit-transform: translateX(0);
+    }
+    .container.body:not(.wide) .sidebar_button span:first-child {
+        transform: rotate(45deg) translate(8px, 9px);
+    }
+    .container.body:not(.wide) .sidebar_button span:nth-child(2) {
+        opacity: 0;
+        visibility: hidden;
+    }
+    .container.body:not(.wide) .sidebar_button span:last-child {
+        transform: rotate(-45deg) translate(7px, -8px);
+    }
 }
 
 .weather .row {
@@ -6646,7 +6696,11 @@ h2 {
     margin-left: 4.5em;
   }
 }
-
+@media screen and (max-width: 991px) {
+    .nav-sm ul.nav.child_menu {
+        top: 58px;
+    }
+}
 @media screen and (max-width: 850px) {
   #searchInput {
     width: 100%;
@@ -6659,8 +6713,8 @@ h2 {
   .admin-search-input-container {
     max-width: none;
     width: 85%;
-    float: right;
-    margin-right: 3%;
+    float: left;
+    margin-left: 3%;
   }
   .twitter-typeahead {
     width: 100%;
