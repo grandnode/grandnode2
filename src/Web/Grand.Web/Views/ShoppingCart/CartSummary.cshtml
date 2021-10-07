@@ -192,8 +192,8 @@
                                             </b-form-checkbox>
                                             <div class="alert alert-info my-2" v-show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</div>
                                         </div>
-                                        <div class="checkout-buttons text-center mt-3">
-                                            <b-button type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="vmorder.termsCheck(true)" variant="secondary" class="checkout-as-guest-button mx-1">
+                                        <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
+                                            <b-button type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="vmorder.termsCheck(true)" variant="secondary" class="checkout-as-guest-button mx-sm-1 mx-0">
                                                 @Loc["Account.Login.CheckoutAsGuest"]
                                             </b-button>
                                             <b-button id="checkout" name="checkout" @@click="vmorder.termsCheck(false)" variant="info" class="checkout-button mt-sm-0 mt-1">
@@ -207,8 +207,8 @@
                                         </div>
                                     </template>
                                     <template v-else>
-                                        <div class="checkout-buttons text-center mt-3">
-                                            <b-button type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="location.href='@Url.RouteUrl("Checkout")'" variant="secondary" class="checkout-as-guest-button mx-1">
+                                        <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
+                                            <b-button type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="location.href='@Url.RouteUrl("Checkout")'" variant="secondary" class="checkout-as-guest-button mx-sm-1 mx-0">
                                                 @Loc["Account.Login.CheckoutAsGuest"]
                                             </b-button>
                                             <b-button id="checkout" name="checkout" @@click="document.querySelector('#shopping-cart-form').setAttribute('action', '@Url.RouteUrl("StartCheckout")');document.querySelector('#shopping-cart-form').submit();" variant="info" class="checkout-button mt-sm-0 mt-1">

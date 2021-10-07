@@ -325,6 +325,7 @@
 @media (max-width: 575px) {
     .shopping-cart.table tr {
         width: 100%;
+        margin: 0 0 5px 0;
     }
     .order-completed-page .jumbotron .display-3 {
         font-size: 56px;

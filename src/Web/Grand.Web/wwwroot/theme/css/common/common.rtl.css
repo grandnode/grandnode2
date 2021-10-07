@@ -947,7 +947,7 @@ input:checked ~ .color-container .color::before {
     -webkit-transition: all .2s ease-in-out;
     transition: all .2s ease-in-out;
 }
-.product-box:hover .hover-img {
+.product-box:not(.mobile):hover .hover-img {
     opacity: 1;
     visibility: visible;
 }
