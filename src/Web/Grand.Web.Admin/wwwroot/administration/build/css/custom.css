@@ -173,7 +173,7 @@ body {
     min-height: 100%;
     width: 90px;
     padding: 0;
-    z-index: 9999;
+    z-index: 10000;
     position: fixed;
 }
 
@@ -526,7 +526,10 @@ body {
     border-bottom: 1px solid #D9DEE4;
     width: 100%;
     position: relative;
-    z-index: 10000;
+    z-index: 9999;
+}
+.nav_menu:active, .nav_menu:focus, .nav_menu:hover {
+    z-index: 10001;
 }
 
 .nav-md .container.body .col-md-3.left_col {
@@ -6635,7 +6638,7 @@ form>h4 {
         background-color: #2F3C48;
         transform: translateX(90px);
         -webkit-transform: translateX(90px);
-        z-index: 10001;
+        z-index: 10002;
     }
     .sidebar_button span {
         width: 100%;
