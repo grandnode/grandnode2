@@ -265,9 +265,22 @@ var randNum = function () {
     return (Math.floor(Math.random() * (1 + 40 - 20))) + 20;
 };
 
-function sidebarToggle(el) {
+$(document).ready(function () {
+    if (localStorage.getItem('adminContainerWide') == 'true') {
+        $(".container.body").addClass("wide");
+    }
+});
+function sidebarToggle() {
     var container = $(".container.body");
     container.toggleClass("wide");
+    saveContainer(container);
+}
+function saveContainer(container) {
+    if (container.hasClass("wide")) {
+        localStorage.setItem('adminContainerWide', 'true');
+    } else {
+        localStorage.setItem('adminContainerWide', 'false');
+    }
 }
 
 // Panel toolbox
