@@ -6,14 +6,16 @@
             @foreach (var item in Model)
             {
                 <div class="col-xl-@order.Pc_Xl col-lg-@order.Pc_Lg col-md-@order.Pc_Md col-sm-@order.Pc_Sm col-@order.Pc_Col">
-                    <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title">
-                        <article class="card mb-2">
+                    <div class="card picture-card mb-2">
+                        <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title">
                             <b-card-img-lazy src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"></b-card-img-lazy>
-                            <div class="card-body">
-                                <h4>@item.Name</h4>
-                            </div>
-                        </article>
-                    </a>
+                        </a>
+                        <h4 class="title">
+                            <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title">
+                                @item.Name
+                            </a>
+                        </h4>
+                    </div>
                 </div>
             }
         </div>

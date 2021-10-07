@@ -38,6 +38,14 @@
     padding: 15px;
 }
 
+/* logo */
+
+.store-logo img {
+    width: auto;
+    height: auto;
+    max-height: 53px;
+}
+
 /* sidebar-cart */
 
 .sidebar-cart {

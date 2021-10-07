@@ -456,6 +456,32 @@ dl, ol, ul {
     margin: 15px 0;
 }
 
+/* picture card */
+
+.picture-card > a {
+    position: relative;
+    display: block;
+}
+.picture-card > a::before {
+    content: "";
+    display: block;
+    padding-top: 56%;
+}
+.picture-card a img {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    max-width: 100%;
+    max-height: 100%;
+    margin: auto;
+}
+.picture-card .title {
+    padding: 20px;
+}
+
 /* modals */
 
 .modal-close {
