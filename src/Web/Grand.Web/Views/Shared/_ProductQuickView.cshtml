@@ -55,7 +55,7 @@
 
                                                 @* PRODUCT BUNDLES *@
 
-                                                <partial name="_ProductBundlesQV" />
+                                                <partial name="QuickView/_ProductBundles" />
 
                                                 @* ATTRIBUTES *@
 
@@ -63,7 +63,7 @@
                                                     <div class="attributes">
                                                         <table class="table">
                                                             <tr v-for="attribute in PopupQuickViewVueModal.ProductAttributes">
-                                                                <partial name="_AttributesQV" />
+                                                                <partial name="QuickView/_Attributes" />
                                                             </tr>
                                                         </table>
                                                     </div>
@@ -71,33 +71,33 @@
 
                                                 @* WAREHOUSES *@
 
-                                                <partial name="_WarehousesQV" />
+                                                <partial name="QuickView/_Warehouses" />
 
                                                 @* RESERVATIONS *@
 
-                                                <partial name="_ReservationInfoQV" />
+                                                <partial name="QuickView/_ReservationInfo" />
 
                                                 @* GIFT VOUCHERS *@
 
-                                                <partial name="_GiftVoucherInfoQV" />
+                                                <partial name="QuickView/_GiftVoucherInfo" />
 
                                                 @* PRICES *@
 
-                                                <partial name="_PricesQV" />
+                                                <partial name="QuickView/_Prices" />
 
                                                 @* AUCTION *@
 
-                                                <partial name="_AuctionInfoQV" />
+                                                <partial name="QuickView/_AuctionInfo" />
 
                                                 @* ADD TO CART *@
 
                                                 <template v-if="PopupQuickViewVueModal.ProductType !== 10">
-                                                    <partial name="_AddToCartQV" />
+                                                    <partial name="QuickView/_AddToCart" />
                                                     <template v-if="(!PopupQuickViewVueModal.AddToCart.DisableWishlistButton || PopupQuickViewVueModal.CompareProductsEnabled || PopupQuickViewVueModal.EmailAFriendEnabled) && PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId == null">
                                                         <div class="btn-group mt-2 mb-3 w-100">
-                                                            <partial name="_AddToWishlistQV" />
-                                                            <partial name="_ProductsComparisonQV" />
-                                                            <partial name="_SendFriendQV" />
+                                                            <partial name="QuickView/_AddToWishlist" />
+                                                            <partial name="QuickView/_ProductsComparison" />
+                                                            <partial name="QuickView/_SendFriend" />
                                                         </div>
                                                     </template>
                                                 </template>
@@ -192,7 +192,7 @@
                                                                                 <div class="attributes">
                                                                                     <table class="table">
                                                                                         <tr v-for="attribute in variant.ProductAttributes">
-                                                                                            <partial name="_AttributesQV" />
+                                                                                            <partial name="QuickView/_Attributes" />
                                                                                         </tr>
                                                                                     </table>
                                                                                 </div>
@@ -200,8 +200,8 @@
 
                                                                             <!--price & add to cart-->
 
-                                                                            <partial name="_PricesGroupQV" />
-                                                                            <partial name="_AddToCartGroupQV" />
+                                                                            <partial name="QuickView/_PricesGroup" />
+                                                                            <partial name="QuickView/_AddToCartGroup" />
 
                                                                         </div>
                                                                     </div>
@@ -222,7 +222,7 @@
                                     </template>
                                 </div>
                             </div>
-                            <partial name="_LinkedProducts" />
+                            <partial name="QuickView/_LinkedProducts" />
                         </div>
                     </div>
                 </div>
