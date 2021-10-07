@@ -529,12 +529,6 @@ body {
     z-index: 10000;
 }
 
-@media (min-width: 480px) {
-    .nav_menu {
-        position: static;
-    }
-}
-
 .nav-md .container.body .col-md-3.left_col {
     min-height: 100%;
     width: 230px;
@@ -6635,8 +6629,8 @@ form>h4 {
         justify-content: space-between;
         flex-direction: column;
         align-items: center;
-        width: 57px;
-        height: 57px;
+        width: 58px;
+        height: 58px;
         padding: 15px 10px;
         background-color: #2F3C48;
         transform: translateX(90px);
