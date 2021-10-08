@@ -86,6 +86,7 @@ namespace Grand.Business.System.Services.Installation
                 AutoCompleteSearchThumbPictureSize = 50,
                 ImageSquarePictureSize = 32,
                 MaximumImageSize = 1980,
+                ImageQuality = 100,
                 DefaultPictureZoomEnabled = true,
                 StoreLocation = "/",
                 StoreInDb = true

@@ -11490,6 +11490,9 @@
   <Resource Name="Admin.Settings.Media.ImageSquarePictureSize">
     <Value>Image square attribute picture size</Value>
   </Resource>
+  <Resource Name="Admin.Settings.Media.ImageQuality">
+    <Value>Image quality</Value>
+  </Resource>
   <Resource Name="Admin.Settings.Media.LessonThumbPictureSize">
     <Value>Lesson thumb picture size</Value>
   </Resource>

@@ -348,22 +348,20 @@ namespace Grand.Web.Admin.Controllers
                 var pictures = pictureService.GetPictures();
                 foreach (var picture in pictures)
                 {
-                    if (!picture.MimeType.Contains("webp"))
+                    try
                     {
-                        try
-                        {
-                            using var image = SKBitmap.Decode(picture.PictureBinary);
-                            SKData d = SKImage.FromBitmap(image).Encode(SKEncodedImageFormat.Webp, 100);
-                            await pictureService.UpdatePicture(picture.Id, d.ToArray(), "image/webp", picture.SeoFilename, picture.AltAttribute, picture.TitleAttribute, true, false);
-                            model.ConvertedPictureModel.NumberOfConvertItems += 1;
-                        }
-                        catch (Exception ex)
-                        {
-                            logger.Error($"Error on converting picture with id {picture.Id} to webp format", ex);
-                        }
+                        using var image = SKBitmap.Decode(picture.PictureBinary);
+                        SKData d = SKImage.FromBitmap(image).Encode(SKEncodedImageFormat.Webp, mediaSettings.ImageQuality);
+                        await pictureService.UpdatePicture(picture.Id, d.ToArray(), "image/webp", picture.SeoFilename, picture.AltAttribute, picture.TitleAttribute, true, false);
+                        model.ConvertedPictureModel.NumberOfConvertItems += 1;
                     }
+                    catch (Exception ex)
+                    {
+                        logger.Error($"Error on converting picture with id {picture.Id} to webp format", ex);
+                    }
+
                 }
-            }
+            }            
             return View("Maintenance", model);
         }
 

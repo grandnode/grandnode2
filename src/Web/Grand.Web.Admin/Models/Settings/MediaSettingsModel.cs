@@ -44,6 +44,9 @@ namespace Grand.Web.Admin.Models.Settings
         [GrandResourceDisplayName("Admin.Settings.Media.MaximumImageSize")]
         public int MaximumImageSize { get; set; }
 
+        [GrandResourceDisplayName("Admin.Settings.Media.ImageQuality")]
+        public int ImageQuality { get; set; }
+
         [GrandResourceDisplayName("Admin.Settings.Media.DefaultPictureZoomEnabled")]
         public bool DefaultPictureZoomEnabled { get; set; }
 

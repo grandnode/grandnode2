@@ -28,6 +28,8 @@ namespace Grand.Domain.Media
 
         public int MaximumImageSize { get; set; }
 
+        public int ImageQuality { get; set; } = 100;
+
         public string AllowedFileTypes { get; set; }
 
         public string FileManagerEnabledCommands { get; set; } = "back, chmod, colwidth, copy, cut, download, duplicate, edit, extract, forward, fullscreen, getfile, help, home, info, mkdir, mkfile, open, opendir, paste, places, quicklook, reload, rename, resize, restore, rm, search, sort, up, upload, view, ls";
