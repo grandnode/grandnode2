@@ -9,7 +9,8 @@
     var canManageMessageQueue = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageMessageQueue);
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="Edit" method="post" id="order-form">
-   <input type="hidden" asp-for="Id" /> 
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="All"></div>
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -136,7 +137,5 @@
             </div>
         </div>
     </div>
-    <div asp-validation-summary="All"></div>
-
 </form>
 <admin-delete-confirmation button-id="order-delete" />

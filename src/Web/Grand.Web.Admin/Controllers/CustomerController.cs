@@ -260,7 +260,7 @@ namespace Grand.Web.Admin.Controllers
             if (!string.IsNullOrEmpty(customerGroupsError))
             {
                 ModelState.AddModelError("", customerGroupsError);
-                Error(customerGroupsError, false);
+                Error(customerGroupsError);
             }
 
             if (model.TwoFactorEnabled)
@@ -345,7 +345,7 @@ namespace Grand.Web.Admin.Controllers
             if (!string.IsNullOrEmpty(customerGroupsError))
             {
                 ModelState.AddModelError("", customerGroupsError);
-                Error(customerGroupsError, false);
+                Error(customerGroupsError);
             }
             if (!string.IsNullOrWhiteSpace(model.Owner))
             {
@@ -412,7 +412,7 @@ namespace Grand.Web.Admin.Controllers
                 }
                 catch (Exception exc)
                 {
-                    Error(exc.Message, false);
+                    Error(exc.Message);
                 }
             }
             //If we got this far, something failed, redisplay form

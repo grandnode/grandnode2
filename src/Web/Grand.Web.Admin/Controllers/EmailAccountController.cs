@@ -148,7 +148,7 @@ namespace Grand.Web.Admin.Controllers
             }
             catch (Exception exc)
             {
-                Error(exc.Message, false);
+                Error(exc.Message);
             }
 
             //If we got this far, something failed, redisplay form

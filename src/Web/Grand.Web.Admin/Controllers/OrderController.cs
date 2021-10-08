@@ -679,7 +679,7 @@ namespace Grand.Web.Admin.Controllers
             }
             if (order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
             {
-                Error("You can't edit position when order is canceled", true);
+                Error("You can't edit position when order is canceled");
                 return RedirectToAction("Edit", "Order", new { id = id });
             }
 
@@ -700,13 +700,13 @@ namespace Grand.Web.Admin.Controllers
 
             if (quantity == 0 || (orderItem.OpenQty != orderItem.Quantity && orderItem.IsShipEnabled))
             {
-                Error("You can't change quantity", true);
+                Error("You can't change quantity");
                 return RedirectToAction("Edit", "Order", new { id = id });
             }
 
             if (orderItem.Quantity == quantity && orderItem.UnitPriceExclTax == unitPriceExclTax)
             {
-                Error("Nothing has been changed", true);
+                Error("Nothing has been changed");
                 return RedirectToAction("Edit", "Order", new { id = id });
             }
 
@@ -769,7 +769,7 @@ namespace Grand.Web.Admin.Controllers
 
             var result = await _mediator.Send(new DeleteOrderItemCommand() { Order = order, OrderItem = orderItem });
             if (result.error)
-                Error(result.message, true);
+                Error(result.message);
 
             //selected tab
             await SaveSelectedTabIndex(persistForTheNextRequest: true);
@@ -808,7 +808,7 @@ namespace Grand.Web.Admin.Controllers
 
             var result = await _mediator.Send(new CancelOrderItemCommand() { Order = order, OrderItem = orderItem });
             if (result.error)
-                Error(result.message, false);
+                Error(result.message);
             else
                 Success("The order item was successfully canceled", true);
 
