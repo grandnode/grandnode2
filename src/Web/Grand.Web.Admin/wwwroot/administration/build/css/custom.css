@@ -5655,10 +5655,10 @@ a span.username {
 /* magnific popup */
 
 .mfp-bg {
-    z-index: 10000 !important;
+    z-index: 10001 !important;
 }
 .mfp-wrap {
-    z-index: 10001 !important;
+    z-index: 10003 !important;
 }
 .mfp-container {
     padding: 8px;
@@ -6494,6 +6494,10 @@ form>h4 {
     .btn-group.btn-group-devided>.btn {
         margin-bottom: 5px;
     }
+    .popup-window .btn-group.btn-group-devided > .btn {
+        margin-bottom: 0;
+        margin-right: 2px;
+    }
 }
 
 @media screen and (max-height: 991px) {
@@ -7310,9 +7314,22 @@ table.tableFixHead {
 .popup-window .form-horizontal .main-header .btn-group {
     display: inline-flex;
 }
-.popup-window .form-horizontal .main-header .btn-group-sm .btn {
+.popup-window .form-horizontal .main-header .btn-group .btn:not(:last-child) {
     margin: 0 2px 0 0;
-    padding: 6px 6px;
+}
+.popup-window .form-horizontal .main-header {
+    margin: 0 0 15px 0;
+}
+.popup-window .form-horizontal .main-header .form-actions {
+    display: inline-flex;
+    justify-content: space-between;
+    width: 100%;
+}
+.popup-window .form-horizontal .main-header .form-actions .btn-group + .btn {
+    margin: 0 0 0 15px;
+}
+.popup-window .btn-group.btn-group-devided > .btn:last-child {
+    margin-right: 0;
 }
 .popup-window .form-horizontal .drop-filters-container {
     display: inline-flex;

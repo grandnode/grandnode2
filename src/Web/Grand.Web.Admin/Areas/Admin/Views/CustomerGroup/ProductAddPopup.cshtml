@@ -24,22 +24,22 @@
                         <div class="form-body">
                             <div class="main-header col-12 px-0">
                                 <div class="row align-items-end">
-                                    <div class="col-md-8 col-ms-12 col-12">
+                                    <div class="col-md col-ms-12 col-12">
                                         <div class="form-group mb-0">
                                             <admin-label asp-for="SearchProductName" class="control-label" />
                                             <admin-input asp-for="SearchProductName" />
                                         </div>
                                     </div>
-                                    <div class="col-md-4 col-sm-12 col-12">
+                                    <div class="col-md-auto col-sm-12 col-12">
                                         <div class="form-actions">
-                                            <div class="btn-group btn-group-sm btn-group-devided">
+                                            <div class="btn-group btn-group-devided">
                                                 <button class="btn btn-success filter-submit" id="search-products">
                                                     <i class="fa fa-search"></i>&nbsp; @Loc["Admin.Common.Search"]
                                                 </button>
-                                                <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> &nbsp; @Loc["Admin.Common.Save"] </button>
                                                 <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
                                                     <i class="fa fa-filter"></i>&nbsp; @Loc["Admin.Common.Filters"]
                                                 </button>
+                                                <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> &nbsp; @Loc["Admin.Common.Save"] </button>
                                             </div>
                                         </div>
                                     </div>
