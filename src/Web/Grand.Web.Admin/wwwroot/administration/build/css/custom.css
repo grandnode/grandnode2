@@ -528,9 +528,6 @@ body {
     position: relative;
     z-index: 9999;
 }
-.nav_menu:active, .nav_menu:focus, .nav_menu:hover {
-    z-index: 10001;
-}
 
 .nav-md .container.body .col-md-3.left_col {
     min-height: 100%;
@@ -731,6 +728,10 @@ body .container.body .right_col {
     width: 100%;
     max-width: 100%;
     padding: 0;
+}
+
+.container.body {
+    overflow-x: hidden;
 }
 
 .navbar-nav>li>a, .navbar-brand, .navbar-nav>li>a {
@@ -2248,10 +2249,6 @@ ul.msg_list li a .message {
     right: 0;
     left: auto;
     width: 220px
-}
-
-.navbar-nav .show .dropdown-menu.msg_list {
-    min-width: 300px
 }
 
 .info-number .badge {
@@ -4465,6 +4462,7 @@ ul.project_files li a i {
     font-weight: 500;
     padding: 6px 16px;
     border-radius: 3px !important;
+    white-space: pre-wrap;
 }
 
 /* store news */
@@ -6962,6 +6960,10 @@ table.tableFixHead {
 }
 
 @media (max-width: 575px) {
+    .navbar-nav .dropdown-menu {
+        max-width: 200px;
+        min-width: 200px;
+    }
     .nav-sm .side-menu > li > ul.nav.child_menu {
         min-width: 230px;
     }
