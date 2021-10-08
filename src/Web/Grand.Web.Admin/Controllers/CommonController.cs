@@ -296,12 +296,29 @@ namespace Grand.Web.Admin.Controllers
 
         public IActionResult Maintenance()
         {
-            var model = new MaintenanceModel();
-            model.DeleteGuests.EndDate = DateTime.UtcNow.AddDays(-7);
-            model.DeleteGuests.OnlyWithoutShoppingCart = true;
-            model.DeleteAbandonedCarts.OlderThan = DateTime.UtcNow.AddDays(-182);
+            var model = new MaintenanceModel() {
+                DeleteGuests = new MaintenanceModel.DeleteGuestsModel() { 
+                    EndDate = DateTime.UtcNow.AddDays(-7),
+                    OnlyWithoutShoppingCart = true,
+                },
+
+            };
+
+            if (TempData["NumberOfDeletedCustomers"] != null)
+                model.DeleteGuests.NumberOfDeletedCustomers = (int)TempData["NumberOfDeletedCustomers"];
+
+            if (TempData["DeleteActivityLog"] != null)
+                model.DeleteActivityLog = (bool)TempData["DeleteActivityLog"];
+
+            if (TempData["NumberOfConvertItems"] != null)
+            {
+                model.ConvertedPictureModel = new MaintenanceModel.ConvertPictureModel {
+                    NumberOfConvertItems = (int)TempData["NumberOfConvertItems"]
+                };
+            }
             return View(model);
         }
+
         [HttpPost]
         public async Task<IActionResult> MaintenanceDeleteGuests(MaintenanceModel model)
         {
@@ -311,22 +328,23 @@ namespace Grand.Web.Admin.Controllers
             DateTime? endDateValue = (model.DeleteGuests.EndDate == null) ? null
                             : (DateTime?)_dateTimeService.ConvertToUtcTime(model.DeleteGuests.EndDate.Value, _dateTimeService.CurrentTimeZone).AddDays(1);
 
-            model.DeleteGuests.NumberOfDeletedCustomers = await _customerService.DeleteGuestCustomers(startDateValue, endDateValue, model.DeleteGuests.OnlyWithoutShoppingCart);
+            TempData["NumberOfDeletedCustomers"] = await _customerService.DeleteGuestCustomers(startDateValue, endDateValue, model.DeleteGuests.OnlyWithoutShoppingCart);
 
-            return View("Maintenance", model);
+            return RedirectToAction("Maintenance");
         }
+
         [HttpPost]
         public async Task<IActionResult> MaintenanceClearMostViewed(MaintenanceModel model)
         {
             await _mediator.Send(new ClearMostViewedCommand());
-            return View("Maintenance", model);
+            return RedirectToAction("Maintenance");
         }
+
         [HttpPost]
         public IActionResult MaintenanceDeleteFiles(MaintenanceModel model)
         {
             //TO DO
-            model.DeleteExportedFiles.NumberOfDeletedFiles = 0;
-            return View("Maintenance", model);
+            return RedirectToAction("Maintenance");
         }
 
 
@@ -334,15 +352,14 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> MaintenanceDeleteActivitylog(MaintenanceModel model)
         {
             await _mediator.Send(new DeleteActivitylogCommand());
-            model.DeleteActivityLog = true;
-            return View("Maintenance", model);
+            TempData["DeleteActivityLog"] = true;
+            return RedirectToAction("Maintenance");
         }
 
         [HttpPost]
         public async Task<IActionResult> MaintenanceConvertPicture([FromServices] IPictureService pictureService, [FromServices] MediaSettings mediaSettings, [FromServices] ILogger logger)
         {
-            var model = new MaintenanceModel();
-            model.ConvertedPictureModel.NumberOfConvertItems = 0;
+            var numberOfConvertItems = 0;
             if (mediaSettings.StoreInDb)
             {
                 var pictures = pictureService.GetPictures();
@@ -353,7 +370,7 @@ namespace Grand.Web.Admin.Controllers
                         using var image = SKBitmap.Decode(picture.PictureBinary);
                         SKData d = SKImage.FromBitmap(image).Encode(SKEncodedImageFormat.Webp, mediaSettings.ImageQuality);
                         await pictureService.UpdatePicture(picture.Id, d.ToArray(), "image/webp", picture.SeoFilename, picture.AltAttribute, picture.TitleAttribute, true, false);
-                        model.ConvertedPictureModel.NumberOfConvertItems += 1;
+                        numberOfConvertItems += 1;
                     }
                     catch (Exception ex)
                     {
@@ -361,8 +378,9 @@ namespace Grand.Web.Admin.Controllers
                     }
 
                 }
-            }            
-            return View("Maintenance", model);
+            }
+            TempData["NumberOfConvertItems"] = numberOfConvertItems;
+            return RedirectToAction("Maintenance");
         }
 
         public async Task<IActionResult> ClearCache(string returnUrl, [FromServices] ICacheBase cacheBase)
