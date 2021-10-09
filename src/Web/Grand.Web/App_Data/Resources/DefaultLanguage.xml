@@ -3676,10 +3676,16 @@
     <Value>Specification attributes</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.SpecificationAttributes.AddButton">
-    <Value>Add attribute</Value>
+    <Value>Add product specification</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.SpecificationAttributes.AddNew">
     <Value>Add a new product specification attribute</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Edit">
+    <Value>Edit a product specification attribute</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Validate">
+    <Value>A product specification attribute is not valid</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Fields.AllowFiltering">
     <Value>Allow filtering</Value>
@@ -3707,9 +3713,6 @@
   </Resource>
   <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Fields.Value">
     <Value>Value</Value>
-  </Resource>
-  <Resource Name="Admin.Catalog.Products.SpecificationAttributes.NoAttributes">
-    <Value>No specification attributes defined.</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.SpecificationAttributes.SaveBeforeEdit">
     <Value>You need to save the product before you can add product specification attributes for this product page.</Value>

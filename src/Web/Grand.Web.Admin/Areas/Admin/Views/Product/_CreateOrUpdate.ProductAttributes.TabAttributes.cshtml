@@ -7,7 +7,7 @@
     </div>
     <vc:admin-widget widget-zone="product_details_product_attributes_bottom" additional-data="Model" />
     <div class="panel-footer">
-        <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshProductAttributes", formId = "product-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.ProductAttributes.AddNew"]</a>
+        <a id="btnAddNewAttributes" href="@(Url.Action("ProductAttributeMappingPopup", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.ProductAttributes.AddNew"]</a>
     </div>
 </div>
 
@@ -129,7 +129,7 @@
                         field: "ProductAttributeId",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute"]",
                         width: 190,
-                        template: "<a class='k-link btnMagnificPopup' href='@Url.Action("ProductAttributeMappingPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#&btnId=btnRefreshProductAttributes&formId=product-form'>#=kendo.htmlEncode(ProductAttribute)#<br /></a>"
+                        template: "<a class='k-link btnMagnificPopup' href='@Url.Action("ProductAttributeMappingPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&productAttributeMappingId=#=Id#'>#=kendo.htmlEncode(ProductAttribute)#<br /></a>"
                     }, {
                         field: "TextPrompt",
                         title: "@Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Fields.TextPrompt"]",

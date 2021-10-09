@@ -26,6 +26,7 @@ using Grand.Web.Common.Security.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -1363,7 +1364,6 @@ namespace Grand.Web.Admin.Controllers
             return View(model);
         }
 
-
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
         public async Task<IActionResult> ProductPictureDelete(ProductModel.ProductPictureModel model)
@@ -1382,29 +1382,13 @@ namespace Grand.Web.Admin.Controllers
         [AcceptVerbs("GET")]
         public async Task<IActionResult> GetOptionsByAttributeId(string attributeId, [FromServices] ISpecificationAttributeService specificationAttributeService)
         {
-            if (String.IsNullOrEmpty(attributeId))
-                throw new ArgumentNullException("attributeId");
+            if (string.IsNullOrEmpty(attributeId))
+                return Json("");
 
             var options = (await specificationAttributeService.GetSpecificationAttributeById(attributeId)).SpecificationAttributeOptions.OrderBy(x => x.DisplayOrder);
             var result = (from o in options
                           select new { id = o.Id, name = o.Name }).ToList();
             return Json(result);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.Edit)]
-        public async Task<IActionResult> ProductSpecificationAttributeAdd(ProductModel.AddProductSpecificationAttributeModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var product = await _productService.GetProductById(model.ProductId);
-                if (product == null)
-                    return Content("Product not exists");
-
-                await _productViewModelService.InsertProductSpecificationAttributeModel(model, product);
-
-                return Json(new { Result = true });
-            }
-            return Json(new { Result = false });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
@@ -1426,8 +1410,39 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        public async Task<IActionResult> ProductSpecAttrPopup(
+            [FromServices] ISpecificationAttributeService specificationAttributeService,
+            string productId, string id)
+        {
+            var product = await _productService.GetProductById(productId);
+
+            var permission = await CheckAccessToProduct(product);
+            if (!permission.allow)
+                return Content(permission.message);
+
+            var model = new ProductModel.AddProductSpecificationAttributeModel {
+                //default specs values
+                ShowOnProductPage = true
+            };
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                var specification = product.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == id);
+                if (specification != null)
+                {
+                    model = specification.ToModel();
+                }
+            }
+            model.AvailableAttributes = await PrepareAvailableAttributes(specificationAttributeService);
+
+            return View(model);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> ProductSpecAttrUpdate(ProductSpecificationAttributeModel model)
+        public async Task<IActionResult> ProductSpecAttrPopup(
+            [FromServices] ISpecificationAttributeService specificationAttributeService,
+            ProductModel.AddProductSpecificationAttributeModel model)
         {
             if (ModelState.IsValid)
             {
@@ -1435,14 +1450,31 @@ namespace Grand.Web.Admin.Controllers
                 if (product == null)
                     return Content("Product not exists");
 
-                var psa = product.ProductSpecificationAttributes.Where(x => x.SpecificationAttributeId == model.ProductSpecificationId).Where(x => x.Id == model.Id).FirstOrDefault();
+                var psa = product.ProductSpecificationAttributes.Where(x => x.Id == model.Id).FirstOrDefault();
                 if (psa == null)
-                    return Content("No product specification attribute found with the specified id");
+                    await _productViewModelService.InsertProductSpecificationAttributeModel(model, product);
+                else
+                    await _productViewModelService.UpdateProductSpecificationAttributeModel(product, psa, model);
 
-                await _productViewModelService.UpdateProductSpecificationAttributeModel(product, psa, model);
                 return new JsonResult("");
             }
-            return ErrorForKendoGridJson(ModelState);
+
+            Error(ModelState);
+            model.AvailableAttributes = await PrepareAvailableAttributes(specificationAttributeService);
+            
+            return View(model);
+        }
+        private async Task<List<SelectListItem>> PrepareAvailableAttributes(ISpecificationAttributeService specificationAttributeService)
+        {
+            var availableSpecificationAttributes = new List<SelectListItem>();
+            foreach (var sa in await specificationAttributeService.GetSpecificationAttributes())
+            {
+                availableSpecificationAttributes.Add(new SelectListItem {
+                    Text = sa.Name,
+                    Value = sa.Id.ToString()
+                });
+            }
+            return availableSpecificationAttributes;
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -1822,7 +1854,7 @@ namespace Grand.Web.Admin.Controllers
 
                 var tierPrice = model.ToEntity(_dateTimeService);
                 await _productService.InsertTierPrice(tierPrice, product.Id);
-                
+
                 return Content("");
             }
             else

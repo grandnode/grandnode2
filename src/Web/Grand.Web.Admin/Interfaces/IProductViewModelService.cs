@@ -101,7 +101,7 @@ namespace Grand.Web.Admin.Interfaces
         //Product specification
         Task<IList<ProductSpecificationAttributeModel>> PrepareProductSpecificationAttributeModel(Product product);
         Task InsertProductSpecificationAttributeModel(ProductModel.AddProductSpecificationAttributeModel model, Product product);
-        Task UpdateProductSpecificationAttributeModel(Product product, ProductSpecificationAttribute psa, ProductSpecificationAttributeModel model);
+        Task UpdateProductSpecificationAttributeModel(Product product, ProductSpecificationAttribute psa, ProductModel.AddProductSpecificationAttributeModel model);
         Task DeleteProductSpecificationAttribute(Product product, ProductSpecificationAttribute psa);
     }
 }

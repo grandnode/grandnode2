@@ -465,6 +465,8 @@ namespace Grand.Web.Admin.Models.Catalog
                 AvailableOptions = new List<SelectListItem>();
             }
 
+            public string Id { get; set; }
+
             [GrandResourceDisplayName("Admin.Catalog.Products.SpecificationAttributes.Fields.SpecificationAttribute")]
             public string SpecificationAttributeId { get; set; }
 

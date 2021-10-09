@@ -32,18 +32,20 @@ namespace Grand.Web.Features.Handlers.Products
             var spa = new List<ProductSpecificationModel>();
             foreach (var item in request.Product.ProductSpecificationAttributes.Where(x => x.ShowOnProductPage).OrderBy(x => x.DisplayOrder))
             {
-                var specificationAttribute = await _specificationAttributeService.GetSpecificationAttributeById(item.SpecificationAttributeId);
-                var m = new ProductSpecificationModel {
-                    SpecificationAttributeId = item.SpecificationAttributeId,
-                    SpecificationAttributeName = specificationAttribute.GetTranslation(x => x.Name, request.Language.Id),
-                    ColorSquaresRgb = specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == item.SpecificationAttributeOptionId).FirstOrDefault() != null ? specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == item.SpecificationAttributeOptionId).FirstOrDefault().ColorSquaresRgb : "",
-                    UserFields = specificationAttribute.UserFields,
-                };
+                var m = new ProductSpecificationModel();
 
                 switch (item.AttributeTypeId)
                 {
                     case SpecificationAttributeType.Option:
-                        m.ValueRaw = WebUtility.HtmlEncode(specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == item.SpecificationAttributeOptionId).FirstOrDefault().GetTranslation(x => x.Name, request.Language.Id));
+                        var specificationAttribute = await _specificationAttributeService.GetSpecificationAttributeById(item.SpecificationAttributeId);
+                        if (specificationAttribute != null)
+                        {
+                            m.SpecificationAttributeId = item.SpecificationAttributeId;
+                            m.SpecificationAttributeName = specificationAttribute.GetTranslation(x => x.Name, request.Language.Id);
+                            m.ColorSquaresRgb = specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == item.SpecificationAttributeOptionId).FirstOrDefault() != null ? specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == item.SpecificationAttributeOptionId).FirstOrDefault().ColorSquaresRgb : "";
+                            m.UserFields = specificationAttribute.UserFields;
+                            m.ValueRaw = WebUtility.HtmlEncode(specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == item.SpecificationAttributeOptionId).FirstOrDefault().GetTranslation(x => x.Name, request.Language.Id));
+                        }
                         break;
                     case SpecificationAttributeType.CustomText:
                         m.ValueRaw = WebUtility.HtmlEncode(item.CustomValue);

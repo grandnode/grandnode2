@@ -492,22 +492,6 @@ namespace Grand.Web.Admin.Services
                         Value = productAttribute.Id.ToString()
                     });
                 }
-
-
-                //specification attributes
-                var availableSpecificationAttributes = new List<SelectListItem>();
-                foreach (var sa in await _specificationAttributeService.GetSpecificationAttributes())
-                {
-                    availableSpecificationAttributes.Add(new SelectListItem {
-                        Text = sa.Name,
-                        Value = sa.Id.ToString()
-                    });
-                }
-                model.AddSpecificationAttributeModel.AvailableAttributes = availableSpecificationAttributes;
-
-                //default specs values
-                model.AddSpecificationAttributeModel.ShowOnProductPage = true;
-
             }
 
             //copy product
@@ -2794,15 +2778,12 @@ namespace Grand.Web.Admin.Services
             var items = new List<ProductSpecificationAttributeModel>();
             foreach (var x in product.ProductSpecificationAttributes.OrderBy(x => x.DisplayOrder))
             {
-                var specificationAttribute = await _specificationAttributeService.GetSpecificationAttributeById(x.SpecificationAttributeId);
                 var psaModel = new ProductSpecificationAttributeModel {
                     Id = x.Id,
                     AttributeTypeId = (int)x.AttributeTypeId,
-                    ProductSpecificationId = specificationAttribute.Id,
                     AttributeId = x.SpecificationAttributeId,
                     ProductId = product.Id,
                     AttributeTypeName = x.AttributeTypeId.GetTranslationEnum(_translationService, _workContext),
-                    AttributeName = specificationAttribute.Name,
                     AllowFiltering = x.AllowFiltering,
                     ShowOnProductPage = x.ShowOnProductPage,
                     DisplayOrder = x.DisplayOrder
@@ -2810,7 +2791,12 @@ namespace Grand.Web.Admin.Services
                 switch (x.AttributeTypeId)
                 {
                     case SpecificationAttributeType.Option:
-                        psaModel.ValueRaw = System.Net.WebUtility.HtmlEncode(specificationAttribute.SpecificationAttributeOptions.Where(y => y.Id == x.SpecificationAttributeOptionId).FirstOrDefault()?.Name);
+                        var specificationAttribute = await _specificationAttributeService.GetSpecificationAttributeById(x.SpecificationAttributeId);
+                        if (specificationAttribute != null)
+                        {
+                            psaModel.AttributeName = specificationAttribute.Name;
+                            psaModel.ValueRaw = System.Net.WebUtility.HtmlEncode(specificationAttribute.SpecificationAttributeOptions.Where(y => y.Id == x.SpecificationAttributeOptionId).FirstOrDefault()?.Name);
+                        }
                         psaModel.SpecificationAttributeOptionId = x.SpecificationAttributeOptionId;
                         break;
                     case SpecificationAttributeType.CustomText:
@@ -2852,19 +2838,9 @@ namespace Grand.Web.Admin.Services
             await _specificationAttributeService.InsertProductSpecificationAttribute(psa, product.Id);
             product.ProductSpecificationAttributes.Add(psa);
         }
-        public virtual async Task UpdateProductSpecificationAttributeModel(Product product, ProductSpecificationAttribute psa, ProductSpecificationAttributeModel model)
+        public virtual async Task UpdateProductSpecificationAttributeModel(Product product, ProductSpecificationAttribute psa, ProductModel.AddProductSpecificationAttributeModel model)
         {
-            if (model.AttributeTypeId == (int)SpecificationAttributeType.Option)
-            {
-                psa.AllowFiltering = model.AllowFiltering;
-                psa.SpecificationAttributeOptionId = model.SpecificationAttributeOptionId;
-            }
-            else
-            {
-                psa.CustomValue = model.ValueRaw;
-            }
-            psa.ShowOnProductPage = model.ShowOnProductPage;
-            psa.DisplayOrder = model.DisplayOrder;
+            psa = model.ToEntity(psa);
             await _specificationAttributeService.UpdateProductSpecificationAttribute(psa, model.ProductId);
         }
         public virtual async Task DeleteProductSpecificationAttribute(Product product, ProductSpecificationAttribute psa)
