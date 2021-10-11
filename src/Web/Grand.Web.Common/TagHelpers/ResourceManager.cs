@@ -8,60 +8,49 @@ namespace Grand.Web.Common.TagHelpers
 {
     public class ResourceManager : IResourceManager
     {
-        private List<IHtmlContent> _headScripts;
-        private List<IHtmlContent> _headerScripts;
-        private List<IHtmlContent> _footScripts;
+        private List<(IHtmlContent content, int order)> _headScripts;
+        private List<(IHtmlContent content, int order)> _headerScripts;
+        private List<(IHtmlContent content, int order)> _footScripts;
         private List<IHtmlContent> _templates;
         private List<LinkEntry> _links;
 
         public ResourceManager()
         {
             _links = new List<LinkEntry>();
+            _headScripts = new List<(IHtmlContent content, int order)>();
+            _headerScripts = new List<(IHtmlContent content, int order)>();
+            _footScripts = new List<(IHtmlContent content, int order)>();
         }
         public IEnumerable<IHtmlContent> GetRegisteredHeadScripts()
         {
-            return _headScripts == null ? Enumerable.Empty<IHtmlContent>() : _headScripts;
+            return _headScripts.OrderBy(x => x.order).Select(x => x.content);
         }
         public IEnumerable<IHtmlContent> GetRegisteredHeaderScripts()
         {
-            return _headerScripts == null ? Enumerable.Empty<IHtmlContent>() : _headerScripts;
+            return _headerScripts.OrderBy(x => x.order).Select(x => x.content);
         }
 
         public IEnumerable<IHtmlContent> GetRegisteredFootScripts()
         {
-            return _footScripts == null ? Enumerable.Empty<IHtmlContent>() : _footScripts;
+            return _footScripts.OrderBy(x => x.order).Select(x => x.content);
         }
         public IEnumerable<IHtmlContent> GetRegisteredTemplates()
         {
             return _templates == null ? Enumerable.Empty<IHtmlContent>() : _templates;
         }
 
-        public void RegisterHeadScript(IHtmlContent script)
+        public void RegisterHeadScript(IHtmlContent script, int order)
         {
-            if (_headScripts == null)
-            {
-                _headScripts = new List<IHtmlContent>();
-            }
-            _headScripts.Add(script);
+            _headScripts.Add((script, order));
         }
-        public void RegisterHeaderScript(IHtmlContent script)
+        public void RegisterHeaderScript(IHtmlContent script, int order)
         {
-            if (_headerScripts == null)
-            {
-                _headerScripts = new List<IHtmlContent>();
-            }
-
-            _headerScripts.Add(script);
+            _headerScripts.Add((script, order));
         }
 
-        public void RegisterFootScript(IHtmlContent script)
+        public void RegisterFootScript(IHtmlContent script, int order)
         {
-            if (_footScripts == null)
-            {
-                _footScripts = new List<IHtmlContent>();
-            }
-
-            _footScripts.Add(script);
+            _footScripts.Add((script, order));
         }
         public void RegisterTemplate(IHtmlContent script)
         {

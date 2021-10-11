@@ -56,7 +56,7 @@
                 }
                 @if (Model.TermsOfServiceEnabled)
                 {
-                    <script asp-location="Footer">
+                    <script asp-location="Footer" asp-order="300">
                         document.addEventListener("DOMContentLoaded", function () {
                             document.getElementById('apply-vendor').addEventListener('click', function () {
                                 if (document.getElementById('accept-terms-of-service').checked) {

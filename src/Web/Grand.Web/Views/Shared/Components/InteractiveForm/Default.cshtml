@@ -2,7 +2,7 @@
 <form asp-route="PopupInteractiveForm" method="post" id="interactive-form-@Model.InteractiveForm.Id">
     <div id="action-body-form">@Html.Raw(Model.Body)</div>
 </form>
-<script asp-location="Footer">
+<script asp-location="Footer" asp-order="300">
     $("#interactive-form-@Model.InteractiveForm.Id").submit(function (event) {
         event.preventDefault();
         var $form = $(this),

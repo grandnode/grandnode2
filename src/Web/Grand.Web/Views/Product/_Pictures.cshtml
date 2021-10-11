@@ -15,7 +15,7 @@
                         <vue-gallery-slideshow :images="images" :index="index" @@close="index=null"></vue-gallery-slideshow>
                     </div>
                 </script>
-                <script asp-location="Footer">
+                <script asp-location="Footer" asp-order="300">
                     Vue.component('gallery-images', {
                       template: '#picture',
                       data() {
@@ -84,7 +84,7 @@
                     </div>
                 </script>
                 <gallery-images></gallery-images>
-                <script asp-location="Footer">
+                <script asp-location="Footer" asp-order="300">
                     Vue.component('gallery-images', {
                           template: '#picture',
                           data() {
@@ -136,7 +136,7 @@
                              @@click="Gallery.extendOptions.methods.changeImg($event)" />
                     }
                 </div>
-                <script asp-location="Footer">
+                <script asp-location="Footer" asp-order="300">
                     var gallery = new Vue({
                         methods: {
                             changeImg(event) {

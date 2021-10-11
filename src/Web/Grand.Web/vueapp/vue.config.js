@@ -31,7 +31,7 @@
             },
         },
         output: {
-            filename: '[name].chunkhash.bundle.js',
+            filename: 'runtime.bundle.js',
         },
         resolve: {
             alias: {

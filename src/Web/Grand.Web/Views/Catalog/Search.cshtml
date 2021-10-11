@@ -6,7 +6,7 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Search"]);
 }
-<script asp-location="Footer">
+<script asp-location="Footer" asp-order="300">
     document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("@Html.IdFor(model => model.adv)").addEventListener('click', toggleAdvancedSearch);
         toggleAdvancedSearch();

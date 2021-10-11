@@ -39,7 +39,7 @@
     }
 </div>
 
-<script asp-location="Footer">
+<script asp-location="Footer" asp-order="300">
     document.addEventListener("DOMContentLoaded", function () {
         Reservation.init("@Model.StartDate.ToString("d", CultureInfo.CreateSpecificCulture("en-US"))", "@Model.StartDate.Year", "@Model.StartDate.Month", "@Loc["Products.Noavailablereservations"]",
             "@(Url.Action("GetDatesForMonth", "Product"))", "@Model.Id",

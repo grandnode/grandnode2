@@ -4,7 +4,7 @@
 }
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
-<script asp-location="Footer">
+<script asp-location="Footer" asp-order="300">
         function @Html.IdFor(model => model.CountryId)_select_element(e) {
             var selectedItem = e.value;
             var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");

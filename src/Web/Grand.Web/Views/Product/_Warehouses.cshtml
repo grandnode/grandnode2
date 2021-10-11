@@ -13,7 +13,7 @@
     </div>
     @if (Model.ProductAttributes.Any())
     {
-        <script asp-location="Footer">
+        <script asp-location="Footer" asp-order="300">
             @{
                 var attributeChangeHandlerFuncName = string.Format("attribute_change_handler_{0}();", Model.Id);
             }
@@ -24,7 +24,7 @@
     }
     else
     {
-        <script asp-location="Footer">
+        <script asp-location="Footer" asp-order="300">
             function warehouse_change_handler() {
                 var bodyFormData = new FormData();
                 bodyFormData.append('warehouseId', document.getElementById('WarehouseId').value);

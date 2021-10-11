@@ -1,5 +1,5 @@
 ﻿@model LocationModel
-<script asp-location="Footer">
+<script asp-location="Footer" asp-order="300">
     function getLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(useLocation);

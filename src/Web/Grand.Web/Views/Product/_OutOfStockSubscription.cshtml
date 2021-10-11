@@ -2,7 +2,7 @@
 @if (Model.DisplayOutOfStockSubscription)
 {
     <input type="button" id="out-of-stock-subscribe-@Model.Id" @@click="showModalOutOfStock" class="btn btn-secondary btn-sm subscribe-button" style="display:none;" value="@Loc["OutOfStockSubscriptions.NotifyMeWhenAvailable"]" />
-    <script asp-location="Footer">
+    <script asp-location="Footer" asp-order="300">
         document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("out-of-stock-subscribe-@Model.Id").addEventListener('click', function (event) {
                 var form = document.querySelector('#product-details-form');
