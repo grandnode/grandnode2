@@ -354,6 +354,14 @@ namespace Grand.Web.Admin.Services
 
             merchandiseReturnNote.MerchandiseReturnId = merchandiseReturn.Id;
             await _merchandiseReturnService.DeleteMerchandiseReturnNote(merchandiseReturnNote);
+
+            //delete an old "attachment" file
+            if (!string.IsNullOrEmpty(merchandiseReturnNote.DownloadId))
+            {
+                var attachment = await _downloadService.GetDownloadById(merchandiseReturnNote.DownloadId);
+                if (attachment != null)
+                    await _downloadService.DeleteDownload(attachment);
+            }
         }
     }
 }

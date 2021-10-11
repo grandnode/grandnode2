@@ -1044,6 +1044,21 @@ namespace Grand.Web.Admin.Services
         public virtual async Task DeleteProduct(Product product)
         {
             await _productService.DeleteProduct(product);
+
+            //delete an "download" file
+            if (!string.IsNullOrEmpty(product.DownloadId))
+            {
+                var download = await _downloadService.GetDownloadById(product.DownloadId);
+                if (download != null)
+                    await _downloadService.DeleteDownload(download);
+            }
+
+            if (!string.IsNullOrEmpty(product.SampleDownloadId))
+            {
+                var sampledownload = await _downloadService.GetDownloadById(product.SampleDownloadId);
+                if (sampledownload != null)
+                    await _downloadService.DeleteDownload(sampledownload);
+            }
             //activity log
             await _customerActivityService.InsertActivity("DeleteProduct", product.Id, _translationService.GetResource("ActivityLog.DeleteProduct"), product.Name);
         }
@@ -1063,8 +1078,7 @@ namespace Grand.Web.Admin.Services
                     if (!(product.LimitedToStores && product.Stores.Contains(_workContext.CurrentCustomer.StaffStoreId) && product.Stores.Count == 1))
                         continue;
                 }
-
-                await _productService.DeleteProduct(product);
+                await DeleteProduct(product);
             }
         }
         public virtual async Task<ProductModel.AddRequiredProductModel> PrepareAddRequiredProductModel()

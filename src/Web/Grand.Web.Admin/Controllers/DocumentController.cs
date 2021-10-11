@@ -71,16 +71,7 @@ namespace Grand.Web.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (string.IsNullOrEmpty(model.CustomerId))
-                    model.CustomerId = (await _customerService.GetCustomerByEmail(model.CustomerEmail))?.Id;
-
-                var document = model.ToEntity();
-                document.CreatedOnUtc = DateTime.UtcNow;
-
-                await _documentService.Insert(document);
-
-                //activity log
-                await _customerActivityService.InsertActivity("AddNewDocument", document.Id, _translationService.GetResource("ActivityLog.AddNewDocument"), document.Name);
+                var document = await _documentViewModelService.InsertDocument(model);
 
                 Success(_translationService.GetResource("Admin.Documents.Document.Added"));
                 return continueEditing ? RedirectToAction("EditDocument", new { id = document.Id }) : RedirectToAction("List");
@@ -112,16 +103,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                if (string.IsNullOrEmpty(model.CustomerId))
-                    model.CustomerId = (await _customerService.GetCustomerByEmail(model.CustomerEmail))?.Id;
-
-                document = model.ToEntity(document);
-                document.UpdatedOnUtc = DateTime.UtcNow;
-
-                await _documentService.Update(document);
-
-                //activity log
-                await _customerActivityService.InsertActivity("EditDocument", document.Id, _translationService.GetResource("ActivityLog.EditDocument"), document.Name);
+                document = await _documentViewModelService.UpdateDocument(document, model);
 
                 Success(_translationService.GetResource("Admin.Documents.Document.Updated"));
                 return continueEditing ? RedirectToAction("EditDocument", new { id = document.Id }) : RedirectToAction("List");
@@ -142,10 +124,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                await _documentService.Delete(document);
-
-                //activity log
-                await _customerActivityService.InsertActivity("DeleteDocument", document.Id, _translationService.GetResource("ActivityLog.DeleteDocument"), document.Name);
+                await _documentViewModelService.DeleteDocument(document);
 
                 Success(_translationService.GetResource("Admin.Documents.Document.Deleted"));
                 return RedirectToAction("List");

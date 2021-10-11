@@ -122,7 +122,7 @@ namespace Grand.Business.Common.Services.Pdf
                     ContentType = "application/pdf",
                 };
 
-                download.DownloadObjectId = await _storeFilesContext.BucketUploadFromBytesAsync(download.Filename, ms.ToArray());
+                download.DownloadObjectId = await _storeFilesContext.BucketUploadFromBytes(download.Filename, ms.ToArray());
                 await _downloadRepository.InsertAsync(download);
 
                 //TODO

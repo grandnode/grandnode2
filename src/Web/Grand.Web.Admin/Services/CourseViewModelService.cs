@@ -38,6 +38,7 @@ namespace Grand.Web.Admin.Services
         private readonly ITranslationService _translationService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly IProductCourseService _productCourseService;
+        private readonly IDownloadService _downloadService;
         private readonly IServiceProvider _serviceProvider;
         private readonly SeoSettings _seoSettings;
 
@@ -45,6 +46,7 @@ namespace Grand.Web.Admin.Services
             ICourseSubjectService courseSubjectService,
             ISlugService slugService, IPictureService pictureService, ILanguageService languageService,
             ITranslationService translationService, ICustomerActivityService customerActivityService, IProductCourseService productCourseService,
+            IDownloadService downloadService,
             IServiceProvider serviceProvider,
             SeoSettings seoSettings)
         {
@@ -58,6 +60,7 @@ namespace Grand.Web.Admin.Services
             _translationService = translationService;
             _customerActivityService = customerActivityService;
             _productCourseService = productCourseService;
+            _downloadService = downloadService;
             _serviceProvider = serviceProvider;
             _seoSettings = seoSettings;
         }
@@ -72,7 +75,7 @@ namespace Grand.Web.Admin.Services
 
             foreach (var item in await _courseLevelService.GetAll())
             {
-                model.AvailableLevels.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem()
+                model.AvailableLevels.Add(new SelectListItem()
                 {
                     Text = item.Name,
                     Value = item.Id
@@ -147,7 +150,6 @@ namespace Grand.Web.Admin.Services
             if (!string.IsNullOrEmpty(course.ProductId))
                 await _productCourseService.UpdateCourseOnProduct(course.ProductId, course.Id);
 
-
             //activity log
             await _customerActivityService.InsertActivity("EditCourse", course.Id, _translationService.GetResource("ActivityLog.EditCourse"), course.Name);
 
@@ -171,7 +173,7 @@ namespace Grand.Web.Admin.Services
 
             foreach (var item in await _courseSubjectService.GetByCourseId(courseId))
             {
-                model.AvailableSubjects.Add(new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem()
+                model.AvailableSubjects.Add(new SelectListItem()
                 {
                     Text = item.Name,
                     Value = item.Id
@@ -192,6 +194,9 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<CourseLesson> UpdateCourseLessonModel(CourseLesson lesson, CourseLessonModel model)
         {
+            var prevAttachmentId = lesson.AttachmentId;
+            var prevVideoFile = lesson.VideoFile;
+
             string prevPictureId = lesson.PictureId;
             lesson = model.ToEntity(lesson);
             await _courseLessonService.Update(lesson);
@@ -204,6 +209,22 @@ namespace Grand.Web.Admin.Services
                     await _pictureService.DeletePicture(prevPicture);
             }
 
+            //delete an old "attachment" file (if deleted or updated)
+            if (!string.IsNullOrEmpty(prevAttachmentId) && prevAttachmentId != lesson.AttachmentId)
+            {
+                var prevAttachment = await _downloadService.GetDownloadById(prevAttachmentId);
+                if (prevAttachment != null)
+                    await _downloadService.DeleteDownload(prevAttachment);
+            }
+
+            //delete an old "video" file (if deleted or updated)
+            if (!string.IsNullOrEmpty(prevVideoFile) && prevVideoFile != lesson.VideoFile)
+            {
+                var prevVideo = await _downloadService.GetDownloadById(prevVideoFile);
+                if (prevVideo != null)
+                    await _downloadService.DeleteDownload(prevVideo);
+            }
+
             //activity log
             await _customerActivityService.InsertActivity("EditCourseLesson", lesson.Id, _translationService.GetResource("ActivityLog.EditLessonCourse"), lesson.Name);
 
@@ -212,6 +233,21 @@ namespace Grand.Web.Admin.Services
         public virtual async Task DeleteCourseLesson(CourseLesson lesson)
         {
             await _courseLessonService.Delete(lesson);
+
+            if (!string.IsNullOrEmpty(lesson.VideoFile))
+            {
+                var prevVideo = await _downloadService.GetDownloadById(lesson.VideoFile);
+                if (prevVideo != null)
+                    await _downloadService.DeleteDownload(prevVideo);
+            }
+
+            if (!string.IsNullOrEmpty(lesson.AttachmentId))
+            {
+                var prevAttachment = await _downloadService.GetDownloadById(lesson.AttachmentId);
+                if (prevAttachment != null)
+                    await _downloadService.DeleteDownload(prevAttachment);
+            }
+
             //activity log
             await _customerActivityService.InsertActivity("DeleteCourseLesson", lesson.Id, _translationService.GetResource("ActivityLog.DeleteCourseLesson"), lesson.Name);
         }

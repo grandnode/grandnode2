@@ -280,6 +280,14 @@ namespace Grand.Web.Admin.Services
 
             shipmentNote.ShipmentId = shipment.Id;
             await _shipmentService.DeleteShipmentNote(shipmentNote);
+
+            //delete an old "attachment" file
+            if (!string.IsNullOrEmpty(shipmentNote.DownloadId))
+            {
+                var attachment = await _downloadService.GetDownloadById(shipmentNote.DownloadId);
+                if (attachment != null)
+                    await _downloadService.DeleteDownload(attachment);
+            }
         }
 
         public virtual async Task LogShipment(string shipmentId, string message)

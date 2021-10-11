@@ -3,6 +3,7 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Messages.Interfaces;
+using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Messages;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Messages;
@@ -29,6 +30,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly ITranslationService _translationService;
         private readonly IMessageTokenProvider _messageTokenProvider;
         private readonly IStoreService _storeService;
+        private readonly IDownloadService _downloadService;
         private readonly EmailAccountSettings _emailAccountSettings;
 
         #endregion Fields
@@ -41,6 +43,7 @@ namespace Grand.Web.Admin.Controllers
             ITranslationService translationService,
             IMessageTokenProvider messageTokenProvider,
             IStoreService storeService,
+            IDownloadService downloadService,
             EmailAccountSettings emailAccountSettings)
         {
             _messageTemplateService = messageTemplateService;
@@ -49,6 +52,7 @@ namespace Grand.Web.Admin.Controllers
             _translationService = translationService;
             _messageTokenProvider = messageTokenProvider;
             _storeService = storeService;
+            _downloadService = downloadService;
             _emailAccountSettings = emailAccountSettings;
         }
 
@@ -197,6 +201,8 @@ namespace Grand.Web.Admin.Controllers
                 //No message template found with the specified id
                 return RedirectToAction("List");
 
+            var prevAttachment = messageTemplate.AttachedDownloadId;
+
             if (ModelState.IsValid)
             {
                 messageTemplate = model.ToEntity(messageTemplate);
@@ -205,6 +211,14 @@ namespace Grand.Web.Admin.Controllers
                     messageTemplate.AttachedDownloadId = "";
                 if (model.SendImmediately)
                     messageTemplate.DelayBeforeSend = null;
+
+                //delete an old "attachment" file
+                if (!string.IsNullOrEmpty(prevAttachment) && prevAttachment!= messageTemplate.AttachedDownloadId)
+                {
+                    var attachment = await _downloadService.GetDownloadById(prevAttachment);
+                    if (attachment != null)
+                        await _downloadService.DeleteDownload(attachment);
+                }
 
                 await _messageTemplateService.UpdateMessageTemplate(messageTemplate);
 
@@ -240,6 +254,14 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("List");
 
             await _messageTemplateService.DeleteMessageTemplate(messageTemplate);
+
+            //delete an old "attachment" file
+            if (!string.IsNullOrEmpty(messageTemplate.AttachedDownloadId))
+            {
+                var attachment = await _downloadService.GetDownloadById(messageTemplate.AttachedDownloadId);
+                if (attachment != null)
+                    await _downloadService.DeleteDownload(attachment);
+            }
 
             Success(_translationService.GetResource("Admin.Content.MessageTemplates.Deleted"));
             return RedirectToAction("List");
