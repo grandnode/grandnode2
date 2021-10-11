@@ -67,12 +67,12 @@
                                                 <span v-if="vmorder.cart.ShowSku" class="sku-number">
                                                     {{item.Sku}}
                                                 </span>
-                                                <div v-if="item.AttributeInfo != ''" v-html="item.AttributeInfo" class="attributes small"></div>
-                                                <div v-if="item.WarehouseName != null" v-html="item.WarehouseName" class="attributes small"></div>
-                                                <div v-if="item.VendorName != null" v-html="item.VendorName" class="attributes small"></div>
-                                                <div v-if="item.AuctionInfo != ''" v-html="item.AuctionInfo" class="attributes small"></div>
-                                                <div v-if="item.RecurringInfo != null" v-html="item.RecurringInfo" class="recurring-info"></div>
-                                                <div v-if="item.ReservationInfo != null" v-html="item.ReservationInfo" class="rental-info attributes small"></div>
+                                                <div v-if="item.AttributeInfo !== ''" v-html="item.AttributeInfo" class="attributes small"></div>
+                                                <div v-if="item.WarehouseName !== null" v-html="item.WarehouseName" class="attributes small"></div>
+                                                <div v-if="item.VendorName !== null" v-html="item.VendorName" class="attributes small"></div>
+                                                <div v-if="item.AuctionInfo !== null" v-html="item.AuctionInfo" class="attributes small"></div>
+                                                <div v-if="item.RecurringInfo !== null" v-html="item.RecurringInfo" class="recurring-info"></div>
+                                                <div v-if="item.ReservationInfo !== null" v-html="item.ReservationInfo" class="rental-info attributes small"></div>
                                                 <div v-if="typeof item.Warnings !== 'undefined' && item.Warnings.length > 0" class="message-error small alert alert-danger mt-2 mb-0">
                                                     <ul v-for="warning in item.Warnings" class="mb-0 p-0">
                                                         <li>{{warning}}</li>

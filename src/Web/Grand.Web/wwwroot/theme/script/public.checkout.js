@@ -1,61 +1,63 @@
-var Order = Vue.extend({
-    props: {
-        cart: null,
-        totals: null,
-        checkoutAsGuest: false,
-        BillingAddress: false,
-        ShippingMethod: false,
-        PaymentMethod: false,
-        PaymentInfo: false,
-        Confirm: false,
-        // billing address
-        BillingExistingAddresses: null,
-        BillingNewAddress: null,
-        BillingNewAddressPreselected: null,
-        BillingWarnings: null,
-        // shipping address
-        ShippingAllowPickUpInStore: null,
-        ShippingExistingAddresses: null,
-        ShippingNewAddress: null,
-        ShippingNewAddressPreselected: null,
-        ShippingPickUpInStore: null,
-        ShippingPickUpInStoreOnly: null,
-        ShippingPickupPoints: null,
-        ShippingWarnings: null,
-        ShippingMethodError: null,
-        // shipping method
-        ShippingMethods: null,
-        ShippingMethodWarnings: null,
-        // payment methods
-        DisplayLoyaltyPoints: null,
-        PaymentMethods: null,
-        LoyaltyPointsAmount: null,
-        LoyaltyPointsBalance: null,
-        LoyaltyPointsEnoughToPayForOrder: null,
-        UseLoyaltyPoints: null,
-        // payment info
-        PaymentViewComponentName: null,
-        // confirm order
-        MinOrderTotalWarning: null,
-        TermsOfServiceOnOrderConfirmPage: null,
-        ConfirmWarnings: null,
-        // terms of service
-        terms: false,
-        acceptTerms: false,
-        // checkout steps methods
-        Checkout: null,
-        vShipping: null,
-        vBilling: null,
-        vShippingMethod: null,
-        vPaymentMethod: null,
-        vPaymentInfo: null,
-        vConfirmOrder: null,
-        // paymentinfobussy
-        paymentBussy: false,
-        // shippingbussy
-        shippingBussy: false,
-        // selectedshipping
-        selectedShippingMethod: 0
+var vmorder = new Vue({
+    data: function () {
+        return {
+            cart: null,
+            totals: null,
+            checkoutAsGuest: false,
+            BillingAddress: false,
+            ShippingMethod: false,
+            PaymentMethod: false,
+            PaymentInfo: false,
+            Confirm: false,
+            // billing address
+            BillingExistingAddresses: null,
+            BillingNewAddress: null,
+            BillingNewAddressPreselected: null,
+            BillingWarnings: null,
+            // shipping address
+            ShippingAllowPickUpInStore: null,
+            ShippingExistingAddresses: null,
+            ShippingNewAddress: null,
+            ShippingNewAddressPreselected: null,
+            ShippingPickUpInStore: null,
+            ShippingPickUpInStoreOnly: null,
+            ShippingPickupPoints: null,
+            ShippingWarnings: null,
+            ShippingMethodError: null,
+            // shipping method
+            ShippingMethods: null,
+            ShippingMethodWarnings: null,
+            // payment methods
+            DisplayLoyaltyPoints: null,
+            PaymentMethods: null,
+            LoyaltyPointsAmount: null,
+            LoyaltyPointsBalance: null,
+            LoyaltyPointsEnoughToPayForOrder: null,
+            UseLoyaltyPoints: null,
+            // payment info
+            PaymentViewComponentName: null,
+            // confirm order
+            MinOrderTotalWarning: null,
+            TermsOfServiceOnOrderConfirmPage: null,
+            ConfirmWarnings: null,
+            // terms of service
+            terms: false,
+            acceptTerms: false,
+            // checkout steps methods
+            Checkout: null,
+            vShipping: null,
+            vBilling: null,
+            vShippingMethod: null,
+            vPaymentMethod: null,
+            vPaymentInfo: null,
+            vConfirmOrder: null,
+            // paymentinfobussy
+            paymentBussy: false,
+            // shippingbussy
+            shippingBussy: false,
+            // selectedshipping
+            selectedShippingMethod: 0
+        }
     },
     methods: {
         setDisabled(e) {
@@ -823,7 +825,7 @@ var Order = Vue.extend({
             });
         }
     },
-    mounted() {
+    created() {
         this.vmCheckout();
         this.vmShipping();
         this.vmBilling();
@@ -885,4 +887,3 @@ var Order = Vue.extend({
         },
     }
 });
-var vmorder = new Order().$mount('#ordersummarypagecart')
