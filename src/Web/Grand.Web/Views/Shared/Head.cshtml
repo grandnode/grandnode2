@@ -3,7 +3,33 @@
 @{
     var supportRtl = workContext.WorkingLanguage.Rtl;
 
-    <link rel="stylesheet" type="text/css" asp-src="/bundles/libs.css">
+    <link asp-src="/bundles/css/animate.css.css" rel="preload" as="style">
+    <link asp-src="/bundles/css/bootstrap-vue.css" rel="preload" as="style">
+    <link asp-src="/bundles/css/bootstrap.css" rel="preload" as="style">
+    <link asp-src="/bundles/css/pikaday.css" rel="preload" as="style">
+    <link asp-src="/bundles/js/animate.css.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/app.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/axios.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/bootstrap-vue.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/bootstrap.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/core-js.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/node-libs-browser.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/path-browserify.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/pikaday.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/popper.js.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/portal-vue.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/vee-validate.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/vue-awesome-countdown.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/vue-functional-data-merge.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/vue-gallery-slideshow.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/vue.js" rel="preload" as="script">
+    <link asp-src="/bundles/js/webpack.js" rel="preload" as="script">
+    <link asp-src="/bundles/runtime.chunkhash.bundle.js" rel="preload" as="script">
+    <link asp-src="/bundles/css/bootstrap-vue.css" rel="stylesheet">
+    <link asp-src="/bundles/css/pikaday.css" rel="stylesheet">
+    <link asp-src="/bundles/css/animate.css.css" rel="stylesheet">
+    <link asp-src="/bundles/css/bootstrap.css" rel="stylesheet">
+
     <link rel="stylesheet" type="text/css" asp-src="/assets/custom/style.css">
 
     <environment include="Development">
@@ -37,14 +63,33 @@
         }
     </environment>
 
+
+    <script asp-location="Footer" asp-src="/bundles/runtime.chunkhash.bundle.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/bootstrap-vue.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/core-js.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/axios.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/pikaday.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/animate.css.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/bootstrap.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/node-libs-browser.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/path-browserify.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/popper.js.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/portal-vue.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/vee-validate.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/vue-awesome-countdown.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/vue-functional-data-merge.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/vue-gallery-slideshow.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/vue.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/webpack.js"></script>
+    <script asp-location="Footer" asp-src="/bundles/js/app.js"></script>
+
     <environment include="Development">
-        <script asp-src="/bundles/libs.js"></script>
-        <script asp-src="/theme/script/validation-config.min.js"></script>
-        <script asp-src="/theme/script/public.common.js"></script>
-        <script asp-src="/theme/script/public.axios.js"></script>
+        <script asp-location="Footer" asp-src="/theme/script/validation-config.min.js"></script>
+        <script asp-location="Footer" asp-src="/theme/script/public.common.js"></script>
+        <script asp-location="Footer" asp-src="/theme/script/public.axios.js"></script>
     </environment>
     <environment include="Production">
-        <script src="/bundles/site.min.js"></script>
+        <script asp-location="Footer" asp-src="/bundles/site.min.js"></script>
     </environment>
 
     <script asp-location="Footer" asp-src="/theme/script/app.js"></script>
