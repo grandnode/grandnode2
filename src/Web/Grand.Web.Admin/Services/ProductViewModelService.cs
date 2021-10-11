@@ -601,9 +601,6 @@ namespace Grand.Web.Admin.Services
             foreach (var un in units)
                 model.AvailableUnits.Add(new SelectListItem { Text = un.Name, Value = un.Id.ToString(), Selected = product != null && un.Id == product.UnitId });
 
-            //default specs values
-            model.AddSpecificationAttributeModel.ShowOnProductPage = true;
-
             //discounts
             model.AvailableDiscounts = (await _discountService
                 .GetAllDiscounts(DiscountType.AssignedToSkus, storeId: _workContext.CurrentCustomer.StaffStoreId, showHidden: true))

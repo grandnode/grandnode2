@@ -27,7 +27,6 @@ namespace Grand.Web.Admin.Models.Catalog
             AvailableProductAttributes = new List<SelectListItem>();
             AvailableUnits = new List<SelectListItem>();
             AddPictureModel = new ProductPictureModel();
-            AddSpecificationAttributeModel = new AddProductSpecificationAttributeModel();
             ProductWarehouseInventoryModels = new List<ProductWarehouseInventoryModel>();
             CalendarModel = new GenerateCalendarModel();
         }
@@ -404,8 +403,7 @@ namespace Grand.Web.Admin.Models.Catalog
         //discounts
         public List<DiscountModel> AvailableDiscounts { get; set; }
         public string[] SelectedDiscountIds { get; set; }
-        //add specification attribute model
-        public AddProductSpecificationAttributeModel AddSpecificationAttributeModel { get; set; }
+
         //multiple warehouses
         [GrandResourceDisplayName("Admin.Catalog.Products.ProductWarehouseInventory")]
         public IList<ProductWarehouseInventoryModel> ProductWarehouseInventoryModels { get; set; }
