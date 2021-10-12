@@ -57,8 +57,6 @@
   {
     "outputFileName": "wwwroot/bundles/site.min.js",
     "inputFiles": [
-      "wwwroot/bundles/libs.js",
-      "wwwroot/theme/script/validation-config.min.js",
       "wwwroot/theme/script/public.common.min.js",
       "wwwroot/theme/script/public.axios.min.js"
     ],
