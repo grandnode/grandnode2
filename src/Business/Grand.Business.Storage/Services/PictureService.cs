@@ -846,11 +846,11 @@ namespace Grand.Business.Storage.Services
 
             try
             {
-                using (var resized = image.Resize(new SKImageInfo((int)width, (int)height), SKFilterQuality.None))
+                using (var resized = image.Resize(new SKImageInfo((int)width, (int)height), SKFilterQuality.High))
                 {
                     using (var resimage = SKImage.FromBitmap(resized))
                     {
-                        return resimage.Encode(format, 100).ToArray();
+                        return resimage.Encode(format, 95).ToArray();
                     }
                 }
             }
