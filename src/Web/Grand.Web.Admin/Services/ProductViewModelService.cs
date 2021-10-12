@@ -3053,16 +3053,14 @@ namespace Grand.Web.Admin.Services
             var items = new List<ProductSpecificationAttributeModel>();
             foreach (var x in product.ProductSpecificationAttributes.OrderBy(x => x.DisplayOrder))
             {
-                var specificationAttribute = await _specificationAttributeService.GetSpecificationAttributeById(x.SpecificationAttributeId);
                 var psaModel = new ProductSpecificationAttributeModel
                 {
                     Id = x.Id,
                     AttributeTypeId = (int)x.AttributeTypeId,
-                    ProductSpecificationId = specificationAttribute.Id,
+                    ProductSpecificationId = x.SpecificationAttributeId,
                     AttributeId = x.SpecificationAttributeId,
                     ProductId = product.Id,
                     AttributeTypeName = x.AttributeTypeId.GetTranslationEnum(_translationService, _workContext),
-                    AttributeName = specificationAttribute.Name,
                     AllowFiltering = x.AllowFiltering,
                     ShowOnProductPage = x.ShowOnProductPage,
                     DisplayOrder = x.DisplayOrder
@@ -3070,8 +3068,14 @@ namespace Grand.Web.Admin.Services
                 switch (x.AttributeTypeId)
                 {
                     case SpecificationAttributeType.Option:
-                        psaModel.ValueRaw = System.Net.WebUtility.HtmlEncode(specificationAttribute.SpecificationAttributeOptions.Where(y => y.Id == x.SpecificationAttributeOptionId).FirstOrDefault()?.Name);
-                        psaModel.SpecificationAttributeOptionId = x.SpecificationAttributeOptionId;
+                        var specificationAttribute = await _specificationAttributeService.GetSpecificationAttributeById(x.SpecificationAttributeId);
+                        if (specificationAttribute != null)
+                        {
+                            psaModel.ValueRaw = System.Net.WebUtility.HtmlEncode(specificationAttribute.SpecificationAttributeOptions.Where(y => y.Id == x.SpecificationAttributeOptionId).FirstOrDefault()?.Name);
+                            psaModel.SpecificationAttributeOptionId = x.SpecificationAttributeOptionId;
+                            psaModel.AttributeName = specificationAttribute.Name;
+
+                        }
                         break;
                     case SpecificationAttributeType.CustomText:
                         psaModel.ValueRaw = System.Net.WebUtility.HtmlEncode(x.CustomValue);
