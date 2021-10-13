@@ -108,6 +108,9 @@
             var Image = parent.querySelectorAll(".main-product-img")[0];
             Image.setAttribute('src', Imagesrc);
         },
+        formSubmit() {
+            vm.$refs.form.submit();
+        },
         validateBeforeSubmit() {
                 this.$refs.form.validate().then(success => {
                 if (success) {

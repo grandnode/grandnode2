@@ -146,14 +146,9 @@ Vue.component('BIconSun', BIconSun)
 Vue.component('BIconFileEarmarkRichtext', BIconFileEarmarkRichtext)
 Vue.component('BIconHammer', BIconHammer)
 
-import axios from 'axios'
-import Pikaday from 'pikaday'
-
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 Vue.component('ValidationProvider', ValidationProvider);
 Vue.component('ValidationObserver', ValidationObserver);
-
-import { confirmed } from 'vee-validate/dist/rules';
 
 import { extend } from 'vee-validate';
 extend('min', {
@@ -222,24 +217,10 @@ export function vee_getMessage(field, rule) {
 }
 // Override the default message.
 
-
-import { configure } from 'vee-validate';
-
-const config = {
-    classes: {
-        valid: 'is-valid',
-        invalid: 'is-invalid'
-    },
-    bails: true,
-    skipOptional: true,
-    mode: 'aggressive',
-    useConstraintAttrs: true
-};
-
-// Sets the options.
-configure(config);
-
 import VueGallerySlideshow from 'vue-gallery-slideshow'
+
+import axios from 'axios'
+import Pikaday from 'pikaday'
 
 window.axios = require('axios').default;
 window.Pikaday = require('pikaday');
