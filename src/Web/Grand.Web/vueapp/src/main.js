@@ -172,7 +172,6 @@ extend('min', {
 
 extend('email', {
     validate: value => {
-        console.log('validate email');
         // if the field is empty
         if (!value) {
             return true;
