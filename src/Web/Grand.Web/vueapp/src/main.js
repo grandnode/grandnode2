@@ -149,53 +149,30 @@ Vue.component('BIconHammer', BIconHammer)
 import axios from 'axios'
 import Pikaday from 'pikaday'
 
-import VeeValidate from 'vee-validate/dist/vee-validate.minimal';
+import { ValidationObserver, ValidationProvider } from 'vee-validate';
+Vue.component('ValidationProvider', ValidationProvider);
+Vue.component('ValidationObserver', ValidationObserver);
 
-const config = {
-    inject: true,
-    // Important to name this something other than 'fields'
-    fieldsBagName: 'veeFields',
-    // This is not required but avoids possible naming conflicts
-    errorBagName: 'veeErrors',
-    classes: true,
-    classNames: {
-        valid: 'is-valid',
-        invalid: 'is-invalid'
-    }
-}
+import { confirmed } from 'vee-validate/dist/rules';
 
-Vue.use(VeeValidate, config);
-const vee = new VeeValidate(config, Vue);
-
-export function vee_getMessage(field, rule) {
-    var element = document.getElementsByName(field);
-    if (element && element[0]) {
-        var text = element[0].getAttribute('data-val-' + rule);
-        if (text)
-            return text;
-    }
-}
-
-vee._validator.extend('required', {
-    getMessage: field => {
-        var text = vee_getMessage(field, 'required');
+import { extend } from 'vee-validate';
+extend('min', {
+    validate(value, args) {
+        return value.length >= args.length;
+    },
+    params: ['length'],
+    message: (fieldName) => {
+        var text = vee_getMessage(fieldName, 'email');
         if (text) {
             return text;
         }
-        return 'The ' + field + ' field is required.'
-    },
-    validate: value => !!value
+        return 'This ' + fieldName + ' should have at least  characters.'
+    }
 });
 
-vee._validator.extend('email', {
-    getMessage: field => {
-        var text = vee_getMessage(field, 'email');
-        if (text) {
-            return text;
-        }
-        return 'This field must be a valid email.'
-    },
+extend('email', {
     validate: value => {
+        console.log('validate email');
         // if the field is empty
         if (!value) {
             return true;
@@ -206,53 +183,62 @@ vee._validator.extend('email', {
         }
         // All is good
         return true;
-    }
-});
-
-vee._validator.extend('confirmed', {
-    paramNames: ['targetValue'],
-    validate: function (value, ref) {
-        return value === ref.targetValue;
     },
-    options: {
-        hasTarget: true
-    },
-    getMessage: field => {
-        var text = vee_getMessage(field, 'password');
+    message: (fieldName) => {
+        var text = vee_getMessage(fieldName, 'email');
         if (text) {
             return text;
         }
-        return 'Password confirmation does not match'
-    },
+        return 'This field must be a valid email.'
+    }
 });
 
-vee._validator.extend('min', {
-    getMessage: field => {
-        var text = vee_getMessage(field, 'length');
+extend('required', {
+    validate(value) {
+        return {
+            required: true,
+            valid: ['', null, undefined].indexOf(value) === -1
+        };
+    },
+    computesRequired: true,
+    message: (fieldName) => {
+        var text = vee_getMessage(fieldName, 'required');
         if (text) {
             return text;
         }
-        return 'This ' + field + ' should have at least  characters.'
-    },
-    options: {
-        hasTarget: true
-    },
-    paramNames: ['targetValue'],
-    validate: function (value, ref) {
-        // if the field is empty
-        if (!value) {
-            return true;
-        }
-        var element = document.getElementsByName(ref.targetValue);
-        var number = parseInt(element[0].getAttribute('data-val-length-min'));
-        var length = value.length;
-        if (length < number) {
-            return false;
-        }
-        // All is good
-        return true;
+        return 'The ' + fieldName + ' field is required.'
     }
 });
+
+//ValidationExtend('min', min);
+//ValidationExtend('confirmed', confirmed);
+
+export function vee_getMessage(field, rule) {
+    var element = document.getElementsByName(field);
+    if (element && element[0]) {
+        var text = element[0].getAttribute('data-val-' + rule);
+        if (text)
+            return text;
+    }
+}
+// Override the default message.
+
+
+import { configure } from 'vee-validate';
+
+const config = {
+    classes: {
+        valid: 'is-valid',
+        invalid: 'is-invalid'
+    },
+    bails: true,
+    skipOptional: true,
+    mode: 'aggressive',
+    useConstraintAttrs: true
+};
+
+// Sets the options.
+configure(config);
 
 import VueGallerySlideshow from 'vue-gallery-slideshow'
 

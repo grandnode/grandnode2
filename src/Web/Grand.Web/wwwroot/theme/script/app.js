@@ -108,9 +108,13 @@
             var Image = parent.querySelectorAll(".main-product-img")[0];
             Image.setAttribute('src', Imagesrc);
         },
-        validateBeforeSubmit: function (event) {
-            this.$validator.validateAll().then((result) => {
-                if (result) {
+        onSubmit() {
+            alert('Ok');
+        },
+        validateBeforeSubmit() {
+            alert('s');
+                this.$refs.form.validate().then(success => {
+                if (success) {
                     event.srcElement.submit();
                     return
                 } else {
