@@ -91,7 +91,7 @@
     }
     <h2 class="generalTitle">@Loc["Account.CustomerInfo"]</h2>
     <validation-observer v-slot="{ handleSubmit }">
-        <form asp-route="CustomerInfo" method="post" ref="form" v-on:submit.prevent="handleSubmit(customerinfo.formSubmit)">
+        <form asp-route="CustomerInfo" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
             <div asp-validation-summary="ModelOnly" class="message-error"></div>
             <div class="card mb-3">
                 <h3 class="card-header">@Loc["Account.YourPersonalDetails"]</h3>
@@ -125,7 +125,7 @@
                                 <validation-provider tag="div" rules="required" name="FirstName" v-slot="{ errors }">
                                     <label asp-for="FirstName" class="col-form-label">@Loc["Account.Fields.FirstName"]:</label>
                                     <span class="required">*</span>
-                                    <input asp-for="FirstName" ref="formelement" v-model="customerinfo.FirstName" class="form-control username" autofocus="autofocus" />
+                                    <input asp-for="FirstName" v-model="customerinfo.FirstName" class="form-control username" autofocus="autofocus" />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="FirstName"></span>
                                 </validation-provider>
@@ -143,7 +143,7 @@
                                 <validation-provider tag="div" rules="required" name="LastName" v-slot="{ errors }">
                                     <label asp-for="LastName" class="col-form-label">@Loc["Account.Fields.LastName"]:</label>
                                     <span class="required">*</span>
-                                    <input asp-for="LastName" ref="formelement" v-model="customerinfo.LastName" class="form-control" autofocus="autofocus" />
+                                    <input asp-for="LastName" v-model="customerinfo.LastName" class="form-control" autofocus="autofocus" />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="LastName"></span>
                                 </validation-provider>
