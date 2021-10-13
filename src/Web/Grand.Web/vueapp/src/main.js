@@ -151,17 +151,19 @@ Vue.component('ValidationProvider', ValidationProvider);
 Vue.component('ValidationObserver', ValidationObserver);
 
 import { extend } from 'vee-validate';
-extend('min', {
-    validate(value, args) {
-        return value.length >= args.length;
+
+extend('confirmed', {
+    params: ['target'],
+    // Target here is the value of the target field
+    validate(value, { target }) {
+        return value === target;
     },
-    params: ['length'],
     message: (fieldName) => {
-        var text = vee_getMessage(fieldName, 'email');
+        var text = vee_getMessage(fieldName, 'confirmed');
         if (text) {
             return text;
         }
-        return 'This ' + fieldName + ' should have at least  characters.'
+        return 'The ' + fieldName + ' field confirmation does not match.'
     }
 });
 
