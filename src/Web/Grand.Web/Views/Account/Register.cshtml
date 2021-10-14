@@ -180,7 +180,7 @@
                     }
                     <fieldset class="form-group mail">
                         <legend class="sr-only">@Loc["account.fields.email"]</legend>
-                        <validation-provider tag="div" rules="required" name="LastName" v-slot="{ errors }">
+                        <validation-provider tag="div" rules="required" name="Email" v-slot="{ errors }">
                             <label asp-for="Email" class="col-form-label">@Loc["Account.Fields.Email"]:</label>
                             <span class="required">*</span>
                             <input asp-for="Email" v-model="register.Email" class="form-control" autofocus="autofocus" />
