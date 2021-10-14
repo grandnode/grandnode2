@@ -7,7 +7,31 @@
 }
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
-    <script asp-location="Footer">
+    <script asp-location="Footer" asp-order="300">
+        var register = new Vue({
+            data: () => ({
+                @{
+                    <text>
+                        FirstName: '',
+                        LastName: '',
+                        Company: '',
+                        StreetAddress: '',
+                        StreetAddress2: '',
+                        ZipPostalCode: '',
+                        City: '',
+                        CountryId: '',
+                        StateProvinceId: '',
+                        Phone: '',
+                        Fax: '',
+                        Username: '',
+                        Email: '',
+                        Password: '',
+                        ConfirmPassword: '',
+                        AcceptPrivacyPolicy: false
+                    </text>
+                }
+            })
+        });
         document.addEventListener("DOMContentLoaded", function () {
 
             var select_element = document.getElementById('@Html.IdFor(model => model.CountryId)');
@@ -359,7 +383,6 @@
                             {
                                 <fieldset class="form-group col-12 col-sm-6">
                                     <legend class="sr-only">@Loc["account.fields.country"]</legend>
-                                    <label asp-for="CountryId" class="col-form-label">@Loc["Account.Fields.Country"]:</label>
                                     @if (Model.CountryRequired)
                                     {
                                         <validation-provider tag="div" rules="required" name="CountryId" v-slot="{ errors }">
@@ -373,6 +396,7 @@
                                     }
                                     else
                                     {
+                                        <label asp-for="CountryId" class="col-form-label">@Loc["Account.Fields.Country"]:</label>
                                         <select asp-for="CountryId" class="custom-select form-control" asp-items="Model.AvailableCountries"></select>
                                         <span asp-validation-for="CountryId"></span>
                                     }
@@ -389,6 +413,7 @@
                                                 asp-items="Model.AvailableStates" v-validate="'required'"></select>
                                         <span class="field-validation-error">{{ errors[0] }}</span>
                                         <span asp-validation-for="StateProvinceId"></span>
+                                        <span id="states-loading-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
                                     </validation-provider>
                                 </fieldset>
                             }
@@ -529,28 +554,3 @@
         <input type="submit" id="register-button" class="btn btn-secondary register-next-step-button my-3" value="@Loc["Account.Register.Button"]" />
     </form>
 </validation-observer>
-<script asp-location="Footer" asp-order="300">
-    var register = new Vue({
-        data: () => ({
-            @{
-                <text>
-                    FirstName: '',
-                    LastName: '',
-                    Company: '',
-                    StreetAddress: '',
-                    StreetAddress2: '',
-                    ZipPostalCode: '',
-                    City: '',
-                    CountryId: '',
-                    Phone: '',
-                    Fax: '',
-                    Username: '',
-                    Email: '',
-                    Password: '',
-                    ConfirmPassword: '',
-                    AcceptPrivacyPolicy: false
-                </text>
-            }
-        })
-    });
-</script>
