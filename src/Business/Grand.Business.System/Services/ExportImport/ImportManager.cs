@@ -755,6 +755,9 @@ namespace Grand.Business.System.Services.ExportImport
                     case "displayorder":
                         collection.DisplayOrder = property.IntValue;
                         break;
+                    case "externalid":
+                        collection.ExternalId = property.StringValue;
+                        break;
                 }
             }
         }

@@ -83,6 +83,8 @@ namespace Grand.Web.Admin.Models.Catalog
         [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
+        [GrandResourceDisplayName("Admin.Catalog.Collections.Fields.ExternalId")]
+        public string ExternalId { get; set; }
         public IList<CollectionLocalizedModel> Locales { get; set; }
 
         //ACL

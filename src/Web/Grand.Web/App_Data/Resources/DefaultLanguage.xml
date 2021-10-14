@@ -2409,6 +2409,9 @@
   <Resource Name="Admin.Catalog.Collections.Fields.DisplayOrder">
     <Value>Display order</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.Collections.Fields.ExternalId">
+    <Value>External identifier</Value>
+  </Resource>  
   <Resource Name="Admin.Catalog.Collections.Fields.FeaturedProductsOnHomePage">
     <Value>Show featured products on home page</Value>
   </Resource>
