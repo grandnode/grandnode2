@@ -33,6 +33,7 @@ namespace Grand.Api.Commands.Models.Catalog
                 }
                 else
                 {
+                    psa.CustomName = request.Model.CustomName;
                     psa.CustomValue = request.Model.CustomValue;
                 }
                 psa.SpecificationAttributeId = request.Model.SpecificationAttributeId;

@@ -112,7 +112,7 @@
                         field: "ValueRaw",
                         encoded: false,
                         title: "@Loc["Admin.Catalog.Products.SpecificationAttributes.Fields.Value"]",
-                        template: "# if(AttributeTypeId != 0) {# <a class='k-link btnMagnificPopup' href='@Url.Action("ProductSpecAttrPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&id=#=Id#'>#=ValueRaw#</a> #} else {# <a class='k-link btnMagnificPopup' href='@Url.Action("ProductSpecAttrPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&id=#=Id#'>#=AttributeName# : #=ValueRaw#</a> #} #"
+                    template: "<a class='k-link btnMagnificPopup' href='@Url.Action("ProductSpecAttrPopup", "Product", new { area = Constants.AreaAdmin })/?productId=@(Model.Id)&id=#=Id#'>#=kendo.htmlEncode(AttributeName)# : #=ValueRaw# </a>"
                     }, {
                         field: "AllowFiltering",
                         title: "@Loc["Admin.Catalog.Products.SpecificationAttributes.Fields.AllowFiltering"]",

@@ -8,7 +8,6 @@
       asp-route-ProductId="@Context.Request.Query["ProductId"]"
       asp-route-Id="@Context.Request.Query["Id"]">
 
-
     <div asp-validation-summary="All"></div>
     <input asp-for="ProductId" type="hidden" />
     <input asp-for="Id" type="hidden" />
@@ -51,6 +50,13 @@
                                 <div class="col-md-9 col-sm-9">
                                     <admin-select asp-for="SpecificationAttributeOptionId" asp-items="Model.AvailableOptions" />
                                     <span asp-validation-for="SpecificationAttributeOptionId"></span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="pnlCustomName">
+                                <admin-label asp-for="CustomName" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="CustomName" />
+                                    <span asp-validation-for="CustomName"></span>
                                 </div>
                             </div>
                             <div class="form-group" id="pnlCustomValue">
@@ -140,8 +146,12 @@
                     success: function (data) {
                         var ddlSpecOptions = $("#@Html.IdFor(model => model.SpecificationAttributeOptionId)");
                         ddlSpecOptions.html('');
-                        $.each(data, function(id, option) {
-                            ddlSpecOptions.append($('<option></option>').val(option.id).html(kendo.htmlEncode(option.name)));
+                        $.each(data, function (id, option) {
+                            var selected = '';
+                            if ('@Model.SpecificationAttributeOptionId' == option.id) {
+                                selected = ' selected '
+                            }
+                            ddlSpecOptions.append($('<option ' + selected+'></option>').val(option.id).html(kendo.htmlEncode(option.name)));
                         });
                     },
                     error: function(xhr, ajaxOptions, thrownError) {
@@ -162,20 +172,24 @@
             if (selectedTypeId == @(((int)SpecificationAttributeType.Option).ToString())) {
                 $('#pnlSpecificationAttributeOptionId').show();
                 $('#pnlCustomValue').hide();
+                $('#pnlCustomName').hide();
                 $('#disableOnCustom').show();
                 $('#pnlAllowFiltering').show();
             } else if (selectedTypeId == @(((int)SpecificationAttributeType.CustomText).ToString())) {
                 $('#pnlSpecificationAttributeOptionId').hide();
+                $('#pnlCustomName').show();
                 $('#pnlCustomValue').show();
                 $('#disableOnCustom').hide();
                 $('#pnlAllowFiltering').hide();
             } else if (selectedTypeId == @(((int)SpecificationAttributeType.CustomHtmlText).ToString())) {
                 $('#pnlSpecificationAttributeOptionId').hide();
+                $('#pnlCustomName').show();
                 $('#pnlCustomValue').show();
                 $('#disableOnCustom').hide();
                 $('#pnlAllowFiltering').hide();
             } else if (selectedTypeId == @(((int)SpecificationAttributeType.Hyperlink).ToString())) {
                 $('#pnlSpecificationAttributeOptionId').hide();
+                $('#pnlCustomName').show();
                 $('#pnlCustomValue').show();
                 $('#disableOnCustom').hide();
                 $('#pnlAllowFiltering').hide();

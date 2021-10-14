@@ -7,6 +7,7 @@ namespace Grand.Api.DTOs.Catalog
     {
         public string SpecificationAttributeId { get; set; }
         public string SpecificationAttributeOptionId { get; set; }
+        public string CustomName { get; set; }
         public string CustomValue { get; set; }
         public bool AllowFiltering { get; set; }
         public bool ShowOnProductPage { get; set; }

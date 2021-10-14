@@ -29,6 +29,7 @@ namespace Grand.Api.Commands.Models.Catalog
                 AttributeTypeId = request.Model.AttributeTypeId,
                 SpecificationAttributeOptionId = request.Model.SpecificationAttributeOptionId,
                 SpecificationAttributeId = request.Model.SpecificationAttributeId,
+                CustomName = request.Model.CustomName,
                 CustomValue = request.Model.CustomValue,
                 AllowFiltering = request.Model.AllowFiltering,
                 ShowOnProductPage = request.Model.ShowOnProductPage,

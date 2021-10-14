@@ -32,7 +32,9 @@ namespace Grand.Web.Features.Handlers.Products
             var spa = new List<ProductSpecificationModel>();
             foreach (var item in request.Product.ProductSpecificationAttributes.Where(x => x.ShowOnProductPage).OrderBy(x => x.DisplayOrder))
             {
-                var m = new ProductSpecificationModel();
+                var m = new ProductSpecificationModel {
+                    SpecificationAttributeName = item.CustomName
+                };
 
                 switch (item.AttributeTypeId)
                 {

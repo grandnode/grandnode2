@@ -2797,8 +2797,10 @@ namespace Grand.Web.Admin.Services
                     AttributeTypeName = x.AttributeTypeId.GetTranslationEnum(_translationService, _workContext),
                     AllowFiltering = x.AllowFiltering,
                     ShowOnProductPage = x.ShowOnProductPage,
-                    DisplayOrder = x.DisplayOrder
+                    DisplayOrder = x.DisplayOrder,
+                    AttributeName = x.CustomName
                 };
+
                 switch (x.AttributeTypeId)
                 {
                     case SpecificationAttributeType.Option:
@@ -2835,16 +2837,7 @@ namespace Grand.Web.Admin.Services
                 model.AllowFiltering = false;
                 model.SpecificationAttributeOptionId = null;
             }
-
-            var psa = new ProductSpecificationAttribute {
-                AttributeTypeId = model.AttributeTypeId,
-                SpecificationAttributeOptionId = model.SpecificationAttributeOptionId,
-                SpecificationAttributeId = model.SpecificationAttributeId,
-                CustomValue = model.CustomValue,
-                AllowFiltering = model.AllowFiltering,
-                ShowOnProductPage = model.ShowOnProductPage,
-                DisplayOrder = model.DisplayOrder,
-            };
+            var psa = model.ToEntity();
 
             await _specificationAttributeService.InsertProductSpecificationAttribute(psa, product.Id);
             product.ProductSpecificationAttributes.Add(psa);

@@ -3699,6 +3699,9 @@
   <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Fields.AttributeType">
     <Value>Attribute type</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Fields.CustomName">
+    <Value>Name</Value>
+  </Resource>
   <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Fields.CustomValue">
     <Value>Value</Value>
   </Resource>

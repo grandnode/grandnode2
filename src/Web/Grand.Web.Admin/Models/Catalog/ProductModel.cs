@@ -474,6 +474,9 @@ namespace Grand.Web.Admin.Models.Catalog
             [GrandResourceDisplayName("Admin.Catalog.Products.SpecificationAttributes.Fields.SpecificationAttributeOption")]
             public string SpecificationAttributeOptionId { get; set; }
 
+            [GrandResourceDisplayName("Admin.Catalog.Products.SpecificationAttributes.Fields.CustomName")]
+            public string CustomName { get; set; }
+
             [GrandResourceDisplayName("Admin.Catalog.Products.SpecificationAttributes.Fields.CustomValue")]
             public string CustomValue { get; set; }
 
