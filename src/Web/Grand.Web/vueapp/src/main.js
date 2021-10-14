@@ -190,11 +190,22 @@ extend('email', {
 });
 
 extend('required', {
-    validate(value) {
-        return {
-            required: true,
-            valid: ['', null, undefined].indexOf(value) === -1
-        };
+    params: ['allowFalse'],
+    validate(value, { allowFalse }) {
+        if (allowFalse !== undefined) {
+            if (value === true && !allowFalse) {
+                return {
+                    required: true,
+                    valid: ['', null, undefined].indexOf(value) === -1
+                }
+            }
+        }
+        else {
+            return {
+                required: true,
+                valid: ['', null, undefined].indexOf(value) === -1
+            };
+        }
     },
     computesRequired: true,
     message: (fieldName) => {
