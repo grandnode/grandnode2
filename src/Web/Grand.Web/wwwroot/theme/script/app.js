@@ -372,6 +372,7 @@
                 var html = document.getElementById("captcha-box");
                 document.getElementById("captcha-popup").prepend(html);
             }
+            vm.PopupProductReviewVueModal = Object.assign({}, vm.PopupProductReviewVueModal, { ReviewTitle: '', ReviewText: '' })
         },
         modalReviewClose: function () {
             if (vm.PopupProductReviewVueModal.AddProductReview.DisplayCaptcha && document.querySelector("#ModalProductReview .captcha-box") !== null) {
@@ -379,57 +380,53 @@
                 document.getElementById("captcha-container").prepend(html);
             }
         },
-        submitProductReview: function (id) {
-            this.$validator.validateAll(['AddProductReview.Title', 'AddProductReview.ReviewText', 'AddProductReview_Rating']).then((result) => {
-                if (result) {
-                    var form = document.getElementById(id);
-                    var url = form.getAttribute("action");
-                    var resultTitle = form.getAttribute("data-title");
-                    var bodyFormData = new FormData(form);
-                    axios({
-                        method: "post",
-                        url: url,
-                        data: bodyFormData,
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                            'X-Response-View': 'Json'
-                        },
-                    }).then(function (response) {
-                        vm.PopupProductReviewVueModal = response.data;
-                        productreviews.Model = response.data.Items;
+        submitProductReview: function () {
+            var form = document.getElementById("addReviewForm");
+            var url = form.getAttribute("action");
+            var resultTitle = form.getAttribute("data-title");
+            var bodyFormData = new FormData(form);
+            axios({
+                method: "post",
+                url: url,
+                data: bodyFormData,
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    'X-Response-View': 'Json'
+                },
+            }).then(function (response) {
+                vm.PopupProductReviewVueModal = response.data;
+                productreviews.Model = response.data.Items;
 
-                        var result = response.data.AddProductReview.Result;
-                        var variant = "";
+                var result = response.data.AddProductReview.Result;
+                var variant = "";
 
-                        if (response.data.AddProductReview.SuccessfullyAdded) {
+                if (response.data.AddProductReview.SuccessfullyAdded) {
 
-                            variant = "info";
-                            vm.$refs['ModalProductReview'].hide();
+                    variant = "info";
+                    vm.$refs['ModalProductReview'].hide();
 
-                        } else {
-                            variant = "danger";
-                        }
-
-                        new Vue({
-                            el: ".modal-place",
-                            methods: {
-                                toast() {
-                                    this.$bvToast.toast(result, {
-                                        title: resultTitle,
-                                        variant: variant,
-                                        autoHideDelay: 3000,
-                                        solid: true
-                                    })
-                                }
-                            },
-                            mounted: function () {
-                                this.toast();
-                            }
-                        });
-                    });
-                    return
+                } else {
+                    variant = "danger";
                 }
+
+                new Vue({
+                    el: ".modal-place",
+                    methods: {
+                        toast() {
+                            this.$bvToast.toast(result, {
+                                title: resultTitle,
+                                variant: variant,
+                                autoHideDelay: 3000,
+                                solid: true
+                            })
+                        }
+                    },
+                    mounted: function () {
+                        this.toast();
+                    }
+                });
             });
+            return
         }
     },
 });
