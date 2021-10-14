@@ -37,7 +37,7 @@
                                     <fieldset>
                                         <legend class="sr-only">@(controlId)</legend>
                                         <label class="custom-control custom-radio">
-                                            <input class="custom-control-input" id="@(controlId)_@(attributeValue.Id)" type="radio" name="@(controlId)" value="@attributeValue.Id" checked="@(attributeValue.IsPreSelected)" @readonlyAttr/>
+                                            <input class="custom-control-input" id="@(controlId)_@(attributeValue.Id)" type="radio" name="@(controlId)" value="@attributeValue.Id" checked="@(attributeValue.IsPreSelected)" @readonlyAttr />
                                             <span class="custom-control-label"></span>
                                             <span class="custom-control-description">@attributeValue.Name</span>
                                         </label>
@@ -57,7 +57,7 @@
                                 <li>
 
                                     <label for="@(controlId)_@(attributeValue.Id)" class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" id="@(controlId)_@(attributeValue.Id)" type="checkbox" name="@(controlId)" value="@(attributeValue.Id)" checked="@(attributeValue.IsPreSelected)" @readonlyAttr/>
+                                        <input class="custom-control-input" id="@(controlId)_@(attributeValue.Id)" type="checkbox" name="@(controlId)" value="@(attributeValue.Id)" checked="@(attributeValue.IsPreSelected)" @readonlyAttr />
                                         <span class="custom-control-label"></span>
                                         <span class="custom-control-description">@attributeValue.Name</span>
                                     </label>
@@ -70,22 +70,28 @@
                 case AttributeControlType.TextBox:
                     {
                         <label for="@(controlId)" class="col-form-label">@textPrompt:</label>
+                        if (attribute.IsRequired)
+                        {
+                            <span class="required">*</span>
+                        }
                         <input name="@(controlId)" type="text" class="form-control textbox" id="@(controlId)" value="@(attribute.DefaultValue)"
-                               v-validate="'@required'" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" @readonlyAttr />
-                        <span class="field-validation-error">{{veeErrors.first('@(controlId)')}}</span>
+                               data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" @readonlyAttr />
                     }
                     break;
                 case AttributeControlType.MultilineTextbox:
                     {
                         <label for="@(controlId)" class="col-form-label">@textPrompt:</label>
+                        if (attribute.IsRequired)
+                        {
+                            <span class="required">*</span>
+                        }
                         <textarea class="form-control" id="@(controlId)" name="@(controlId)" @readonlyAttr
-                                  v-validate="'@required'" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))">@(attribute.DefaultValue)</textarea>
-                        <span class="field-validation-error">{{veeErrors.first('@(controlId)')}}</span>
+                                  data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))">@(attribute.DefaultValue)</textarea>
                     }
                     break;
                 case AttributeControlType.Hidden:
                     {
-                        <input name="@(controlId)" type="hidden" id="@(controlId)"/>
+                        <input name="@(controlId)" type="hidden" id="@(controlId)" />
                     }
                     break;
                 case AttributeControlType.Datepicker:
