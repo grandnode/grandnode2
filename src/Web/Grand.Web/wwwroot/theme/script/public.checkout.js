@@ -60,6 +60,9 @@ var vmorder = new Vue({
         }
     },
     methods: {
+        formCheckoutSubmit() {
+            document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vShipping.save(); document.getElementById('opc-shipping-submit').click()");
+        },
         setDisabled(e) {
             var button = e.target;
             button.classList.add('disabled');
@@ -294,8 +297,10 @@ var vmorder = new Vue({
                     if (isNew) {
                         this.resetSelectedAddress();
                         document.querySelector('#shipping-new-address-form').style.display = 'block';
+                        document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "document.getElementById('opc-shipping-submit').click()");
                     } else {
                         document.querySelector('#shipping-new-address-form').style.display = 'none';
+                        document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vShipping.save();");
                     }
                 },
 
@@ -310,6 +315,7 @@ var vmorder = new Vue({
 
                         if (!document.querySelector("#shipping-address-select").value) {
                             document.querySelector('#shipping-new-address-form').style.display = 'none';
+                            document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vShipping.save();");
                         }
                     }
                     else {
@@ -321,6 +327,7 @@ var vmorder = new Vue({
 
                         if (!document.querySelector("#shipping-address-select").value) {
                             document.querySelector('#shipping-new-address-form').style.display = 'block';
+                            document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "document.getElementById('opc-shipping-submit').click()");
                         }
 
                     }
@@ -391,11 +398,13 @@ var vmorder = new Vue({
                         vmorder.BillingNewAddressPreselected = true;
                         if (document.querySelector('#billing-new-address-form'))
                             document.querySelector('#billing-new-address-form').style.display = 'block';
+                            document.querySelector('#billing-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vBilling.save(); document.getElementById('opc-billing-submit').click()");
 
                     } else {
                         vmorder.BillingNewAddressPreselected = false;
                         if (document.querySelector('#billing-new-address-form'))
                             document.querySelector('#billing-new-address-form').style.display = 'none';
+                            document.querySelector('#billing-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vBilling.save();");
                     }
 
                 },
