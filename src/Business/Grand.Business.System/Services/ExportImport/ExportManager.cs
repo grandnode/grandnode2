@@ -74,7 +74,8 @@ namespace Grand.Business.System.Services.ExportImport
                 new PropertyByName<Brand>("AllowCustomersToSelectPageSize", p => p.AllowCustomersToSelectPageSize),
                 new PropertyByName<Brand>("PageSizeOptions", p => p.PageSizeOptions),
                 new PropertyByName<Brand>("Published", p => p.Published),
-                new PropertyByName<Brand>("DisplayOrder", p => p.DisplayOrder)
+                new PropertyByName<Brand>("DisplayOrder", p => p.DisplayOrder),
+                new PropertyByName<Brand>("ExternalId", p => p.ExternalId)
             };
 
             return ExportToXlsx(properties, brands);

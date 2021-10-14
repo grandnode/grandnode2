@@ -701,6 +701,9 @@ namespace Grand.Business.System.Services.ExportImport
                     case "displayorder":
                         brand.DisplayOrder = property.IntValue;
                         break;
+                    case "externalid":
+                        brand.ExternalId = property.StringValue;
+                        break;
                 }
             }
         }

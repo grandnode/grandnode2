@@ -2013,6 +2013,9 @@
   <Resource Name="Admin.Catalog.Brands.Fields.DisplayOrder">
     <Value>Display order</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.Brands.Fields.ExternalId">
+    <Value>External identifier</Value>
+  </Resource>
   <Resource Name="Admin.Catalog.Brands.Fields.Icon">
     <Value>Icon</Value>
   </Resource>
