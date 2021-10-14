@@ -70,26 +70,42 @@
                     <div class="result card bg-info p-3 text-white">@result</div>
                 }
             </div>
-            <form asp-controller="Blog" asp-action="BlogCommentAdd" asp-route-id="@Model.Id" method="post" v-on:submit.prevent="validateBeforeSubmit($event)">
-                <input type="hidden" name="blogPostId" value="@Model.Id" />
-                <div class="form-fields">
-                    <div class="form-group">
-                        <label asp-for="AddNewComment.CommentText" class="col-form-label">@Loc["Blog.Comments.CommentText"]:</label>
-                        <textarea asp-for="AddNewComment.CommentText" class="enter-comment-text form-control" v-validate="'required'"></textarea>
-                        <span class="field-validation-error">{{veeErrors.first('AddNewComment.CommentText')}}</span>
-                        <span asp-validation-for="AddNewComment.CommentText"></span>
-                    </div>
-                    @if (Model.AddNewComment.DisplayCaptcha)
-                    {
-                        <div class="captcha-box">
-                            <captcha />
+            <validation-observer v-slot="{ handleSubmit }">
+                <form asp-controller="Blog" asp-action="BlogCommentAdd" asp-route-id="@Model.Id" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
+                    <input type="hidden" name="blogPostId" value="@Model.Id" />
+                    <div class="form-fields">
+                        <div class="form-group">
+                            <validation-provider tag="div" rules="required" name="AddNewComment.CommentText" v-slot="{ errors }">
+                                <label asp-for="AddNewComment.CommentText" class="col-form-label">@Loc["Blog.Comments.CommentText"]:</label>
+                                <span class="required">*</span>
+                                <textarea asp-for="AddNewComment.CommentText" v-model="blog.CommentText" class="form-control" autofocus="autofocus" rows="4"></textarea>
+                                <span class="field-validation-error">{{ errors[0] }}</span>
+                                <span asp-validation-for="AddNewComment.CommentText"></span>
+                            </validation-provider>
                         </div>
-                    }
-                </div>
-                <div class="buttons text-xs-center text-md-left generalMarginSupporter">
-                    <input type="submit" asp-action="BlogCommentAdd" name="add-comment" class="btn btn-info blog-post-add-comment-button" value="@Loc["Blog.Comments.SubmitButton"]" />
-                </div>
-            </form>
+                        @if (Model.AddNewComment.DisplayCaptcha)
+                        {
+                            <div class="captcha-box">
+                                <captcha />
+                            </div>
+                        }
+                    </div>
+                    <div class="buttons text-xs-center text-md-left generalMarginSupporter">
+                        <input type="submit" asp-action="BlogCommentAdd" name="add-comment" class="btn btn-info blog-post-add-comment-button" value="@Loc["Blog.Comments.SubmitButton"]" />
+                    </div>
+                </form>
+            </validation-observer>
+            <script asp-location="Footer" asp-order="300">
+                var blog = new Vue({
+                    data: () => ({
+                        @{
+                            <text>
+                                CommentText: '',
+                            </text>
+                        }
+                    })
+                });
+            </script>
         </div>
         if (Model.Comments.Any())
         {
