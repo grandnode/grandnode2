@@ -24,18 +24,22 @@
                 <div asp-validation-summary="ModelOnly" class="message-error"></div>
                 <div class="form-fields">
                     <div class="form-group">
-                        <label asp-for="Name" class="col-form-label">@Loc["Vendors.ApplyAccount.Name"]:</label>
-                        <span class="required">*</span>
-                        <input asp-for="Name" class="form-control name" placeholder="@Loc["Vendors.ApplyAccount.Name.Hint"]" v-validate="'required'" />
-                        <span class="field-validation-error">{{veeErrors.first('Name')}}</span>
-                        <span asp-validation-for="Name"></span>
+                        <validation-provider tag="div" rules="required" name="Name" v-slot="{ errors }">
+                            <label asp-for="Name" class="col-form-label">@Loc["Account.ApplyAccount.Name"]:</label>
+                            <span class="required">*</span>
+                            <input asp-for="Name" v-model="applyvendor.Name" placeholder="@Loc["Account.ApplyAccount.Name.Hint"]" class="form-control" />
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span asp-validation-for="Name"></span>
+                        </validation-provider>
                     </div>
                     <div class="form-group">
-                        <label asp-for="Email" class="col-form-label">@Loc["Vendors.ApplyAccount.Email"]:</label>
-                        <span class="required">*</span>
-                        <input asp-for="Email" class="form-control name" placeholder="@Loc["Vendors.ApplyAccount.Email.Hint"]" v-validate="'required|email'" />
-                        <span class="field-validation-error">{{veeErrors.first('Email')}}</span>
-                        <span asp-validation-for="Email"></span>
+                        <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors }">
+                            <label asp-for="Email" class="col-form-label">@Loc["Account.ApplyAccount.Email"]:</label>
+                            <span class="required">*</span>
+                            <input asp-for="Email" v-model="applyvendor.Email" placeholder="@Loc["Account.ApplyAccount.Email.Hint"]" class="form-control" />
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span asp-validation-for="Email"></span>
+                        </validation-provider>
                     </div>
                     <div class="form-group">
                         <label asp-for="Description" class="col-form-label">@Loc["Vendors.ApplyAccount.Description"]:</label>
@@ -102,6 +106,18 @@
                 </div>
             </form>
         </validation-observer>
+        <script asp-location="Footer" asp-order="300">
+            var applyvendor = new Vue({
+                data: () => ({
+                    @{
+                        <text>
+                            Name: '@Model.Name',
+                            Email: '@Model.Email',
+                        </text>
+                    }
+                })
+            });
+        </script>
     }
     @await Component.InvokeAsync("Widget", new { widgetZone = "applyvendor_bottom" })
 </div>
