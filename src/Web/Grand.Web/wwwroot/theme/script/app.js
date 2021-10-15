@@ -108,56 +108,12 @@
             var Image = parent.querySelectorAll(".main-product-img")[0];
             Image.setAttribute('src', Imagesrc);
         },
-        formSubmit() {
-            vm.$refs.form.submit();
-        },
-        validateBeforeSubmit() {
-                this.$refs.form.validate().then(success => {
-                if (success) {
-                    event.srcElement.submit();
-                    return
-                } else {
-                    if (vm.$refs.selected !== undefined && vm.$refs.selected.checked) {
-                        event.srcElement.submit();
-                        return
-                    }
-                    if (vm.$refs.visible !== undefined && vm.$refs.visible.style.display == "none") {
-                        event.srcElement.submit();
-                        return
-                    }
-                }
-            });
-        },
-        validateBeforeClick: function (event) {
-            this.$validator.validateAll().then((result) => {
-                if (result) {
-                    var callFunction = event.srcElement.getAttribute('data-click');
-                    eval(callFunction)
-                    return
-                }
-            });
-        },
-        validateBeforeSubmitParam: function (event,param) {
-            this.$validator.validateAll().then((result) => {
-                if (result) {
-                    var para = document.createElement("input");
-                    para.name = param;
-                    para.type = 'hidden';
-                    event.srcElement.appendChild(para);
-                    event.srcElement.submit();
-                    return
-                } else {
-                    if ((vm.$refs.selected !== undefined && vm.$refs.selected.checked) ||
-                        (vm.$refs.visible !== undefined && vm.$refs.visible.style.display == "none")) {
-                        var para = document.createElement("input");
-                        para.name = param;
-                        para.type = 'hidden';
-                        event.srcElement.appendChild(para);
-                        event.srcElement.submit();
-                        return
-                    }
-                }
-            });
+        formSubmit(e) {
+            if (e && e.submitter.dataset.form !== undefined) {
+                eval(e.submitter.dataset.form)
+            } else {
+                vm.$refs.form.submit();
+            }
         },
         isMobile: function () {
             return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
