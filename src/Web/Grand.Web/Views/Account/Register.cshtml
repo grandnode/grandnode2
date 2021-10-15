@@ -10,19 +10,19 @@
             data: () => ({
                 @{
                     <text>
-                        FirstName: '',
-                        LastName: '',
-                        Company: '',
-                        StreetAddress: '',
-                        StreetAddress2: '',
-                        ZipPostalCode: '',
-                        City: '',
-                        CountryId: '',
-                        StateProvinceId: '',
-                        Phone: '',
-                        Fax: '',
-                        Username: '',
-                        Email: '',
+                        FirstName: '@Model.FirstName',
+                        LastName: '@Model.LastName',
+                        Company: '@Model.Company',
+                        StreetAddress: '@Model.StreetAddress',
+                        StreetAddress2: '@Model.StreetAddress2',
+                        ZipPostalCode: '@Model.ZipPostalCode',
+                        City: '@Model.City',
+                        CountryId: '@Model.CountryId',
+                        StateProvinceId: '@Model.StateProvinceId',
+                        Phone: '@Model.Phone',
+                        Fax: '@Model.Fax',
+                        Username: '@Model.Username',
+                        Email: '@Model.Email',
                         Password: '',
                         ConfirmPassword: '',
                         AcceptPrivacyPolicy: false
@@ -114,7 +114,7 @@
 <validation-observer v-slot="{ handleSubmit }">
     <form asp-route="Register" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
         <div class="page registration-page">
-            <div asp-validation-summary="ModelOnly" class="message-error alert alert-danger"></div>
+            <div asp-validation-summary="All" class="message-error"></div>
             <div class="card my-3">
                 <div class="card-header">
                     <h3 class="h5 mb-0">@Loc["Account.YourPersonalDetails"]</h3>
