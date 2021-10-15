@@ -77,10 +77,10 @@
                     data: () => ({
                         @{
                             <text>
-                                FullName: '@Model.FullName',
-                                Email: '@Model.Email',
-                                Subject: '@Model.Subject',
-                                Enquiry: '@Model.Enquiry',
+                                FullName: '@Html.Raw(Model.FullName)',
+                                Email: '@Html.Raw(Model.Email)',
+                                Subject: '@Html.Raw(Model.Subject)',
+                                Enquiry: '@Html.Raw(Model.Enquiry)',
                             </text>
                         }
                     })
