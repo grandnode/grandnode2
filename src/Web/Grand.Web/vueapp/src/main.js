@@ -28,14 +28,16 @@ import { FormCheckboxPlugin } from 'bootstrap-vue'
 Vue.use(FormCheckboxPlugin)
 import { FormRatingPlugin } from 'bootstrap-vue'
 Vue.use(FormRatingPlugin)
+import { FormFilePlugin } from 'bootstrap-vue'
+Vue.use(FormFilePlugin)
 import { ImagePlugin } from 'bootstrap-vue'
 Vue.use(ImagePlugin)
-import { NavbarPlugin } from 'bootstrap-vue'
-Vue.use(NavbarPlugin)
 import { ToastPlugin } from 'bootstrap-vue'
 Vue.use(ToastPlugin)
 import { TabsPlugin } from 'bootstrap-vue'
 Vue.use(TabsPlugin)
+import { CollapsePlugin } from 'bootstrap-vue'
+Vue.use(CollapsePlugin)
 
 import {
     BIcon,
@@ -146,55 +148,28 @@ Vue.component('BIconSun', BIconSun)
 Vue.component('BIconFileEarmarkRichtext', BIconFileEarmarkRichtext)
 Vue.component('BIconHammer', BIconHammer)
 
-import axios from 'axios'
-import Pikaday from 'pikaday'
+import { ValidationObserver, ValidationProvider } from 'vee-validate';
+Vue.component('ValidationProvider', ValidationProvider);
+Vue.component('ValidationObserver', ValidationObserver);
 
-import VeeValidate from 'vee-validate/dist/vee-validate.minimal';
+import { extend } from 'vee-validate';
 
-const config = {
-    inject: true,
-    // Important to name this something other than 'fields'
-    fieldsBagName: 'veeFields',
-    // This is not required but avoids possible naming conflicts
-    errorBagName: 'veeErrors',
-    classes: true,
-    classNames: {
-        valid: 'is-valid',
-        invalid: 'is-invalid'
-    }
-}
-
-Vue.use(VeeValidate, config);
-const vee = new VeeValidate(config, Vue);
-
-export function vee_getMessage(field, rule) {
-    var element = document.getElementsByName(field);
-    if (element && element[0]) {
-        var text = element[0].getAttribute('data-val-' + rule);
-        if (text)
-            return text;
-    }
-}
-
-vee._validator.extend('required', {
-    getMessage: field => {
-        var text = vee_getMessage(field, 'required');
+extend('confirmed', {
+    params: ['target'],
+    // Target here is the value of the target field
+    validate(value, { target }) {
+        return value === target;
+    },
+    message: (fieldName) => {
+        var text = vee_getMessage(fieldName, 'confirmed');
         if (text) {
             return text;
         }
-        return 'The ' + field + ' field is required.'
-    },
-    validate: value => !!value
+        return 'The ' + fieldName + ' field confirmation does not match.'
+    }
 });
 
-vee._validator.extend('email', {
-    getMessage: field => {
-        var text = vee_getMessage(field, 'email');
-        if (text) {
-            return text;
-        }
-        return 'This field must be a valid email.'
-    },
+extend('email', {
     validate: value => {
         // if the field is empty
         if (!value) {
@@ -206,55 +181,61 @@ vee._validator.extend('email', {
         }
         // All is good
         return true;
-    }
-});
-
-vee._validator.extend('confirmed', {
-    paramNames: ['targetValue'],
-    validate: function (value, ref) {
-        return value === ref.targetValue;
     },
-    options: {
-        hasTarget: true
-    },
-    getMessage: field => {
-        var text = vee_getMessage(field, 'password');
+    message: (fieldName) => {
+        var text = vee_getMessage(fieldName, 'email');
         if (text) {
             return text;
         }
-        return 'Password confirmation does not match'
-    },
+        return 'This field must be a valid email.'
+    }
 });
 
-vee._validator.extend('min', {
-    getMessage: field => {
-        var text = vee_getMessage(field, 'length');
+extend('required', {
+    params: ['allowFalse'],
+    validate(value, { allowFalse }) {
+        if (allowFalse !== undefined) {
+            if (value === true && !allowFalse) {
+                return {
+                    required: true,
+                    valid: ['', null, undefined].indexOf(value) === -1
+                }
+            }
+        }
+        else {
+            return {
+                required: true,
+                valid: ['', null, undefined].indexOf(value) === -1
+            };
+        }
+    },
+    computesRequired: true,
+    message: (fieldName) => {
+        var text = vee_getMessage(fieldName, 'required');
         if (text) {
             return text;
         }
-        return 'This ' + field + ' should have at least  characters.'
-    },
-    options: {
-        hasTarget: true
-    },
-    paramNames: ['targetValue'],
-    validate: function (value, ref) {
-        // if the field is empty
-        if (!value) {
-            return true;
-        }
-        var element = document.getElementsByName(ref.targetValue);
-        var number = parseInt(element[0].getAttribute('data-val-length-min'));
-        var length = value.length;
-        if (length < number) {
-            return false;
-        }
-        // All is good
-        return true;
+        return 'The ' + fieldName + ' field is required.'
     }
 });
+
+//ValidationExtend('min', min);
+//ValidationExtend('confirmed', confirmed);
+
+export function vee_getMessage(field, rule) {
+    var element = document.getElementsByName(field);
+    if (element && element[0]) {
+        var text = element[0].getAttribute('data-val-' + rule);
+        if (text)
+            return text;
+    }
+}
+// Override the default message.
 
 import VueGallerySlideshow from 'vue-gallery-slideshow'
+
+import axios from 'axios'
+import Pikaday from 'pikaday'
 
 window.axios = require('axios').default;
 window.Pikaday = require('pikaday');

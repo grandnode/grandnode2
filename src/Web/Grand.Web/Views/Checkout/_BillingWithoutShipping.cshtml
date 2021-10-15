@@ -55,3 +55,10 @@
     </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_billing_address_bottom" })
 </div>
+<script asp-location="Footer" asp-order="301">
+    document.addEventListener("DOMContentLoaded", function () {
+        if (document.getElementById("billing-address-select") == null) {
+            document.querySelector('#billing-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vBilling.save(); document.getElementById('opc-billing-submit').click()");
+        }
+    });
+</script>

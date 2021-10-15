@@ -42,31 +42,51 @@
                     <div class="result card bg-info p-3 text-white">@result</div>
                 }
             </div>
-            <form asp-action="NewsCommentAdd" asp-controller="News" asp-route-sename="@Model.SeName" method="post" v-on:submit.prevent="validateBeforeSubmit($event)">
-                <input type="hidden" name="newsItemId" value="@Model.Id" />
-                <fieldset class="form-group">
-                    <label asp-for="AddNewComment.CommentTitle" class="col-form-label">@Loc["News.Comments.CommentTitle"]:</label>
-                    <input asp-for="AddNewComment.CommentTitle" class="form-control enter-comment-title" v-validate="'required'" />
-                    <span class="field-validation-error">{{veeErrors.first('AddNewComment.CommentTitle')}}</span>
-                    <span asp-validation-for="AddNewComment.CommentTitle"></span>
-                </fieldset>
-                <fieldset class="form-group">
-                    <label asp-for="AddNewComment.CommentText" class="col-form-label">@Loc["News.Comments.CommentText"]:</label>
-                    <textarea asp-for="AddNewComment.CommentText" class="form-control enter-comment-text" v-validate="'required'"></textarea>
-                    <span class="field-validation-error">{{veeErrors.first('AddNewComment.CommentText')}}</span>
-                    <span asp-validation-for="AddNewComment.CommentText"></span>
-                </fieldset>
-                @if (Model.AddNewComment.DisplayCaptcha)
-                {
-                    <div class="captcha-box">
-                        <captcha />
+            <validation-observer v-slot="{ handleSubmit }">
+                <form asp-action="NewsCommentAdd" asp-controller="News" asp-route-sename="@Model.SeName" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
+                    <input type="hidden" name="newsItemId" value="@Model.Id" />
+                    <fieldset class="form-group">
+                        <validation-provider tag="div" rules="required" name="AddNewComment.CommentTitle" v-slot="{ errors }">
+                            <label asp-for="AddNewComment.CommentTitle" class="col-form-label">@Loc["News.Comments.CommentTitle"]:</label>
+                            <span class="required">*</span>
+                            <input asp-for="AddNewComment.CommentTitle" class="form-control enter-comment-title" v-model="news.CommentTitle" />
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span asp-validation-for="AddNewComment.CommentTitle"></span>
+                        </validation-provider>
+                    </fieldset>
+                    <fieldset class="form-group">
+                        <validation-provider tag="div" rules="required" name="AddNewComment.CommentText" v-slot="{ errors }">
+                            <label asp-for="AddNewComment.CommentText" class="col-form-label">@Loc["News.Comments.CommentText"]:</label>
+                            <span class="required">*</span>
+                            <textarea asp-for="AddNewComment.CommentText" v-model="news.CommentText" class="form-control" autofocus="autofocus" rows="4"></textarea>
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span asp-validation-for="AddNewComment.CommentText"></span>
+                        </validation-provider>
+                    </fieldset>
+                    @if (Model.AddNewComment.DisplayCaptcha)
+                    {
+                        <div class="captcha-box">
+                            <captcha />
+                        </div>
+                    }
+                    <div class="buttons text-xs-center text-md-left generalMarginSupporter">
+                        <input type="submit" name="add-comment" class="btn btn-info news-item-add-comment-button" value="@Loc["News.Comments.SubmitButton"]" />
                     </div>
-                }
-                <div class="buttons text-xs-center text-md-left generalMarginSupporter">
-                    <input type="submit" name="add-comment" class="btn btn-info news-item-add-comment-button" value="@Loc["News.Comments.SubmitButton"]" />
-                </div>
-            </form>
+                </form>
+            </validation-observer>
         </fieldset>
+        <script asp-location="Footer" asp-order="300">
+                var news = new Vue({
+                    data: () => ({
+                        @{
+                            <text>
+                                CommentTitle: '',
+                                CommentText: '',
+                            </text>
+                        }
+                    })
+                });
+        </script>
         if (Model.Comments.Any())
         {
             <div class="comment-list">

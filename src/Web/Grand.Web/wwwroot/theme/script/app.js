@@ -108,53 +108,12 @@
             var Image = parent.querySelectorAll(".main-product-img")[0];
             Image.setAttribute('src', Imagesrc);
         },
-        validateBeforeSubmit: function (event) {
-            this.$validator.validateAll().then((result) => {
-                if (result) {
-                    event.srcElement.submit();
-                    return
-                } else {
-                    if (vm.$refs.selected !== undefined && vm.$refs.selected.checked) {
-                        event.srcElement.submit();
-                        return
-                    }
-                    if (vm.$refs.visible !== undefined && vm.$refs.visible.style.display == "none") {
-                        event.srcElement.submit();
-                        return
-                    }
-                }
-            });
-        },
-        validateBeforeClick: function (event) {
-            this.$validator.validateAll().then((result) => {
-                if (result) {
-                    var callFunction = event.srcElement.getAttribute('data-click');
-                    eval(callFunction)
-                    return
-                }
-            });
-        },
-        validateBeforeSubmitParam: function (event,param) {
-            this.$validator.validateAll().then((result) => {
-                if (result) {
-                    var para = document.createElement("input");
-                    para.name = param;
-                    para.type = 'hidden';
-                    event.srcElement.appendChild(para);
-                    event.srcElement.submit();
-                    return
-                } else {
-                    if ((vm.$refs.selected !== undefined && vm.$refs.selected.checked) ||
-                        (vm.$refs.visible !== undefined && vm.$refs.visible.style.display == "none")) {
-                        var para = document.createElement("input");
-                        para.name = param;
-                        para.type = 'hidden';
-                        event.srcElement.appendChild(para);
-                        event.srcElement.submit();
-                        return
-                    }
-                }
-            });
+        formSubmit(e) {
+            if (e && e.submitter.dataset.form !== undefined) {
+                eval(e.submitter.dataset.form)
+            } else {
+                vm.$refs.form.submit();
+            }
         },
         isMobile: function () {
             return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
@@ -369,6 +328,7 @@
                 var html = document.getElementById("captcha-box");
                 document.getElementById("captcha-popup").prepend(html);
             }
+            vm.PopupProductReviewVueModal = Object.assign({}, vm.PopupProductReviewVueModal, { ReviewTitle: '', ReviewText: '' })
         },
         modalReviewClose: function () {
             if (vm.PopupProductReviewVueModal.AddProductReview.DisplayCaptcha && document.querySelector("#ModalProductReview .captcha-box") !== null) {
@@ -376,57 +336,53 @@
                 document.getElementById("captcha-container").prepend(html);
             }
         },
-        submitProductReview: function (id) {
-            this.$validator.validateAll(['AddProductReview.Title', 'AddProductReview.ReviewText', 'AddProductReview_Rating']).then((result) => {
-                if (result) {
-                    var form = document.getElementById(id);
-                    var url = form.getAttribute("action");
-                    var resultTitle = form.getAttribute("data-title");
-                    var bodyFormData = new FormData(form);
-                    axios({
-                        method: "post",
-                        url: url,
-                        data: bodyFormData,
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                            'X-Response-View': 'Json'
-                        },
-                    }).then(function (response) {
-                        vm.PopupProductReviewVueModal = response.data;
-                        productreviews.Model = response.data.Items;
+        submitProductReview: function () {
+            var form = document.getElementById("addReviewForm");
+            var url = form.getAttribute("action");
+            var resultTitle = form.getAttribute("data-title");
+            var bodyFormData = new FormData(form);
+            axios({
+                method: "post",
+                url: url,
+                data: bodyFormData,
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    'X-Response-View': 'Json'
+                },
+            }).then(function (response) {
+                vm.PopupProductReviewVueModal = response.data;
+                productreviews.Model = response.data.Items;
 
-                        var result = response.data.AddProductReview.Result;
-                        var variant = "";
+                var result = response.data.AddProductReview.Result;
+                var variant = "";
 
-                        if (response.data.AddProductReview.SuccessfullyAdded) {
+                if (response.data.AddProductReview.SuccessfullyAdded) {
 
-                            variant = "info";
-                            vm.$refs['ModalProductReview'].hide();
+                    variant = "info";
+                    vm.$refs['ModalProductReview'].hide();
 
-                        } else {
-                            variant = "danger";
-                        }
-
-                        new Vue({
-                            el: ".modal-place",
-                            methods: {
-                                toast() {
-                                    this.$bvToast.toast(result, {
-                                        title: resultTitle,
-                                        variant: variant,
-                                        autoHideDelay: 3000,
-                                        solid: true
-                                    })
-                                }
-                            },
-                            mounted: function () {
-                                this.toast();
-                            }
-                        });
-                    });
-                    return
+                } else {
+                    variant = "danger";
                 }
+
+                new Vue({
+                    el: ".modal-place",
+                    methods: {
+                        toast() {
+                            this.$bvToast.toast(result, {
+                                title: resultTitle,
+                                variant: variant,
+                                autoHideDelay: 3000,
+                                solid: true
+                            })
+                        }
+                    },
+                    mounted: function () {
+                        this.toast();
+                    }
+                });
             });
+            return
         }
     },
 });

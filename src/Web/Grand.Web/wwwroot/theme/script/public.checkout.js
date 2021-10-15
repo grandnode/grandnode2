@@ -60,6 +60,9 @@ var vmorder = new Vue({
         }
     },
     methods: {
+        formCheckoutSubmit() {
+            document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vShipping.save(); document.getElementById('opc-shipping-submit').click()");
+        },
         setDisabled(e) {
             var button = e.target;
             button.classList.add('disabled');
@@ -294,8 +297,10 @@ var vmorder = new Vue({
                     if (isNew) {
                         this.resetSelectedAddress();
                         document.querySelector('#shipping-new-address-form').style.display = 'block';
+                        document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "document.getElementById('opc-shipping-submit').click()");
                     } else {
                         document.querySelector('#shipping-new-address-form').style.display = 'none';
+                        document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vShipping.save();");
                     }
                 },
 
@@ -307,8 +312,12 @@ var vmorder = new Vue({
 
                         document.querySelector('#pickup-points-form').style.display = 'block';
                         document.getElementById("BillToTheSameAddress").disabled = true;
-
-                        if (!document.querySelector("#shipping-address-select").value) {
+                        if (document.getElementById("select-shipping-address")) {
+                            if (document.getElementById("shipping-address-select").value !== '') {
+                                document.querySelector('#shipping-new-address-form').style.display = 'none';
+                            }
+                        } else {
+                            document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vShipping.save();");
                             document.querySelector('#shipping-new-address-form').style.display = 'none';
                         }
                     }
@@ -318,9 +327,15 @@ var vmorder = new Vue({
 
                         document.querySelector('#pickup-points-form').style.display = 'none';
                         document.getElementById("BillToTheSameAddress").disabled = false;
-
-                        if (!document.querySelector("#shipping-address-select").value) {
-                            document.querySelector('#shipping-new-address-form').style.display = 'block';
+                        if (document.getElementById("select-shipping-address")) {
+                            if (document.getElementById("shipping-address-select").value == '') {
+                                document.querySelector('#shipping-new-address-form').style.display = 'block';
+                            }
+                        } else {
+                            if (document.getElementById("shipping-address-select").value == '') {
+                                document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "document.getElementById('opc-shipping-submit').click()");
+                                document.querySelector('#shipping-new-address-form').style.display = 'block';
+                            }
                         }
 
                     }
@@ -391,11 +406,13 @@ var vmorder = new Vue({
                         vmorder.BillingNewAddressPreselected = true;
                         if (document.querySelector('#billing-new-address-form'))
                             document.querySelector('#billing-new-address-form').style.display = 'block';
+                            document.querySelector('#billing-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vBilling.save(); document.getElementById('opc-billing-submit').click()");
 
                     } else {
                         vmorder.BillingNewAddressPreselected = false;
                         if (document.querySelector('#billing-new-address-form'))
                             document.querySelector('#billing-new-address-form').style.display = 'none';
+                            document.querySelector('#billing-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vBilling.save();");
                     }
 
                 },
@@ -848,6 +865,13 @@ var vmorder = new Vue({
             if (this.Checkout !== null) {
                 vmorder.Checkout.init('/cart/');
             }
+        },
+        BillingAddress: function () {
+            setTimeout(function () {
+                if (document.getElementById("billing-address-select").value == '') {
+                    document.querySelector('#billing-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vBilling.save(); document.getElementById('opc-billing-submit').click()");
+                }
+            }, 300);
         },
         vShipping: function () {
             if (this.vShipping !== null) {

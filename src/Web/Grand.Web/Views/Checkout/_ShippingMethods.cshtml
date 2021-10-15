@@ -23,7 +23,7 @@
                     </label>
                 </li>
             </ul>
-            <template v-if="vmorder.ShippingMethodError !== undefined">
+            <template v-if="vmorder.ShippingMethodError !== null && vmorder.ShippingMethodError !== undefined">
                 <div class="alert alert-info">{{vmorder.ShippingMethodError}}</div>
             </template>
             <template v-if="vmorder.shippingBussy">
