@@ -28,6 +28,8 @@ import { FormCheckboxPlugin } from 'bootstrap-vue'
 Vue.use(FormCheckboxPlugin)
 import { FormRatingPlugin } from 'bootstrap-vue'
 Vue.use(FormRatingPlugin)
+import { FormFilePlugin } from 'bootstrap-vue'
+Vue.use(FormFilePlugin)
 import { ImagePlugin } from 'bootstrap-vue'
 Vue.use(ImagePlugin)
 import { NavbarPlugin } from 'bootstrap-vue'

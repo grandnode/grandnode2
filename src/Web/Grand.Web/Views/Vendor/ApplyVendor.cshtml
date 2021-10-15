@@ -25,18 +25,18 @@
                 <div class="form-fields">
                     <div class="form-group">
                         <validation-provider tag="div" rules="required" name="Name" v-slot="{ errors }">
-                            <label asp-for="Name" class="col-form-label">@Loc["Account.ApplyAccount.Name"]:</label>
+                            <label asp-for="Name" class="col-form-label">@Loc["Vendors.ApplyAccount.Name"]:</label>
                             <span class="required">*</span>
-                            <input asp-for="Name" v-model="applyvendor.Name" placeholder="@Loc["Account.ApplyAccount.Name.Hint"]" class="form-control" />
+                            <input asp-for="Name" v-model="applyvendor.Name" placeholder="@Loc["Vendors.ApplyAccount.Name.Hint"]" class="form-control" />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Name"></span>
                         </validation-provider>
                     </div>
                     <div class="form-group">
                         <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors }">
-                            <label asp-for="Email" class="col-form-label">@Loc["Account.ApplyAccount.Email"]:</label>
+                            <label asp-for="Email" class="col-form-label">@Loc["Vendors.ApplyAccount.Email"]:</label>
                             <span class="required">*</span>
-                            <input asp-for="Email" v-model="applyvendor.Email" placeholder="@Loc["Account.ApplyAccount.Email.Hint"]" class="form-control" />
+                            <input asp-for="Email" v-model="applyvendor.Email" placeholder="@Loc["Vendors.ApplyAccount.Email.Hint"]" class="form-control" />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Email"></span>
                         </validation-provider>
@@ -50,7 +50,6 @@
                         <label class="col-form-label">@Loc["Vendors.ApplyAccount.Picture"]:</label>
                         <div class="custom-file">
                             <b-form-file id="uploadedFile" name="uploadedFile" accept="image/*"></b-form-file>
-
                         </div>
                     </div>
                     @if (Model.DisplayCaptcha)
@@ -58,6 +57,12 @@
                         <div class="captcha-box">
                             <captcha />
                         </div>
+                    }
+                    <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                    @{
+                        var dataDictAddress = new ViewDataDictionary(ViewData);
+                        dataDictAddress.TemplateInfo.HtmlFieldPrefix = "Address";
+                        <partial name="_CreateOrUpdateVendorAddress" model="Model.Address" view-data="dataDictAddress" />
                     }
                     @if (Model.TermsOfServiceEnabled)
                     {
@@ -81,24 +86,20 @@
                                     <label class="custom-control custom-checkbox">
                                         <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="applyvendor.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" class="custom-control-input">
                                         <span class="custom-control-label"></span>
-                                        <span class="custom-control-description">@Loc["Vendors.ApplyAccount.AcceptPrivacyPolicy"]</span>
+                                        <span class="custom-control-description">@Loc["Vendors.ApplyAccount.AcceptTermsOfService"]</span>
                                     </label>
                                     @if (Model.TermsOfServicePopup)
                                     {
                                         <b-link class="read mx-2" onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = PageSeNameConstants.VendorTermsOfService })', 450, 500, true)">@Loc["Vendors.ApplyAccount.AcceptTermsOfService.Read"]</b-link>
-                                    } else { 
+                                    }
+                                    else
+                                    {
                                         <a class="read" id="read-acceptterms" href="@Url.RouteUrl("Page", new {SeName = PageSeNameConstants.VendorTermsOfService })">@Loc["Vendors.ApplyAccount.AcceptTermsOfService.Read"]</a>
                                     }
                                 </div>
                                 <span class="field-validation-error d-flex w-100">{{ errors[0] }}</span>
                             </validation-provider>
                         </div>
-                    }
-                    <div asp-validation-summary="ModelOnly" class="message-error"></div>
-                    @{
-                        var dataDictAddress = new ViewDataDictionary(ViewData);
-                        dataDictAddress.TemplateInfo.HtmlFieldPrefix = "Address";
-                        <partial name="_CreateOrUpdateVendorAddress" model="Model.Address" view-data="dataDictAddress" />
                     }
                 </div>
                 <div class="row">
@@ -108,7 +109,7 @@
                 </div>
             </form>
         </validation-observer>
-        <script asp-location="Footer" asp-order="300">
+        <script asp-location="Footer" asp-order="302">
             var applyvendor = new Vue({
                 data: () => ({
                     @{
