@@ -24,7 +24,7 @@
                     <fieldset class="form-group">
                         <validation-provider tag="div" rules="required" name="Password" v-slot="{ errors }">
                             <label asp-for="Password" class="col-form-label">@Loc["Account.DeleteAccount.Fields.Password"]:</label>
-                            <input asp-for="Password" v-model="deletepassword.Password" class="form-control username" autofocus="autofocus" />
+                            <input asp-for="Password" v-model="deleteaccount.Password" class="form-control username" autofocus="autofocus" />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Password"></span>
                         </validation-provider>
@@ -38,7 +38,7 @@
     </form>
 </validation-observer>
 <script asp-location="Footer" asp-order="300">
-    var deletepassword = new Vue({
+    var deleteaccount = new Vue({
         data: () => ({
             Password: '',
         })
