@@ -38,10 +38,10 @@
                     data: () => ({
                         @{
                             <text>
-                                FullName: '@Model.AskQuestionFullName',
-                                Email: '@Model.AskQuestionEmail',
-                                Phone: '@Model.AskQuestionPhone',
-                                Message: '@Model.AskQuestionMessage',
+                                FullName: '@Html.Raw(Model.FullName)',
+                                Email: '@Html.Raw(Model.Email)',
+                                Phone: '@Html.Raw(Model.Phone)',
+                                Message: '@Html.Raw(Model.Message)',
                             </text>
                         }
                     })
