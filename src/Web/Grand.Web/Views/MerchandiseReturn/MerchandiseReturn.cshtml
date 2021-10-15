@@ -186,7 +186,7 @@
                                 data: () => ({
                                     @{
                                         <text>
-                                            PickupDate: '@Model.PickupDate',
+                                            PickupDate: '@Html.Raw(Model.PickupDate)',
                                         </text>
                                     }
                                 })
