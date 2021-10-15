@@ -20,6 +20,7 @@
                     elChild.innerHTML = id.name;
                     ddlStates.appendChild(elChild);
                 });
+                createorupdateaddress.StateProvinceId = response.data[0].id;
             }).then(function () {
                 if (ddlStates.length > 1) {
                     ddlStates.classList.remove('is-valid');
