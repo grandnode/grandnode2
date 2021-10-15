@@ -126,21 +126,21 @@ namespace Grand.Web.Events.Cache
         /// Key for caching
         /// </summary>
         /// <remarks>
-        /// {1} : language ID
-        /// {2} : store ID
-        /// {3} : customer groups
+        /// {0} : language ID
+        /// {1} : store ID
+        /// {2} : customer groups
         /// </remarks>
-        public static string CATEGORIES_BY_MENU => "Grand.category.menu-{0}-{1}-{1}.pres";
+        public static string CATEGORIES_BY_MENU => "Grand.category.menu-{0}-{1}-{2}.pres";
 
         /// <summary>
         /// Key for CategorySearchBoxModel caching
         /// </summary>
         /// <remarks>
-        /// {1} : language ID
-        /// {2} : store ID
-        /// {3} : comma separated list of customer groups
+        /// {0} : language ID
+        /// {1} : store ID
+        /// {2} : comma separated list of customer groups
         /// </remarks>
-        public const string CATEGORY_ALL_SEARCHBOX = "Grand.category.all.searchbox-{0}-{1}";
+        public const string CATEGORY_ALL_SEARCHBOX = "Grand.category.all.searchbox-{0}-{1}-{2}";
 
         
         /// <summary>
