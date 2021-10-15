@@ -3,7 +3,7 @@
 @{
     Layout = "_SingleColumn";
 
-    <script asp-location="Head" asp-src="/theme/script/public.checkout.js"></script>
+    <script asp-location="Footer" asp-src="/theme/script/public.checkout.js" asp-order="300"></script>
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.Checkout"]);
@@ -64,13 +64,16 @@
                             <div class="card">
                                 <b-collapse id="opc-shipping" visible accordion="my-accordion" role="tabpanel" appear>
                                     <div class="card-body">
-                                        <form action="" id="co-shipping-form">
-                                            <div id="checkout-shipping-load">
-                                                <partial name="_ShippingAddress" model="Model.ShippingAddress" />
-                                            </div>
-                                        </form>
+                                        <validation-observer v-slot="{ handleSubmit }">
+                                            <form action="" id="co-shipping-form" v-on:submit.prevent="handleSubmit(vmorder.formCheckoutSubmit())">
+                                                <div id="checkout-shipping-load">
+                                                    <partial name="_ShippingAddress" model="Model.ShippingAddress" />
+                                                </div>
+                                                <input type="submit" id="opc-shipping-submit" class="d-none" />
+                                            </form>
+                                        </validation-observer>
                                         <div class="col-12 buttons py-1 px-0 mt-3" id="shipping-buttons-container">
-                                            <input type="button" class="btn btn-info new-address-next-step-button" @@click="validateBeforeClick($event)" title="@Loc["Common.Continue"]" onclick="vmorder.vShipping.save()" value="@Loc["Common.Continue"]" />
+                                            <input type="button" class="btn btn-info new-address-next-step-button" title="@Loc["Common.Continue"]" onclick="vmorder.vShipping.save()" value="@Loc["Common.Continue"]" />
                                             <span id="shipping-please-wait" class="please-wait" style="display: none;"> @Loc["Common.LoadingNextStep"]</span>
                                         </div>
                                     </div>
@@ -80,21 +83,24 @@
                         <div class="card">
                             <b-collapse id="opc-billing" @if (!Model.ShippingRequired) { <text> visible </text> } accordion="my-accordion" role="tabpanel" appear>
                                 <div class="card-body">
-                                    <form id="co-billing-form" action="">
-                                        <div id="checkout-billing-load">
-                                            @if (Model.ShippingRequired)
-                                            {
-                                                <partial name="_BillingAddress" model="Model" />
-                                            }
-                                            else
-                                            {
-                                                <partial name="_BillingWithoutShipping" model="Model.BillingAddress" />
-                                            }
-                                        </div>
-                                    </form>
+                                    <validation-observer v-slot="{ handleSubmit }">
+                                        <form id="co-billing-form" action="" v-on:submit.prevent="handleSubmit()">
+                                            <div id="checkout-billing-load">
+                                                @if (Model.ShippingRequired)
+                                                {
+                                                    <partial name="_BillingAddress" model="Model" />
+                                                }
+                                                else
+                                                {
+                                                    <partial name="_BillingWithoutShipping" model="Model.BillingAddress" />
+                                                }
+                                            </div>
+                                            <input type="submit" id="opc-billing-submit" class="d-none" />
+                                        </form>
+                                    </validation-observer>
                                     <div class="col-12 buttons py-1 mt-3 px-0" id="billing-buttons-container">
                                         <a class="btn btn-secondary" id="back-billing" href="#" onclick="vmorder.Checkout.back(); return false; ">@Loc["Common.Back"]</a>
-                                        <input type="button" title="@Loc["Common.Continue"]" @@click="validateBeforeClick($event)" class="btn btn-info new-address-next-step-button" onclick="vmorder.vBilling.save()" value="@Loc["Common.Continue"]" />
+                                        <input type="button" title="@Loc["Common.Continue"]" class="btn btn-info new-address-next-step-button" onclick="vmorder.vBilling.save();" value="@Loc["Common.Continue"]" />
                                         <span class="please-wait" id="billing-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
                                     </div>
                                 </div>

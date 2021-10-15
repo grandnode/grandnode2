@@ -72,15 +72,15 @@
     </div>
 </template>
 
-<script asp-location="Header">
-    var ProductReviews = Vue.extend({
+<script asp-location="Footer" asp-order="300">
+    var productreviews = new Vue({
         data: function () {
             return {
                 Model: null,
                 captcha: null
             }
         },
-        mounted: function() {
+        created() {
             this.Model = @Json.Serialize(Model.Items);
         },
         methods: {
@@ -117,5 +117,4 @@
             }
         }
     });
-    var productreviews = new ProductReviews().$mount('#product-review-list');
 </script>

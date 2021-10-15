@@ -89,7 +89,7 @@
                 <a :id="'checkout_attribute_' + attribute.Id + 'downloadurl'" class="download-file btn btn-outline-info" style="display:none;">
                     Download
                 </a>
-                <script asp-location="Footer">
+                <script asp-location="Footer" asp-order="300">
 
                     function uploadFile(e) {
                         var formData = new FormData();
@@ -156,7 +156,7 @@
         </div>
     </div>
 
-   <script asp-location="Footer">
+   <script asp-location="Footer" asp-order="300">
         document.addEventListener("DOMContentLoaded", function () {
             checkoutAttributeChange();         
         });

@@ -15,80 +15,87 @@
         <div class="my-3">
             @* login main block *@
             <div class="col-12 mx-lg-0 mx-auto mt-3">
-                <form asp-route="Login" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post" v-on:submit.prevent="validateBeforeSubmit($event)">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="h5 mb-0 text-center">
-                                @Loc["Account.Login.ReturningCustomer"]
-                            </h3>
-                        </div>
-                        <div class="card-body">
-                            <div asp-validation-summary="ModelOnly" class="message-error w-100 alert alert-danger pb-0 text-center">@Loc["Account.Login.Unsuccessful"]</div>
-                            <div class="col-12 form-group mb-0">
-                                @if (Model.UsernamesEnabled)
-                                {
+                <validation-observer v-slot="{ handleSubmit }">
+                    <form asp-route="Login" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" ref="form"  v-on:submit.prevent="handleSubmit(formSubmit)" method="post">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="h5 mb-0 text-center">
+                                    @Loc["Account.Login.ReturningCustomer"]
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <div asp-validation-summary="ModelOnly" class="message-error w-100 alert alert-danger pb-0 text-center">@Loc["Account.Login.Unsuccessful"]</div>
+                                <div class="col-12 form-group mb-0">
+                                    @if (Model.UsernamesEnabled)
+                                    {
+                                        <div class="row form-group">
+                                            <div class="col-12 col-lg-3 d-flex align-items-start justify-content-sm-start">
+                                                <label asp-for="Username" class="col-form-label">@Loc["Account.Login.Fields.UserName"]:</label>
+                                            </div>
+                                            <div class="col-lg-9 col-12">
+                                                <validation-provider tag="div" rules="required" name="UserName" v-slot="{ errors }">
+                                                    <input asp-for="Username" v-model="login.Username" class="form-control username" autofocus="autofocus" />
+                                                    <span class="field-validation-error">{{ errors[0] }}</span>
+                                                    <span asp-validation-for="Username"></span>
+                                                </validation-provider>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="row form-group">
+                                            <div class="col-lg-3 col-12 d-flex align-items-start justify-content-start">
+                                                <label asp-for="Email" class="col-form-label">@Loc["Account.Login.Fields.Email"]:</label>
+                                            </div>
+                                            <div class="col-lg-9 col-12">
+                                                <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors }">
+                                                    <input asp-for="Email" v-model="login.Email" class="form-control email" autofocus="autofocus"/>
+                                                    <span class="field-validation-error">{{ errors[0] }}</span>
+                                                    <span asp-validation-for="Email"></span>
+                                                </validation-provider>
+                                                
+                                            </div>
+                                        </div>
+                                    }
                                     <div class="row form-group">
-                                        <div class="col-12 col-lg-3 d-flex align-items-start justify-content-sm-start">
-                                            <label asp-for="Username" class="col-form-label">@Loc["Account.Login.Fields.UserName"]:</label>
+                                        <div class="col-lg-3 col-12 d-flex align-items-center justify-content-start">
+                                            <label asp-for="Password" class="col-form-label">@Loc["Account.Login.Fields.Password"]:</label>
                                         </div>
                                         <div class="col-lg-9 col-12">
-                                            <input asp-for="Username" class="form-control username" autofocus="autofocus" v-validate="'required'" />
-                                            <span class="field-validation-error">{{veeErrors.first('Username')}}</span>
-                                            <span asp-validation-for="Username"></span>
+                                            <validation-provider tag="div" rules="required" name="Password" v-slot="{ errors }">
+                                                <input asp-for="Password" v-model="login.Password" class="form-control password" />
+                                                <span class="field-validation-error">{{ errors[0] }}</span>
+                                                <span asp-validation-for="Password"></span>
+                                            </validation-provider>
                                         </div>
                                     </div>
-                                }
-                                else
-                                {
-                                    <div class="row form-group">
-                                        <div class="col-lg-3 col-12 d-flex align-items-start justify-content-start">
-                                            <label asp-for="Email" class="col-form-label">@Loc["Account.Login.Fields.Email"]:</label>
+                                    <div class="inputs d-flex flex-sm-row flex-column justify-content-center">
+                                        <label class="custom-control custom-checkbox">
+                                            <input class="custom-control-input" asp-for="RememberMe" />
+                                            <input class="custom-control-label" name="RememberMe" type="hidden" value="false">
+                                            <span class="custom-control-label"></span>
+                                            <span class="custom-control-description">@Loc["Account.Login.Fields.RememberMe"]</span>
+                                        </label>
+                                        <span class="ml-3 forgot-password">
+                                            <a asp-route="PasswordRecovery">@Loc["Account.Login.ForgotPassword"]</a>
+                                        </span>
+                                    </div>
+                                    @if (Model.DisplayCaptcha)
+                                    {
+                                        <div class="captcha-box">
+                                            <captcha />
                                         </div>
-                                        <div class="col-lg-9 col-12">
-                                            <input asp-for="Email" class="form-control email" autofocus="autofocus"
-                                                   v-validate="'required|email'" />
-                                            <span class="field-validation-error">{{veeErrors.first('Email')}}</span>
-                                            <span asp-validation-for="Email"></span>
-                                        </div>
-                                    </div>
-                                }
-                                <div class="row form-group">
-                                    <div class="col-lg-3 col-12 d-flex align-items-center justify-content-start">
-                                        <label asp-for="Password" class="col-form-label">@Loc["Account.Login.Fields.Password"]:</label>
-                                    </div>
-                                    <div class="col-lg-9 col-12">
-                                        <input asp-for="Password" class="form-control password"
-                                               v-validate="'required'" />
-                                        <span class="field-validation-error">{{veeErrors.first('Password')}}</span>
-                                        <span asp-validation-for="Password"></span>
-                                    </div>
+                                    }
                                 </div>
-                                <div class="inputs d-flex flex-sm-row flex-column justify-content-center">
-                                    <label class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" asp-for="RememberMe" />
-                                        <input class="custom-control-label" name="RememberMe" type="hidden" value="false">
-                                        <span class="custom-control-label"></span>
-                                        <span class="custom-control-description">@Loc["Account.Login.Fields.RememberMe"]</span>
-                                    </label>
-                                    <span class="ml-3 forgot-password">
-                                        <a asp-route="PasswordRecovery">@Loc["Account.Login.ForgotPassword"]</a>
-                                    </span>
+                            </div>
+                            <div class="card-footer">
+                                <div class="buttons text-center">
+                                    <button class="btn btn-info login-button px-4" type="submit">@Loc["Account.Login.LoginButton"]</button>
                                 </div>
-                                @if (Model.DisplayCaptcha)
-                                {
-                                    <div class="captcha-box">
-                                        <captcha />
-                                    </div>
-                                }
                             </div>
                         </div>
-                        <div class="card-footer">
-                            <div class="buttons text-center">
-                                <input class="btn btn-info login-button px-4" type="submit" value="@Loc["Account.Login.LoginButton"]" />
-                            </div>
-                        </div>
-                    </div>
-                </form>
+                    </form>
+                </validation-observer>
                 <div class="external-authentication row mx-lg-0 mx-auto mt-3">
                     @await Component.InvokeAsync("ExternalMethods")
                 </div>
@@ -140,3 +147,12 @@
         </div>
     </div>
 </div>
+<script asp-location="Footer" asp-order="300">
+    var login = new Vue({
+        data: () => ({
+            Username: '',
+            Email: '',
+            Password: '',
+        })
+    });
+</script>

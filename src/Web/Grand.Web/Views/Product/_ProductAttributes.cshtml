@@ -216,8 +216,8 @@
             </div>
         </template>
     </div>
-    <script asp-location="Header">
-        var StandardProductAttributes = Vue.extend({
+    <script asp-location="Footer" asp-order="300">
+        var standardProductAttributes = new Vue({
             data: function () {
                 return {
                     ProductAttributes: null
@@ -302,11 +302,10 @@
                     });
                 },
             },
-            mounted() {
+            created() {
                 this.ProductAttributes = @Json.Serialize(Model);
             }
         });
-        var standardProductAttributes = new StandardProductAttributes().$mount('#product-attributes');
 
         document.addEventListener("DOMContentLoaded", function () {
             standardProductAttributes.attrchange();

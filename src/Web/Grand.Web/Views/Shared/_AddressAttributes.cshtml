@@ -65,17 +65,14 @@
         case AttributeControlType.TextBox:
             {
                 <input name="@(controlId)" type="text" class="form-control textbox"
-                       v-validate="'@(attribute.IsRequired ? "required":"")'"
                        id="@(controlId)" value="@(attribute.DefaultValue)" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" />
-                <span class="field-validation-error">{{veeErrors.first('@(controlId)')}}</span>
             }
             break;
         case AttributeControlType.MultilineTextbox:
             {
                 <textarea class="form-control" id="@(controlId)"
-                          v-validate="'@(attribute.IsRequired ? "required":"")'" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))"
+                          data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))"
                           name="@(controlId)">@(attribute.DefaultValue)</textarea>
-                <span class="field-validation-error">{{veeErrors.first('@(controlId)')}}</span>
             }
             break;
         case AttributeControlType.Datepicker:

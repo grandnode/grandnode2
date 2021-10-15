@@ -1,7 +1,7 @@
 ﻿@model PageModel
 @if (Model.IsPasswordProtected)
 {
-<script asp-location="Footer">
+<script asp-location="Footer" asp-order="300">
     document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('button-password').addEventListener('click', function () {
             var postData = {

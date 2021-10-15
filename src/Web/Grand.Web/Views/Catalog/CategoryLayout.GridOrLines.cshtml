@@ -124,40 +124,43 @@
         </div>
     }
     @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_featured_products", additionalData = Model.Id })
-    <div id="catalog-products">
-        @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_filters", additionalData = Model.Id })
-        <partial name="_Selectors" />
-        <template v-if="catalog.Model.Products.length > 0">
-            <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
-                <div class="col-12 product-grid px-0">
-                    <div class="form-row">
-                        <template v-for="Model in catalog.Model.Products">
-                            <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-                                <partial name="_CatalogProductViewVue" />
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </template>
-            <template v-else>
-                <div class="product-list">
-                    <div class="col-12">
-                        <div class="row">
+
+                @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_filters", additionalData = Model.Id })
+        <template v-if="catalog.Model !== undefined">
+            <partial name="_Selectors" />
+            <template v-if="catalog.Model.Products.length > 0">
+                <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
+                    <div class="col-12 product-grid px-0">
+                        <div class="form-row">
                             <template v-for="Model in catalog.Model.Products">
-                                <partial name="_CatalogProductListViewVue" />
+                                <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
+                                    <partial name="_CatalogProductViewVue" />
+                                </div>
                             </template>
                         </div>
                     </div>
+                </template>
+                <template v-else>
+                    <div class="product-list">
+                        <div class="col-12">
+                            <div class="row">
+                                <template v-for="Model in catalog.Model.Products">
+                                    <partial name="_CatalogProductListViewVue" />
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <partial name="_Pagination" />
+            </template>
+            <template v-else>
+                <div class="alert alert-info my-3">
+                    @Loc["search.noresultstext"]
                 </div>
             </template>
-            <partial name="_Pagination" />
         </template>
-        <template v-else>
-            <div class="alert alert-info my-3">
-                @Loc["search.noresultstext"]
-            </div>
-        </template>
-    </div>
+       
+ 
     @*Rendering bottom description*@
     @if (!String.IsNullOrWhiteSpace(Model.BottomDescription))
     {

@@ -1,20 +1,21 @@
 ﻿@model ShoppingCartModel
-<script asp-location="Header">
- var Order = Vue.extend({
-        props: {
-            cart: null,
-            totals: null,
-            checkoutAsGuest: false,
-            // confirm order
-            MinOrderTotalWarning: null,
-            TermsOfServiceOnOrderConfirmPage: null,
-            ConfirmWarnings: null,
-            // terms of service
-            terms: false,
-            acceptTerms: false,
+<script asp-location="Footer" asp-order="300">
+    var vmorder = new Vue({
+        data: function () {
+            return {
+                cart: @Json.Serialize(Model),
+                totals: null,
+                checkoutAsGuest: false,
+                // confirm order
+                MinOrderTotalWarning: null,
+                TermsOfServiceOnOrderConfirmPage: null,
+                ConfirmWarnings: null,
+                // terms of service
+                terms: false,
+                acceptTerms: false,
+            }
         },
-        mounted() {
-            this.cart = @Json.Serialize(Model);
+        created() {
             this.updateTotals();
             this.cartView();
         },
@@ -231,6 +232,5 @@
         }
     });
 
-    var vmorder = new Order().$mount('#ordersummarypagecart')
 
 </script>

@@ -90,7 +90,7 @@
                                                 <template v-if="vmwishlist.Model.ShowSku && item.Sku !== null">
                                                     <span class="sku-number">{{item.Sku}}</span>
                                                 </template>
-                                                <template v-if="item.AttributeInfo !== null">
+                                                <template v-if="item.AttributeInfo !== ''">
                                                     <div class="attributes small" v-html="item.AttributeInfo"></div>
                                                 </template>
                                                 <template v-if="item.Warnings.length > 0">

@@ -17,7 +17,7 @@
         </form>
     </b-modal>
 }
-<script>
+<script asp-location="Footer" asp-order="300">
 
     var BannerMixin = {
         created: function () {
@@ -66,10 +66,8 @@
         }
     }
     // define a component that uses this mixin
-    var Banner = Vue.extend({
+    var banner = new Vue({
         mixins: [BannerMixin]
     })
-
-    var banner = new Banner();
 
 </script>

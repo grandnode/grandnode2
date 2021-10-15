@@ -4,7 +4,7 @@
 }
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
-<script asp-location="Footer">
+<script asp-location="Footer" asp-order="300">
         function @Html.IdFor(model => model.CountryId)_select_element(e) {
             var selectedItem = e.value;
             var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
@@ -20,6 +20,7 @@
                     elChild.innerHTML = id.name;
                     ddlStates.appendChild(elChild);
                 });
+                createorupdateaddress.StateProvinceId = response.data[0].id;
             }).then(function () {
                 if (ddlStates.length > 1) {
                     ddlStates.classList.remove('is-valid');
@@ -47,38 +48,48 @@
 <input asp-for="Id" type="hidden" />
 <div class="edit-address row">
     <div class="form-group col-sm-12 col-md-6">
-        <label asp-for="FirstName" class="col-form-label">@Loc["Address.Fields.FirstName"]:</label>
-        <span class="required">*</span>
-        <input asp-for="FirstName" class="form-control" v-validate="'required'" />
-        <span class="field-validation-error">{{veeErrors.first('@(prefix).FirstName')}}</span>
-        <span asp-validation-for="FirstName"></span>
+        <validation-provider tag="div" rules="required" :name="'@prefix' + '.FirstName'" v-slot="{ errors }">
+            <label asp-for="FirstName" class="col-form-label">@Loc["Address.Fields.FirstName"]:</label>
+            <span class="required">*</span>
+            <input asp-for="FirstName" v-model="createorupdateaddress.FirstName" class="form-control" />
+            <span class="field-validation-error">{{ errors[0] }}</span>
+            <span asp-validation-for="FirstName"></span>
+        </validation-provider>
     </div>
     <div class="form-group col-sm-12 col-md-6">
-        <label asp-for="LastName" class="col-form-label">@Loc["Address.Fields.LastName"]:</label>
-        <span class="required">*</span>
-        <input asp-for="LastName" class="form-control" v-validate="'required'" />
-        <span class="field-validation-error">{{veeErrors.first('@(prefix).LastName')}}</span>
-        <span asp-validation-for="LastName"></span>
+        <validation-provider tag="div" rules="required" :name="'@prefix'  + '.LastName'" v-slot="{ errors }">
+            <label asp-for="LastName" class="col-form-label">@Loc["Address.Fields.LastName"]:</label>
+            <span class="required">*</span>
+            <input asp-for="LastName" v-model="createorupdateaddress.LastName" class="form-control" />
+            <span class="field-validation-error">{{ errors[0] }}</span>
+            <span asp-validation-for="LastName"></span>
+        </validation-provider>
     </div>
     <div class="form-group col-sm-12">
-        <label asp-for="Email" class="col-form-label">@Loc["Address.Fields.Email"]:</label>
-        <span class="required">*</span>
-        <input asp-for="Email" class="form-control" v-validate="'required|email'" />
-        <span class="field-validation-error">{{veeErrors.first('@(prefix).Email')}}</span>
-        <span asp-validation-for="Email"></span>
+        <validation-provider tag="div" rules="required|email" :name="'@prefix'  + '.Email'" v-slot="{ errors }">
+            <label asp-for="Email" class="col-form-label">@Loc["Address.Fields.Email"]:</label>
+            <span class="required">*</span>
+            <input asp-for="Email" v-model="createorupdateaddress.Email" class="form-control" />
+            <span class="field-validation-error">{{ errors[0] }}</span>
+            <span asp-validation-for="Email"></span>
+        </validation-provider>
     </div>
     @if (Model.CompanyEnabled)
     {
         <div class="form-group col-sm-12">
-            <label asp-for="Company" class="col-form-label">@Loc["Address.Fields.Company"]:</label>
             @if (Model.CompanyRequired)
             {
-                <span class="required">*</span>
-                <input asp-for="Company" class="form-control" v-validate="'required'" />
-                <span class="field-validation-error">{{veeErrors.first('@(prefix).Company')}}</span>
+                <validation-provider tag="div" rules="required" :name="'@prefix'  + '.Company'" v-slot="{ errors }">
+                    <label asp-for="Company" class="col-form-label">@Loc["Address.Fields.Company"]:</label>
+                    <span class="required">*</span>
+                    <input asp-for="Company" v-model="createorupdateaddress.Company" class="form-control" />
+                    <span class="field-validation-error">{{ errors[0] }}</span>
+                    <span asp-validation-for="Company"></span>
+                </validation-provider>
             }
             else
             {
+                <label asp-for="Company" class="col-form-label">@Loc["Address.Fields.Company"]:</label>
                 <input asp-for="Company" class="form-control" />
             }
             <span asp-validation-for="Company"></span>
@@ -87,15 +98,19 @@
     @if (Model.VatNumberEnabled)
     {
         <div class="form-group col-sm-12">
-            <label asp-for="VatNumber" class="col-form-label">@Loc["Address.Fields.VatNumber"]:</label>
             @if (Model.VatNumberRequired)
             {
-                <span class="required">*</span>
-                <input asp-for="VatNumber" class="form-control" v-validate="'required'" />
-                <span class="field-validation-error">{{veeErrors.first('@(prefix).VatNumber')}}</span>
+                <validation-provider tag="div" rules="required" :name="'@prefix' + '.VatNumber'" v-slot="{ errors }">
+                    <label asp-for="VatNumber" class="col-form-label">@Loc["Address.Fields.VatNumber"]:</label>
+                    <span class="required">*</span>
+                    <input asp-for="VatNumber" v-model="createorupdateaddress.VatNumber" class="form-control" />
+                    <span class="field-validation-error">{{ errors[0] }}</span>
+                    <span asp-validation-for="VatNumber"></span>
+                </validation-provider>
             }
             else
             {
+                <label asp-for="VatNumber" class="col-form-label">@Loc["Address.Fields.VatNumber"]:</label>
                 <input asp-for="VatNumber" class="form-control" />
             }
             <span asp-validation-for="VatNumber"></span>
@@ -104,36 +119,46 @@
     @if (Model.CountryEnabled)
     {
         <div class="form-group col-sm-12 col-md-6">
-            <label asp-for="CountryId" class="col-form-label">@Loc["Address.Fields.Country"]:</label>
-            <span class="required">*</span>
-            <select asp-for="CountryId" asp-items="Model.AvailableCountries"
-                    onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" class="custom-select form-control" v-validate="'required'"></select>
-            <span class="field-validation-error">{{veeErrors.first('@(prefix).CountryId')}}</span>
-            <span asp-validation-for="CountryId"></span>
+            <validation-provider tag="div" rules="required" :name="'@prefix' + '.CountryId'" v-slot="{ errors }">
+                <label asp-for="CountryId" class="col-form-label">@Loc["Address.Fields.Country"]:</label>
+                <span class="required">*</span>
+                <select asp-for="CountryId" asp-items="Model.AvailableCountries"
+                        onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" class="custom-select form-control" v-model="createorupdateaddress.CountryId"></select>
+                <span class="field-validation-error">{{ errors[0] }}</span>
+                <span asp-validation-for="CountryId"></span>
+            </validation-provider>
         </div>
     }
 
     @if (Model.CountryEnabled && Model.StateProvinceEnabled)
     {
         <div class="form-group col-sm-12 col-md-6">
-            <label asp-for="StateProvinceId" class="col-form-label">@Loc["Address.Fields.StateProvince"]:</label>
-            <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" class="custom-select form-control" onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-validate="'required'"></select>
-            <span class="field-validation-error">{{veeErrors.first('@(prefix).StateProvinceId')}}</span>
-            <span asp-validation-for="StateProvinceId"></span>
+            <validation-provider tag="div" rules="required" :name="'@prefix' + '.StateProvinceId'" v-slot="{ errors }">
+                <label asp-for="StateProvinceId" class="col-form-label">@Loc["Address.Fields.StateProvince"]:</label>
+                <span class="required">*</span>
+                <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" class="custom-select form-control"
+                        onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-model="createorupdateaddress.StateProvinceId"></select>
+                <span class="field-validation-error">{{ errors[0] }}</span>
+                <span asp-validation-for="StateProvinceId"></span>
+            </validation-provider>
         </div>
     }
     @if (Model.CityEnabled)
     {
         <div class="form-group col-sm-12">
-            <label asp-for="City" class="col-form-label">@Loc["Address.Fields.City"]:</label>
             @if (Model.CityRequired)
             {
-                <span class="required">*</span>
-                <input asp-for="City" class="form-control" v-validate="'required'" />
-                <span class="field-validation-error">{{veeErrors.first('@(prefix).City')}}</span>
+                <validation-provider tag="div" rules="required" :name="'@prefix' + '.City'" v-slot="{ errors }">
+                    <label asp-for="City" class="col-form-label">@Loc["Address.Fields.City"]:</label>
+                    <span class="required">*</span>
+                    <input asp-for="City" v-model="createorupdateaddress.City" class="form-control" />
+                    <span class="field-validation-error">{{ errors[0] }}</span>
+                    <span asp-validation-for="City"></span>
+                </validation-provider>
             }
             else
             {
+                <label asp-for="City" class="col-form-label">@Loc["Address.Fields.City"]:</label>
                 <input asp-for="City" class="form-control" />
             }
             <span asp-validation-for="City"></span>
@@ -142,15 +167,19 @@
     @if (Model.StreetAddressEnabled)
     {
         <div class="form-group col-sm-12 col-md-6">
-            <label asp-for="Address1" class="col-form-label">@Loc["Address.Fields.Address1"]:</label>
             @if (Model.StreetAddressRequired)
             {
-                <span class="required">*</span>
-                <input asp-for="Address1" class="form-control" v-validate="'required'" />
-                <span class="field-validation-error">{{veeErrors.first('@(prefix).Address1')}}</span>
+                <validation-provider tag="div" rules="required" :name="'@prefix' + '.Address1'" v-slot="{ errors }">
+                    <label asp-for="Address1" class="col-form-label">@Loc["Address.Fields.Address1"]:</label>
+                    <span class="required">*</span>
+                    <input asp-for="Address1" v-model="createorupdateaddress.Address1" class="form-control" />
+                    <span class="field-validation-error">{{ errors[0] }}</span>
+                    <span asp-validation-for="Address1"></span>
+                </validation-provider>
             }
             else
             {
+                <label asp-for="Address1" class="col-form-label">@Loc["Address.Fields.Address1"]:</label>
                 <input asp-for="Address1" class="form-control" />
             }
             <span asp-validation-for="Address1"></span>
@@ -159,15 +188,19 @@
     @if (Model.StreetAddress2Enabled)
     {
         <div class="form-group col-sm-12 col-md-6">
-            <label asp-for="Address2" class="col-form-label">@Loc["Address.Fields.Address2"]:</label>
             @if (Model.StreetAddress2Required)
             {
-                <span class="required">*</span>
-                <input asp-for="Address2" class="form-control" v-validate="'required'" />
-                <span class="field-validation-error">{{veeErrors.first('@(prefix).Address2')}}</span>
+                <validation-provider tag="div" rules="required" :name="'@prefix' + '.Address2'" v-slot="{ errors }">
+                    <label asp-for="Address2" class="col-form-label">@Loc["Address.Fields.Address2"]:</label>
+                    <span class="required">*</span>
+                    <input asp-for="Address2" v-model="createorupdateaddress.Address2" class="form-control" />
+                    <span class="field-validation-error">{{ errors[0] }}</span>
+                    <span asp-validation-for="Address2"></span>
+                </validation-provider>
             }
             else
             {
+                <label asp-for="Address2" class="col-form-label">@Loc["Address.Fields.Address2"]:</label>
                 <input asp-for="Address2" class="form-control" />
             }
             <span asp-validation-for="Address2"></span>
@@ -176,15 +209,19 @@
     @if (Model.ZipPostalCodeEnabled)
     {
         <div class="form-group col-sm-12">
-            <label asp-for="ZipPostalCode" class="col-form-label">@Loc["Address.Fields.ZipPostalCode"]:</label>
             @if (Model.ZipPostalCodeRequired)
             {
-                <span class="required">*</span>
-                <input asp-for="ZipPostalCode" class="form-control" v-validate="'required'" />
-                <span class="field-validation-error">{{veeErrors.first('@(prefix).ZipPostalCode')}}</span>
+                <validation-provider tag="div" rules="required" :name="'@prefix' + '.ZipPostalCode'" v-slot="{ errors }">
+                    <label asp-for="ZipPostalCode" class="col-form-label">@Loc["Address.Fields.ZipPostalCode"]:</label>
+                    <span class="required">*</span>
+                    <input asp-for="ZipPostalCode" v-model="createorupdateaddress.ZipPostalCode" class="form-control" />
+                    <span class="field-validation-error">{{ errors[0] }}</span>
+                    <span asp-validation-for="ZipPostalCode"></span>
+                </validation-provider>
             }
             else
             {
+                <label asp-for="ZipPostalCode" class="col-form-label">@Loc["Address.Fields.ZipPostalCode"]:</label>
                 <input asp-for="ZipPostalCode" class="form-control" />
             }
             <span asp-validation-for="ZipPostalCode"></span>
@@ -193,15 +230,19 @@
     @if (Model.PhoneEnabled)
     {
         <div class="form-group col-sm-12 col-md-6">
-            <label asp-for="PhoneNumber" class="col-form-label">@Loc["Address.Fields.PhoneNumber"]:</label>
             @if (Model.PhoneRequired)
             {
-                <span class="required">*</span>
-                <input asp-for="PhoneNumber" class="form-control" v-validate="'required'" />
-                <span class="field-validation-error">{{veeErrors.first('@(prefix).PhoneNumber')}}</span>
+                <validation-provider tag="div" rules="required" :name="'@prefix' + '.PhoneNumber'" v-slot="{ errors }">
+                    <label asp-for="PhoneNumber" class="col-form-label">@Loc["Address.Fields.PhoneNumber"]:</label>
+                    <span class="required">*</span>
+                    <input asp-for="PhoneNumber" v-model="createorupdateaddress.PhoneNumber" class="form-control" />
+                    <span class="field-validation-error">{{ errors[0] }}</span>
+                    <span asp-validation-for="PhoneNumber"></span>
+                </validation-provider>
             }
             else
             {
+                <label asp-for="PhoneNumber" class="col-form-label">@Loc["Address.Fields.PhoneNumber"]:</label>
                 <input asp-for="PhoneNumber" class="form-control" />
             }
             <span asp-validation-for="PhoneNumber"></span>
@@ -210,15 +251,19 @@
     @if (Model.FaxEnabled)
     {
         <div class="form-group col-sm-12 col-md-6">
-            <label asp-for="FaxNumber" class="col-form-label">@Loc["Address.Fields.FaxNumber"]:</label>
             @if (Model.FaxRequired)
             {
-                <span class="required">*</span>
-                <input asp-for="FaxNumber" class="form-control" v-validate="'required'" />
-                <span class="field-validation-error">{{veeErrors.first('@(prefix).FaxNumber')}}</span>
+                <validation-provider tag="div" rules="required" :name="'@prefix' + '.FaxNumber'" v-slot="{ errors }">
+                    <label asp-for="FaxNumber" class="col-form-label">@Loc["Address.Fields.FaxNumber"]:</label>
+                    <span class="required">*</span>
+                    <input asp-for="FaxNumber" v-model="createorupdateaddress.FaxNumber" class="form-control" />
+                    <span class="field-validation-error">{{ errors[0] }}</span>
+                    <span asp-validation-for="FaxNumber"></span>
+                </validation-provider>
             }
             else
             {
+                <label asp-for="FaxNumber" class="col-form-label">@Loc["Address.Fields.FaxNumber"]:</label>
                 <input asp-for="FaxNumber" class="form-control" />
             }
             <span asp-validation-for="FaxNumber"></span>
@@ -245,3 +290,27 @@
     }
     <div id="errors-address"></div>
 </div>
+<script asp-location="Footer" asp-order="301">
+    var createorupdateaddress = new Vue({
+            data: () => ({
+                @{
+                    <text>
+                        FirstName: '@Html.Raw(Model.FirstName)',
+                        LastName: '@Html.Raw(Model.LastName)',
+                        Company: '@Html.Raw(Model.Company)',
+                        Address1: '@Html.Raw(Model.Address1)',
+                        Address2: '@Html.Raw(Model.Address2)',
+                        ZipPostalCode: '@Html.Raw(Model.ZipPostalCode)',
+                        City: '@Html.Raw(Model.City)',
+                        CountryId: '@Model.CountryId',
+                        StateProvinceId: '@Model.StateProvinceId',
+                        PhoneNumber: '@Html.Raw(Model.PhoneNumber)',
+                        FaxNumber: '@Html.Raw(Model.FaxNumber)',
+                        VatNumber: '@Html.Raw(Model.VatNumber)',
+                        Email: '@Html.Raw(Model.Email)',
+                        prefix: '@prefix'
+                    </text>
+                }
+            })
+        });
+</script>
