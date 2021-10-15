@@ -36,6 +36,8 @@ import { ToastPlugin } from 'bootstrap-vue'
 Vue.use(ToastPlugin)
 import { TabsPlugin } from 'bootstrap-vue'
 Vue.use(TabsPlugin)
+import { CollapsePlugin } from 'bootstrap-vue'
+Vue.use(CollapsePlugin)
 
 import {
     BIcon,
