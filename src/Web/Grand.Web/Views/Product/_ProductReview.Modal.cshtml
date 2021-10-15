@@ -5,6 +5,7 @@
 <b-modal id="ModalProductReview" ref="ModalProductReview" :dark-theme="darkMode" size="xl" @@shown="modalReviewShown()" @@hide="modalReviewClose()" centered hide-footer hide-header>
     <template v-if="PopupProductReviewVueModal !== null">
         <h2 class="generalTitle h3">@Loc["Reviews.ProductReviewsFor"] <a :href="'@productlink' + PopupProductReviewVueModal.ProductSeName">{{PopupProductReviewVueModal.ProductName}}</a></h2>
+        <a class="modal-close" @@click="$bvModal.hide('ModalProductReview')"><b-icon icon="x"></b-icon></a>
         <template v-if="!PopupProductReviewVueModal.AddProductReview.SuccessfullyAdded">
             <div class="write-review" id="review-form">
                 <h5 class="generalTitle"><strong>@Loc["Reviews.Write"]</strong></h5>
