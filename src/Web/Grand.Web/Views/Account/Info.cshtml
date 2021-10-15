@@ -372,7 +372,7 @@
                                 }
                                 @if (Model.CountryEnabled)
                                 {
-                                    <fieldset class="form-group col-12">
+                                    <fieldset class="form-group col-12 col-sm-6">
                                         <legend class="sr-only">@Loc["account.fields.country"]</legend>
                                         @if (Model.CountryRequired)
                                         {
@@ -394,7 +394,7 @@
                                 }
                                 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
                                 {
-                                    <fieldset class="form-group col-12">
+                                    <fieldset class="form-group col-12 col-sm-6">
                                         <legend class="sr-only">@Loc["account.fields.stateprovince"]</legend>
                                         <label asp-for="StateProvinceId" class="col-form-label">@Loc["Account.Fields.StateProvince"]:</label>
                                         @if (Model.StateProvinceRequired)
@@ -587,18 +587,19 @@
         data: () => ({
             @{
                 <text>
-                    FirstName: '@Model.FirstName',
-                    LastName: '@Model.LastName',
-                    Company: '@Model.Company',
-                    StreetAddress: '@Model.StreetAddress',
-                    StreetAddress2: '@Model.StreetAddress2',
-                    ZipPostalCode: '@Model.ZipPostalCode',
-                    City: '@Model.City',
+                    FirstName: '@Html.Raw(Model.FirstName)',
+                    LastName: '@Html.Raw(Model.LastName)',
+                    Company: '@Html.Raw(Model.Company)',
+                    StreetAddress: '@Html.Raw(Model.StreetAddress)',
+                    StreetAddress2: '@Html.Raw(Model.StreetAddress2)',
+                    ZipPostalCode: '@Html.Raw(Model.ZipPostalCode)',
+                    City: '@Html.Raw(Model.City)',
                     CountryId: '@Model.CountryId',
-                    Phone: '@Model.Phone',
-                    Fax: '@Model.Fax',
-                    Username: '@Model.Username',
-                    Email: '@Model.Email',
+                    StateProvinceId: '@Model.StateProvinceId',
+                    Phone: '@Html.Raw(Model.Phone)',
+                    Fax: '@Html.Raw(Model.Fax)',
+                    Username: '@Html.Raw(Model.Username)',
+                    Email: '@Html.Raw(Model.Email)',
                 </text>
             }
         })
