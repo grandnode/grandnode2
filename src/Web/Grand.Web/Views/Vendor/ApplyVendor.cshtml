@@ -114,8 +114,8 @@
                 data: () => ({
                     @{
                         <text>
-                            Name: '@Model.Name',
-                            Email: '@Model.Email',
+                            Name: '@Html.Raw(Model.Name)',
+                            Email: '@Html.Raw(Model.Email)',
                             AcceptPrivacyPolicy: false
                         </text>
                     }
