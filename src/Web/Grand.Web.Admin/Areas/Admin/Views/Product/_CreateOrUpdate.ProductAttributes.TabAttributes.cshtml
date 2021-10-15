@@ -1,5 +1,8 @@
 @model ProductModel
 
+<link rel="stylesheet" type="text/css" asp-src="/_content/Grand.Web.Admin/administration/farbtastic/farbtastic.css" />
+<script asp-location="Footer" asp-src="/_content/Grand.Web.Admin/administration/farbtastic/farbtastic.js"></script>
+
 <div class="panel panel-default">
     <vc:admin-widget widget-zone="product_details_product_attributes_top" additional-data="Model" />
     <div class="panel-body">
@@ -112,7 +115,7 @@
                             }
                         }
                     });
-                },                
+                },
                 pageable: {
                     refresh: true,
                     numeric: false,
@@ -277,6 +280,6 @@
             grid.dataSource.read();
             //return false to don't reload a page
             return false;
-        });        
+        });
     });
 </script>
