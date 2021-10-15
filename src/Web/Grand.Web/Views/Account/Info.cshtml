@@ -189,7 +189,7 @@
                             <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors }">
                                 <label asp-for="Email" class="col-form-label">@Loc["Account.Fields.Email"]:</label>
                                 <span class="required">*</span>
-                                <input asp-for="Email" v-model="customerinfo.Email" class="form-control" autofocus="autofocus" />
+                                <input asp-for="Email" v-model="customerinfo.Email" class="form-control" autofocus="autofocus" asp-readonly=@(!Model.AllowUsersToChangeEmail) />
                                 <span class="field-validation-error">{{ errors[0] }}</span>
                                 <span asp-validation-for="Email"></span>
                             </validation-provider>
