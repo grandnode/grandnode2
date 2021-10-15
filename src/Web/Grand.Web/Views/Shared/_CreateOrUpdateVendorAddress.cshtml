@@ -5,24 +5,6 @@
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
     <script asp-location="Footer" asp-order="300">
-        var createorupdatevendoraddress = new Vue({
-            data: () => ({
-                @{
-                    <text>
-                        Company: '@Model.Company',
-                        Address1: '@Model.Address1',
-                        Address2: '@Model.Address2',
-                        ZipPostalCode: '@Model.ZipPostalCode',
-                        City: '@Model.City',
-                        CountryId: '@Model.CountryId',
-                        StateProvinceId: '@Model.StateProvinceId',
-                        PhoneNumber: '@Model.PhoneNumber',
-                        FaxNumber: '@Model.FaxNumber',
-                        prefix: '@prefix'
-                    </text>
-                }
-            })
-        });
         document.addEventListener("DOMContentLoaded", function () {
             var select_element = document.getElementById('@Html.IdFor(model => model.CountryId)');
             if (document.getElementById("@Html.IdFor(model => model.StateProvinceId)")) {
@@ -255,3 +237,23 @@
         </div>
     }
 </b-row>
+<script asp-location="Footer" asp-order="301">
+    var createorupdatevendoraddress = new Vue({
+            data: () => ({
+                @{
+                    <text>
+                        Company: '@Model.Company',
+                        Address1: '@Model.Address1',
+                        Address2: '@Model.Address2',
+                        ZipPostalCode: '@Model.ZipPostalCode',
+                        City: '@Model.City',
+                        CountryId: '@Model.CountryId',
+                        StateProvinceId: '@Model.StateProvinceId',
+                        PhoneNumber: '@Model.PhoneNumber',
+                        FaxNumber: '@Model.FaxNumber',
+                        prefix: '@prefix'
+                    </text>
+                }
+            })
+        });
+</script>

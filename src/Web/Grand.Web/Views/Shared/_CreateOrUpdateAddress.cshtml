@@ -5,28 +5,6 @@
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
 <script asp-location="Footer" asp-order="300">
-        var createorupdateaddress = new Vue({
-            data: () => ({
-                @{
-                    <text>
-                        FirstName: '@Model.FirstName',
-                        LastName: '@Model.LastName',
-                        Company: '@Model.Company',
-                        Address1: '@Model.Address1',
-                        Address2: '@Model.Address2',
-                        ZipPostalCode: '@Model.ZipPostalCode',
-                        City: '@Model.City',
-                        CountryId: '@Model.CountryId',
-                        StateProvinceId: '@Model.StateProvinceId',
-                        PhoneNumber: '@Model.PhoneNumber',
-                        FaxNumber: '@Model.FaxNumber',
-                        VatNumber: '@Model.VatNumber',
-                        Email: '@Model.Email',
-                        prefix: '@prefix'
-                    </text>
-                }
-            })
-        });
         function @Html.IdFor(model => model.CountryId)_select_element(e) {
             var selectedItem = e.value;
             var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
@@ -311,3 +289,27 @@
     }
     <div id="errors-address"></div>
 </div>
+<script asp-location="Footer" asp-order="301">
+    var createorupdateaddress = new Vue({
+            data: () => ({
+                @{
+                    <text>
+                        FirstName: '@Model.FirstName',
+                        LastName: '@Model.LastName',
+                        Company: '@Model.Company',
+                        Address1: '@Model.Address1',
+                        Address2: '@Model.Address2',
+                        ZipPostalCode: '@Model.ZipPostalCode',
+                        City: '@Model.City',
+                        CountryId: '@Model.CountryId',
+                        StateProvinceId: '@Model.StateProvinceId',
+                        PhoneNumber: '@Model.PhoneNumber',
+                        FaxNumber: '@Model.FaxNumber',
+                        VatNumber: '@Model.VatNumber',
+                        Email: '@Model.Email',
+                        prefix: '@prefix'
+                    </text>
+                }
+            })
+        });
+</script>
