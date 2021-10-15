@@ -242,15 +242,15 @@
             data: () => ({
                 @{
                     <text>
-                        Company: '@Model.Company',
-                        Address1: '@Model.Address1',
-                        Address2: '@Model.Address2',
-                        ZipPostalCode: '@Model.ZipPostalCode',
-                        City: '@Model.City',
+                        Company: '@Html.Raw(Model.Company)',
+                        Address1: '@Html.Raw(Model.Address1)',
+                        Address2: '@Html.Raw(Model.Address2)',
+                        ZipPostalCode: '@Html.Raw(Model.ZipPostalCode)',
+                        City: '@Html.Raw(Model.City)',
                         CountryId: '@Model.CountryId',
                         StateProvinceId: '@Model.StateProvinceId',
-                        PhoneNumber: '@Model.PhoneNumber',
-                        FaxNumber: '@Model.FaxNumber',
+                        PhoneNumber: '@Html.Raw(Model.PhoneNumber)',
+                        FaxNumber: '@Html.Raw(Model.FaxNumber)',
                         prefix: '@prefix'
                     </text>
                 }
