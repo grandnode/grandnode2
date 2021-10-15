@@ -1,10 +1,11 @@
-﻿using Grand.Infrastructure.Caching;
-using Grand.Domain.Catalog;
-using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Customers.Interfaces;
+﻿using Grand.Business.Catalog.Interfaces.Categories;
+using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Localization;
-using Grand.Web.Features.Models.Catalog;
+using Grand.Domain.Catalog;
+using Grand.Domain.Customers;
+using Grand.Infrastructure.Caching;
 using Grand.Web.Events.Cache;
+using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -12,7 +13,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Grand.Domain.Customers;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {
@@ -38,8 +38,8 @@ namespace Grand.Web.Features.Handlers.Catalog
         public async Task<SearchBoxModel> Handle(GetSearchBox request, CancellationToken cancellationToken)
         {
             string cacheKey = string.Format(CacheKeyConst.CATEGORY_ALL_SEARCHBOX,
-                string.Join(",", request.Customer.GetCustomerGroupIds()),
-                request.Store.Id);
+                request.Language.Id, request.Store.Id,
+                string.Join(",", request.Customer.GetCustomerGroupIds()));
 
             return await _cacheBase.GetAsync(cacheKey, async () =>
             {
@@ -50,7 +50,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 {
                     availableCategories.Add(new SelectListItem { Text = _translationService.GetResource("Common.All"), Value = "" });
                     foreach (var s in searchbocategories)
-                        availableCategories.Add(new SelectListItem { Text = s.Name, Value = s.Id.ToString() });
+                        availableCategories.Add(new SelectListItem { Text = s.GetTranslation(x => x.Name, request.Language.Id), Value = s.Id.ToString() });
                 }
 
                 var model = new SearchBoxModel {
