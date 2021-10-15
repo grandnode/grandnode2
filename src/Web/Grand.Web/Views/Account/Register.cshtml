@@ -5,10 +5,8 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Register"]);
 }
-@if (Model.CountryEnabled && Model.StateProvinceEnabled)
-{
-    <script asp-location="Footer" asp-order="300">
-        var register = new Vue({
+<script asp-location="Footer" asp-order="300">
+    var register = new Vue({
             data: () => ({
                 @{
                     <text>
@@ -32,6 +30,11 @@
                 }
             })
         });
+</script>
+@if (Model.CountryEnabled && Model.StateProvinceEnabled)
+{
+    <script asp-location="Footer" asp-order="300">
+        
         document.addEventListener("DOMContentLoaded", function () {
 
             var select_element = document.getElementById('@Html.IdFor(model => model.CountryId)');
@@ -85,7 +88,7 @@
                 });
             });
         });
-    </script>
+</script>
 }
 
 <script asp-location="Footer">
@@ -278,10 +281,10 @@
                 </div>
             }
             @if (Model.StreetAddressEnabled ||
-            Model.StreetAddress2Enabled ||
-            Model.ZipPostalCodeEnabled ||
-            Model.CityEnabled ||
-            Model.CountryEnabled)
+           Model.StreetAddress2Enabled ||
+           Model.ZipPostalCodeEnabled ||
+           Model.CityEnabled ||
+           Model.CountryEnabled)
             {
                 <div class="card mb-3">
                     <div class="card-header">
@@ -538,17 +541,17 @@
             @if (Model.AcceptPrivacyPolicyEnabled)
             {
 
-                    <validation-provider tag="div" vid="register.AcceptPrivacyPolicy" :rules="{ required: { allowFalse: false } }" v-slot="{ errors }">
-                        <div class="d-inline-flex">
-                            <label class="custom-control custom-checkbox">
-                                <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="register.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" class="custom-control-input">
-                                <span class="custom-control-label"></span>
-                                <span class="custom-control-description">@Loc["Account.Fields.AcceptPrivacyPolicy"]</span>
-                            </label>
-                            <b-link class="read mx-2" onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "privacyinfo" })', 450, 500, true)">@Loc["Account.Fields.AcceptPrivacyPolicy.Read"]</b-link>
-                        </div>
-                        <span class="field-validation-error d-flex w-100">{{ errors[0] }}</span>
-                    </validation-provider>
+                <validation-provider tag="div" vid="register.AcceptPrivacyPolicy" :rules="{ required: { allowFalse: false } }" v-slot="{ errors }">
+                    <div class="d-inline-flex">
+                        <label class="custom-control custom-checkbox">
+                            <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="register.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" class="custom-control-input">
+                            <span class="custom-control-label"></span>
+                            <span class="custom-control-description">@Loc["Account.Fields.AcceptPrivacyPolicy"]</span>
+                        </label>
+                        <b-link class="read mx-2" onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "privacyinfo" })', 450, 500, true)">@Loc["Account.Fields.AcceptPrivacyPolicy.Read"]</b-link>
+                    </div>
+                    <span class="field-validation-error d-flex w-100">{{ errors[0] }}</span>
+                </validation-provider>
             }
         </div>
         <input type="submit" id="register-button" class="btn btn-secondary register-next-step-button my-3" value="@Loc["Account.Register.Button"]" />
