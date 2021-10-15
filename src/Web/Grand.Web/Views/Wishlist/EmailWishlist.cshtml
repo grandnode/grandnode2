@@ -64,9 +64,9 @@
                     data: () => ({
                         @{
                             <text>
-                                FriendEmail: '',
-                                YourEmailAddress: '@Model.YourEmailAddress',
-                                PersonalMessage: '',
+                                FriendEmail: '@Html.Raw(Model.FriendEmail)',
+                                YourEmailAddress: '@Html.Raw(Model.YourEmailAddress)',
+                                PersonalMessage: '@Html.Raw(Model.PersonalMessage)',
                             </text>
                         }
                     })
