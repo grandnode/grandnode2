@@ -32,8 +32,6 @@ import { FormFilePlugin } from 'bootstrap-vue'
 Vue.use(FormFilePlugin)
 import { ImagePlugin } from 'bootstrap-vue'
 Vue.use(ImagePlugin)
-import { NavbarPlugin } from 'bootstrap-vue'
-Vue.use(NavbarPlugin)
 import { ToastPlugin } from 'bootstrap-vue'
 Vue.use(ToastPlugin)
 import { TabsPlugin } from 'bootstrap-vue'
