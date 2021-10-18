@@ -72,6 +72,19 @@ namespace Grand.Business.Messages.DotLiquidDrops
             get { return _store.CompanyVat; }
         }
 
+        public string BankCode {
+            get { return _store.BankAccount?.BankCode; }
+        }
+        public string BankName {
+            get { return _store.BankAccount?.BankName; }
+        }
+        public string SwiftCode {
+            get { return _store.BankAccount?.SwiftCode; }
+        }
+        public string AccountNumber {
+            get { return _store.BankAccount?.AccountNumber; }
+        }
+
         public string TwitterLink { get; set; }
 
         public string FacebookLink { get; set; }

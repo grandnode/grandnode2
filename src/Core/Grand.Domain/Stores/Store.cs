@@ -12,6 +12,7 @@ namespace Grand.Domain.Stores
         {
             Locales = new List<TranslationEntity>();
             Domains = new List<DomainHost>();
+            BankAccount = new BankAccount();
         }
 
         /// <summary>
@@ -103,6 +104,8 @@ namespace Grand.Domain.Stores
         /// Gets or sets the identifier of the default admin theme for this store
         /// </summary>
         public string DefaultAdminTheme { get; set; }
+
+        public BankAccount BankAccount { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of locales

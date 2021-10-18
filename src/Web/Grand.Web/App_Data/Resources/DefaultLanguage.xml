@@ -5079,6 +5079,18 @@
   <Resource Name="Admin.Configuration.Stores.BackToList">
     <Value>back to store list</Value>
   </Resource>
+  <Resource Name="Admin.Configuration.Stores.BankAccount.Fields.AccountNumber">
+    <Value>Account number</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.BankAccount.Fields.BankCode">
+    <Value>Bank Code</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.BankAccount.Fields.BankName">
+    <Value>Bank Name</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.BankAccount.Fields.SwiftCode">
+    <Value>BIC/SWIFT Code</Value>
+  </Resource>
   <Resource Name="Admin.Configuration.Stores.Deleted">
     <Value>The store has been deleted successfully.</Value>
   </Resource>
@@ -12017,6 +12029,9 @@
   </Resource>
   <Resource Name="Admin.Settings.Vendor.VendorSettings">
     <Value>Vendor settings</Value>
+  </Resource>
+  <Resource Name="Admin.Stores.BankInfo">
+    <Value>House bank</Value>
   </Resource>
   <Resource Name="Admin.Stores.Domains">
     <Value>Domains</Value>

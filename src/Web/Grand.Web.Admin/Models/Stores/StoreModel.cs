@@ -11,7 +11,7 @@ namespace Grand.Web.Admin.Models.Stores
         public StoreModel()
         {
             Locales = new List<StoreLocalizedModel>();
-            Domains = new List<DomainHostModel>();
+            Domains = new List<DomainHostModel>();            
             AvailableLanguages = new List<SelectListItem>();
             AvailableWarehouses = new List<SelectListItem>();
             AvailableCountries = new List<SelectListItem>();
@@ -79,6 +79,19 @@ namespace Grand.Web.Admin.Models.Stores
 
         public IList<DomainHostModel> Domains { get; set; }
 
+        public BankAccountModel BankAccount { get; set; }
+
+        public class BankAccountModel : BaseEntityModel
+        {
+            [GrandResourceDisplayName("Admin.Configuration.Stores.BankAccount.Fields.BankCode")]
+            public string BankCode { get; set; }
+            [GrandResourceDisplayName("Admin.Configuration.Stores.BankAccount.Fields.BankName")]
+            public string BankName { get; set; }
+            [GrandResourceDisplayName("Admin.Configuration.Stores.BankAccount.Fields.SwiftCode")]
+            public string SwiftCode { get; set; }
+            [GrandResourceDisplayName("Admin.Configuration.Stores.BankAccount.Fields.AccountNumber")]
+            public string AccountNumber { get; set; }
+        }
     }
 
     public partial class StoreLocalizedModel : ILocalizedModelLocal
@@ -101,4 +114,6 @@ namespace Grand.Web.Admin.Models.Stores
         [GrandResourceDisplayName("Admin.Configuration.Stores.Domains.Fields.Primary")]
         public bool Primary { get; set; }
     }
+
+    
 }
