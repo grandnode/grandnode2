@@ -1,4 +1,6 @@
 ﻿@model ProductDetailsModel.ProductPriceModel
+@inject IWorkContext workContext
+
 <div class="prices d-flex justify-content-center align-items-start row px-3 flex-column" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
     @if (Model.EnteredPrice)
     {
@@ -7,7 +9,10 @@
     else if (Model.CallForPrice)
     {
         <div class="product-price call-for-price col-12 px-0">
-            <span>@Loc["Products.CallForPrice"]</span>
+            <b-button v-b-modal.modal-1>@Loc["Products.CallForPrice"]</b-button>
+            <b-modal id="modal-1" hide-footer title="@Loc["Products.CallForPrice"]">
+                <p class="my-4"><span>@Loc["Products.CallForPrice"]:</span><a href="tel:@workContext.CurrentStore.CompanyPhoneNumber"> @workContext.CurrentStore.CompanyPhoneNumber</a></p>
+            </b-modal>
         </div>
     }
     else
@@ -53,9 +58,11 @@
                         <strong class="actual-price">@Loc["Products.BuyNowPrice"]:</strong>
                     }
 
-                    @if (string.IsNullOrEmpty(Model.PriceWithDiscount)) {
+                    @if (string.IsNullOrEmpty(Model.PriceWithDiscount))
+                    {
                         <span class="actual-price">@Html.Raw(Model.Price)</span>
-                    } else
+                    }
+                    else
                     {
                         <strong>@Html.Raw(Model.Price)</strong>
                     }
@@ -87,7 +94,7 @@
                 <span class="your-price price-value-@(Model.ProductId)">
                     <strong class="actual-price">@Html.Raw(Model.PriceWithDiscount)</strong>
                 </span>
-                 <meta itemprop="price" content="@Model.PriceValue.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" class="your-price price-value-@(Model.ProductId)" />
+                <meta itemprop="price" content="@Model.PriceValue.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" class="your-price price-value-@(Model.ProductId)" />
             </div>
         }
         if (!string.IsNullOrEmpty(Model.BasePricePAngV))
@@ -100,8 +107,9 @@
         {
             <meta itemprop="priceCurrency" content="@Model.CurrencyCode" />
         }
-        @if (string.IsNullOrWhiteSpace(Model.PriceWithDiscount)) {
-            <meta itemprop="price" content="@Model.PriceValue.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)"/> 
+        @if (string.IsNullOrWhiteSpace(Model.PriceWithDiscount))
+        {
+            <meta itemprop="price" content="@Model.PriceValue.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" />
         }
     }
 </div>
