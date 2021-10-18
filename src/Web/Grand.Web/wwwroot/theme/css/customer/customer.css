@@ -19,10 +19,32 @@
     font-size: 16px;
 }
 
+/* status */
+
+table .status.badge {
+    font-size: 16px;
+    padding: 6px 8px;
+}
+table .status.pending {
+    background-color: #d1ecf1;
+}
+table .status.processing {
+    background-color: #fff3cd;
+}
+table .status.complete {
+    background-color: #d4edda;
+}
+table .status.cancelled {
+    background-color: #f8d7da;
+}
+
 /* dark customer */
 
 [dark-theme="true"] .block-account-navigation ul li a.active, [dark-theme="true"] .block-account-navigation ul li a:hover {
     color: #fff;
     border-color: #1fb0c7;
     background-color: #2d3133;
+}
+[dark-theme="true"] table .status {
+    color: #212529;
 }
