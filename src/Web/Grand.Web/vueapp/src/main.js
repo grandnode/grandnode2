@@ -92,7 +92,7 @@ import {
     BIconMoon,
     BIconSun,
     BIconFileEarmarkRichtext,
-    BIconHammer
+    BIconHammer,
 } from 'bootstrap-vue'
 Vue.component('BIcon', BIcon)
 Vue.component('BIconAspectRatio', BIconAspectRatio)
@@ -152,7 +152,16 @@ import { ValidationObserver, ValidationProvider } from 'vee-validate';
 Vue.component('ValidationProvider', ValidationProvider);
 Vue.component('ValidationObserver', ValidationObserver);
 
-import { extend } from 'vee-validate';
+import { extend, configure  } from 'vee-validate';
+
+export const config = {
+    classes: {
+        valid: 'is-valid',
+        invalid: 'is-invalid'
+    },
+};
+
+configure(config);
 
 extend('confirmed', {
     params: ['target'],

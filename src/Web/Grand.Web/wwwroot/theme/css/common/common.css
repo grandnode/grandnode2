@@ -13,7 +13,7 @@ a:hover {
 .dropdown-menu {
     min-width: unset;
 }
-.required {
+span.required {
     color: #dc3545;
 }
 .col-form-label {

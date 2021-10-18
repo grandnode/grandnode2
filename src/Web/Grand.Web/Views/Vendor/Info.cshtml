@@ -17,19 +17,19 @@
             <div asp-validation-summary="ModelOnly" class="message-error alert alert-danger" my-3></div>
             <div class="form-fields">
                 <div class="form-group">
-                    <validation-provider tag="div" rules="required" name="Name" v-slot="{ errors }">
+                    <validation-provider tag="div" rules="required" name="Name" v-slot="{ errors, classes }">
                         <label asp-for="Name" class="col-form-label">@Loc["Account.VendorInfo.Name"]:</label>
                         <span class="required">*</span>
-                        <input asp-for="Name" v-model="vendorinfo.Name" placeholder="@Loc["Account.VendorInfo.Name.Hint"]" class="form-control" />
+                        <input asp-for="Name" v-model="vendorinfo.Name" placeholder="@Loc["Account.VendorInfo.Name.Hint"]" v-bind:class="[classes , 'form-control']" />
                         <span class="field-validation-error">{{ errors[0] }}</span>
                         <span asp-validation-for="Name"></span>
                     </validation-provider>
                 </div>
                 <div class="form-group">
-                    <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors }">
+                    <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
                         <label asp-for="Email" class="col-form-label">@Loc["Account.VendorInfo.Email"]:</label>
                         <span class="required">*</span>
-                        <input asp-for="Email" v-model="vendorinfo.Email" placeholder="@Loc["Account.VendorInfo.Email.Hint"]" class="form-control" />
+                        <input asp-for="Email" v-model="vendorinfo.Email" placeholder="@Loc["Account.VendorInfo.Email.Hint"]" v-bind:class="[classes , 'form-control']" />
                         <span class="field-validation-error">{{ errors[0] }}</span>
                         <span asp-validation-for="Email"></span>
                     </validation-provider>
