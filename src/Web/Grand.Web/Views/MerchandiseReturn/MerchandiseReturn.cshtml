@@ -174,10 +174,10 @@
                     @if (Model.ShowPickupDate)
                     {
                         <div class="form-group">
-                            <validation-provider tag="div" rules="required" name="PickupDate" v-slot="{ errors }">
+                            <validation-provider tag="div" rules="required" name="PickupDate" v-slot="{ errors, classes }">
                                 <label class="col-form-label">@Loc["MerchandiseReturns.PickupDate"]:</label>
                                 <span class="required">*</span>
-                                <input asp-for="PickupDate" type="date" v-model="merchandisereturns.PickupDate" class="datepicker form-control" />
+                                <input asp-for="PickupDate" type="date" v-model="merchandisereturns.PickupDate" v-bind:class="[classes , 'form-control datepicker']" />
                                 <span class="field-validation-error">{{ errors[0] }}</span>
                             </validation-provider>
                         </div>

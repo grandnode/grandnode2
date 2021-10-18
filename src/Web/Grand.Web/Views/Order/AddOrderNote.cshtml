@@ -16,9 +16,9 @@
                 <fieldset>
                     <div class="form-fields">
                         <div class="form-group">
-                            <validation-provider tag="div" rules="required" name="Note" v-slot="{ errors }">
+                            <validation-provider tag="div" rules="required" name="Note" v-slot="{ errors, classes }">
                                 <label asp-for="Note" class="col-form-label">@Loc["OrderNote.Fields.Title"]:</label>
-                                <textarea asp-for="Note" v-model="ordernote.Note" class="form-control" autofocus="autofocus" rows="4"></textarea>
+                                <textarea asp-for="Note" v-model="ordernote.Note" v-bind:class="[classes , 'form-control']" autofocus="autofocus" rows="4"></textarea>
                                 <span class="field-validation-error">{{ errors[0] }}</span>
                             </validation-provider>
                         </div>

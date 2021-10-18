@@ -22,33 +22,33 @@
             <form asp-route="AskQuestion" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
                 <div asp-validation-summary="ModelOnly" class="message-error"></div>
                 <fieldset class="form-group">
-                    <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors }">
+                    <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
                         <label asp-for="Email" class="col-form-label">@Loc["Products.AskQuestion.Email"]:</label>
-                        <input asp-for="Email" v-model="askquestion.Email" placeholder="@Loc["Products.AskQuestion.Email.Hint"]" class="form-control ask-question-email" />
+                        <input asp-for="Email" v-model="askquestion.Email" placeholder="@Loc["Products.AskQuestion.Email.Hint"]" v-bind:class="[classes , 'form-control ask-question-email']" />
                         <span class="field-validation-error">{{ errors[0] }}</span>
                         <span asp-validation-for="Email"></span>
                     </validation-provider>
                 </fieldset>
                 <fieldset class="form-group">
-                    <validation-provider tag="div" rules="required" name="FullName" v-slot="{ errors }">
+                    <validation-provider tag="div" rules="required" name="FullName" v-slot="{ errors, classes }">
                         <label asp-for="FullName" class="col-form-label">@Loc["Products.AskQuestion.FullName"]:</label>
-                        <input asp-for="FullName" v-model="askquestion.FullName" placeholder="@Loc["Products.AskQuestion.FullName.Hint"]" class="form-control ask-question-fullname" />
+                        <input asp-for="FullName" v-model="askquestion.FullName" placeholder="@Loc["Products.AskQuestion.FullName.Hint"]" v-bind:class="[classes , 'form-control ask-question-fullname']" />
                         <span class="field-validation-error">{{ errors[0] }}</span>
                         <span asp-validation-for="FullName"></span>
                     </validation-provider>
                 </fieldset>
                 <fieldset class="form-group">
-                    <validation-provider tag="div" rules="required" name="Phone" v-slot="{ errors }">
+                    <validation-provider tag="div" rules="required" name="Phone" v-slot="{ errors, classes }">
                         <label asp-for="Phone" class="col-form-label">@Loc["Products.AskQuestion.Phone"]:</label>
-                        <input asp-for="Phone" v-model="askquestion.Phone" placeholder="@Loc["Products.AskQuestion.Phone.Hint"]" class="form-control ask-question-phone" />
+                        <input asp-for="Phone" v-model="askquestion.Phone" placeholder="@Loc["Products.AskQuestion.Phone.Hint"]"v-bind:class="[classes , 'form-control ask-question-phone']" />
                         <span class="field-validation-error">{{ errors[0] }}</span>
                         <span asp-validation-for="Phone"></span>
                     </validation-provider>
                 </fieldset>
                 <fieldset class="form-group">
-                    <validation-provider tag="div" rules="required" name="Message" v-slot="{ errors }">
+                    <validation-provider tag="div" rules="required" name="Message" v-slot="{ errors, classes }">
                         <label asp-for="Message" class="col-form-label">@Loc["Products.AskQuestion.Message"]:</label>
-                        <textarea asp-for="Message" v-model="askquestion.Message" placeholder="@Loc["Products.AskQuestion.Message.Hint"]" class="form-control ask-question-message" rows="4"></textarea>
+                        <textarea asp-for="Message" v-model="askquestion.Message" placeholder="@Loc["Products.AskQuestion.Message.Hint"]" v-bind:class="[classes , 'form-control ask-question-message']" rows="4"></textarea>
                         <span class="field-validation-error">{{ errors[0] }}</span>
                         <span asp-validation-for="Message"></span>
                     </validation-provider>

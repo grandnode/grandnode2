@@ -75,10 +75,10 @@
                     <input type="hidden" name="blogPostId" value="@Model.Id" />
                     <div class="form-fields">
                         <div class="form-group">
-                            <validation-provider tag="div" rules="required" name="AddNewComment.CommentText" v-slot="{ errors }">
+                            <validation-provider tag="div" rules="required" name="AddNewComment.CommentText" v-slot="{ errors, classes }">
                                 <label asp-for="AddNewComment.CommentText" class="col-form-label">@Loc["Blog.Comments.CommentText"]:</label>
                                 <span class="required">*</span>
-                                <textarea asp-for="AddNewComment.CommentText" v-model="blog.CommentText" class="form-control" autofocus="autofocus" rows="4"></textarea>
+                                <textarea asp-for="AddNewComment.CommentText" v-model="blog.CommentText" v-bind:class="[classes , 'form-control']" autofocus="autofocus" rows="4"></textarea>
                                 <span class="field-validation-error">{{ errors[0] }}</span>
                                 <span asp-validation-for="AddNewComment.CommentText"></span>
                             </validation-provider>

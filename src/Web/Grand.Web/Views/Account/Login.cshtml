@@ -33,8 +33,8 @@
                                                 <label asp-for="Username" class="col-form-label">@Loc["Account.Login.Fields.UserName"]:</label>
                                             </div>
                                             <div class="col-lg-9 col-12">
-                                                <validation-provider tag="div" rules="required" name="UserName" v-slot="{ errors }">
-                                                    <input asp-for="Username" v-model="login.Username" class="form-control username" autofocus="autofocus" />
+                                                <validation-provider tag="div" rules="required" name="UserName" v-slot="{ errors, classes }">
+                                                    <input asp-for="Username" v-model="login.Username" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                                     <span asp-validation-for="Username"></span>
                                                 </validation-provider>
@@ -48,8 +48,8 @@
                                                 <label asp-for="Email" class="col-form-label">@Loc["Account.Login.Fields.Email"]:</label>
                                             </div>
                                             <div class="col-lg-9 col-12">
-                                                <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors }">
-                                                    <input asp-for="Email" v-model="login.Email" class="form-control email" autofocus="autofocus"/>
+                                                <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
+                                                    <input asp-for="Email" v-model="login.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus"/>
                                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                                     <span asp-validation-for="Email"></span>
                                                 </validation-provider>
@@ -62,8 +62,8 @@
                                             <label asp-for="Password" class="col-form-label">@Loc["Account.Login.Fields.Password"]:</label>
                                         </div>
                                         <div class="col-lg-9 col-12">
-                                            <validation-provider tag="div" rules="required" name="Password" v-slot="{ errors }">
-                                                <input asp-for="Password" v-model="login.Password" class="form-control password" />
+                                            <validation-provider tag="div" rules="required" name="Password" v-slot="{ errors, classes }">
+                                                <input asp-for="Password" v-model="login.Password" v-bind:class="[classes , 'form-control']" />
                                                 <span class="field-validation-error">{{ errors[0] }}</span>
                                                 <span asp-validation-for="Password"></span>
                                             </validation-provider>

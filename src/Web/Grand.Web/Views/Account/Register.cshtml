@@ -5,90 +5,43 @@
     //title
     pagebuilder.AddTitleParts(Loc["Title.Register"]);
 }
-<script asp-location="Footer" asp-order="300">
-    var register = new Vue({
-            data: () => ({
-                @{
-                    <text>
-                        FirstName: '@Html.Raw(Model.FirstName)',
-                        LastName: '@Html.Raw(Model.LastName)',
-                        Company: '@Html.Raw(Model.Company)',
-                        StreetAddress: '@Html.Raw(Model.StreetAddress)',
-                        StreetAddress2: '@Html.Raw(Model.StreetAddress2)',
-                        ZipPostalCode: '@Html.Raw(Model.ZipPostalCode)',
-                        City: '@Html.Raw(Model.City)',
-                        CountryId: '@Model.CountryId',
-                        StateProvinceId: '@Model.StateProvinceId',
-                        Phone: '@Html.Raw(Model.Phone)',
-                        Fax: '@Html.Raw(Model.Fax)',
-                        Username: '@Html.Raw(Model.Username)',
-                        Email: '@Html.Raw(Model.Email)',
-                        Password: '',
-                        ConfirmPassword: '',
-                        AcceptPrivacyPolicy: false
-                    </text>
-                }
-            })
-        });
-</script>
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
     <script asp-location="Footer" asp-order="300">
-        
-        document.addEventListener("DOMContentLoaded", function () {
-
-            var select_element = document.getElementById('@Html.IdFor(model => model.CountryId)');
-            if (document.getElementById("@Html.IdFor(model => model.StateProvinceId)")) {
-                var state_element = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
-                var ddlStates2 = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
-                state_element.onchange = function () {
-                    if (ddlStates2.options[0].selected) {
-                        ddlStates2.nextSibling.nextElementSibling.style.display = "block";
-                    } else {
-                        ddlStates2.nextSibling.nextElementSibling.style.display = "none";
-                    }
+            function @Html.IdFor(model => model.CountryId)_select_element(e) {
+                    var selectedItem = e.value;
+                    var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
+                    axios({
+                        method: 'get',
+                        url: "@(Url.RouteUrl("GetStatesByCountryId"))",
+                        params: { "countryId": selectedItem, "addSelectStateItem": "true" },
+                    }).then(function (response) {
+                        ddlStates.innerHTML = '';
+                        response.data.forEach(function (id, option) {
+                            elChild = document.createElement('option');
+                            elChild.setAttribute('value', id.id);
+                            elChild.innerHTML = id.name;
+                            ddlStates.appendChild(elChild);
+                        });
+                        register.StateProvinceId = response.data[0].id;
+                    }).then(function () {
+                        ddlStates.classList.remove('is-valid');
+                        ddlStates.classList.add('is-invalid');
+                    }).catch(function (error) {
+                        alert(error);
+                    });
+            }
+            function @Html.IdFor(model => model.StateProvinceId)_select_element(e) {
+                var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
+                if (e.selectedIndex > 0) {
+                    ddlStates.classList.remove('is-invalid');
+                    ddlStates.classList.add('is-valid');
+                } else {
+                    ddlStates.classList.remove('is-valid');
+                    ddlStates.classList.add('is-invalid');
                 }
             }
-
-            document.getElementById("@Html.IdFor(model => model.CountryId)").addEventListener('change', function () {
-                var selectedItem = this.value;
-                var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
-                var statesProgress = document.getElementById("states-loading-progress");
-                statesProgress.style.display = "block";
-                axios({
-                    method: 'GET',
-                    url: "@(Url.RouteUrl("GetStatesByCountryId"))",
-                    params: { "countryId": selectedItem, "addSelectStateItem": "true" },
-                }).then(function (response) {
-                    ddlStates.innerHTML = '';
-                    response.data.forEach(function (id, option) {
-                        elChild = document.createElement('option');
-                        elChild.setAttribute('value', id.id);
-                        elChild.innerHTML = id.name;
-                        ddlStates.appendChild(elChild);
-                    })
-                    if (ddlStates.length > 1) {
-                        if (ddlStates.options[0].selected = true) {
-                            ddlStates.nextSibling.nextElementSibling.style.display = "block";
-                            if (ddlStates.nextSibling.nextSibling.nextElementSibling) {
-                                ddlStates.nextSibling.nextSibling.nextElementSibling.style.display = "none";
-                            }
-                        } else {
-                            ddlStates.nextSibling.nextElementSibling.style.display = "none";
-                            if (ddlStates.nextSibling.nextSibling.nextElementSibling) {
-                                ddlStates.nextSibling.nextSibling.nextElementSibling.style.display = "none";
-                            }
-                        }
-                    } else {
-                        ddlStates.nextSibling.nextElementSibling.style.display = "none";
-                    }
-                    statesProgress.style.display = "none";
-                }).catch(function (error) {
-                    alert(error);
-                });
-            });
-        });
-</script>
+    </script>
 }
 
 <script asp-location="Footer">
@@ -148,10 +101,10 @@
                             <legend class="sr-only">@Loc["account.fields.firstname"]</legend>
                             @if (Model.FirstLastNameRequired)
                             {
-                                <validation-provider tag="div" rules="required" name="FirstName" v-slot="{ errors }">
+                                <validation-provider tag="div" rules="required" name="FirstName" v-slot="{ errors, classes }">
                                     <label asp-for="FirstName" class="col-form-label">@Loc["Account.Fields.FirstName"]:</label>
                                     <span class="required">*</span>
-                                    <input asp-for="FirstName" v-model="register.FirstName" class="form-control" autofocus="autofocus" />
+                                    <input asp-for="FirstName" v-model="register.FirstName" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="FirstName"></span>
                                 </validation-provider>
@@ -166,10 +119,10 @@
                             <legend class="sr-only">@Loc["account.fields.lastname"]</legend>
                             @if (Model.FirstLastNameRequired)
                             {
-                                <validation-provider tag="div" rules="required" name="LastName" v-slot="{ errors }">
+                                <validation-provider tag="div" rules="required" name="LastName" v-slot="{ errors, classes }">
                                     <label asp-for="LastName" class="col-form-label">@Loc["Account.Fields.LastName"]:</label>
                                     <span class="required">*</span>
-                                    <input asp-for="LastName" v-model="register.LastName" class="form-control" autofocus="autofocus" />
+                                    <input asp-for="LastName" v-model="register.LastName" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="LastName"></span>
                                 </validation-provider>
@@ -207,10 +160,10 @@
                     }
                     <fieldset class="form-group mail">
                         <legend class="sr-only">@Loc["account.fields.email"]</legend>
-                        <validation-provider tag="div" rules="required" name="Email" v-slot="{ errors }">
+                        <validation-provider tag="div" rules="required" name="Email" v-slot="{ errors, classes }">
                             <label asp-for="Email" class="col-form-label">@Loc["Account.Fields.Email"]:</label>
                             <span class="required">*</span>
-                            <input asp-for="Email" v-model="register.Email" class="form-control" autofocus="autofocus" />
+                            <input asp-for="Email" v-model="register.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Email"></span>
                         </validation-provider>
@@ -224,8 +177,8 @@
                                 <span class="required">*</span>
                             </div>
                             <div class="col-12">
-                                <validation-provider tag="div" rules="required" name="Username" v-slot="{ errors }">
-                                    <input asp-for="Username" v-model="register.Username" class="form-control" autofocus="autofocus" />
+                                <validation-provider tag="div" rules="required" name="Username" v-slot="{ errors, classes }">
+                                    <input asp-for="Username" v-model="register.Username" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="Username"></span>
                                 </validation-provider>
@@ -249,10 +202,10 @@
                         <div class="form-group">
                             @if (Model.CompanyRequired)
                             {
-                                <validation-provider tag="div" rules="required" name="Company" v-slot="{ errors }">
+                                <validation-provider tag="div" rules="required" name="Company" v-slot="{ errors, classes }">
                                     <label asp-for="Company" class="col-form-label">@Loc["Account.Fields.Company"]:</label>
                                     <span class="required">*</span>
-                                    <input asp-for="Company" v-model="register.Company" class="form-control" autofocus="autofocus" />
+                                    <input asp-for="Company" v-model="register.Company" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="Company"></span>
                                 </validation-provider>
@@ -300,10 +253,10 @@
                                     <legend class="sr-only">@Loc["account.fields.streetaddress"]</legend>
                                     @if (Model.StreetAddressRequired)
                                     {
-                                        <validation-provider tag="div" rules="required" name="StreetAddress" v-slot="{ errors }">
+                                        <validation-provider tag="div" rules="required" name="StreetAddress" v-slot="{ errors, classes }">
                                             <label asp-for="StreetAddress" class="col-form-label">@Loc["Account.Fields.StreetAddress"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="StreetAddress" v-model="register.StreetAddress" class="form-control" autofocus="autofocus" />
+                                            <input asp-for="StreetAddress" v-model="register.StreetAddress" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="StreetAddress"></span>
                                         </validation-provider>
@@ -322,10 +275,10 @@
                                     <legend class="sr-only">@Loc["account.fields.streetaddress2"]</legend>
                                     @if (Model.StreetAddress2Required)
                                     {
-                                        <validation-provider tag="div" rules="required" name="StreetAddress2" v-slot="{ errors }">
+                                        <validation-provider tag="div" rules="required" name="StreetAddress2" v-slot="{ errors, classes }">
                                             <label asp-for="StreetAddress2" class="col-form-label">@Loc["Account.Fields.StreetAddress2"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="StreetAddress2" v-model="register.StreetAddress2" class="form-control" autofocus="autofocus" />
+                                            <input asp-for="StreetAddress2" v-model="register.StreetAddress2" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="StreetAddress2"></span>
                                         </validation-provider>
@@ -344,10 +297,10 @@
                                     <legend class="sr-only">@Loc["account.fields.zippostalcode"]</legend>
                                     @if (Model.ZipPostalCodeRequired)
                                     {
-                                        <validation-provider tag="div" rules="required" name="ZipPostalCode" v-slot="{ errors }">
+                                        <validation-provider tag="div" rules="required" name="ZipPostalCode" v-slot="{ errors, classes }">
                                             <label asp-for="ZipPostalCode" class="col-form-label">@Loc["Account.Fields.ZipPostalCode"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="ZipPostalCode" v-model="register.ZipPostalCode" class="form-control" autofocus="autofocus" />
+                                            <input asp-for="ZipPostalCode" v-model="register.ZipPostalCode" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="ZipPostalCode"></span>
                                         </validation-provider>
@@ -366,10 +319,10 @@
                                     <legend class="sr-only">@Loc["account.fields.city"]</legend>
                                     @if (Model.CityRequired)
                                     {
-                                        <validation-provider tag="div" rules="required" name="City" v-slot="{ errors }">
+                                        <validation-provider tag="div" rules="required" name="City" v-slot="{ errors, classes }">
                                             <label asp-for="City" class="col-form-label">@Loc["Account.Fields.City"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="City" v-model="register.City" class="form-control" autofocus="autofocus" />
+                                            <input asp-for="City" v-model="register.City" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="City"></span>
                                         </validation-provider>
@@ -388,11 +341,11 @@
                                     <legend class="sr-only">@Loc["account.fields.country"]</legend>
                                     @if (Model.CountryRequired)
                                     {
-                                        <validation-provider tag="div" rules="required" name="CountryId" v-slot="{ errors }">
+                                        <validation-provider tag="div" rules="required" name="CountryId" v-slot="{ errors, classes }">
                                             <label asp-for="CountryId" class="col-form-label">@Loc["Account.Fields.Country"]:</label>
                                             <span class="required">*</span>
-                                            <select asp-for="CountryId" v-model="register.CountryId" class="custom-select form-control"
-                                                    asp-items="Model.AvailableCountries"></select>
+                                            <select asp-for="CountryId" asp-items="Model.AvailableCountries"
+                                                    onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" v-bind:class="[classes , 'form-control custom-select']" v-model="register.CountryId"></select>
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="CountryId"></span>
                                         </validation-provider>
@@ -409,11 +362,11 @@
                             {
                                 <fieldset class="form-group col-12 col-sm-6">
                                     <legend class="sr-only">@Loc["account.fields.stateprovince"]</legend>
-                                    <validation-provider tag="div" rules="required" name="StateProvinceId" v-slot="{ errors }">
+                                    <validation-provider tag="div" rules="required" name="StateProvinceId" v-slot="{ errors, classes }">
                                         <label asp-for="StateProvinceId" class="col-form-label">@Loc["Account.Fields.StateProvince"]:</label>
                                         <span class="required">*</span>
-                                        <select asp-for="StateProvinceId" v-model="register.StateProvinceId" class="custom-select form-control"
-                                                asp-items="Model.AvailableStates"></select>
+                                        <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" v-bind:class="[classes , 'form-control custom-select']"
+                                                onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-model="register.StateProvinceId"></select>
                                         <span class="field-validation-error">{{ errors[0] }}</span>
                                         <span asp-validation-for="StateProvinceId"></span>
                                         <span id="states-loading-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
@@ -439,10 +392,10 @@
                                     <legend class="sr-only">@Loc["account.fields.phone"]</legend>
                                     @if (Model.PhoneRequired)
                                     {
-                                        <validation-provider tag="div" rules="required" name="Phone" v-slot="{ errors }">
+                                        <validation-provider tag="div" rules="required" name="Phone" v-slot="{ errors, classes }">
                                             <label asp-for="Phone" class="col-form-label">@Loc["Account.Fields.Phone"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="Phone" v-model="register.Phone" class="form-control" autofocus="autofocus" />
+                                            <input asp-for="Phone" v-model="register.Phone" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="Phone"></span>
                                         </validation-provider>
@@ -461,10 +414,10 @@
                                     <legend class="sr-only">@Loc["account.fields.fax"]</legend>
                                     @if (Model.FaxRequired)
                                     {
-                                        <validation-provider tag="div" rules="required" name="Fax" v-slot="{ errors }">
+                                        <validation-provider tag="div" rules="required" name="Fax" v-slot="{ errors, classes }">
                                             <label asp-for="Fax" class="col-form-label">@Loc["Account.Fields.Fax"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="Fax" v-model="register.Fax" class="form-control" autofocus="autofocus" />
+                                            <input asp-for="Fax" v-model="register.Fax" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="Fax"></span>
                                         </validation-provider>
@@ -514,17 +467,17 @@
                 </div>
                 <div class="card-body">
                     <div class="form-group">
-                        <validation-provider tag="div" vid="register.Password" rules="required" v-slot="{ errors }">
+                        <validation-provider tag="div" vid="register.Password" rules="required" v-slot="{ errors, classes }">
                             <label asp-for="Password" class="col-form-label">@Loc["Account.Fields.Password"]:</label>
-                            <input asp-for="Password" v-model="register.Password" class="form-control username" autofocus="autofocus" />
+                            <input asp-for="Password" v-model="register.Password" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Password"></span>
                         </validation-provider>
                     </div>
                     <div class="form-group">
-                        <validation-provider tag="div" vid="register.ConfirmPassword" rules="required|confirmed:@@register.Password" v-slot="{ errors }">
+                        <validation-provider tag="div" vid="register.ConfirmPassword" rules="required|confirmed:@@register.Password" v-slot="{ errors, classes }">
                             <label asp-for="ConfirmPassword" class="col-form-label">@Loc["Account.Fields.ConfirmPassword"]:</label>
-                            <input asp-for="ConfirmPassword" v-model="register.ConfirmPassword" class="form-control username" autofocus="autofocus" />
+                            <input asp-for="ConfirmPassword" v-model="register.ConfirmPassword" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="ConfirmPassword"></span>
                         </validation-provider>
@@ -541,10 +494,10 @@
             @if (Model.AcceptPrivacyPolicyEnabled)
             {
 
-                <validation-provider tag="div" vid="register.AcceptPrivacyPolicy" :rules="{ required: { allowFalse: false } }" v-slot="{ errors }">
+                <validation-provider tag="div" vid="register.AcceptPrivacyPolicy" :rules="{ required: { allowFalse: false } }" v-slot="{ errors, classes }">
                     <div class="d-inline-flex">
                         <label class="custom-control custom-checkbox">
-                            <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="register.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" class="custom-control-input">
+                            <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="register.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" v-bind:class="[classes , 'custom-control-input']">
                             <span class="custom-control-label"></span>
                             <span class="custom-control-description">@Loc["Account.Fields.AcceptPrivacyPolicy"]</span>
                         </label>
@@ -557,3 +510,29 @@
         <input type="submit" id="register-button" class="btn btn-secondary register-next-step-button my-3" value="@Loc["Account.Register.Button"]" />
     </form>
 </validation-observer>
+<script asp-location="Footer" asp-order="300">
+    var register = new Vue({
+            data: () => ({
+                @{
+                    <text>
+                        FirstName: '@Html.Raw(Model.FirstName)',
+                        LastName: '@Html.Raw(Model.LastName)',
+                        Company: '@Html.Raw(Model.Company)',
+                        StreetAddress: '@Html.Raw(Model.StreetAddress)',
+                        StreetAddress2: '@Html.Raw(Model.StreetAddress2)',
+                        ZipPostalCode: '@Html.Raw(Model.ZipPostalCode)',
+                        City: '@Html.Raw(Model.City)',
+                        CountryId: '@Model.CountryId',
+                        StateProvinceId: '@Model.StateProvinceId',
+                        Phone: '@Html.Raw(Model.Phone)',
+                        Fax: '@Html.Raw(Model.Fax)',
+                        Username: '@Html.Raw(Model.Username)',
+                        Email: '@Html.Raw(Model.Email)',
+                        Password: '',
+                        ConfirmPassword: '',
+                        AcceptPrivacyPolicy: false
+                    </text>
+                }
+            })
+        });
+</script>

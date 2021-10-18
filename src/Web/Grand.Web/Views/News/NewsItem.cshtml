@@ -46,19 +46,19 @@
                 <form asp-action="NewsCommentAdd" asp-controller="News" asp-route-sename="@Model.SeName" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
                     <input type="hidden" name="newsItemId" value="@Model.Id" />
                     <fieldset class="form-group">
-                        <validation-provider tag="div" rules="required" name="AddNewComment.CommentTitle" v-slot="{ errors }">
+                        <validation-provider tag="div" rules="required" name="AddNewComment.CommentTitle" v-slot="{ errors, classes }">
                             <label asp-for="AddNewComment.CommentTitle" class="col-form-label">@Loc["News.Comments.CommentTitle"]:</label>
                             <span class="required">*</span>
-                            <input asp-for="AddNewComment.CommentTitle" class="form-control enter-comment-title" v-model="news.CommentTitle" />
+                            <input asp-for="AddNewComment.CommentTitle" v-bind:class="[classes , 'form-control enter-comment-title']" v-model="news.CommentTitle" />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="AddNewComment.CommentTitle"></span>
                         </validation-provider>
                     </fieldset>
                     <fieldset class="form-group">
-                        <validation-provider tag="div" rules="required" name="AddNewComment.CommentText" v-slot="{ errors }">
+                        <validation-provider tag="div" rules="required" name="AddNewComment.CommentText" v-slot="{ errors, classes }">
                             <label asp-for="AddNewComment.CommentText" class="col-form-label">@Loc["News.Comments.CommentText"]:</label>
                             <span class="required">*</span>
-                            <textarea asp-for="AddNewComment.CommentText" v-model="news.CommentText" class="form-control" autofocus="autofocus" rows="4"></textarea>
+                            <textarea asp-for="AddNewComment.CommentText" v-model="news.CommentText" v-bind:class="[classes , 'form-control']" autofocus="autofocus" rows="4"></textarea>
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="AddNewComment.CommentText"></span>
                         </validation-provider>

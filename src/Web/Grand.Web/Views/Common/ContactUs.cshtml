@@ -24,19 +24,19 @@
                     <div asp-validation-summary="ModelOnly" class="message-error"></div>
                     <div class="form-fields">
                         <div class="form-group">
-                            <validation-provider tag="div" rules="required" name="FullName" v-slot="{ errors }">
+                            <validation-provider tag="div" rules="required" name="FullName" v-slot="{ errors, classes }">
                                 <label asp-for="FullName" class="col-form-label">@Loc["ContactUs.FullName"]:</label>
                                 <span class="required">*</span>
-                                <input asp-for="FullName" v-model="contactus.FullName" placeholder="@Loc["ContactUs.FullName.Hint"]" class="form-control" />
+                                <input asp-for="FullName" v-model="contactus.FullName" placeholder="@Loc["ContactUs.FullName.Hint"]" v-bind:class="[classes , 'form-control']" />
                                 <span class="field-validation-error">{{ errors[0] }}</span>
                                 <span asp-validation-for="FullName"></span>
                             </validation-provider>
                         </div>
                         <div class="form-group">
-                            <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors }">
+                            <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
                                 <label asp-for="Email" class="col-form-label">@Loc["ContactUs.Email"]:</label>
                                 <span class="required">*</span>
-                                <input asp-for="Email" v-model="contactus.Email" placeholder="@Loc["ContactUs.Email.Hint"]" class="form-control" />
+                                <input asp-for="Email" v-model="contactus.Email" placeholder="@Loc["ContactUs.Email.Hint"]" v-bind:class="[classes , 'form-control']" />
                                 <span class="field-validation-error">{{ errors[0] }}</span>
                                 <span asp-validation-for="Email"></span>
                             </validation-provider>
@@ -44,20 +44,20 @@
                         @if (Model.SubjectEnabled)
                         {
                             <div class="form-group">
-                                <validation-provider tag="div" rules="required" name="Subject" v-slot="{ errors }">
+                                <validation-provider tag="div" rules="required" name="Subject" v-slot="{ errors, classes }">
                                     <label asp-for="Subject" class="col-form-label">@Loc["ContactUs.Subject"]:</label>
                                     <span class="required">*</span>
-                                    <input asp-for="Subject" v-model="contactus.Subject" placeholder="@Loc["ContactUs.Subject.Hint"]" class="form-control" />
+                                    <input asp-for="Subject" v-model="contactus.Subject" placeholder="@Loc["ContactUs.Subject.Hint"]" v-bind:class="[classes , 'form-control']" />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="Subject"></span>
                                 </validation-provider>
                             </div>
                         }
                         <div class="form-group">
-                            <validation-provider tag="div" rules="required" name="Enquiry" v-slot="{ errors }">
+                            <validation-provider tag="div" rules="required" name="Enquiry" v-slot="{ errors, classes }">
                                 <label asp-for="Enquiry" class="col-form-label">@Loc["ContactUs.Enquiry"]:</label>
                                 <span class="required">*</span>
-                                <textarea asp-for="Enquiry" v-model="contactus.Enquiry" placeholder="@Loc["ContactUs.Enquiry.Hint"]" class="form-control" rows="4"></textarea>
+                                <textarea asp-for="Enquiry" v-model="contactus.Enquiry" placeholder="@Loc["ContactUs.Enquiry.Hint"]" v-bind:class="[classes , 'form-control']" rows="4"></textarea>
                                 <span class="field-validation-error">{{ errors[0] }}</span>
                                 <span asp-validation-for="Enquiry"></span>
                             </validation-provider>

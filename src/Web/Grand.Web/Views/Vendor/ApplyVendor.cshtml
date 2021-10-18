@@ -24,19 +24,19 @@
                 <div asp-validation-summary="ModelOnly" class="message-error"></div>
                 <div class="form-fields">
                     <div class="form-group">
-                        <validation-provider tag="div" rules="required" name="Name" v-slot="{ errors }">
+                        <validation-provider tag="div" rules="required" name="Name" v-slot="{ errors, classes }">
                             <label asp-for="Name" class="col-form-label">@Loc["Vendors.ApplyAccount.Name"]:</label>
                             <span class="required">*</span>
-                            <input asp-for="Name" v-model="applyvendor.Name" placeholder="@Loc["Vendors.ApplyAccount.Name.Hint"]" class="form-control" />
+                            <input asp-for="Name" v-model="applyvendor.Name" placeholder="@Loc["Vendors.ApplyAccount.Name.Hint"]" v-bind:class="[classes , 'form-control']" />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Name"></span>
                         </validation-provider>
                     </div>
                     <div class="form-group">
-                        <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors }">
+                        <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
                             <label asp-for="Email" class="col-form-label">@Loc["Vendors.ApplyAccount.Email"]:</label>
                             <span class="required">*</span>
-                            <input asp-for="Email" v-model="applyvendor.Email" placeholder="@Loc["Vendors.ApplyAccount.Email.Hint"]" class="form-control" />
+                            <input asp-for="Email" v-model="applyvendor.Email" placeholder="@Loc["Vendors.ApplyAccount.Email.Hint"]" v-bind:class="[classes , 'form-control']" />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Email"></span>
                         </validation-provider>
@@ -81,10 +81,10 @@
                         });
                         </script>
                         <div class="form-group">
-                            <validation-provider tag="div" vid="applyvendor.AcceptPrivacyPolicy" :rules="{ required: { allowFalse: false } }" v-slot="{ errors }">
+                            <validation-provider tag="div" vid="applyvendor.AcceptPrivacyPolicy" :rules="{ required: { allowFalse: false } }" v-slot="{ errors, classes }">
                                 <div class="d-inline-flex">
                                     <label class="custom-control custom-checkbox">
-                                        <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="applyvendor.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" class="custom-control-input">
+                                        <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="applyvendor.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" v-bind:class="[classes , 'form-control custom-control-input']">
                                         <span class="custom-control-label"></span>
                                         <span class="custom-control-description">@Loc["Vendors.ApplyAccount.AcceptTermsOfService"]</span>
                                     </label>
