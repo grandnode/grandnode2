@@ -38,6 +38,14 @@ table .status.cancelled {
     background-color: #f8d7da;
 }
 
+/* pagination */
+
+.pagination .current-page.page-item .page-link {
+    color: #fff;
+    background-color: #0E606C;
+    border-color: #0E606C;
+}
+
 /* dark customer */
 
 [dark-theme="true"] .block-account-navigation ul li a.active, [dark-theme="true"] .block-account-navigation ul li a:hover {
