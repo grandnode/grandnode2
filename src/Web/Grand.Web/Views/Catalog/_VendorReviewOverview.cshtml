@@ -18,7 +18,7 @@
             }
         }
                     <div class="rating">
-                        <b-form-rating id="rating-inline" class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline value="@(ratingValue)"></b-form-rating>
+                        <b-form-rating id="rating-inline" class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline value="@(ratingValue.ToString("0.00", CultureInfo.InvariantCulture))"></b-form-rating>
                         <span class="h6 mb-0 text-info">@Model.TotalReviews @Loc["Reviews.Overview.Reviews"]</span>
                         @if (Model.TotalReviews > 0)
                         {

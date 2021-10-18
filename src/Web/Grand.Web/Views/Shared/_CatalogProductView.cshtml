@@ -1,4 +1,5 @@
-﻿@model ProductOverviewModel
+﻿@using System.Globalization
+@model ProductOverviewModel
 @{
     //prepare "Add to cart" Axios link
     string addtocartlink = "";
@@ -34,7 +35,7 @@
     var addtocomparelink = Url.RouteUrl("AddProductToCompare", new { productId = Model.Id });
 }
 
-@await Component.InvokeAsync("Widget", new { widgetZone = "productbox_before_content", additionalData = Model})
+@await Component.InvokeAsync("Widget", new { widgetZone = "productbox_before_content", additionalData = Model })
 <article v-bind:class="{ mobile: isMobile()}" class="card product-box mb-2">
     <div class="picture-container">
         <a class="img-container" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })" title="@Model.DefaultPictureModel.Title">
@@ -75,7 +76,7 @@
                 }
                 <template>
                     <div class="rating">
-                        <b-form-rating id="rating-inline-grid-@Model.Id" aria-label="Rating" class="p-0" variant="warning" no-border size="sm" show-value aria-valuenow="@(ratingValue)" precision="2" readonly inline value="@(ratingValue)"></b-form-rating>
+                        <b-form-rating id="rating-inline-grid-@Model.Id" aria-label="Rating" class="p-0" variant="warning" no-border size="sm" show-value aria-valuenow="@(ratingValue.ToString("0.00", CultureInfo.InvariantCulture))" precision="2" readonly inline value="@(ratingValue.ToString("0.00", CultureInfo.InvariantCulture))"></b-form-rating>
                         <b-link href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">@Model.ReviewOverviewModel.TotalReviews @Loc["Reviews.Overview.Reviews"]</b-link>
                     </div>
                 </template>
