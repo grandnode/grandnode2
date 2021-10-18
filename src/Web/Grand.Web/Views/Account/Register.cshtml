@@ -392,7 +392,7 @@
                                             <label asp-for="CountryId" class="col-form-label">@Loc["Account.Fields.Country"]:</label>
                                             <span class="required">*</span>
                                             <select asp-for="CountryId" v-model="register.CountryId" class="custom-select form-control"
-                                                    asp-items="Model.AvailableCountries" v-validate="'required'"></select>
+                                                    asp-items="Model.AvailableCountries"></select>
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="CountryId"></span>
                                         </validation-provider>
@@ -413,7 +413,7 @@
                                         <label asp-for="StateProvinceId" class="col-form-label">@Loc["Account.Fields.StateProvince"]:</label>
                                         <span class="required">*</span>
                                         <select asp-for="StateProvinceId" v-model="register.StateProvinceId" class="custom-select form-control"
-                                                asp-items="Model.AvailableStates" v-validate="'required'"></select>
+                                                asp-items="Model.AvailableStates"></select>
                                         <span class="field-validation-error">{{ errors[0] }}</span>
                                         <span asp-validation-for="StateProvinceId"></span>
                                         <span id="states-loading-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
