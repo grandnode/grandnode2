@@ -48,6 +48,9 @@ namespace Grand.Web.Admin.Models.Stores
         [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.CompanyPhoneNumber")]
         public string CompanyPhoneNumber { get; set; }
 
+        [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.CompanyRegNo")]
+        public string CompanyRegNo { get; set; }
+
         [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.CompanyVat")]
         public string CompanyVat { get; set; }
 

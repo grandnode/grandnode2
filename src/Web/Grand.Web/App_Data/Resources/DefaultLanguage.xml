@@ -5133,6 +5133,9 @@
   <Resource Name="Admin.Configuration.Stores.Fields.CompanyPhoneNumber">
     <Value>Company phone number</Value>
   </Resource>
+  <Resource Name="Admin.Configuration.Stores.Fields.CompanyRegNo">
+    <Value>Company Reg. No.</Value>
+  </Resource>
   <Resource Name="Admin.Configuration.Stores.Fields.CompanyVat">
     <Value>Company VAT</Value>
   </Resource>

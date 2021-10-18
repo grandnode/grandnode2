@@ -67,6 +67,10 @@ namespace Grand.Business.Messages.DotLiquidDrops
             get { return _store.CompanyHours; }
         }
 
+        public string CompanyRegNo {
+            get { return _store.CompanyRegNo; }
+        }
+
         public string CompanyVat
         {
             get { return _store.CompanyVat; }

@@ -15,6 +15,7 @@ namespace Grand.Api.DTOs.Common
         public string CompanyName { get; set; }
         public string CompanyAddress { get; set; }
         public string CompanyPhoneNumber { get; set; }
+        public string CompanyRegNo { get; set; }
         public string CompanyVat { get; set; }
     }
 }

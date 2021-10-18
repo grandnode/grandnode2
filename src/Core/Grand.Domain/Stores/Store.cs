@@ -76,6 +76,11 @@ namespace Grand.Domain.Stores
         public string CompanyName { get; set; }
 
         /// <summary>
+        /// Gets or sets the company registration number
+        /// </summary>
+        public string CompanyRegNo { get; set; }
+
+        /// <summary>
         /// Gets or sets the company address
         /// </summary>
         public string CompanyAddress { get; set; }
