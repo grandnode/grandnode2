@@ -37,6 +37,13 @@
                 </div>
             </content>
         </tabstrip-item>
+        <tabstrip-item text="@Loc["Admin.Stores.BankInfo"]" tab-index="2">
+            <content>
+                <div>
+                    <partial name="_CreateOrUpdate.TabBankAccount" model="Model" />
+                </div>
+            </content>
+        </tabstrip-item>
         <vc:admin-widget widget-zone="store_details_tabs" additional-data="Model" />
     </items>
 </admin-tabstrip>

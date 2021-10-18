@@ -25,6 +25,7 @@ namespace Grand.Business.System.Services.Installation
                     CompanyName = companyName,
                     CompanyAddress = companyAddress,
                     CompanyPhoneNumber = companyPhoneNumber,
+                    CompanyRegNo = null,
                     CompanyVat = null,
                     CompanyEmail = companyEmail,
                     CompanyHours = "Monday - Sunday / 8:00AM - 6:00PM",

@@ -1006,6 +1006,9 @@ namespace Grand.Web.Controllers
                             //standard logout 
                             await _authenticationService.SignOut();
 
+                            //Show successfull message 
+                            Success(_translationService.GetResource("Account.Delete.Success"));
+
                             return RedirectToRoute("HomePage");
                         }
                     case CustomerLoginResults.CustomerNotExist:
