@@ -4,46 +4,41 @@
 }
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
-<script asp-location="Footer" asp-order="300">
-        function @Html.IdFor(model => model.CountryId)_select_element(e) {
-            var selectedItem = e.value;
-            var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
-            axios({
-                method: 'get',
-                url: "@(Url.RouteUrl("GetStatesByCountryId"))",
-                params: { "countryId": selectedItem, "addSelectStateItem": "true" },
-            }).then(function (response) {
-                ddlStates.innerHTML = '';
-                response.data.forEach(function (id, option) {
-                    elChild = document.createElement('option');
-                    elChild.setAttribute('value', id.id);
-                    elChild.innerHTML = id.name;
-                    ddlStates.appendChild(elChild);
-                });
-                createorupdateaddress.StateProvinceId = response.data[0].id;
-            }).then(function () {
-                if (ddlStates.length > 1) {
+    <script asp-location="Footer" asp-order="300">
+            function @Html.IdFor(model => model.CountryId)_select_element(e) {
+                var selectedItem = e.value;
+                var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
+                axios({
+                    method: 'get',
+                    url: "@(Url.RouteUrl("GetStatesByCountryId"))",
+                    params: { "countryId": selectedItem, "addSelectStateItem": "true" },
+                }).then(function (response) {
+                    ddlStates.innerHTML = '';
+                    response.data.forEach(function (id, option) {
+                        elChild = document.createElement('option');
+                        elChild.setAttribute('value', id.id);
+                        elChild.innerHTML = id.name;
+                        ddlStates.appendChild(elChild);
+                    });
+                    createorupdateaddress.StateProvinceId = response.data[0].id;
+                }).then(function () {
                     ddlStates.classList.remove('is-valid');
                     ddlStates.classList.add('is-invalid');
-                } else {
-                    ddlStates.classList.remove('is-invalid');
-                    ddlStates.classList.add('is-valid');
-                }
-            }).catch(function (error) {
-                alert(error);
-            });
+                }).catch(function (error) {
+                    alert(error);
+                });
+            }
+        function @Html.IdFor(model => model.StateProvinceId)_select_element(e) {
+            var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
+            if (e.selectedIndex > 0) {
+                ddlStates.classList.remove('is-invalid');
+                ddlStates.classList.add('is-valid');
+            } else {
+                ddlStates.classList.remove('is-valid');
+                ddlStates.classList.add('is-invalid');
+            }
         }
-    function @Html.IdFor(model => model.StateProvinceId)_select_element(e) {
-        var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
-        if (e.selectedIndex > 0) {
-            ddlStates.classList.remove('is-invalid');
-            ddlStates.classList.add('is-valid');
-        } else {
-            ddlStates.classList.remove('is-valid');
-            ddlStates.classList.add('is-invalid');
-        }
-    }
-</script>
+    </script>
 }
 <input asp-for="Id" type="hidden" />
 <div class="edit-address row">

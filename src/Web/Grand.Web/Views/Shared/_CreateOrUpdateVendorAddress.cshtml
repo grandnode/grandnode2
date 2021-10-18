@@ -5,68 +5,39 @@
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
     <script asp-location="Footer" asp-order="300">
-        document.addEventListener("DOMContentLoaded", function () {
-            var select_element = document.getElementById('@Html.IdFor(model => model.CountryId)');
-            if (document.getElementById("@Html.IdFor(model => model.StateProvinceId)")) {
-                var state_element = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
-                var ddlStates2 = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
-                state_element.onchange = function () {
-                    if (ddlStates2.options[0].selected) {
-                        ddlStates2.nextSibling.nextElementSibling.style.display = "block";
-                    } else {
-                        ddlStates2.nextSibling.nextElementSibling.style.display = "none";
-                    }
-                }
-            }
-
-            select_element.onchange = function () {
-                var selectedItem = this.value;
-                var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
-                var statesProgress = document.getElementById("states-loading-progress");
-                statesProgress.style.display = "block";
-                axios({
-                    method: 'get',
-                    url: "@(Url.RouteUrl("GetStatesByCountryId"))",
-                    params: { "countryId": selectedItem, "addSelectStateItem": "true" },
-                }).then(function (response) {
-                    ddlStates.innerHTML = '';
-                    response.data.forEach(function (id, option) {
-                        elChild = document.createElement('option');
-                        elChild.setAttribute('value', id.id);
-                        elChild.innerHTML = id.name;
-                        ddlStates.appendChild(elChild);
-                    });
-                    createorupdatevendoraddress.StateProvinceId = response.data[0].id;
-                    if (ddlStates.length > 1) {
-                        if (ddlStates.options[0].selected = true) {
-                            ddlStates.nextSibling.nextElementSibling.style.display = "block";
-                            if (ddlStates.nextSibling.nextSibling.nextElementSibling) {
-                                ddlStates.nextSibling.nextSibling.nextElementSibling.style.display = "none";
-                            }
-                        } else {
-                            ddlStates.nextSibling.nextElementSibling.style.display = "none";
-                            if (ddlStates.nextSibling.nextSibling.nextElementSibling) {
-                                ddlStates.nextSibling.nextSibling.nextElementSibling.style.display = "none";
-                            }
-                        }
-                    } else {
-                        ddlStates.nextSibling.nextElementSibling.style.display = "none";
-                    }
-                    statesProgress.style.display = "none";
-                }).catch(function (error) {
-                    alert(error);
-                    statesProgress.style.display = "none";
-                }).then(function () {
-                    if (ddlStates.length > 1) {
+            function @Html.IdFor(model => model.CountryId)_select_element(e) {
+                    var selectedItem = e.value;
+                    var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
+                    axios({
+                        method: 'get',
+                        url: "@(Url.RouteUrl("GetStatesByCountryId"))",
+                        params: { "countryId": selectedItem, "addSelectStateItem": "true" },
+                    }).then(function (response) {
+                        ddlStates.innerHTML = '';
+                        response.data.forEach(function (id, option) {
+                            elChild = document.createElement('option');
+                            elChild.setAttribute('value', id.id);
+                            elChild.innerHTML = id.name;
+                            ddlStates.appendChild(elChild);
+                        });
+                        createorupdatevendoraddress.StateProvinceId = response.data[0].id;
+                    }).then(function () {
                         ddlStates.classList.remove('is-valid');
                         ddlStates.classList.add('is-invalid');
-                    } else {
-                        ddlStates.classList.remove('is-invalid');
-                        ddlStates.classList.add('is-valid');
-                    }
-                })
+                    }).catch(function (error) {
+                        alert(error);
+                    });
             }
-        });
+            function @Html.IdFor(model => model.StateProvinceId)_select_element(e) {
+                var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
+                if (e.selectedIndex > 0) {
+                    ddlStates.classList.remove('is-invalid');
+                    ddlStates.classList.add('is-valid');
+                } else {
+                    ddlStates.classList.remove('is-valid');
+                    ddlStates.classList.add('is-invalid');
+                }
+            }
     </script>
 }
 <input asp-for="Id" type="hidden" />
@@ -113,7 +84,7 @@
                 <label asp-for="StateProvinceId" class="col-form-label">@Loc["Address.Fields.StateProvince"]:</label>
                 <span class="required">*</span>
                 <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" class="custom-select form-control"
-                        onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-model="createorupdatevendoraddress.StateProvinceId"></select>
+                          onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-model="createorupdatevendoraddress.StateProvinceId"></select>
                 <span class="field-validation-error">{{ errors[0] }}</span>
                 <span asp-validation-for="StateProvinceId"></span>
                 <span id="states-loading-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>

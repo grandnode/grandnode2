@@ -27,7 +27,7 @@
                 </div>
                 <div class="form-group">
                     <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors }">
-                        <label asp-for="Email" class="col-form-label">@Loc["Account.VendorInfo.NaEmailme"]:</label>
+                        <label asp-for="Email" class="col-form-label">@Loc["Account.VendorInfo.Email"]:</label>
                         <span class="required">*</span>
                         <input asp-for="Email" v-model="vendorinfo.Email" placeholder="@Loc["Account.VendorInfo.Email.Hint"]" class="form-control" />
                         <span class="field-validation-error">{{ errors[0] }}</span>

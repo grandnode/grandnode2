@@ -15,51 +15,40 @@
 
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
 {
-    <script asp-location="Footer">
-        function toggleNewsletterCat() {
-                var element = document.getElementById('@Html.IdFor(model => model.Newsletter)');
-                if (element) {
-                    if (document.getElementById('@Html.IdFor(model => model.Newsletter)').checked) {
-                        if (document.querySelector('.register-category-newsletter')) {
-                            document.querySelector('.register-category-newsletter').style.display = "block";
-                        }
-                    }
-                    else {
-                        if (document.querySelector('.register-category-newsletter')) {
-                            document.querySelector('.register-category-newsletter').style.display = "none";
-                        }
-                    }
-                }
-            }
-
-        document.addEventListener("DOMContentLoaded", function () {
-            document.getElementById("@Html.IdFor(model => model.CountryId)").addEventListener('change', function () {
-                var selectedItem = this.value;
+    <script asp-location="Footer" asp-order="300">
+            function @Html.IdFor(model => model.CountryId)_select_element(e) {
+                var selectedItem = e.value;
                 var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
-                var statesProgress = document.getElementById("states-loading-progress");
-                statesProgress.style.display = "block";
                 axios({
                     method: 'get',
-                    url: '@(Url.RouteUrl("GetStatesByCountryId"))',
+                    url: "@(Url.RouteUrl("GetStatesByCountryId"))",
                     params: { "countryId": selectedItem, "addSelectStateItem": "true" },
                 }).then(function (response) {
-                    ddlStates.innerHTML = "";
+                    ddlStates.innerHTML = '';
                     response.data.forEach(function (id, option) {
                         elChild = document.createElement('option');
                         elChild.setAttribute('value', id.id);
                         elChild.innerHTML = id.name;
                         ddlStates.appendChild(elChild);
                     });
-                    statesProgress.style.display = "none";
+                    customerinfo.StateProvinceId = response.data[0].id;
+                }).then(function () {
+                    ddlStates.classList.remove('is-valid');
+                    ddlStates.classList.add('is-invalid');
                 }).catch(function (error) {
                     alert(error);
-                    statesProgress.style.display = "none";
-                })
-            });
-
-            toggleNewsletterCat();
-
-        });
+                });
+            }
+        function @Html.IdFor(model => model.StateProvinceId)_select_element(e) {
+            var ddlStates = document.getElementById("@Html.IdFor(model => model.StateProvinceId)");
+            if (e.selectedIndex > 0) {
+                ddlStates.classList.remove('is-invalid');
+                ddlStates.classList.add('is-valid');
+            } else {
+                ddlStates.classList.remove('is-valid');
+                ddlStates.classList.add('is-invalid');
+            }
+        }
     </script>
 }
 <script asp-location="Footer">
@@ -379,7 +368,8 @@
                                             <validation-provider tag="div" rules="required" name="CountryId" v-slot="{ errors }">
                                                 <label asp-for="CountryId" class="col-form-label">@Loc["Account.Fields.Country"]:</label>
                                                 <span class="required">*</span>
-                                                <select asp-for="CountryId" v-model="customerinfo.CountryId" class="custom-select form-control" asp-items="Model.AvailableCountries"></select>
+                                                <select asp-for="CountryId" asp-items="Model.AvailableCountries"
+                                                        onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" class="custom-select form-control" v-model="customerinfo.CountryId"></select>
                                                 <span class="field-validation-error">{{ errors[0] }}</span>
                                                 <span asp-validation-for="CountryId"></span>
                                             </validation-provider>
@@ -401,9 +391,8 @@
                                         {
                                             <span class="required">*</span>
                                         }
-                                        <select asp-for="StateProvinceId"
-                                                class="custom-select form-control"
-                                                asp-items="Model.AvailableStates"></select>
+                                        <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" class="custom-select form-control"
+                                            onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-model="customerinfo.StateProvinceId"></select>
                                         <span asp-validation-for="StateProvinceId"></span>
                                         <span id="states-loading-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
                                     </fieldset>
