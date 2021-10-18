@@ -489,11 +489,17 @@
   <Resource Name="Account.Login.Fields.Password">
     <Value>Password</Value>
   </Resource>
+  <Resource Name="Account.Login.Fields.Password.Required">
+    <Value>Please enter password</Value>
+  </Resource>
   <Resource Name="Account.Login.Fields.RememberMe">
     <Value>Remember me?</Value>
   </Resource>
   <Resource Name="Account.Login.Fields.UserName">
     <Value>Username</Value>
+  </Resource>
+  <Resource Name="Account.Login.Fields.UserName.Required">
+    <Value>Please enter user name</Value>
   </Resource>
   <Resource Name="Account.Login.ForgotPassword">
     <Value>Forgot password?</Value>
