@@ -1,5 +1,4 @@
 using Grand.Domain.Common;
-using Grand.SharedKernel.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,23 +21,7 @@ namespace Grand.Domain.Customers
             return customer.IsSystemAccount;
         }
 
-        /// <summary>
-        /// Gets a value indicating whether customer a anonymous
-        /// </summary>
-        /// <param name="customer">Customer</param>
-        /// <returns>Result</returns>
-        public static bool IsAnonymousAccount(this Customer customer)
-        {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
-
-            if (!customer.IsSystemAccount || string.IsNullOrEmpty(customer.SystemName))
-                return false;
-
-            var result = customer.SystemName.Equals(SystemCustomerNames.Anonymous, StringComparison.OrdinalIgnoreCase);
-            return result;
-        }
-
+      
         /// <summary>
         /// Gets a value indicating whether customer a search engine
         /// </summary>
@@ -53,23 +36,6 @@ namespace Grand.Domain.Customers
                 return false;
 
             var result = customer.SystemName.Equals(SystemCustomerNames.SearchEngine, StringComparison.OrdinalIgnoreCase);
-            return result;
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether the customer is a built-in for background tasks
-        /// </summary>
-        /// <param name="customer">Customer</param>
-        /// <returns>Result</returns>
-        public static bool IsBackgroundTaskAccount(this Customer customer)
-        {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
-
-            if (!customer.IsSystemAccount || String.IsNullOrEmpty(customer.SystemName))
-                return false;
-
-            var result = customer.SystemName.Equals(SystemCustomerNames.BackgroundTask, StringComparison.OrdinalIgnoreCase);
             return result;
         }
 
