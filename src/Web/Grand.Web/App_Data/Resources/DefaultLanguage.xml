@@ -279,6 +279,9 @@
   <Resource Name="Account.DeleteAccount.Fields.Password.Required">
     <Value>Password field is required</Value>
   </Resource>
+  <Resource Name="Account.Delete.Success">
+    <Value>The account was successfully deleted.</Value>
+  </Resource>
   <Resource Name="Account.Documents">
     <Value>Documents</Value>
   </Resource>
