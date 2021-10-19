@@ -19,124 +19,123 @@
     </button>
     @if (Model.Addresses.Any())
     {
-        <div class="col-12 px-0">
-            <div class="row address-list">
-                @for (int i = 0; i < Model.Addresses.Count; i++)
-                {
-                    var address = Model.Addresses[i];
-                    <div class="col-md-6 col-12 mb-3">
-                        <div class="card">
-                            <div class="card-header">
+        <div class="address-list table-responsive">
+            <table class="table hover-table">
+                <thead>
+                    <tr>
+                        <th scope="col">@Loc["Address.Fields.Name"]</th>
+                        <th scope="col">@Loc["Address.Fields.Address"]</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Addresses.Count; i++)
+                    {
+                        var address = Model.Addresses[i];
+                        <tr>
+                            <td>
                                 <h3 class="h5 mb-0">
                                     @address.FirstName @address.LastName
                                 </h3>
-                            </div>
-                            <div class="card-body">
-                                <div class="address-item">
-                                    <ul class="info mb-0 px-0">
-                                        <li class="name">
-                                            @address.FirstName @address.LastName
+                                @address.Email
+                            </td>
+                            <td>
+                                <ul class="m-0 p-0">
+                                    @if (address.PhoneEnabled)
+                                    {
+                                        <li class="phone">
+                                            <label class="mb-0"><strong>@Loc["Address.Fields.PhoneNumber"]:</strong></label>
+                                            @address.PhoneNumber
                                         </li>
-                                        <li class="email">
-                                            <label class="mb-0"><strong>@Loc["Address.Fields.Email"]:</strong></label>
-                                            @address.Email
+                                    }
+                                    @if (address.FaxEnabled)
+                                    {
+                                        <li class="fax">
+                                            <label class="mb-0"><strong>@Loc["Address.Fields.FaxNumber"]:</strong></label>
+                                            @address.FaxNumber
                                         </li>
-                                        @if (address.PhoneEnabled)
+                                    }
+                                    @if (address.CompanyEnabled && !String.IsNullOrEmpty(address.Company))
+                                    {
+                                        <li class="company">@address.Company</li>
+                                    }
+                                    @if (address.VatNumberEnabled && !String.IsNullOrEmpty(address.VatNumber))
+                                    {
+                                        <li class="vatnumber">@address.VatNumber</li>
+                                    }
+                                    @if (address.StreetAddressEnabled)
+                                    {
+                                        <li class="address1">
+                                            @address.Address1
+                                        </li>
+                                    }
+                                    @if (address.StreetAddress2Enabled && !String.IsNullOrEmpty(address.Address2))
+                                    {
+                                        <li class="address2">
+                                            @address.Address2
+                                        </li>
+                                    }
+                                    @if (address.CityEnabled || address.StateProvinceEnabled || address.ZipPostalCodeEnabled)
+                                    {
+                                        var cityStateZip = "";
+                                        if (address.CityEnabled)
                                         {
-                                            <li class="phone">
-                                                <label class="mb-0"><strong>@Loc["Address.Fields.PhoneNumber"]:</strong></label>
-                                                @address.PhoneNumber
-                                            </li>
-                                        }
-                                        @if (address.FaxEnabled)
-                                        {
-                                            <li class="fax">
-                                                <label class="mb-0"><strong>@Loc["Address.Fields.FaxNumber"]:</strong></label>
-                                                @address.FaxNumber
-                                            </li>
-                                        }
-                                        @if (address.CompanyEnabled && !String.IsNullOrEmpty(address.Company))
-                                        {
-                                            <li class="company">@address.Company</li>
-                                        }
-                                        @if (address.VatNumberEnabled && !String.IsNullOrEmpty(address.VatNumber))
-                                        {
-                                            <li class="vatnumber">@address.VatNumber</li>
-                                        }
-                                        @if (address.StreetAddressEnabled)
-                                        {
-                                            <li class="address1">
-                                                @address.Address1
-                                            </li>
-                                        }
-                                        @if (address.StreetAddress2Enabled && !String.IsNullOrEmpty(address.Address2))
-                                        {
-                                            <li class="address2">
-                                                @address.Address2
-                                            </li>
-                                        }
-                                        @if (address.CityEnabled || address.StateProvinceEnabled || address.ZipPostalCodeEnabled)
-                                        {
-                                            var cityStateZip = "";
-                                            if (address.CityEnabled)
+                                            cityStateZip = address.City;
+                                            if (address.StateProvinceEnabled || address.ZipPostalCodeEnabled)
                                             {
-                                                cityStateZip = address.City;
-                                                if (address.StateProvinceEnabled || address.ZipPostalCodeEnabled)
-                                                {
-                                                    cityStateZip += ",";
-                                                }
+                                                cityStateZip += ",";
                                             }
-                                            if (address.StateProvinceEnabled)
-                                            {
-                                                if (!String.IsNullOrEmpty(cityStateZip))
-                                                {
-                                                    cityStateZip += " ";
-                                                }
-                                                cityStateZip += address.StateProvinceName;
-                                            }
-                                            if (address.ZipPostalCodeEnabled)
-                                            {
-                                                if (!String.IsNullOrEmpty(cityStateZip))
-                                                {
-                                                    cityStateZip += " ";
-                                                }
-                                                cityStateZip += address.ZipPostalCode;
-                                            }
-                                            <li class="city-state-zip">
-                                                @cityStateZip
-                                            </li>
                                         }
-                                        @if (address.CountryEnabled && !String.IsNullOrEmpty(address.CountryName))
+                                        if (address.StateProvinceEnabled)
                                         {
-                                            <li class="country">
-                                                @address.CountryName
-                                            </li>
+                                            if (!String.IsNullOrEmpty(cityStateZip))
+                                            {
+                                                cityStateZip += " ";
+                                            }
+                                            cityStateZip += address.StateProvinceName;
                                         }
-                                        @if (!String.IsNullOrEmpty(address.FormattedCustomAddressAttributes))
+                                        if (address.ZipPostalCodeEnabled)
                                         {
-                                            <li class="custom-attributes-view">
-                                                @Html.Raw(address.FormattedCustomAddressAttributes)
-                                            </li>
+                                            if (!String.IsNullOrEmpty(cityStateZip))
+                                            {
+                                                cityStateZip += " ";
+                                            }
+                                            cityStateZip += address.ZipPostalCode;
                                         }
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="card-footer">
-                                <div class="btn-group">
+                                        <li class="city-state-zip">
+                                            @cityStateZip
+                                        </li>
+                                    }
+                                    @if (address.CountryEnabled && !String.IsNullOrEmpty(address.CountryName))
+                                    {
+                                        <li class="country">
+                                            @address.CountryName
+                                        </li>
+                                    }
+                                    @if (!String.IsNullOrEmpty(address.FormattedCustomAddressAttributes))
+                                    {
+                                        <li class="custom-attributes-view">
+                                            @Html.Raw(address.FormattedCustomAddressAttributes)
+                                        </li>
+                                    }
+                                </ul>
+                            </td>
+                            <td>
+                                <div class="buttons d-flex flex-column">
                                     <button class="btn btn-secondary edit-address-button" onclick="location.href='@(Url.RouteUrl("CustomerAddressEdit", new { addressId = address.Id }))'">
                                         @Loc["Common.Edit"]
                                     </button>
-                                    <button class="btn btn-danger delete-address-button" onclick="deletecustomeraddress('@(address.Id)')">
+                                    <button class="btn btn-danger delete-address-button mt-1" onclick="deletecustomeraddress('@(address.Id)')">
                                         @Loc["Common.Delete"]
                                     </button>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-        <script asp-location="Footer">
+                <script asp-location="Footer">
                 function deletecustomeraddress(addressId) {
                     if (confirm('@Loc["Admin.Common.AreYouSure"]')) {
 
@@ -155,12 +154,12 @@
                         })
                     }
                 }
-        </script>
-    }
-    else
-    {
-        <div class="no-data alert alert-info">
-            @Loc["Account.CustomerAddresses.NoAddresses"]
-        </div>
-    }
-</div>
+                </script>
+                }
+                else
+                {
+                <div class="no-data alert alert-info">
+                    @Loc["Account.CustomerAddresses.NoAddresses"]
+                </div>
+                }
+    </div>
