@@ -1,13 +1,16 @@
 ﻿@model SearchBoxModel
 @inject Grand.Domain.Blogs.BlogSettings blogSettings
-
+@inject IWorkContext workContext
+@{
+    var lang = workContext.WorkingLanguage.LanguageCulture;
+}
 <template id="searchBoxContainer">
     <a class="modal-close" @@click="$bvModal.hide('search-box')"><b-icon icon="x"></b-icon></a>
     <form asp-route="ProductSearch" method="get" id="small-search-box-form" ref="searchForm" class="searchBox w-100">
         <input type="hidden" asp-for="Box" value="true" />
         <label for="small-searchterms" class="sr-only">@Loc["Search.SearchBox.Tooltip"]</label>
         <div class="input-group flex-row">
-            <input minlength="@(Model.SearchTermMinimumLength)" @if (Model.AutoCompleteEnabled) { <text> @@input="searchbox.autocompleteVue()" </text> } v-model="searchbox.text" type="search" name="q" ref="searchBoxInput" class="form-control search-box-text" id="small-searchterms" :placeholder="searchbox.placeholder">
+            <input minlength="@(Model.SearchTermMinimumLength)" maxlength="20" @if (Model.AutoCompleteEnabled) { <text> @@input="searchbox.autocompleteVue()" </text> } v-model="searchbox.text" type="search" name="q" ref="searchBoxInput" class="form-control search-box-text" id="small-searchterms" :placeholder="searchbox.placeholder">
             @if (Model.AvailableCategories.Any())
             {
                 <select asp-for="SearchCategoryId" asp-items="Model.AvailableCategories" class="search-box-select custom-select input-group-addon"></select>
@@ -15,7 +18,7 @@
             @await Component.InvokeAsync("Widget", new { widgetZone = "searchbox_before_search_button" })
 
             <div class="input-group-append">
-                <button id="voiceSearchButton" @@touchstart="searchbox.recording = true"  @@touchend="searchbox.recording = false" @@mousedown="searchbox.recording = true" @@mouseup="searchbox.recording = false" :data-title="searchbox.micMessage" ref="micBtn" type="button" v-bind:class="[{ focus: searchbox.recording }, 'btn btn-link']">
+                <button id="voiceSearchButton" @@touchstart="searchbox.recording = true" @@touchend="searchbox.recording = false" @@mousedown="searchbox.recording = true" @@mouseup="searchbox.recording = false" :data-title="searchbox.micMessage" ref="micBtn" type="button" v-bind:class="[{ focus: searchbox.recording }, 'btn btn-link']">
                     <template v-if="searchbox.recording">
                         <b-icon icon="mic" variant="info"></b-icon>
                     </template>
@@ -109,6 +112,7 @@
             searchitems: null,
             focus: false,
             text: "",
+            lang: '@lang',
             placeholder: "@Loc["Search.SearchBox.Tooltip"]",
             micMessage: "Hold to Speak",
             searchcategories: null,
@@ -190,7 +194,7 @@
                     const searchForm = vm.$refs.searchForm;
                     const searchBoxInput = vm.$refs.searchBoxInput;
                     recognition.continuous = true;
-                    recognition.lang = "en-US";
+                    recognition.lang = searchbox.lang;
 
                     searchBoxInput.focus();
 
