@@ -13,28 +13,12 @@ using System.Linq;
 
 namespace Grand.Web.Common.Startup
 {
-    /// <summary>
-    /// Represents object for the configuring task on application startup
-    /// </summary>
-    public class TaskHandlerStartup : IStartupApplication
+    public static class TaskHandlerHelper
     {
-        /// <summary>
-        /// Configure the using of added middleware
-        /// </summary>
-        /// <param name="application">Builder for configuring an application's request pipeline</param>
-        /// <param name="webHostEnvironment">WebHostEnvironment</param>
-        public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
+
+        public static void RegisterTasks(this IServiceCollection services)
         {
 
-        }
-
-        /// <summary>
-        /// Add and configure any of the middleware
-        /// </summary>
-        /// <param name="services">Collection of service descriptors</param>
-        /// <param name="configuration">Configuration root of the application</param>
-        public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
-        {
             //database is already installed, so start scheduled tasks
             if (DataSettingsManager.DatabaseIsInstalled())
             {
@@ -54,13 +38,5 @@ namespace Grand.Web.Common.Startup
                 }
             }
         }
-
-        /// <summary>
-        /// Gets order of this startup configuration implementation
-        /// </summary>
-        /// task handlers should be loaded last
-        public int Priority => 1010;
-        public bool BeforeConfigure => true;
-
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Grand.Web.Common.Startup;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -49,6 +50,10 @@ namespace Grand.Web
                     webBuilder.UseStaticWebAssets();
                     webBuilder.UseSetting(WebHostDefaults.PreventHostingStartupKey, "true");
                     webBuilder.UseStartup<Startup>();
+                })
+                .ConfigureServices(services=> 
+                {
+                    services.RegisterTasks();
                 })
                 .UseDefaultServiceProvider((context, options) =>
                 {
