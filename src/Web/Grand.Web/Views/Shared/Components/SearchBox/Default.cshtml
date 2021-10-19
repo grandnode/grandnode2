@@ -1,91 +1,322 @@
 ﻿@model SearchBoxModel
 @inject Grand.Domain.Blogs.BlogSettings blogSettings
 
-<form asp-route="ProductSearch" method="get" :dark-theme="darkMode" id="small-search-box-form" class="searchBox w-100">
-    <input type="hidden" asp-for="Box" value="true" />
-    <label for="small-searchterms" class="sr-only">@Loc["Search.SearchBox.Tooltip"]</label>
-    <div class="input-group flex-row">
-        <input minlength="@(Model.SearchTermMinimumLength)" @if (Model.AutoCompleteEnabled) { <text> oninput="autocompleteVue(this)" </text> } type="search" name="q" class="form-control search-box-text" id="small-searchterms" placeholder="@Loc["Search.SearchBox.Tooltip"]">
-        @if (Model.AvailableCategories.Any())
-        {
-            <select asp-for="SearchCategoryId" asp-items="Model.AvailableCategories" class="search-box-select custom-select input-group-addon"></select>
-        }
-        @await Component.InvokeAsync("Widget", new { widgetZone = "searchbox_before_search_button" })
+<template id="searchBoxContainer">
+    <a class="modal-close" @@click="$bvModal.hide('search-box')"><b-icon icon="x"></b-icon></a>
+    <form asp-route="ProductSearch" method="get" id="small-search-box-form" ref="searchForm" class="searchBox w-100">
+        <input type="hidden" asp-for="Box" value="true" />
+        <label for="small-searchterms" class="sr-only">@Loc["Search.SearchBox.Tooltip"]</label>
+        <div class="input-group flex-row">
+            <input minlength="@(Model.SearchTermMinimumLength)" @if (Model.AutoCompleteEnabled) { <text> @@input="searchbox.autocompleteVue()" </text> } v-model="searchbox.text" type="search" name="q" ref="searchBoxInput" class="form-control search-box-text" id="small-searchterms" :placeholder="searchbox.placeholder">
+            @if (Model.AvailableCategories.Any())
+            {
+                <select asp-for="SearchCategoryId" asp-items="Model.AvailableCategories" class="search-box-select custom-select input-group-addon"></select>
+            }
+            @await Component.InvokeAsync("Widget", new { widgetZone = "searchbox_before_search_button" })
 
-        <div class="input-group-append">
-            <button type="submit" class="btn btn-info search-box-button float-sm-right d-inline-flex align-items-center">
-                <span class="sr-only">@Loc["Search.SearchBox.Tooltip"]</span>
-                <b-icon icon="search"></b-icon>
-            </button>
-        </div>
-    </div>
-    <div id="adv_search" class="advanced-search-results" v-if="searchitems" onclick="StopPropagation(event)">
-        <div class="col-12">
-            <div class="form-row">
-                <div class="col-md-6 col-12">
-                    <h5 class="title">@Loc["search.category"]</h5>
-                    <div v-if="searchcategories.length">
-                        <ul class="list px-0">
-                            <li v-for="item in searchcategories">
-                                <h6 class="mb-0"><a :href="item.Url">{{item.Label}}</a></h6>
-                                <p v-if="item.Desc">{{item.Desc}}</p>
-                            </li>
-                        </ul>
-                    </div>
-                    <ul v-else class="px-0 mb-1">
-                        <li class="alert alert-info">@Loc["search.noresultstextcategory"]</li>
-                    </ul>
-                    <h5 class="title">@Loc["search.brand"]</h5>
-                    <div v-if="searchbrands.length">
-                        <ul class="list px-0">
-                            <li v-for="item in searchbrands">
-                                <h6 class="mb-0"><a :href="item.Url">{{item.Label}}</a></h6>
-                                <p v-if="item.Desc">{{item.Desc}}</p>
-                            </li>
-                        </ul>
-                    </div>
-                    <ul v-else class="px-0 mb-1">
-                        <li class="alert alert-info">@Loc["search.noresultstextbrand"]</li>
-                    </ul>
-                    @if (blogSettings.ShowBlogPostsInSearchAutoComplete)
-                    {
-                        <h5 class="title">@Loc["search.blog"]</h5>
-                        <div v-if="searchblog.length">
-                            <ul class="list px-0">
-                                <li v-for="item in searchblog">
-                                    <h6 class="mb-0"><a :href="item.Url">{{item.Label}}</a></h6>
-                                    <p v-if="item.Desc">{{item.Desc}}</p>
-                                </li>
-                            </ul>
-                        </div>
-                        <ul v-else class="px-0 mb-1">
-                            <li class="alert alert-info">@Loc["search.noresultstextblog"]</li>
-                        </ul>
-                    }
-                </div>
-                <div class="col-md-6 col-12 products">
-                    <h5 class="title">@Loc["search.products"]</h5>
-                    <div v-if="searchproducts.length">
-                        <ul class="list px-0">
-                            <li class="media" v-for="item in searchproducts">
-                                <div class="media-aside" v-if="item.PictureUrl">
-                                    <img class="img-fluid" alt="placeholder" :src="item.PictureUrl"/>
-                                </div>
-                                <div class="media-body">
-                                    <h6 class="mb-0"><a :href="item.Url">{{item.Label}}</a></h6>
-                                    <b-form-rating class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline :value="item.Rating / 20"></b-form-rating>
-                                    <div v-if="item.Price" class="price">{{item.Price}}</div>
-                                    <p v-html="item.Desc" class="mt-1 mb-0"></p>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                    <ul v-else class="px-0 mb-1">
-                        <li class="alert alert-info">@Loc["search.noresultstext"]</li>
-                    </ul>
-                </div>
+            <div class="input-group-append">
+                <button id="voiceSearchButton" @@mousedown="searchbox.recording = true" @@mouseup="searchbox.recording = false" :title="searchbox.micMessage" ref="micBtn" type="button" class="btn btn-link">
+                    <template v-if="searchbox.recording">
+                        <b-icon icon="mic" variant="info"></b-icon>
+                    </template>
+                    <template v-else>
+                        <b-icon icon="mic-mute" variant="danger"></b-icon>
+                    </template>
+                </button>
+                <button type="submit" class="btn btn-link search-box-button float-sm-right d-inline-flex align-items-center">
+                    <span class="sr-only">@Loc["Search.SearchBox.Tooltip"]</span>
+                    <b-icon icon="search" variant="dark"></b-icon>
+                </button>
             </div>
         </div>
-    </div>
-    @await Component.InvokeAsync("Widget", new { widgetZone = "searchbox" })
-</form>
+        <template v-if="searchbox.searchitems !== null">
+            <div id="adv_search" class="advanced-search-results">
+                <div class="col-12">
+                    <div class="form-row">
+                        <div class="col-md-6 col-12">
+                            <h5 class="title">@Loc["search.category"]</h5>
+                            <div v-if="searchbox.searchcategories.length">
+                                <ul class="list px-0">
+                                    <li v-for="item in searchbox.searchcategories">
+                                        <h6 class="mb-0"><a :href="item.Url">{{item.Label}}</a></h6>
+                                        <p v-if="item.Desc">{{item.Desc}}</p>
+                                    </li>
+                                </ul>
+                            </div>
+                            <ul v-else class="px-0 mb-1">
+                                <li class="alert alert-info">@Loc["search.noresultstextcategory"]</li>
+                            </ul>
+                            <h5 class="title">@Loc["search.brand"]</h5>
+                            <div v-if="searchbox.searchbrands.length">
+                                <ul class="list px-0">
+                                    <li v-for="item in searchbox.searchbrands">
+                                        <h6 class="mb-0"><a :href="item.Url">{{item.Label}}</a></h6>
+                                        <p v-if="item.Desc">{{item.Desc}}</p>
+                                    </li>
+                                </ul>
+                            </div>
+                            <ul v-else class="px-0 mb-1">
+                                <li class="alert alert-info">@Loc["search.noresultstextbrand"]</li>
+                            </ul>
+                            @if (blogSettings.ShowBlogPostsInSearchAutoComplete)
+                            {
+                                <h5 class="title">@Loc["search.blog"]</h5>
+                                <div v-if="searchbox.searchblog.length">
+                                    <ul class="list px-0">
+                                        <li v-for="item in searchbox.searchblog">
+                                            <h6 class="mb-0"><a :href="item.Url">{{item.Label}}</a></h6>
+                                            <p v-if="item.Desc">{{item.Desc}}</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <ul v-else class="px-0 mb-1">
+                                    <li class="alert alert-info">@Loc["search.noresultstextblog"]</li>
+                                </ul>
+                            }
+                        </div>
+                        <div class="col-md-6 col-12 products">
+                            <h5 class="title">@Loc["search.products"]</h5>
+                            <div v-if="searchbox.searchproducts.length">
+                                <ul class="list px-0">
+                                    <li class="media" v-for="item in searchbox.searchproducts">
+                                        <div class="media-aside" v-if="item.PictureUrl">
+                                            <img class="img-fluid" alt="placeholder" :src="item.PictureUrl" />
+                                        </div>
+                                        <div class="media-body">
+                                            <h6 class="mb-0"><a :href="item.Url">{{item.Label}}</a></h6>
+                                            <b-form-rating class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline :value="item.Rating / 20"></b-form-rating>
+                                            <div v-if="item.Price" class="price">{{item.Price}}</div>
+                                            <p v-html="item.Desc" class="mt-1 mb-0"></p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <ul v-else class="px-0 mb-1">
+                                <li class="alert alert-info">@Loc["search.noresultstext"]</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+        @await Component.InvokeAsync("Widget", new { widgetZone = "searchbox" })
+    </form>
+</template>
+<script asp-location="Footer" asp-order="300">
+    var searchBox = Vue.extend({
+        data: () => ({
+            recording: false,
+            searchitems: null,
+            focus: false,
+            text: "",
+            placeholder: "@Loc["Search.SearchBox.Tooltip"]",
+            micMessage: "Allow access to your mircophone",
+            searchcategories: null,
+            searchbrands: null,
+            searchblog: null,
+            searchproducts: null,
+        }),
+        methods: {
+            autocompleteVue() {
+                var delayTimer;
+                function getCategories(item) {
+                    if (item.SearchType == 'Category') {
+                        return item
+                    }
+                }
+                function getBrands(item) {
+                    if (item.SearchType == 'Brand') {
+                        return item
+                    }
+                }
+                function getBlog(item) {
+                    if (item.SearchType == 'Blog') {
+                        return item
+                    }
+                }
+                function getProducts(item) {
+                    if (item.SearchType == 'Product') {
+                        return item
+                    }
+                }
+                clearTimeout(delayTimer);
+                delayTimer = setTimeout(function () {
+                    var value = searchbox.text;
+                    var category = '';
+                    if (document.getElementById("SearchCategoryId")) {
+                        category = document.getElementById("SearchCategoryId").value;
+                    }
+                    axios({
+                        url: '/catalog/searchtermautocomplete',
+                        method: 'get',
+                        params: {
+                            term: value,
+                            categoryId: category
+                        }
+                    }).then(function (response) {
+                        if (response.data) {
+                            searchbox.searchitems = response.data;
+                            var categories = response.data.map(getCategories).filter(function (element) {
+                                return element !== undefined;
+                            });
+                            var brands = response.data.map(getBrands).filter(function (element) {
+                                return element !== undefined;
+                            });
+                            var blog = response.data.map(getBlog).filter(function (element) {
+                                return element !== undefined;
+                            });
+                            var products = response.data.map(getProducts).filter(function (element) {
+                                return element !== undefined;
+                            });
+                            searchbox.searchcategories = categories;
+                            searchbox.searchbrands = brands;
+                            searchbox.searchblog = blog;
+                            searchbox.searchproducts = products;
+                        }
+                    })
+                }, 600);
+            }
+        },
+        watch: {
+            text: function () {
+                const searchBoxInput = vm.$refs.searchBoxInput;
+                this.autocompleteVue(searchBoxInput);
+            },
+            recording: function () {
+                const speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (speech) {
+
+                    const recognition = new speech();
+                    const searchForm = vm.$refs.searchForm;
+                    const searchBoxInput = vm.$refs.searchBoxInput;
+                    recognition.continuous = true;
+                    recognition.lang = "en-US";
+
+                    searchBoxInput.focus();
+
+                    if (this.recording) {
+                        recognition.start();
+
+                        this.placeholder = "Say Something...";
+
+                        recognition.addEventListener("result", resultOfSpeechRecognition);
+                        function resultOfSpeechRecognition(event) {
+
+                            const current = event.resultIndex;
+                            const transcript = event.results[current][0].transcript;
+
+                            if (transcript.toLowerCase().trim() === "stop recording") {
+                                recognition.stop();
+                            }
+                            else if (!searchBoxInput.value) {
+                                searchbox.text = transcript;
+                            }
+                            else {
+                                if (transcript.toLowerCase().trim() === "go") {
+                                    searchForm.submit();
+                                }
+                                else if (transcript.toLowerCase().trim() === "reset input") {
+                                    searchbox.text = "";
+                                }
+                                else {
+                                    searchbox.text = transcript;
+                                }
+                            }
+                        }
+                    } else {
+                        recognition.stop();
+                        this.placeholder = "@Loc["Search.SearchBox.Tooltip"]";
+                    }
+
+                } else {
+                    this.micMessage = "Your Browser does not support speech Recognition";
+                }
+            }
+        }
+    });
+    var searchbox = new searchBox().$mount('#small-search-box-form')
+</script>
+@*<script>
+        const searchForm = document.querySelector("#search-form");
+        const searchFormInput = searchForm.querySelector("input"); // <=> document.querySelector("#search-form input");
+        const info = document.querySelector(".info");
+
+        // The speech recognition interface lives on the browser’s window object
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; // if none exists -> undefined
+
+        if (SpeechRecognition) {
+            console.log("Your Browser supports speech Recognition");
+
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            // recognition.lang = "en-US";
+
+            searchForm.insertAdjacentHTML("beforeend", '<button type="button"><i class="fas fa-microphone"></i></button>');
+            searchFormInput.style.paddingRight = "50px";
+
+            const micBtn = searchForm.querySelector("button");
+            const micIcon = micBtn.firstElementChild;
+
+            micBtn.addEventListener("click", micBtnClick);
+            function micBtnClick() {
+                if (micIcon.classList.contains("fa-microphone")) { // Start Voice Recognition
+                    recognition.start(); // First time you have to allow access to mic!
+                }
+                else {
+                    recognition.stop();
+                }
+            }
+
+            recognition.addEventListener("start", startSpeechRecognition); // <=> recognition.onstart = function() {...}
+            function startSpeechRecognition() {
+                micIcon.classList.remove("fa-microphone");
+                micIcon.classList.add("fa-microphone-slash");
+                searchFormInput.focus();
+                console.log("Voice activated, SPEAK");
+            }
+
+            recognition.addEventListener("end", endSpeechRecognition); // <=> recognition.onend = function() {...}
+            function endSpeechRecognition() {
+                micIcon.classList.remove("fa-microphone-slash");
+                micIcon.classList.add("fa-microphone");
+                searchFormInput.focus();
+                console.log("Speech recognition service disconnected");
+            }
+
+            recognition.addEventListener("result", resultOfSpeechRecognition); // <=> recognition.onresult = function(event) {...} - Fires when you stop talking
+            function resultOfSpeechRecognition(event) {
+                const current = event.resultIndex;
+                const transcript = event.results[current][0].transcript;
+
+                if (transcript.toLowerCase().trim() === "stop recording") {
+                    recognition.stop();
+                }
+                else if (!searchFormInput.value) {
+                    searchFormInput.value = transcript;
+                }
+                else {
+                    if (transcript.toLowerCase().trim() === "go") {
+                        searchForm.submit();
+                    }
+                    else if (transcript.toLowerCase().trim() === "reset input") {
+                        searchFormInput.value = "";
+                    }
+                    else {
+                        searchFormInput.value = transcript;
+                    }
+                }
+                // searchFormInput.value = transcript;
+                // searchFormInput.focus();
+                // setTimeout(() => {
+                //   searchForm.submit();
+                // }, 500);
+            }
+
+            info.textContent = 'Voice Commands: "stop recording", "reset input", "go"';
+
+        }
+        else {
+            console.log("Your Browser does not support speech Recognition");
+            info.textContent = "Your Browser does not support Speech Recognition";
+        }
+    </script>*@

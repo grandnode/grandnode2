@@ -93,6 +93,8 @@ import {
     BIconSun,
     BIconFileEarmarkRichtext,
     BIconHammer,
+    BIconMic,
+    BIconMicMute
 } from 'bootstrap-vue'
 Vue.component('BIcon', BIcon)
 Vue.component('BIconAspectRatio', BIconAspectRatio)
@@ -147,6 +149,8 @@ Vue.component('BIconMoon', BIconMoon)
 Vue.component('BIconSun', BIconSun)
 Vue.component('BIconFileEarmarkRichtext', BIconFileEarmarkRichtext)
 Vue.component('BIconHammer', BIconHammer)
+Vue.component('BIconMic', BIconMic)
+Vue.component('BIconMicMute', BIconMicMute)
 
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 Vue.component('ValidationProvider', ValidationProvider);
