@@ -489,7 +489,8 @@ function displayPopupNotification(message, messagetype) {
 function CloseSearchBox() {
     window.addEventListener('click', function () {
         if (document.getElementById('adv_search')) {
-            document.getElementById('adv_search').style.display = "none";
+            searchbox.text = "";
+            searchbox.searchitems = null;
         }
     });
 }

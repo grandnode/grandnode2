@@ -734,8 +734,60 @@ input:checked ~ .color-container .color::before {
 #voiceSearchButton, .search-box-button {
     font-size: 28px;
 }
-#voiceSearchButton:focus {
+#voiceSearchButton {
+    position: relative;
+    border-radius: 100%;
+    background-color: #fff;
     box-shadow: none;
+    transition: all .2s ease-in-out;
+    -webkit-transition: all .2s ease-in-out;
+    z-index: 4;
+}
+#voiceSearchButton.focus {
+    box-shadow: 0px 12px 28px rgb(0 123 255 / 25%), 0 -4px 14px rgb(0 123 255 / 22%)
+}
+#voiceSearchButton::before {
+    content: attr(data-title);
+    position: absolute;
+    left: 5px;
+    bottom: -45px;
+    color: #fff;
+    background: #000;
+    border-radius: .25rem;
+    font-size: 18px;
+    font-weight: 500;
+    padding: 5px 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    -webkit-transform: translateY(10px);
+    transition: all .2s ease-in-out;
+    -webkit-transition: all .2s ease-in-out;
+}
+#voiceSearchButton::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    left: 20px;
+    width: 0px;
+    height: 0px;
+    border-top: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid #000;
+    border-left: 10px solid transparent;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    -webkit-transform: translateY(10px);
+    transition: all .2s ease-in-out;
+    -webkit-transition: all .2s ease-in-out;
+}
+#voiceSearchButton:hover::before, #voiceSearchButton:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    -webkit-transform: translateY(0);
 }
 .search-box-text::placeholder {
     color: #000;
@@ -1325,6 +1377,23 @@ footer .list-group-item span:last-child {
     }
     .up-btn  {
         bottom: 75px;
+    }
+    #search-box .modal-body {
+        padding: 15px;
+    }
+    #search-box .modal-body .search-box-text, #voiceSearchButton, .search-box-button {
+        font-size: 20px;
+    }
+    #voiceSearchButton::before {
+        bottom: -35px;
+        font-size: 12px;
+        padding: 5px 8px;
+    }
+    #voiceSearchButton::after {
+        border-top: 7px solid transparent;
+        border-right: 7px solid transparent;
+        border-bottom: 7px solid #000;
+        border-left: 7px solid transparent;
     }
 }
 @media (max-width: 768px) {
