@@ -192,6 +192,9 @@
   <Resource Name="Account.CustomerMerchandiseReturns.Comments">
     <Value>Your Comments:</Value>
   </Resource>
+  <Resource Name="Account.CustomerMerchandiseReturns.Count">
+    <Value>Count</Value>
+  </Resource>
   <Resource Name="Account.CustomerMerchandiseReturns.Date">
     <Value>Date Requested:</Value>
   </Resource>
@@ -204,6 +207,9 @@
   <Resource Name="Account.CustomerMerchandiseReturns.Nomerchandisereturns">
     <Value>No merchandise returns</Value>
   </Resource>
+  <Resource Name="Account.CustomerMerchandiseReturns.Number">
+    <Value>Number</Value>
+  </Resource>
   <Resource Name="Account.CustomerMerchandiseReturns.PickupAddress">
     <Value>Pickup address</Value>
   </Resource>
@@ -215,6 +221,9 @@
   </Resource>
   <Resource Name="Account.CustomerMerchandiseReturns.Reason">
     <Value>Return Reason:</Value>
+  </Resource>
+  <Resource Name="Account.CustomerMerchandiseReturns.Status">
+    <Value>Status:</Value>
   </Resource>
   <Resource Name="Account.CustomerMerchandiseReturns.Title">
     <Value>Return #{0} - {1}</Value>
@@ -1251,6 +1260,9 @@
   <Resource Name="Address">
     <Value>Address</Value>
   </Resource>
+  <Resource Name="Address.Fields.Address">
+    <Value>Address</Value>
+  </Resource>
   <Resource Name="Address.Fields.Address1">
     <Value>Address 1</Value>
   </Resource>
@@ -1307,6 +1319,9 @@
   </Resource>
   <Resource Name="Address.Fields.LastName.Required">
     <Value>Last name is required.</Value>
+  </Resource>
+  <Resource Name="Address.Fields.Name">
+    <Value>Name</Value>
   </Resource>
   <Resource Name="Address.Fields.Note">
     <Value>Note</Value>
