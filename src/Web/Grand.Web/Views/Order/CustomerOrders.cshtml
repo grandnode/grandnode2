@@ -17,7 +17,56 @@
     <h1 class="generalTitle h2">@Loc["Account.CustomerOrders"]</h1>
     @if (Model.Orders.Any())
     {
-        <div class="account-order">
+        <div class="account-order table-responsive">
+            <table class="table hover-table">
+                <thead>
+                    <tr>
+                        <th scope="col">@Loc["Account.CustomerOrders.OrderNumber"]</th>
+                        <th scope="col">@Loc["Account.CustomerOrders.OrderStatus"]</th>
+                        <th scope="col">@Loc["Account.CustomerOrders.OrderDate"]</th>
+                        <th scope="col">@Loc["Account.CustomerOrders.OrderTotal"]</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.Orders)
+                    { 
+                        <tr>
+                            <td>
+                                <span>@order.OrderNumber</span>
+                            </td>
+                            <td>
+                                <span class="@order.OrderStatus.ToLower() badge status order-status">@order.OrderStatus</span>
+                            </td>
+                            @if (supportRtl)
+                            { 
+                                <td>
+                                    <span>@Convert.ToDateTime(order.CreatedOn).ToString("tt HH:mm yyyy/MM/dd")</span>
+                                </td>
+                            } else { 
+                                <td>
+                                    <span>@order.CreatedOn.ToString("g")</span>
+                                </td>
+                            }
+                            <td>
+                                <span class="order-total">@order.OrderTotal</span>
+                            </td>
+                            <td>
+                                <div class="buttons d-flex flex-column">
+                                    <input type="button" value="@Loc["Account.CustomerOrders.OrderDetails"]" class="btn btn-sm btn-info order-details-button" onclick="location = ('@Url.RouteUrl("OrderDetails", new { orderId = order.Id })')" />
+                                    @if (order.IsMerchandiseReturnAllowed)
+                                    {
+                                        <input type="button" value="@Loc["Account.CustomerOrders.ReturnItems"]" class="btn btn-sm btn-warning text-white return-items-button mt-1" onclick="location = ('@Url.RouteUrl("MerchandiseReturn", new { orderId = order.Id })')" />
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @*<div class="account-order">
             <div class="row">
                 @foreach (var order in Model.Orders)
                 {
@@ -62,7 +111,7 @@
                     </div>
                 }
             </div>
-        </div>
+        </div>*@
         <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingContext" />
     }
     else
