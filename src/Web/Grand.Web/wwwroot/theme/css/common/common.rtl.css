@@ -841,7 +841,7 @@ input:checked ~ .color-container .color::before {
     z-index: 4;
 }
 #voiceSearchButton.focus {
-    box-shadow: 0px 12px 28px rgb(0 123 255 / 25%), 0 -4px 14px rgb(0 123 255 / 22%)
+    box-shadow: 0px 12px 28px rgba(0,123,255,.25), 0 -4px 14px rgba(0,123,255,.25);
 }
 #voiceSearchButton::before {
     content: attr(data-title);
