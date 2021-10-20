@@ -312,15 +312,15 @@ namespace Grand.Web.Common.Infrastructure
                 .AddPermissionsPolicy(builder =>
                 {                    
                     builder.AddAutoplay().Self();
-                    builder.AddCamera().None();
+                    builder.AddCamera().Self();
                     builder.AddEncryptedMedia().Self();
                     builder.AddFullscreen().All();
                     builder.AddGeolocation().Self();
                     builder.AddGyroscope().None();
                     builder.AddMagnetometer().None();
-                    builder.AddMicrophone().None();
+                    builder.AddMicrophone().Self();
                     builder.AddMidi().None();
-                    builder.AddPayment().None();
+                    builder.AddPayment().Self();
                     builder.AddPictureInPicture().None();
                     builder.AddSyncXHR().None();
                     builder.AddUsb().None();
