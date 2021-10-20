@@ -823,6 +823,9 @@ input:checked ~ .color-container .color::before {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+#search-box .modal-body .adnotation {
+    text-align: right;
+}
 #search-box .modal-body .search-box-text:focus {
     box-shadow: none;
     border-color: #1FB0C7;
