@@ -134,7 +134,9 @@ namespace Grand.Web.Commands.Handler.Common
                 await _mediator.Publish(new PopupInteractiveEvent(_workContext.CurrentCustomer, request.Form, enquiryForm));
 
                 //activity log
-                await _customerActivityService.InsertActivity("PublicStore.InteractiveForm", form.Id, string.Format(_translationService.GetResource("ActivityLog.PublicStore.InteractiveForm"), form.Name));
+                await _customerActivityService.InsertActivity("PublicStore.InteractiveForm", form.Id,
+                    _workContext.CurrentCustomer, "",
+                    string.Format(_translationService.GetResource("ActivityLog.PublicStore.InteractiveForm"), form.Name));
             }
 
             return errors;

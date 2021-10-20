@@ -133,7 +133,8 @@ namespace Grand.Web.Common.Filters
                     if (!_workContext.CurrentCustomer.IsSearchEngineAccount())
                     {
                         //activity
-                        await _customerActivityService.InsertActivity("PublicStore.Url", pageUrl, pageUrl, _workContext.CurrentCustomer);
+                        await _customerActivityService.InsertActivity("PublicStore.Url", pageUrl, _workContext.CurrentCustomer, 
+                            context.HttpContext?.Connection?.RemoteIpAddress?.ToString(), pageUrl);
                         //action
                         await _customerActionEventService.Url(_workContext.CurrentCustomer, context.HttpContext?.Request?.Path.ToString(), context.HttpContext?.Request?.Headers["Referer"]);
                     }

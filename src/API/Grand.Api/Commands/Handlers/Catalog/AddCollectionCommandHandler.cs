@@ -6,6 +6,7 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Common.Interfaces.Seo;
 using Grand.Domain.Seo;
+using Grand.Infrastructure;
 using MediatR;
 using System;
 using System.Threading;
@@ -20,6 +21,7 @@ namespace Grand.Api.Commands.Models.Catalog
         private readonly ILanguageService _languageService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
+        private readonly IWorkContext _workContext;
         private readonly SeoSettings _seoSettings;
 
         public AddCollectionCommandHandler(
@@ -28,6 +30,7 @@ namespace Grand.Api.Commands.Models.Catalog
             ILanguageService languageService,
             ICustomerActivityService customerActivityService,
             ITranslationService translationService,
+            IWorkContext workContext,
             SeoSettings seoSettings)
         {
             _collectionService = collectionService;
@@ -35,6 +38,7 @@ namespace Grand.Api.Commands.Models.Catalog
             _languageService = languageService;
             _customerActivityService = customerActivityService;
             _translationService = translationService;
+            _workContext = workContext;
             _seoSettings = seoSettings;
         }
 
@@ -50,7 +54,9 @@ namespace Grand.Api.Commands.Models.Catalog
             await _slugService.SaveSlug(collection, request.Model.SeName, "");
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCollection", collection.Id, _translationService.GetResource("ActivityLog.AddNewCollection"), collection.Name);
+            await _customerActivityService.InsertActivity("AddNewCollection", collection.Id,
+                _workContext.CurrentCustomer, "",
+                _translationService.GetResource("ActivityLog.AddNewCollection"), collection.Name);
 
             return collection.ToModel();
         }

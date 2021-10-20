@@ -128,7 +128,9 @@ namespace Grand.Web.Controllers
                 await _mediator.Publish(new NewsCommentEvent(newsItem, model.AddNewComment));
 
                 //activity log
-                await _customerActivityService.InsertActivity("PublicStore.AddNewsComment", newsItem.Id, _translationService.GetResource("ActivityLog.PublicStore.AddNewsComment"));
+                await _customerActivityService.InsertActivity("PublicStore.AddNewsComment", newsItem.Id,
+                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.PublicStore.AddNewsComment"));
 
                 //The text boxes should be cleared after a comment has been posted
                 TempData["Grand.news.addcomment.result"] = _translationService.GetResource("News.Comments.SuccessfullyAdded");

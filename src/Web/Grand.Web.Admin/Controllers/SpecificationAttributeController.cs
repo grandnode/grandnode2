@@ -105,7 +105,9 @@ namespace Grand.Web.Admin.Controllers
                 }
                 await _specificationAttributeService.InsertSpecificationAttribute(specificationAttribute);
                 //activity log
-                await _customerActivityService.InsertActivity("AddNewSpecAttribute", specificationAttribute.Id, _translationService.GetResource("ActivityLog.AddNewSpecAttribute"), specificationAttribute.Name);
+                await _customerActivityService.InsertActivity("AddNewSpecAttribute", specificationAttribute.Id,
+                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.AddNewSpecAttribute"), specificationAttribute.Name);
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.SpecificationAttributes.Added"));
                 return continueEditing ? RedirectToAction("Edit", new { id = specificationAttribute.Id }) : RedirectToAction("List");
             }
@@ -152,7 +154,9 @@ namespace Grand.Web.Admin.Controllers
                 }
                 await _specificationAttributeService.UpdateSpecificationAttribute(specificationAttribute);
                 //activity log
-                await _customerActivityService.InsertActivity("EditSpecAttribute", specificationAttribute.Id, _translationService.GetResource("ActivityLog.EditSpecAttribute"), specificationAttribute.Name);
+                await _customerActivityService.InsertActivity("EditSpecAttribute", specificationAttribute.Id,
+                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.EditSpecAttribute"), specificationAttribute.Name);
 
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.SpecificationAttributes.Updated"));
 
@@ -189,7 +193,9 @@ namespace Grand.Web.Admin.Controllers
                 await _specificationAttributeService.DeleteSpecificationAttribute(specificationAttribute);
 
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteSpecAttribute", specificationAttribute.Id, _translationService.GetResource("ActivityLog.DeleteSpecAttribute"), specificationAttribute.Name);
+                await _customerActivityService.InsertActivity("DeleteSpecAttribute", specificationAttribute.Id,
+                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.DeleteSpecAttribute"), specificationAttribute.Name);
 
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.SpecificationAttributes.Deleted"));
                 return RedirectToAction("List");

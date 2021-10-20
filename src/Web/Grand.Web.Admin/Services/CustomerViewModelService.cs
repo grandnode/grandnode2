@@ -799,7 +799,7 @@ namespace Grand.Web.Admin.Services
             await SaveCustomerTags(customer, ParseCustomerTags(model.CustomerTags));
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCustomer", customer.Id, _translationService.GetResource("ActivityLog.AddNewCustomer"), customer.Id);
+            await _customerActivityService.InsertActivity("AddNewCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.AddNewCustomer"),  customer.Id);
 
             return customer;
         }
@@ -1020,7 +1020,7 @@ namespace Grand.Web.Admin.Services
             await SaveCustomerTags(customer, ParseCustomerTags(model.CustomerTags));
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCustomer", customer.Id, _translationService.GetResource("ActivityLog.EditCustomer"), customer.Id);
+            await _customerActivityService.InsertActivity("EditCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditCustomer"), customer.Id);
             return customer;
         }
 
@@ -1037,7 +1037,7 @@ namespace Grand.Web.Admin.Services
             }
 
             //activity log
-            await _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
+            await _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
         }
 
         public virtual async Task DeleteSelected(IList<string> selectedIds)
@@ -1052,7 +1052,7 @@ namespace Grand.Web.Admin.Services
                     await _customerService.DeleteCustomer(customer);
                 }
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
+                await _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
             }
         }
 
@@ -1082,7 +1082,7 @@ namespace Grand.Web.Admin.Services
                         null : (DateTime?)_dateTimeService.ConvertToUtcTime(model.DontSendBeforeDate.Value)
             };
             await queuedEmailService.InsertQueuedEmail(email);
-            await _customerActivityService.InsertActivity("CustomerAdmin.SendEmail", "", _translationService.GetResource("ActivityLog.SendEmailfromAdminPanel"), customer, model.Subject);
+            await _customerActivityService.InsertActivity("CustomerAdmin.SendEmail", "", customer, "", _translationService.GetResource("ActivityLog.SendEmailfromAdminPanel"), model.Subject);
         }
 
         public virtual async Task<IEnumerable<CustomerModel.LoyaltyPointsHistoryModel>> PrepareLoyaltyPointsHistoryModel(string customerId)
@@ -1105,7 +1105,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<LoyaltyPointsHistory> InsertLoyaltyPointsHistory(Customer customer, string storeId, int addLoyaltyPointsValue, string addLoyaltyPointsMessage)
         {
             //activity log
-            await _customerActivityService.InsertActivity("AddLoyaltyPoints", customer.Id, _translationService.GetResource("ActivityLog.AddNewLoyaltyPoints"), customer.Email, addLoyaltyPointsValue);
+            await _customerActivityService.InsertActivity("AddLoyaltyPoints", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.AddNewLoyaltyPoints"), customer.Email, addLoyaltyPointsValue);
 
             return await _loyaltyPointsService.AddLoyaltyPointsHistory(customer.Id, addLoyaltyPointsValue, storeId, addLoyaltyPointsMessage);
         }
@@ -1281,7 +1281,7 @@ namespace Grand.Web.Admin.Services
             if (cart != null)
             {
                 //activity log
-                await _customerActivityService.InsertActivity("CustomerAdmin.UpdateCartCustomer", _workContext.CurrentCustomer.Id,
+                await _customerActivityService.InsertActivity("CustomerAdmin.UpdateCartCustomer", customer.Id,_workContext.CurrentCustomer,"",
                     _translationService.GetResource("ActivityLog.UpdateCartCustomer"), customer.Email, customer.Id, unitprice);
 
                 return await _serviceProvider.GetRequiredService<IShoppingCartService>()

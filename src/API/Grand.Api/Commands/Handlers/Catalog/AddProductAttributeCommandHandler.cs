@@ -4,6 +4,7 @@ using Grand.Api.Extensions;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
+using Grand.Infrastructure;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,15 +16,18 @@ namespace Grand.Api.Commands.Handlers.Catalog
         private readonly IProductAttributeService _productAttributeService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
+        private readonly IWorkContext _workContext;
 
         public AddProductAttributeCommandHandler(
             IProductAttributeService productAttributeService,
             ICustomerActivityService customerActivityService,
-            ITranslationService translationService)
+            ITranslationService translationService,
+            IWorkContext workContext)
         {
             _productAttributeService = productAttributeService;
             _customerActivityService = customerActivityService;
             _translationService = translationService;
+            _workContext = workContext;
         }
 
         public async Task<ProductAttributeDto> Handle(AddProductAttributeCommand request, CancellationToken cancellationToken)
@@ -34,7 +38,7 @@ namespace Grand.Api.Commands.Handlers.Catalog
 
             //activity log
             await _customerActivityService.InsertActivity("AddNewProductAttribute",
-                productAttribute.Id, _translationService.GetResource("ActivityLog.AddNewProductAttribute"), productAttribute.Name);
+                productAttribute.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.AddNewProductAttribute"), productAttribute.Name);
 
             return productAttribute.ToModel();
         }

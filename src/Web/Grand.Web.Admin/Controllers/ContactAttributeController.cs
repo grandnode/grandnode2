@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Grand.Infrastructure;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -153,7 +154,9 @@ namespace Grand.Web.Admin.Controllers
         //delete
         [HttpPost]
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
-        public async Task<IActionResult> Delete(string id, [FromServices] ICustomerActivityService customerActivityService)
+        public async Task<IActionResult> Delete(string id,
+            [FromServices] IWorkContext workContext,
+            [FromServices] ICustomerActivityService customerActivityService)
         {
             if (ModelState.IsValid)
             {
@@ -161,7 +164,9 @@ namespace Grand.Web.Admin.Controllers
                 await _contactAttributeService.DeleteContactAttribute(contactAttribute);
 
                 //activity log
-                await customerActivityService.InsertActivity("DeleteContactAttribute", contactAttribute.Id, _translationService.GetResource("ActivityLog.DeleteContactAttribute"), contactAttribute.Name);
+                await customerActivityService.InsertActivity("DeleteContactAttribute", contactAttribute.Id,
+                    workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.DeleteContactAttribute"), contactAttribute.Name);
 
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.ContactAttributes.Deleted"));
                 return RedirectToAction("List");

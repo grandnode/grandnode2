@@ -12,10 +12,12 @@ using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Domain.Seo;
+using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
@@ -40,13 +42,31 @@ namespace Grand.Web.Admin.Services
         private readonly IVendorService _vendorService;
         private readonly IDateTimeService _dateTimeService;
         private readonly ILanguageService _languageService;
+        private readonly IWorkContext _workContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         private readonly CatalogSettings _catalogSettings;
         private readonly SeoSettings _seoSettings;
 
-        public CategoryViewModelService(ICategoryService categoryService, IProductCategoryService productCategoryService, ICategoryLayoutService categoryLayoutService, IDiscountService discountService,
-            ITranslationService translationService, IStoreService storeService, ICustomerService customerService, IPictureService pictureService,
-            ISlugService slugService, ICustomerActivityService customerActivityService, IProductService productService,
-            IVendorService vendorService, IDateTimeService dateTimeService, ILanguageService languageService, CatalogSettings catalogSettings, SeoSettings seoSettings)
+        public CategoryViewModelService(
+            ICategoryService categoryService, 
+            IProductCategoryService productCategoryService, 
+            ICategoryLayoutService categoryLayoutService, 
+            IDiscountService discountService,
+            ITranslationService translationService, 
+            IStoreService storeService, 
+            ICustomerService customerService, 
+            IPictureService pictureService,
+            ISlugService slugService, 
+            ICustomerActivityService customerActivityService, 
+            IProductService productService,
+            IVendorService vendorService, 
+            IDateTimeService dateTimeService, 
+            ILanguageService languageService,
+            IWorkContext workContext,
+            IHttpContextAccessor httpContextAccessor,
+            CatalogSettings catalogSettings, 
+            SeoSettings seoSettings)
         {
             _categoryService = categoryService;
             _productCategoryService = productCategoryService;
@@ -61,6 +81,8 @@ namespace Grand.Web.Admin.Services
             _pictureService = pictureService;
             _vendorService = vendorService;
             _languageService = languageService;
+            _workContext = workContext;
+            _httpContextAccessor = httpContextAccessor;
             _catalogSettings = catalogSettings;
             _dateTimeService = dateTimeService;
             _seoSettings = seoSettings;
@@ -188,7 +210,9 @@ namespace Grand.Web.Admin.Services
             await _pictureService.UpdatePictureSeoNames(category.PictureId, category.Name);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCategory", category.Id, _translationService.GetResource("ActivityLog.AddNewCategory"), category.Name);
+            await _customerActivityService.InsertActivity("AddNewCategory", category.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.AddNewCategory"), category.Name);
 
             return category;
         }
@@ -235,14 +259,18 @@ namespace Grand.Web.Admin.Services
             await _pictureService.UpdatePictureSeoNames(category.PictureId, category.Name);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCategory", category.Id, _translationService.GetResource("ActivityLog.EditCategory"), category.Name);
+            await _customerActivityService.InsertActivity("EditCategory", category.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditCategory"), category.Name);
             return category;
         }
         public virtual async Task DeleteCategory(Category category)
         {
             await _categoryService.DeleteCategory(category);
             //activity log
-            await _customerActivityService.InsertActivity("DeleteCategory", category.Id, _translationService.GetResource("ActivityLog.DeleteCategory"), category.Name);
+            await _customerActivityService.InsertActivity("DeleteCategory", category.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.DeleteCategory"), category.Name);
         }
 
         public virtual async Task<(IEnumerable<CategoryModel.CategoryProductModel> categoryProductModels, int totalCount)> PrepareCategoryProductModel(string categoryId, int pageIndex, int pageSize)

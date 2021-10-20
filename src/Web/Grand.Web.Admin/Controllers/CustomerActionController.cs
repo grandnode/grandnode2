@@ -10,6 +10,7 @@ using Grand.Business.Customers.Interfaces;
 using Grand.Business.Marketing.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
@@ -203,7 +204,7 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(string id, [FromServices] IWorkContext workContext)
         {
             var customerAction = await _customerActionService.GetCustomerActionById(id);
             if (customerAction == null)
@@ -212,7 +213,9 @@ namespace Grand.Web.Admin.Controllers
             try
             {
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteCustomerAction", customerAction.Id, _translationService.GetResource("ActivityLog.DeleteCustomerAction"), customerAction.Name);
+                await _customerActivityService.InsertActivity("DeleteCustomerAction", customerAction.Id,
+                    workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.DeleteCustomerAction"), customerAction.Name);
                 await _customerActionService.DeleteCustomerAction(customerAction);
                 Success(_translationService.GetResource("Admin.Customers.CustomerAction.Deleted"));
                 return RedirectToAction("List");

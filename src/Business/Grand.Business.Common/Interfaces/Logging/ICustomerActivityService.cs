@@ -47,21 +47,14 @@ namespace Grand.Business.Common.Interfaces.Logging
         /// Inserts an activity log item
         /// </summary>
         /// <param name="systemKeyword">The system keyword</param>
-        /// <param name="comment">The activity comment</param>
-        /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
-        /// <returns>Activity log item</returns>
-        Task InsertActivity(string systemKeyword, string entityKeyId, string comment, params object[] commentParams);
-
-        /// <summary>
-        /// Inserts an activity log item
-        /// </summary>
-        /// <param name="systemKeyword">The system keyword</param>
-        /// <param name="comment">The activity comment</param>
+        /// <param name="entityKeyId">Entity key ident</param>
         /// <param name="customer">The customer</param>
+        /// <param name="ipAddress">Ip address</param>
+        /// <param name="comment">The activity comment</param>
         /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
         /// <returns>Activity log item</returns>
         Task<ActivityLog> InsertActivity(string systemKeyword, string entityKeyId,
-            string comment, Customer customer, params object[] commentParams);
+            Customer customer, string ipAddress, string comment, params object[] commentParams);
 
 
         /// <summary>

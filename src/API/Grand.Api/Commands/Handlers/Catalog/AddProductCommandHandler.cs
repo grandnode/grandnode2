@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Common.Extensions;
+using Grand.Infrastructure;
 
 namespace Grand.Api.Commands.Models.Catalog
 {
@@ -20,6 +21,8 @@ namespace Grand.Api.Commands.Models.Catalog
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
         private readonly ILanguageService _languageService;
+        private readonly IWorkContext _workContext;
+
         private readonly SeoSettings _seoSettings;
 
         public AddProductCommandHandler(
@@ -28,6 +31,7 @@ namespace Grand.Api.Commands.Models.Catalog
             ICustomerActivityService customerActivityService,
             ITranslationService translationService,
             ILanguageService languageService,
+            IWorkContext workContext,
             SeoSettings seoSettings)
         {
             _productService = productService;
@@ -35,6 +39,7 @@ namespace Grand.Api.Commands.Models.Catalog
             _customerActivityService = customerActivityService;
             _translationService = translationService;
             _languageService = languageService;
+            _workContext = workContext;
             _seoSettings = seoSettings;
         }
 
@@ -52,7 +57,7 @@ namespace Grand.Api.Commands.Models.Catalog
             await _productService.UpdateProduct(product);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewProduct", product.Id, _translationService.GetResource("ActivityLog.AddNewProduct"), product.Name);
+            await _customerActivityService.InsertActivity("AddNewProduct", product.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.AddNewProduct"), product.Name);
 
             return product.ToModel();
         }

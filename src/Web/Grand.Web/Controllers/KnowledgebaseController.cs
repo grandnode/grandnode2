@@ -311,7 +311,9 @@ namespace Grand.Web.Controllers
                     await _messageProviderService.SendArticleCommentMessage(article, comment, _languageSettings.DefaultAdminLanguageId);
 
                 //activity log
-                await _customerActivityService.InsertActivity("PublicStore.AddArticleComment", comment.Id, _translationService.GetResource("ActivityLog.PublicStore.AddArticleComment"));
+                await _customerActivityService.InsertActivity("PublicStore.AddArticleComment", comment.Id,
+                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.PublicStore.AddArticleComment"));
 
                 //The text boxes should be cleared after a comment has been posted
                 //That' why we reload the page

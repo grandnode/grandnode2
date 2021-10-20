@@ -176,8 +176,9 @@ namespace Grand.Web.Controllers
             }
 
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.ViewProduct", product.Id, _translationService.GetResource("ActivityLog.PublicStore.ViewProduct"), product.Name);
-            await _customerActionEventService.Viewed(customer, this.HttpContext.Request.Path.ToString(), this.Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers[HeaderNames.Referer].ToString() : "");
+            await _customerActivityService.InsertActivity("PublicStore.ViewProduct", product.Id, _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.PublicStore.ViewProduct"), product.Name);
+            await _customerActionEventService.Viewed(customer, this.HttpContext.Request.Path.ToString(), Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers[HeaderNames.Referer].ToString() : "");
             await _productService.UpdateMostView(product);
 
             return View(productLayoutViewPath, model);
@@ -422,7 +423,8 @@ namespace Grand.Web.Controllers
             await _recentlyViewedProductsService.AddProductToRecentlyViewedList(customer.Id, product.Id);
 
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.ViewProduct", product.Id, _translationService.GetResource("ActivityLog.PublicStore.ViewProduct"), product.Name);
+            await _customerActivityService.InsertActivity("PublicStore.ViewProduct", product.Id, _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.PublicStore.ViewProduct"), product.Name);
             await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers[HeaderNames.Referer].ToString() : "");
             await _productService.UpdateMostView(product);
 
@@ -544,7 +546,9 @@ namespace Grand.Web.Controllers
                 //notification
                 await _mediator.Publish(new ProductReviewEvent(product, model.AddProductReview));
 
-                await _customerActivityService.InsertActivity("PublicStore.AddProductReview", product.Id, _translationService.GetResource("ActivityLog.PublicStore.AddProductReview"), product.Name);
+                await _customerActivityService.InsertActivity("PublicStore.AddProductReview", product.Id,
+                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.PublicStore.AddProductReview"), product.Name);
 
                 //raise event
                 if (productReview.IsApproved)
@@ -775,7 +779,9 @@ namespace Grand.Web.Controllers
                 });
 
                 //activity log
-                await _customerActivityService.InsertActivity("PublicStore.AskQuestion", _workContext.CurrentCustomer.Id, _translationService.GetResource("ActivityLog.PublicStore.AskQuestion"));
+                await _customerActivityService.InsertActivity("PublicStore.AskQuestion", _workContext.CurrentCustomer.Id,
+                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.PublicStore.AskQuestion"));
 
                 model.SuccessfullySent = true;
                 model.ProductSeName = product.GetSeName(_workContext.WorkingLanguage.Id);
@@ -836,7 +842,9 @@ namespace Grand.Web.Controllers
                 });
 
                 //activity log
-                await _customerActivityService.InsertActivity("PublicStore.AskQuestion", _workContext.CurrentCustomer.Id, _translationService.GetResource("ActivityLog.PublicStore.AskQuestion"));
+                await _customerActivityService.InsertActivity("PublicStore.AskQuestion", _workContext.CurrentCustomer.Id,
+                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.PublicStore.AskQuestion"));
                 //return Json
                 return Json(new
                 {
@@ -887,7 +895,9 @@ namespace Grand.Web.Controllers
             _compareProductsService.AddProductToCompareList(productId);
 
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.AddToCompareList", productId, _translationService.GetResource("ActivityLog.PublicStore.AddToCompareList"), product.Name);
+            await _customerActivityService.InsertActivity("PublicStore.AddToCompareList", productId,
+                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.PublicStore.AddToCompareList"), product.Name);
 
             return Json(new
             {

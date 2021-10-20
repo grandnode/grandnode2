@@ -4,6 +4,7 @@ using Grand.Api.Extensions;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
+using Grand.Infrastructure;
 using MediatR;
 using System.Linq;
 using System.Threading;
@@ -16,15 +17,18 @@ namespace Grand.Api.Commands.Handlers.Catalog
         private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
+        private readonly IWorkContext _workContext;
 
         public UpdateSpecificationAttributeCommandHandler(
             ISpecificationAttributeService specificationAttributeService,
             ICustomerActivityService customerActivityService,
-            ITranslationService translationService)
+            ITranslationService translationService,
+            IWorkContext workContext)
         {
             _specificationAttributeService = specificationAttributeService;
             _customerActivityService = customerActivityService;
             _translationService = translationService;
+            _workContext = workContext;
         }
 
         public async Task<SpecificationAttributeDto> Handle(UpdateSpecificationAttributeCommand request, CancellationToken cancellationToken)
@@ -42,7 +46,8 @@ namespace Grand.Api.Commands.Handlers.Catalog
 
             //activity log
             await _customerActivityService.InsertActivity("EditSpecAttribute",
-                specificationAttribute.Id, _translationService.GetResource("ActivityLog.EditSpecAttribute"), specificationAttribute.Name);
+                specificationAttribute.Id, _workContext.CurrentCustomer, "",
+                _translationService.GetResource("ActivityLog.EditSpecAttribute"), specificationAttribute.Name);
 
             return specificationAttribute.ToModel();
         }

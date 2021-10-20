@@ -9,6 +9,7 @@ using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Common.Interfaces.Seo;
 using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
+using Grand.Infrastructure;
 using MediatR;
 using System;
 using System.Threading;
@@ -26,6 +27,8 @@ namespace Grand.Api.Commands.Models.Catalog
         private readonly ILanguageService _languageService;
         private readonly IOutOfStockSubscriptionService _outOfStockSubscriptionService;
         private readonly IMediator _mediator;
+        private readonly IWorkContext _workContext;
+
         private readonly SeoSettings _seoSettings;
 
         public UpdateProductCommandHandler(
@@ -37,6 +40,7 @@ namespace Grand.Api.Commands.Models.Catalog
             IOutOfStockSubscriptionService outOfStockSubscriptionService,
             IStockQuantityService stockQuantityService,
             IMediator mediator,
+            IWorkContext workContext,
             SeoSettings seoSettings)
         {
             _productService = productService;
@@ -47,6 +51,7 @@ namespace Grand.Api.Commands.Models.Catalog
             _outOfStockSubscriptionService = outOfStockSubscriptionService;
             _stockQuantityService = stockQuantityService;
             _mediator = mediator;
+            _workContext = workContext;
             _seoSettings = seoSettings;
         }
 
@@ -76,7 +81,7 @@ namespace Grand.Api.Commands.Models.Catalog
             }
 
             //activity log
-            await _customerActivityService.InsertActivity("EditProduct", product.Id, _translationService.GetResource("ActivityLog.EditProduct"), product.Name);
+            await _customerActivityService.InsertActivity("EditProduct", product.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditProduct"), product.Name);
 
             //raise event 
             if (!prevPublished && product.Published)

@@ -7,6 +7,7 @@ using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Common.Interfaces.Seo;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Seo;
+using Grand.Infrastructure;
 using MediatR;
 using System;
 using System.Threading;
@@ -22,6 +23,8 @@ namespace Grand.Api.Commands.Models.Catalog
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
         private readonly IPictureService _pictureService;
+        private readonly IWorkContext _workContext;
+
         private readonly SeoSettings _seoSettings;
 
         public UpdateBrandCommandHandler(
@@ -31,6 +34,7 @@ namespace Grand.Api.Commands.Models.Catalog
             ICustomerActivityService customerActivityService,
             ITranslationService translationService,
             IPictureService pictureService,
+            IWorkContext workContext,
             SeoSettings seoSettings)
         {
             _brandService = brandService;
@@ -39,6 +43,7 @@ namespace Grand.Api.Commands.Models.Catalog
             _customerActivityService = customerActivityService;
             _translationService = translationService;
             _pictureService = pictureService;
+            _workContext = workContext;
             _seoSettings = seoSettings;
         }
 
@@ -69,7 +74,7 @@ namespace Grand.Api.Commands.Models.Catalog
                     await _pictureService.SetSeoFilename(picture, _pictureService.GetPictureSeName(brand.Name));
             }
             //activity log
-            await _customerActivityService.InsertActivity("EditBrand", brand.Id, _translationService.GetResource("ActivityLog.EditBrand"), brand.Name);
+            await _customerActivityService.InsertActivity("EditBrand", brand.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditBrand"), brand.Name);
 
             return brand.ToModel();
         }

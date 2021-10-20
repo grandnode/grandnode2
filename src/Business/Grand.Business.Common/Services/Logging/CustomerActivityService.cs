@@ -3,11 +3,9 @@ using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Logging;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.SharedKernel.Extensions;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,9 +26,7 @@ namespace Grand.Business.Common.Services.Logging
         private readonly ICacheBase _cacheBase;
         private readonly IRepository<ActivityLog> _activityLogRepository;
         private readonly IRepository<ActivityLogType> _activityLogTypeRepository;
-        private readonly IWorkContext _workContext;
         private readonly IActivityKeywordsProvider _activityKeywordsProvider;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         #endregion
 
@@ -43,16 +39,12 @@ namespace Grand.Business.Common.Services.Logging
             ICacheBase cacheBase,
             IRepository<ActivityLog> activityLogRepository,
             IRepository<ActivityLogType> activityLogTypeRepository,
-            IWorkContext workContext,
-            IActivityKeywordsProvider activityKeywordsProvider,
-            IHttpContextAccessor httpContextAccessor)
+            IActivityKeywordsProvider activityKeywordsProvider)
         {
             _cacheBase = cacheBase;
             _activityLogRepository = activityLogRepository;
             _activityLogTypeRepository = activityLogTypeRepository;
-            _workContext = workContext;
             _activityKeywordsProvider = activityKeywordsProvider;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -143,25 +135,14 @@ namespace Grand.Business.Common.Services.Logging
         /// Inserts an activity log item
         /// </summary>
         /// <param name="systemKeyword">The system keyword</param>
-        /// <param name="comment">The activity comment</param>
-        /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
-        /// <returns>Activity log item</returns>
-        public virtual async Task InsertActivity(string systemKeyword, string entityKeyId,
-            string comment, params object[] commentParams)
-        {
-            await InsertActivity(systemKeyword, entityKeyId, comment, _workContext.CurrentCustomer, commentParams);
-        }
-
-        /// <summary>
-        /// Inserts an activity log item
-        /// </summary>
-        /// <param name="systemKeyword">The system keyword</param>
-        /// <param name="comment">The activity comment</param>
+        /// <param name="entityKeyId">Entity key ident</param>
         /// <param name="customer">The customer</param>
+        /// <param name="ipAddress">Ip address</param>
+        /// <param name="comment">The activity comment</param>
         /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
         /// <returns>Activity log item</returns>
         public virtual async Task<ActivityLog> InsertActivity(string systemKeyword, string entityKeyId,
-            string comment, Customer customer, params object[] commentParams)
+            Customer customer, string ipAddress, string comment, params object[] commentParams)
         {
             if (customer == null)
                 return null;
@@ -181,7 +162,7 @@ namespace Grand.Business.Common.Services.Logging
             activity.EntityKeyId = entityKeyId;
             activity.Comment = comment;
             activity.CreatedOnUtc = DateTime.UtcNow;
-            activity.IpAddress = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+            activity.IpAddress = ipAddress;
             await _activityLogRepository.InsertAsync(activity);
 
             return activity;
@@ -259,7 +240,7 @@ namespace Grand.Business.Common.Services.Logging
             if (!String.IsNullOrEmpty(activityLogTypeId))
                 query = query.Where(al => activityLogTypeId == al.ActivityLogTypeId);
 
-            var gquery = query.GroupBy(key=> new { key.ActivityLogTypeId, key.EntityKeyId })
+            var gquery = query.GroupBy(key => new { key.ActivityLogTypeId, key.EntityKeyId })
                 .Select(g => new ActivityStats {
                     ActivityLogTypeId = g.Key.ActivityLogTypeId,
                     EntityKeyId = g.Key.EntityKeyId,

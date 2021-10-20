@@ -253,7 +253,9 @@ namespace Grand.Web.Admin.Controllers
             await _settingService.SaveSetting(paymentSettings);
 
             //activity log
-            await customerActivityService.InsertActivity("EditSettings", "", _translationService.GetResource("ActivityLog.EditSettings"));
+            await customerActivityService.InsertActivity("EditSettings", "",
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Settings");

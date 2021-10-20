@@ -8,5 +8,6 @@ namespace Grand.Web.Commands.Models.Customers
     {
         public Customer Customer { get; set; }
         public Store Store { get; set; }
+        public string IpAddress { get; set; }
     }
 }

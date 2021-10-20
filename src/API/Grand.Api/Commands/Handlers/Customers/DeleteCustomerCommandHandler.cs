@@ -2,6 +2,7 @@
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Customers.Interfaces;
+using Grand.Infrastructure;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,15 +14,18 @@ namespace Grand.Api.Commands.Handlers.Customers
         private readonly ICustomerService _customerService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
+        private readonly IWorkContext _workContext;
 
         public DeleteCustomerCommandHandler(
             ICustomerService customerService,
             ICustomerActivityService customerActivityService,
-            ITranslationService translationService)
+            ITranslationService translationService,
+            IWorkContext workContext)
         {
             _customerService = customerService;
             _customerActivityService = customerActivityService;
             _translationService = translationService;
+            _workContext = workContext;
         }
 
         public async Task<bool> Handle(DeleteCustomerCommand request, CancellationToken cancellationToken)
@@ -31,7 +35,7 @@ namespace Grand.Api.Commands.Handlers.Customers
             {
                 await _customerService.DeleteCustomer(customer);
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
+                await _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
             }
 
             return true;

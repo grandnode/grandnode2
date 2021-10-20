@@ -360,7 +360,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
 
                 //activity log
                 if (customer != null)
-                    await _customerActivityService.InsertActivity("CustomerReminder.SendCampaign", campaign.Id, _translationService.GetResource("ActivityLog.SendCampaign"), customer, campaign.Name);
+                    await _customerActivityService.InsertActivity("CustomerReminder.SendCampaign", campaign.Id, customer, "", _translationService.GetResource("ActivityLog.SendCampaign"), campaign.Name);
 
                 totalEmailsSent++;
             }

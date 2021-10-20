@@ -221,7 +221,9 @@ namespace Grand.Web.Controllers
                 case ShoppingCartType.Wishlist:
                     {
                         //activity log
-                        await _customerActivityService.InsertActivity("PublicStore.AddToWishlist", product.Id, _translationService.GetResource("ActivityLog.PublicStore.AddToWishlist"), product.Name);
+                        await _customerActivityService.InsertActivity("PublicStore.AddToWishlist", product.Id,
+                            _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                            _translationService.GetResource("ActivityLog.PublicStore.AddToWishlist"), product.Name);
 
                         if (_shoppingCartSettings.DisplayWishlistAfterAddingProduct || forceredirection)
                         {
@@ -249,7 +251,9 @@ namespace Grand.Web.Controllers
                 default:
                     {
                         //activity log
-                        await _customerActivityService.InsertActivity("PublicStore.AddToShoppingCart", product.Id, _translationService.GetResource("ActivityLog.PublicStore.AddToShoppingCart"), product.Name);
+                        await _customerActivityService.InsertActivity("PublicStore.AddToShoppingCart", product.Id,
+                            _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                            _translationService.GetResource("ActivityLog.PublicStore.AddToShoppingCart"), product.Name);
 
                         if (_shoppingCartSettings.DisplayCartAfterAddingProduct || forceredirection)
                         {
@@ -528,7 +532,9 @@ namespace Grand.Web.Controllers
                 case ShoppingCartType.Wishlist:
                     {
                         //activity log
-                        await _customerActivityService.InsertActivity("PublicStore.AddToWishlist", product.Id, _translationService.GetResource("ActivityLog.PublicStore.AddToWishlist"), product.Name);
+                        await _customerActivityService.InsertActivity("PublicStore.AddToWishlist", product.Id,
+                            _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                            _translationService.GetResource("ActivityLog.PublicStore.AddToWishlist"), product.Name);
 
                         if (_shoppingCartSettings.DisplayWishlistAfterAddingProduct)
                         {
@@ -556,7 +562,9 @@ namespace Grand.Web.Controllers
                 default:
                     {
                         //activity log
-                        await _customerActivityService.InsertActivity("PublicStore.AddToShoppingCart", product.Id, _translationService.GetResource("ActivityLog.PublicStore.AddToShoppingCart"), product.Name);
+                        await _customerActivityService.InsertActivity("PublicStore.AddToShoppingCart", product.Id,
+                            _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                            _translationService.GetResource("ActivityLog.PublicStore.AddToShoppingCart"), product.Name);
 
                         if (_shoppingCartSettings.DisplayCartAfterAddingProduct)
                         {
@@ -685,7 +693,9 @@ namespace Grand.Web.Controllers
             await auctionService.NewBid(customer, product, _workContext.CurrentStore, _workContext.WorkingLanguage, warehouseId, bid);
 
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.AddNewBid", product.Id, _translationService.GetResource("ActivityLog.PublicStore.AddToBid"), product.Name);
+            await _customerActivityService.InsertActivity("PublicStore.AddNewBid", product.Id,
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.PublicStore.AddToBid"), product.Name);
 
             var addtoCartModel = await _mediator.Send(new GetAddToCart() {
                 Product = product,

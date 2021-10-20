@@ -17,6 +17,7 @@ using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Courses;
 using Grand.Web.Common.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -39,14 +40,26 @@ namespace Grand.Web.Admin.Services
         private readonly ICustomerActivityService _customerActivityService;
         private readonly IProductCourseService _productCourseService;
         private readonly IDownloadService _downloadService;
+        private readonly IWorkContext _workContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         private readonly IServiceProvider _serviceProvider;
         private readonly SeoSettings _seoSettings;
 
-        public CourseViewModelService(ICourseService courseService, ICourseLevelService courseLevelService, ICourseLessonService courseLessonService,
+        public CourseViewModelService(
+            ICourseService courseService, 
+            ICourseLevelService courseLevelService, 
+            ICourseLessonService courseLessonService,
             ICourseSubjectService courseSubjectService,
-            ISlugService slugService, IPictureService pictureService, ILanguageService languageService,
-            ITranslationService translationService, ICustomerActivityService customerActivityService, IProductCourseService productCourseService,
+            ISlugService slugService, 
+            IPictureService pictureService, 
+            ILanguageService languageService,
+            ITranslationService translationService, 
+            ICustomerActivityService customerActivityService, 
+            IProductCourseService productCourseService,
             IDownloadService downloadService,
+            IWorkContext workContext,
+            IHttpContextAccessor httpContextAccessor,
             IServiceProvider serviceProvider,
             SeoSettings seoSettings)
         {
@@ -61,6 +74,8 @@ namespace Grand.Web.Admin.Services
             _customerActivityService = customerActivityService;
             _productCourseService = productCourseService;
             _downloadService = downloadService;
+            _workContext = workContext;
+            _httpContextAccessor = httpContextAccessor;
             _serviceProvider = serviceProvider;
             _seoSettings = seoSettings;
         }
@@ -113,7 +128,9 @@ namespace Grand.Web.Admin.Services
 
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCourse", course.Id, _translationService.GetResource("ActivityLog.AddNewCourse"), course.Name);
+            await _customerActivityService.InsertActivity("AddNewCourse", course.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.AddNewCourse"), course.Name);
 
             return course;
         }
@@ -151,7 +168,9 @@ namespace Grand.Web.Admin.Services
                 await _productCourseService.UpdateCourseOnProduct(course.ProductId, course.Id);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCourse", course.Id, _translationService.GetResource("ActivityLog.EditCourse"), course.Name);
+            await _customerActivityService.InsertActivity("EditCourse", course.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditCourse"), course.Name);
 
             return course;
         }
@@ -159,7 +178,9 @@ namespace Grand.Web.Admin.Services
         {
             await _courseService.Delete(course);
             //activity log
-            await _customerActivityService.InsertActivity("DeleteCourse", course.Id, _translationService.GetResource("ActivityLog.DeleteCourse"), course.Name);
+            await _customerActivityService.InsertActivity("DeleteCourse", course.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.DeleteCourse"), course.Name);
         }
 
         public virtual async Task<CourseLessonModel> PrepareCourseLessonModel(string courseId, CourseLessonModel model = null)
@@ -188,7 +209,9 @@ namespace Grand.Web.Admin.Services
             var lesson = model.ToEntity();
             await _courseLessonService.Insert(lesson);
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCourseLesson", lesson.Id, _translationService.GetResource("ActivityLog.AddNewCourseLesson"), lesson.Name);
+            await _customerActivityService.InsertActivity("AddNewCourseLesson", lesson.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.AddNewCourseLesson"), lesson.Name);
             return lesson;
         }
 
@@ -226,7 +249,9 @@ namespace Grand.Web.Admin.Services
             }
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCourseLesson", lesson.Id, _translationService.GetResource("ActivityLog.EditLessonCourse"), lesson.Name);
+            await _customerActivityService.InsertActivity("EditCourseLesson", lesson.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditLessonCourse"), lesson.Name);
 
             return lesson;
         }
@@ -249,7 +274,9 @@ namespace Grand.Web.Admin.Services
             }
 
             //activity log
-            await _customerActivityService.InsertActivity("DeleteCourseLesson", lesson.Id, _translationService.GetResource("ActivityLog.DeleteCourseLesson"), lesson.Name);
+            await _customerActivityService.InsertActivity("DeleteCourseLesson", lesson.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.DeleteCourseLesson"), lesson.Name);
         }
 
         public virtual async Task<CourseModel.AssociateProductToCourseModel> PrepareAssociateProductToCourseModel()

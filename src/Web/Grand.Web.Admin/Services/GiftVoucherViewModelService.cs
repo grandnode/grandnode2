@@ -16,12 +16,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Admin.Services
 {
     public partial class GiftVoucherViewModelService : IGiftVoucherViewModelService
     {
         #region Fields
+
         private readonly IGiftVoucherService _giftVoucherService;
         private readonly IOrderService _orderService;
         private readonly IPriceFormatter _priceFormatter;
@@ -33,6 +35,8 @@ namespace Grand.Web.Admin.Services
         private readonly ILanguageService _languageService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly IWorkContext _workContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         #endregion
 
         #region Constructors
@@ -44,7 +48,8 @@ namespace Grand.Web.Admin.Services
             ICurrencyService currencyService,
             LanguageSettings languageSettings,
             ITranslationService translationService, ILanguageService languageService,
-            ICustomerActivityService customerActivityService, IWorkContext workContext)
+            ICustomerActivityService customerActivityService, IWorkContext workContext,
+            IHttpContextAccessor httpContextAccessor)
         {
             _giftVoucherService = giftVoucherService;
             _orderService = orderService;
@@ -57,6 +62,7 @@ namespace Grand.Web.Admin.Services
             _languageService = languageService;
             _customerActivityService = customerActivityService;
             _workContext = workContext;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -132,7 +138,9 @@ namespace Grand.Web.Admin.Services
             await _giftVoucherService.InsertGiftVoucher(giftVoucher);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewGiftVoucher", giftVoucher.Id, _translationService.GetResource("ActivityLog.AddNewGiftVoucher"), giftVoucher.Code);
+            await _customerActivityService.InsertActivity("AddNewGiftVoucher", giftVoucher.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.AddNewGiftVoucher"), giftVoucher.Code);
             return giftVoucher;
         }
         public virtual async Task<Order> FillGiftVoucherModel(GiftVoucher giftVoucher, GiftVoucherModel model)
@@ -184,7 +192,9 @@ namespace Grand.Web.Admin.Services
             giftVoucher = model.ToEntity(giftVoucher, _dateTimeService);
             await _giftVoucherService.UpdateGiftVoucher(giftVoucher);
             //activity log
-            await _customerActivityService.InsertActivity("EditGiftVoucher", giftVoucher.Id, _translationService.GetResource("ActivityLog.EditGiftVoucher"), giftVoucher.Code);
+            await _customerActivityService.InsertActivity("EditGiftVoucher", giftVoucher.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditGiftVoucher"), giftVoucher.Code);
 
             return giftVoucher;
         }
@@ -192,7 +202,9 @@ namespace Grand.Web.Admin.Services
         {
             await _giftVoucherService.DeleteGiftVoucher(giftVoucher);
             //activity log
-            await _customerActivityService.InsertActivity("DeleteGiftVoucher", giftVoucher.Id, _translationService.GetResource("ActivityLog.DeleteGiftVoucher"), giftVoucher.Code);
+            await _customerActivityService.InsertActivity("DeleteGiftVoucher", giftVoucher.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.DeleteGiftVoucher"), giftVoucher.Code);
         }
         public virtual async Task<GiftVoucherModel> PrepareGiftVoucherModel(GiftVoucher giftVoucher)
         {

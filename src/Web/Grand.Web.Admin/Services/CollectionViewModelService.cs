@@ -1,6 +1,5 @@
-﻿using Grand.Business.Catalog.Interfaces.Categories;
+﻿using Grand.Business.Catalog.Interfaces.Collections;
 using Grand.Business.Catalog.Interfaces.Discounts;
-using Grand.Business.Catalog.Interfaces.Collections;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Directory;
@@ -10,14 +9,15 @@ using Grand.Business.Common.Interfaces.Seo;
 using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Customers.Interfaces;
 using Grand.Business.Storage.Interfaces;
-using Grand.Infrastructure;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Domain.Seo;
-using Grand.Web.Common.Extensions;
+using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
+using Grand.Web.Common.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
@@ -45,6 +45,7 @@ namespace Grand.Web.Admin.Services
         private readonly IDateTimeService _dateTimeService;
         private readonly ILanguageService _languageService;
         private readonly IWorkContext _workContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly SeoSettings _seoSettings;
 
         #endregion
@@ -67,6 +68,7 @@ namespace Grand.Web.Admin.Services
             IDateTimeService dateTimeService,
             ILanguageService languageService,
             IWorkContext workContext,
+            IHttpContextAccessor httpContextAccessor,
             SeoSettings seoSettings)
         {
             _collectionLayoutService = collectionLayoutService;
@@ -84,6 +86,7 @@ namespace Grand.Web.Admin.Services
             _dateTimeService = dateTimeService;
             _languageService = languageService;
             _workContext = workContext;
+            _httpContextAccessor = httpContextAccessor;
             _seoSettings = seoSettings;
         }
 
@@ -106,8 +109,7 @@ namespace Grand.Web.Admin.Services
             var layouts = await _collectionLayoutService.GetAllCollectionLayouts();
             foreach (var layout in layouts)
             {
-                model.AvailableCollectionLayouts.Add(new SelectListItem
-                {
+                model.AvailableCollectionLayouts.Add(new SelectListItem {
                     Text = layout.Name,
                     Value = layout.Id
                 });
@@ -157,7 +159,9 @@ namespace Grand.Web.Admin.Services
             await _pictureService.UpdatePictureSeoNames(collection.PictureId, collection.Name);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCollection", collection.Id, _translationService.GetResource("ActivityLog.AddNewCollection"), collection.Name);
+            await _customerActivityService.InsertActivity("AddNewCollection", collection.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.AddNewCollection"), collection.Name);
             return collection;
         }
 
@@ -202,7 +206,9 @@ namespace Grand.Web.Admin.Services
             await _pictureService.UpdatePictureSeoNames(collection.PictureId, collection.Name);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCollection", collection.Id, _translationService.GetResource("ActivityLog.EditCollection"), collection.Name);
+            await _customerActivityService.InsertActivity("EditCollection", collection.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditCollection"), collection.Name);
             return collection;
         }
 
@@ -210,13 +216,15 @@ namespace Grand.Web.Admin.Services
         {
             await _collectionService.DeleteCollection(collection);
             //activity log
-            await _customerActivityService.InsertActivity("DeleteCollection", collection.Id, _translationService.GetResource("ActivityLog.DeleteCollection"), collection.Name);
+            await _customerActivityService.InsertActivity("DeleteCollection", collection.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.DeleteCollection"), collection.Name);
         }
 
         public virtual async Task<CollectionModel.AddCollectionProductModel> PrepareAddCollectionProductModel(string storeId)
         {
             var model = new CollectionModel.AddCollectionProductModel();
-            
+
             //collections
             model.AvailableCollections.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var m in await _collectionService.GetAllCollections(showHidden: true))
@@ -251,8 +259,7 @@ namespace Grand.Web.Admin.Services
             var items = new List<CollectionModel.CollectionProductModel>();
             foreach (var x in productCollections)
             {
-                items.Add(new CollectionModel.CollectionProductModel
-                {
+                items.Add(new CollectionModel.CollectionProductModel {
                     Id = x.Id,
                     CollectionId = x.CollectionId,
                     ProductId = x.ProductId,
@@ -275,7 +282,7 @@ namespace Grand.Web.Admin.Services
 
             productCollection.IsFeaturedProduct = model.IsFeaturedProduct;
             productCollection.DisplayOrder = model.DisplayOrder;
-            
+
             await _productCollectionService.UpdateProductCollection(productCollection, model.ProductId);
         }
         public virtual async Task ProductDelete(string id, string productId)
@@ -302,8 +309,7 @@ namespace Grand.Web.Admin.Services
                     if (product.ProductCollections.Where(x => x.CollectionId == model.CollectionId).Count() == 0)
                     {
                         await _productCollectionService.InsertProductCollection(
-                            new ProductCollection
-                            {
+                            new ProductCollection {
                                 CollectionId = model.CollectionId,
                                 IsFeaturedProduct = false,
                                 DisplayOrder = 1,
@@ -319,8 +325,7 @@ namespace Grand.Web.Admin.Services
             foreach (var x in activityLog)
             {
                 var customer = await _customerService.GetCustomerById(x.CustomerId);
-                var m = new CollectionModel.ActivityLogModel
-                {
+                var m = new CollectionModel.ActivityLogModel {
                     Id = x.Id,
                     ActivityLogTypeName = (await _customerActivityService.GetActivityTypeById(x.ActivityLogTypeId))?.Name,
                     Comment = x.Comment,

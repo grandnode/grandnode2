@@ -110,7 +110,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             ICurrencyService currencyService,
             IAffiliateService affiliateService,
             IMediator mediator,
-            IPdfService pdfService,
             IProductReservationService productReservationService,
             IAuctionService auctionService,
             ICountryService countryService,

@@ -1,6 +1,4 @@
-﻿using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Catalog.Interfaces.Collections;
-using Grand.Business.Catalog.Interfaces.Products;
+﻿using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
@@ -11,11 +9,13 @@ using Grand.Business.Marketing.Services.Customers;
 using Grand.Business.Messages.Interfaces;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Web.Common.Extensions;
+using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Customers;
+using Grand.Web.Common.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -33,6 +33,8 @@ namespace Grand.Web.Admin.Services
         private readonly ICustomerReminderService _customerReminderService;
         private readonly IEmailAccountService _emailAccountService;
         private readonly IDateTimeService _dateTimeService;
+        private readonly IWorkContext _workContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IServiceProvider _serviceProvider;
 
         #region Constructors
@@ -43,6 +45,8 @@ namespace Grand.Web.Admin.Services
             ICustomerReminderService customerReminderService,
             IEmailAccountService emailAccountService,
             IDateTimeService dateTimeService,
+            IWorkContext workContext,
+            IHttpContextAccessor httpContextAccessor,
             IServiceProvider serviceProvider)
         {
             _customerService = customerService;
@@ -51,6 +55,8 @@ namespace Grand.Web.Admin.Services
             _customerReminderService = customerReminderService;
             _emailAccountService = emailAccountService;
             _dateTimeService = dateTimeService;
+            _workContext = workContext;
+            _httpContextAccessor = httpContextAccessor;
             _serviceProvider = serviceProvider;
         }
 
@@ -73,7 +79,9 @@ namespace Grand.Web.Admin.Services
             var customerreminder = model.ToEntity(_dateTimeService);
             await _customerReminderService.InsertCustomerReminder(customerreminder);
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCustomerReminder", customerreminder.Id, _translationService.GetResource("ActivityLog.AddNewCustomerReminder"), customerreminder.Name);
+            await _customerActivityService.InsertActivity("AddNewCustomerReminder", customerreminder.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.AddNewCustomerReminder"), customerreminder.Name);
             return customerreminder;
         }
         public virtual async Task<CustomerReminder> UpdateCustomerReminderModel(CustomerReminder customerReminder, CustomerReminderModel model)
@@ -85,7 +93,9 @@ namespace Grand.Web.Admin.Services
 
             customerReminder = model.ToEntity(customerReminder, _dateTimeService);
             await _customerReminderService.UpdateCustomerReminder(customerReminder);
-            await _customerActivityService.InsertActivity("EditCustomerReminder", customerReminder.Id, _translationService.GetResource("ActivityLog.EditCustomerReminder"), customerReminder.Name);
+            await _customerActivityService.InsertActivity("EditCustomerReminder", customerReminder.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditCustomerReminder"), customerReminder.Name);
             return customerReminder;
         }
         public virtual async Task RunReminder(CustomerReminder customerReminder)
@@ -107,15 +117,16 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task DeleteCustomerReminder(CustomerReminder customerReminder)
         {
-            await _customerActivityService.InsertActivity("DeleteCustomerReminder", customerReminder.Id, _translationService.GetResource("ActivityLog.DeleteCustomerReminder"), customerReminder.Name);
+            await _customerActivityService.InsertActivity("DeleteCustomerReminder", customerReminder.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.DeleteCustomerReminder"), customerReminder.Name);
             await _customerReminderService.DeleteCustomerReminder(customerReminder);
 
         }
 
         public virtual async Task<SerializeCustomerReminderHistoryModel> PrepareHistoryModelForList(SerializeCustomerReminderHistory history)
         {
-            return new SerializeCustomerReminderHistoryModel
-            {
+            return new SerializeCustomerReminderHistoryModel {
                 Id = history.Id,
                 Email = (await _customerService.GetCustomerById(history.CustomerId)).Email,
                 SendDate = _dateTimeService.ConvertToUserTime(history.SendDate, DateTimeKind.Utc),
@@ -132,8 +143,7 @@ namespace Grand.Web.Admin.Services
             {
                 if (customerReminder.ReminderRuleId == CustomerReminderRuleEnum.AbandonedCart || customerReminder.ReminderRuleId == CustomerReminderRuleEnum.CompletedOrder
                     || customerReminder.ReminderRuleId == CustomerReminderRuleEnum.UnpaidOrder)
-                    model.ConditionType.Add(new SelectListItem()
-                    {
+                    model.ConditionType.Add(new SelectListItem() {
                         Value = ((int)item).ToString(),
                         Text = item.ToString()
                     });
@@ -143,8 +153,7 @@ namespace Grand.Web.Admin.Services
                         item != CustomerReminderConditionTypeEnum.Collection &&
                         item != CustomerReminderConditionTypeEnum.Category)
                     {
-                        model.ConditionType.Add(new SelectListItem()
-                        {
+                        model.ConditionType.Add(new SelectListItem() {
                             Value = ((int)item).ToString(),
                             Text = item.ToString()
                         });
@@ -156,8 +165,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<CustomerReminder.ReminderCondition> InsertConditionModel(CustomerReminder customerReminder, CustomerReminderModel.ConditionModel model)
         {
-            var condition = new CustomerReminder.ReminderCondition()
-            {
+            var condition = new CustomerReminder.ReminderCondition() {
                 Name = model.Name,
                 ConditionTypeId = model.ConditionTypeId,
                 ConditionId = model.ConditionId,
@@ -165,7 +173,9 @@ namespace Grand.Web.Admin.Services
             customerReminder.Conditions.Add(condition);
             await _customerReminderService.UpdateCustomerReminder(customerReminder);
 
-            await _customerActivityService.InsertActivity("AddNewCustomerReminderCondition", customerReminder.Id, _translationService.GetResource("ActivityLog.AddNewCustomerReminder"), customerReminder.Name);
+            await _customerActivityService.InsertActivity("AddNewCustomerReminderCondition", customerReminder.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.AddNewCustomerReminder"), customerReminder.Name);
 
             return condition;
         }
@@ -176,8 +186,7 @@ namespace Grand.Web.Admin.Services
             model.CustomerReminderId = customerReminder.Id;
             foreach (CustomerReminderConditionTypeEnum item in Enum.GetValues(typeof(CustomerReminderConditionTypeEnum)))
             {
-                model.ConditionType.Add(new SelectListItem()
-                {
+                model.ConditionType.Add(new SelectListItem() {
                     Value = ((int)item).ToString(),
                     Text = item.ToString()
                 });
@@ -188,7 +197,9 @@ namespace Grand.Web.Admin.Services
         {
             condition = model.ToEntity(condition);
             await _customerReminderService.UpdateCustomerReminder(customerReminder);
-            await _customerActivityService.InsertActivity("EditCustomerReminderCondition", customerReminder.Id, _translationService.GetResource("ActivityLog.EditCustomerReminderCondition"), customerReminder.Name);
+            await _customerActivityService.InsertActivity("EditCustomerReminderCondition", customerReminder.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditCustomerReminderCondition"), customerReminder.Name);
             return condition;
         }
         public virtual async Task ConditionDelete(string Id, string customerReminderId)
@@ -344,8 +355,7 @@ namespace Grand.Web.Admin.Services
                 var condition = customerReminder.Conditions.FirstOrDefault(x => x.Id == model.ConditionId);
                 if (condition != null)
                 {
-                    var _cr = new CustomerReminder.ReminderCondition.CustomerRegister()
-                    {
+                    var _cr = new CustomerReminder.ReminderCondition.CustomerRegister() {
                         RegisterField = model.CustomerRegisterName,
                         RegisterValue = model.CustomerRegisterValue,
                     };
@@ -377,8 +387,7 @@ namespace Grand.Web.Admin.Services
                 var condition = customerReminder.Conditions.FirstOrDefault(x => x.Id == model.ConditionId);
                 if (condition != null)
                 {
-                    var _cr = new CustomerReminder.ReminderCondition.CustomerRegister()
-                    {
+                    var _cr = new CustomerReminder.ReminderCondition.CustomerRegister() {
                         RegisterField = model.CustomerAttributeName,
                         RegisterValue = model.CustomerAttributeValue,
                     };
@@ -410,8 +419,7 @@ namespace Grand.Web.Admin.Services
             var emailAccounts = await _emailAccountService.GetAllEmailAccounts();
             foreach (var item in emailAccounts)
             {
-                model.EmailAccounts.Add(new SelectListItem
-                {
+                model.EmailAccounts.Add(new SelectListItem {
                     Text = item.Email,
                     Value = item.Id.ToString()
                 });
@@ -421,8 +429,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<CustomerReminder.ReminderLevel> InsertReminderLevel(CustomerReminder customerReminder, CustomerReminderModel.ReminderLevelModel model)
         {
-            var level = new CustomerReminder.ReminderLevel()
-            {
+            var level = new CustomerReminder.ReminderLevel() {
                 Name = model.Name,
                 Level = model.Level,
                 BccEmailAddresses = model.BccEmailAddresses,
@@ -436,7 +443,9 @@ namespace Grand.Web.Admin.Services
 
             customerReminder.Levels.Add(level);
             await _customerReminderService.UpdateCustomerReminder(customerReminder);
-            await _customerActivityService.InsertActivity("AddNewCustomerReminderLevel", customerReminder.Id, _translationService.GetResource("ActivityLog.AddNewCustomerReminderLevel"), customerReminder.Name);
+            await _customerActivityService.InsertActivity("AddNewCustomerReminderLevel", customerReminder.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.AddNewCustomerReminderLevel"), customerReminder.Name);
             return level;
         }
         public virtual async Task<CustomerReminder.ReminderLevel> UpdateReminderLevel(CustomerReminder customerReminder, CustomerReminder.ReminderLevel customerReminderLevel, CustomerReminderModel.ReminderLevelModel model)
@@ -451,7 +460,9 @@ namespace Grand.Web.Admin.Services
             customerReminderLevel.Hour = model.Hour;
             customerReminderLevel.Minutes = model.Minutes;
             await _customerReminderService.UpdateCustomerReminder(customerReminder);
-            await _customerActivityService.InsertActivity("EditCustomerReminderCondition", customerReminder.Id, _translationService.GetResource("ActivityLog.EditCustomerReminderLevel"), customerReminder.Name);
+            await _customerActivityService.InsertActivity("EditCustomerReminderCondition", customerReminder.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditCustomerReminderLevel"), customerReminder.Name);
             return customerReminderLevel;
         }
         public virtual async Task DeleteLevel(string Id, string customerReminderId)
@@ -475,15 +486,13 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task<CustomerReminderModel.ConditionModel.AddProductToConditionModel> PrepareProductToConditionModel(string customerReminderId, string conditionId)
         {
-            var categoryService = _serviceProvider.GetRequiredService<ICategoryService>();
-            var collectionService = _serviceProvider.GetRequiredService<ICollectionService>();
             var storeService = _serviceProvider.GetRequiredService<IStoreService>();
             var vendorService = _serviceProvider.GetRequiredService<IVendorService>();
 
             var model = new CustomerReminderModel.ConditionModel.AddProductToConditionModel();
             model.ConditionId = conditionId;
             model.CustomerReminderId = customerReminderId;
-           
+
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
             foreach (var s in await storeService.GetAllStores())

@@ -23,7 +23,7 @@ namespace Grand.Business.Marketing.Events
         public async Task Handle(CustomerLoggedInEvent notification, CancellationToken cancellationToken)
         {
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.Login", "", _translationService.GetResource("ActivityLog.PublicStore.Login"), notification.Customer);
+            await _customerActivityService.InsertActivity("PublicStore.Login", notification.Customer.Id, notification.Customer, "", _translationService.GetResource("ActivityLog.PublicStore.Login"));
         }
     }
 }

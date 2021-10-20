@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Admin.Services
 {
@@ -29,6 +30,7 @@ namespace Grand.Web.Admin.Services
         private readonly ITaxCategoryService _taxCategoryService;
         private readonly IWorkContext _workContext;
         private readonly ICurrencyService _currencyService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly CurrencySettings _currencySettings;
         private readonly IMeasureService _measureService;
         private readonly MeasureSettings _measureSettings;
@@ -42,6 +44,7 @@ namespace Grand.Web.Admin.Services
             IWorkContext workContext,
             ICurrencyService currencyService,
             ICustomerActivityService customerActivityService,
+            IHttpContextAccessor httpContextAccessor,
             CurrencySettings currencySettings,
             IMeasureService measureService,
             MeasureSettings measureSettings
@@ -54,6 +57,7 @@ namespace Grand.Web.Admin.Services
             _workContext = workContext;
             _currencyService = currencyService;
             _customerActivityService = customerActivityService;
+            _httpContextAccessor = httpContextAccessor;
             _currencySettings = currencySettings;
             _measureService = measureService;
             _measureSettings = measureSettings;
@@ -228,7 +232,9 @@ namespace Grand.Web.Admin.Services
             await _checkoutAttributeService.InsertCheckoutAttribute(checkoutAttribute);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCheckoutAttribute", checkoutAttribute.Id, _translationService.GetResource("ActivityLog.AddNewCheckoutAttribute"), checkoutAttribute.Name);
+            await _customerActivityService.InsertActivity("AddNewCheckoutAttribute", checkoutAttribute.Id,
+                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.AddNewCheckoutAttribute"), checkoutAttribute.Name);
             return checkoutAttribute;
         }
         public virtual async Task<CheckoutAttribute> UpdateCheckoutAttributeModel(CheckoutAttribute checkoutAttribute, CheckoutAttributeModel model)
@@ -238,7 +244,9 @@ namespace Grand.Web.Admin.Services
             await _checkoutAttributeService.UpdateCheckoutAttribute(checkoutAttribute);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCheckoutAttribute", checkoutAttribute.Id, _translationService.GetResource("ActivityLog.EditCheckoutAttribute"), checkoutAttribute.Name);
+            await _customerActivityService.InsertActivity("EditCheckoutAttribute", checkoutAttribute.Id,
+                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditCheckoutAttribute"), checkoutAttribute.Name);
             return checkoutAttribute;
         }
 

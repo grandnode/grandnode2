@@ -999,7 +999,9 @@ namespace Grand.Web.Controllers
                 var placeOrderResult = await _mediator.Send(new PlaceOrderCommand());
                 if (placeOrderResult.Success)
                 {
-                    await _customerActivityService.InsertActivity("PublicStore.PlaceOrder", "", _translationService.GetResource("ActivityLog.PublicStore.PlaceOrder"), placeOrderResult.PlacedOrder.Id);
+                    await _customerActivityService.InsertActivity("PublicStore.PlaceOrder", "",
+                        _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                        _translationService.GetResource("ActivityLog.PublicStore.PlaceOrder"), placeOrderResult.PlacedOrder.Id);
 
                     var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(placeOrderResult.PaymentTransaction.PaymentMethodSystemName);
                     if (paymentMethod == null)

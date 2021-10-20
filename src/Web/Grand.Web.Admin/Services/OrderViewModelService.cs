@@ -1005,7 +1005,10 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task LogEditOrder(string orderId)
         {
-            await _customerActivityService.InsertActivity("EditOrder", orderId, _translationService.GetResource("ActivityLog.EditOrder"), orderId);
+            var httpContextAccessor = _serviceProvider.GetRequiredService<IHttpContextAccessor>();
+            await _customerActivityService.InsertActivity("EditOrder", orderId,
+                _workContext.CurrentCustomer, httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditOrder"), orderId);
         }
         public virtual async Task<Address> UpdateOrderAddress(Order order, Address address, OrderAddressModel model, List<CustomAttribute> customAttributes)
         {

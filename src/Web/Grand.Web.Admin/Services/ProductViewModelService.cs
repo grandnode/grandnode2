@@ -29,6 +29,7 @@ using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Common.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -73,6 +74,7 @@ namespace Grand.Web.Admin.Services
         private readonly IStockQuantityService _stockQuantityService;
         private readonly ILanguageService _languageService;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IServiceProvider _serviceProvider;
         private readonly CurrencySettings _currencySettings;
         private readonly MeasureSettings _measureSettings;
@@ -111,6 +113,7 @@ namespace Grand.Web.Admin.Services
                ILanguageService languageService,
                IProductAttributeFormatter productAttributeFormatter,
                IStockQuantityService stockQuantityService,
+               IHttpContextAccessor httpContextAccessor,
                IServiceProvider serviceProvider,
                CurrencySettings currencySettings,
                MeasureSettings measureSettings,
@@ -148,6 +151,7 @@ namespace Grand.Web.Admin.Services
             _stockQuantityService = stockQuantityService;
             _languageService = languageService;
             _productAttributeFormatter = productAttributeFormatter;
+            _httpContextAccessor = httpContextAccessor;
             _serviceProvider = serviceProvider;
             _currencySettings = currencySettings;
             _measureSettings = measureSettings;
@@ -941,7 +945,9 @@ namespace Grand.Web.Admin.Services
             await _productService.UpdateProduct(product);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewProduct", product.Id, _translationService.GetResource("ActivityLog.AddNewProduct"), product.Name);
+            await _customerActivityService.InsertActivity("AddNewProduct", product.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.AddNewProduct"), product.Name);
 
             return product;
         }
@@ -1038,7 +1044,9 @@ namespace Grand.Web.Admin.Services
                     await _downloadService.DeleteDownload(prevSampleDownload);
             }
             //activity log
-            await _customerActivityService.InsertActivity("EditProduct", product.Id, _translationService.GetResource("ActivityLog.EditProduct"), product.Name);
+            await _customerActivityService.InsertActivity("EditProduct", product.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditProduct"), product.Name);
             return product;
         }
         public virtual async Task DeleteProduct(Product product)
@@ -1060,7 +1068,9 @@ namespace Grand.Web.Admin.Services
                     await _downloadService.DeleteDownload(sampledownload);
             }
             //activity log
-            await _customerActivityService.InsertActivity("DeleteProduct", product.Id, _translationService.GetResource("ActivityLog.DeleteProduct"), product.Name);
+            await _customerActivityService.InsertActivity("DeleteProduct", product.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.DeleteProduct"), product.Name);
         }
         public virtual async Task DeleteSelected(IList<string> selectedIds)
         {

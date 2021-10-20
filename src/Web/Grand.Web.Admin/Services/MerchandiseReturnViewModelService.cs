@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Admin.Services
 {
@@ -42,13 +43,14 @@ namespace Grand.Web.Admin.Services
         private readonly ICustomerActivityService _customerActivityService;
         private readonly IMerchandiseReturnService _merchandiseReturnService;
         private readonly IPriceFormatter _priceFormatter;
-        private readonly ICurrencyService _currencyService;
         private readonly AddressSettings _addressSettings;
         private readonly OrderSettings _orderSettings;
         private readonly ICountryService _countryService;
         private readonly IAddressAttributeService _addressAttributeService;
         private readonly IAddressAttributeParser _addressAttributeParser;
         private readonly IDownloadService _downloadService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         #endregion Fields
 
         #region Constructors
@@ -62,13 +64,13 @@ namespace Grand.Web.Admin.Services
             ICustomerActivityService customerActivityService,
             IMerchandiseReturnService merchandiseReturnService,
             IPriceFormatter priceFormatter,
-            ICurrencyService currencyService,
             AddressSettings addressSettings,
             ICountryService countryService,
             IAddressAttributeService addressAttributeService,
             IAddressAttributeParser addressAttributeParser,
             IDownloadService downloadService,
-            OrderSettings orderSettings)
+            OrderSettings orderSettings,
+            IHttpContextAccessor httpContextAccessor)
         {
             _orderService = orderService;
             _workContext = workContext;
@@ -81,13 +83,13 @@ namespace Grand.Web.Admin.Services
             _customerActivityService = customerActivityService;
             _merchandiseReturnService = merchandiseReturnService;
             _priceFormatter = priceFormatter;
-            _currencyService = currencyService;
             _addressSettings = addressSettings;
             _countryService = countryService;
             _addressAttributeService = addressAttributeService;
             _addressAttributeParser = addressAttributeParser;
             _downloadService = downloadService;
             _orderSettings = orderSettings;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -290,7 +292,9 @@ namespace Grand.Web.Admin.Services
             merchandiseReturn.NotifyCustomer = model.NotifyCustomer;
             await _merchandiseReturnService.UpdateMerchandiseReturn(merchandiseReturn);
             //activity log
-            await _customerActivityService.InsertActivity("EditMerchandiseReturn", merchandiseReturn.Id, _translationService.GetResource("ActivityLog.EditMerchandiseReturn"), merchandiseReturn.Id);
+            await _customerActivityService.InsertActivity("EditMerchandiseReturn", merchandiseReturn.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditMerchandiseReturn"), merchandiseReturn.Id);
 
             if (model.NotifyCustomer)
                 await NotifyCustomer(merchandiseReturn);
@@ -300,7 +304,9 @@ namespace Grand.Web.Admin.Services
         {
             await _merchandiseReturnService.DeleteMerchandiseReturn(merchandiseReturn);
             //activity log
-            await _customerActivityService.InsertActivity("DeleteMerchandiseReturn", merchandiseReturn.Id, _translationService.GetResource("ActivityLog.DeleteMerchandiseReturn"), merchandiseReturn.Id);
+            await _customerActivityService.InsertActivity("DeleteMerchandiseReturn", merchandiseReturn.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.DeleteMerchandiseReturn"), merchandiseReturn.Id);
         }
 
         public virtual async Task<IList<MerchandiseReturnModel.MerchandiseReturnNote>> PrepareMerchandiseReturnNotes(MerchandiseReturn merchandiseReturn)

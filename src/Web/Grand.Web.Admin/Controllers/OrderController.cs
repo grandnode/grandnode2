@@ -413,7 +413,9 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await _mediator.Send(new DeleteOrderCommand() { Order = order });
-                await customerActivityService.InsertActivity("DeleteOrder", id, _translationService.GetResource("ActivityLog.DeleteOrder"), order.Id);
+                await customerActivityService.InsertActivity("DeleteOrder", id,
+                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.DeleteOrder"), order.Id);
                 return RedirectToAction("List");
             }
             Error(ModelState);
@@ -444,7 +446,9 @@ namespace Grand.Web.Admin.Controllers
                     if (!shipments.Any())
                     {
                         await _mediator.Send(new DeleteOrderCommand() { Order = order });
-                        await customerActivityService.InsertActivity("DeleteOrder", order.Id, _translationService.GetResource("ActivityLog.DeleteOrder"), order.Id);
+                        await customerActivityService.InsertActivity("DeleteOrder", order.Id,
+                            _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                            _translationService.GetResource("ActivityLog.DeleteOrder"), order.Id);
                     }
                 }
             }

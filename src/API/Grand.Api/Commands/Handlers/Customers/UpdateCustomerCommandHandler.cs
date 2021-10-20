@@ -6,6 +6,7 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using MediatR;
 using System.Linq;
 using System.Threading;
@@ -20,19 +21,22 @@ namespace Grand.Api.Commands.Handlers.Customers
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
         private readonly IUserFieldService _userFieldsService;
+        private readonly IWorkContext _workContext;
 
         public UpdateCustomerCommandHandler(
             ICustomerService customerService,
             IGroupService groupService,
             ICustomerActivityService customerActivityService,
             ITranslationService translationService,
-            IUserFieldService userFieldsService)
+            IUserFieldService userFieldsService,
+            IWorkContext workContext)
         {
             _customerService = customerService;
             _groupService = groupService;
             _customerActivityService = customerActivityService;
             _translationService = translationService;
             _userFieldsService = userFieldsService;
+            _workContext = workContext;
         }
 
         public async Task<CustomerDto> Handle(UpdateCustomerCommand request, CancellationToken cancellationToken)
@@ -44,7 +48,7 @@ namespace Grand.Api.Commands.Handlers.Customers
             await SaveCustomerGroups(request.Model, customer);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCustomer", customer.Id, _translationService.GetResource("ActivityLog.EditCustomer"), customer.Id);
+            await _customerActivityService.InsertActivity("EditCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditCustomer"), customer.Id);
 
             return customer.ToModel();
         }

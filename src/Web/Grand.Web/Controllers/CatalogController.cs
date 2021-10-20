@@ -145,7 +145,9 @@ namespace Grand.Web.Controllers
                 DisplayEditLink(Url.Action("Edit", "Category", new { id = category.Id, area = "Admin" }));
 
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.ViewCategory", category.Id, _translationService.GetResource("ActivityLog.PublicStore.ViewCategory"), category.Name);
+            await _customerActivityService.InsertActivity("PublicStore.ViewCategory", category.Id,
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.PublicStore.ViewCategory"), category.Name);
             await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers["Referer"].ToString() : "");
 
             //model
@@ -198,7 +200,9 @@ namespace Grand.Web.Controllers
                 DisplayEditLink(Url.Action("Edit", "Brand", new { id = brand.Id, area = "Admin" }));
 
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.ViewBrand", brand.Id, _translationService.GetResource("ActivityLog.PublicStore.ViewBrand"), brand.Name);
+            await _customerActivityService.InsertActivity("PublicStore.ViewBrand", brand.Id,
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.PublicStore.ViewBrand"), brand.Name);
             await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers[HeaderNames.Referer].ToString() : "");
 
             //model
@@ -262,7 +266,9 @@ namespace Grand.Web.Controllers
                 DisplayEditLink(Url.Action("Edit", "Collection", new { id = collection.Id, area = "Admin" }));
 
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.ViewCollection", collection.Id, _translationService.GetResource("ActivityLog.PublicStore.ViewCollection"), collection.Name);
+            await _customerActivityService.InsertActivity("PublicStore.ViewCollection", collection.Id,
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.PublicStore.ViewCollection"), collection.Name);
             await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers[HeaderNames.Referer].ToString() : "");
 
             //model
@@ -396,7 +402,9 @@ namespace Grand.Web.Controllers
             {
                 var vendorReview = await _mediator.Send(new InsertVendorReviewCommand() { Vendor = vendor, Store = _workContext.CurrentStore, Model = model });
                 //activity log
-                await _customerActivityService.InsertActivity("PublicStore.AddVendorReview", vendor.Id, _translationService.GetResource("ActivityLog.PublicStore.AddVendorReview"), vendor.Name);
+                await _customerActivityService.InsertActivity("PublicStore.AddVendorReview", vendor.Id,
+                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.PublicStore.AddVendorReview"), vendor.Name);
 
                 //raise event
                 if (vendorReview.IsApproved)

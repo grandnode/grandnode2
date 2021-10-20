@@ -6,11 +6,13 @@ using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Customers;
 using Grand.Web.Common.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +30,8 @@ namespace Grand.Web.Admin.Services
         private readonly IStoreService _storeService;
         private readonly IVendorService _vendorService;
         private readonly IDateTimeService _dateTimeService;
+        private readonly IWorkContext _workContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         #region Constructors
 
@@ -39,7 +43,9 @@ namespace Grand.Web.Admin.Services
             IProductService productService,
             IStoreService storeService,
             IVendorService vendorService,
-            IDateTimeService dateTimeService)
+            IDateTimeService dateTimeService,
+            IWorkContext workContext,
+            IHttpContextAccessor httpContextAccessor)
         {
             _groupService = groupService;
             _customerGroupProductService = customerGroupProductService;
@@ -49,6 +55,8 @@ namespace Grand.Web.Admin.Services
             _storeService = storeService;
             _vendorService = vendorService;
             _dateTimeService = dateTimeService;
+            _workContext = workContext;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -72,7 +80,9 @@ namespace Grand.Web.Admin.Services
             var customerGroup = model.ToEntity();
             await _groupService.InsertCustomerGroup(customerGroup);
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCustomerGroup", customerGroup.Id, _translationService.GetResource("ActivityLog.AddNewCustomerGroup"), customerGroup.Name);
+            await _customerActivityService.InsertActivity("AddNewCustomerGroup", customerGroup.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.AddNewCustomerGroup"), customerGroup.Name);
             return customerGroup;
         }
         public virtual async Task<CustomerGroup> UpdateCustomerGroupModel(CustomerGroup customerGroup, CustomerGroupModel model)
@@ -81,7 +91,9 @@ namespace Grand.Web.Admin.Services
             await _groupService.UpdateCustomerGroup(customerGroup);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCustomerGroup", customerGroup.Id, _translationService.GetResource("ActivityLog.EditCustomerGroup"), customerGroup.Name);
+            await _customerActivityService.InsertActivity("EditCustomerGroup", customerGroup.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditCustomerGroup"), customerGroup.Name);
             return customerGroup;
         }
         public virtual async Task DeleteCustomerGroup(CustomerGroup customerGroup)
@@ -89,7 +101,9 @@ namespace Grand.Web.Admin.Services
             await _groupService.DeleteCustomerGroup(customerGroup);
 
             //activity log
-            await _customerActivityService.InsertActivity("DeleteCustomerGroup", customerGroup.Id, _translationService.GetResource("ActivityLog.DeleteCustomerGroup"), customerGroup.Name);
+            await _customerActivityService.InsertActivity("DeleteCustomerGroup", customerGroup.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.DeleteCustomerGroup"), customerGroup.Name);
         }
         public virtual async Task<IList<CustomerGroupProductModel>> PrepareCustomerGroupProductModel(string customerGroupId)
         {

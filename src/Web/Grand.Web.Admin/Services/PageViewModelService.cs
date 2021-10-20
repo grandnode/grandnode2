@@ -13,6 +13,8 @@ using Grand.Web.Admin.Models.Pages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Threading.Tasks;
+using Grand.Infrastructure;
+using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Admin.Services
 {
@@ -26,10 +28,22 @@ namespace Grand.Web.Admin.Services
         private readonly IStoreService _storeService;
         private readonly ILanguageService _languageService;
         private readonly IDateTimeService _dateTimeService;
+        private readonly IWorkContext _workContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly SeoSettings _seoSettings;
 
-        public PageViewModelService(IPageLayoutService pageLayoutService, IPageService pageService, ISlugService slugService, ITranslationService translationService,
-            ICustomerActivityService customerActivityService, IStoreService storeService, ILanguageService languageService, IDateTimeService dateTimeService, SeoSettings seoSettings)
+        public PageViewModelService(
+            IPageLayoutService pageLayoutService, 
+            IPageService pageService, 
+            ISlugService slugService, 
+            ITranslationService translationService,
+            ICustomerActivityService customerActivityService, 
+            IStoreService storeService, 
+            ILanguageService languageService, 
+            IDateTimeService dateTimeService,
+            IWorkContext workContext,
+            IHttpContextAccessor httpContextAccessor,
+            SeoSettings seoSettings)
         {
             _pageLayoutService = pageLayoutService;
             _pageService = pageService;
@@ -39,6 +53,8 @@ namespace Grand.Web.Admin.Services
             _storeService = storeService;
             _languageService = languageService;
             _dateTimeService = dateTimeService;
+            _workContext = workContext;
+            _httpContextAccessor = httpContextAccessor;
             _seoSettings = seoSettings;
         }
 
@@ -84,7 +100,9 @@ namespace Grand.Web.Admin.Services
             await _slugService.SaveSlug(page, model.SeName, "");
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewPage", page.Id, _translationService.GetResource("ActivityLog.AddNewPage"), page.Title ?? page.SystemName);
+            await _customerActivityService.InsertActivity("AddNewPage", page.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.AddNewPage"), page.Title ?? page.SystemName);
             return page;
         }
         public virtual async Task<Page> UpdatePageModel(Page page, PageModel model)
@@ -102,7 +120,9 @@ namespace Grand.Web.Admin.Services
             //search engine name
             await _slugService.SaveSlug(page, model.SeName, "");
             //activity log
-            await _customerActivityService.InsertActivity("EditPage", page.Id, _translationService.GetResource("ActivityLog.EditPage"), page.Title ?? page.SystemName);
+            await _customerActivityService.InsertActivity("EditPage", page.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditPage"), page.Title ?? page.SystemName);
 
             return page;
         }
@@ -110,7 +130,9 @@ namespace Grand.Web.Admin.Services
         {
             await _pageService.DeletePage(page);
             //activity log
-            await _customerActivityService.InsertActivity("DeletePage", page.Id, _translationService.GetResource("ActivityLog.DeletePage"), page.Title ?? page.SystemName);
+            await _customerActivityService.InsertActivity("DeletePage", page.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.DeletePage"), page.Title ?? page.SystemName);
         }
     }
 }
