@@ -42,7 +42,7 @@
                         <b-icon icon="search" :variant="[darkMode ? 'white' : 'dark']" v-b-modal.search-box></b-icon>
                     </a>
                 </li>
-                <b-modal id="search-box" ref="search-box" @@shown="vm.$refs.searchBoxInput.focus()"
+                <b-modal id="search-box" ref="search-box" :dark-theme="darkMode" @@shown="vm.$refs.searchBoxInput.focus()"
                          hide-footer hide-header size="xl">
                     @await Component.InvokeAsync("SearchBox")
                 </b-modal>
