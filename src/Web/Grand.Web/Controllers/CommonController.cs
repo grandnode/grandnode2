@@ -342,7 +342,8 @@ namespace Grand.Web.Controllers
                     CaptchaValid = captchaValid,
                     Form = form,
                     Model = model,
-                    Store = _workContext.CurrentStore
+                    Store = _workContext.CurrentStore,
+                    IpAddress = HttpContext?.Connection?.RemoteIpAddress?.ToString()
                 });
 
                 if (result.errors.Any())

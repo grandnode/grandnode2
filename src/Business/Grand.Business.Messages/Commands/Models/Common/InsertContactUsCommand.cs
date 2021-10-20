@@ -13,6 +13,7 @@ namespace Grand.Business.Messages.Commands.Models
         public string FullName { get; set; }
         public string Subject { get; set; }
         public string Enquiry { get; set; }
+        public string RemoteIpAddress { get; set; }
         public string ContactAttributeDescription { get; set; }
         public IList<CustomAttribute> ContactAttributes { get; set; }
         public string EmailAccountId { get; set; }

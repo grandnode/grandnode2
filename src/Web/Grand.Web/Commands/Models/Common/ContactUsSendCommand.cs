@@ -11,6 +11,7 @@ namespace Grand.Web.Commands.Models.Common
         public ContactUsModel Model { get; set; }
         public IFormCollection Form { get; set; }
         public bool CaptchaValid { get; set; }
+        public string IpAddress { get; set; }
         public Store Store { get; set; }
     }
 }

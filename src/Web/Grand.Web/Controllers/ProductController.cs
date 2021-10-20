@@ -770,7 +770,8 @@ namespace Grand.Web.Controllers
                     Language = _workContext.WorkingLanguage,
                     Store = _workContext.CurrentStore,
                     Model = model,
-                    Product = product
+                    Product = product,
+                    RemoteIpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString()
                 });
 
                 //activity log
@@ -830,7 +831,8 @@ namespace Grand.Web.Controllers
                     Language = _workContext.WorkingLanguage,
                     Store = _workContext.CurrentStore,
                     Model = productaskqestionmodel,
-                    Product = product
+                    Product = product,
+                    RemoteIpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString()
                 });
 
                 //activity log

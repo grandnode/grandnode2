@@ -70,7 +70,7 @@ namespace Grand.Web.Commands.Handler.Common
             {
                 request.Model.ContactAttribute = attributes;
                 request.Model.ContactAttributeInfo = await _contactAttributeParser.FormatAttributes(_workContext.WorkingLanguage, attributes, _workContext.CurrentCustomer);
-                request.Model = await SendContactUs(request.Model, request.Store);
+                request.Model = await SendContactUs(request, request.Store);
 
                 //activity log
                 await _customerActivityService.InsertActivity("PublicStore.ContactUs", "", _translationService.GetResource("ActivityLog.PublicStore.ContactUs"));
@@ -408,17 +408,19 @@ namespace Grand.Web.Commands.Handler.Common
             return model;
         }
 
-        private async Task<ContactUsModel> SendContactUs(ContactUsModel model, Store store)
+        private async Task<ContactUsModel> SendContactUs(ContactUsSendCommand request, Store store)
         {
-            var subject = _commonSettings.SubjectFieldOnContactUsForm ? model.Subject : null;
-            var body = FormatText.ConvertText(model.Enquiry);
+            var subject = _commonSettings.SubjectFieldOnContactUsForm ? request.Model.Subject : null;
+            var body = FormatText.ConvertText(request.Model.Enquiry);
 
-            await _messageProviderService.SendContactUsMessage(_workContext.CurrentCustomer, store, _workContext.WorkingLanguage.Id, model.Email.Trim(), model.FullName, subject, body, model.ContactAttributeInfo, model.ContactAttribute);
+            await _messageProviderService.SendContactUsMessage
+                (_workContext.CurrentCustomer, store, _workContext.WorkingLanguage.Id, request.Model.Email.Trim(), request.Model.FullName, subject, 
+                body, request.Model.ContactAttributeInfo, request.Model.ContactAttribute, request.IpAddress);
 
-            model.SuccessfullySent = true;
-            model.Result = _translationService.GetResource("ContactUs.YourEnquiryHasBeenSent");
+            request.Model.SuccessfullySent = true;
+            request.Model.Result = _translationService.GetResource("ContactUs.YourEnquiryHasBeenSent");
 
-            return model;
+            return request.Model;
         }
     }
 }
