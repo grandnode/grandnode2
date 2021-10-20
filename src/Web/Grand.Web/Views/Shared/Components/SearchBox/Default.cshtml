@@ -18,7 +18,7 @@
             @await Component.InvokeAsync("Widget", new { widgetZone = "searchbox_before_search_button" })
 
             <div class="input-group-append">
-                <button id="voiceSearchButton" @@touchstart="searchbox.recording = true" @@touchend="searchbox.recording = false" @@mousedown="searchbox.recording = true" @@mouseup="searchbox.recording = false" :data-title="searchbox.micMessage" ref="micBtn" type="button" v-bind:class="[{ focus: searchbox.recording }, 'btn btn-link']">
+                <button id="voiceSearchButton" @@touchstart="searchbox.recording = true" @@touchcancel="searchbox.recording = false" @@touchend="searchbox.recording = false" @@mousedown="searchbox.recording = true" @@mouseup="searchbox.recording = false" @@mouseleave="searchbox.recording = false" :data-title="searchbox.micMessage" ref="micBtn" type="button" v-bind:class="[{ focus: searchbox.recording }, 'btn btn-link']">
                     <template v-if="searchbox.recording">
                         <b-icon icon="mic" variant="info"></b-icon>
                     </template>
@@ -31,6 +31,7 @@
                     <b-icon icon="search"></b-icon>
                 </button>
             </div>
+            <small v-if="searchbox.recording" class="adnotation form-text text-muted w-100">For submit say 'Go'. To reset input filed say 'reset'</small>
         </div>
         <template v-if="searchbox.searchitems !== null">
             <div id="adv_search" class="advanced-search-results" onclick="StopPropagation(event)">
@@ -185,6 +186,9 @@
             text: function () {
                 const searchBoxInput = vm.$refs.searchBoxInput;
                 this.autocompleteVue(searchBoxInput);
+                if (this.text == '') {
+                    searchbox.searchitems = null;
+                }
             },
             recording: function () {
                 const speech = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -202,6 +206,7 @@
                         recognition.start();
 
                         this.placeholder = "Say Something...";
+                        this.micMessage = "Say Something"
 
                         recognition.addEventListener("result", resultOfSpeechRecognition);
                         function resultOfSpeechRecognition(event) {
@@ -212,17 +217,17 @@
                             if (transcript.toLowerCase().trim() === "stop recording") {
                                 recognition.stop();
                             }
-                            else if (!searchBoxInput.value) {
+                            else if (!searchBoxInput.value && searchbox.recording) {
                                 searchbox.text = transcript;
                             }
                             else {
                                 if (transcript.toLowerCase().trim() === "go") {
                                     searchForm.submit();
                                 }
-                                else if (transcript.toLowerCase().trim() === "reset input") {
+                                else if (transcript.toLowerCase().trim() === "reset") {
                                     searchbox.text = "";
                                 }
-                                else {
+                                else if (searchbox.recording) {
                                     searchbox.text = transcript;
                                 }
                             }
@@ -230,6 +235,7 @@
                     } else {
                         recognition.stop();
                         this.placeholder = "@Loc["Search.SearchBox.Tooltip"]";
+                        this.micMessage = "Hold to Speak"
                     }
 
                 } else {

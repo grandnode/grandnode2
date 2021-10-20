@@ -486,14 +486,6 @@ function displayPopupNotification(message, messagetype) {
     }
 }
 
-function CloseSearchBox() {
-    window.addEventListener('click', function () {
-        if (document.getElementById('adv_search')) {
-            searchbox.text = "";
-            searchbox.searchitems = null;
-        }
-    });
-}
 function StopPropagation(event) {
     event.stopPropagation();
 }
@@ -530,7 +522,6 @@ function backToTop() {
 
 document.addEventListener("DOMContentLoaded", function () {
     newsletterBox();
-    CloseSearchBox();
     backToTop();
 });
 
