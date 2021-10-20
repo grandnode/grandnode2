@@ -38,7 +38,6 @@ namespace Grand.Business.Messages.Services
         private readonly IQueuedEmailService _queuedEmailService;
         private readonly ILanguageService _languageService;
         private readonly IEmailAccountService _emailAccountService;
-        private readonly IMessageTokenProvider _messageTokenProvider;
         private readonly IStoreService _storeService;
         private readonly IStoreHelper _storeHelper;
         private readonly IGroupService _groupService;
@@ -55,7 +54,6 @@ namespace Grand.Business.Messages.Services
             IQueuedEmailService queuedEmailService,
             ILanguageService languageService,
             IEmailAccountService emailAccountService,
-            IMessageTokenProvider messageTokenProvider,
             IStoreService storeService,
             IStoreHelper storeHelper,
             IGroupService groupService,
@@ -67,7 +65,6 @@ namespace Grand.Business.Messages.Services
             _queuedEmailService = queuedEmailService;
             _languageService = languageService;
             _emailAccountService = emailAccountService;
-            _messageTokenProvider = messageTokenProvider;
             _storeService = storeService;
             _storeHelper = storeHelper;
             _groupService = groupService;
