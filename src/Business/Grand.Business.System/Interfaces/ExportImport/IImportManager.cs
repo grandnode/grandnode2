@@ -18,8 +18,9 @@ namespace Grand.Business.System.Interfaces.ExportImport
         /// Import newsletter subscribers from TXT file
         /// </summary>
         /// <param name="stream">Stream</param>
+        /// <param name="currentStoreId">Current store ident</param>
         /// <returns>Number of imported subscribers</returns>
-        Task<int> ImportNewsletterSubscribersFromTxt(Stream stream);
+        Task<int> ImportNewsletterSubscribersFromTxt(Stream stream, string currentStoreId);
 
         /// <summary>
         /// Import country states from XLSX file
