@@ -2,20 +2,22 @@
 
 <div class="col-xl-6 col-lg-6 col-md-5 col-12 mt-md-0 mt-3 px-0">
     <div class="gallery">
-        @if (Model.PictureModels.Count == 1)
+        @if (Model.PictureModels.Any())
         {
-            @if (Model.DefaultPictureZoomEnabled)
-            {
-                <gallery-images></gallery-images>
+            var schemaPicture = Model.PictureModels.FirstOrDefault();
+            <img src="@schemaPicture.FullSizeImageUrl" class="d-none" itemprop="image">   
+        }
+        @if (Model.PictureModels.Count == 1) { @if (Model.DefaultPictureZoomEnabled) {
+            <gallery-images></gallery-images>
 
-                <script type="text/html" id="picture">
-                    <div>
-                        <img class="image main-image zoom" id="main-product-img-@Model.Id" v-for="(image, i) in images" :src="image.url" :alt="image.alt" 
-                             :title="image.title" :key="i" @@click="index=i">
-                        <vue-gallery-slideshow :images="images" :index="index" @@close="index=null"></vue-gallery-slideshow>
-                    </div>
-                </script>
-                <script asp-location="Footer" asp-order="300">
+            <script type="text/html" id="picture">
+                <div>
+                    <img class="image main-image zoom" id="main-product-img-@Model.Id" v-for="(image, i) in images" :src="image.url" :alt="image.alt"
+                         :title="image.title" :key="i" @@click="index=i">
+                    <vue-gallery-slideshow :images="images" :index="index" @@close="index=null"></vue-gallery-slideshow>
+                </div>
+            </script>
+            <script asp-location="Footer" asp-order="300">
                     Vue.component('gallery-images', {
                       template: '#picture',
                       data() {
@@ -35,7 +37,6 @@
                                     { url: '@picture.ImageUrl', fullimg: '@picture.FullSizeImageUrl', alt:'@picture.AlternateText', title: '@picture.Title' },
                                         </text>
                                     }
-
                                 }
                                 ],
                                 index: null
@@ -45,46 +46,46 @@
                             VueGallerySlideshow
                       },
                     });
-                </script>
+            </script>
 
-            }
-            else
-            {
-                <img id="main-product-img-@Model.Id" class="image main-image"
-                     src="@Model.DefaultPictureModel.ImageUrl"
-                     alt="@Model.DefaultPictureModel.AlternateText"
-                     title="@Model.DefaultPictureModel.Title" />
-            }
         }
-        @if (Model.PictureModels.Count == 0)
+        else
         {
             <img id="main-product-img-@Model.Id" class="image main-image"
                  src="@Model.DefaultPictureModel.ImageUrl"
                  alt="@Model.DefaultPictureModel.AlternateText"
                  title="@Model.DefaultPictureModel.Title" />
         }
-        @if (Model.DefaultPictureZoomEnabled)
+}
+    @if (Model.PictureModels.Count == 0)
+    {
+        <img id="main-product-img-@Model.Id" class="image main-image"
+             src="@Model.DefaultPictureModel.ImageUrl"
+             alt="@Model.DefaultPictureModel.AlternateText"
+             title="@Model.DefaultPictureModel.Title" />
+    }
+    @if (Model.DefaultPictureZoomEnabled)
+    {
+        @if (Model.PictureModels.Count > 1)
         {
-            @if (Model.PictureModels.Count > 1)
-            {
 
-                <img id="main-product-img-@Model.Id" class="image main-image zoom"
-                     src="@Model.DefaultPictureModel.ImageUrl"
-                     alt="@Model.DefaultPictureModel.AlternateText"
-                     title="@Model.DefaultPictureModel.Title"
-                     onclick="document.querySelector('.thumb-image').click()" />
+            <img id="main-product-img-@Model.Id" class="image main-image zoom"
+                 src="@Model.DefaultPictureModel.ImageUrl"
+                 alt="@Model.DefaultPictureModel.AlternateText"
+                 title="@Model.DefaultPictureModel.Title"
+                 onclick="document.querySelector('.thumb-image').click()" />
 
-                <script type="text/html" id="picture">
+            <script type="text/html" id="picture">
+                <div>
+                    <img class="image thumb-image zoom" v-for="(image, i) in images" :src="image.url" :datasrc="image.fullimg"
+                         :alt="image.alt" :title="image.title" :key="i" @@click="index=i">
                     <div>
-                        <img class="image thumb-image zoom" v-for="(image, i) in images" :src="image.url" :datasrc="image.fullimg" 
-                             :alt="image.alt" :title="image.title" :key="i" @@click="index=i">
-                        <div>
-                            <vue-gallery-slideshow :images="images" :index="index" @@close="index=null"></vue-gallery-slideshow>
-                        </div>
+                        <vue-gallery-slideshow :images="images" :index="index" @@close="index=null"></vue-gallery-slideshow>
                     </div>
-                </script>
-                <gallery-images></gallery-images>
-                <script asp-location="Footer" asp-order="300">
+                </div>
+            </script>
+            <gallery-images></gallery-images>
+            <script asp-location="Footer" asp-order="300">
                     Vue.component('gallery-images', {
                           template: '#picture',
                           data() {
@@ -104,7 +105,6 @@
                                             { url: '@picture.ImageUrl', fullimg: '@picture.FullSizeImageUrl', alt:'@picture.AlternateText', title: '@picture.Title' },
                                                 </text>
                                             }
-
                                         }
                                     ],
                                     index: null
@@ -114,29 +114,29 @@
                                 VueGallerySlideshow
                           },
                     });
-                </script>
-            }
+            </script>
         }
-        else
+    }
+    else
+    {
+        @if (Model.PictureModels.Count > 1)
         {
-            @if (Model.PictureModels.Count > 1)
-            {
-                <img id="main-product-img-@Model.Id" class="image main-image"
-                     src="@Model.DefaultPictureModel.ImageUrl"
-                     alt="@Model.DefaultPictureModel.AlternateText"
-                     title="@Model.DefaultPictureModel.Title" />
-                <div>
-                    @foreach (var picture in Model.PictureModels)
-                    {
-                        <img class="image thumb-image"
-                             src="@picture.ThumbImageUrl"
-                             alt="@picture.AlternateText"
-                             title="@picture.Title"
-                             data-src="@picture.ImageUrl"
-                             @@click="Gallery.extendOptions.methods.changeImg($event)" />
-                    }
-                </div>
-                <script asp-location="Footer" asp-order="300">
+            <img id="main-product-img-@Model.Id" class="image main-image"
+                 src="@Model.DefaultPictureModel.ImageUrl"
+                 alt="@Model.DefaultPictureModel.AlternateText"
+                 title="@Model.DefaultPictureModel.Title" />
+            <div>
+                @foreach (var picture in Model.PictureModels)
+                {
+                    <img class="image thumb-image"
+                         src="@picture.ThumbImageUrl"
+                         alt="@picture.AlternateText"
+                         title="@picture.Title"
+                         data-src="@picture.ImageUrl"
+                         @@click="Gallery.extendOptions.methods.changeImg($event)" />
+                }
+            </div>
+            <script asp-location="Footer" asp-order="300">
                     var gallery = new Vue({
                         methods: {
                             changeImg(event) {
@@ -146,8 +146,8 @@
                             }
                         }
                     })
-                </script>
-            }
+            </script>
         }
+    }
     </div>
 </div>

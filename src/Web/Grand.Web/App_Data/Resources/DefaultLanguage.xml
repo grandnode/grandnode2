@@ -15867,6 +15867,24 @@
   <Resource Name="Search.Vendor">
     <Value>Vendor</Value>
   </Resource>
+  <Resource Name="search.voice.go">
+    <Value>Go</Value>
+  </Resource>
+  <Resource Name="search.voice.holdtospeak">
+    <Value>Hold to speak</Value>
+  </Resource>
+  <Resource Name="search.voice.notsupported">
+    <Value>Your browser does not support this feature</Value>
+  </Resource>
+  <Resource Name="search.voice.placeholder">
+    <Value>Say something ...</Value>
+  </Resource>
+  <Resource Name="search.voice.reset">
+    <Value>Reset</Value>
+  </Resource>
+  <Resource Name="search.voice.stop">
+    <Value>Stop</Value>
+  </Resource>
   <Resource Name="Shipment.Document">
     <Value>Shipment document {0}</Value>
   </Resource>

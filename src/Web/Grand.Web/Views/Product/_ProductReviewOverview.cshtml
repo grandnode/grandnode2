@@ -7,7 +7,8 @@
         ratingPercent = ((Model.RatingSum * 100) / Model.TotalReviews) / 5;
     }
 }
-<div class="product-reviews-overview d-inline-flex align-items-center flex-wrap" @if (Model.TotalReviews > 0) { <text> itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating" </text> }>
+<div class="product-reviews-overview d-inline-flex align-items-center flex-wrap" @if (Model.TotalReviews > 0)
+{ <text> itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating" </text> }>
     <div class="product-review-box d-inline-block order-1">
         @{ 
             double ratingValue = 0;
@@ -16,28 +17,31 @@
                 ratingValue = Convert.ToDouble(((Model.RatingSum * (double)100) / Model.TotalReviews) / (double)100);
             }
         }
-            <div class="rating">
-                <b-form-rating id="rating-inline-overview-@Model.ProductId" class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline value="@(ratingValue.ToString("0.00", CultureInfo.InvariantCulture))"></b-form-rating>
-                @if (Model.TotalReviews > 0)
-                {
-                    <div class="product-review-links order-3">
-                        <b-button variant="outline-info" size="sm" class="review-scroll-button" @@click="active = true" href="#review-tab___BV_tab_button__">
-                            @Model.TotalReviews
-                            @Loc["Reviews.Overview.Reviews"]
-                        </b-button>
-                    </div>
-                    @* rendering microdata info*@
-                    double ratingValuee = ratingPercent / (double)20;
-                    <span itemprop="reviewCount" style="display: none;">(@ratingValuee.ToString("0.0", new CultureInfo("en-US")))</span>
-                }
-                else
-                {
-                    <div class="product-no-reviews order-3">
-                        <a class="btn btn-sm btn-outline-info" @@click="addProductReview('@Url.RouteUrl("ProductReviews", new { productId = Model.ProductId })')">
-                                @Loc["Reviews.Overview.First"]
-                        </a>
-                    </div>
-                }
-            </div>
+        <div class="rating">
+            <b-form-rating id="rating-inline-overview-@Model.ProductId" class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline value="@(ratingValue.ToString("0.00", CultureInfo.InvariantCulture))"></b-form-rating>
+            @if (Model.TotalReviews > 0)
+            {
+                <div class="product-review-links order-3">
+                    <b-button variant="outline-info" size="sm" class="review-scroll-button" @@click="active = true" href="#review-tab___BV_tab_button__">
+                        @Model.TotalReviews
+                        @Loc["Reviews.Overview.Reviews"]
+                    </b-button>
+                </div>
+            }
+            else
+            {
+                <div class="product-no-reviews order-3">
+                    <a class="btn btn-sm btn-outline-info" @@click="addProductReview('@Url.RouteUrl("ProductReviews", new { productId = Model.ProductId })')">
+                        @Loc["Reviews.Overview.First"]
+                    </a>
+                </div>
+            }
+            @{ 
+                @* rendering microdata info*@
+                double value = ratingPercent / (double)20;
+                <span itemprop="ratingValue" class="d-none">(@value.ToString("0.0", new CultureInfo("en-US")))</span>
+                <span itemprop="reviewCount" class="d-none">@Model.TotalReviews</span>
+            }
+        </div>
     </div>
 </div>
