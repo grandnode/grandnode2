@@ -64,8 +64,8 @@
             var ui = $.summernote.ui;
             // create button
             var button = ui.button({
-                contents: '<i class="fa fa-list-alt"/>@Loc["Admin.FileManager.Picture"]',
-                tooltip: 'elfinder',
+                contents: '<i class="note-icon-picture"/>',
+                tooltip: '@Loc["Admin.FileManager.Picture"]',
                 click: function () {
                     elfinderDialog@(random)();
                 }
@@ -86,7 +86,7 @@
             ],
             buttons: {
                 @if(allowFileman)
-                { 
+                {
                     <text> elfinder: FileManager, </text>
                 }
             },
