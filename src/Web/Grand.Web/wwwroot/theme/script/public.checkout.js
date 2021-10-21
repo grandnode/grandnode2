@@ -56,12 +56,16 @@ var vmorder = new Vue({
             // shippingbussy
             shippingBussy: false,
             // selectedshipping
-            selectedShippingMethod: 0
+            selectedShippingMethod: 0,
+            shippingAddressErrors: null,
+            billingAddressErrors: null,
         }
     },
     methods: {
         formCheckoutSubmit() {
             document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vShipping.save(); document.getElementById('opc-shipping-submit').click()");
+            vmorder.shippingAddressErrors = null;
+            vmorder.billingAddressErrors = null;
         },
         setDisabled(e) {
             var button = e.target;
@@ -243,6 +247,7 @@ var vmorder = new Vue({
                             }
                         }
                     }
+
                     if (response.data.allow_sections) {
                         response.data.allow_sections.forEach(function (e) {
                             document.querySelector('#button-' + e).classList.add('allow');
@@ -363,6 +368,9 @@ var vmorder = new Vue({
                                 vmorder.vShipping.nextStep(response);
                             }
                         }
+                        if (response.data.wrong_shipping_address) {
+                            vmorder.shippingAddressErrors = response.data.model_state;
+                        }
                     }).catch(function (error) {
                         error.axiosFailure;
                     }).then(function () {
@@ -375,6 +383,7 @@ var vmorder = new Vue({
                 },
 
                 nextStep: function (response) {
+
                     if (response.data.error) {
                         if ((typeof response.data.message) == 'string') {
                             alert(response.data.message);
@@ -436,6 +445,9 @@ var vmorder = new Vue({
                     }).then(function (response) {
                         if (document.querySelector('#back-' + response.data.goto_section)) {
                             document.querySelector('#back-' + response.data.goto_section).setAttribute('onclick', 'document.querySelector("#button-billing").click(); vmorder.ShippingMethod = false;');
+                        }
+                        if (response.data.wrong_billing_address) {
+                            vmorder.billingAddressErrors = response.data.model_state;
                         }
                         vmorder.vBilling.nextStep(response);
 
