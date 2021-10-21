@@ -1,9 +1,6 @@
 ﻿using Grand.Business.System.Interfaces.Installation;
 using Grand.Business.System.Utilities;
-using Grand.Infrastructure.Extensions;
-using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,11 +16,6 @@ namespace Grand.Business.System.Services.Installation
     public partial class InstallationLocalizedService : IInstallationLocalizedService
     {
         /// <summary>
-        /// Cookie name to language for the installation page
-        /// </summary>
-        private const string LANGUAGE_COOKIE_NAME = ".Grand.installation.lang";
-
-        /// <summary>
         /// Available languages
         /// </summary>
         private IList<InstallationLanguage> _availableLanguages;
@@ -33,27 +25,28 @@ namespace Grand.Business.System.Services.Installation
         /// </summary>
         private IList<InstallationCollation> _availableCollation;
 
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public InstallationLocalizedService(IHttpContextAccessor httpContextAccessor)
+        public InstallationLocalizedService()
         {
-            _httpContextAccessor = httpContextAccessor;
+
         }
         /// <summary>
         /// Get locale resource value
         /// </summary>
+        /// <param name="languageCode">Language code</param>
         /// <param name="resourceName">Resource name</param>
         /// <returns>Resource value</returns>
-        public string GetResource(string resourceName)
+        public string GetResource(string languageCode, string resourceName)
         {
-            var language = GetCurrentLanguage();
+            var language = GetCurrentLanguage(languageCode);
             if (language == null)
                 return resourceName;
             var resourceValue = language.Resources
                 .Where(r => r.Name.Equals(resourceName, StringComparison.OrdinalIgnoreCase))
                 .Select(r => r.Value)
                 .FirstOrDefault();
-            if (String.IsNullOrEmpty(resourceValue))
+
+            if (string.IsNullOrEmpty(resourceValue))
                 //return name
                 return resourceName;
 
@@ -64,59 +57,26 @@ namespace Grand.Business.System.Services.Installation
         /// Get current language for the installation page
         /// </summary>
         /// <returns>Current language</returns>
-        public virtual InstallationLanguage GetCurrentLanguage()
+        /// <param name="languageCode">Language Code</param>
+        public virtual InstallationLanguage GetCurrentLanguage(string languageCode = default)
         {
-            var httpContext = _httpContextAccessor.HttpContext;
-            //try to get cookie
-            httpContext.Request.Cookies.TryGetValue(LANGUAGE_COOKIE_NAME, out string cookieLanguageCode);
-
-            //ensure it's available (it could be delete since the previous installation)
             var availableLanguages = GetAvailableLanguages();
-
-            var language = availableLanguages
-                .FirstOrDefault(l => l.Code.Equals(cookieLanguageCode, StringComparison.OrdinalIgnoreCase));
-            if (language != null)
-                return language;
-
-            //find by current browser culture
-            if (httpContext.Request.Headers.TryGetValue("Accept-Language", out var userLanguages))
+            if(!string.IsNullOrEmpty(languageCode))
             {
-                var userLanguage = userLanguages.FirstOrDefault().Return(l => l.Split(',')[0], string.Empty);
-                if (!string.IsNullOrEmpty(userLanguage))
-                {
-                    //right. we do "StartsWith" (not "Equals") because we have shorten codes (not full culture names)
-                    language = availableLanguages.FirstOrDefault(l => userLanguage.StartsWith(l.Code, StringComparison.OrdinalIgnoreCase));
-                }
+                var selectedlanguage = availableLanguages
+                    .FirstOrDefault(l => l.Code.Equals(languageCode, StringComparison.OrdinalIgnoreCase));
+                if (selectedlanguage != null)
+                    return selectedlanguage;
             }
 
-            if (language != null)
-                return language;
-
             //return the default one
-            language = availableLanguages.FirstOrDefault(l => l.IsDefault);
+            var language = availableLanguages.FirstOrDefault(l => l.IsDefault);
             if (language != null)
                 return language;
 
             //return any available language
             language = availableLanguages.FirstOrDefault();
             return language;
-        }
-
-        /// <summary>
-        /// Save a language for the installation page
-        /// </summary>
-        /// <param name="languageCode">Language code</param>
-        public virtual void SaveCurrentLanguage(string languageCode)
-        {
-            var httpContext = _httpContextAccessor.HttpContext;
-
-            var cookieOptions = new CookieOptions
-            {
-                Expires = DateTime.Now.AddHours(24),
-                HttpOnly = true
-            };
-            httpContext.Response.Cookies.Delete(LANGUAGE_COOKIE_NAME);
-            httpContext.Response.Cookies.Append(LANGUAGE_COOKIE_NAME, languageCode, cookieOptions);
         }
 
         /// <summary>
@@ -157,8 +117,7 @@ namespace Grand.Business.System.Services.Installation
                 var isRightToLeft = isRightToLeftAttribute != null && Convert.ToBoolean(isRightToLeftAttribute.InnerText.Trim());
 
                 //create language
-                var language = new InstallationLanguage
-                {
+                var language = new InstallationLanguage {
                     Code = languageCode,
                     Name = languageName,
                     IsDefault = isDefault,
@@ -187,8 +146,7 @@ namespace Grand.Business.System.Services.Installation
                         continue;
                     var resourceValue = resValueNode.InnerText.Trim();
 
-                    language.Resources.Add(new InstallationLocaleResource
-                    {
+                    language.Resources.Add(new InstallationLocaleResource {
                         Name = resourceName,
                         Value = resourceValue
                     });
@@ -225,8 +183,7 @@ namespace Grand.Business.System.Services.Installation
                 var resourceName = resNameAttribute.Value.Trim();
                 var resourceValue = resValueNode.InnerText.Trim();
 
-                _availableCollation.Add(new InstallationCollation()
-                {
+                _availableCollation.Add(new InstallationCollation() {
                     Name = resourceName,
                     Value = resourceValue,
                 });
