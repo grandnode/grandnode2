@@ -510,6 +510,7 @@ namespace Grand.Web.Controllers
                 else
                 {
                     //new address
+                    ModelState.Clear();
                     var model = new CheckoutBillingAddressModel();
                     await TryUpdateModelAsync(model.NewAddress, "BillingNewAddress");
 
@@ -521,8 +522,6 @@ namespace Grand.Web.Controllers
                         ModelState.AddModelError("", error);
                     }
 
-                    //validate model
-                    TryValidateModel(model.NewAddress);
                     if (!ModelState.IsValid)
                     {
                         //model is not valid. redisplay the form with errors
@@ -675,9 +674,7 @@ namespace Grand.Web.Controllers
                         {
                             ModelState.AddModelError("", error);
                         }
-
-                        //validate model
-                        TryValidateModel(model.NewAddress);
+                        
                         if (!ModelState.IsValid)
                         {
                             var errors = ModelState.Values.SelectMany(v => v.Errors);
