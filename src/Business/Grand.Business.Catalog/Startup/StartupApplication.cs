@@ -42,7 +42,6 @@ namespace Grand.Business.Catalog.Startup
             serviceCollection.AddScoped<IOutOfStockSubscriptionService, OutOfStockSubscriptionService>();
             serviceCollection.AddScoped<ICategoryService, CategoryService>();
             serviceCollection.AddScoped<IBrandService, BrandService>();
-            serviceCollection.AddScoped<ICompareProductsService, CompareProductsService>();
             serviceCollection.AddScoped<IRecentlyViewedProductsService, RecentlyViewedProductsService>();
             serviceCollection.AddScoped<ICollectionService, CollectionService>();
             serviceCollection.AddScoped<IPriceFormatter, PriceFormatter>();

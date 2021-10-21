@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Storage.Extensions
 {
@@ -38,6 +34,6 @@ namespace Grand.Business.Storage.Extensions
             return GetDownloadBits(file);
         }
 
-        
+
     }
 }
