@@ -15,7 +15,7 @@
     {
         case AttributeControlType.DropdownList:
             {
-                <validation-provider @if (attribute.IsRequired) { <text> rules="required" </text> } name="@(controlId)" v-slot="{ errors, classes }"> 
+                <validation-provider @if (attribute.IsRequired) { <text> rules="required" </text> } name="@(controlId)" v-slot="{ errors, classes }">
                     <select v-model="createorupdateaddress.@(controlId)" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" v-bind:class="[classes , 'custom-select form-control']" name="@(controlId)" id="@(controlId)">
                         @if (!attribute.IsRequired)
                         {
@@ -79,9 +79,11 @@
             break;
         case AttributeControlType.MultilineTextbox:
             {
-                <textarea class="form-control" id="@(controlId)"
-                          data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))"
-                          name="@(controlId)">@(attribute.DefaultValue)</textarea>
+                <validation-provider @if (attribute.IsRequired) { <text> rules="required" </text> } name="@(controlId)" v-slot="{ errors, classes }">
+                    <textarea name="@(controlId)"
+                           id="@(controlId)" v-model="createorupdateaddress.@(controlId)" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" v-bind:class="[classes , 'form-control']"></textarea>
+                    <span class="field-validation-error">{{ errors[0] }}</span>
+                </validation-provider>
             }
             break;
         case AttributeControlType.Datepicker:
