@@ -357,7 +357,10 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> MaintenanceConvertPicture([FromServices] IPictureService pictureService, [FromServices] MediaSettings mediaSettings, [FromServices] ILogger logger)
+        public async Task<IActionResult> MaintenanceConvertPicture(
+            [FromServices] IPictureService pictureService, 
+            [FromServices] MediaSettings mediaSettings, 
+            [FromServices] ILogger logger)
         {
             var numberOfConvertItems = 0;
             if (mediaSettings.StoreInDb)
@@ -374,7 +377,7 @@ namespace Grand.Web.Admin.Controllers
                     }
                     catch (Exception ex)
                     {
-                        logger.Error($"Error on converting picture with id {picture.Id} to webp format", ex);
+                        _ = logger.Error($"Error on converting picture with id {picture.Id} to webp format", ex);
                     }
 
                 }

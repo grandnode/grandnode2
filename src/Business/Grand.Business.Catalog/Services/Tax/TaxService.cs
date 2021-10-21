@@ -261,7 +261,7 @@ namespace Grand.Business.Catalog.Services.Tax
             {
                 foreach (var error in calculateTaxResult.Errors)
                 {
-                    _logger.Error(string.Format("{0} - {1}", activeTaxProvider.FriendlyName, error), null, customer);
+                    _ = _logger.Error(string.Format("{0} - {1}", activeTaxProvider.FriendlyName, error), null, customer);
                 }
             }
             return (taxRate, isTaxable);

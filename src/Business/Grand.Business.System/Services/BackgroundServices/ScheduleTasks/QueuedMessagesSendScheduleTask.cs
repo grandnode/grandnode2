@@ -65,7 +65,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
                 }
                 catch (Exception exc)
                 {
-                    _logger.Error(string.Format("Error sending e-mail. {0}", exc.Message), exc);
+                    _ = _logger.Error(string.Format("Error sending e-mail. {0}", exc.Message), exc);
                 }
                 finally
                 {

@@ -66,7 +66,7 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
                 .ReturnsAsync((new List<string>() { "warning" }, null));
             await _task.Execute();
 
-            _loggerMock.Verify(c => c.InsertLog(Domain.Logging.LogLevel.Error, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Customer>()), Times.Once);
+            _loggerMock.Verify(c => c.InsertLog(Domain.Logging.LogLevel.Error, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Customer>(), null, null, null), Times.Once);
         }
 
         [TestMethod]
@@ -80,7 +80,7 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
                 .ReturnsAsync((new List<string>(), null));
             await _task.Execute();
 
-            _loggerMock.Verify(c => c.InsertLog(Domain.Logging.LogLevel.Error, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Customer>()), Times.Never);
+            _loggerMock.Verify(c => c.InsertLog(Domain.Logging.LogLevel.Error, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Customer>(), null, null, null), Times.Never);
             _auctionMock.Verify(c => c.UpdateBid(It.IsAny<Bid>()), Times.Once);
             _auctionMock.Verify(c => c.UpdateAuctionEnded(It.IsAny<Product>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Once);
             _messageProviderMock.Verify(c => c.SendAuctionEndedStoreOwnerMessage(It.IsAny<Product>(), It.IsAny<string>(), It.IsAny<Bid>()), Times.Once);

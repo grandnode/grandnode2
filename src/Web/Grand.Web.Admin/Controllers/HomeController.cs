@@ -222,11 +222,11 @@ namespace Grand.Web.Admin.Controllers
             var currentCustomer = _workContext.CurrentCustomer;
             if (currentCustomer == null || await _groupService.IsGuest(currentCustomer))
             {
-                _logger.Information(string.Format("Access denied to anonymous request on {0}", pageUrl));
+                _ = _logger.Information(string.Format("Access denied to anonymous request on {0}", pageUrl));
                 return View();
             }
 
-            _logger.Information(string.Format("Access denied to user #{0} '{1}' on {2}", currentCustomer.Email, currentCustomer.Email, pageUrl));
+            _ = _logger.Information(string.Format("Access denied to user #{0} '{1}' on {2}", currentCustomer.Email, currentCustomer.Email, pageUrl));
 
 
             return View();

@@ -21,7 +21,6 @@ namespace Grand.Business.Common.Services.Logging
         #region Fields
 
         private readonly IRepository<Log> _logRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         #endregion
 
@@ -31,12 +30,9 @@ namespace Grand.Business.Common.Services.Logging
         /// Ctor
         /// </summary>
         /// <param name="logRepository">Log repository</param>
-        /// <param name="webHelper">Web helper</param>
-        public DefaultLogger(IRepository<Log> logRepository,
-            IHttpContextAccessor httpContextAccessor)
+        public DefaultLogger(IRepository<Log> logRepository)
         {
             _logRepository = logRepository;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -121,24 +117,28 @@ namespace Grand.Business.Common.Services.Logging
         /// <param name="shortMessage">The short message</param>
         /// <param name="fullMessage">The full message</param>
         /// <param name="customer">The customer to associate log record with</param>
+        /// <param name="ipAddress">Ip address</param>
+        /// <param name="pageurl">Page url</param>
+        /// <param name="referrerUrl">Referrer url</param>
         /// <returns>A log item</returns>
-        public virtual async Task<Log> InsertLog(LogLevel logLevel, string shortMessage, string fullMessage = "", Customer customer = null)
+        public virtual Task InsertLog(LogLevel logLevel, string shortMessage, string fullMessage = "", Customer customer = null,
+            string ipAddress = default, string pageurl = default, string referrerUrl = default)
         {
             var log = new Log
             {
                 LogLevelId = logLevel,
                 ShortMessage = shortMessage,
                 FullMessage = fullMessage,
-                IpAddress = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                IpAddress = ipAddress,
                 CustomerId = customer != null ? customer.Id : "",
-                PageUrl = _httpContextAccessor.HttpContext?.Request?.GetDisplayUrl(),
-                ReferrerUrl = _httpContextAccessor.HttpContext?.Request?.Headers[HeaderNames.Referer],
+                PageUrl = pageurl,
+                ReferrerUrl = referrerUrl,
                 CreatedOnUtc = DateTime.UtcNow
             };
 
-            await _logRepository.InsertAsync(log);
+            _logRepository.InsertAsync(log);
 
-            return log;
+            return Task.CompletedTask;
         }
 
         /// <summary>

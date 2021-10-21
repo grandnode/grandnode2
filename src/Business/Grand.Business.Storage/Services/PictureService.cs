@@ -557,7 +557,7 @@ namespace Grand.Business.Storage.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex.Message, ex);
+                    _ = _logger.Error(ex.Message, ex);
                 }
             }
             await Task.CompletedTask;
@@ -735,7 +735,7 @@ namespace Grand.Business.Storage.Services
                 File.WriteAllBytes(filepath, pictureBinary);
             }
             else
-                _logger.Error("Drirectory path not exist.");
+                _ = _logger.Error("Drirectory path not exist.");
 
             return Task.CompletedTask;
         }

@@ -223,7 +223,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             }
             catch (Exception exc)
             {
-                _logger.Error(exc.Message, exc);
+                _ = _logger.Error(exc.Message, exc);
                 result.AddError(exc.Message);
             }
 
@@ -240,7 +240,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             {
                 //log it
                 string logError = string.Format("Error while placing order. {0}", error);
-                _logger.Error(logError);
+                _ = _logger.Error(logError);
             }
 
             #endregion
@@ -1162,7 +1162,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error($"Error - order placed attachment file {order.OrderNumber}", ex);
+                    _ = _logger.Error($"Error - order placed attachment file {order.OrderNumber}", ex);
                 }
 
                 await messageProviderService

@@ -101,7 +101,7 @@ namespace Payments.PayPalStandard.Controllers
                     }
                     catch (Exception exc)
                     {
-                        _logger.Error("PayPal PDT. Error getting mc_gross", exc);
+                        _ = _logger.Error("PayPal PDT. Error getting mc_gross", exc);
                     }
 
                     values.TryGetValue("payer_status", out var payer_status);
@@ -145,7 +145,7 @@ namespace Payments.PayPalStandard.Controllers
                     if (_payPalStandardPaymentSettings.PdtValidateOrderTotal && !Math.Round(mc_gross, 2).Equals(Math.Round(order.OrderTotal * order.CurrencyRate, 2)))
                     {
                         string errorStr = string.Format("PayPal PDT. Returned order total {0} doesn't equal order total {1}. Order# {2}.", mc_gross, order.OrderTotal * order.CurrencyRate, order.OrderNumber);
-                        _logger.Error(errorStr);
+                        _ = _logger.Error(errorStr);
 
                         //order note
                         await _orderService.InsertOrderNote(new OrderNote {
@@ -296,7 +296,7 @@ namespace Payments.PayPalStandard.Controllers
                                                 //not valid
                                                 string errorStr = string.Format("PayPal IPN. Returned order total {0} doesn't equal order total {1}. Order# {2}.", mc_gross, order.OrderTotal * order.CurrencyRate, order.Id);
                                                 //log
-                                                _logger.Error(errorStr);
+                                                _ = _logger.Error(errorStr);
                                                 //order note
                                                 await _orderService.InsertOrderNote(new OrderNote {
                                                     Note = errorStr,
@@ -326,7 +326,7 @@ namespace Payments.PayPalStandard.Controllers
                                                 //not valid
                                                 string errorStr = string.Format("PayPal IPN. Returned order total {0} doesn't equal order total {1}. Order# {2}.", mc_gross, order.OrderTotal * order.CurrencyRate, order.Id);
                                                 //log
-                                                _logger.Error(errorStr);
+                                                _ = _logger.Error(errorStr);
                                                 //order note
                                                 await _orderService.InsertOrderNote(new OrderNote {
                                                     Note = errorStr,
@@ -372,7 +372,7 @@ namespace Payments.PayPalStandard.Controllers
                             }
                             else
                             {
-                                _logger.Error("PayPal IPN. Order is not found", new GrandException(sb.ToString()));
+                                _ = _logger.Error("PayPal IPN. Order is not found", new GrandException(sb.ToString()));
                             }
                         }
                         #endregion
@@ -383,7 +383,7 @@ namespace Payments.PayPalStandard.Controllers
             }
             else
             {
-                _logger.Error("PayPal IPN failed.", new GrandException(strRequest));
+                _ = _logger.Error("PayPal IPN failed.", new GrandException(strRequest));
             }
 
             return BadRequest();

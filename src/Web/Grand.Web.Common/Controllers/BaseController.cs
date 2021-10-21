@@ -1,5 +1,4 @@
-﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
 using Grand.Infrastructure;
 using Grand.Web.Common.DataSource;
@@ -14,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -99,8 +99,8 @@ namespace Grand.Web.Common.Controllers
         {
             var workContext = HttpContext.RequestServices.GetRequiredService<IWorkContext>();
             var logger = HttpContext.RequestServices.GetRequiredService<ILogger>();
-            var customer = workContext.CurrentCustomer;
-            logger.Error(exception.Message, exception, customer);
+            _ = logger.InsertLog(Domain.Logging.LogLevel.Error, exception?.Message, exception?.ToString(), workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                HttpContext.Request?.GetDisplayUrl(), HttpContext.Request?.Headers[HeaderNames.Referer]);
         }
 
         /// <summary>
@@ -136,8 +136,7 @@ namespace Grand.Web.Common.Controllers
         /// <returns>Error's json data</returns>
         protected JsonResult ErrorForKendoGridJson(string errorMessage)
         {
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Errors = errorMessage
             };
 
@@ -150,8 +149,7 @@ namespace Grand.Web.Common.Controllers
         /// <returns>Error's json data</returns>
         protected JsonResult ErrorForKendoGridJson(ModelStateDictionary modelState)
         {
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Errors = modelState.SerializeErrors()
             };
             return Json(gridModel);

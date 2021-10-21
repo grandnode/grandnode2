@@ -447,7 +447,7 @@ namespace Grand.Web.Admin.Controllers
                             }
                             catch (Exception ex)
                             {
-                                _logger.Error(ex.Message);
+                                _ = _logger.Error(ex.Message);
                             };
                         }
                     }
