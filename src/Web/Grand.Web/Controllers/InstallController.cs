@@ -210,7 +210,9 @@ namespace Grand.Web.Controllers
                     await DataSettingsManager.SaveSettings(settings);
 
                     var installationService = _serviceProvider.GetRequiredService<IInstallationService>();
-                    await installationService.InstallData(model.AdminEmail, model.AdminPassword, model.Collation, 
+                    await installationService.InstallData(
+                        HttpContext.Request.Scheme, HttpContext.Request.Host,
+                        model.AdminEmail, model.AdminPassword, model.Collation, 
                         model.InstallSampleData, model.CompanyName, model.CompanyAddress, model.CompanyPhoneNumber, model.CompanyEmail);
 
                     //reset cache

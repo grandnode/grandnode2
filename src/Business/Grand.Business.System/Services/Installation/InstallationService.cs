@@ -35,6 +35,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.TypeSearchers;
 using Grand.SharedKernel;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
@@ -677,7 +678,7 @@ namespace Grand.Business.System.Services.Installation
         #region Methods
 
 
-        public virtual async Task InstallData(string defaultUserEmail,
+        public virtual async Task InstallData(string httpscheme, HostString host, string defaultUserEmail,
             string defaultUserPassword, string collation, bool installSampleData = true, string companyName = "", string companyAddress = "",
             string companyPhoneNumber = "", string companyEmail = "")
         {
@@ -686,7 +687,7 @@ namespace Grand.Business.System.Services.Installation
             await CreateTables(collation);
             await InstallVersion();
             await InstallMenuAdminSiteMap();
-            await InstallStores(companyName, companyAddress, companyPhoneNumber, companyEmail);
+            await InstallStores(httpscheme, host, companyName, companyAddress, companyPhoneNumber, companyEmail);
             await InstallMeasures();
             await InstallTaxCategories();
             await InstallLanguages();
