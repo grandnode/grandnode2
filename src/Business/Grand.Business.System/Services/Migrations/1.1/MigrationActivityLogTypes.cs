@@ -55,7 +55,15 @@ namespace Grand.Business.System.Services.Migrations._1._1
                         Name = "Delete a brand"
                     });
             }
-
+            if (repository.Table.FirstOrDefault(x => x.SystemKeyword == "EditShipment") == null)
+            {
+                repository.Insert(
+                    new ActivityLogType {
+                        SystemKeyword = "EditShipment",
+                        Enabled = true,
+                        Name = "Edit a shipment"
+                    });
+            }
             return true;
         }
     }
