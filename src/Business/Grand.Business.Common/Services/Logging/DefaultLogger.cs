@@ -3,9 +3,6 @@ using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Logging;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +36,7 @@ namespace Grand.Business.Common.Services.Logging
 
         #region Methods
 
-        
+
         /// <summary>
         /// Gets all log items
         /// </summary>
@@ -69,7 +66,7 @@ namespace Grand.Business.Common.Services.Logging
                 query = query.Where(l => l.ShortMessage.ToLower().Contains(message.ToLower()) || l.FullMessage.ToLower().Contains(message.ToLower()));
 
             query = query.OrderByDescending(x => x.CreatedOnUtc);
-            
+
             var logs = await PagedList<Log>.Create(query, pageIndex, pageSize);
 
             return logs;
@@ -124,8 +121,7 @@ namespace Grand.Business.Common.Services.Logging
         public virtual Task InsertLog(LogLevel logLevel, string shortMessage, string fullMessage = "", Customer customer = null,
             string ipAddress = default, string pageurl = default, string referrerUrl = default)
         {
-            var log = new Log
-            {
+            var log = new Log {
                 LogLevelId = logLevel,
                 ShortMessage = shortMessage,
                 FullMessage = fullMessage,
