@@ -1,5 +1,5 @@
 ﻿@model AddressModel
-@{ 
+@{
     var prefix = ViewData.TemplateInfo.HtmlFieldPrefix;
 }
 @if (Model.CountryEnabled && Model.StateProvinceEnabled)
@@ -303,7 +303,11 @@
                         FaxNumber: '@Html.Raw(Model.FaxNumber)',
                         VatNumber: '@Html.Raw(Model.VatNumber)',
                         Email: '@Html.Raw(Model.Email)',
-                        prefix: '@prefix'
+                        prefix: '@prefix',
+                        @foreach (var item in Model.CustomAddressAttributes)
+                        {
+                            <text>address_attribute_</text> @item.Id <text>: '',</text>
+                        }
                     </text>
                 }
             })
