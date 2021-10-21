@@ -14,33 +14,43 @@
                 case AttributeControlType.DropdownList:
                     {
                         <label for="@(controlId)" class="col-form-label">@textPrompt:</label>
-                        <select class="custom-select form-control" name="@(controlId)" id="@(controlId)" @readonlyAttr>
-                            @if (!attribute.IsRequired)
-                            {
-                                <option value="">---</option>
-                            }
-                            @foreach (var attributeValue in attribute.Values)
-                            {
-                                <option selected="@attributeValue.IsPreSelected" value="@attributeValue.Id">@attributeValue.Name</option>
-                            }
-                        </select>
+                        <validation-provider @if (attribute.IsRequired) { <text> rules="required" </text> } name="@(controlId)" v-slot="{ errors, classes }">
+                            <select v-model="customer.@(controlId)" @readonlyAttr data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" v-bind:class="[classes , 'custom-select form-control']" name="@(controlId)" id="@(controlId)">
+                                @if (!attribute.IsRequired)
+                                {
+                                    <option value="">---</option>
+                                }
+                                @foreach (var attributeValue in attribute.Values)
+                                {
+                                    <option selected="@attributeValue.IsPreSelected" value="@attributeValue.Id">@attributeValue.Name</option>
+                                }
+                            </select>
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                        </validation-provider>
                     }
                     break;
                 case AttributeControlType.RadioList:
                     {
 
                         <span class="col-form-label">@textPrompt:</span>
+                        @if (attribute.IsRequired)
+                        {
+                            <span class="required">*</span>
+                        }
                         <ul class="option-list pl-0">
                             @foreach (var attributeValue in attribute.Values)
                             {
                                 <li>
                                     <fieldset>
                                         <legend class="sr-only">@(controlId)</legend>
-                                        <label class="custom-control custom-radio">
-                                            <input class="custom-control-input" id="@(controlId)_@(attributeValue.Id)" type="radio" name="@(controlId)" value="@attributeValue.Id" checked="@(attributeValue.IsPreSelected)" @readonlyAttr />
-                                            <span class="custom-control-label"></span>
-                                            <span class="custom-control-description">@attributeValue.Name</span>
-                                        </label>
+                                        <validation-provider vid="@(controlId)" @if (attribute.IsRequired) { <text> rules="required" </text> } v-slot="{ errors, classes }">
+                                            <label for="@(controlId)_@(attributeValue.Id)" class="custom-control custom-radio">
+                                                <input v-bind:class="[classes , 'custom-control-input']" @readonlyAttr data-val="true" data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" v-model="customer.@(controlId)" id="@(controlId)_@(attributeValue.Id)" type="radio" name="@(controlId)" value="@(attributeValue.Id)" checked="@attributeValue.IsPreSelected" />
+                                                <span class="custom-control-label"></span>
+                                                <span class="custom-control-description">@attributeValue.Name</span>
+                                                <span class="field-validation-error d-flex w-100">{{ errors[0] }}</span>
+                                            </label>
+                                        </validation-provider>
                                     </fieldset>
 
                                 </li>
@@ -51,18 +61,21 @@
                 case AttributeControlType.Checkboxes:
                     {
                         <span class="col-form-label">@textPrompt:</span>
+                        @if (attribute.IsRequired)
+                        {
+                            <span class="required">*</span>
+                        }
                         <ul class="option-list pl-0">
                             @foreach (var attributeValue in attribute.Values)
                             {
-                                <li>
-
-                                    <label for="@(controlId)_@(attributeValue.Id)" class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" id="@(controlId)_@(attributeValue.Id)" type="checkbox" name="@(controlId)" value="@(attributeValue.Id)" checked="@(attributeValue.IsPreSelected)" @readonlyAttr />
+                                <validation-provider tag="li" vid="@(controlId)" @if (attribute.IsRequired) { <text> :rules="{ required: { allowFalse: false } }" </text> } v-slot="{ errors, classes }">
+                                    <label class="custom-control custom-checkbox">
+                                        <input v-bind:class="[classes , 'custom-control-input']" data-val="true" @readonlyAttr data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" v-model="customer.@(controlId)" id="@(controlId)_@(attributeValue.Id)" type="checkbox" name="@(controlId)" value="@(attributeValue.Id)" checked="@attributeValue.IsPreSelected" @(attribute.AttributeControlType == AttributeControlType.ReadonlyCheckboxes ? Html.Raw(" disabled=\"disabled\"") : null) />
                                         <span class="custom-control-label"></span>
                                         <span class="custom-control-description">@attributeValue.Name</span>
+                                        <span class="field-validation-error d-flex w-100">{{ errors[0] }}</span>
                                     </label>
-
-                                </li>
+                                </validation-provider>
                             }
                         </ul>
                     }
@@ -74,8 +87,11 @@
                         {
                             <span class="required">*</span>
                         }
-                        <input name="@(controlId)" type="text" class="form-control textbox" id="@(controlId)" value="@(attribute.DefaultValue)"
-                               data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" @readonlyAttr />
+                        <validation-provider @if (attribute.IsRequired) { <text> rules="required" </text> } name="@(controlId)" v-slot="{ errors, classes }">
+                            <input name="@(controlId)" type="text"
+                                   id="@(controlId)" v-model="customer.@(controlId)" @readonlyAttr data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" v-bind:class="[classes , 'form-control textbox']" />
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                        </validation-provider>
                     }
                     break;
                 case AttributeControlType.MultilineTextbox:
@@ -85,8 +101,11 @@
                         {
                             <span class="required">*</span>
                         }
-                        <textarea class="form-control" id="@(controlId)" name="@(controlId)" @readonlyAttr
-                                  data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))">@(attribute.DefaultValue)</textarea>
+                        <validation-provider @if (attribute.IsRequired) { <text> rules="required" </text> } name="@(controlId)" v-slot="{ errors, classes }">
+                            <textarea name="@(controlId)"
+                                      id="@(controlId)" v-model="customer.@(controlId)" @readonlyAttr data-val-required="@(string.Format(Loc["Fields.IsRequired"], textPrompt))" v-bind:class="[classes , 'form-control']"></textarea>
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                        </validation-provider>
                     }
                     break;
                 case AttributeControlType.Hidden:

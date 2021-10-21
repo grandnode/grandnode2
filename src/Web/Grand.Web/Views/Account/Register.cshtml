@@ -23,7 +23,7 @@
                             elChild.innerHTML = id.name;
                             ddlStates.appendChild(elChild);
                         });
-                        register.StateProvinceId = response.data[0].id;
+                        customer.StateProvinceId = response.data[0].id;
                     }).then(function () {
                         ddlStates.classList.remove('is-valid');
                         ddlStates.classList.add('is-invalid');
@@ -104,7 +104,7 @@
                                 <validation-provider tag="div" rules="required" name="FirstName" v-slot="{ errors, classes }">
                                     <label asp-for="FirstName" class="col-form-label">@Loc["Account.Fields.FirstName"]:</label>
                                     <span class="required">*</span>
-                                    <input asp-for="FirstName" v-model="register.FirstName" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                    <input asp-for="FirstName" v-model="customer.FirstName" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="FirstName"></span>
                                 </validation-provider>
@@ -122,7 +122,7 @@
                                 <validation-provider tag="div" rules="required" name="LastName" v-slot="{ errors, classes }">
                                     <label asp-for="LastName" class="col-form-label">@Loc["Account.Fields.LastName"]:</label>
                                     <span class="required">*</span>
-                                    <input asp-for="LastName" v-model="register.LastName" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                    <input asp-for="LastName" v-model="customer.LastName" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="LastName"></span>
                                 </validation-provider>
@@ -163,7 +163,7 @@
                         <validation-provider tag="div" rules="required" name="Email" v-slot="{ errors, classes }">
                             <label asp-for="Email" class="col-form-label">@Loc["Account.Fields.Email"]:</label>
                             <span class="required">*</span>
-                            <input asp-for="Email" v-model="register.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                            <input asp-for="Email" v-model="customer.Email" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Email"></span>
                         </validation-provider>
@@ -178,7 +178,7 @@
                             </div>
                             <div class="col-12">
                                 <validation-provider tag="div" rules="required" name="Username" v-slot="{ errors, classes }">
-                                    <input asp-for="Username" v-model="register.Username" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                    <input asp-for="Username" v-model="customer.Username" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="Username"></span>
                                 </validation-provider>
@@ -205,7 +205,7 @@
                                 <validation-provider tag="div" rules="required" name="Company" v-slot="{ errors, classes }">
                                     <label asp-for="Company" class="col-form-label">@Loc["Account.Fields.Company"]:</label>
                                     <span class="required">*</span>
-                                    <input asp-for="Company" v-model="register.Company" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                    <input asp-for="Company" v-model="customer.Company" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                     <span class="field-validation-error">{{ errors[0] }}</span>
                                     <span asp-validation-for="Company"></span>
                                 </validation-provider>
@@ -256,7 +256,7 @@
                                         <validation-provider tag="div" rules="required" name="StreetAddress" v-slot="{ errors, classes }">
                                             <label asp-for="StreetAddress" class="col-form-label">@Loc["Account.Fields.StreetAddress"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="StreetAddress" v-model="register.StreetAddress" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                            <input asp-for="StreetAddress" v-model="customer.StreetAddress" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="StreetAddress"></span>
                                         </validation-provider>
@@ -278,7 +278,7 @@
                                         <validation-provider tag="div" rules="required" name="StreetAddress2" v-slot="{ errors, classes }">
                                             <label asp-for="StreetAddress2" class="col-form-label">@Loc["Account.Fields.StreetAddress2"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="StreetAddress2" v-model="register.StreetAddress2" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                            <input asp-for="StreetAddress2" v-model="customer.StreetAddress2" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="StreetAddress2"></span>
                                         </validation-provider>
@@ -300,7 +300,7 @@
                                         <validation-provider tag="div" rules="required" name="ZipPostalCode" v-slot="{ errors, classes }">
                                             <label asp-for="ZipPostalCode" class="col-form-label">@Loc["Account.Fields.ZipPostalCode"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="ZipPostalCode" v-model="register.ZipPostalCode" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                            <input asp-for="ZipPostalCode" v-model="customer.ZipPostalCode" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="ZipPostalCode"></span>
                                         </validation-provider>
@@ -322,7 +322,7 @@
                                         <validation-provider tag="div" rules="required" name="City" v-slot="{ errors, classes }">
                                             <label asp-for="City" class="col-form-label">@Loc["Account.Fields.City"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="City" v-model="register.City" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                            <input asp-for="City" v-model="customer.City" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="City"></span>
                                         </validation-provider>
@@ -345,7 +345,7 @@
                                             <label asp-for="CountryId" class="col-form-label">@Loc["Account.Fields.Country"]:</label>
                                             <span class="required">*</span>
                                             <select asp-for="CountryId" asp-items="Model.AvailableCountries"
-                                                    onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" v-bind:class="[classes , 'form-control custom-select']" v-model="register.CountryId"></select>
+                                                    onchange="@Html.IdFor(model => model.CountryId)_select_element(this)" v-bind:class="[classes , 'form-control custom-select']" v-model="customer.CountryId"></select>
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="CountryId"></span>
                                         </validation-provider>
@@ -366,7 +366,7 @@
                                         <label asp-for="StateProvinceId" class="col-form-label">@Loc["Account.Fields.StateProvince"]:</label>
                                         <span class="required">*</span>
                                         <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" v-bind:class="[classes , 'form-control custom-select']"
-                                                onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-model="register.StateProvinceId"></select>
+                                                onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-model="customer.StateProvinceId"></select>
                                         <span class="field-validation-error">{{ errors[0] }}</span>
                                         <span asp-validation-for="StateProvinceId"></span>
                                         <span id="states-loading-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
@@ -395,7 +395,7 @@
                                         <validation-provider tag="div" rules="required" name="Phone" v-slot="{ errors, classes }">
                                             <label asp-for="Phone" class="col-form-label">@Loc["Account.Fields.Phone"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="Phone" v-model="register.Phone" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                            <input asp-for="Phone" v-model="customer.Phone" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="Phone"></span>
                                         </validation-provider>
@@ -417,7 +417,7 @@
                                         <validation-provider tag="div" rules="required" name="Fax" v-slot="{ errors, classes }">
                                             <label asp-for="Fax" class="col-form-label">@Loc["Account.Fields.Fax"]:</label>
                                             <span class="required">*</span>
-                                            <input asp-for="Fax" v-model="register.Fax" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                                            <input asp-for="Fax" v-model="customer.Fax" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                                             <span class="field-validation-error">{{ errors[0] }}</span>
                                             <span asp-validation-for="Fax"></span>
                                         </validation-provider>
@@ -467,17 +467,17 @@
                 </div>
                 <div class="card-body">
                     <div class="form-group">
-                        <validation-provider tag="div" vid="register.Password" rules="required" v-slot="{ errors, classes }">
+                        <validation-provider tag="div" vid="customer.Password" rules="required" v-slot="{ errors, classes }">
                             <label asp-for="Password" class="col-form-label">@Loc["Account.Fields.Password"]:</label>
-                            <input asp-for="Password" v-model="register.Password" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                            <input asp-for="Password" v-model="customer.Password" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Password"></span>
                         </validation-provider>
                     </div>
                     <div class="form-group">
-                        <validation-provider tag="div" vid="register.ConfirmPassword" rules="required|confirmed:@@register.Password" v-slot="{ errors, classes }">
+                        <validation-provider tag="div" vid="customer.ConfirmPassword" rules="required|confirmed:@@customer.Password" v-slot="{ errors, classes }">
                             <label asp-for="ConfirmPassword" class="col-form-label">@Loc["Account.Fields.ConfirmPassword"]:</label>
-                            <input asp-for="ConfirmPassword" v-model="register.ConfirmPassword" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                            <input asp-for="ConfirmPassword" v-model="customer.ConfirmPassword" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="ConfirmPassword"></span>
                         </validation-provider>
@@ -494,10 +494,10 @@
             @if (Model.AcceptPrivacyPolicyEnabled)
             {
 
-                <validation-provider tag="div" vid="register.AcceptPrivacyPolicy" :rules="{ required: { allowFalse: false } }" v-slot="{ errors, classes }">
+                <validation-provider tag="div" vid="customer.AcceptPrivacyPolicy" :rules="{ required: { allowFalse: false } }" v-slot="{ errors, classes }">
                     <div class="d-inline-flex">
                         <label class="custom-control custom-checkbox">
-                            <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="register.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" v-bind:class="[classes , 'custom-control-input']">
+                            <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="customer.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" v-bind:class="[classes , 'custom-control-input']">
                             <span class="custom-control-label"></span>
                             <span class="custom-control-description">@Loc["Account.Fields.AcceptPrivacyPolicy"]</span>
                         </label>
@@ -507,11 +507,11 @@
                 </validation-provider>
             }
         </div>
-        <input type="submit" id="register-button" class="btn btn-secondary register-next-step-button my-3" value="@Loc["Account.Register.Button"]" />
+        <input type="submit" id="register-button" class="btn btn-secondary register-next-step-button my-3" value="@Loc["Account.customer.Button"]" />
     </form>
 </validation-observer>
 <script asp-location="Footer" asp-order="300">
-    var register = new Vue({
+    var customer = new Vue({
             data: () => ({
                 @{
                     <text>
@@ -530,7 +530,11 @@
                         Email: '@Html.Raw(Model.Email)',
                         Password: '',
                         ConfirmPassword: '',
-                        AcceptPrivacyPolicy: false
+                        AcceptPrivacyPolicy: false,
+                        @foreach (var item in Model.CustomerAttributes)
+                        {
+                            <text>customer_attribute_</text> @item.Id <text>: '',</text>
+                        }
                     </text>
                 }
             })
