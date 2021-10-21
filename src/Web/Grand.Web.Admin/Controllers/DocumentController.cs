@@ -167,7 +167,7 @@ namespace Grand.Web.Admin.Controllers
                 await _documentTypeService.Insert(documenttype);
 
                 //activity log
-                await _customerActivityService.InsertActivity("AddNewDocumentType", documenttype.Id,
+                _ = _customerActivityService.InsertActivity("AddNewDocumentType", documenttype.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.AddNewDocumentType"), documenttype.Name);
 
@@ -203,7 +203,7 @@ namespace Grand.Web.Admin.Controllers
                 await _documentTypeService.Update(documentType);
 
                 //activity log
-                await _customerActivityService.InsertActivity("EditDocumentType", documentType.Id,
+                _ = _customerActivityService.InsertActivity("EditDocumentType", documentType.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.EditDocumentType"), documentType.Name);
 
@@ -227,7 +227,7 @@ namespace Grand.Web.Admin.Controllers
                 await _documentTypeService.Delete(documentType);
 
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteDocumentType", documentType.Id,
+                _ = _customerActivityService.InsertActivity("DeleteDocumentType", documentType.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.DeleteDocumentType"), documentType.Name);
 

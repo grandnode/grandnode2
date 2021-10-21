@@ -152,7 +152,7 @@ namespace Grand.Web.Admin.Services
             await _contactAttributeService.InsertContactAttribute(contactAttribute);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewContactAttribute", contactAttribute.Id,
+            _ = _customerActivityService.InsertActivity("AddNewContactAttribute", contactAttribute.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewContactAttribute"), contactAttribute.Name);
             return contactAttribute;
@@ -164,7 +164,7 @@ namespace Grand.Web.Admin.Services
             await _contactAttributeService.UpdateContactAttribute(contactAttribute);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditContactAttribute", contactAttribute.Id,
+            _ = _customerActivityService.InsertActivity("EditContactAttribute", contactAttribute.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditContactAttribute"), contactAttribute.Name);
             return contactAttribute;

@@ -112,7 +112,7 @@ namespace Grand.Web.Admin.Controllers
                 form.CreatedOnUtc = DateTime.UtcNow;
 
                 await _interactiveFormService.InsertForm(form);
-                await _customerActivityService.InsertActivity("InteractiveFormAdd", form.Id,
+                _ = _customerActivityService.InsertActivity("InteractiveFormAdd", form.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.InteractiveFormAdd"), form.Name);
 
@@ -164,7 +164,7 @@ namespace Grand.Web.Admin.Controllers
                 form = model.ToEntity(form);
                 await _interactiveFormService.UpdateForm(form);
 
-                await _customerActivityService.InsertActivity("InteractiveFormEdit", form.Id,
+                _ = _customerActivityService.InsertActivity("InteractiveFormEdit", form.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.InteractiveFormUpdate"), form.Name);
 
@@ -196,7 +196,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("List");
 
             await _interactiveFormService.DeleteForm(form);
-            await _customerActivityService.InsertActivity("InteractiveFormDelete", form.Id,
+            _ = _customerActivityService.InsertActivity("InteractiveFormDelete", form.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.InteractiveFormDeleted"), form.Name);
 
@@ -239,7 +239,7 @@ namespace Grand.Web.Admin.Controllers
 
             form.FormAttributes.Remove(form.FormAttributes.FirstOrDefault(x => x.Id == id));
             await _interactiveFormService.UpdateForm(form);
-            await _customerActivityService.InsertActivity("InteractiveFormEdit", form.Id,
+            _ = _customerActivityService.InsertActivity("InteractiveFormEdit", form.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.InteractiveFormDeleteAttribute"), form.Name);
 
@@ -275,7 +275,7 @@ namespace Grand.Web.Admin.Controllers
                 form.FormAttributes.Add(attribute);
                 await _interactiveFormService.UpdateForm(form);
 
-                await _customerActivityService.InsertActivity("InteractiveFormEdit", attribute.Id,
+                _ = _customerActivityService.InsertActivity("InteractiveFormEdit", attribute.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.InteractiveFormAddAttribute"), attribute.Name);
 
@@ -325,7 +325,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     attribute = model.ToEntity(attribute);
                     await _interactiveFormService.UpdateForm(form);
-                    await _customerActivityService.InsertActivity("InteractiveFormEdit", attribute.Id,
+                    _ = _customerActivityService.InsertActivity("InteractiveFormEdit", attribute.Id,
                         _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                         _translationService.GetResource("ActivityLog.InteractiveFormUpdateAttribute"), attribute.Name);
                     Success(_translationService.GetResource("admin.marketing.InteractiveForms.Attribute.Updated"));
@@ -406,7 +406,7 @@ namespace Grand.Web.Admin.Controllers
                 var vaf = model.ToEntity();
                 attribute.FormAttributeValues.Add(vaf);
                 await _interactiveFormService.UpdateForm(fo);
-                await _customerActivityService.InsertActivity("InteractiveFormEdit", vaf.Id,
+                _ = _customerActivityService.InsertActivity("InteractiveFormEdit", vaf.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.InteractiveFormAddAttributeValue"), vaf.Name);
 
@@ -463,7 +463,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 vaf = model.ToEntity();
                 await _interactiveFormService.UpdateForm(fo);
-                await _customerActivityService.InsertActivity("InteractiveFormEdit", vaf.Id,
+                _ = _customerActivityService.InsertActivity("InteractiveFormEdit", vaf.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.InteractiveFormUpdateAttributeValue"), vaf.Name);
                 return Content("");
@@ -489,7 +489,7 @@ namespace Grand.Web.Admin.Controllers
 
             attribute.FormAttributeValues.Remove(vaf);
             await _interactiveFormService.UpdateForm(form);
-            await _customerActivityService.InsertActivity("InteractiveFormEdit", vaf.Id,
+            _ = _customerActivityService.InsertActivity("InteractiveFormEdit", vaf.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.InteractiveFormDeleteAttributeValue"), vaf.Name);
             return new JsonResult("");

@@ -164,7 +164,7 @@ namespace Grand.Web.Admin.Controllers
                 await _contactAttributeService.DeleteContactAttribute(contactAttribute);
 
                 //activity log
-                await customerActivityService.InsertActivity("DeleteContactAttribute", contactAttribute.Id,
+                _ = customerActivityService.InsertActivity("DeleteContactAttribute", contactAttribute.Id,
                     workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.DeleteContactAttribute"), contactAttribute.Name);
 

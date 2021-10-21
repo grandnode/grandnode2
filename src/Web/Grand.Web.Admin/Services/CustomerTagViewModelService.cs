@@ -75,7 +75,7 @@ namespace Grand.Web.Admin.Services
             await _customerTagService.InsertCustomerTag(customertag);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCustomerTag", customertag.Id,
+            _ = _customerActivityService.InsertActivity("AddNewCustomerTag", customertag.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewCustomerTag"), customertag.Name);
             return customertag;
@@ -88,7 +88,7 @@ namespace Grand.Web.Admin.Services
             await _customerTagService.UpdateCustomerTag(customerTag);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCustomerTage", customerTag.Id,
+            _ = _customerActivityService.InsertActivity("EditCustomerTage", customerTag.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditCustomerTag"), customerTag.Name);
             return customerTag;
@@ -96,7 +96,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task DeleteCustomerTag(CustomerTag customerTag)
         {
             //activity log
-            await _customerActivityService.InsertActivity("DeleteCustomerTag", customerTag.Id,
+            _ = _customerActivityService.InsertActivity("DeleteCustomerTag", customerTag.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteCustomerTag"), customerTag.Name);
             await _customerTagService.DeleteCustomerTag(customerTag);

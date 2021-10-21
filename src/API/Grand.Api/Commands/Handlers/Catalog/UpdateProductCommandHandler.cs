@@ -81,7 +81,7 @@ namespace Grand.Api.Commands.Models.Catalog
             }
 
             //activity log
-            await _customerActivityService.InsertActivity("EditProduct", product.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditProduct"), product.Name);
+            _ = _customerActivityService.InsertActivity("EditProduct", product.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditProduct"), product.Name);
 
             //raise event 
             if (!prevPublished && product.Published)

@@ -138,7 +138,7 @@ namespace Grand.Web.Admin.Services
             await _giftVoucherService.InsertGiftVoucher(giftVoucher);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewGiftVoucher", giftVoucher.Id,
+            _ = _customerActivityService.InsertActivity("AddNewGiftVoucher", giftVoucher.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewGiftVoucher"), giftVoucher.Code);
             return giftVoucher;
@@ -192,7 +192,7 @@ namespace Grand.Web.Admin.Services
             giftVoucher = model.ToEntity(giftVoucher, _dateTimeService);
             await _giftVoucherService.UpdateGiftVoucher(giftVoucher);
             //activity log
-            await _customerActivityService.InsertActivity("EditGiftVoucher", giftVoucher.Id,
+            _ = _customerActivityService.InsertActivity("EditGiftVoucher", giftVoucher.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditGiftVoucher"), giftVoucher.Code);
 
@@ -202,7 +202,7 @@ namespace Grand.Web.Admin.Services
         {
             await _giftVoucherService.DeleteGiftVoucher(giftVoucher);
             //activity log
-            await _customerActivityService.InsertActivity("DeleteGiftVoucher", giftVoucher.Id,
+            _ = _customerActivityService.InsertActivity("DeleteGiftVoucher", giftVoucher.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteGiftVoucher"), giftVoucher.Code);
         }

@@ -35,7 +35,7 @@ namespace Grand.Api.Commands.Models.Catalog
                 await _collectionService.DeleteCollection(collection);
 
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteCollection", collection.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCollection"), collection.Name);
+                _ = _customerActivityService.InsertActivity("DeleteCollection", collection.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCollection"), collection.Name);
             }
             return true;
         }

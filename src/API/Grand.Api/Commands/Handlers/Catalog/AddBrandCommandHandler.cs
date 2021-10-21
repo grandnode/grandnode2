@@ -54,7 +54,7 @@ namespace Grand.Api.Commands.Models.Catalog
             await _slugService.SaveSlug(brand, request.Model.SeName, "");
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewBrand", brand.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.AddNewBrand"), brand.Name);
+            _ = _customerActivityService.InsertActivity("AddNewBrand", brand.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.AddNewBrand"), brand.Name);
 
             return brand.ToModel();
         }

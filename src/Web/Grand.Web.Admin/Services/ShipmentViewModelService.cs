@@ -293,10 +293,11 @@ namespace Grand.Web.Admin.Services
             }
         }
 
-        public virtual async Task LogShipment(string shipmentId, string message)
+        public virtual Task LogShipment(string shipmentId, string message)
         {
-            await _customerActivityService.InsertActivity("EditShipment", shipmentId, 
+            _ = _customerActivityService.InsertActivity("EditShipment", shipmentId, 
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(), message);
+            return Task.CompletedTask;
         }
         public virtual async Task<(IEnumerable<Shipment> shipments, int totalCount)> PrepareShipments(ShipmentListModel model, int pageIndex, int pageSize)
         {

@@ -210,7 +210,7 @@ namespace Grand.Web.Admin.Services
             await _pictureService.UpdatePictureSeoNames(category.PictureId, category.Name);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCategory", category.Id,
+            _ = _customerActivityService.InsertActivity("AddNewCategory", category.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewCategory"), category.Name);
 
@@ -259,7 +259,7 @@ namespace Grand.Web.Admin.Services
             await _pictureService.UpdatePictureSeoNames(category.PictureId, category.Name);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCategory", category.Id,
+            _ = _customerActivityService.InsertActivity("EditCategory", category.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditCategory"), category.Name);
             return category;
@@ -268,7 +268,7 @@ namespace Grand.Web.Admin.Services
         {
             await _categoryService.DeleteCategory(category);
             //activity log
-            await _customerActivityService.InsertActivity("DeleteCategory", category.Id,
+            _ = _customerActivityService.InsertActivity("DeleteCategory", category.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteCategory"), category.Name);
         }

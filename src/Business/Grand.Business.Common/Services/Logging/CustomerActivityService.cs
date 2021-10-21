@@ -56,13 +56,20 @@ namespace Grand.Business.Common.Services.Logging
         protected virtual async Task<IList<ActivityLogType>> GetAllActivityTypesCached()
         {
             //cache
-            string key = string.Format(CacheKey.ACTIVITYTYPE_ALL_KEY);
-            return await _cacheBase.GetAsync(key, async () =>
+            return await _cacheBase.GetAsync(CacheKey.ACTIVITYTYPE_ALL_KEY, async () =>
             {
                 return await GetAllActivityTypes();
             });
         }
 
+        /// <summary>
+        /// Gets all activity log types (caching)
+        /// </summary>
+        /// <returns>Activity log types</returns>
+        protected virtual IList<ActivityLogType> GetAllActivityTypesCachedSync()
+        {
+            return _cacheBase.Get(CacheKey.ACTIVITYTYPE_ALL_KEY, () => ActivityLogTypes().ToList());
+        }
 
         #region Methods
 
@@ -105,16 +112,22 @@ namespace Grand.Business.Common.Services.Logging
             await _cacheBase.RemoveByPrefix(CacheKey.ACTIVITYTYPE_PATTERN_KEY);
         }
 
+        private IQueryable<ActivityLogType> ActivityLogTypes()
+        {
+            var query = from alt in _activityLogTypeRepository.Table
+                        orderby alt.Name
+                        select alt;
+
+            return query;
+        }
+
         /// <summary>
         /// Gets all activity log type items
         /// </summary>
         /// <returns>Activity log type items</returns>
         public virtual async Task<IList<ActivityLogType>> GetAllActivityTypes()
-        {
-            var query = from alt in _activityLogTypeRepository.Table
-                        orderby alt.Name
-                        select alt;
-            return await Task.FromResult(query.ToList());
+        {            
+            return await Task.FromResult(ActivityLogTypes().ToList());
         }
 
         /// <summary>
@@ -141,14 +154,14 @@ namespace Grand.Business.Common.Services.Logging
         /// <param name="comment">The activity comment</param>
         /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
         /// <returns>Activity log item</returns>
-        public virtual async Task<ActivityLog> InsertActivity(string systemKeyword, string entityKeyId,
+        public virtual Task InsertActivity(string systemKeyword, string entityKeyId,
             Customer customer, string ipAddress, string comment, params object[] commentParams)
         {
             if (customer == null)
                 return null;
 
-            var activityTypes = await GetAllActivityTypesCached();
-            var activityType = activityTypes.ToList().Find(at => at.SystemKeyword == systemKeyword);
+            var activityTypes = GetAllActivityTypesCachedSync();
+            var activityType = activityTypes.FirstOrDefault(at => at.SystemKeyword == systemKeyword);
             if (activityType == null || !activityType.Enabled)
                 return null;
 
@@ -156,16 +169,17 @@ namespace Grand.Business.Common.Services.Logging
             comment = string.Format(comment, commentParams);
             comment = CommonHelper.EnsureMaximumLength(comment, 4000);
 
-            var activity = new ActivityLog();
-            activity.ActivityLogTypeId = activityType.Id;
-            activity.CustomerId = customer.Id;
-            activity.EntityKeyId = entityKeyId;
-            activity.Comment = comment;
-            activity.CreatedOnUtc = DateTime.UtcNow;
-            activity.IpAddress = ipAddress;
-            await _activityLogRepository.InsertAsync(activity);
+            var activity = new ActivityLog {
+                ActivityLogTypeId = activityType.Id,
+                CustomerId = customer.Id,
+                EntityKeyId = entityKeyId,
+                Comment = comment,
+                CreatedOnUtc = DateTime.UtcNow,
+                IpAddress = ipAddress
+            };
+            _activityLogRepository.InsertAsync(activity);
 
-            return activity;
+            return Task.CompletedTask;
         }
 
         /// <summary>

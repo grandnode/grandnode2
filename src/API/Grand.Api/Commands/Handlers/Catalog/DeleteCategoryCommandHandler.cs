@@ -35,7 +35,7 @@ namespace Grand.Api.Commands.Models.Catalog
                 await _categoryService.DeleteCategory(category);
 
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteCategory", category.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCategory"), category.Name);
+                _ = _customerActivityService.InsertActivity("DeleteCategory", category.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCategory"), category.Name);
             }
             return true;
         }

@@ -57,7 +57,7 @@ namespace Grand.Api.Commands.Models.Catalog
             await _productService.UpdateProduct(product);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewProduct", product.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.AddNewProduct"), product.Name);
+            _ = _customerActivityService.InsertActivity("AddNewProduct", product.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.AddNewProduct"), product.Name);
 
             return product.ToModel();
         }

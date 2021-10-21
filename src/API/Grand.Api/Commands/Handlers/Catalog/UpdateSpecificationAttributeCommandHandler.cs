@@ -45,7 +45,7 @@ namespace Grand.Api.Commands.Handlers.Catalog
             await _specificationAttributeService.UpdateSpecificationAttribute(specificationAttribute);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditSpecAttribute",
+            _ = _customerActivityService.InsertActivity("EditSpecAttribute",
                 specificationAttribute.Id, _workContext.CurrentCustomer, "",
                 _translationService.GetResource("ActivityLog.EditSpecAttribute"), specificationAttribute.Name);
 

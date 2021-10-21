@@ -134,7 +134,7 @@ namespace Grand.Business.Marketing.Services.Customers
 
             await _queuedEmailService.InsertQueuedEmail(email);
             //activity log
-            await _customerActivityService.InsertActivity(string.Format("CustomerReminder.{0}", customerReminder.ReminderRuleId.ToString()), customer.Id, customer, "", _translationService.GetResource(string.Format("ActivityLog.{0}", customerReminder.ReminderRuleId.ToString())), customerReminder.Name);
+            _ = _customerActivityService.InsertActivity(string.Format("CustomerReminder.{0}", customerReminder.ReminderRuleId.ToString()), customer.Id, customer, "", _translationService.GetResource(string.Format("ActivityLog.{0}", customerReminder.ReminderRuleId.ToString())), customerReminder.Name);
 
             return true;
         }
@@ -207,7 +207,7 @@ namespace Grand.Business.Marketing.Services.Customers
 
             await _queuedEmailService.InsertQueuedEmail(email);
             //activity log
-            await _customerActivityService.InsertActivity(string.Format("CustomerReminder.{0}", customerReminder.ReminderRuleId.ToString()), customer.Id, customer, "", string.Format("ActivityLog.{0}", customerReminder.ReminderRuleId.ToString()), customerReminder.Name);
+            _ = _customerActivityService.InsertActivity(string.Format("CustomerReminder.{0}", customerReminder.ReminderRuleId.ToString()), customer.Id, customer, "", string.Format("ActivityLog.{0}", customerReminder.ReminderRuleId.ToString()), customerReminder.Name);
 
             return true;
         }

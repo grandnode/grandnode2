@@ -36,7 +36,7 @@ namespace Grand.Api.Commands.Handlers.Catalog
             await _specificationAttributeService.InsertSpecificationAttribute(specificationAttribute);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewSpecAttribute", specificationAttribute.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.AddNewSpecAttribute"), specificationAttribute.Name);
+            _ = _customerActivityService.InsertActivity("AddNewSpecAttribute", specificationAttribute.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.AddNewSpecAttribute"), specificationAttribute.Name);
 
             return specificationAttribute.ToModel();
         }

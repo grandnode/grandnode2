@@ -311,7 +311,7 @@ namespace Grand.Web.Controllers
                     await _messageProviderService.SendArticleCommentMessage(article, comment, _languageSettings.DefaultAdminLanguageId);
 
                 //activity log
-                await _customerActivityService.InsertActivity("PublicStore.AddArticleComment", comment.Id,
+                _ = _customerActivityService.InsertActivity("PublicStore.AddArticleComment", comment.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.PublicStore.AddArticleComment"));
 

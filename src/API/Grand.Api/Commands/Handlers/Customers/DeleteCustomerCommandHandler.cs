@@ -35,7 +35,7 @@ namespace Grand.Api.Commands.Handlers.Customers
             {
                 await _customerService.DeleteCustomer(customer);
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
+                _ = _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
             }
 
             return true;

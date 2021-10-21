@@ -35,7 +35,7 @@ namespace Grand.Api.Commands.Models.Customers
                 await _groupService.DeleteCustomerGroup(customerGroup);
 
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteCustomerGroup", customerGroup.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCustomerGroup"), customerGroup.Name);
+                _ = _customerActivityService.InsertActivity("DeleteCustomerGroup", customerGroup.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCustomerGroup"), customerGroup.Name);
             }
             return true;
         }

@@ -74,7 +74,7 @@ namespace Grand.Api.Commands.Models.Catalog
                     await _pictureService.SetSeoFilename(picture, _pictureService.GetPictureSeName(brand.Name));
             }
             //activity log
-            await _customerActivityService.InsertActivity("EditBrand", brand.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditBrand"), brand.Name);
+            _ = _customerActivityService.InsertActivity("EditBrand", brand.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditBrand"), brand.Name);
 
             return brand.ToModel();
         }

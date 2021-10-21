@@ -201,7 +201,7 @@ namespace Grand.Web.Admin.Services
             knowledgebaseCategory.SeName = model.SeName;
             await _knowledgebaseService.InsertKnowledgebaseCategory(knowledgebaseCategory);
             await _slugService.SaveSlug(knowledgebaseCategory, model.SeName, "");
-            await _customerActivityService.InsertActivity("CreateKnowledgebaseCategory", knowledgebaseCategory.Id,
+            _ = _customerActivityService.InsertActivity("CreateKnowledgebaseCategory", knowledgebaseCategory.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.CreateKnowledgebaseCategory"), knowledgebaseCategory.Name);
 
@@ -216,7 +216,7 @@ namespace Grand.Web.Admin.Services
             knowledgebaseCategory.SeName = model.SeName;
             await _knowledgebaseService.UpdateKnowledgebaseCategory(knowledgebaseCategory);
             await _slugService.SaveSlug(knowledgebaseCategory, model.SeName, "");
-            await _customerActivityService.InsertActivity("UpdateKnowledgebaseCategory", knowledgebaseCategory.Id,
+            _ = _customerActivityService.InsertActivity("UpdateKnowledgebaseCategory", knowledgebaseCategory.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.UpdateKnowledgebaseCategory"), knowledgebaseCategory.Name);
 
@@ -225,7 +225,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task DeleteKnowledgebaseCategoryModel(KnowledgebaseCategory knowledgebaseCategory)
         {
             await _knowledgebaseService.DeleteKnowledgebaseCategory(knowledgebaseCategory);
-            await _customerActivityService.InsertActivity("DeleteKnowledgebaseCategory", knowledgebaseCategory.Id,
+            _ = _customerActivityService.InsertActivity("DeleteKnowledgebaseCategory", knowledgebaseCategory.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteKnowledgebaseCategory"), knowledgebaseCategory.Name);
         }
@@ -250,7 +250,7 @@ namespace Grand.Web.Admin.Services
             knowledgebaseArticle.AllowComments = model.AllowComments;
             await _knowledgebaseService.InsertKnowledgebaseArticle(knowledgebaseArticle);
             await _slugService.SaveSlug(knowledgebaseArticle, model.SeName, "");
-            await _customerActivityService.InsertActivity("CreateKnowledgebaseArticle", knowledgebaseArticle.Id,
+            _ = _customerActivityService.InsertActivity("CreateKnowledgebaseArticle", knowledgebaseArticle.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.CreateKnowledgebaseArticle"), knowledgebaseArticle.Name);
 
@@ -266,7 +266,7 @@ namespace Grand.Web.Admin.Services
             knowledgebaseArticle.AllowComments = model.AllowComments;
             await _knowledgebaseService.UpdateKnowledgebaseArticle(knowledgebaseArticle);
             await _slugService.SaveSlug(knowledgebaseArticle, model.SeName, "");
-            await _customerActivityService.InsertActivity("UpdateKnowledgebaseArticle", knowledgebaseArticle.Id,
+            _ = _customerActivityService.InsertActivity("UpdateKnowledgebaseArticle", knowledgebaseArticle.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.UpdateKnowledgebaseArticle"), knowledgebaseArticle.Name);
 
@@ -275,7 +275,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task DeleteKnowledgebaseArticle(KnowledgebaseArticle knowledgebaseArticle)
         {
             await _knowledgebaseService.DeleteKnowledgebaseArticle(knowledgebaseArticle);
-            await _customerActivityService.InsertActivity("DeleteKnowledgebaseArticle", knowledgebaseArticle.Id,
+            _ = _customerActivityService.InsertActivity("DeleteKnowledgebaseArticle", knowledgebaseArticle.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteKnowledgebaseArticle"), knowledgebaseArticle.Name);
         }

@@ -87,7 +87,7 @@ namespace Grand.Api.Commands.Models.Catalog
                 await OutOfStockNotifications(product, prevStockQuantity, prevMultiWarehouseStock);
 
                 //activity log
-                await _customerActivityService.InsertActivity("EditProduct", product.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditProduct"), product.Name);
+                _ = _customerActivityService.InsertActivity("EditProduct", product.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditProduct"), product.Name);
 
             }
             return true;

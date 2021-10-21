@@ -55,7 +55,7 @@ namespace Grand.Api.Commands.Models.Catalog
             await _slugService.SaveSlug(category, request.Model.SeName, "");
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCategory", category.Id, _workContext.CurrentCustomer, "",
+            _ = _customerActivityService.InsertActivity("AddNewCategory", category.Id, _workContext.CurrentCustomer, "",
                 _translationService.GetResource("ActivityLog.AddNewCategory"), category.Name);
 
             return category.ToModel();

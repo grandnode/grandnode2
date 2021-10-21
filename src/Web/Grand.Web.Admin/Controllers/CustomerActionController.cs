@@ -213,7 +213,7 @@ namespace Grand.Web.Admin.Controllers
             try
             {
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteCustomerAction", customerAction.Id,
+                _ = _customerActivityService.InsertActivity("DeleteCustomerAction", customerAction.Id,
                     workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.DeleteCustomerAction"), customerAction.Name);
                 await _customerActionService.DeleteCustomerAction(customerAction);

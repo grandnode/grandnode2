@@ -128,7 +128,7 @@ namespace Grand.Web.Controllers
                 await _mediator.Publish(new NewsCommentEvent(newsItem, model.AddNewComment));
 
                 //activity log
-                await _customerActivityService.InsertActivity("PublicStore.AddNewsComment", newsItem.Id,
+                _ = _customerActivityService.InsertActivity("PublicStore.AddNewsComment", newsItem.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.PublicStore.AddNewsComment"));
 

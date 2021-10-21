@@ -38,7 +38,7 @@ namespace Grand.Api.Commands.Handlers.Catalog
             await _productAttributeService.UpdateProductAttribute(productAttribute);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditProductAttribute", productAttribute.Id,
+            _ = _customerActivityService.InsertActivity("EditProductAttribute", productAttribute.Id,
                 _workContext.CurrentCustomer, "",
                 _translationService.GetResource("ActivityLog.EditProductAttribute"), productAttribute.Name);
 

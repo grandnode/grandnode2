@@ -73,7 +73,7 @@ namespace Grand.Web.Commands.Handler.Common
                 request.Model = await SendContactUs(request, request.Store);
 
                 //activity log
-                await _customerActivityService.InsertActivity("PublicStore.ContactUs", "",
+                _ = _customerActivityService.InsertActivity("PublicStore.ContactUs", "",
                     _workContext.CurrentCustomer, request.IpAddress,
                     _translationService.GetResource("ActivityLog.PublicStore.ContactUs"));
 

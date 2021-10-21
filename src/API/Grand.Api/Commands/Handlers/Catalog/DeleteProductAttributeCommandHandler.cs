@@ -35,7 +35,7 @@ namespace Grand.Api.Commands.Handlers.Catalog
             {
                 await _productAttributeService.DeleteProductAttribute(productAttribute);
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteProductAttribute", productAttribute.Id,
+                _ = _customerActivityService.InsertActivity("DeleteProductAttribute", productAttribute.Id,
                     _workContext.CurrentCustomer, "",
                     _translationService.GetResource("ActivityLog.DeleteProductAttribute"), productAttribute.Name);
             }

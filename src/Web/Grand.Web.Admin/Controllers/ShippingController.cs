@@ -349,7 +349,7 @@ namespace Grand.Web.Admin.Controllers
             await _settingService.SaveSetting(shippingSettings, storeScope);
 
             //activity log
-            await customerActivityService.InsertActivity("EditSettings", "",
+            _ = customerActivityService.InsertActivity("EditSettings", "",
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditSettings"));
 

@@ -80,7 +80,7 @@ namespace Grand.Web.Admin.Services
             var customerGroup = model.ToEntity();
             await _groupService.InsertCustomerGroup(customerGroup);
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCustomerGroup", customerGroup.Id,
+            _ = _customerActivityService.InsertActivity("AddNewCustomerGroup", customerGroup.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewCustomerGroup"), customerGroup.Name);
             return customerGroup;
@@ -91,7 +91,7 @@ namespace Grand.Web.Admin.Services
             await _groupService.UpdateCustomerGroup(customerGroup);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCustomerGroup", customerGroup.Id,
+            _ = _customerActivityService.InsertActivity("EditCustomerGroup", customerGroup.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditCustomerGroup"), customerGroup.Name);
             return customerGroup;
@@ -101,7 +101,7 @@ namespace Grand.Web.Admin.Services
             await _groupService.DeleteCustomerGroup(customerGroup);
 
             //activity log
-            await _customerActivityService.InsertActivity("DeleteCustomerGroup", customerGroup.Id,
+            _ = _customerActivityService.InsertActivity("DeleteCustomerGroup", customerGroup.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteCustomerGroup"), customerGroup.Name);
         }

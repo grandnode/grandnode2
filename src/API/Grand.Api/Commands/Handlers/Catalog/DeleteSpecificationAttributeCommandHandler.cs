@@ -35,7 +35,7 @@ namespace Grand.Api.Commands.Handlers.Catalog
             {
                 await _specificationAttributeService.DeleteSpecificationAttribute(specificationAttribute);
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteSpecAttribute", specificationAttribute.Id,
+                _ = _customerActivityService.InsertActivity("DeleteSpecAttribute", specificationAttribute.Id,
                     _workContext.CurrentCustomer, "",
                     _translationService.GetResource("ActivityLog.DeleteSpecAttribute"), specificationAttribute.Name);
             }

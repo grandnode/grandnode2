@@ -245,7 +245,8 @@ namespace Grand.Web.Admin.Controllers
                     OrderId = order.Id,
                 });
 
-                await _shipmentViewModelService.LogShipment(shipment.Id, $"A shipment #{shipment.ShipmentNumber} has been added");
+                _ = _shipmentViewModelService.LogShipment(shipment.Id, $"A shipment #{shipment.ShipmentNumber} has been added");
+
                 Success(_translationService.GetResource("Admin.Orders.Shipments.Added"));
                 return continueEditing
                            ? RedirectToAction("ShipmentDetails", new { id = shipment.Id })
@@ -325,7 +326,7 @@ namespace Grand.Web.Admin.Controllers
                 OrderId = order.Id,
             });
 
-            await _shipmentViewModelService.LogShipment(shipment.Id, $"A shipment #{shipment.ShipmentNumber} has been deleted");
+            _ = _shipmentViewModelService.LogShipment(shipment.Id, $"A shipment #{shipment.ShipmentNumber} has been deleted");
 
             Success(_translationService.GetResource("Admin.Orders.Shipments.Deleted"));
 

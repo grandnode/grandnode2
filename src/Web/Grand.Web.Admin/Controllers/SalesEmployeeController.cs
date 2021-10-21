@@ -89,7 +89,7 @@ namespace Grand.Web.Admin.Controllers
             await _salesEmployeeService.UpdateSalesEmployee(salesemployee);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditSalesEmployee", salesemployee.Id,
+            _ = _customerActivityService.InsertActivity("EditSalesEmployee", salesemployee.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditSalesEmployee"),
                 salesemployee.Name);
@@ -111,7 +111,7 @@ namespace Grand.Web.Admin.Controllers
             await _salesEmployeeService.InsertSalesEmployee(salesEmployee);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewSalesEmployee", salesEmployee.Id,
+            _ = _customerActivityService.InsertActivity("AddNewSalesEmployee", salesEmployee.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewSalesEmployee"),
                 salesEmployee.Name);
@@ -142,7 +142,7 @@ namespace Grand.Web.Admin.Controllers
             await _salesEmployeeService.DeleteSalesEmployee(salesemployee);
 
             //activity log
-            await _customerActivityService.InsertActivity("DeleteSalesEmployee", salesemployee.Id,
+            _ = _customerActivityService.InsertActivity("DeleteSalesEmployee", salesemployee.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteSalesEmployee"),
                 salesemployee.Name);

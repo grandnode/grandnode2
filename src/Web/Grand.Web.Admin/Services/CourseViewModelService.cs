@@ -128,7 +128,7 @@ namespace Grand.Web.Admin.Services
 
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCourse", course.Id,
+            _ = _customerActivityService.InsertActivity("AddNewCourse", course.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewCourse"), course.Name);
 
@@ -168,7 +168,7 @@ namespace Grand.Web.Admin.Services
                 await _productCourseService.UpdateCourseOnProduct(course.ProductId, course.Id);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCourse", course.Id,
+            _ = _customerActivityService.InsertActivity("EditCourse", course.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditCourse"), course.Name);
 
@@ -178,7 +178,7 @@ namespace Grand.Web.Admin.Services
         {
             await _courseService.Delete(course);
             //activity log
-            await _customerActivityService.InsertActivity("DeleteCourse", course.Id,
+            _ = _customerActivityService.InsertActivity("DeleteCourse", course.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteCourse"), course.Name);
         }
@@ -209,7 +209,7 @@ namespace Grand.Web.Admin.Services
             var lesson = model.ToEntity();
             await _courseLessonService.Insert(lesson);
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCourseLesson", lesson.Id,
+            _ = _customerActivityService.InsertActivity("AddNewCourseLesson", lesson.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewCourseLesson"), lesson.Name);
             return lesson;
@@ -249,7 +249,7 @@ namespace Grand.Web.Admin.Services
             }
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCourseLesson", lesson.Id,
+            _ = _customerActivityService.InsertActivity("EditCourseLesson", lesson.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditLessonCourse"), lesson.Name);
 
@@ -274,7 +274,7 @@ namespace Grand.Web.Admin.Services
             }
 
             //activity log
-            await _customerActivityService.InsertActivity("DeleteCourseLesson", lesson.Id,
+            _ = _customerActivityService.InsertActivity("DeleteCourseLesson", lesson.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteCourseLesson"), lesson.Name);
         }

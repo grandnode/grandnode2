@@ -166,7 +166,7 @@ namespace Grand.Web.Admin.Services
         {
             var customeraction = model.ToEntity(_dateTimeService);
             await _customerActionService.InsertCustomerAction(customeraction);
-            await _customerActivityService.InsertActivity("AddNewCustomerAction", customeraction.Id,
+            _ = _customerActivityService.InsertActivity("AddNewCustomerAction", customeraction.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewCustomerAction"), customeraction.Name);
             return customeraction;
@@ -180,7 +180,7 @@ namespace Grand.Web.Admin.Services
 
             customeraction = model.ToEntity(customeraction, _dateTimeService);
             await _customerActionService.UpdateCustomerAction(customeraction);
-            await _customerActivityService.InsertActivity("EditCustomerAction", customeraction.Id,
+            _ = _customerActivityService.InsertActivity("EditCustomerAction", customeraction.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditCustomerAction"), customeraction.Name);
             return customeraction;
@@ -221,7 +221,7 @@ namespace Grand.Web.Admin.Services
             customerAction.Conditions.Add(condition);
             await _customerActionService.UpdateCustomerAction(customerAction);
 
-            await _customerActivityService.InsertActivity("AddNewCustomerActionCondition", customerAction.Id,
+            _ = _customerActivityService.InsertActivity("AddNewCustomerActionCondition", customerAction.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewCustomerAction"), customerAction.Name);
             return (customerAction.Id, condition.Id);
@@ -232,7 +232,7 @@ namespace Grand.Web.Admin.Services
             condition = model.ToEntity(condition);
             await _customerActionService.UpdateCustomerAction(customeraction);
             //activity log
-            await _customerActivityService.InsertActivity("EditCustomerActionCondition", customeraction.Id,
+            _ = _customerActivityService.InsertActivity("EditCustomerActionCondition", customeraction.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditCustomerActionCondition"), customeraction.Name);
             return customeraction;

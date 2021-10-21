@@ -145,7 +145,7 @@ namespace Grand.Web.Admin.Services
             await _pictureService.UpdatePictureSeoNames(brand.PictureId, brand.Name);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewBrand", brand.Id,
+            _ = _customerActivityService.InsertActivity("AddNewBrand", brand.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewBrand"), brand.Name);
             return brand;
@@ -192,7 +192,7 @@ namespace Grand.Web.Admin.Services
             await _pictureService.UpdatePictureSeoNames(brand.PictureId, brand.Name);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditBrand", brand.Id,
+            _ = _customerActivityService.InsertActivity("EditBrand", brand.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditBrand"), brand.Name);
             return brand;
@@ -202,7 +202,7 @@ namespace Grand.Web.Admin.Services
         {
             await _brandService.DeleteBrand(brand);
             //activity log
-            await _customerActivityService.InsertActivity("DeleteBrand", brand.Id,
+            _ = _customerActivityService.InsertActivity("DeleteBrand", brand.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteBrand"), brand.Name);
         }

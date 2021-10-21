@@ -79,7 +79,7 @@ namespace Grand.Web.Admin.Services
             var customerreminder = model.ToEntity(_dateTimeService);
             await _customerReminderService.InsertCustomerReminder(customerreminder);
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCustomerReminder", customerreminder.Id,
+            _ = _customerActivityService.InsertActivity("AddNewCustomerReminder", customerreminder.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewCustomerReminder"), customerreminder.Name);
             return customerreminder;
@@ -93,7 +93,7 @@ namespace Grand.Web.Admin.Services
 
             customerReminder = model.ToEntity(customerReminder, _dateTimeService);
             await _customerReminderService.UpdateCustomerReminder(customerReminder);
-            await _customerActivityService.InsertActivity("EditCustomerReminder", customerReminder.Id,
+            _ = _customerActivityService.InsertActivity("EditCustomerReminder", customerReminder.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditCustomerReminder"), customerReminder.Name);
             return customerReminder;
@@ -117,7 +117,7 @@ namespace Grand.Web.Admin.Services
         }
         public virtual async Task DeleteCustomerReminder(CustomerReminder customerReminder)
         {
-            await _customerActivityService.InsertActivity("DeleteCustomerReminder", customerReminder.Id,
+            _ = _customerActivityService.InsertActivity("DeleteCustomerReminder", customerReminder.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteCustomerReminder"), customerReminder.Name);
             await _customerReminderService.DeleteCustomerReminder(customerReminder);
@@ -173,7 +173,7 @@ namespace Grand.Web.Admin.Services
             customerReminder.Conditions.Add(condition);
             await _customerReminderService.UpdateCustomerReminder(customerReminder);
 
-            await _customerActivityService.InsertActivity("AddNewCustomerReminderCondition", customerReminder.Id,
+            _ = _customerActivityService.InsertActivity("AddNewCustomerReminderCondition", customerReminder.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewCustomerReminder"), customerReminder.Name);
 
@@ -197,7 +197,7 @@ namespace Grand.Web.Admin.Services
         {
             condition = model.ToEntity(condition);
             await _customerReminderService.UpdateCustomerReminder(customerReminder);
-            await _customerActivityService.InsertActivity("EditCustomerReminderCondition", customerReminder.Id,
+            _ = _customerActivityService.InsertActivity("EditCustomerReminderCondition", customerReminder.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditCustomerReminderCondition"), customerReminder.Name);
             return condition;
@@ -443,7 +443,7 @@ namespace Grand.Web.Admin.Services
 
             customerReminder.Levels.Add(level);
             await _customerReminderService.UpdateCustomerReminder(customerReminder);
-            await _customerActivityService.InsertActivity("AddNewCustomerReminderLevel", customerReminder.Id,
+            _ = _customerActivityService.InsertActivity("AddNewCustomerReminderLevel", customerReminder.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewCustomerReminderLevel"), customerReminder.Name);
             return level;
@@ -460,7 +460,7 @@ namespace Grand.Web.Admin.Services
             customerReminderLevel.Hour = model.Hour;
             customerReminderLevel.Minutes = model.Minutes;
             await _customerReminderService.UpdateCustomerReminder(customerReminder);
-            await _customerActivityService.InsertActivity("EditCustomerReminderCondition", customerReminder.Id,
+            _ = _customerActivityService.InsertActivity("EditCustomerReminderCondition", customerReminder.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditCustomerReminderLevel"), customerReminder.Name);
             return customerReminderLevel;

@@ -37,7 +37,7 @@ namespace Grand.Api.Commands.Handlers.Catalog
             await _productAttributeService.InsertProductAttribute(productAttribute);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewProductAttribute",
+            _ = _customerActivityService.InsertActivity("AddNewProductAttribute",
                 productAttribute.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.AddNewProductAttribute"), productAttribute.Name);
 
             return productAttribute.ToModel();

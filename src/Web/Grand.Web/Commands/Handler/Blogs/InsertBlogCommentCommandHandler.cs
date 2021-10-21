@@ -68,7 +68,7 @@ namespace Grand.Web.Commands.Handler.Blogs
                 await _messageProviderService.SendBlogCommentMessage(request.BlogPost, comment, _languageSettings.DefaultAdminLanguageId);
 
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.AddBlogComment", comment.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.PublicStore.AddBlogComment"));
+            _ = _customerActivityService.InsertActivity("PublicStore.AddBlogComment", comment.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.PublicStore.AddBlogComment"));
 
             return comment;
         }

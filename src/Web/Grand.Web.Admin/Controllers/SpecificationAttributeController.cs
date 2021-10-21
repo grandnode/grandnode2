@@ -105,7 +105,7 @@ namespace Grand.Web.Admin.Controllers
                 }
                 await _specificationAttributeService.InsertSpecificationAttribute(specificationAttribute);
                 //activity log
-                await _customerActivityService.InsertActivity("AddNewSpecAttribute", specificationAttribute.Id,
+                _ = _customerActivityService.InsertActivity("AddNewSpecAttribute", specificationAttribute.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.AddNewSpecAttribute"), specificationAttribute.Name);
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.SpecificationAttributes.Added"));
@@ -154,7 +154,7 @@ namespace Grand.Web.Admin.Controllers
                 }
                 await _specificationAttributeService.UpdateSpecificationAttribute(specificationAttribute);
                 //activity log
-                await _customerActivityService.InsertActivity("EditSpecAttribute", specificationAttribute.Id,
+                _ = _customerActivityService.InsertActivity("EditSpecAttribute", specificationAttribute.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.EditSpecAttribute"), specificationAttribute.Name);
 
@@ -193,7 +193,7 @@ namespace Grand.Web.Admin.Controllers
                 await _specificationAttributeService.DeleteSpecificationAttribute(specificationAttribute);
 
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteSpecAttribute", specificationAttribute.Id,
+                _ = _customerActivityService.InsertActivity("DeleteSpecAttribute", specificationAttribute.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.DeleteSpecAttribute"), specificationAttribute.Name);
 

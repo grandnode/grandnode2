@@ -42,7 +42,7 @@ namespace Grand.Web.Commands.Handler.Customers
         public async Task<bool> Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
         {
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.DeleteAccount", request.Customer.Id,
+            _ = _customerActivityService.InsertActivity("PublicStore.DeleteAccount", request.Customer.Id,
                 request.Customer, request.IpAddress,
                  _translationService.GetResource("ActivityLog.DeleteAccount"), request.Customer);
 

@@ -100,7 +100,7 @@ namespace Grand.Web.Admin.Services
             await _slugService.SaveSlug(page, model.SeName, "");
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewPage", page.Id,
+            _ = _customerActivityService.InsertActivity("AddNewPage", page.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewPage"), page.Title ?? page.SystemName);
             return page;
@@ -120,7 +120,7 @@ namespace Grand.Web.Admin.Services
             //search engine name
             await _slugService.SaveSlug(page, model.SeName, "");
             //activity log
-            await _customerActivityService.InsertActivity("EditPage", page.Id,
+            _ = _customerActivityService.InsertActivity("EditPage", page.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditPage"), page.Title ?? page.SystemName);
 
@@ -130,7 +130,7 @@ namespace Grand.Web.Admin.Services
         {
             await _pageService.DeletePage(page);
             //activity log
-            await _customerActivityService.InsertActivity("DeletePage", page.Id,
+            _ = _customerActivityService.InsertActivity("DeletePage", page.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeletePage"), page.Title ?? page.SystemName);
         }

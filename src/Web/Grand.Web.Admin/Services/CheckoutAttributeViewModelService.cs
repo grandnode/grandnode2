@@ -232,7 +232,7 @@ namespace Grand.Web.Admin.Services
             await _checkoutAttributeService.InsertCheckoutAttribute(checkoutAttribute);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCheckoutAttribute", checkoutAttribute.Id,
+            _ = _customerActivityService.InsertActivity("AddNewCheckoutAttribute", checkoutAttribute.Id,
                  _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewCheckoutAttribute"), checkoutAttribute.Name);
             return checkoutAttribute;
@@ -244,7 +244,7 @@ namespace Grand.Web.Admin.Services
             await _checkoutAttributeService.UpdateCheckoutAttribute(checkoutAttribute);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCheckoutAttribute", checkoutAttribute.Id,
+            _ = _customerActivityService.InsertActivity("EditCheckoutAttribute", checkoutAttribute.Id,
                  _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditCheckoutAttribute"), checkoutAttribute.Name);
             return checkoutAttribute;

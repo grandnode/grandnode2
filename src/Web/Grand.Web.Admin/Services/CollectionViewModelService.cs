@@ -159,7 +159,7 @@ namespace Grand.Web.Admin.Services
             await _pictureService.UpdatePictureSeoNames(collection.PictureId, collection.Name);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCollection", collection.Id,
+            _ = _customerActivityService.InsertActivity("AddNewCollection", collection.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewCollection"), collection.Name);
             return collection;
@@ -206,7 +206,7 @@ namespace Grand.Web.Admin.Services
             await _pictureService.UpdatePictureSeoNames(collection.PictureId, collection.Name);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCollection", collection.Id,
+            _ = _customerActivityService.InsertActivity("EditCollection", collection.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditCollection"), collection.Name);
             return collection;
@@ -216,7 +216,7 @@ namespace Grand.Web.Admin.Services
         {
             await _collectionService.DeleteCollection(collection);
             //activity log
-            await _customerActivityService.InsertActivity("DeleteCollection", collection.Id,
+            _ = _customerActivityService.InsertActivity("DeleteCollection", collection.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteCollection"), collection.Name);
         }

@@ -945,7 +945,7 @@ namespace Grand.Web.Admin.Services
             await _productService.UpdateProduct(product);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewProduct", product.Id,
+            _ = _customerActivityService.InsertActivity("AddNewProduct", product.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewProduct"), product.Name);
 
@@ -1044,7 +1044,7 @@ namespace Grand.Web.Admin.Services
                     await _downloadService.DeleteDownload(prevSampleDownload);
             }
             //activity log
-            await _customerActivityService.InsertActivity("EditProduct", product.Id,
+            _ = _customerActivityService.InsertActivity("EditProduct", product.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditProduct"), product.Name);
             return product;
@@ -1068,7 +1068,7 @@ namespace Grand.Web.Admin.Services
                     await _downloadService.DeleteDownload(sampledownload);
             }
             //activity log
-            await _customerActivityService.InsertActivity("DeleteProduct", product.Id,
+            _ = _customerActivityService.InsertActivity("DeleteProduct", product.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteProduct"), product.Name);
         }

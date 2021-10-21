@@ -2941,7 +2941,7 @@ namespace Grand.Web.Admin.Controllers
                 if (string.IsNullOrEmpty(toDelete.OrderId))
                 {
                     //activity log
-                    await customerActivityService.InsertActivity("DeleteBid", toDelete.ProductId,
+                    _ = customerActivityService.InsertActivity("DeleteBid", toDelete.ProductId,
                         _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                         _translationService.GetResource("ActivityLog.DeleteBid"), product.Name);
                     //delete bid

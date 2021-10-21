@@ -54,7 +54,7 @@ namespace Grand.Api.Commands.Models.Catalog
             await _slugService.SaveSlug(collection, request.Model.SeName, "");
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCollection", collection.Id,
+            _ = _customerActivityService.InsertActivity("AddNewCollection", collection.Id,
                 _workContext.CurrentCustomer, "",
                 _translationService.GetResource("ActivityLog.AddNewCollection"), collection.Name);
 

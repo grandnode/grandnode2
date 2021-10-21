@@ -20,10 +20,11 @@ namespace Grand.Business.Marketing.Events
             _translationService = translationService;
         }
 
-        public async Task Handle(CustomerLoggedOutEvent notification, CancellationToken cancellationToken)
+        public Task Handle(CustomerLoggedOutEvent notification, CancellationToken cancellationToken)
         {
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.Logout", "", notification.Customer, "", _translationService.GetResource("ActivityLog.PublicStore.Logout"));
+            _ = _customerActivityService.InsertActivity("PublicStore.Logout", "", notification.Customer, "", _translationService.GetResource("ActivityLog.PublicStore.Logout"));
+            return Task.CompletedTask;
         }
     }
 }

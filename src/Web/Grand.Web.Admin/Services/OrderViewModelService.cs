@@ -1003,12 +1003,13 @@ namespace Grand.Web.Admin.Services
             }
         }
 
-        public virtual async Task LogEditOrder(string orderId)
+        public virtual Task LogEditOrder(string orderId)
         {
             var httpContextAccessor = _serviceProvider.GetRequiredService<IHttpContextAccessor>();
-            await _customerActivityService.InsertActivity("EditOrder", orderId,
+            _ = _customerActivityService.InsertActivity("EditOrder", orderId,
                 _workContext.CurrentCustomer, httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditOrder"), orderId);
+            return Task.CompletedTask;
         }
         public virtual async Task<Address> UpdateOrderAddress(Order order, Address address, OrderAddressModel model, List<CustomAttribute> customAttributes)
         {
@@ -1024,7 +1025,7 @@ namespace Grand.Web.Admin.Services
                 CreatedOnUtc = DateTime.UtcNow,
                 OrderId = order.Id,
             });
-            await LogEditOrder(order.Id);
+            _ = LogEditOrder(order.Id);
             return address;
         }
         public virtual async Task<IList<string>> AddProductToOrderDetails(string orderId, string productId, IFormCollection form)
@@ -1244,7 +1245,7 @@ namespace Grand.Web.Admin.Services
 
                 await _mediator.Send(new InsertOrderItemCommand() { Order = order, OrderItem = orderItem, Product = product });
 
-                await LogEditOrder(order.Id);
+                _ = LogEditOrder(order.Id);
 
             }
             return warnings;

@@ -166,7 +166,7 @@ namespace Grand.Web.Admin.Services
             await _discountService.InsertDiscount(discount);
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewDiscount", discount.Id,
+            _ = _customerActivityService.InsertActivity("AddNewDiscount", discount.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.AddNewDiscount"), discount.Name);
             return discount;
@@ -219,7 +219,7 @@ namespace Grand.Web.Admin.Services
             }
 
             //activity log
-            await _customerActivityService.InsertActivity("EditDiscount", discount.Id,
+            _ = _customerActivityService.InsertActivity("EditDiscount", discount.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditDiscount"), discount.Name);
             return discount;
@@ -229,7 +229,7 @@ namespace Grand.Web.Admin.Services
         {
             await _discountService.DeleteDiscount(discount);
             //activity log
-            await _customerActivityService.InsertActivity("DeleteDiscount", discount.Id,
+            _ = _customerActivityService.InsertActivity("DeleteDiscount", discount.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteDiscount"), discount.Name);
         }

@@ -53,7 +53,7 @@ namespace Grand.Business.Common.Interfaces.Logging
         /// <param name="comment">The activity comment</param>
         /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
         /// <returns>Activity log item</returns>
-        Task<ActivityLog> InsertActivity(string systemKeyword, string entityKeyId,
+        Task InsertActivity(string systemKeyword, string entityKeyId,
             Customer customer, string ipAddress, string comment, params object[] commentParams);
 
 

@@ -110,7 +110,7 @@ namespace Grand.Web.Admin.Controllers
                 await _productAttributeService.InsertProductAttribute(productAttribute);
 
                 //activity log
-                await _customerActivityService.InsertActivity("AddNewProductAttribute", productAttribute.Id,
+                _ = _customerActivityService.InsertActivity("AddNewProductAttribute", productAttribute.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.AddNewProductAttribute"), productAttribute.Name);
 
@@ -161,7 +161,7 @@ namespace Grand.Web.Admin.Controllers
                 await _productAttributeService.UpdateProductAttribute(productAttribute);
 
                 //activity log
-                await _customerActivityService.InsertActivity("EditProductAttribute", productAttribute.Id,
+                _ = _customerActivityService.InsertActivity("EditProductAttribute", productAttribute.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.EditProductAttribute"), productAttribute.Name);
 
@@ -202,7 +202,7 @@ namespace Grand.Web.Admin.Controllers
                 await _productAttributeService.DeleteProductAttribute(productAttribute);
 
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteProductAttribute", productAttribute.Id,
+                _ = _customerActivityService.InsertActivity("DeleteProductAttribute", productAttribute.Id,
                     _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                     _translationService.GetResource("ActivityLog.DeleteProductAttribute"), productAttribute.Name);
 

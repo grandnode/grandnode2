@@ -292,7 +292,7 @@ namespace Grand.Web.Admin.Services
             merchandiseReturn.NotifyCustomer = model.NotifyCustomer;
             await _merchandiseReturnService.UpdateMerchandiseReturn(merchandiseReturn);
             //activity log
-            await _customerActivityService.InsertActivity("EditMerchandiseReturn", merchandiseReturn.Id,
+            _ = _customerActivityService.InsertActivity("EditMerchandiseReturn", merchandiseReturn.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.EditMerchandiseReturn"), merchandiseReturn.Id);
 
@@ -304,7 +304,7 @@ namespace Grand.Web.Admin.Services
         {
             await _merchandiseReturnService.DeleteMerchandiseReturn(merchandiseReturn);
             //activity log
-            await _customerActivityService.InsertActivity("DeleteMerchandiseReturn", merchandiseReturn.Id,
+            _ = _customerActivityService.InsertActivity("DeleteMerchandiseReturn", merchandiseReturn.Id,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.DeleteMerchandiseReturn"), merchandiseReturn.Id);
         }

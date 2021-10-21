@@ -35,7 +35,7 @@ namespace Grand.Api.Commands.Models.Catalog
                 await _brandService.DeleteBrand(brand);
 
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteBrand", brand.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteBrand"), brand.Name);
+                _ = _customerActivityService.InsertActivity("DeleteBrand", brand.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteBrand"), brand.Name);
             }
             return true;
         }

@@ -36,7 +36,7 @@ namespace Grand.Api.Commands.Models.Customers
             await _groupService.UpdateCustomerGroup(customerGroup);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCustomerGroup", customerGroup.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditCustomerGroup"), customerGroup.Name);
+            _ = _customerActivityService.InsertActivity("EditCustomerGroup", customerGroup.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditCustomerGroup"), customerGroup.Name);
 
             return customerGroup.ToModel();
         }

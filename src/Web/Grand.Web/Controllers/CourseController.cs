@@ -114,7 +114,7 @@ namespace Grand.Web.Controllers
                 DisplayEditLink(Url.Action("Edit", "Course", new { id = course.Id, area = "Admin" }));
 
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.ViewCourse", course.Id,
+            _ = _customerActivityService.InsertActivity("PublicStore.ViewCourse", course.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewCourse"), course.Name);
             await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers["Referer"].ToString() : "");
@@ -152,7 +152,7 @@ namespace Grand.Web.Controllers
                 DisplayEditLink(Url.Action("EditLesson", "Course", new { id = lesson.Id, area = "Admin" }));
 
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.ViewLesson", lesson.Id,
+            _ = _customerActivityService.InsertActivity("PublicStore.ViewLesson", lesson.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewLesson"), lesson.Name);
             await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers["Referer"].ToString() : "");

@@ -48,7 +48,7 @@ namespace Grand.Api.Commands.Handlers.Customers
             await SaveCustomerGroups(request.Model, customer);
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditCustomer"), customer.Id);
+            _ = _customerActivityService.InsertActivity("EditCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditCustomer"), customer.Id);
 
             return customer.ToModel();
         }
