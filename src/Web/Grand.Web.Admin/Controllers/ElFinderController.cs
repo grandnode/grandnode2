@@ -71,6 +71,9 @@ namespace Grand.Web.Admin.Controllers
 
             await SetupConnectorAsync();
             var cmd = ConnectorHelper.ParseCommand(Request);
+            if (cmd.Cmd == "upload" && cmd.Files != null && cmd.Files.Any())
+                cmd.Files = cmd.Files.Where(x => !NotAllowedExtensions(Path.GetExtension(x.FileName))).ToList();
+
             var ccTokenSource = ConnectorHelper.RegisterCcTokenSource(HttpContext);
             var conResult = await _connector.ProcessAsync(cmd, ccTokenSource);
             var actionResult = conResult.ToActionResult(HttpContext);
@@ -99,15 +102,22 @@ namespace Grand.Web.Admin.Controllers
                 Name = "Volume",
                 MaxUploadConnections = 3
             };
-            volume.ObjectAttributes = new List<FilteredObjectAttribute>()
-            {
+            volume.ObjectAttributes = new List<FilteredObjectAttribute>() {
                 new FilteredObjectAttribute()
                 {
-                    FileFilter = (file) => !CanAllowedExtensions(file.Extension),
-                    Visible = false,
-                    Access = false,
-                    Write = false,
-                    Read = false
+                    FileFilter = (file) => {
+                        return NotAllowedExtensions(file.Extension);
+                    },
+                    ObjectFilter = (obj) =>
+                    {
+                        var extensions = Path.GetExtension(obj.FullName);
+                        if(!string.IsNullOrEmpty(extensions))
+                            return NotAllowedExtensions(extensions);
+
+
+                        return false;
+                    },
+                    ShowOnly = false, Access = false, Visible = false, Write = false, Read = false
                 },
             };
             _connector.AddVolume(volume);
@@ -115,7 +125,7 @@ namespace Grand.Web.Admin.Controllers
 
         }
 
-        private bool CanAllowedExtensions(string extensions)
+        private bool NotAllowedExtensions(string extensions)
         {
             var allowedFileTypes = new List<string>();
             if (string.IsNullOrEmpty(_mediaSettings.AllowedFileTypes))
@@ -123,7 +133,10 @@ namespace Grand.Web.Admin.Controllers
             else
                 allowedFileTypes = _mediaSettings.AllowedFileTypes.Split(',').Select(x => x.Trim().ToLowerInvariant()).ToList();
 
-            return allowedFileTypes.Contains(extensions.ToLowerInvariant());
+            if (allowedFileTypes.Contains(extensions))
+                return false;
+
+            return true;
         }
 
         #endregion
