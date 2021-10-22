@@ -1,0 +1,90 @@
+﻿@inject IWorkContext workContext
+@{
+    var lang = workContext.WorkingLanguage.LanguageCulture;
+}
+<template>
+    <button id="voicePageButton"
+            @@touchstart="voicenavigator.recording = true"
+            @@touchcancel="voicenavigator.recording = false"
+            @@touchend="voicenavigator.recording = false"
+            @@mousedown="voicenavigator.recording = true"
+            @@mouseup="voicenavigator.recording = false"
+            @@mouseleave="voicenavigator.recording = false"
+            v-b-tooltip.hover.left :title="voicenavigator.micMessage"
+            ref="voicePageButton" type="button" v-bind:class="[{ focus: voicenavigator.recording }, 'btn btn-link voice-page-button']">
+        <template v-if="voicenavigator.recording">
+            <b-icon icon="mic" variant="info"></b-icon>
+        </template>
+        <template v-else>
+            <b-icon icon="mic-mute" variant="danger"></b-icon>
+        </template>
+    </button>
+    <b-alert :show="voicenavigator.recording"
+             class="position-fixed fixed-top m-0 rounded-0"
+             style="z-index: 2000;"
+             :variant="voicenavigator.variant">
+        <div class="recording-window">
+            <div class="recording-aniamtion">
+                <b-icon icon="mic" variant="info"></b-icon>
+            </div>
+            <input type="text" placeholder="@Loc["voicenavigator.voice.placeholder"]" v-model="voicenavigator.transcript" class="form-control" readonly />
+        </div>
+        <small class="form-text text-muted w-100">@Loc["voicenavigator.voice.annotation"]</small>
+    </b-alert>
+</template>
+<script asp-location="Footer" asp-order="300">
+    var voicenavigator = new Vue({
+        data: () => ({
+            recording: false,
+            lang: '@lang',
+            commands: { "cart": "/cart", "blog": "/blog", "computers": "/computers", "wishlist": "/wishlist", "login": "/login", "homepage": "/" },
+            transcript: "",
+            variant: "info",
+            micMessage: "@Loc["voicenavigator.voice.holdtospeak"]"
+        }),
+        watch: {
+            recording: function () {
+                var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
+                var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
+
+                var recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.lang = voicenavigator.lang;
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+
+                if (this.recording) {
+
+                    recognition.start();
+
+                    this.micMessage = '@Loc["voicenavigator.voice.placeholder"]';
+
+                    recognition.addEventListener("result", resultOfSpeechRecognition);
+                    function resultOfSpeechRecognition(event) {
+
+                        var current = event.resultIndex;
+                        var transcript = event.results[current][0].transcript;
+                        var concatTranscript = transcript.replace(/\s/g, '').toLowerCase();
+
+                        voicenavigator.transcript = transcript;
+
+                        for (const [key, value] of Object.entries(voicenavigator.commands)) {
+                            var check = concatTranscript.includes(key);
+                            if (check) {
+                                voicenavigator.variant = "success"
+                                setTimeout(function () {
+                                    window.location.replace(value);
+                                }, 1000)
+                            } else {
+                                voicenavigator.variant = "info"
+                            }
+                        }
+                    }
+                } else {
+                    recognition.stop();
+                    this.micMessage = '@Loc["voicenavigator.voice.holdtospeak"]';
+                }
+            }
+        }
+    });
+</script>

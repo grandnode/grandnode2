@@ -34,10 +34,14 @@ import { ImagePlugin } from 'bootstrap-vue'
 Vue.use(ImagePlugin)
 import { ToastPlugin } from 'bootstrap-vue'
 Vue.use(ToastPlugin)
+import { AlertPlugin } from 'bootstrap-vue'
+Vue.use(AlertPlugin)
 import { TabsPlugin } from 'bootstrap-vue'
 Vue.use(TabsPlugin)
 import { CollapsePlugin } from 'bootstrap-vue'
 Vue.use(CollapsePlugin)
+import { TooltipPlugin } from 'bootstrap-vue'
+Vue.use(TooltipPlugin)
 
 import {
     BIcon,

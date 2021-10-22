@@ -18,7 +18,14 @@
             @await Component.InvokeAsync("Widget", new { widgetZone = "searchbox_before_search_button" })
 
             <div class="input-group-append">
-                <button id="voiceSearchButton" @@touchstart="searchbox.recording = true" @@touchcancel="searchbox.recording = false" @@touchend="searchbox.recording = false" @@mousedown="searchbox.recording = true" @@mouseup="searchbox.recording = false" @@mouseleave="searchbox.recording = false" :data-title="searchbox.micMessage" ref="micBtn" type="button" v-bind:class="[{ focus: searchbox.recording }, 'btn btn-link']">
+                <button id="voiceSearchButton" 
+                        @@touchstart="searchbox.recording = true" 
+                        @@touchcancel="searchbox.recording = false" 
+                        @@touchend="searchbox.recording = false" 
+                        @@mousedown="searchbox.recording = true" 
+                        @@mouseup="searchbox.recording = false" 
+                        @@mouseleave="searchbox.recording = false" 
+                        v-b-tooltip.hover.bottom :title="searchbox.micMessage" ref="micBtn" type="button" v-bind:class="[{ focus: searchbox.recording }, 'btn btn-link']">
                     <template v-if="searchbox.recording">
                         <b-icon icon="mic" variant="info"></b-icon>
                     </template>
@@ -115,7 +122,7 @@
             text: "",
             lang: '@lang',
             placeholder: "@Loc["Search.SearchBox.Tooltip"]",
-            micMessage: "Hold to Speak",
+            micMessage: "@Loc["search.voice.holdtospeak"]",
             searchcategories: null,
             searchbrands: null,
             searchblog: null,
