@@ -3,17 +3,6 @@
 @model CheckoutCompletedModel
 @{
     Layout = "_SingleColumn";
-
-    //title
-    var supportRtl = workContext.WorkingLanguage.Rtl;
-    if (supportRtl)
-    {
-        <link rel="stylesheet" type="text/css" asp-src="/theme/css/cart/cart.rtl.css">
-    }
-    else
-    {
-        <link rel="stylesheet" type="text/css" asp-src="/theme/css/cart/cart.css">
-    }
 }
 <div class="page checkout-page order-completed-page text-xs-center">
     <div class="checkout-data mt-3">

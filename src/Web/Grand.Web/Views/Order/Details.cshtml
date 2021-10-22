@@ -3,17 +3,16 @@
 @inject IPageHeadBuilder pagebuilder
 @inject IWorkContext workContext
 @{
+    var supportRtl = workContext.WorkingLanguage.Rtl;
+
     if (!Model.PrintMode)
     {
         Layout = "_SingleColumn";
-        <link rel="stylesheet" type="text/css" asp-src="/theme/css/cart/cart.css">
     }
     else
     {
         Layout = "_Print";
     }
-
-    var supportRtl = workContext.WorkingLanguage.Rtl;
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.OrderDetails"]);
