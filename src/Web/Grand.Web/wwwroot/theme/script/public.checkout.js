@@ -885,7 +885,6 @@ var vmorder = new Vue({
         },
         vShipping: function () {
             if (this.vShipping !== null) {
-                vmorder.vShipping.init('#co-shipping-form', '/checkout/SaveShipping/');
                 if (document.querySelector("#shipping-address-select")) {
                     vmorder.vShipping.newAddress(!document.querySelector('#shipping-address-select').value);
                 }
@@ -893,31 +892,10 @@ var vmorder = new Vue({
         },
         vBilling: function () {
             if (this.vBilling !== null) {
-                vmorder.vBilling.init('#co-billing-form', '/checkout/SaveBilling/');
                 if (document.querySelector("#billing-address-select")) {
                     vmorder.vBilling.newAddress(!document.querySelector('#billing-address-select').value);
                 }
             }
-        },
-        vShippingMethod: function () {
-            if (this.vShippingMethod !== null) {
-                vmorder.vShippingMethod.init('#co-shipping-method-form', '/checkout/SaveShippingMethod/');
-            }
-        },
-        vPaymentMethod: function () {
-            if (this.vPaymentMethod !== null) {
-                vmorder.vPaymentMethod.init('#co-payment-method-form', '/checkout/SavePaymentMethod/');
-            }
-        },
-        vPaymentInfo: function () {
-            if (this.vPaymentInfo !== null) {
-                vmorder.vPaymentInfo.init('#co-payment-info-form', '/checkout/SavePaymentInfo/');
-            }
-        },
-        vConfirmOrder: function () {
-            if (this.vConfirmOrder !== null) {
-                vmorder.vConfirmOrder.init('/checkout/ConfirmOrder/', '/checkout/completed/');
-            }
-        },
+        }
     }
 });

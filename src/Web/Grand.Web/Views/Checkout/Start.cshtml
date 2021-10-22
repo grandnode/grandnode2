@@ -5,17 +5,26 @@
 
     <script asp-location="Footer" asp-src="/theme/script/public.checkout.js" asp-order="300"></script>
 
+    <script asp-location="Footer" asp-order="301">
+        vmorder.vShipping.init('#co-shipping-form', '/checkout/SaveShipping/');
+        vmorder.vBilling.init('#co-billing-form', '/checkout/SaveBilling/');
+        vmorder.vShippingMethod.init('#co-shipping-method-form', '/checkout/SaveShippingMethod/');
+        vmorder.vPaymentMethod.init('#co-payment-method-form', '/checkout/SavePaymentMethod/');
+        vmorder.vPaymentInfo.init('#co-payment-info-form', '/checkout/SavePaymentInfo/');
+        vmorder.vConfirmOrder.init('/checkout/ConfirmOrder/', '@Url.RouteUrl("CheckoutCompleted")')
+    </script>
+
     //title
     pagebuilder.AddTitleParts(Loc["Title.Checkout"]);
-}
+                }
 @{
     //step numbers
     int shippingAddressStepNumber = 1;
-    int billingAddressStepNumber = 2;
-    int shippingMethodStepNumber = 3;
-    int paymentMethodStepNumber = 4;
-    int paymentInfoStepNumber = 5;
-    int confirmOrderStepNumber = 6;
+                int billingAddressStepNumber = 2;
+                int shippingMethodStepNumber = 3;
+                int paymentMethodStepNumber = 4;
+                int paymentInfoStepNumber = 5;
+                int confirmOrderStepNumber = 6;
     if (!Model.ShippingRequired)
     {
         billingAddressStepNumber = 1;
@@ -24,7 +33,7 @@
         confirmOrderStepNumber = confirmOrderStepNumber - 2;
     }
 
-}
+        }
 <div class="page checkout-page">
     <h1 class="generalTitle h2 my-3">@Loc["Checkout"]</h1>
     @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_content_before" })
@@ -91,7 +100,7 @@
                                                     <partial name="_BillingAddress" model="Model" />
                                                 }
                                                 else
-                                                {
+        {
                                                     <partial name="_BillingWithoutShipping" model="Model.BillingAddress" />
                                                 }
                                             </div>
