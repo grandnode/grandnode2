@@ -5,8 +5,8 @@
 <template>
     <button id="voicePageButton"
             @@touchstart="voicenavigator.recording = true"
-            @@touchcancel="voicenavigator.recording = false"
-            @@touchend="voicenavigator.recording = false"
+            @@touchcancel="voicenavigator.recording = false; $root.$emit('bv::hide::tooltip')"
+            @@touchend="voicenavigator.recording = false; $root.$emit('bv::hide::tooltip')"
             @@mousedown="voicenavigator.recording = true"
             @@mouseup="voicenavigator.recording = false"
             @@mouseleave="voicenavigator.recording = false"
@@ -25,7 +25,12 @@
              :variant="voicenavigator.variant">
         <div class="recording-window">
             <div class="recording-aniamtion">
-                <b-icon icon="mic" variant="info"></b-icon>
+                <template v-if="voicenavigator.variant !== 'success'">
+                    <b-icon icon="mic" variant="info"></b-icon>
+                </template>
+                <template v-else>
+                    <b-icon icon="check" variant="success"></b-icon>
+                </template>
             </div>
             <input type="text" placeholder="@Loc["voicenavigator.voice.placeholder"]" v-model="voicenavigator.transcript" class="form-control" readonly />
         </div>
@@ -36,53 +41,68 @@
     var voicenavigator = new Vue({
         data: () => ({
             recording: false,
+            recognition: null,
             lang: '@lang',
             commands: { "cart": "/cart", "blog": "/blog", "computers": "/computers", "wishlist": "/wishlist", "login": "/login", "homepage": "/" },
             transcript: "",
             variant: "info",
             micMessage: "@Loc["voicenavigator.voice.holdtospeak"]"
         }),
+        methods: {
+            startRecording() {
+                this.recognition.start();
+            },
+            stopRecording() {
+                this.recognition.stop();
+            },
+        },
         watch: {
             recording: function () {
-                var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
-                var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
+                var speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (speech) {
+                    this.recognition = new speech();
+                    this.recognition.continuous = true;
+                    this.recognition.lang = voicenavigator.lang;
+                    this.recognition.interimResults = false;
+                    this.recognition.maxAlternatives = 1;
 
-                var recognition = new SpeechRecognition();
-                recognition.continuous = true;
-                recognition.lang = voicenavigator.lang;
-                recognition.interimResults = false;
-                recognition.maxAlternatives = 1;
+                    if (this.recording) {
 
-                if (this.recording) {
+                        this.startRecording();
 
-                    recognition.start();
+                        this.micMessage = '@Loc["voicenavigator.voice.placeholder"]';
 
-                    this.micMessage = '@Loc["voicenavigator.voice.placeholder"]';
+                        this.recognition.addEventListener("result", resultOfSpeechRecognition);
 
-                    recognition.addEventListener("result", resultOfSpeechRecognition);
-                    function resultOfSpeechRecognition(event) {
+                        function resultOfSpeechRecognition(event) {
+                            if (voicenavigator.recording) {
+                                var current = event.resultIndex;
+                                var transcript = event.results[current][0].transcript;
+                                var concatTranscript = transcript.replace(/\s/g, '').toLowerCase();
 
-                        var current = event.resultIndex;
-                        var transcript = event.results[current][0].transcript;
-                        var concatTranscript = transcript.replace(/\s/g, '').toLowerCase();
+                                voicenavigator.transcript = transcript;
 
-                        voicenavigator.transcript = transcript;
-
-                        for (const [key, value] of Object.entries(voicenavigator.commands)) {
-                            var check = concatTranscript.includes(key);
-                            if (check) {
-                                voicenavigator.variant = "success"
-                                setTimeout(function () {
-                                    window.location.replace(value);
-                                }, 1000)
-                            } else {
-                                voicenavigator.variant = "info"
-                            }
+                                for (const [key, value] of Object.entries(voicenavigator.commands)) {
+                                    var check = concatTranscript.includes(key);
+                                    if (check) {
+                                        voicenavigator.variant = "success"
+                                        setTimeout(function () {
+                                            window.location.replace(value);
+                                        }, 300);
+                                        return false;
+                                    } else {
+                                        voicenavigator.variant = "info"
+                                    }
+                                }
+                            } 
                         }
+                    } else {
+                        this.stopRecording();
+                        this.transcript = "";
+                        this.micMessage = '@Loc["voicenavigator.voice.holdtospeak"]';
                     }
                 } else {
-                    recognition.stop();
-                    this.micMessage = '@Loc["voicenavigator.voice.holdtospeak"]';
+                    this.micMessage = '@Loc["voicenavigator.voice.notsupported"]';
                 }
             }
         }
