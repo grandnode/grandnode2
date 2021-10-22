@@ -20,8 +20,8 @@
             <div class="input-group-append">
                 <button id="voiceSearchButton" 
                         @@touchstart="searchbox.recording = true" 
-                        @@touchcancel="searchbox.recording = false" 
-                        @@touchend="searchbox.recording = false" 
+                        @@touchcancel="searchbox.recording = false; $root.$emit('bv::hide::tooltip')" 
+                        @@touchend="searchbox.recording = false; $root.$emit('bv::hide::tooltip')" 
                         @@mousedown="searchbox.recording = true" 
                         @@mouseup="searchbox.recording = false" 
                         @@mouseleave="searchbox.recording = false" 
