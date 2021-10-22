@@ -43,7 +43,66 @@
             recording: false,
             recognition: null,
             lang: '@lang',
-            commands: { "cart": "/cart", "blog": "/blog", "computers": "/computers", "wishlist": "/wishlist", "login": "/login", "homepage": "/" },
+            commands: [
+                {
+                    "name": "cart",
+                    "url": "/cart",
+                    "triggers": [
+                        "cart",
+                        "karty",
+                        "koszyka",
+                        "koszyk"
+                    ]
+                },
+                {
+                    "name": "blog",
+                    "url": "/blog",
+                    "triggers": [
+                        "blog",
+                        "bloga"
+                    ]
+                },
+                {
+                    "name": "homepage",
+                    "url": "/",
+                    "triggers": [
+                        "homepage",
+                        "głównej",
+                        "główną",
+                        "home",
+                    ]
+                },
+                {
+                    "name": "wishlist",
+                    "url": "/wishlist",
+                    "triggers": [
+                        "wishlist",
+                        "życzeń"
+                    ]
+                },
+                {
+                    "name": "login",
+                    "url": "/login",
+                    "triggers": [
+                        "login",
+                        "zaloguj",
+                        "logowania",
+                        "zalogować"
+                    ]
+                },
+                {
+                    "name": "register",
+                    "url": "/register",
+                    "triggers": [
+                        "register",
+                        "registration",
+                        "zarejestruj",
+                        "zarejestrować",
+                        "rejestracji",
+                        "rejestracja"
+                    ]
+                }
+            ],
             transcript: "",
             variant: "info",
             micMessage: "@Loc["voicenavigator.voice.holdtospeak"]"
@@ -58,7 +117,7 @@
         },
         watch: {
             recording: function () {
-                var speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const speech = window.SpeechRecognition || window.webkitSpeechRecognition;
                 if (speech) {
                     this.recognition = new speech();
                     this.recognition.continuous = true;
@@ -76,20 +135,23 @@
 
                         function resultOfSpeechRecognition(event) {
                             if (voicenavigator.recording) {
-                                var current = event.resultIndex;
-                                var transcript = event.results[current][0].transcript;
-                                var concatTranscript = transcript.replace(/\s/g, '').toLowerCase();
+                                const current = event.resultIndex;
+                                const transcript = event.results[current][0].transcript;
+                                const concatTranscript = transcript.toLowerCase();
+
+                                var transcriptArray = concatTranscript.split(' ');
 
                                 voicenavigator.transcript = transcript;
 
-                                for (const [key, value] of Object.entries(voicenavigator.commands)) {
-                                    var check = concatTranscript.includes(key);
-                                    if (check) {
+                                for (const [key, element] of Object.entries(voicenavigator.commands)) {
+                                    const found = element.triggers.some(r => transcriptArray.includes(r));
+                                        
+                                    if (found) {
                                         voicenavigator.variant = "success"
                                         setTimeout(function () {
-                                            window.location.replace(value);
+                                            window.location.replace(element.url);
                                         }, 300);
-                                        return false;
+                                        break
                                     } else {
                                         voicenavigator.variant = "info"
                                     }
