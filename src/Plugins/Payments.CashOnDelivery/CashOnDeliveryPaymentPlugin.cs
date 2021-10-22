@@ -60,6 +60,7 @@ namespace Payments.CashOnDelivery
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Payment.CashOnDelivery.AdditionalFeePercentage.Hint", "Determines whether to apply a percentage additional fee to the order total. If not enabled, a fixed value is used.");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Payment.CashOnDelivery.ShippableProductRequired", "Shippable product required");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Payment.CashOnDelivery.ShippableProductRequired.Hint", "An option indicating whether shippable products are required in order to display this payment method during checkout.");
+            await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Payment.CashOnDelivery.SkipPaymentInfo", "Skip payment info");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Plugins.Payment.CashOnDelivery.DisplayOrder", "Display order");
 
 
@@ -81,6 +82,7 @@ namespace Payments.CashOnDelivery
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Plugins.Payment.CashOnDelivery.AdditionalFeePercentage.Hint");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Plugins.Payment.CashOnDelivery.ShippableProductRequired");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Plugins.Payment.CashOnDelivery.ShippableProductRequired.Hint");
+            await this.DeletePluginTranslationResource(_translationService, _languageService, "Plugins.Payment.CashOnDelivery.SkipPaymentInfo");
 
             await base.Uninstall();
         }
