@@ -38,12 +38,8 @@
                     </validation-provider>
                 </fieldset>
                 <fieldset class="form-group">
-                    <validation-provider tag="div" rules="required" name="Phone" v-slot="{ errors, classes }">
-                        <label asp-for="Phone" class="col-form-label">@Loc["Products.AskQuestion.Phone"]:</label>
-                        <input asp-for="Phone" v-model="askquestion.Phone" placeholder="@Loc["Products.AskQuestion.Phone.Hint"]"v-bind:class="[classes , 'form-control ask-question-phone']" />
-                        <span class="field-validation-error">{{ errors[0] }}</span>
-                        <span asp-validation-for="Phone"></span>
-                    </validation-provider>
+                    <label asp-for="Phone" class="col-form-label">@Loc["Products.AskQuestion.Phone"]:</label>
+                    <input asp-for="Phone" placeholder="@Loc["Products.AskQuestion.Phone.Hint"]" class="form-control ask-question-phone" />
                 </fieldset>
                 <fieldset class="form-group">
                     <validation-provider tag="div" rules="required" name="Message" v-slot="{ errors, classes }">
@@ -72,7 +68,6 @@
                             <text>
                                 FullName: '@Html.Raw(Model.FullName)',
                                 Email: '@Html.Raw(Model.Email)',
-                                Phone: '@Html.Raw(Model.Phone)',
                                 Message: '@Html.Raw(Model.Message)',
                             </text>
                         }

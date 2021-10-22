@@ -12,23 +12,19 @@
     <fieldset class="form-group">
         <validation-provider tag="div" rules="required" name="AskQuestionFullName" v-slot="{ errors, classes }">
             <label asp-for="AskQuestionFullName" class="col-form-label">@Loc["Products.AskQuestion.FullName"]:</label>
-            <input asp-for="AskQuestionFullName" v-model="askquestion.AskQuestionFullName" placeholder="@Loc["Products.AskQuestion.FullName.Hint"]"  v-bind:class="[classes , 'form-control ask-question-fullname']" />
+            <input asp-for="AskQuestionFullName" v-model="askquestion.AskQuestionFullName" placeholder="@Loc["Products.AskQuestion.FullName.Hint"]" v-bind:class="[classes , 'form-control ask-question-fullname']" />
             <span class="field-validation-error">{{ errors[0] }}</span>
             <span asp-validation-for="AskQuestionFullName"></span>
         </validation-provider>
     </fieldset>
     <fieldset class="form-group">
-        <validation-provider tag="div" rules="required" name="Phone" v-slot="{ errors, classes }">
-            <label asp-for="AskQuestionPhone" class="col-form-label">@Loc["Products.AskQuestion.Phone"]:</label>
-            <input asp-for="AskQuestionPhone" v-model="askquestion.Phone" placeholder="@Loc["Products.AskQuestion.Phone.Hint"]" v-bind:class="[classes , 'form-control ask-question-phone']" />
-            <span class="field-validation-error">{{ errors[0] }}</span>
-            <span asp-validation-for="AskQuestionPhone"></span>
-        </validation-provider>
+        <label asp-for="AskQuestionPhone" class="col-form-label">@Loc["Products.AskQuestion.Phone"]:</label>
+        <input asp-for="AskQuestionPhone" placeholder="@Loc["Products.AskQuestion.Phone.Hint"]" class="form-control ask-question-phone" />
     </fieldset>
     <fieldset class="form-group">
         <validation-provider tag="div" rules="required" name="AskQuestionMessage" v-slot="{ errors, classes }">
             <label asp-for="AskQuestionMessage" class="col-form-label">@Loc["Products.AskQuestion.Message"]:</label>
-            <textarea asp-for="AskQuestionMessage" v-model="askquestion.AskQuestionMessage" placeholder="@Loc["Products.AskQuestion.Message.Hint"]"  v-bind:class="[classes , 'form-control ask-question-message']" rows="4"></textarea>
+            <textarea asp-for="AskQuestionMessage" v-model="askquestion.AskQuestionMessage" placeholder="@Loc["Products.AskQuestion.Message.Hint"]" v-bind:class="[classes , 'form-control ask-question-message']" rows="4"></textarea>
             <span class="field-validation-error">{{ errors[0] }}</span>
             <span asp-validation-for="AskQuestionMessage"></span>
         </validation-provider>
@@ -40,7 +36,6 @@
                             <text>
                                 AskQuestionEmail: '@Html.Raw(Model.AskQuestionEmail)',
                                 AskQuestionFullName: '@Html.Raw(Model.AskQuestionFullName)',
-                                AskQuestionPhone: '@Html.Raw(Model.AskQuestionPhone)',
                                 AskQuestionMessage: '@Html.Raw(Model.AskQuestionMessage)',
                             </text>
                         }
