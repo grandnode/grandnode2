@@ -101,7 +101,7 @@ namespace Grand.Business.Catalog.Services.Categories
                 }
             }
 
-            query = query.OrderBy(c => c.ParentCategoryId).ThenBy(c => c.DisplayOrder).ThenBy(c => c.Name);
+            query = query.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name);
 
             //pagination
             return await Task.FromResult(new PagedList<Category>(query, pageIndex, pageSize));
