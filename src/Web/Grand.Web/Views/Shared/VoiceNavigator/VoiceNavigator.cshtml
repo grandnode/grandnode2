@@ -48,60 +48,51 @@
                     "name": "cart",
                     "url": "/cart",
                     "triggers": [
-                        "cart",
-                        "karty",
-                        "koszyka",
-                        "koszyk"
+                        @Html.Raw(Loc["voicenavigator.commands.cart"])
                     ]
                 },
                 {
                     "name": "blog",
                     "url": "/blog",
                     "triggers": [
-                        "blog",
-                        "bloga"
+                        @Html.Raw(Loc["voicenavigator.commands.blog"])
                     ]
                 },
                 {
                     "name": "homepage",
                     "url": "/",
                     "triggers": [
-                        "homepage",
-                        "głównej",
-                        "główną",
-                        "home",
+                        @Html.Raw(Loc["voicenavigator.commands.homepage"])
                     ]
                 },
                 {
                     "name": "wishlist",
                     "url": "/wishlist",
                     "triggers": [
-                        "wishlist",
-                        "życzeń"
+                        @Html.Raw(Loc["voicenavigator.commands.wishlist"])
                     ]
                 },
                 {
                     "name": "login",
                     "url": "/login",
                     "triggers": [
-                        "login",
-                        "zaloguj",
-                        "logowania",
-                        "zalogować"
+                        @Html.Raw(Loc["voicenavigator.commands.login"])
                     ]
                 },
                 {
                     "name": "register",
                     "url": "/register",
                     "triggers": [
-                        "register",
-                        "registration",
-                        "zarejestruj",
-                        "zarejestrować",
-                        "rejestracji",
-                        "rejestracja"
+                        @Html.Raw(Loc["voicenavigator.commands.register"])
                     ]
-                }
+                },
+                {
+                    "name": "contactus",
+                    "url": "/contactus",
+                    "triggers": [
+                        @Html.Raw(Loc["voicenavigator.commands.contactus"])
+                    ]
+                },
             ],
             transcript: "",
             variant: "info",
@@ -145,7 +136,7 @@
 
                                 for (const [key, element] of Object.entries(voicenavigator.commands)) {
                                     const found = element.triggers.some(r => transcriptArray.includes(r));
-                                        
+
                                     if (found) {
                                         voicenavigator.variant = "success"
                                         setTimeout(function () {
@@ -156,11 +147,12 @@
                                         voicenavigator.variant = "info"
                                     }
                                 }
-                            } 
+                            }
                         }
                     } else {
                         this.stopRecording();
                         this.transcript = "";
+                        this.variant = "info"
                         this.micMessage = '@Loc["voicenavigator.voice.holdtospeak"]';
                     }
                 } else {
