@@ -11430,6 +11430,9 @@
   <Resource Name="Admin.Settings.GeneralCommon.UseSystemEmailForContactUsForm">
     <Value>Contact us page. Use system email</Value>
   </Resource>
+  <Resource Name="Admin.Settings.GeneralCommon.VoiceNavigation">
+    <Value>Enable voice navigation</Value>
+  </Resource>
   <Resource Name="Admin.Settings.GeneralCommon.YoutubeLink">
     <Value>YouTube channel URL</Value>
   </Resource>
