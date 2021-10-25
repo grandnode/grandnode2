@@ -41,7 +41,7 @@
         data: () => ({
             recording: false,
             recognition: null,
-            lang: 'pl-PL',
+            lang: '@lang',
             commands: [
                 {
                     "name": "cart",
@@ -97,7 +97,7 @@
                 if (speech) {
                     if (this.recording) {
                         this.recognition = new speech();
-                        this.recognition.continuous = false;
+                        this.recognition.continuous = true;
                         this.recognition.lang = voicenavigator.lang;
                         this.recognition.interimResults = false;
                         this.recognition.maxAlternatives = 1;
