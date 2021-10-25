@@ -34,10 +34,14 @@ import { ImagePlugin } from 'bootstrap-vue'
 Vue.use(ImagePlugin)
 import { ToastPlugin } from 'bootstrap-vue'
 Vue.use(ToastPlugin)
+import { AlertPlugin } from 'bootstrap-vue'
+Vue.use(AlertPlugin)
 import { TabsPlugin } from 'bootstrap-vue'
 Vue.use(TabsPlugin)
 import { CollapsePlugin } from 'bootstrap-vue'
 Vue.use(CollapsePlugin)
+import { TooltipPlugin } from 'bootstrap-vue'
+Vue.use(TooltipPlugin)
 
 import {
     BIcon,
@@ -93,6 +97,9 @@ import {
     BIconSun,
     BIconFileEarmarkRichtext,
     BIconHammer,
+    BIconMic,
+    BIconMicMute,
+    BIconCheck
 } from 'bootstrap-vue'
 Vue.component('BIcon', BIcon)
 Vue.component('BIconAspectRatio', BIconAspectRatio)
@@ -147,6 +154,9 @@ Vue.component('BIconMoon', BIconMoon)
 Vue.component('BIconSun', BIconSun)
 Vue.component('BIconFileEarmarkRichtext', BIconFileEarmarkRichtext)
 Vue.component('BIconHammer', BIconHammer)
+Vue.component('BIconMic', BIconMic)
+Vue.component('BIconMicMute', BIconMicMute)
+Vue.component('BIconCheck', BIconCheck)
 
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
 Vue.component('ValidationProvider', ValidationProvider);

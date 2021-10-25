@@ -330,6 +330,7 @@ namespace Grand.Business.System.Services.Installation
                 InstagramLink = "https://www.instagram.com/grandnode/",
                 LinkedInLink = "https://www.linkedin.com/company/grandnode.com/",
                 PinterestLink = "",
+                VoiceNavigation  = false,
             });
 
             await _settingService.SaveSetting(new LoyaltyPointsSettings {
