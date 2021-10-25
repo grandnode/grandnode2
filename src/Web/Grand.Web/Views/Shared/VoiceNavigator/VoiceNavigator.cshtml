@@ -81,7 +81,8 @@
             ],
             transcript: "",
             variant: "info",
-            micMessage: "@Loc["voicenavigator.voice.holdtospeak"]"
+            micMessage: "@Loc["voicenavigator.voice.holdtospeak"]",
+            voiceMessage: "@Loc["voicenavigator.voice.tryagain"]"
         }),
         methods: {
             startRecording() {
@@ -112,23 +113,32 @@
                             if (voicenavigator.recording) {
                                 const current = event.resultIndex;
                                 const transcript = event.results[current][0].transcript;
-                                const concatTranscript = transcript.toLowerCase();
+                                if (event.results[0].isFinal) {
+                                    const concatTranscript = transcript.replace(/[`~!#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '').toLowerCase();
+                                    const transcriptArray = concatTranscript.split(' ');
+                                    voicenavigator.transcript = transcript;
 
-                                var transcriptArray = concatTranscript.split(' ');
+                                    for (const [key, element] of Object.entries(voicenavigator.commands)) {
+                                        const found = element.triggers.some(r => transcriptArray.includes(r));
 
-                                voicenavigator.transcript = transcript;
+                                        if (found) {
+                                            voicenavigator.stopRecording();
+                                            voicenavigator.variant = "success";
 
-                                for (const [key, element] of Object.entries(voicenavigator.commands)) {
-                                    const found = element.triggers.some(r => transcriptArray.includes(r));
+                                            setTimeout(function () {
+                                                window.location.href = element.url;
+                                            }, 300)
 
-                                    if (found) {
-                                        voicenavigator.variant = "success"
-                                        setTimeout(function () {
-                                            window.location.replace(element.url);
-                                        }, 300);
-                                        break
-                                    } else {
-                                        voicenavigator.variant = "info"
+                                            break
+                                        } else {
+                                            if (key == voicenavigator.commands.length - 1) {
+                                                setTimeout(function () {
+                                                    var msg = new SpeechSynthesisUtterance();
+                                                    msg.text = voicenavigator.voiceMessage;
+                                                    window.speechSynthesis.speak(msg);
+                                                }, 300)
+                                            }
+                                        }
                                     }
                                 }
                             }

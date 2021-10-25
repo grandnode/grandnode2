@@ -228,13 +228,14 @@
                             const transcript = event.results[current][0].transcript;
 
                             if (transcript.toLowerCase().trim() === "@Loc["search.voice.stop"]") {
-                                this.stopRecording();
+                                searchbox.stopRecording();
                             }
                             else if (!searchBoxInput.value && searchbox.recording) {
                                 searchbox.text = transcript;
                             }
                             else {
                                 if (transcript.toLowerCase().trim() === '@Loc["search.voice.go"]') {
+                                    searchbox.stopRecording();
                                     searchForm.submit();
                                 }
                                 else if (transcript.toLowerCase().trim() === '@Loc["search.voice.reset"]') {
