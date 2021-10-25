@@ -15870,6 +15870,9 @@
   <Resource Name="Search.Vendor">
     <Value>Vendor</Value>
   </Resource>
+  <Resource Name="search.voice.annotationsearch.voice.annotation">
+    <Value>Say what do you want to find in our store, i.e Mi Notebook</Value>
+  </Resource>
   <Resource Name="search.voice.go">
     <Value>Go</Value>
   </Resource>
@@ -16605,8 +16608,47 @@
   <Resource Name="Vendors.List">
     <Value>Vendor List</Value>
   </Resource>
+  <Resource Name="Vendors.List">
+    <Value>Vendor List</Value>
+  </Resource>
   <Resource Name="Vendors.ViewAll">
     <Value>View all</Value>
+  </Resource>
+  <Resource Name="voicenavigator.voice.annotation">
+    <Value>Say what do you want to do in the store, i.e Show me the cart</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.blog">
+    <Value>blog, blog posts</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.cart">
+    <Value>cart, shopping cart, basket</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.contactus">
+    <Value>contact us, contact</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.homepage">
+    <Value>homepage, home</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.login">
+    <Value>login, log me in</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.wishlist">
+    <Value>wishlist, waitlist</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.register">
+    <Value>register, create account</Value>
+  </Resource>
+  <Resource Name="voicenavigator.voice.holdtospeak">
+    <Value>Hold to speak</Value>
+  </Resource>
+  <Resource Name="voicenavigator.voice.placeholder">
+    <Value>Say something...</Value>
+  </Resource>
+  <Resource Name="voicenavigator.voice.notsupported">
+    <Value>Your browser doesn't support this feature</Value>
+  </Resource>
+  <Resource Name="voicenavigator.voice.tryagain">
+    <Value>Try again</Value>
   </Resource>
   <Resource Name="Wishlist">
     <Value>Wishlist</Value>
