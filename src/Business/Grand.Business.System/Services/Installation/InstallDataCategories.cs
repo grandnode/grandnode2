@@ -41,7 +41,7 @@ namespace Grand.Business.System.Services.Installation
                 Published = true,
                 Flag = "New",
                 FlagStyle = "badge-danger",
-                DisplayOrder = 1,
+                DisplayOrder = 100,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow
             };
@@ -58,7 +58,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categoryComputers.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = 1,
+                DisplayOrder = categoryComputers.DisplayOrder + 1,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow
             };
@@ -75,7 +75,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categoryComputers.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = 2,
+                DisplayOrder = categoryComputers.DisplayOrder + 2,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow
             };
@@ -92,7 +92,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categoryComputers.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = 3,
+                DisplayOrder = categoryComputers.DisplayOrder + 3,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow
             };
@@ -110,7 +110,7 @@ namespace Grand.Business.System.Services.Installation
                 IncludeInMenu = true,
                 Published = true,
                 ShowOnHomePage = false,
-                DisplayOrder = 2,
+                DisplayOrder = 200,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow
             };
@@ -127,7 +127,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categoryElectronics.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = 1,
+                DisplayOrder = categoryElectronics.DisplayOrder + 1,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow
             };
@@ -144,7 +144,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categoryElectronics.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = 2,
+                DisplayOrder = categoryElectronics.DisplayOrder + 2,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow
             };
@@ -162,7 +162,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categoryElectronics.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = 3,
+                DisplayOrder = categoryElectronics.DisplayOrder + 3,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow
             };
@@ -181,7 +181,7 @@ namespace Grand.Business.System.Services.Installation
                 IncludeInMenu = true,
                 Published = true,
                 ShowOnHomePage = true,
-                DisplayOrder = 3,
+                DisplayOrder = 300,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow
             };
@@ -198,7 +198,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categorySport.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = 1,
+                DisplayOrder = categorySport.DisplayOrder + 1,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow
             };
@@ -215,7 +215,7 @@ namespace Grand.Business.System.Services.Installation
                 ParentCategoryId = categorySport.Id,
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = 2,
+                DisplayOrder = categorySport.DisplayOrder + 2,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow
             };
@@ -233,7 +233,7 @@ namespace Grand.Business.System.Services.Installation
                 PageSizeOptions = "6, 3, 9",
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = 6,
+                DisplayOrder = categorySport.DisplayOrder + 3,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow
             };
@@ -251,7 +251,7 @@ namespace Grand.Business.System.Services.Installation
                 IncludeInMenu = true,
                 Published = true,
                 ShowOnHomePage = false,
-                DisplayOrder = 4,
+                DisplayOrder = 400,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow
             };
@@ -271,7 +271,7 @@ namespace Grand.Business.System.Services.Installation
                 IncludeInMenu = true,
                 Published = true,
                 ShowOnHomePage = true,
-                DisplayOrder = 5,
+                DisplayOrder = 500,
                 Flag = "Promo!",
                 FlagStyle = "bg-success",
                 CreatedOnUtc = DateTime.UtcNow,
@@ -290,7 +290,7 @@ namespace Grand.Business.System.Services.Installation
                 PageSizeOptions = "6, 3, 9",
                 IncludeInMenu = true,
                 Published = true,
-                DisplayOrder = 7,
+                DisplayOrder = 600,
                 CreatedOnUtc = DateTime.UtcNow,
                 UpdatedOnUtc = DateTime.UtcNow
             };
