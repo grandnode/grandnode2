@@ -45,7 +45,7 @@
             }
             @RenderBody()
             @await Component.InvokeAsync("Widget", new { widgetZone = "content_after" })
-            <partial name="VoiceNavigator/VoiceNavigator" />
+            <vc:voice-navigation></vc:voice-navigation>
         </b-container>
         @await Component.InvokeAsync("Footer")
         <partial name="_Cookie" />
