@@ -117,6 +117,7 @@
     var searchBox = Vue.extend({
         data: () => ({
             recording: false,
+            recognition: null,
             searchitems: null,
             focus: false,
             text: "",
@@ -129,6 +130,12 @@
             searchproducts: null,
         }),
         methods: {
+            startRecording() {
+                this.recognition.start();
+            },
+            stopRecording() {
+                this.recognition.stop();
+            },
             autocompleteVue() {
                 var delayTimer;
                 function getCategories(item) {
@@ -200,29 +207,28 @@
             recording: function () {
                 const speech = window.SpeechRecognition || window.webkitSpeechRecognition;
                 if (speech) {
-
-                    const recognition = new speech();
-                    const searchForm = vm.$refs.searchForm;
-                    const searchBoxInput = vm.$refs.searchBoxInput;
-                    recognition.continuous = true;
-                    recognition.lang = searchbox.lang;
-
-                    searchBoxInput.focus();
-
                     if (this.recording) {
-                        recognition.start();
+                        this.recognition = new speech();
+                        this.recognition.continuous = true;
+                        this.recognition.lang = searchbox.lang;
+                        const searchForm = vm.$refs.searchForm;
+                        const searchBoxInput = vm.$refs.searchBoxInput;
+
+                        searchBoxInput.focus();
+
+                        this.startRecording();
 
                         this.placeholder = '@Loc["search.voice.placeholder"]';
                         this.micMessage = '@Loc["search.voice.placeholder"]';
 
-                        recognition.addEventListener("result", resultOfSpeechRecognition);
+                        this.recognition.addEventListener("result", resultOfSpeechRecognition);
                         function resultOfSpeechRecognition(event) {
 
                             const current = event.resultIndex;
                             const transcript = event.results[current][0].transcript;
 
                             if (transcript.toLowerCase().trim() === "@Loc["search.voice.stop"]") {
-                                recognition.stop();
+                                this.stopRecording();
                             }
                             else if (!searchBoxInput.value && searchbox.recording) {
                                 searchbox.text = transcript;
@@ -240,7 +246,7 @@
                             }
                         }
                     } else {
-                        recognition.stop();
+                        this.stopRecording();
                         this.placeholder = '@Loc["Search.SearchBox.Tooltip"]';
                         this.micMessage = '@Loc["search.voice.holdtospeak"]'
                     }
