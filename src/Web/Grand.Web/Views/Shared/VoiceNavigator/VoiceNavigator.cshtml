@@ -81,7 +81,8 @@
             ],
             transcript: "",
             variant: "info",
-            micMessage: "@Loc["voicenavigator.voice.holdtospeak"]"
+            micMessage: "@Loc["voicenavigator.voice.holdtospeak"]",
+            voiceMessage: "@Loc["voicenavigator.voice.tryagain"]"
         }),
         methods: {
             startRecording() {
@@ -123,10 +124,20 @@
                                         if (found) {
                                             voicenavigator.stopRecording();
                                             voicenavigator.variant = "success";
+
                                             setTimeout(function () {
                                                 window.location.href = element.url;
                                             }, 300)
+
                                             break
+                                        } else {
+                                            if (key == voicenavigator.commands.length - 1) {
+                                                setTimeout(function () {
+                                                    var msg = new SpeechSynthesisUtterance();
+                                                    msg.text = voicenavigator.voiceMessage;
+                                                    window.speechSynthesis.speak(msg);
+                                                }, 300)
+                                            }
                                         }
                                     }
                                 }
