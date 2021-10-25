@@ -10,7 +10,6 @@
             @@mousedown="voicenavigator.recording = true"
             @@mouseup="voicenavigator.recording = false"
             @@mouseleave="voicenavigator.recording = false"
-            v-b-tooltip.hover.left :title="voicenavigator.micMessage"
             ref="voicePageButton" type="button" v-bind:class="[{ focus: voicenavigator.recording }, 'btn btn-link voice-page-button']">
         <template v-if="voicenavigator.recording">
             <b-icon icon="mic" variant="info"></b-icon>
@@ -110,13 +109,12 @@
             recording: function () {
                 const speech = window.SpeechRecognition || window.webkitSpeechRecognition;
                 if (speech) {
-                    this.recognition = new speech();
-                    this.recognition.continuous = true;
-                    this.recognition.lang = voicenavigator.lang;
-                    this.recognition.interimResults = false;
-                    this.recognition.maxAlternatives = 1;
-
                     if (this.recording) {
+                        this.recognition = new speech();
+                        this.recognition.continuous = true;
+                        this.recognition.lang = voicenavigator.lang;
+                        this.recognition.interimResults = false;
+                        this.recognition.maxAlternatives = 1;
 
                         this.startRecording();
 
