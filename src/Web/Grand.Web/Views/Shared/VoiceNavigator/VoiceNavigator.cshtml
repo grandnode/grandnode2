@@ -112,23 +112,22 @@
                             if (voicenavigator.recording) {
                                 const current = event.resultIndex;
                                 const transcript = event.results[current][0].transcript;
-                                const concatTranscript = transcript.toLowerCase();
+                                if (event.results[0].isFinal) {
+                                    const concatTranscript = transcript.replace(/[`~!#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '').toLowerCase();
+                                    const transcriptArray = concatTranscript.split(' ');
+                                    voicenavigator.transcript = transcript;
 
-                                var transcriptArray = concatTranscript.split(' ');
+                                    for (const [key, element] of Object.entries(voicenavigator.commands)) {
+                                        const found = element.triggers.some(r => transcriptArray.includes(r));
 
-                                voicenavigator.transcript = transcript;
-
-                                for (const [key, element] of Object.entries(voicenavigator.commands)) {
-                                    const found = element.triggers.some(r => transcriptArray.includes(r));
-
-                                    if (found) {
-                                        voicenavigator.variant = "success"
-                                        setTimeout(function () {
-                                            window.location.replace(element.url);
-                                        }, 300);
-                                        break
-                                    } else {
-                                        voicenavigator.variant = "info"
+                                        if (found) {
+                                            voicenavigator.stopRecording();
+                                            voicenavigator.variant = "success";
+                                            setTimeout(function () {
+                                                window.location.href = element.url;
+                                            }, 300)
+                                            break
+                                        }
                                     }
                                 }
                             }
