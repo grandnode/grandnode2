@@ -107,7 +107,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             {
                 var categoriesModel = new List<SearchModel.CategoryModel>();
                 //all categories
-                var allCategories = await _categoryService.GetAllCategories(parentId: "", storeId: request.Store.Id);
+                var allCategories = await _categoryService.GetAllCategories(storeId: request.Store.Id, pageSize: 100);
                 foreach (var c in allCategories)
                 {
                     //generate full category name (breadcrumb)
@@ -144,7 +144,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 }
             }
 
-            var collections = await _collectionService.GetAllCollections();
+            var collections = await _collectionService.GetAllCollections(pageSize: 100);
             if (collections.Any())
             {
                 request.Model.AvailableCollections.Add(new SelectListItem {
@@ -162,7 +162,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             request.Model.asv = _vendorSettings.AllowSearchByVendor;
             if (request.Model.asv)
             {
-                var vendors = await _vendorService.GetAllVendors();
+                var vendors = await _vendorService.GetAllVendors(pageSize: 100);
                 if (vendors.Any())
                 {
                     request.Model.AvailableVendors.Add(new SelectListItem {
