@@ -41,57 +41,43 @@
         data: () => ({
             recording: false,
             recognition: null,
-            lang: '@lang',
+            lang: 'pl-PL',
             commands: [
                 {
                     "name": "cart",
                     "url": "/cart",
-                    "triggers": [
-                        @Html.Raw(Loc["voicenavigator.commands.cart"])
-                    ]
+                    "triggers": @Html.Raw(Json.Serialize(Loc["voicenavigator.commands.cart"].Value.Split(',')))
                 },
                 {
                     "name": "blog",
                     "url": "/blog",
-                    "triggers": [
-                        @Html.Raw(Loc["voicenavigator.commands.blog"])
-                    ]
+                    "triggers": @Html.Raw(Json.Serialize(Loc["voicenavigator.commands.blog"].Value.Split(',')))
                 },
                 {
                     "name": "homepage",
                     "url": "/",
-                    "triggers": [
-                        @Html.Raw(Loc["voicenavigator.commands.homepage"])
-                    ]
+                    "triggers": @Html.Raw(Json.Serialize(Loc["voicenavigator.commands.homepage"].Value.Split(',')))
                 },
                 {
                     "name": "wishlist",
                     "url": "/wishlist",
-                    "triggers": [
-                        @Html.Raw(Loc["voicenavigator.commands.wishlist"])
-                    ]
+                    "triggers": @Html.Raw(Json.Serialize(Loc["voicenavigator.commands.wishlist"].Value.Split(',')))
                 },
                 {
                     "name": "login",
                     "url": "/login",
-                    "triggers": [
-                        @Html.Raw(Loc["voicenavigator.commands.login"])
-                    ]
+                    "triggers": @Html.Raw(Json.Serialize(Loc["voicenavigator.commands.login"].Value.Split(',')))
                 },
                 {
                     "name": "register",
                     "url": "/register",
-                    "triggers": [
-                        @Html.Raw(Loc["voicenavigator.commands.register"])
-                    ]
+                    "triggers": @Html.Raw(Json.Serialize(Loc["voicenavigator.commands.register"].Value.Split(',')))
                 },
                 {
                     "name": "contactus",
                     "url": "/contactus",
-                    "triggers": [
-                        @Html.Raw(Loc["voicenavigator.commands.contactus"])
-                    ]
-                },
+                    "triggers": @Html.Raw(Json.Serialize(Loc["voicenavigator.commands.contactus"].Value.Split(',')))
+                }
             ],
             transcript: "",
             variant: "info",
@@ -111,7 +97,7 @@
                 if (speech) {
                     if (this.recording) {
                         this.recognition = new speech();
-                        this.recognition.continuous = true;
+                        this.recognition.continuous = false;
                         this.recognition.lang = voicenavigator.lang;
                         this.recognition.interimResults = false;
                         this.recognition.maxAlternatives = 1;
