@@ -81,7 +81,10 @@ namespace Grand.Web.Admin.Models.Settings
 
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.PinterestLink")]
             public string PinterestLink { get; set; }
-           
+
+            [GrandResourceDisplayName("Admin.Settings.GeneralCommon.VoiceNavigation")]
+            public bool VoiceNavigation { get; set; }
+
             #region Nested classes
 
             public partial class ThemeConfigurationModel

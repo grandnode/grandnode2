@@ -67,5 +67,10 @@ namespace Grand.Domain.Stores
         /// Gets or sets a value of Pinterest page URL of the site
         /// </summary>
         public string PinterestLink { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether we enable voice navigation
+        /// </summary>
+        public bool VoiceNavigation { get; set; }
     }
 }
