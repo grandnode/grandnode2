@@ -806,6 +806,9 @@ input:checked ~ .color-container .color::before {
     animation: boxShadow 2s infinite;
 }
 .voice-alert {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
     pointer-events: none;
     z-index: 1034;
 }

@@ -92,24 +92,38 @@
                 this.recognition.stop();
             },
             allowCheck() {
-                navigator.permissions.query(
-                { name: 'microphone' }
-                ).then(function (permissionStatus) {
+                var isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
+                    navigator.userAgent &&
+                    navigator.userAgent.indexOf('CriOS') == -1 &&
+                    navigator.userAgent.indexOf('FxiOS') == -1;
+                if (!isSafari) {
+                    navigator.permissions.query(
+                        { name: 'microphone' }
+                    ).then(function (permissionStatus) {
 
-                    if (permissionStatus.state == "denied") {
-                        voicenavigator.allowed = false;
-                    } else {
-                        voicenavigator.allowed = true;
-                    }
-
-                    permissionStatus.onchange = function () {
-                        if (this.state == "denied") {
+                        if (permissionStatus.state == "denied") {
                             voicenavigator.allowed = false;
                         } else {
                             voicenavigator.allowed = true;
                         }
+
+                        permissionStatus.onchange = function () {
+                            if (this.state == "denied") {
+                                voicenavigator.allowed = false;
+                            } else {
+                                voicenavigator.allowed = true;
+                            }
+                        }
+                    });
+                } else {
+                    if (navigator.mediaDevices != undefined) {
+                        navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+                            voicenavigator.allowed = true;
+                        }).catch(function (err) {
+                            voicenavigator.allowed = false;
+                        })
                     }
-                });
+                }
             }
         },
         created() {
