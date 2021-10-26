@@ -13,6 +13,7 @@
     "bootstrap": "^4.6.0",
     "bootstrap-vue": "^2.21.2",
     "core-js": "^3.6.5",
+    "hammerjs": "^2.0.8",
     "pikaday": "^1.8.2",
     "sass-loader": "^12.1.0",
     "vee-validate": "^3.1.0",

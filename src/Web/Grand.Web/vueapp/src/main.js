@@ -255,7 +255,9 @@ import VueGallerySlideshow from 'vue-gallery-slideshow'
 
 import axios from 'axios'
 import Pikaday from 'pikaday'
+import hammerjs from 'hammerjs'
 
+window.hammerjs = require('hammerjs').default;
 window.axios = require('axios').default;
 window.Pikaday = require('pikaday');
 window.VueGallerySlideshow = VueGallerySlideshow;

@@ -4,12 +4,6 @@
 }
 <template v-if="voicenavigator.allowed">
     <button id="voicePageButton"
-            @@touchstart="voicenavigator.recording = true"
-            @@touchcancel="voicenavigator.recording = false; $root.$emit('bv::hide::tooltip')"
-            @@touchend="voicenavigator.recording = false; $root.$emit('bv::hide::tooltip')"
-            @@mousedown="voicenavigator.recording = true"
-            @@mouseup="voicenavigator.recording = false"
-            @@mouseleave="voicenavigator.recording = false"
             ref="voicePageButton" type="button" v-bind:class="[{ focus: voicenavigator.recording }, 'btn btn-link voice-page-button']">
         <template v-if="voicenavigator.recording">
             <b-icon icon="mic" variant="info"></b-icon>
@@ -36,6 +30,7 @@
         <small class="form-text w-100">@Loc["voicenavigator.voice.annotation"]</small>
     </b-alert>
 </template>
+<script asp-location="Footer" asp-src="/bundles/js/hammerjs.js" asp-order="118"></script>
 <script asp-location="Footer" asp-order="300">
     var voicenavigator = new Vue({
         data: () => ({
@@ -92,27 +87,44 @@
             stopRecording() {
                 this.recognition.stop();
             },
-        },
-        created() {
-            navigator.permissions.query(
-                { name: 'microphone' }
-            ).then(function (permissionStatus) {
+            holdButton() {
+                document.addEventListener("DOMContentLoaded", function () {
+                    var myElement = document.getElementById('voicePageButton');
+                    var manager = new Hammer.Manager(myElement);
+                    var Press = new Hammer.Press({
+                        time: 0
+                    });
+                    manager.add(Press);
 
-                if (permissionStatus.state == "denied") {
-                    voicenavigator.allowed = false;
-                } else {
-                    voicenavigator.allowed = true;
-                }
+                    manager.on("press pressup", function (ev) {
+                        voicenavigator.recording = !voicenavigator.recording;
+                    });
+                });
+            },
+            allowCheck() {
+                navigator.permissions.query(
+                    { name: 'microphone' }
+                ).then(function (permissionStatus) {
 
-                permissionStatus.onchange = function () {
-                    if (this.state == "denied") {
+                    if (permissionStatus.state == "denied") {
                         voicenavigator.allowed = false;
                     } else {
                         voicenavigator.allowed = true;
                     }
-                }
 
-            });
+                    permissionStatus.onchange = function () {
+                        if (this.state == "denied") {
+                            voicenavigator.allowed = false;
+                        } else {
+                            voicenavigator.allowed = true;
+                        }
+                    }
+                });
+            }
+        },
+        created() {
+            this.allowCheck();
+            this.holdButton();
         },
         watch: {
             recording: function () {
