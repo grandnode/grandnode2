@@ -1677,7 +1677,7 @@ footer .list-group-item span:last-child {
 [dark-theme="true"] .date-text, [dark-theme="true"] .product-box .spec-value {
     color: #aaa;
 }
-[dark-theme="true"] footer .list-group-item-action, [dark-theme="true"] .generalLeftSide .btn.color-container,
+[dark-theme="true"] footer .list-group-item-action, [dark-theme="true"] .generalLeftSide .btn.color-container, [dark-theme="true"] .recording-window input.form-control,
 [dark-theme="true"] footer .list-group-item:not(.list-group-item-action), [dark-theme="true"] .newsletter-email-button, [dark-theme="true"] .product-box::before, [dark-theme="true"] .product-box {
     background-color: transparent;
 }
