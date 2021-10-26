@@ -345,7 +345,7 @@ namespace Grand.Web.Endpoints
 
             //change currency 
             endpointRouteBuilder.MapControllerRoute("ChangeCurrency",
-                            pattern + "changecurrency/{customercurrency}",
+                            pattern + "changecurrency/{currencycode}",
                             new { controller = "Common", action = "SetCurrency" });
 
             //change language 

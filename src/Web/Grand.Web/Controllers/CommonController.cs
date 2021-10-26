@@ -210,9 +210,9 @@ namespace Grand.Web.Controllers
         public virtual async Task<IActionResult> SetCurrency(
             [FromServices] ICurrencyService currencyService,
             [FromServices] IUserFieldService userFieldService,
-            string customerCurrency, string returnUrl = "")
+            string currencyCode, string returnUrl = "")
         {
-            var currency = await currencyService.GetCurrencyById(customerCurrency);
+            var currency = await currencyService.GetCurrencyByCode(currencyCode);
             if (currency != null)
                 await _workContext.SetWorkingCurrency(currency);
 

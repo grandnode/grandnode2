@@ -33,7 +33,7 @@ var currencyModel = new CurrencyModel
         {
             Name = x.Name,
             Text = x.CurrencyCode,
-            Value = Url.RouteUrl("ChangeCurrency", new { customercurrency = x.Id, returnUrl }),
+            Value = Url.RouteUrl("ChangeCurrency", new { currencyCode = x.CurrencyCode, returnUrl }),
             Selected = x.Id.Equals(workContext.WorkingCurrency.Id)
         });
         <b-dropdown class="mr-2" text="@currencies.FirstOrDefault(x => x.Selected).Text">
