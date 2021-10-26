@@ -171,6 +171,9 @@ namespace Grand.Web.Controllers
 
             await _workContext.SetWorkingLanguage(language);
 
+            //notification
+            await _mediator.Publish(new ChangeLanguageEvent(_workContext.CurrentCustomer, language));
+
             return Redirect(returnUrl);
         }
 
@@ -222,8 +225,11 @@ namespace Grand.Web.Controllers
             //clear gift card
             await userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.GiftVoucherCoupons, "");
 
+            //notification
+            await _mediator.Publish(new ChangeCurrencyEvent(_workContext.CurrentCustomer, currency));
+
             //home page
-            if (String.IsNullOrEmpty(returnUrl))
+            if (string.IsNullOrEmpty(returnUrl))
                 returnUrl = Url.RouteUrl("HomePage");
 
             //prevent open redirection attack
@@ -248,7 +254,12 @@ namespace Grand.Web.Controllers
                 {
                     var selectedstore = await storeService.GetStoreById(store);
                     if (selectedstore != null)
+                    {
                         await _storeHelper.SetStoreCookie(store);
+
+                        //notification
+                        await _mediator.Publish(new ChangeStoreEvent(_workContext.CurrentCustomer, selectedstore));
+                    }
                 }
             }
             var prevStore = await storeService.GetStoreById(currentstoreid);
@@ -263,7 +274,7 @@ namespace Grand.Web.Controllers
             }
 
             //home page
-            if (String.IsNullOrEmpty(returnUrl))
+            if (string.IsNullOrEmpty(returnUrl))
                 returnUrl = Url.RouteUrl("HomePage");
 
             //prevent open redirection attack
@@ -280,8 +291,11 @@ namespace Grand.Web.Controllers
             var taxDisplayType = (TaxDisplayType)Enum.ToObject(typeof(TaxDisplayType), customerTaxType);
             await _workContext.SetTaxDisplayType(taxDisplayType);
 
+            //notification
+            await _mediator.Publish(new ChangeTaxTypeEvent(_workContext.CurrentCustomer, taxDisplayType));
+
             //home page
-            if (String.IsNullOrEmpty(returnUrl))
+            if (string.IsNullOrEmpty(returnUrl))
                 returnUrl = Url.RouteUrl("HomePage");
 
             //prevent open redirection attack
@@ -290,6 +304,27 @@ namespace Grand.Web.Controllers
 
             return Redirect(returnUrl);
         }
+
+        public virtual async Task<IActionResult> SetStoreTheme(
+            [FromServices] IThemeContext themeContext, string themeName, string returnUrl = "")
+        {
+            await themeContext.SetWorkingTheme(themeName);
+
+            //notification
+            await _mediator.Publish(new ChangeThemeEvent(_workContext.CurrentCustomer, themeName));
+
+            //home page
+            if (string.IsNullOrEmpty(returnUrl))
+                returnUrl = Url.RouteUrl("HomePage");
+
+            //prevent open redirection attack
+            if (!Url.IsLocalUrl(returnUrl))
+                returnUrl = Url.RouteUrl("HomePage");
+
+            return Redirect(returnUrl);
+        }
+
+
 
         //contact us page
         //available even when a store is closed
@@ -389,23 +424,6 @@ namespace Grand.Web.Controllers
             });
             return View(model);
         }
-
-        public virtual async Task<IActionResult> SetStoreTheme(
-            [FromServices] IThemeContext themeContext, string themeName, string returnUrl = "")
-        {
-            await themeContext.SetWorkingTheme(themeName);
-
-            //home page
-            if (string.IsNullOrEmpty(returnUrl))
-                returnUrl = Url.RouteUrl("HomePage");
-
-            //prevent open redirection attack
-            if (!Url.IsLocalUrl(returnUrl))
-                returnUrl = Url.RouteUrl("HomePage");
-
-            return Redirect(returnUrl);
-        }
-
 
         [HttpPost]
         [ClosedStore(true)]
