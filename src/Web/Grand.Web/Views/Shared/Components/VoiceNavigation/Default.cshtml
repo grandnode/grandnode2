@@ -4,6 +4,12 @@
 }
 <template v-if="voicenavigator.allowed">
     <button id="voicePageButton"
+            @@touchstart="voicenavigator.recording = true"
+            @@touchcancel="voicenavigator.recording = false;"
+            @@touchend="voicenavigator.recording = false;"
+            @@mousedown="voicenavigator.recording = true"
+            @@mouseup="voicenavigator.recording = false"
+            @@mouseleave="voicenavigator.recording = false"
             ref="voicePageButton" type="button" v-bind:class="[{ focus: voicenavigator.recording }, 'btn btn-link voice-page-button']">
         <template v-if="voicenavigator.recording">
             <b-icon icon="mic" variant="info"></b-icon>
@@ -86,23 +92,9 @@
             stopRecording() {
                 this.recognition.stop();
             },
-            holdButton() {
-                document.addEventListener("DOMContentLoaded", function () {
-                    var myElement = document.getElementById('voicePageButton');
-                    var manager = new Hammer.Manager(myElement);
-                    var Press = new Hammer.Press({
-                        time: 0
-                    });
-                    manager.add(Press);
-
-                    manager.on("press pressup", function (ev) {
-                        voicenavigator.recording = !voicenavigator.recording;
-                    });
-                });
-            },
             allowCheck() {
                 navigator.permissions.query(
-                    { name: 'microphone' }
+                { name: 'microphone' }
                 ).then(function (permissionStatus) {
 
                     if (permissionStatus.state == "denied") {
@@ -123,7 +115,6 @@
         },
         created() {
             this.allowCheck();
-            this.holdButton();
         },
         watch: {
             recording: function () {

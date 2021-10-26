@@ -1579,6 +1579,9 @@ footer .list-group-item span:last-child {
         width: 100%;
         text-align: right;
     }
+    .voice-page-button {
+        bottom: 135px;
+    }
     .up-btn {
         bottom: 75px;
     }
