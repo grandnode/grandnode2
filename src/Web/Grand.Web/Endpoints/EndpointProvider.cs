@@ -361,7 +361,7 @@ namespace Grand.Web.Endpoints
 
             //change store 
             endpointRouteBuilder.MapControllerRoute("ChangeStore",
-                            pattern + "changestore/{store}",
+                            pattern + "changestore/{shortcut}",
                             new { controller = "Common", action = "SetStore" });
 
             //get state list by country ID 

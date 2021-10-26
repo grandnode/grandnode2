@@ -26,7 +26,7 @@
                 @foreach (var store in availableStores)
                 {
                     var className = store.Id == workContext.CurrentStore.Id ? "active" : "";
-                    <b-dropdown-item class="@className" href="@Url.RouteUrl("ChangeStore", new { store = store.Id, returnUrl })">
+                    <b-dropdown-item class="@className" href="@Url.RouteUrl("ChangeStore", new { shortcut = store.Shortcut, returnUrl })">
                         @store.Name
                     </b-dropdown-item>
                 }

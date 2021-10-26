@@ -245,31 +245,26 @@ namespace Grand.Web.Controllers
             [FromServices] IStoreService storeService,
             [FromServices] IStoreHelper _storeHelper,
             [FromServices] CommonSettings commonSettings,
-            string store, string returnUrl = "")
+            string shortcut, string returnUrl = "")
         {
-            var currentstoreid = _workContext.CurrentStore.Id;
-            if (currentstoreid != store)
+            var currentstoreShortcut = _workContext.CurrentStore.Shortcut;
+            if (currentstoreShortcut != shortcut)
             {
                 if (commonSettings.AllowToSelectStore)
                 {
-                    var selectedstore = await storeService.GetStoreById(store);
+                    var selectedstore = storeService.GetAll().FirstOrDefault(x => x.Shortcut.ToLowerInvariant() == shortcut.ToLowerInvariant());
                     if (selectedstore != null)
                     {
-                        await _storeHelper.SetStoreCookie(store);
+                        await _storeHelper.SetStoreCookie(selectedstore.Id);
 
                         //notification
                         await _mediator.Publish(new ChangeStoreEvent(_workContext.CurrentCustomer, selectedstore));
-                    }
-                }
-            }
-            var prevStore = await storeService.GetStoreById(currentstoreid);
-            var currStore = await storeService.GetStoreById(store);
 
-            if (prevStore != null && currStore != null)
-            {
-                if (prevStore.Url != currStore.Url)
-                {
-                    return Redirect(currStore.SslEnabled ? currStore.SecureUrl : currStore.Url);
+                        if (selectedstore.Url != _workContext.CurrentStore.Url)
+                        {
+                            return Redirect(selectedstore.SslEnabled ? selectedstore.SecureUrl : selectedstore.Url);
+                        }
+                    }
                 }
             }
 
@@ -339,8 +334,7 @@ namespace Grand.Web.Controllers
                 if (closestorepage == null || !closestorepage.AccessibleWhenStoreClosed)
                     return RedirectToRoute("StoreClosed");
             }
-            var model = await _mediator.Send(new ContactUsCommand()
-            {
+            var model = await _mediator.Send(new ContactUsCommand() {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
@@ -372,8 +366,7 @@ namespace Grand.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new ContactUsSendCommand()
-                {
+                var result = await _mediator.Send(new ContactUsSendCommand() {
                     CaptchaValid = captchaValid,
                     Form = form,
                     Model = model,
@@ -397,8 +390,7 @@ namespace Grand.Web.Controllers
                     return View(model);
                 }
             }
-            model = await _mediator.Send(new ContactUsCommand()
-            {
+            model = await _mediator.Send(new ContactUsCommand() {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
@@ -416,8 +408,7 @@ namespace Grand.Web.Controllers
             if (!commonSettings.SitemapEnabled)
                 return RedirectToRoute("HomePage");
 
-            var model = await _mediator.Send(new GetSitemap()
-            {
+            var model = await _mediator.Send(new GetSitemap() {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
@@ -463,8 +454,7 @@ namespace Grand.Web.Controllers
                 //disabled
                 return Json(new { html = "" });
 
-            var model = await _mediator.Send(new GetPrivacyPreference()
-            {
+            var model = await _mediator.Send(new GetPrivacyPreference() {
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore
             });
@@ -473,7 +463,7 @@ namespace Grand.Web.Controllers
             {
                 html = await this.RenderPartialViewToString("PrivacyPreference", model, true),
                 model = model,
-            }); 
+            });
         }
 
         [HttpPost]
@@ -531,8 +521,7 @@ namespace Grand.Web.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> ContactAttributeChange(IFormCollection form)
         {
-            var result = await _mediator.Send(new ContactAttributeChangeCommand()
-            {
+            var result = await _mediator.Send(new ContactAttributeChangeCommand() {
                 Form = form,
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore
@@ -590,7 +579,7 @@ namespace Grand.Web.Controllers
                 var allowedFileExtensions = attribute.ValidationFileAllowedExtensions.ToLowerInvariant()
                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .ToList();
-                if(!allowedFileExtensions.Contains(fileExtension.ToLowerInvariant()))
+                if (!allowedFileExtensions.Contains(fileExtension.ToLowerInvariant()))
                 {
                     return Json(new
                     {
@@ -618,8 +607,7 @@ namespace Grand.Web.Controllers
                 }
             }
 
-            var download = new Download
-            {
+            var download = new Download {
                 DownloadGuid = Guid.NewGuid(),
                 UseDownloadUrl = false,
                 DownloadUrl = "",
