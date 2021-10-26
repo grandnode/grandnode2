@@ -784,7 +784,7 @@ input:checked ~ .color-container .color::before {
 .voice-page-button {
     position: fixed;
     bottom: 70px;
-    right: 15px;
+    left: 15px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -804,6 +804,10 @@ input:checked ~ .color-container .color::before {
 }
 .voice-page-button.focus {
     animation: boxShadow 2s infinite;
+}
+.voice-alert {
+    pointer-events: none;
+    z-index: 1034;
 }
 .recording-aniamtion {
     animation: fadeInOut 2s infinite;
@@ -1578,6 +1582,11 @@ footer .list-group-item span:last-child {
         justify-content: space-between;
         width: 100%;
         text-align: right;
+    }
+    .voice-page-button {
+        left: unset;
+        right: 15px;
+        bottom: 75px;
     }
     .up-btn {
         bottom: 75px;
