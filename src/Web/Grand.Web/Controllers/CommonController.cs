@@ -145,10 +145,10 @@ namespace Grand.Web.Controllers
         [PublicStore(true)]
         public virtual async Task<IActionResult> SetLanguage(
             [FromServices] AppConfig config,
-            string langid, string returnUrl = "")
+            string langcode, string returnUrl = default)
         {
 
-            var language = await _languageService.GetLanguageById(langid);
+            var language = await _languageService.GetLanguageByCode(langcode);
             if (!language?.Published ?? false)
                 language = _workContext.WorkingLanguage;
 

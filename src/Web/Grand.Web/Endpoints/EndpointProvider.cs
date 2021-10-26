@@ -350,9 +350,10 @@ namespace Grand.Web.Endpoints
 
             //change language 
             endpointRouteBuilder.MapControllerRoute("ChangeLanguage",
-                            pattern + "changelanguage/{langid}",
+                            pattern + "changelanguage/{langcode}",
                             new { controller = "Common", action = "SetLanguage" });
 
+            
             //change tax 
             endpointRouteBuilder.MapControllerRoute("ChangeTaxType",
                             pattern + "changetaxtype/{customertaxtype}",

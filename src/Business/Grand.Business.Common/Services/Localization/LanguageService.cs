@@ -89,6 +89,20 @@ namespace Grand.Business.Common.Services.Localization
         }
 
         /// <summary>
+        /// Gets a language
+        /// </summary>
+        /// <param name="languageCode">Language code</param>
+        /// <returns>Language</returns>
+        public virtual async Task<Language> GetLanguageByCode(string languageCode)
+        {
+            if (string.IsNullOrEmpty(languageCode))
+                throw new ArgumentNullException(nameof(languageCode));
+
+            var key = string.Format(CacheKey.LANGUAGES_BY_CODE, languageCode);
+            return await _cacheBase.GetAsync(key, async () => await _languageRepository.FirstOrDefaultAsync(x=>x.UniqueSeoCode.ToLowerInvariant() == languageCode.ToLowerInvariant()));
+        }
+
+        /// <summary>
         /// Inserts a language
         /// </summary>
         /// <param name="language">Language</param>

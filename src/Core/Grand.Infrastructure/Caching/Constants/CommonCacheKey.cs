@@ -63,6 +63,14 @@
         /// Key for caching
         /// </summary>
         /// <remarks>
+        /// {0} : language code
+        /// </remarks>
+        public static string LANGUAGES_BY_CODE => "Grand.language.code-{0}";
+
+        /// <summary>
+        /// Key for caching
+        /// </summary>
+        /// <remarks>
         /// {0} : show hidden records?
         /// </remarks>
         public static string LANGUAGES_ALL_KEY => "Grand.language.all-{0}";
