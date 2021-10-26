@@ -15870,7 +15870,7 @@
   <Resource Name="Search.Vendor">
     <Value>Vendor</Value>
   </Resource>
-  <Resource Name="search.voice.annotationsearch.voice.annotation">
+  <Resource Name="search.voice.annotation">
     <Value>Say what do you want to find in our store, i.e Mi Notebook</Value>
   </Resource>
   <Resource Name="search.voice.go">
