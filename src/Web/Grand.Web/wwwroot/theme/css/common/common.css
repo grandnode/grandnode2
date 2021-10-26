@@ -719,6 +719,10 @@ input:checked ~ .color-container .color::before {
 .voice-page-button.focus {
     animation: boxShadow 2s infinite;
 }
+.voice-alert {
+    pointer-events: none;
+    z-index: 1034;
+}
 .recording-aniamtion {
     animation: fadeInOut 2s infinite;
 }
@@ -1432,7 +1436,9 @@ footer .list-group-item span:last-child {
         text-align: right;
     }
     .voice-page-button {
-        bottom: 135px;
+        bottom: 75px;
+        right: unset;
+        left: 15px;
     }
     .up-btn  {
         bottom: 75px;
