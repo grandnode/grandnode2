@@ -18,7 +18,8 @@
             @await Component.InvokeAsync("Widget", new { widgetZone = "searchbox_before_search_button" })
 
             <div class="input-group-append">
-                <button id="voiceSearchButton" 
+                <button id="voiceSearchButton"
+                        v-if="searchbox.allowed"
                         @@touchstart="searchbox.recording = true" 
                         @@touchcancel="searchbox.recording = false; $root.$emit('bv::hide::tooltip')" 
                         @@touchend="searchbox.recording = false; $root.$emit('bv::hide::tooltip')" 
@@ -128,6 +129,7 @@
             searchbrands: null,
             searchblog: null,
             searchproducts: null,
+            allowed: true,
         }),
         methods: {
             startRecording() {
@@ -196,6 +198,27 @@
                 }, 600);
             }
         },
+        created() {
+            navigator.permissions.query(
+                { name: 'microphone' }
+            ).then(function (permissionStatus) {
+
+                if (permissionStatus.state == "denied") {
+                    searchbox.allowed = false;
+                } else {
+                    searchbox.allowed = true;
+                }
+
+                permissionStatus.onchange = function () {
+                    if (this.state == "denied") {
+                        searchbox.allowed = false;
+                    } else {
+                        searchbox.allowed = true;
+                    }
+                }
+
+            });
+        },
         watch: {
             text: function () {
                 const searchBoxInput = vm.$refs.searchBoxInput;
@@ -253,7 +276,7 @@
                     }
 
                 } else {
-                    this.micMessage = '@Loc["search.voice.notsupported"]';
+                    this.allowed = false;
                 }
             }
         }

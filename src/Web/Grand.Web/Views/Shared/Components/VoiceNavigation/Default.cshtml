@@ -2,7 +2,7 @@
 @{
     var lang = workContext.WorkingLanguage.LanguageCulture;
 }
-<template>
+<template v-if="voicenavigator.allowed">
     <button id="voicePageButton"
             @@touchstart="voicenavigator.recording = true"
             @@touchcancel="voicenavigator.recording = false; $root.$emit('bv::hide::tooltip')"
@@ -33,7 +33,7 @@
             </div>
             <input type="text" placeholder="@Loc["voicenavigator.voice.placeholder"]" v-model="voicenavigator.transcript" class="form-control" readonly />
         </div>
-        <small class="form-text text-muted w-100">@Loc["voicenavigator.voice.annotation"]</small>
+        <small class="form-text w-100">@Loc["voicenavigator.voice.annotation"]</small>
     </b-alert>
 </template>
 <script asp-location="Footer" asp-order="300">
@@ -82,7 +82,8 @@
             transcript: "",
             variant: "info",
             micMessage: "@Loc["voicenavigator.voice.holdtospeak"]",
-            voiceMessage: "@Loc["voicenavigator.voice.tryagain"]"
+            voiceMessage: "@Loc["voicenavigator.voice.tryagain"]",
+            allowed: true,
         }),
         methods: {
             startRecording() {
@@ -91,6 +92,27 @@
             stopRecording() {
                 this.recognition.stop();
             },
+        },
+        created() {
+            navigator.permissions.query(
+                { name: 'microphone' }
+            ).then(function (permissionStatus) {
+
+                if (permissionStatus.state == "denied") {
+                    voicenavigator.allowed = false;
+                } else {
+                    voicenavigator.allowed = true;
+                }
+
+                permissionStatus.onchange = function () {
+                    if (this.state == "denied") {
+                        voicenavigator.allowed = false;
+                    } else {
+                        voicenavigator.allowed = true;
+                    }
+                }
+
+            });
         },
         watch: {
             recording: function () {
@@ -143,6 +165,7 @@
                                 }
                             }
                         }
+
                     } else {
                         this.stopRecording();
                         this.transcript = "";
@@ -150,7 +173,7 @@
                         this.micMessage = '@Loc["voicenavigator.voice.holdtospeak"]';
                     }
                 } else {
-                    this.micMessage = '@Loc["voicenavigator.voice.notsupported"]';
+                    this.allowed = false;
                 }
             }
         }
