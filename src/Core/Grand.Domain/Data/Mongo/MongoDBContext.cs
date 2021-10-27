@@ -14,26 +14,20 @@ namespace Grand.Domain.Data.Mongo
 
         public MongoDBContext()
         {
-
+            var connection = DataSettingsManager.LoadSettings();
+            if (!string.IsNullOrEmpty(connection.ConnectionString))
+                PrepareMongoDatabase(connection.ConnectionString);
         }
-        public MongoDBContext(string connectionString)
+       
+        private void PrepareMongoDatabase(string connectionString)
         {
             _connectionString = connectionString;
-
-            var mongourl = new MongoUrl(_connectionString);
+            var mongourl = new MongoUrl(connectionString);
             var databaseName = mongourl.DatabaseName;
             _database = new MongoClient(connectionString).GetDatabase(databaseName);
         }
 
-        public string ConnectionString {
-            get {
-                if (string.IsNullOrEmpty(_connectionString))
-                    TryReadMongoDatabase();
-
-                return _connectionString;
-            }
-        }
-
+        
         public MongoDBContext(IMongoDatabase mongodatabase)
         {
             _database = mongodatabase;
@@ -43,6 +37,17 @@ namespace Grand.Domain.Data.Mongo
         {
             return _database;
         }
+
+        public void SetConnection(string connectionString)
+        {
+            if (string.IsNullOrEmpty(connectionString))
+                throw new ArgumentNullException(nameof(connectionString));
+
+            PrepareMongoDatabase(connectionString);
+        }
+
+        public bool InstallProcessCreateTable => true;
+        public bool InstallProcessCreateIndex => true;
 
         public IQueryable<T> Table<T>(string collectionName)
         {
@@ -62,13 +67,13 @@ namespace Grand.Domain.Data.Mongo
             return mongodb;
         }
 
-        public async Task<bool> DatabaseExist(string connectionString)
+        public async Task<bool> DatabaseExist()
         {
-            if (string.IsNullOrEmpty(connectionString))
-                throw new ArgumentNullException(nameof(connectionString));
+            if (string.IsNullOrEmpty(_connectionString))
+                throw new ArgumentNullException(nameof(_connectionString));
 
-            var client = new MongoClient(connectionString);
-            var databaseName = new MongoUrl(connectionString).DatabaseName;
+            var client = new MongoClient(_connectionString);
+            var databaseName = new MongoUrl(_connectionString).DatabaseName;
             var database = client.GetDatabase(databaseName);
             await database.RunCommandAsync((Command<BsonDocument>)"{ping:1}");
 
@@ -85,26 +90,23 @@ namespace Grand.Domain.Data.Mongo
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
 
-            var database = _database ?? TryReadMongoDatabase();
-
             if (!string.IsNullOrEmpty(collation))
             {
                 var options = new CreateCollectionOptions();
                 options.Collation = new Collation(collation);
-                await database.CreateCollectionAsync(name, options);
+                await _database.CreateCollectionAsync(name, options);
             }
             else
-                await database.CreateCollectionAsync(name);
+                await _database.CreateCollectionAsync(name);
 
         }
+
         public async Task DeleteTable(string name)
         {
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentNullException(nameof(name));
 
-            var database = _database ?? TryReadMongoDatabase();
-
-            await database.DropCollectionAsync(name);
+            await _database.DropCollectionAsync(name);
         }
 
         public async Task CreateIndex<T>(IRepository<T> repository, OrderBuilder<T> orderBuilder, string indexName, bool unique = false) where T : BaseEntity
