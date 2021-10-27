@@ -27,6 +27,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.StaticFiles;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -1244,7 +1245,7 @@ namespace Grand.Web.Admin.Controllers
 
                 if (string.IsNullOrEmpty(contentType))
                 {
-                    contentType = GetContentType(fileExtension);
+                    _ = new FileExtensionContentTypeProvider().TryGetContentType(fileName, out contentType);
                 }
 
                 if (GetAllowedFileTypes(mediaSettings).Contains(fileExtension))
@@ -1273,31 +1274,6 @@ namespace Grand.Web.Admin.Controllers
             else
                 return mediaSettings.AllowedFileTypes.Split(',');
         }
-        protected virtual string GetContentType(string fileExtension)
-        {
-            switch (fileExtension)
-            {
-                case ".bmp":
-                    return "image/bmp";
-                case ".gif":
-                    return "image/gif";
-                case ".jpeg":
-                case ".jpg":
-                case ".jpe":
-                case ".jfif":
-                case ".pjpeg":
-                case ".pjp":
-                    return "image/jpeg";
-                case ".png":
-                    return "image/png";
-                case ".tiff":
-                case ".tif":
-                    return "image/tiff";
-                default:
-                    return "";
-            }
-        }
-
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
