@@ -69,7 +69,7 @@ namespace Grand.Web.Admin.Controllers
 
             var qqFileNameParameter = "qqfilename";
             var fileName = httpPostedFile.FileName;
-            if (String.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
+            if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
                 fileName = form[qqFileNameParameter].ToString();
             //remove path (passed in IE)
             fileName = Path.GetFileName(fileName);

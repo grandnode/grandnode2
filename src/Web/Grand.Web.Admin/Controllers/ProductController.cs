@@ -1226,13 +1226,13 @@ namespace Grand.Web.Admin.Controllers
                         message = "Access denied - staff permissions",
                     });
 
-            var values = new List<(string pictureUrl, string pictureId)>();
-
+            var values = new List<(string pictureUrl, string pictureId, string message)>();
+            var message = string.Empty;
             foreach (var file in httpPostedFiles)
             {
                 var qqFileNameParameter = "qqfilename";
                 var fileName = file.FileName;
-                if (String.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
+                if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
                     fileName = form[qqFileNameParameter].ToString();
 
                 fileName = Path.GetFileName(fileName);
@@ -1254,13 +1254,16 @@ namespace Grand.Web.Admin.Controllers
                     var picture = await pictureService.InsertPicture(fileBinary, contentType, null, reference: reference, objectId: objectId);
                     var pictureUrl = await pictureService.GetPictureUrl(picture);
 
-                    values.Add((pictureUrl, picture.Id));
+                    values.Add((pictureUrl, picture.Id, "Ok"));
                     //assign picture to the product
                     await _productViewModelService.InsertProductPicture(product, picture, 0);
+
                 }
+                else
+                    message += $"Not allowed file types to import {fileName}";
             }
 
-            return Json(new { success = true, data = values });
+            return Json(new { success = values.Any(), data = values });
         }
 
         protected virtual IList<string> GetAllowedFileTypes(MediaSettings mediaSettings)
