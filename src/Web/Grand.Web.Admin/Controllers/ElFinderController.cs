@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Controllers
 {
-    [PermissionAuthorize(PermissionSystemName.Files)]
+    [PermissionAuthorize(PermissionSystemName.HtmlEditor)]
     public class ElFinderController : BaseAdminController
     {
 
