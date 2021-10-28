@@ -3,7 +3,6 @@
     data: function() {
         return {
             show: false,
-            fluid: false,
             hover: false,
             darkMode: false,
             active: false,
@@ -16,7 +15,8 @@
             index: null,
             RelatedProducts: null,
             compareproducts: null,
-            compareproductsCount: 0
+            comapreProductsCookie: '',
+            compareProductsQty: 0,
         }
     },
     props: {
@@ -33,9 +33,7 @@
         if (localStorage.fluid == "fluid") this.fluid = "fluid";
         if (localStorage.fluid == "") this.fluid = "false";
         if (localStorage.darkMode == "true") this.darkMode = true;
-        if (AxiosCart.getCookie('Grand.CompareProducts.Count') !== '') {
-            this.compareproductsCount = AxiosCart.getCookie('Grand.CompareProducts.Count');
-        }
+        this.updateCompareProductsQty();
     },
     watch: {
         fluid: function (newName) {
@@ -46,9 +44,23 @@
         },
         PopupQuickViewVueModal: function () {
             vm.getLinkedProductsQV(vm.PopupQuickViewVueModal.Id);
+        },
+        comapreProductsCookie: function () {
+            this.updateCompareProductsQty();
         }
     },
     methods: {
+        updateCompareProductsQty: function () {
+            const cookie = AxiosCart.getCookie('Grand.CompareProducts');
+            if (cookie !== '') {
+                const qty = cookie.split('|').filter(Boolean).length;
+                AxiosCart.setCookie('Grand.CompareProducts.Qty', qty);
+                this.compareProductsQty = qty;
+            } else {
+                AxiosCart.setCookie('Grand.CompareProducts.Qty', 0);
+                this.compareProductsQty = 0;
+            }
+        },
         updateFly: function () {
             axios({
                 baseURL: '/Component/Index?Name=SidebarShoppingCart',
@@ -102,8 +114,10 @@
                 const newCompareList = compareList.replace(id, '');
 
                 AxiosCart.setCookie('Grand.CompareProducts', newCompareList);
+                this.comapreProductsCookie = newCompareList;
             } else {
                 AxiosCart.setCookie('Grand.CompareProducts', '');
+                this.comapreProductsCookie = '';
             }
             this.getCompareList();
         },

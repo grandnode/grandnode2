@@ -7,6 +7,9 @@
         <li class="nav-item">
             <a href="#" target="_self" class="nav-link">
                 <b-icon icon="shuffle" :variant="[darkMode ? 'white' : 'dark']" @@click="getCompareList()" v-b-toggle.sidebar-compare></b-icon>
+                <span class="qty-indicator">
+                    {{compareProductsQty}}
+                </span>
             </a>
         </li>
         <template>

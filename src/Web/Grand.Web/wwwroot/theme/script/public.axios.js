@@ -151,6 +151,7 @@ var AxiosCart = {
             cookie = id;
         }
         this.setCookie('Grand.CompareProducts', cookie);
+        vm.updateCompareProductsQty();
 
         displayBarNotification(message, 'success', 3500);
 
