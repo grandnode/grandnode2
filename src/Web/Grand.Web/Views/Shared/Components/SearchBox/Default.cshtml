@@ -149,25 +149,25 @@
                     ).then(function (permissionStatus) {
 
                         if (permissionStatus.state == "denied") {
-                            voicenavigator.allowed = false;
+                            searchbox.allowed = false;
                         } else {
-                            voicenavigator.allowed = true;
+                            searchbox.allowed = true;
                         }
 
                         permissionStatus.onchange = function () {
                             if (this.state == "denied") {
-                                voicenavigator.allowed = false;
+                                searchbox.allowed = false;
                             } else {
-                                voicenavigator.allowed = true;
+                                searchbox.allowed = true;
                             }
                         }
                     });
                 } else {
                     if (navigator.mediaDevices != undefined) {
                         navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
-                            voicenavigator.allowed = true;
+                            searchbox.allowed = true;
                         }).catch(function (err) {
-                            voicenavigator.allowed = false;
+                            searchbox.allowed = false;
                         })
                     }
                 }
