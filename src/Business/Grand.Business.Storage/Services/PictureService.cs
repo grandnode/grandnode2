@@ -698,7 +698,7 @@ namespace Grand.Business.Storage.Services
         /// </summary>
         /// <param name="picture">Picture</param>
         /// <returns>Picture</returns>
-        public virtual async Task UpdatField<T>(Picture picture, Expression<Func<Picture, T>> expression, T value)
+        public virtual async Task UpdatePictureField<T>(Picture picture, Expression<Func<Picture, T>> expression, T value)
         {
             if (picture == null)
                 throw new ArgumentNullException(nameof(picture));
@@ -751,7 +751,7 @@ namespace Grand.Business.Storage.Services
             {
                 //update SeoFilename picture
                 picture.SeoFilename = seoFilename;
-                await UpdatField(picture, p => p.SeoFilename, seoFilename);
+                await UpdatePictureField(picture, p => p.SeoFilename, seoFilename);
 
                 //event notification
                 await _mediator.EntityUpdated(picture);
