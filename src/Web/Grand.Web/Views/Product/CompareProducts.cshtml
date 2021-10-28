@@ -8,13 +8,6 @@
 }
 @using Grand.Web.Models.Catalog;
 @{
-    string columnWidth = "";
-    if (Model.Products.Any())
-    {
-        columnWidth = "25%";
-    }
-
-
     var specificationAttributes = new List<ProductSpecificationModel>();
     foreach (var product in Model.Products)
     {
@@ -48,7 +41,7 @@
                         <td class="empty">&nbsp;</td>
                         <template v-for="product in compareproducts.Products">
                             <td class="same-width">
-                                <a class="picture" :href="'@Url.RouteUrl("Product")' + product.SeName"><img class="compare-img" :alt="product.DefaultPictureModel.AlternateText" :src="product.DefaultPictureModel.ImageUrl" :title="product.DefaultPictureModel.Title" /></a>
+                                <a class="picture" :href="product.Url"><img class="compare-img" :alt="product.DefaultPictureModel.AlternateText" :src="product.DefaultPictureModel.ImageUrl" :title="product.DefaultPictureModel.Title" /></a>
                             </td>
                         </template>
                     </tr>
@@ -58,7 +51,7 @@
                         </td>
                         <template v-for="product in compareproducts.Products">
                             <td class="same-width">
-                                <a :href="'@Url.RouteUrl("Product")' + product.SeName">{{product.Name}}</a>
+                                <a :href="product.Url">{{product.Name}}</a>
                             </td>
                         </template>
                     </tr>

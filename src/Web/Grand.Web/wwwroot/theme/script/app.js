@@ -94,6 +94,9 @@
             axios({
                 baseURL: '/compareproducts',
                 method: 'get',
+                params: {
+                    t: new Date().getTime()
+                },
                 data: null,
                 headers: {
                     'Accept': 'application/json',
@@ -101,7 +104,7 @@
                     'X-Response-View': 'Json'
                 }
             }).then(response => {
-                vm.compareproducts = response.data
+                this.compareproducts = response.data
             })
         },
         removeFromCompareList: function (id) {
