@@ -15,7 +15,6 @@
             index: null,
             RelatedProducts: null,
             compareproducts: null,
-            comapreProductsCookie: '',
             compareProductsQty: 0,
         }
     },
@@ -44,9 +43,6 @@
         },
         PopupQuickViewVueModal: function () {
             vm.getLinkedProductsQV(vm.PopupQuickViewVueModal.Id);
-        },
-        comapreProductsCookie: function () {
-            this.updateCompareProductsQty();
         }
     },
     methods: {
@@ -57,7 +53,7 @@
                 AxiosCart.setCookie('Grand.CompareProducts.Qty', qty);
                 this.compareProductsQty = qty;
             } else {
-                AxiosCart.setCookie('Grand.CompareProducts.Qty', 0);
+                AxiosCart.setCookie('Grand.CompareProducts.Qty', );
                 this.compareProductsQty = 0;
             }
         },
@@ -114,11 +110,10 @@
                 const newCompareList = compareList.replace(id, '');
 
                 AxiosCart.setCookie('Grand.CompareProducts', newCompareList);
-                this.comapreProductsCookie = newCompareList;
             } else {
                 AxiosCart.setCookie('Grand.CompareProducts', '');
-                this.comapreProductsCookie = '';
             }
+            this.updateCompareProductsQty();
             this.getCompareList();
         },
         showModalOutOfStock: function () {
