@@ -1227,7 +1227,7 @@ namespace Grand.Web.Admin.Controllers
                         message = "Access denied - staff permissions",
                     });
 
-            var values = new List<(string pictureUrl, string pictureId, string message)>();
+            var values = new List<(string pictureUrl, string pictureId)>();
             var message = string.Empty;
             foreach (var file in httpPostedFiles)
             {
@@ -1255,7 +1255,7 @@ namespace Grand.Web.Admin.Controllers
                     var picture = await pictureService.InsertPicture(fileBinary, contentType, null, reference: reference, objectId: objectId);
                     var pictureUrl = await pictureService.GetPictureUrl(picture);
 
-                    values.Add((pictureUrl, picture.Id, "Ok"));
+                    values.Add((pictureUrl, picture.Id));
                     //assign picture to the product
                     await _productViewModelService.InsertProductPicture(product, picture, 0);
 
