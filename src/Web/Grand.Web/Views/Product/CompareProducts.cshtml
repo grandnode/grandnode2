@@ -11,7 +11,7 @@
     string columnWidth = "";
     if (Model.Products.Any())
     {
-        columnWidth = Math.Round((double)(90M / Model.Products.Count), 0).ToString() + "%";
+        columnWidth = "25%";
     }
 
 
@@ -29,14 +29,14 @@
 }
 <div class="page compare-products-page">
     <h2 class="text-center generalTitle">@Loc["Products.Compare.Title"]</h2>
-    <template v-if="compareproducts.Products.length > 0">
+    <template v-if="compareproducts !== null && compareproducts.Products.length > 0">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover compare-products-table table-bordered">
                 <tbody>
                     <tr class="remove-product">
                         <td class="empty">&nbsp;</td>
                         <template v-for="product in compareproducts.Products">
-                            <td style="width: @columnWidth;">
+                            <td class="same-width">
                                 <button type="button" title="@Loc["Common.Remove"]" class="btn btn-sm btn-outline-danger remove-button d-flex align-items-center justify-content-center" @@click="removeFromCompareList(product.Id)">
                                     <b-icon icon="trash" aria-hidden="true"></b-icon>
                                 </button>
@@ -46,8 +46,8 @@
                     <tr class="product-picture">
                         <td class="empty">&nbsp;</td>
                         <template v-for="product in compareproducts.Products">
-                            <td style="width: @columnWidth;">
-                                <a class="picture" :href="'@Url.RouteUrl("Product")' + product.SeName"><img class="img-wish" :alt="product.DefaultPictureModel.AlternateText" :src="product.DefaultPictureModel.ImageUrl" :title="product.DefaultPictureModel.Title" /></a>
+                            <td class="same-width">
+                                <a class="picture" :href="'@Url.RouteUrl("Product")' + product.SeName"><img class="compare-img" :alt="product.DefaultPictureModel.AlternateText" :src="product.DefaultPictureModel.ImageUrl" :title="product.DefaultPictureModel.Title" /></a>
                             </td>
                         </template>
                     </tr>
@@ -56,7 +56,7 @@
                             <label>@Loc["Products.Compare.Name"]</label>
                         </td>
                         <template v-for="product in compareproducts.Products">
-                            <td style="width: @columnWidth;">
+                            <td class="same-width">
                                 <a :href="'@Url.RouteUrl("Product")' + product.SeName">{{product.Name}}</a>
                             </td>
                         </template>
@@ -66,7 +66,7 @@
                             <label><strong>@Loc["Products.Compare.Price"]</strong></label>
                         </td>
                         <template v-for="product in compareproducts.Products">
-                            <td style="width: @columnWidth;">
+                            <td class="same-width">
                                 <strong>{{product.ProductPrice.Price}}</strong>
                             </td>
                         </template>
@@ -77,7 +77,7 @@
                                 <label>@Loc["Products.Compare.ShortDescription"]</label>
                             </td>
                             <template v-for="product in compareproducts.Products">
-                                <td style="width: @columnWidth;">
+                                <td class="same-width">
                                     <div v-html="product.ShortDescription"></div>
                                 </td>
                             </template>
@@ -89,7 +89,7 @@
                                 <label>{{specificationAttribute.SpecificationAttributeName}}</label>
                             </td>
                             <template v-for="product in compareproducts.Products">
-                                <td style="width: @columnWidth;">
+                                <td class="same-width">
                                     <template v-for="spec in product.SpecificationAttributeModels">
                                         <template v-if="spec.SpecificationAttributeId == specificationAttribute.SpecificationAttributeId">
                                             <template v-if="spec.ColorSquaresRgb == null">
@@ -114,7 +114,7 @@
                                 <label>@Loc["Products.Compare.FullDescription"]</label>
                             </td>
                             <template v-for="product in compareproducts.Products">
-                                <td style="width: @columnWidth;">
+                                <td class="same-width">
                                     <div v-html="product.FullDescription"></div>
                                 </td>
                             </template>
