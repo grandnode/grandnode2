@@ -139,11 +139,8 @@
                 this.recognition.stop();
             },
             allowCheck() {
-                var isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
-                    navigator.userAgent &&
-                    navigator.userAgent.indexOf('CriOS') == -1 &&
-                    navigator.userAgent.indexOf('FxiOS') == -1;
-                if (!isSafari) {
+                var checkPermission = navigator.permissions
+                if (checkPermission) {
                     navigator.permissions.query(
                         { name: 'microphone' }
                     ).then(function (permissionStatus) {
@@ -161,15 +158,7 @@
                                 searchbox.allowed = true;
                             }
                         }
-                    });
-                } else {
-                    if (navigator.mediaDevices != undefined) {
-                        navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
-                            searchbox.allowed = true;
-                        }).catch(function (err) {
-                            searchbox.allowed = false;
-                        })
-                    }
+                    })
                 }
             },
             autocompleteVue() {
