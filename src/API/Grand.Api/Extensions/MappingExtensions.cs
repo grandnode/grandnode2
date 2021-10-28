@@ -222,7 +222,7 @@ namespace Grand.Api.Extensions
         {
             return entity.MapTo<Picture, PictureDto>();
         }
-
+        
         #endregion
     }
 }
