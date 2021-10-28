@@ -15,6 +15,8 @@
             PopupProductReviewVueModal: null,
             index: null,
             RelatedProducts: null,
+            compareproducts: null,
+            compareproductsCount: 0
         }
     },
     props: {
@@ -31,6 +33,9 @@
         if (localStorage.fluid == "fluid") this.fluid = "fluid";
         if (localStorage.fluid == "") this.fluid = "false";
         if (localStorage.darkMode == "true") this.darkMode = true;
+        if (AxiosCart.getCookie('Grand.CompareProducts.Count') !== '') {
+            this.compareproductsCount = AxiosCart.getCookie('Grand.CompareProducts.Count');
+        }
     },
     watch: {
         fluid: function (newName) {
@@ -76,6 +81,31 @@
                 this.wishlistitems = response.data.Items,
                 this.wishindicator = response.data.Items.length
             ))
+        },
+        getCompareList: function () {
+            axios({
+                baseURL: '/compareproducts',
+                method: 'get',
+                data: null,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Response-View': 'Json'
+                }
+            }).then(response => {
+                vm.compareproducts = response.data
+            })
+        },
+        removeFromCompareList: function (id) {
+            if (id !== undefined) {
+                const compareList = AxiosCart.getCookie('Grand.CompareProducts');
+                const newCompareList = compareList.replace(id, '');
+
+                AxiosCart.setCookie('Grand.CompareProducts', newCompareList);
+            } else {
+                AxiosCart.setCookie('Grand.CompareProducts', '');
+            }
+            this.getCompareList();
         },
         showModalOutOfStock: function () {
             this.$refs['out-of-stock'].show()

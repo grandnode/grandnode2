@@ -878,7 +878,7 @@ namespace Grand.Web.Controllers
                 return new List<string>();
 
             //get array of string product identifiers from cookie
-            var productIds = productIdsCookie.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var productIds = productIdsCookie.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
 
             //return list of int product identifiers
             return productIds.Select(productId => productId).Distinct().ToList();
@@ -890,7 +890,7 @@ namespace Grand.Web.Controllers
             HttpContext.Response.Cookies.Delete(CacheKey.PRODUCTS_COMPARE_COOKIE_NAME);
 
             //create cookie value
-            var comparedProductIdsCookie = string.Join(",", comparedProductIds);
+            var comparedProductIdsCookie = string.Join("|", comparedProductIds);
 
             //create cookie options 
             var cookieOptions = new CookieOptions {
@@ -971,7 +971,7 @@ namespace Grand.Web.Controllers
             comparedProductIds.Remove(productId);
 
             //set cookie
-            AddCompareProductsCookie(comparedProductIds); ;
+            AddCompareProductsCookie(comparedProductIds);
 
             return RedirectToRoute("CompareProducts");
         }
