@@ -141,11 +141,10 @@
                                 const transcript = event.results[current][0].transcript;
                                 if (event.results[0].isFinal) {
                                     const concatTranscript = transcript.replace(/[`~!#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '').toLowerCase();
-                                    const transcriptArray = concatTranscript.split(' ');
                                     voicenavigator.transcript = transcript;
 
                                     for (const [key, element] of Object.entries(voicenavigator.commands)) {
-                                        const found = element.triggers.some(r => transcriptArray.includes(r));
+                                        const found = element.triggers.some(r => concatTranscript.includes(r));
 
                                         if (found) {
                                             voicenavigator.stopRecording();

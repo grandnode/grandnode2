@@ -797,7 +797,7 @@ input:checked ~ .color-container .color::before {
     box-shadow: 0px 12px 28px rgba(0,123,255,.25), 0 -4px 14px rgba(0,123,255,.25);
     transition: all .2s ease-in-out;
     -webkit-transition: all .2s ease-in-out;
-    z-index: 1039;
+    z-index: 1033;
 }
 .voice-page-button.focus, .voice-page-button:focus {
     box-shadow: 0px 12px 28px rgba(0,123,255,.25), 0 -4px 14px rgba(0,123,255,.25);
@@ -810,7 +810,7 @@ input:checked ~ .color-container .color::before {
     -moz-user-select: none;
     user-select: none;
     pointer-events: none;
-    z-index: 1034;
+    z-index: 1035;
 }
 .recording-aniamtion {
     animation: fadeInOut 2s infinite;
