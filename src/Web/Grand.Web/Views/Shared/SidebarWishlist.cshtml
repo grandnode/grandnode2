@@ -45,14 +45,14 @@
                                 <div class="form-row">
                                     <div class="col-lg col-12">
                                         <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("Wishlist")">
-                                            <b-icon icon="heart" class="@if (supportRtl) { <text>pl-sm-2</text> } else { <text>pr-sm-2</text> }"></b-icon>
+                                            <b-icon icon="heart" class="@if (supportRtl) { <text>pl-2</text> } else { <text>pr-2</text> }"></b-icon>
                                             @Loc["Wishlist"]
                                         </a>
                                     </div>
                                     <template v-if="flywish.EmailWishlistEnabled">
-                                        <div class="col-lg-6 col-12">
+                                        <div class="col-lg-6 col-12 mt-lg-0 mt-2">
                                             <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("EmailWishlist")">
-                                                <b-icon icon="envelope" class="@if (supportRtl) { <text>pl-sm-2</text> } else { <text>pr-sm-2</text> }"></b-icon>
+                                                <b-icon icon="envelope" class="@if (supportRtl) { <text>pl-2</text> } else { <text>pr-2</text> }"></b-icon>
                                                 @Loc["Wishlist.EmailAFriend"]
                                             </a>
                                         </div>

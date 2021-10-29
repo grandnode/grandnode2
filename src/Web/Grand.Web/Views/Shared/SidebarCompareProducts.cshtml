@@ -56,13 +56,13 @@
                                 <div class="form-row">
                                     <div class="col-lg-6 col-12">
                                         <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("CompareProducts")">
-                                            <b-icon icon="shuffle" class="@if (supportRtl) { <text>pl-sm-2</text> } else { <text>pr-sm-2</text> }"></b-icon>
+                                            <b-icon icon="shuffle" class="@if (supportRtl) { <text>pl-2</text> } else { <text>pr-2</text> }"></b-icon>
                                             @Loc["Products.Compare.Title"]
                                         </a>
                                     </div>
-                                    <div class="col-lg-6 col-12">
+                                    <div class="col-lg-6 col-12 mt-lg-0 mt-2">
                                         <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" @@click="removeFromCompareList()">
-                                            <b-icon icon="trash" class="@if (supportRtl) { <text>pl-sm-2</text> } else { <text>pr-sm-2</text> }"></b-icon>
+                                            <b-icon icon="trash" class="@if (supportRtl) { <text>pl-2</text> } else { <text>pr-2</text> }"></b-icon>
                                             @Loc["Products.Compare.Clear"]
                                         </a>
                                     </div>
