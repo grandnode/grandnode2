@@ -53,10 +53,10 @@
                 <input type="text" class="form-control search-box-text ui-autocomplete-input" id="small-searchterms" autocomplete="off" name="keyword" placeholder="@Loc["Knowledgebase.SearchPlaceholder"]">
 
                 <span class="input-group-append">
-                    <button type="submit" class="btn btn-info search-box-button d-flex float-sm-right">
+                    <button type="submit" class="btn btn-info d-flex float-sm-right">
                         <span class="sr-only">Search store</span>
-                        <span class="mdi mdi-magnify align-self-center"></span>
-                        <span class="pl-2 d-none d-lg-block">@Loc["Knowledgebase.Search"]</span>
+                        <b-icon icon="search" class="mx-1"></b-icon>
+                        <span class="d-none d-lg-block">@Loc["Knowledgebase.Search"]</span>
                     </button>
                 </span>
             </div>
@@ -120,24 +120,21 @@
         }
         else
         {
-            @if (!string.IsNullOrEmpty(Model.SearchKeyword))
-            {
-                <div class="error-label red margin marign">@Loc["Knowledgebase.Notfound"]</div>
-                <form method="get" id="small-search-box-form" asp-action="ItemsByKeyword" asp-controller="knowledgebase" novalidate="novalidate">
-                    <div class="input-group mt-3">
-                        <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
-                        <input type="text" class="form-control search-box-text ui-autocomplete-input" id="small-searchterms" autocomplete="off" name="keyword" placeholder="@Loc["Knowledgebase.SearchPlaceholder"]">
+            <div class="error-label alert alert-danger">@Loc["Knowledgebase.Notfound"]</div>
+            <form method="get" id="small-search-box-form" asp-action="ItemsByKeyword" asp-controller="knowledgebase" novalidate="novalidate">
+                <div class="input-group mt-3">
+                    <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
+                    <input type="text" class="form-control search-box-text ui-autocomplete-input" id="small-searchterms" autocomplete="off" name="keyword" placeholder="@Loc["Knowledgebase.SearchPlaceholder"]">
 
-                        <span class="input-group-append">
-                            <button type="submit" class="btn btn-primary search-box-button d-flex float-sm-right">
-                                <span class="sr-only">Search store</span>
-                                <span class="mdi mdi-magnify align-self-center"></span>
-                                <span class="pl-2 d-none d-lg-block">@Loc["Knowledgebase.Search"]</span>
-                            </button>
-                        </span>
-                    </div>
-                </form>
-            }
+                    <span class="input-group-append">
+                        <button type="submit" class="btn btn-info d-flex float-sm-right">
+                            <span class="sr-only">Search store</span>
+                            <b-icon icon="search" class="mx-1"></b-icon>
+                            <span class="d-none d-lg-block">@Loc["Knowledgebase.Search"]</span>
+                        </button>
+                    </span>
+                </div>
+            </form>
         }
     }
 </div>
