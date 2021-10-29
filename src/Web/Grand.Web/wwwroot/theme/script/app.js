@@ -47,13 +47,11 @@
     },
     methods: {
         updateCompareProductsQty: function () {
-            const cookie = AxiosCart.getCookie('Grand.CompareProducts');
+            const cookie = AxiosCart.getCookie('Grand.CompareProduct');
             if (cookie !== '') {
                 const qty = cookie.split('|').filter(Boolean).length;
-                AxiosCart.setCookie('Grand.CompareProducts.Qty', qty);
                 this.compareProductsQty = qty;
             } else {
-                AxiosCart.setCookie('Grand.CompareProducts.Qty', );
                 this.compareProductsQty = 0;
             }
         },
@@ -109,12 +107,12 @@
         },
         removeFromCompareList: function (id) {
             if (id !== undefined) {
-                const compareList = AxiosCart.getCookie('Grand.CompareProducts');
+                const compareList = AxiosCart.getCookie('Grand.CompareProduct');
                 const newCompareList = compareList.replace(id, '');
 
-                AxiosCart.setCookie('Grand.CompareProducts', newCompareList);
+                AxiosCart.setCookie('Grand.CompareProduct', newCompareList);
             } else {
-                AxiosCart.setCookie('Grand.CompareProducts', '');
+                AxiosCart.setCookie('Grand.CompareProduct', '');
             }
             this.updateCompareProductsQty();
             this.getCompareList();

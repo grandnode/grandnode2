@@ -142,7 +142,7 @@ var AxiosCart = {
         }
         this.setLoadWaiting(true);
 
-        var cookie = this.getCookie('Grand.CompareProducts');
+        var cookie = this.getCookie('Grand.CompareProduct');
         if (cookie !== '') {
             if (!cookie.includes(id)) {
                 cookie = cookie + '|' + id;
@@ -150,12 +150,12 @@ var AxiosCart = {
         } else {
             cookie = id;
         }
-        this.setCookie('Grand.CompareProducts', cookie);
+        this.setCookie('Grand.CompareProduct', cookie);
         vm.updateCompareProductsQty();
 
         displayBarNotification(message, 'success', 3500);
 
-        AxiosCart.resetLoadWaiting();
+        this.resetLoadWaiting();
 
         return false;  
     },
