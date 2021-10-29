@@ -44,8 +44,8 @@
                             <div class="quantity"><span>@Loc["ShoppingCart.Mini.Quantity"]:</span> <strong>{{item.Quantity}}</strong></div>
                         </div>
                         <div>
-                            <a class="deletecartitem" :data-href="item.Id" data-store-url="@Url.RouteUrl("DeleteCartItem")" onclick="deletecartitem(this.getAttribute('data-store-url') +'/'+ this.getAttribute('data-href'))">
-                                <b-icon icon="trash" class="deletecartitem" variant="danger"></b-icon>
+                            <a class="deleteitem" :data-href="item.Id" data-store-url="@Url.RouteUrl("DeleteCartItem")" onclick="deletecartitem(this.getAttribute('data-store-url') +'/'+ this.getAttribute('data-href'))">
+                                <b-icon icon="trash" class="deleteitem" variant="danger"></b-icon>
                             </a>
                         </div>
                     </div>

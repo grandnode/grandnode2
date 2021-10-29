@@ -37,7 +37,7 @@
         <partial name="_Notifications" />
         <vc:get-coordinate></vc:get-coordinate>
         <partial name="Header" />
-        <b-container :fluid="fluid" class="main-container">
+        <b-container class="main-container">
             @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
             @if (IsSectionDefined("Breadcrumb"))
             {

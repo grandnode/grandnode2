@@ -82,7 +82,7 @@
         /// <summary>
         /// Compare products cookie name
         /// </summary>
-        public static string PRODUCTS_COMPARE_COOKIE_NAME => "Grand.CompareProducts";
+        public static string PRODUCTS_COMPARE_COOKIE_NAME => "Grand.CompareProduct";
 
         /// <summary>
         /// Key for caching

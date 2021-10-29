@@ -1017,14 +1017,13 @@ input:checked ~ .color-container .color::before {
 }
 .product-box .quick-view-button {
     position: absolute;
-    bottom: 1px;
+    bottom: 0;
     left: 1px;
     width: calc(100% - 2px);
     font-size: 16px;
     font-weight: 500;
     text-transform: uppercase;
     border: 0;
-    border-top: 1px solid;
     border-radius: 0;
     transform: translateY(100%);
     -webkit-transform: translateY(100%);
@@ -1262,11 +1261,8 @@ input:checked ~ .color-container .color::before {
     border-bottom-right-radius: 0;
 }
 
-/* container wide */
+/* main container */
 
-.main-container.container-fluid .product-box.list .card-body {
-    flex: 4;
-}
 .main-container {
     min-height: 350px;
 }
@@ -1286,6 +1282,15 @@ input:checked ~ .color-container .color::before {
     height: 25px;
     border: 1px solid #efefef;
     border-radius: 100%;
+}
+
+/* comapre products table */
+
+.compare-products-table td.same-width {
+    width: 25%
+}
+.compare-products-table .compare-img {
+    max-width: 250px;
 }
 
 /* autocomplete */
@@ -1392,36 +1397,7 @@ footer .list-group-item span:last-child {
  
 /* media */
 
-@media (min-width: 992px) {
-    .main-container.container-fluid .product-grid .product-container.col-lg-4 {
-        -ms-flex: 0 0 25%;
-        flex: 0 0 25%;
-        max-width: 25%;
-    }
-}
-@media (min-width: 1200px) {
-    .main-container.container-fluid .categoryGrid .col-md-4 {
-        -ms-flex: 0 0 25%;
-        flex: 0 0 25%;
-        max-width: 25%;
-    }
-    .main-container.container-fluid .product-grid .product-container.col-xl-3 {
-        -ms-flex: 0 0 16.666667%;
-        flex: 0 0 16.666667%;
-        max-width: 16.666667%;
-    }
-    .main-container.container-fluid .featured-product-container.col-xl-6 {
-        -ms-flex: 0 0 33.333333%;
-        flex: 0 0 33.333333%;
-        max-width: 33.333333%;
-    }
-}
 @media (min-width: 1400px) {
-    .main-container.container-fluid .categoryGrid .col-xl-4 {
-        -ms-flex: 0 0 25%;
-        flex: 0 0 25%;
-        max-width: 25%;
-    }
     .container, .container-lg, .container-md, .container-sm, .container-xl {
         max-width: 1350px;
     }
@@ -1429,6 +1405,9 @@ footer .list-group-item span:last-child {
 @media (max-width: 1199px) {
     .container, .container-lg, .container-md, .container-sm {
         max-width: 100%;
+    }
+    .compare-products-table td.same-width {
+        width: 33.333333%;
     }
 }
 @media (max-width: 991px) {

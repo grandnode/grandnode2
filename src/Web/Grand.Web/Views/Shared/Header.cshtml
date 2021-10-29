@@ -4,7 +4,7 @@
 }
 <div class="header-nav">
     <nav class="navbar navbar-light navbar-expand">
-        <b-container :fluid="fluid" id="header-container">
+        <b-container id="header-container">
             <div class="menu-container">
                 <template>
                     <button aria-label="menu-toggler" class="btn menu-toggler" v-b-toggle.sidebar-menu><span></span><span></span><span></span></button>
@@ -32,11 +32,6 @@
                         </span>
                     </li>
                 </template>
-                <li class="nav-item d-lg-block d-none">
-                    <a href="#" target="_self" class="nav-link">
-                        <b-icon :variant="[darkMode ? 'white' : 'dark']" icon="aspect-ratio" @@click="fluid = !fluid"></b-icon>
-                    </a>
-                </li>
                 <li class="nav-item">
                     <a href="#" target="_self" class="nav-link">
                         <b-icon icon="search" :variant="[darkMode ? 'white' : 'dark']" v-b-modal.search-box></b-icon>

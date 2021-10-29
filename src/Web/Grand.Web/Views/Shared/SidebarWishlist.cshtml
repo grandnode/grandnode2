@@ -41,20 +41,24 @@
                     </div>
                     <template v-slot:footer v-if="wishindicator > 0">
                         <template v-if="flywish !== undefined">
-                            <b-col cols="12" class="p-3 bg-dark">
-                                <div class="btn-group w-100">
-                                    <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("Wishlist")">
-                                        <b-icon icon="heart" class="@if (supportRtl) { <text>pl-sm-2</text> } else { <text>pr-sm-2</text> }"></b-icon>
-                                        @Loc["Wishlist"]
-                                    </a>
-                                    <template v-if="flywish.EmailWishlistEnabled">
-                                        <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("EmailWishlist")">
-                                            <b-icon icon="envelope" class="@if (supportRtl) { <text>pl-sm-2</text> } else { <text>pr-sm-2</text> }"></b-icon>
-                                            @Loc["Wishlist.EmailAFriend"]
+                            <div class="col-12 p-3 bg-dark">
+                                <div class="form-row">
+                                    <div class="col-lg col-12">
+                                        <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("Wishlist")">
+                                            <b-icon icon="heart" class="@if (supportRtl) { <text>pl-sm-2</text> } else { <text>pr-sm-2</text> }"></b-icon>
+                                            @Loc["Wishlist"]
                                         </a>
+                                    </div>
+                                    <template v-if="flywish.EmailWishlistEnabled">
+                                        <div class="col-lg-6 col-12">
+                                            <a class="btn btn-light d-flex align-items-center justify-content-center w-100 h-100 py-3 text-uppercase" href="@Url.RouteUrl("EmailWishlist")">
+                                                <b-icon icon="envelope" class="@if (supportRtl) { <text>pl-sm-2</text> } else { <text>pr-sm-2</text> }"></b-icon>
+                                                @Loc["Wishlist.EmailAFriend"]
+                                            </a>
+                                        </div>
                                     </template>
                                 </div>
-                            </b-col>
+                            </div>
                         </template>
                     </template>
                     <template v-else-if="wishindicator !== undefined">

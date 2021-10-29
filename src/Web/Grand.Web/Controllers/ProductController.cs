@@ -874,106 +874,14 @@ namespace Grand.Web.Controllers
         protected virtual List<string> GetComparedProductIds()
         {
             //try to get cookie
-            if (!HttpContext.Request.Cookies.TryGetValue(CacheKey.PRODUCTS_COMPARE_COOKIE_NAME, out string productIdsCookie) || string.IsNullOrEmpty(productIdsCookie))
+            if (!HttpContext.Request.Cookies.TryGetValue(CacheKey.PRODUCTS_COMPARE_COOKIE_NAME, out var productIdsCookie) || string.IsNullOrEmpty(productIdsCookie))
                 return new List<string>();
 
             //get array of string product identifiers from cookie
-            var productIds = productIdsCookie.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var productIds = productIdsCookie.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
 
             //return list of int product identifiers
-            return productIds.Select(productId => productId).Distinct().ToList();
-        }
-
-        protected virtual void AddCompareProductsCookie(IEnumerable<string> comparedProductIds)
-        {
-            //delete current cookie if exists
-            HttpContext.Response.Cookies.Delete(CacheKey.PRODUCTS_COMPARE_COOKIE_NAME);
-
-            //create cookie value
-            var comparedProductIdsCookie = string.Join(",", comparedProductIds);
-
-            //create cookie options 
-            var cookieOptions = new CookieOptions {
-                Expires = DateTime.UtcNow.AddHours(CommonHelper.CookieAuthExpires),
-                HttpOnly = true
-            };
-            //add cookie
-            HttpContext.Response.Cookies.Append(CacheKey.PRODUCTS_COMPARE_COOKIE_NAME, comparedProductIdsCookie, cookieOptions);
-        }
-
-        [HttpPost]
-        public virtual async Task<IActionResult> AddProductToCompareList(string productId)
-        {
-            var product = await _productService.GetProductById(productId);
-            if (product == null || !product.Published)
-                return Json(new
-                {
-                    success = false,
-                    comparemessage = "No product found with the specified ID"
-                });
-
-            if (product.ProductTypeId == ProductType.Auction || product.ProductTypeId == ProductType.Reservation)
-                return Json(new
-                {
-                    success = false,
-                    comparemessage = _translationService.GetResource("Products.ProductCantAddToCompareList")
-                });
-
-            if (!_catalogSettings.CompareProductsEnabled)
-                return Json(new
-                {
-                    success = false,
-                    comparemessage = "Product comparison is disabled"
-                });
-
-            //get list of compared product identifiers
-            var comparedProductIds = GetComparedProductIds();
-
-            //whether product identifier to add already exist
-            if (!comparedProductIds.Contains(productId))
-                comparedProductIds.Insert(0, productId);
-
-            //limit list based on the allowed number of products to be compared
-            comparedProductIds = comparedProductIds.Take(_catalogSettings.CompareProductsNumber).ToList();
-
-            //set cookie
-            AddCompareProductsCookie(comparedProductIds);
-
-            //activity log
-            _ = _customerActivityService.InsertActivity("PublicStore.AddToCompareList", productId,
-                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                _translationService.GetResource("ActivityLog.PublicStore.AddToCompareList"), product.Name);
-
-            return Json(new
-            {
-                success = true,
-                comparemessage = string.Format(_translationService.GetResource("Products.ProductHasBeenAddedToCompareList.Link"), Url.RouteUrl("CompareProducts"))
-            });
-        }
-
-        public virtual IActionResult RemoveProductFromCompareList(string productId)
-        {
-            var product = _productService.GetProductById(productId);
-            if (product == null)
-                return RedirectToRoute("HomePage");
-
-            if (!_catalogSettings.CompareProductsEnabled)
-                return RedirectToRoute("HomePage");
-
-            //get list of compared product identifiers
-            var comparedProductIds = GetComparedProductIds();
-
-            //whether product identifier to remove exists
-            if (!comparedProductIds.Contains(productId))
-                return RedirectToRoute("CompareProducts");
-
-            //it exists, so remove it from list
-            comparedProductIds.Remove(productId);
-
-            //set cookie
-            AddCompareProductsCookie(comparedProductIds); ;
-
-            return RedirectToRoute("CompareProducts");
+            return productIds.Select(productId => productId).Distinct().Take(10).ToList();
         }
 
         public virtual async Task<IActionResult> CompareProducts()
@@ -1007,16 +915,6 @@ namespace Grand.Web.Controllers
 
             return View(model);
 
-        }
-
-        public virtual IActionResult ClearCompareList()
-        {
-            if (!_catalogSettings.CompareProductsEnabled)
-                return RedirectToRoute("HomePage");
-
-            HttpContext.Response.Cookies.Delete(CacheKey.PRODUCTS_COMPARE_COOKIE_NAME);
-
-            return RedirectToRoute("CompareProducts");
         }
         #endregion
 

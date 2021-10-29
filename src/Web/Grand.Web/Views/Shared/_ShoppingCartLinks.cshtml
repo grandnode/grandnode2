@@ -1,6 +1,7 @@
 ﻿@inject IWorkContext workContext
 @inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
 @inject ShoppingCartSettings shoppingCartSettings
+@inject CatalogSettings catalogSettings
 @using Grand.Business.Common.Services.Security
 @using Grand.Business.Checkout.Extensions
 @{
@@ -26,7 +27,10 @@
                 .Sum(x => x.Quantity) : 0;
 
 }
-
+@if (catalogSettings.CompareProductsEnabled)
+{
+    <partial name="SidebarCompareProducts" />
+}
 @if (wishlistEnabled || shoppingCartEnabled)
 {
     @if (miniShoppingCartEnabled)

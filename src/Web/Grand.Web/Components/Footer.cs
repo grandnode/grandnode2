@@ -103,7 +103,6 @@ namespace Grand.Web.ViewComponents
                 PinterestLink = _storeInformationSettings.PinterestLink,
                 BlogEnabled = _blogSettings.Enabled,
                 KnowledgebaseEnabled = _knowledgebaseSettings.Enabled,
-                CompareProductsEnabled = _catalogSettings.CompareProductsEnabled,
                 NewsEnabled = _newsSettings.Enabled,
                 RecentlyViewedProductsEnabled = _catalogSettings.RecentlyViewedProductsEnabled,
                 RecommendedProductsEnabled = _catalogSettings.RecommendedProductsEnabled,

@@ -3,7 +3,6 @@
     data: function() {
         return {
             show: false,
-            fluid: false,
             hover: false,
             darkMode: false,
             active: false,
@@ -15,6 +14,8 @@
             PopupProductReviewVueModal: null,
             index: null,
             RelatedProducts: null,
+            compareproducts: null,
+            compareProductsQty: 0,
         }
     },
     props: {
@@ -31,6 +32,7 @@
         if (localStorage.fluid == "fluid") this.fluid = "fluid";
         if (localStorage.fluid == "") this.fluid = "false";
         if (localStorage.darkMode == "true") this.darkMode = true;
+        this.updateCompareProductsQty();
     },
     watch: {
         fluid: function (newName) {
@@ -44,6 +46,15 @@
         }
     },
     methods: {
+        updateCompareProductsQty: function () {
+            const cookie = AxiosCart.getCookie('Grand.CompareProduct');
+            if (cookie !== '') {
+                const qty = cookie.split('|').filter(Boolean).length;
+                this.compareProductsQty = qty;
+            } else {
+                this.compareProductsQty = 0;
+            }
+        },
         updateFly: function () {
             axios({
                 baseURL: '/Component/Index?Name=SidebarShoppingCart',
@@ -76,6 +87,35 @@
                 this.wishlistitems = response.data.Items,
                 this.wishindicator = response.data.Items.length
             ))
+        },
+        getCompareList: function () {
+            axios({
+                baseURL: '/compareproducts',
+                method: 'get',
+                params: {
+                    t: new Date().getTime()
+                },
+                data: null,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Response-View': 'Json'
+                }
+            }).then(response => {
+                this.compareproducts = response.data
+            })
+        },
+        removeFromCompareList: function (id) {
+            if (id !== undefined) {
+                const compareList = AxiosCart.getCookie('Grand.CompareProduct');
+                const newCompareList = compareList.replace(id, '');
+
+                AxiosCart.setCookie('Grand.CompareProduct', newCompareList);
+            } else {
+                AxiosCart.setCookie('Grand.CompareProduct', '');
+            }
+            this.updateCompareProductsQty();
+            this.getCompareList();
         },
         showModalOutOfStock: function () {
             this.$refs['out-of-stock'].show()
