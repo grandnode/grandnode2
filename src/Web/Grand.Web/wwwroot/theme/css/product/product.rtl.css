@@ -9,7 +9,6 @@
 .product-details-page .gallery img.image.main-image {
     max-width: 100%;
     margin: 0 0 15px 0;
-    background-color: #F8F9FB;
 }
 .product-details-page .gallery img.image.main-image + div {
     width: 100%;
@@ -18,11 +17,13 @@
     max-width: 100px;
     margin: 0 0 7px 7px;
     border: 1px solid #ddd;
-    background-color: #F8F9FB;
 }
 .product-details-page .gallery img.image.zoom,
 .product-details-page .gallery .thumb-image {
     cursor: pointer;
+}
+.product-details-page .gallery img {
+    background-color: #F8F9FB;
 }
 .vgscontainertitle {
     width: 100%;

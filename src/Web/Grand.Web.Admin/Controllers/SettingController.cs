@@ -119,7 +119,7 @@ namespace Grand.Web.Admin.Controllers
                 NewsSettings = newsSettings.ToModel(),
                 KnowledgebaseSettings = knowledgebaseSettings.ToModel()
             };
-            
+
             model.ActiveStore = storeScope;
             return View(model);
         }
@@ -164,7 +164,7 @@ namespace Grand.Web.Admin.Controllers
             var storeScope = await GetActiveStore();
             var vendorSettings = _settingService.LoadSetting<VendorSettings>(storeScope);
             var model = vendorSettings.ToModel();
-            
+
             model.ActiveStore = storeScope;
 
             return View(model);
@@ -176,7 +176,7 @@ namespace Grand.Web.Admin.Controllers
             var storeScope = await GetActiveStore();
             var vendorSettings = _settingService.LoadSetting<VendorSettings>(storeScope);
             vendorSettings = model.ToEntity(vendorSettings);
-            
+
             await _settingService.SaveSetting(vendorSettings, storeScope);
 
             //now clear cache
@@ -630,9 +630,12 @@ namespace Grand.Web.Admin.Controllers
                         if (storeIdDb)
                             await _pictureService.DeletePictureOnFileSystem(picture);
                         else
+                        {
                             //now on file system
-                            await _pictureService.SavePictureInFile(picture.Id, pictureBinary, picture.MimeType);
-                        picture.PictureBinary = storeIdDb ? pictureBinary : new byte[0];
+                            if (pictureBinary != null)
+                                await _pictureService.SavePictureInFile(picture.Id, pictureBinary, picture.MimeType);
+                        }
+                        picture.PictureBinary = storeIdDb ? pictureBinary : Array.Empty<byte>();
                         picture.IsNew = true;
 
                         await _pictureService.UpdatePicture(picture);
@@ -687,7 +690,7 @@ namespace Grand.Web.Admin.Controllers
 
             return RedirectToAction("Customer");
         }
-        
+
         public async Task<IActionResult> GeneralCommon()
         {
             var model = new GeneralCommonSettingsModel();
@@ -749,7 +752,7 @@ namespace Grand.Web.Admin.Controllers
             //display menu settings
             var displayMenuItemSettings = _settingService.LoadSetting<MenuItemSettings>(storeScope);
             model.DisplayMenuSettings = displayMenuItemSettings.ToModel();
-          
+
             return View(model);
         }
 
@@ -781,7 +784,7 @@ namespace Grand.Web.Admin.Controllers
 
             //security settings
             var securitySettings = _settingService.LoadSetting<SecuritySettings>(storeScope);
-            
+
             if (securitySettings.AdminAreaAllowedIpAddresses == null)
                 securitySettings.AdminAreaAllowedIpAddresses = new List<string>();
             securitySettings.AdminAreaAllowedIpAddresses.Clear();
@@ -807,7 +810,7 @@ namespace Grand.Web.Admin.Controllers
             var pdfSettings = _settingService.LoadSetting<PdfSettings>(storeScope);
             pdfSettings = model.PdfSettings.ToEntity(pdfSettings);
             await _settingService.SaveSetting(pdfSettings, storeScope);
-           
+
             //googleanalytics settings
             var googleAnalyticsSettings = _settingService.LoadSetting<GoogleAnalyticsSettings>(storeScope);
             googleAnalyticsSettings = model.GoogleAnalyticsSettings.ToEntity(googleAnalyticsSettings);
@@ -910,7 +913,7 @@ namespace Grand.Web.Admin.Controllers
                 throw new ArgumentNullException($"{oryginalFilePath} not exist");
 
         }
-        
+
         public IActionResult AdminSearch()
         {
             var settings = _settingService.LoadSetting<AdminSearchSettings>();

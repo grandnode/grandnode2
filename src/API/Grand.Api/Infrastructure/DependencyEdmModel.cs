@@ -118,20 +118,12 @@ namespace Grand.Api.Infrastructure
             #region Product picture
             ActionConfiguration createPicture = product.Action("CreateProductPicture");
             createPicture.Parameter<string>(nameof(ProductPictureDto.PictureId)).Required();
-            createPicture.Parameter<string>(nameof(ProductPictureDto.MimeType)).Required();
-            createPicture.Parameter<string>(nameof(ProductPictureDto.SeoFilename)).Required();
-            createPicture.Parameter<string>(nameof(ProductPictureDto.AltAttribute)).Required();
             createPicture.Parameter<int>(nameof(ProductPictureDto.DisplayOrder)).Required();
-            createPicture.Parameter<string>(nameof(ProductPictureDto.TitleAttribute)).Required();
             createPicture.Returns<bool>();
 
             ActionConfiguration updatePicture = product.Action("UpdateProductPicture");
             updatePicture.Parameter<string>(nameof(ProductPictureDto.PictureId)).Required();
-            updatePicture.Parameter<string>(nameof(ProductPictureDto.MimeType)).Required();
-            updatePicture.Parameter<string>(nameof(ProductPictureDto.SeoFilename)).Required();
-            updatePicture.Parameter<string>(nameof(ProductPictureDto.AltAttribute)).Required();
             updatePicture.Parameter<int>(nameof(ProductPictureDto.DisplayOrder)).Required();
-            updatePicture.Parameter<string>(nameof(ProductPictureDto.TitleAttribute)).Required();
             updatePicture.Returns<bool>();
 
             ActionConfiguration deletePicture = product.Action("DeleteProductPicture");

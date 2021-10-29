@@ -92,11 +92,8 @@
                 this.recognition.stop();
             },
             allowCheck() {
-                var isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
-                    navigator.userAgent &&
-                    navigator.userAgent.indexOf('CriOS') == -1 &&
-                    navigator.userAgent.indexOf('FxiOS') == -1;
-                if (!isSafari) {
+                var checkPermission = navigator.permissions
+                if (checkPermission) {
                     navigator.permissions.query(
                         { name: 'microphone' }
                     ).then(function (permissionStatus) {
@@ -114,15 +111,7 @@
                                 voicenavigator.allowed = true;
                             }
                         }
-                    });
-                } else {
-                    if (navigator.mediaDevices != undefined) {
-                        navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
-                            voicenavigator.allowed = true;
-                        }).catch(function (err) {
-                            voicenavigator.allowed = false;
-                        })
-                    }
+                    })
                 }
             }
         },
@@ -152,11 +141,10 @@
                                 const transcript = event.results[current][0].transcript;
                                 if (event.results[0].isFinal) {
                                     const concatTranscript = transcript.replace(/[`~!#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '').toLowerCase();
-                                    const transcriptArray = concatTranscript.split(' ');
                                     voicenavigator.transcript = transcript;
 
                                     for (const [key, element] of Object.entries(voicenavigator.commands)) {
-                                        const found = element.triggers.some(r => transcriptArray.includes(r));
+                                        const found = element.triggers.some(r => concatTranscript.includes(r));
 
                                         if (found) {
                                             voicenavigator.stopRecording();

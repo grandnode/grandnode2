@@ -27,6 +27,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.StaticFiles;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -1227,12 +1228,12 @@ namespace Grand.Web.Admin.Controllers
                     });
 
             var values = new List<(string pictureUrl, string pictureId)>();
-
+            var message = string.Empty;
             foreach (var file in httpPostedFiles)
             {
                 var qqFileNameParameter = "qqfilename";
                 var fileName = file.FileName;
-                if (String.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
+                if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
                     fileName = form[qqFileNameParameter].ToString();
 
                 fileName = Path.GetFileName(fileName);
@@ -1244,7 +1245,7 @@ namespace Grand.Web.Admin.Controllers
 
                 if (string.IsNullOrEmpty(contentType))
                 {
-                    contentType = GetContentType(fileExtension);
+                    _ = new FileExtensionContentTypeProvider().TryGetContentType(fileName, out contentType);
                 }
 
                 if (GetAllowedFileTypes(mediaSettings).Contains(fileExtension))
@@ -1257,10 +1258,13 @@ namespace Grand.Web.Admin.Controllers
                     values.Add((pictureUrl, picture.Id));
                     //assign picture to the product
                     await _productViewModelService.InsertProductPicture(product, picture, 0);
+
                 }
+                else
+                    message += $"Not allowed file types to import {fileName}";
             }
 
-            return Json(new { success = true, data = values });
+            return Json(new { success = values.Any(), data = values });
         }
 
         protected virtual IList<string> GetAllowedFileTypes(MediaSettings mediaSettings)
@@ -1270,31 +1274,6 @@ namespace Grand.Web.Admin.Controllers
             else
                 return mediaSettings.AllowedFileTypes.Split(',');
         }
-        protected virtual string GetContentType(string fileExtension)
-        {
-            switch (fileExtension)
-            {
-                case ".bmp":
-                    return "image/bmp";
-                case ".gif":
-                    return "image/gif";
-                case ".jpeg":
-                case ".jpg":
-                case ".jpe":
-                case ".jfif":
-                case ".pjpeg":
-                case ".pjp":
-                    return "image/jpeg";
-                case ".png":
-                    return "image/png";
-                case ".tiff":
-                case ".tif":
-                    return "image/tiff";
-                default:
-                    return "";
-            }
-        }
-
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]

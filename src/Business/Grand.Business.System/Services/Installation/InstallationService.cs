@@ -12,7 +12,6 @@ using Grand.Domain.Configuration;
 using Grand.Domain.Courses;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
-using Grand.Domain.Data.Mongo;
 using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
 using Grand.Domain.Documents;
@@ -161,117 +160,223 @@ namespace Grand.Business.System.Services.Installation
 
         #region Ctor
 
-        public InstallationService(IServiceProvider serviceProvider)
+        public InstallationService(
+            IServiceProvider serviceProvider,
+            IWebHostEnvironment webHostEnvironment,
+            IRepository<GrandNodeVersion> versionRepository,
+            IRepository<AdminSiteMap> adminRepository,
+            IRepository<Bid> bidRepository,
+            IRepository<Affiliate> affiliateRepository,
+            IRepository<CampaignHistory> campaignHistoryRepository,
+            IRepository<Campaign> campaignRepository,
+            IRepository<Order> orderRepository,
+            IRepository<OrderNote> orderNoteRepository,
+            IRepository<MerchandiseReturn> merchandiseReturnRepository,
+            IRepository<MerchandiseReturnNote> merchandiseReturnNoteRepository,
+            IRepository<Store> storeRepository,
+            IRepository<MeasureDimension> measureDimensionRepository,
+            IRepository<MeasureWeight> measureWeightRepository,
+            IRepository<MeasureUnit> measureUnitRepository,
+            IRepository<TaxCategory> taxCategoryRepository,
+            IRepository<Language> languageRepository,
+            IRepository<TranslationResource> lsrRepository,
+            IRepository<Log> logRepository,
+            IRepository<Currency> currencyRepository,
+            IRepository<Customer> customerRepository,
+            IRepository<CustomerGroup> customerGroupRepository,
+            IRepository<CustomerGroupProduct> customerGroupProductRepository,
+            IRepository<CustomerProduct> customerProductRepository,
+            IRepository<CustomerProductPrice> customerProductPriceRepository,
+            IRepository<CustomerTagProduct> customerTagProductRepository,
+            IRepository<CustomerHistoryPassword> customerHistoryPasswordRepository,
+            IRepository<CustomerNote> customerNoteRepository,
+            IRepository<UserApi> userapiRepository,
+            IRepository<SpecificationAttribute> specificationAttributeRepository,
+            IRepository<CheckoutAttribute> checkoutAttributeRepository,
+            IRepository<ProductAttribute> productAttributeRepository,
+            IRepository<AddressAttribute> addressAttributeRepository,
+            IRepository<CustomerAttribute> customerAttributeRepository,
+            IRepository<ContactAttribute> contactAttributeRepository,
+            IRepository<Category> categoryRepository,
+            IRepository<Brand> brandRepository,
+            IRepository<Vendor> vendorRepository,
+            IRepository<Collection> collectionRepository,
+            IRepository<Product> productRepository,
+            IRepository<ProductReservation> productReservationRepository,
+            IRepository<ProductAlsoPurchased> productalsopurchasedRepository,
+            IRepository<EntityUrl> entityUrlRepository,
+            IRepository<EmailAccount> emailAccountRepository,
+            IRepository<MessageTemplate> messageTemplateRepository,
+            IRepository<Country> countryRepository,
+            IRepository<Discount> discountRepository,
+            IRepository<DiscountCoupon> discountCouponRepository,
+            IRepository<DiscountUsageHistory> discountusageRepository,
+            IRepository<BlogPost> blogPostRepository,
+            IRepository<BlogCategory> blogCategoryRepository,
+            IRepository<BlogComment> blogCommentRepository,
+            IRepository<Page> pageRepository,
+            IRepository<NewsItem> newsItemRepository,
+            IRepository<NewsLetterSubscription> newslettersubscriptionRepository,
+            IRepository<ShippingMethod> shippingMethodRepository,
+            IRepository<DeliveryDate> deliveryDateRepository,
+            IRepository<ActivityLog> activityLogRepository,
+            IRepository<ActivityLogType> activityLogTypeRepository,
+            IRepository<ProductTag> productTagRepository,
+            IRepository<ProductReview> productReviewRepository,
+            IRepository<ProductLayout> productLayoutRepository,
+            IRepository<CategoryLayout> categoryLayoutRepository,
+            IRepository<BrandLayout> brandLayoutRepository,
+            IRepository<CollectionLayout> collectionLayoutRepository,
+            IRepository<PageLayout> pageLayoutRepository,
+            IRepository<ScheduleTask> scheduleTaskRepository,
+            IRepository<LoyaltyPointsHistory> loyaltypointshistoryRepository,
+            IRepository<SearchTerm> searchtermRepository,
+            IRepository<Setting> settingRepository,
+            IRepository<Shipment> shipmentRepository,
+            IRepository<Warehouse> warehouseRepository,
+            IRepository<PickupPoint> pickupPointsRepository,
+            IRepository<Permission> permissionRepository,
+            IRepository<PermissionAction> permissionAction,
+            IRepository<ExternalAuthentication> externalAuthenticationRepository,
+            IRepository<MerchandiseReturnReason> merchandiseReturnReasonRepository,
+            IRepository<MerchandiseReturnAction> merchandiseReturnActionRepository,
+            IRepository<ContactUs> contactUsRepository,
+            IRepository<CustomerAction> customerAction,
+            IRepository<CustomerActionType> customerActionType,
+            IRepository<CustomerActionHistory> customerActionHistory,
+            IRepository<PopupArchive> popupArchive,
+            IRepository<CustomerReminderHistory> customerReminderHistoryRepository,
+            IRepository<RecentlyViewedProduct> recentlyViewedProductRepository,
+            IRepository<KnowledgebaseArticle> knowledgebaseArticleRepository,
+            IRepository<KnowledgebaseCategory> knowledgebaseCategoryRepository,
+            IRepository<OrderTag> orderTagRepository,
+            IRepository<OrderStatus> orderStatusRepository,
+            IRepository<PopupActive> popupActiveRepository,
+            IRepository<PickupPoint> pickupPointRepository,
+            IRepository<OutOfStockSubscription> outOfStockSubscriptionRepository,
+            IRepository<ShipmentNote> shipmentNoteRepository,
+            IRepository<PaymentTransaction> paymentTransactionRepository,
+            IRepository<QueuedEmail> queuedEmailRepository,
+            IRepository<GiftVoucher> giftVoucherRepository,
+            IRepository<CustomerReminder> customerReminderRepository,
+            IRepository<DocumentType> documentTypeRepository,
+            IRepository<Document> documentRepository,
+            IRepository<SalesEmployee> salesRepository,
+            IRepository<VendorReview> vendorReviewRepository,
+            IRepository<NewsletterCategory> newsletterCategoryRepository,
+            IRepository<InteractiveForm> formRepository,
+            IRepository<Banner> bannerRepository,
+            IRepository<Course> courseRepository,
+            IRepository<CourseLevel> courseLevelRepository)
         {
-            var dataProviderSettings = DataSettingsManager.LoadSettings(reloadSettings: true);
 
-            _versionRepository = new MongoRepository<GrandNodeVersion>(dataProviderSettings.ConnectionString);
-            _adminRepository = new MongoRepository<AdminSiteMap>(dataProviderSettings.ConnectionString);
-            _bidRepository = new MongoRepository<Bid>(dataProviderSettings.ConnectionString);
-            _affiliateRepository = new MongoRepository<Affiliate>(dataProviderSettings.ConnectionString);
-            _campaignHistoryRepository = new MongoRepository<CampaignHistory>(dataProviderSettings.ConnectionString);
-            _campaignRepository = new MongoRepository<Campaign>(dataProviderSettings.ConnectionString);
-            _orderRepository = new MongoRepository<Order>(dataProviderSettings.ConnectionString);
-            _orderNoteRepository = new MongoRepository<OrderNote>(dataProviderSettings.ConnectionString);
-            _storeRepository = new MongoRepository<Store>(dataProviderSettings.ConnectionString);
-            _measureDimensionRepository = new MongoRepository<MeasureDimension>(dataProviderSettings.ConnectionString);
-            _measureWeightRepository = new MongoRepository<MeasureWeight>(dataProviderSettings.ConnectionString);
-            _measureUnitRepository = new MongoRepository<MeasureUnit>(dataProviderSettings.ConnectionString);
-            _taxCategoryRepository = new MongoRepository<TaxCategory>(dataProviderSettings.ConnectionString);
-            _languageRepository = new MongoRepository<Language>(dataProviderSettings.ConnectionString);
-            _lsrRepository = new MongoRepository<TranslationResource>(dataProviderSettings.ConnectionString);
-            _logRepository = new MongoRepository<Log>(dataProviderSettings.ConnectionString);
-            _currencyRepository = new MongoRepository<Currency>(dataProviderSettings.ConnectionString);
-            _customerRepository = new MongoRepository<Customer>(dataProviderSettings.ConnectionString);
-            _customerGroupRepository = new MongoRepository<CustomerGroup>(dataProviderSettings.ConnectionString);
-            _customerProductRepository = new MongoRepository<CustomerProduct>(dataProviderSettings.ConnectionString);
-            _customerProductPriceRepository = new MongoRepository<CustomerProductPrice>(dataProviderSettings.ConnectionString);
-            _customerGroupProductRepository = new MongoRepository<CustomerGroupProduct>(dataProviderSettings.ConnectionString);
-            _customerTagProductRepository = new MongoRepository<CustomerTagProduct>(dataProviderSettings.ConnectionString);
-            _customerHistoryPasswordRepository = new MongoRepository<CustomerHistoryPassword>(dataProviderSettings.ConnectionString);
-            _customerNoteRepository = new MongoRepository<CustomerNote>(dataProviderSettings.ConnectionString);
-            _userapiRepository = new MongoRepository<UserApi>(dataProviderSettings.ConnectionString);
-            _specificationAttributeRepository = new MongoRepository<SpecificationAttribute>(dataProviderSettings.ConnectionString);
-            _checkoutAttributeRepository = new MongoRepository<CheckoutAttribute>(dataProviderSettings.ConnectionString);
-            _productAttributeRepository = new MongoRepository<ProductAttribute>(dataProviderSettings.ConnectionString);
-            _addressAttributeRepository = new MongoRepository<AddressAttribute>(dataProviderSettings.ConnectionString);
-            _customerAttributeRepository = new MongoRepository<CustomerAttribute>(dataProviderSettings.ConnectionString);
-            _categoryRepository = new MongoRepository<Category>(dataProviderSettings.ConnectionString);
-            _brandRepository = new MongoRepository<Brand>(dataProviderSettings.ConnectionString);
-            _collectionRepository = new MongoRepository<Collection>(dataProviderSettings.ConnectionString);
-            _productRepository = new MongoRepository<Product>(dataProviderSettings.ConnectionString);
-            _productReservationRepository = new MongoRepository<ProductReservation>(dataProviderSettings.ConnectionString);
-            _productalsopurchasedRepository = new MongoRepository<ProductAlsoPurchased>(dataProviderSettings.ConnectionString);
-            _entityUrlRepository = new MongoRepository<EntityUrl>(dataProviderSettings.ConnectionString);
-            _emailAccountRepository = new MongoRepository<EmailAccount>(dataProviderSettings.ConnectionString);
-            _messageTemplateRepository = new MongoRepository<MessageTemplate>(dataProviderSettings.ConnectionString);
-            _countryRepository = new MongoRepository<Country>(dataProviderSettings.ConnectionString);
-            _discountRepository = new MongoRepository<Discount>(dataProviderSettings.ConnectionString);
-            _discountCouponRepository = new MongoRepository<DiscountCoupon>(dataProviderSettings.ConnectionString);
-            _blogPostRepository = new MongoRepository<BlogPost>(dataProviderSettings.ConnectionString);
-            _blogCommentRepository = new MongoRepository<BlogComment>(dataProviderSettings.ConnectionString);
-            _pageRepository = new MongoRepository<Page>(dataProviderSettings.ConnectionString);
-            _productReviewRepository = new MongoRepository<ProductReview>(dataProviderSettings.ConnectionString);
-            _newsItemRepository = new MongoRepository<NewsItem>(dataProviderSettings.ConnectionString);
-            _newslettersubscriptionRepository = new MongoRepository<NewsLetterSubscription>(dataProviderSettings.ConnectionString);
-            _shippingMethodRepository = new MongoRepository<ShippingMethod>(dataProviderSettings.ConnectionString);
-            _deliveryDateRepository = new MongoRepository<DeliveryDate>(dataProviderSettings.ConnectionString);
-            _activityLogTypeRepository = new MongoRepository<ActivityLogType>(dataProviderSettings.ConnectionString);
-            _productTagRepository = new MongoRepository<ProductTag>(dataProviderSettings.ConnectionString);
-            _productLayoutRepository = new MongoRepository<ProductLayout>(dataProviderSettings.ConnectionString);
-            _recentlyViewedProductRepository = new MongoRepository<RecentlyViewedProduct>(dataProviderSettings.ConnectionString);
-            _categoryLayoutRepository = new MongoRepository<CategoryLayout>(dataProviderSettings.ConnectionString);
-            _brandLayoutRepository = new MongoRepository<BrandLayout>(dataProviderSettings.ConnectionString);
-            _collectionLayoutRepository = new MongoRepository<CollectionLayout>(dataProviderSettings.ConnectionString);
-            _pageLayoutRepository = new MongoRepository<PageLayout>(dataProviderSettings.ConnectionString);
-            _scheduleTaskRepository = new MongoRepository<ScheduleTask>(dataProviderSettings.ConnectionString);
-            _merchandiseReturnRepository = new MongoRepository<MerchandiseReturn>(dataProviderSettings.ConnectionString);
-            _merchandiseReturnNoteRepository = new MongoRepository<MerchandiseReturnNote>(dataProviderSettings.ConnectionString);
-            _loyaltypointshistoryRepository = new MongoRepository<LoyaltyPointsHistory>(dataProviderSettings.ConnectionString);
-            _searchtermRepository = new MongoRepository<SearchTerm>(dataProviderSettings.ConnectionString);
-            _settingRepository = new MongoRepository<Setting>(dataProviderSettings.ConnectionString);
-            _shipmentRepository = new MongoRepository<Shipment>(dataProviderSettings.ConnectionString);
-            _shipmentNoteRepository = new MongoRepository<ShipmentNote>(dataProviderSettings.ConnectionString);
-            _warehouseRepository = new MongoRepository<Warehouse>(dataProviderSettings.ConnectionString);
-            _pickupPointsRepository = new MongoRepository<PickupPoint>(dataProviderSettings.ConnectionString);
-            _permissionRepository = new MongoRepository<Permission>(dataProviderSettings.ConnectionString);
-            _permissionAction = new MongoRepository<PermissionAction>(dataProviderSettings.ConnectionString);
-            _vendorRepository = new MongoRepository<Vendor>(dataProviderSettings.ConnectionString);
-            _externalAuthenticationRepository = new MongoRepository<ExternalAuthentication>(dataProviderSettings.ConnectionString);
-            _discountusageRepository = new MongoRepository<DiscountUsageHistory>(dataProviderSettings.ConnectionString);
-            _merchandiseReturnReasonRepository = new MongoRepository<MerchandiseReturnReason>(dataProviderSettings.ConnectionString);
-            _contactUsRepository = new MongoRepository<ContactUs>(dataProviderSettings.ConnectionString);
-            _merchandiseReturnActionRepository = new MongoRepository<MerchandiseReturnAction>(dataProviderSettings.ConnectionString);
-            _customerAction = new MongoRepository<CustomerAction>(dataProviderSettings.ConnectionString);
-            _customerActionType = new MongoRepository<CustomerActionType>(dataProviderSettings.ConnectionString);
-            _customerActionHistory = new MongoRepository<CustomerActionHistory>(dataProviderSettings.ConnectionString);
-            _customerReminderHistoryRepository = new MongoRepository<CustomerReminderHistory>(dataProviderSettings.ConnectionString);
-            _knowledgebaseArticleRepository = new MongoRepository<KnowledgebaseArticle>(dataProviderSettings.ConnectionString);
-            _knowledgebaseCategoryRepository = new MongoRepository<KnowledgebaseCategory>(dataProviderSettings.ConnectionString);
-            _popupArchive = new MongoRepository<PopupArchive>(dataProviderSettings.ConnectionString);
-            _orderTagRepository = new MongoRepository<OrderTag>(dataProviderSettings.ConnectionString);
-            _orderStatusRepository = new MongoRepository<OrderStatus>(dataProviderSettings.ConnectionString);
-            _popupActiveRepository = new MongoRepository<PopupActive>(dataProviderSettings.ConnectionString);
-            _pickupPointRepository = new MongoRepository<PickupPoint>(dataProviderSettings.ConnectionString);
-            _outOfStockSubscriptionRepository = new MongoRepository<OutOfStockSubscription>(dataProviderSettings.ConnectionString);
-            _blogCategoryRepository = new MongoRepository<BlogCategory>(dataProviderSettings.ConnectionString);
-            _paymentTransactionRepository = new MongoRepository<PaymentTransaction>(dataProviderSettings.ConnectionString);
-            _queuedEmailRepository = new MongoRepository<QueuedEmail>(dataProviderSettings.ConnectionString);
-            _giftVoucherRepository = new MongoRepository<GiftVoucher>(dataProviderSettings.ConnectionString);
-            _customerReminderRepository = new MongoRepository<CustomerReminder>(dataProviderSettings.ConnectionString);
-            _documentTypeRepository = new MongoRepository<DocumentType>(dataProviderSettings.ConnectionString);
-            _documentRepository = new MongoRepository<Document>(dataProviderSettings.ConnectionString);
-            _salesRepository = new MongoRepository<SalesEmployee>(dataProviderSettings.ConnectionString);
-            _activityLogRepository = new MongoRepository<ActivityLog>(dataProviderSettings.ConnectionString);
-            _vendorReviewRepository = new MongoRepository<VendorReview>(dataProviderSettings.ConnectionString);
-            _contactAttributeRepository = new MongoRepository<ContactAttribute>(dataProviderSettings.ConnectionString);
-            _newsletterCategoryRepository = new MongoRepository<NewsletterCategory>(dataProviderSettings.ConnectionString);
-            _formRepository = new MongoRepository<InteractiveForm>(dataProviderSettings.ConnectionString);
-            _bannerRepository = new MongoRepository<Banner>(dataProviderSettings.ConnectionString);
-            _courseRepository = new MongoRepository<Course>(dataProviderSettings.ConnectionString);
-            _courseLevelRepository = new MongoRepository<CourseLevel>(dataProviderSettings.ConnectionString);
-            _hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+            _versionRepository = versionRepository;
+            _adminRepository = adminRepository;
+            _bidRepository = bidRepository;
+            _affiliateRepository = affiliateRepository;
+            _campaignHistoryRepository = campaignHistoryRepository;
+            _campaignRepository = campaignRepository;
+            _orderRepository = orderRepository;
+            _orderNoteRepository = orderNoteRepository;
+            _storeRepository = storeRepository;
+            _measureDimensionRepository = measureDimensionRepository;
+            _measureWeightRepository = measureWeightRepository;
+            _measureUnitRepository = measureUnitRepository;
+            _taxCategoryRepository = taxCategoryRepository;
+            _languageRepository = languageRepository;
+            _lsrRepository = lsrRepository;
+            _logRepository = logRepository;
+            _currencyRepository = currencyRepository;
+            _customerRepository = customerRepository;
+            _customerGroupRepository = customerGroupRepository;
+            _customerProductRepository = customerProductRepository;
+            _customerProductPriceRepository = customerProductPriceRepository;
+            _customerGroupProductRepository = customerGroupProductRepository;
+            _customerTagProductRepository = customerTagProductRepository;
+            _customerHistoryPasswordRepository = customerHistoryPasswordRepository;
+            _customerNoteRepository = customerNoteRepository;
+            _userapiRepository = userapiRepository;
+            _specificationAttributeRepository = specificationAttributeRepository;
+            _checkoutAttributeRepository = checkoutAttributeRepository;
+            _productAttributeRepository = productAttributeRepository;
+            _addressAttributeRepository = addressAttributeRepository;
+            _customerAttributeRepository = customerAttributeRepository;
+            _categoryRepository = categoryRepository;
+            _brandRepository = brandRepository;
+            _collectionRepository = collectionRepository;
+            _productRepository = productRepository;
+            _productReservationRepository = productReservationRepository;
+            _productalsopurchasedRepository = productalsopurchasedRepository;
+            _entityUrlRepository = entityUrlRepository;
+            _emailAccountRepository = emailAccountRepository;
+            _messageTemplateRepository = messageTemplateRepository;
+            _countryRepository = countryRepository;
+            _discountRepository = discountRepository;
+            _discountCouponRepository = discountCouponRepository;
+            _blogPostRepository = blogPostRepository;
+            _blogCommentRepository = blogCommentRepository;
+            _pageRepository = pageRepository;
+            _productReviewRepository = productReviewRepository;
+            _newsItemRepository = newsItemRepository;
+            _newslettersubscriptionRepository = newslettersubscriptionRepository;
+            _shippingMethodRepository = shippingMethodRepository;
+            _deliveryDateRepository = deliveryDateRepository;
+            _activityLogTypeRepository = activityLogTypeRepository;
+            _productTagRepository = productTagRepository;
+            _productLayoutRepository = productLayoutRepository;
+            _recentlyViewedProductRepository = recentlyViewedProductRepository;
+            _categoryLayoutRepository = categoryLayoutRepository;
+            _brandLayoutRepository = brandLayoutRepository;
+            _collectionLayoutRepository = collectionLayoutRepository;
+            _pageLayoutRepository = pageLayoutRepository;
+            _scheduleTaskRepository = scheduleTaskRepository;
+            _merchandiseReturnRepository = merchandiseReturnRepository;
+            _merchandiseReturnNoteRepository = merchandiseReturnNoteRepository;
+            _loyaltypointshistoryRepository = loyaltypointshistoryRepository;
+            _searchtermRepository = searchtermRepository;
+            _settingRepository = settingRepository;
+            _shipmentRepository = shipmentRepository;
+            _shipmentNoteRepository = shipmentNoteRepository;
+            _warehouseRepository = warehouseRepository;
+            _pickupPointsRepository = pickupPointsRepository;
+            _permissionRepository = permissionRepository;
+            _permissionAction = permissionAction;
+            _vendorRepository = vendorRepository;
+            _externalAuthenticationRepository = externalAuthenticationRepository;
+            _discountusageRepository = discountusageRepository;
+            _merchandiseReturnReasonRepository = merchandiseReturnReasonRepository;
+            _contactUsRepository = contactUsRepository;
+            _merchandiseReturnActionRepository = merchandiseReturnActionRepository;
+            _customerAction = customerAction;
+            _customerActionType = customerActionType;
+            _customerActionHistory = customerActionHistory;
+            _customerReminderHistoryRepository = customerReminderHistoryRepository;
+            _knowledgebaseArticleRepository = knowledgebaseArticleRepository;
+            _knowledgebaseCategoryRepository = knowledgebaseCategoryRepository;
+            _popupArchive = popupArchive;
+            _orderTagRepository = orderTagRepository;
+            _orderStatusRepository = orderStatusRepository;
+            _popupActiveRepository = popupActiveRepository;
+            _pickupPointRepository = pickupPointRepository;
+            _outOfStockSubscriptionRepository = outOfStockSubscriptionRepository;
+            _blogCategoryRepository = blogCategoryRepository;
+            _paymentTransactionRepository = paymentTransactionRepository;
+            _queuedEmailRepository = queuedEmailRepository;
+            _giftVoucherRepository = giftVoucherRepository;
+            _customerReminderRepository = customerReminderRepository;
+            _documentTypeRepository = documentTypeRepository;
+            _documentRepository = documentRepository;
+            _salesRepository = salesRepository;
+            _activityLogRepository = activityLogRepository;
+            _vendorReviewRepository = vendorReviewRepository;
+            _contactAttributeRepository = contactAttributeRepository;
+            _newsletterCategoryRepository = newsletterCategoryRepository;
+            _formRepository = formRepository;
+            _bannerRepository = bannerRepository;
+            _courseRepository = courseRepository;
+            _courseLevelRepository = courseLevelRepository;
 
+            _hostingEnvironment = webHostEnvironment;
             _serviceProvider = serviceProvider;
         }
 
@@ -304,7 +409,7 @@ namespace Grand.Business.System.Services.Installation
             await customerManagerService.ChangePassword(new ChangePasswordRequest(defaultUserEmail, false, PasswordFormat.Hashed, defaultUserPassword));
         }
 
-        private async Task CreateIndexes(MongoDBContext dbContext, DataSettings dataSettings)
+        private async Task CreateIndexes(IDatabaseContext dbContext, DataSettings dataSettings)
         {
             //version
             await dbContext.CreateIndex(_versionRepository, OrderBuilder<GrandNodeVersion>.Create().Ascending(x => x.DataBaseVersion), "DataBaseVersion", true);
@@ -333,13 +438,13 @@ namespace Grand.Business.System.Services.Installation
 
             await dbContext.CreateIndex(_vendorRepository, OrderBuilder<Vendor>.Create().Ascending(x => x.DisplayOrder).Ascending(x => x.Name), "DisplayOrder_Name");
             await dbContext.CreateIndex(_vendorReviewRepository, OrderBuilder<VendorReview>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
-            
+
 
             await dbContext.CreateIndex(_addressAttributeRepository, OrderBuilder<AddressAttribute>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
             await dbContext.CreateIndex(_customerAttributeRepository, OrderBuilder<CustomerAttribute>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
 
             await dbContext.CreateIndex(_customerHistoryPasswordRepository, OrderBuilder<CustomerHistoryPassword>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
-            
+
             //product customer group
             await dbContext.CreateIndex(_customerGroupProductRepository, OrderBuilder<CustomerGroupProduct>.Create().Ascending(x => x.CustomerGroupId).Ascending(x => x.DisplayOrder), "CustomerGroupId_DisplayOrder");
             await dbContext.CreateIndex(_customerGroupProductRepository, OrderBuilder<CustomerGroupProduct>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
@@ -498,11 +603,11 @@ namespace Grand.Business.System.Services.Installation
             await dbContext.CreateIndex(_blogPostRepository, OrderBuilder<BlogPost>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
             await dbContext.CreateIndex(_blogCategoryRepository, OrderBuilder<BlogCategory>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
             await dbContext.CreateIndex(_blogCommentRepository, OrderBuilder<BlogComment>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
-            
+
             //knowledgebase
             await dbContext.CreateIndex(_knowledgebaseArticleRepository, OrderBuilder<KnowledgebaseArticle>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
             await dbContext.CreateIndex(_knowledgebaseCategoryRepository, OrderBuilder<KnowledgebaseCategory>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
-            await dbContext.CreateIndex(_knowledgebaseCategoryRepository, OrderBuilder<KnowledgebaseCategory>.Create().Ascending(x => x.ParentCategoryId).Ascending(x=>x.DisplayOrder), "ParentCategoryId_DisplayOrder");
+            await dbContext.CreateIndex(_knowledgebaseCategoryRepository, OrderBuilder<KnowledgebaseCategory>.Create().Ascending(x => x.ParentCategoryId).Ascending(x => x.DisplayOrder), "ParentCategoryId_DisplayOrder");
 
             //page
             await dbContext.CreateIndex(_pageRepository, OrderBuilder<Page>.Create().Ascending(x => x.SystemName), "SystemName");
@@ -520,7 +625,7 @@ namespace Grand.Business.System.Services.Installation
             //Campaign 
             await dbContext.CreateIndex(_campaignRepository, OrderBuilder<Campaign>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
             await dbContext.CreateIndex(_campaignHistoryRepository, OrderBuilder<CampaignHistory>.Create().Ascending(x => x.CampaignId).Descending(x => x.CreatedDateUtc), "CampaignId");
-            
+
             //loyalty points
             await dbContext.CreateIndex(_loyaltypointshistoryRepository, OrderBuilder<LoyaltyPointsHistory>.Create().Ascending(x => x.CustomerId), "CustomerId");
             await dbContext.CreateIndex(_loyaltypointshistoryRepository, OrderBuilder<LoyaltyPointsHistory>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
@@ -638,7 +743,7 @@ namespace Grand.Business.System.Services.Installation
             //course
             await dbContext.CreateIndex(_courseRepository, OrderBuilder<Course>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
             await dbContext.CreateIndex(_courseLevelRepository, OrderBuilder<CourseLevel>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
-            
+
             //if(dataSettings.DbProvider == DbProvider.CosmosDB)
             //{
             //    //
@@ -654,17 +759,23 @@ namespace Grand.Business.System.Services.Installation
             try
             {
                 var dataSettings = DataSettingsManager.LoadSettings();
-                var dbContext = new MongoDBContext(dataSettings.ConnectionString);
+                var dbContext = _serviceProvider.GetRequiredService<IDatabaseContext>();
+                dbContext.SetConnection(dataSettings.ConnectionString);
 
-                var typeSearcher = _serviceProvider.GetRequiredService<ITypeSearcher>();
-                var q = typeSearcher.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "Grand.Domain");
-
-                foreach (var item in q.GetTypes())
+                if (dbContext.InstallProcessCreateTable)
                 {
-                    if (item.BaseType != null && item.IsClass && item.BaseType == typeof(BaseEntity))
-                        await dbContext.CreateTable(item.Name, local);
+                    var typeSearcher = _serviceProvider.GetRequiredService<ITypeSearcher>();
+                    var q = typeSearcher.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "Grand.Domain");
+
+                    foreach (var item in q.GetTypes())
+                    {
+                        if (item.BaseType != null && item.IsClass && item.BaseType == typeof(BaseEntity))
+                            await dbContext.CreateTable(item.Name, local);
+                    }
                 }
-                await CreateIndexes(dbContext, dataSettings);
+
+                if (dbContext.InstallProcessCreateIndex)
+                    await CreateIndexes(dbContext, dataSettings);
 
             }
             catch (Exception ex)

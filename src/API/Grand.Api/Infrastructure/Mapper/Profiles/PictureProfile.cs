@@ -14,6 +14,7 @@ namespace Grand.Api.Infrastructure.Mapper
 
             CreateMap<Picture, PictureDto>()
                 .ForMember(dest => dest.PictureBinary, mo => mo.Ignore());
+
         }
 
         public int Order => 1;

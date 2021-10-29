@@ -74,13 +74,12 @@
                                 <b-collapse id="opc-shipping" visible accordion="my-accordion" role="tabpanel" appear>
                                     <div class="card-body">
                                         <validation-observer v-slot="{ handleSubmit }">
-                                            <form action="" id="co-shipping-form" v-on:submit.prevent="handleSubmit(vmorder.formCheckoutSubmit())">
+                                            <form action="" id="co-shipping-form" v-on:submit.prevent="handleSubmit(vmorder.formCheckoutSubmit)">
                                                 <div id="checkout-shipping-load">
                                                     <partial name="_ShippingAddress" model="Model.ShippingAddress" />
                                                 </div>
                                                 <input type="submit" id="opc-shipping-submit" class="d-none" />
                                             </form>
-                                        </validation-observer>
                                         <div class="col-12 buttons py-1 px-0 mt-3" id="shipping-buttons-container">
                                             <input type="button" class="btn btn-info new-address-next-step-button" title="@Loc["Common.Continue"]" onclick="document.getElementById('opc-shipping-submit').click()" value="@Loc["Common.Continue"]" />
                                             <span id="shipping-please-wait" class="please-wait" style="display: none;"> @Loc["Common.LoadingNextStep"]</span>

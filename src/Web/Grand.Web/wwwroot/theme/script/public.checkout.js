@@ -63,7 +63,7 @@ var vmorder = new Vue({
     },
     methods: {
         formCheckoutSubmit() {
-            document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vShipping.save(); document.getElementById('opc-shipping-submit').click()");
+            vmorder.vShipping.save();
             vmorder.shippingAddressErrors = null;
             vmorder.billingAddressErrors = null;
         },

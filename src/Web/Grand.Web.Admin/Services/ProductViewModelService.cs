@@ -2765,9 +2765,9 @@ namespace Grand.Web.Admin.Services
             await _productService.UpdateProductPicture(productPicture, product.Id);
 
             //Update picture fields
-            await _pictureService.UpdatField(picture, x => x.AltAttribute, model.AltAttribute);
-            await _pictureService.UpdatField(picture, x => x.TitleAttribute, model.TitleAttribute);
-            await _pictureService.UpdatField(picture, x => x.Locales, model.Locales.ToTranslationProperty());
+            await _pictureService.UpdatePictureField(picture, x => x.AltAttribute, model.AltAttribute);
+            await _pictureService.UpdatePictureField(picture, x => x.TitleAttribute, model.TitleAttribute);
+            await _pictureService.UpdatePictureField(picture, x => x.Locales, model.Locales.ToTranslationProperty());
 
         }
         public virtual async Task DeleteProductPicture(ProductModel.ProductPictureModel model)

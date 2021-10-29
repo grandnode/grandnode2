@@ -4,7 +4,6 @@ using Grand.Business.Common.Services.Security;
 using Grand.Business.System.Commands.Models.Security;
 using Grand.Business.System.Interfaces.Installation;
 using Grand.Domain.Data;
-using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Extensions;
 using Grand.Infrastructure.Migrations;
@@ -62,7 +61,7 @@ namespace Grand.Web.Controllers
         {
             HttpContext.Request.Cookies.TryGetValue(LANGUAGE_COOKIE_NAME, out var language);
 
-            if(string.IsNullOrEmpty(language))
+            if (string.IsNullOrEmpty(language))
             {
                 //find by current browser culture
                 if (HttpContext.Request.Headers.TryGetValue("Accept-Language", out var userLanguages))
@@ -169,8 +168,9 @@ namespace Grand.Web.Controllers
             {
                 try
                 {
-                    var mdb = new MongoDBContext();
-                    if (await mdb.DatabaseExist(connectionString))
+                    var mdb = _serviceProvider.GetRequiredService<IDatabaseContext>();
+                    mdb.SetConnection(connectionString);
+                    if (await mdb.DatabaseExist())
                         ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "AlreadyInstalled"));
                 }
                 catch (Exception ex)
@@ -195,7 +195,7 @@ namespace Grand.Web.Controllers
                 model.DatabaseConnectionString = model.DatabaseConnectionString.Trim();
 
             var connectionString = BuildConnectionString(locService, model);
-            
+
             await CheckConnectionString(locService, connectionString, model);
 
             if (ModelState.IsValid)
@@ -212,7 +212,7 @@ namespace Grand.Web.Controllers
                     var installationService = _serviceProvider.GetRequiredService<IInstallationService>();
                     await installationService.InstallData(
                         HttpContext.Request.Scheme, HttpContext.Request.Host,
-                        model.AdminEmail, model.AdminPassword, model.Collation, 
+                        model.AdminEmail, model.AdminPassword, model.Collation,
                         model.InstallSampleData, model.CompanyName, model.CompanyAddress, model.CompanyPhoneNumber, model.CompanyEmail);
 
                     //reset cache
