@@ -41,10 +41,6 @@
                         {
                             <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("RecentlyViewedProducts")">@Loc["Products.RecentlyViewedProducts"]</a>
                         }
-                        @if (Model.CompareProductsEnabled)
-                        {
-                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("CompareProducts")">@Loc["Products.Compare.List"]</a>
-                        }
                         @if (Model.NewProductsEnabled)
                         {
                             <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("NewProducts")">@Loc["Products.NewProducts"]</a>
