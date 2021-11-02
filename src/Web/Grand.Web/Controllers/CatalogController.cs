@@ -424,7 +424,10 @@ namespace Grand.Web.Controllers
                 }
                 return View(model);
             }
+
             model = await _mediator.Send(new GetVendorReviews() { Vendor = vendor });
+            model.AddVendorReview.SuccessfullyAdded = false;
+            model.AddVendorReview.Result = string.Join("; ", ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage));
 
             return View(model);
         }
