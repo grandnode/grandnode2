@@ -3,6 +3,7 @@
 <div class="mb-3">
     <a class="btn btn-info" @@click="vendorreviews.addVendorReview()">@Loc["Reviews.Overview.AddNew"]</a>
 </div>
+
 @if (Model.AddVendorReview.DisplayCaptcha)
 {
     <div id="captcha-container">
@@ -110,7 +111,7 @@
                 vm.$refs['ModalVendorReview'].show();
             },
             modalReviewShown: function () {
-                if (vendorreviews.Model.AddVendorReview.DisplayCaptcha && document.querySelector("#ModalVendorReview .captcha-box") == null) {
+                if (vendorreviews.Model.AddVendorReview.DisplayCaptcha && document.querySelector("#ModalVendorReview .captcha-box") == null) {                    
                     var html = document.getElementById("captcha-box");
                     document.getElementById("captcha-popup").prepend(html);
                 }

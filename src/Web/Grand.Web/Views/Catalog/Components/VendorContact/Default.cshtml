@@ -66,7 +66,7 @@ else
                     }
                 </div>
                 <div class="btn-group text-sm-center pt-3 pb-3">
-                    <input type="submit" name="send-email" class="btn btn-info contact-us-button" data-form="contactvendor.test('/vendor/contact/@Model.VendorId')" value="@Loc["ContactVendor.Button"]" />
+                    <input type="submit" name="send-email" class="btn btn-info contact-us-button" data-form="contactvendor.submitVendorContact('@Url.RouteUrl("ContactVendor", new { vendorId = Model.VendorId })')" value="@Loc["ContactVendor.Button"]" />
                 </div>
             </form>
         </validation-observer>
@@ -88,8 +88,7 @@ else
                         }
                     }),
                     methods: {
-                        test(url) {
-                            alert('test');
+                        submitVendorContact(url) {
                             var bodyFormData = new FormData(document.getElementById("vendorContact"));
                             axios({
                                 url: url,

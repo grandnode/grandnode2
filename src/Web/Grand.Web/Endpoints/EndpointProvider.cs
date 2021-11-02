@@ -203,7 +203,7 @@ namespace Grand.Web.Endpoints
 
             //contact vendor
             endpointRouteBuilder.MapControllerRoute("ContactVendor",
-                            pattern + "vendor/contact/{vendorId?}",
+                            pattern + "vendor/contact/{vendorId}",
                             new { controller = "Vendor", action = "ContactVendor" });
 
         }
