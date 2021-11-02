@@ -25,22 +25,9 @@
                 <div class="col-xl-10 col-lg-9 col-md-8 align-items-center d-flex">
                     <div>
                         <h1 class="h2 generalTitle w-100">
-                            @Model.Name
+                            {{catalog.Model.Name}}
                         </h1>
-                        @if (Model.AllowCustomersToContactVendors)
-                        {
-                            <button class="btn btn-sm btn-info contact-vendor-button float-xs-right" onclick="location = ('@Url.RouteUrl("ContactVendor", new { vendorId = Model.Id })')">
-                                @Loc["ContactVendor"]
-                            </button>
-                        }
                         @await Component.InvokeAsync("Widget", new { widgetZone = "vendordetails_top", additionalData = Model.Id })
-                        @*Rendering description section*@
-                        @if (!String.IsNullOrWhiteSpace(Model.Description))
-                        {
-                            <article class="text-xs-center generalMarginSupporter vendor-description">
-                                @Html.Raw(Model.Description)
-                            </article>
-                        }
                         @*rendering review section*@
                         @if (Model.VendorReviewOverview.AllowCustomerReviews)
                         {
@@ -53,86 +40,105 @@
             </div>
             <div class="row">
                 <div class="col-12">
-                    @if (Model.Address != null)
-                    {
-                        <ul class="info px-0 mb-0">
-                            @if (Model.Address.CompanyEnabled && !String.IsNullOrEmpty(Model.Address.Company))
-                            {
-                                <li class="company">
-                                    <label class="col-form-label">@Loc["Address.Fields.Company"]:</label>
-                                    @Model.Address.Company
-                                </li>
-                            }
-                            @if (Model.Address.StreetAddressEnabled && !String.IsNullOrEmpty(Model.Address.Address1))
-                            {
-                                <li class="address1">
-                                    <label class="col-form-label w-100">@Loc["Address.Fields.Address1"]:</label>
-                                    @Model.Address.Address1
-                                </li>
-                            }
-                            @if (Model.Address.StreetAddress2Enabled && !String.IsNullOrEmpty(Model.Address.Address2))
-                            {
-                                <li class="address2">
-                                    <label class="col-form-label">@Loc["Address.Fields.Address2"]:</label>
-                                    @Model.Address.Address2
-                                </li>
-                            }
-                            @if (Model.Address.CityEnabled || Model.Address.StateProvinceEnabled || Model.Address.ZipPostalCodeEnabled)
-                            {
-                                var cityStateZip = "";
-                                if (Model.Address.CityEnabled && !String.IsNullOrEmpty(Model.Address.City))
-                                {
-                                    cityStateZip = Model.Address.City;
-                                    if (Model.Address.StateProvinceEnabled || Model.Address.ZipPostalCodeEnabled)
+                    <b-tabs class="mt-3" content-class="mt-3" align="center">
+                        <template v-if="catalog.Model.Description !== null">
+                            <b-tab id="description-tab" title="@Loc["vendor.Description"]" active>
+                                <article class="text-xs-center generalMarginSupporter vendor-description" v-html="catalog.Model.Description"></article>
+                            </b-tab>
+                        </template>
+                        @if (Model.Address != null)
+                        {
+                            <b-tab id="address-tab" title="@Loc["Vendor.Address"]">
+                                <ul class="info px-0 mb-0">
+                                    @if (Model.Address.CompanyEnabled && !String.IsNullOrEmpty(Model.Address.Company))
                                     {
-                                        cityStateZip += ",";
+                                        <li class="company">
+                                            <label class="col-form-label">@Loc["Address.Fields.Company"]:</label>
+                                            @Model.Address.Company
+                                        </li>
                                     }
-                                }
-                                if (Model.Address.StateProvinceEnabled)
-                                {
-                                    if (!String.IsNullOrEmpty(cityStateZip))
+                                    @if (Model.Address.StreetAddressEnabled && !String.IsNullOrEmpty(Model.Address.Address1))
                                     {
-                                        cityStateZip += " ";
+                                        <li class="address1">
+                                            <label class="col-form-label w-100">@Loc["Address.Fields.Address1"]:</label>
+                                            @Model.Address.Address1
+                                        </li>
                                     }
-                                    cityStateZip += Model.Address.StateProvinceName;
-                                }
-                                if (Model.Address.ZipPostalCodeEnabled)
-                                {
-                                    if (!String.IsNullOrEmpty(cityStateZip))
+                                    @if (Model.Address.StreetAddress2Enabled && !String.IsNullOrEmpty(Model.Address.Address2))
                                     {
-                                        cityStateZip += " ";
+                                        <li class="address2">
+                                            <label class="col-form-label">@Loc["Address.Fields.Address2"]:</label>
+                                            @Model.Address.Address2
+                                        </li>
                                     }
-                                    cityStateZip += Model.Address.ZipPostalCode;
-                                }
-                                if (!String.IsNullOrEmpty(cityStateZip))
-                                {
-                                    <li class="city-state-zip">
-                                        @cityStateZip
-                                    </li>
-                                }
-                            }
-                            @if (Model.Address.CountryEnabled && !String.IsNullOrEmpty(Model.Address.CountryName))
-                            {
-                                <li class="country">
-                                    @Model.Address.CountryName
-                                </li>
-                            }
-                            @if (Model.Address.PhoneEnabled && !String.IsNullOrEmpty(Model.Address.PhoneNumber))
-                            {
-                                <li class="phone">
-                                    <label class="col-form-label">@Loc["Address.Fields.PhoneNumber"]:</label>
-                                    @Model.Address.PhoneNumber
-                                </li>
-                            }
-                            @if (Model.Address.FaxEnabled && !String.IsNullOrEmpty(Model.Address.FaxNumber))
-                            {
-                                <li class="fax">
-                                    <label class="col-form-label">@Loc["Address.Fields.FaxNumber"]:</label>
-                                    @Model.Address.FaxNumber
-                                </li>
-                            }
-                        </ul>
-                    }
+                                    @if (Model.Address.CityEnabled || Model.Address.StateProvinceEnabled || Model.Address.ZipPostalCodeEnabled)
+                                    {
+                                        var cityStateZip = "";
+                                        if (Model.Address.CityEnabled && !String.IsNullOrEmpty(Model.Address.City))
+                                        {
+                                            cityStateZip = Model.Address.City;
+                                            if (Model.Address.StateProvinceEnabled || Model.Address.ZipPostalCodeEnabled)
+                                            {
+                                                cityStateZip += ",";
+                                            }
+                                        }
+                                        if (Model.Address.StateProvinceEnabled)
+                                        {
+                                            if (!String.IsNullOrEmpty(cityStateZip))
+                                            {
+                                                cityStateZip += " ";
+                                            }
+                                            cityStateZip += Model.Address.StateProvinceName;
+                                        }
+                                        if (Model.Address.ZipPostalCodeEnabled)
+                                        {
+                                            if (!String.IsNullOrEmpty(cityStateZip))
+                                            {
+                                                cityStateZip += " ";
+                                            }
+                                            cityStateZip += Model.Address.ZipPostalCode;
+                                        }
+                                        if (!String.IsNullOrEmpty(cityStateZip))
+                                        {
+                                            <li class="city-state-zip">
+                                                @cityStateZip
+                                            </li>
+                                        }
+                                    }
+                                    @if (Model.Address.CountryEnabled && !String.IsNullOrEmpty(Model.Address.CountryName))
+                                    {
+                                        <li class="country">
+                                            @Model.Address.CountryName
+                                        </li>
+                                    }
+                                    @if (Model.Address.PhoneEnabled && !String.IsNullOrEmpty(Model.Address.PhoneNumber))
+                                    {
+                                        <li class="phone">
+                                            <label class="col-form-label">@Loc["Address.Fields.PhoneNumber"]:</label>
+                                            @Model.Address.PhoneNumber
+                                        </li>
+                                    }
+                                    @if (Model.Address.FaxEnabled && !String.IsNullOrEmpty(Model.Address.FaxNumber))
+                                    {
+                                        <li class="fax">
+                                            <label class="col-form-label">@Loc["Address.Fields.FaxNumber"]:</label>
+                                            @Model.Address.FaxNumber
+                                        </li>
+                                    }
+                                </ul>
+                            </b-tab>
+                        }
+                        <template v-if="catalog.Model.VendorReviewOverview.AllowCustomerReviews">
+                            <b-tab id="review-tab" title="@Loc["vendor.Reviews"]" :active="active ? true : false">
+                                @await Component.InvokeAsync("VendorReviews", new { vendorId = Model.Id })
+                            </b-tab>
+                        </template>
+                        <template v-if="catalog.Model.AllowCustomersToContactVendors">
+                            <b-tab id="contact-tab" title="@Loc["ContactVendor"]">
+                                @await Component.InvokeAsync("VendorContact", new { vendorId = Model.Id })
+                            </b-tab>
+                        </template>
+                    </b-tabs>
                 </div>
             </div>
         </div>

@@ -1,0 +1,111 @@
+﻿@model ContactVendorModel
+@await Component.InvokeAsync("Widget", new { widgetZone = "contactvendor_top" })
+@if (Model.SuccessfullySent)
+{
+    <div class="result alert alert-info text-center my-3">
+        @Model.Result
+    </div>
+}
+else
+{
+    <template v-if="contactvendor.Message.Result !== null">
+        <div v-bind:class="{'alert alert-info': contactvendor.Message.SuccessfullySent,  'alert alert-danger': !contactvendor.Message.SuccessfullySent}">
+            {{contactvendor.Message.Result}}
+        </div>
+    </template>
+    <template v-else>
+        <validation-observer v-slot="{ handleSubmit }">
+            <form asp-route="ContactVendor" id="vendorContact" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit($event))">
+                <input type="hidden" asp-for="@Model.VendorId" />
+                <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                <div class="form-fields d-flex row">
+                    <div class="form-group col-12 col-sm-6">
+                        <validation-provider tag="div" rules="required" name="FullName" v-slot="{ errors, classes }">
+                            <label asp-for="FullName" class="col-form-label">@Loc["ContactVendor.FullName"]:</label>
+                            <span class="required">*</span>
+                            <input asp-for="FullName" v-model="contactvendor.FullName" placeholder="@Loc["ContactVendor.FullName.Hint"]" v-bind:class="[classes , 'form-control']" />
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span asp-validation-for="FullName"></span>
+                        </validation-provider>
+                    </div>
+                    <div class="form-group col-12 col-sm-6">
+                        <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
+                            <label asp-for="Email" class="col-form-label">@Loc["ContactVendor.Email"]:</label>
+                            <span class="required">*</span>
+                            <input asp-for="Email" v-model="contactvendor.Email" placeholder="@Loc["ContactVendor.Email.Hint"]" v-bind:class="[classes , 'form-control']" />
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span asp-validation-for="Email"></span>
+                        </validation-provider>
+                    </div>
+                    @if (Model.SubjectEnabled)
+                    {
+                        <div class="form-group col-12">
+                            <validation-provider tag="div" rules="required" name="Subject" v-slot="{ errors, classes }">
+                                <label asp-for="Subject" class="col-form-label">@Loc["ContactVendor.Subject"]:</label>
+                                <span class="required">*</span>
+                                <input asp-for="Subject" v-model="contactvendor.Subject" placeholder="@Loc["ContactVendor.Subject.Hint"]" v-bind:class="[classes , 'form-control']" />
+                                <span class="field-validation-error">{{ errors[0] }}</span>
+                                <span asp-validation-for="Subject"></span>
+                            </validation-provider>
+                        </div>
+                    }
+                    <div class="form-group col-12">
+                        <validation-provider tag="div" rules="required" name="Enquiry" v-slot="{ errors, classes }">
+                            <label asp-for="Enquiry" class="col-form-label">@Loc["ContactVendor.Enquiry"]:</label>
+                            <span class="required">*</span>
+                            <textarea asp-for="Enquiry" v-model="contactvendor.Enquiry" placeholder="@Loc["ContactVendor.Enquiry.Hint"]" v-bind:class="[classes , 'form-control']" rows="4"></textarea>
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span asp-validation-for="Enquiry"></span>
+                        </validation-provider>
+                    </div>
+                    @if (Model.DisplayCaptcha)
+                    {
+                        <div class="captcha-box px-3">
+                            <captcha />
+                        </div>
+                    }
+                </div>
+                <div class="btn-group text-sm-center pt-3 pb-3">
+                    <input type="submit" name="send-email" class="btn btn-info contact-us-button" data-form="contactvendor.test('/vendor/contact/@Model.VendorId')" value="@Loc["ContactVendor.Button"]" />
+                </div>
+            </form>
+        </validation-observer>
+    </template>
+    <script asp-location="Footer" asp-order="300">
+                var contactvendor = new Vue({
+                    data: () => ({
+                        @{
+                            <text>
+                                FullName: '@Html.Raw(Model.FullName)',
+                                Email: '@Html.Raw(Model.Email)',
+                                Subject: '@Html.Raw(Model.Subject)',
+                                Enquiry: '@Html.Raw(Model.Enquiry)',
+                                Message: {
+                                    Result: null,
+                                    SuccessfullySent: false
+                                }
+                            </text>
+                        }
+                    }),
+                    methods: {
+                        test(url) {
+                            var bodyFormData = new FormData(document.getElementById("vendorContact"));
+                            axios({
+                                url: url,
+                                data: bodyFormData,
+                                method: 'post',
+                                headers: {
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json',
+                                    'X-Response-View': 'Json'
+                                }
+                            }).then(function (response) {
+                                contactvendor.Message.Result = response.data.Result;
+                                contactvendor.Message.SuccessfullySent = response.data.SuccessfullySent;
+                            })
+                        }
+                    }
+                });
+    </script>
+}
+@await Component.InvokeAsync("Widget", new { widgetZone = "contactvendor_bottom" })
