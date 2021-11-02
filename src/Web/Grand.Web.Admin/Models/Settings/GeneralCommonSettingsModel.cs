@@ -263,6 +263,8 @@ namespace Grand.Web.Admin.Models.Settings
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.CaptchaShowOnApplyVendorPage")]
             public bool CaptchaShowOnApplyVendorPage { get; set; }
 
+            [GrandResourceDisplayName("Admin.Settings.GeneralCommon.CaptchaShowOnVendorReviewPage")]
+            public bool CaptchaShowOnVendorReviewPage { get; set; }
 
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.reCaptchaPublicKey")]
 

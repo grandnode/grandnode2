@@ -23,6 +23,7 @@
             $('#ssCaptchaShowOnApplyVendorPagepnl').show();
             $('#ssReCaptchaPrivateKeypnl').show();
             $('#ssReCaptchaVersionpnl').show();
+            $('#ssCaptchaShowOnVendorReviewPagepnl').show();
         }
         else {
             $('#ssCaptchaShowOnLoginPagepnl').hide();
@@ -40,6 +41,7 @@
             $('#ssCaptchaShowOnApplyVendorPagepnl').hide();
             $('#ssReCaptchaPrivateKeypnl').hide();
             $('#ssReCaptchaVersionpnl').hide();
+            $('#ssCaptchaShowOnVendorReviewPagepnl').hide();
         }
     }
 </script>
@@ -218,6 +220,18 @@
                     <div class="control__indicator"></div>
                 </label>
                 <span asp-validation-for="SecuritySettings.CaptchaShowOnApplyVendorPage"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssCaptchaShowOnVendorReviewPagepnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.CaptchaShowOnVendorReviewPage" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SecuritySettings.CaptchaShowOnVendorReviewPage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SecuritySettings.CaptchaShowOnVendorReviewPage"></span>
             </div>
         </div>
         <div class="form-group" id="ssReCaptchaVersionpnl">

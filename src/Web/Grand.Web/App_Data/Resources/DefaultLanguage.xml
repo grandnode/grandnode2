@@ -11203,6 +11203,9 @@
   <Resource Name="Admin.Settings.GeneralCommon.CaptchaShowOnRegistrationPage">
     <Value>Show on registration page</Value>
   </Resource>
+  <Resource Name="Admin.Settings.GeneralCommon.CaptchaShowOnVendorReviewPage">
+    <Value>Show on vendor reviews page</Value>
+  </Resource>
   <Resource Name="Admin.Settings.GeneralCommon.ConvertNonWesternChars">
     <Value>Convert non-western chars</Value>
   </Resource>
