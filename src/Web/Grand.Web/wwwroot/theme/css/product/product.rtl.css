@@ -44,7 +44,7 @@
     text-align: right;
     padding-right: 15px !important;
 }
-.product-details-page .product-label {
+.product-details-page .overview .product-label {
     position: absolute;
     top: -20px;
     right: 15px;
