@@ -30,6 +30,7 @@ namespace Grand.Web.Models.Vendors
 
         public IList<VendorReviewModel> Items { get; set; }
         public AddVendorReviewModel AddVendorReview { get; set; }
+        public VendorReviewOverviewModel VendorReviewOverview { get; set; }
     }
 
     public partial class VendorReviewModel : BaseEntityModel

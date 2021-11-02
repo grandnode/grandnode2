@@ -418,8 +418,10 @@ namespace Grand.Web.Controllers
                 if (!vendorReview.IsApproved)
                     model.AddVendorReview.Result = _translationService.GetResource("VendorReviews.SeeAfterApproving");
                 else
+                { 
                     model.AddVendorReview.Result = _translationService.GetResource("VendorReviews.SuccessfullyAdded");
-
+                    model.VendorReviewOverview = PrepareVendorReviewOverviewModel(vendor);
+                }
                 return View(model);
             }
             model = await _mediator.Send(new GetVendorReviews() { Vendor = vendor });
