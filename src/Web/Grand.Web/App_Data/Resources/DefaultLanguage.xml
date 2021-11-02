@@ -12033,6 +12033,9 @@
   <Resource Name="Admin.Settings.Vendor.NotifyVendorAboutNewVendorReviews">
     <Value>Notify about new vendor reviews</Value>
   </Resource>
+  <Resource Name="Admin.Settings.Vendor.NumberOfReview">
+    <Value>Number of review visible on vendor page</Value>
+  </Resource>
   <Resource Name="Admin.Settings.Vendor.ShowVendorOnProductDetailsPage">
     <Value>Show vendor on product details page</Value>
   </Resource>

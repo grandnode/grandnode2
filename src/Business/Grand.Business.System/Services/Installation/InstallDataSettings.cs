@@ -536,6 +536,7 @@ namespace Grand.Business.System.Services.Installation
                 AllowCustomersToApplyForVendorAccount = false,
                 AllowAnonymousUsersToReviewVendor = false,
                 DefaultVendorRatingValue = 5,
+                NumberOfReview = 10,
                 VendorReviewsMustBeApproved = true,
                 VendorReviewPossibleOnlyAfterPurchasing = true,
                 NotifyVendorAboutNewVendorReviews = true,
