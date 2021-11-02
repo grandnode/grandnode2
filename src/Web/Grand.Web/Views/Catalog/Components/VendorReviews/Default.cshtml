@@ -1,7 +1,7 @@
 ﻿@model VendorReviewsModel
 
 <div class="mb-3">
-    <a class="btn btn-info" @@click="vendorreviews.addVendorReview('@Url.RouteUrl("VendorReviews", new { vendorId = Model.VendorId })')">@Loc["Reviews.Overview.AddNew"]</a>
+    <a class="btn btn-info" @@click="vendorreviews.addVendorReview()">@Loc["Reviews.Overview.AddNew"]</a>
 </div>
 @if (Model.AddVendorReview.DisplayCaptcha)
 {
@@ -11,7 +11,8 @@
         </div>
     </div>
 }
-<partial name="_VendorReview.Modal" />
+<partial name="_VendorReview.Modal" model="Model" />
+
 <template id="vendor-review-list" v-if="vendorreviews.Model.Items.length > 0">
     <div class="vendor-review-list">
         <h5 class="mb-3"><strong>@Loc["Reviews.ExistingReviews"]</strong></h5>
@@ -68,7 +69,6 @@
                 Model: null,
                 rating: null,
                 captcha: null,
-                PopupVendorReviewVueModal: null,
             }
         },
         created() {
@@ -106,29 +106,18 @@
                     alert(error);
                 })
             },
-            addVendorReview: function (url) {
-                axios({
-                    url: url,
-                    method: 'get',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Response-View': 'Json'
-                    }
-                }).then(function (response) {
-                    vendorreviews.PopupVendorReviewVueModal = response.data;
-                    vm.$refs['ModalVendorReview'].show();
-                });
+            addVendorReview: function () {
+                vm.$refs['ModalVendorReview'].show();
             },
             modalReviewShown: function () {
-                if (vendorreviews.PopupVendorReviewVueModal.AddVendorReview.DisplayCaptcha && document.querySelector("#ModalVendorReview .captcha-box") == null) {
+                if (vendorreviews.Model.AddVendorReview.DisplayCaptcha && document.querySelector("#ModalVendorReview .captcha-box") == null) {
                     var html = document.getElementById("captcha-box");
                     document.getElementById("captcha-popup").prepend(html);
                 }
-                vendorreviews.PopupVendorReviewVueModal = Object.assign({}, vendorreviews.PopupVendorReviewVueModal, { ReviewTitle: '', ReviewText: '' })
+                vendorreviews.Model = Object.assign({}, vendorreviews.Model, { ReviewTitle: '', ReviewText: '' })
             },
             modalReviewClose: function () {
-                if (vendorreviews.PopupVendorReviewVueModal.AddVendorReview.DisplayCaptcha && document.querySelector("#ModalVendorReview .captcha-box") !== null) {
+                if (vendorreviews.Model.AddVendorReview.DisplayCaptcha && document.querySelector("#ModalVendorReview .captcha-box") !== null) {
                     var html = document.getElementById("captcha-box");
                     document.getElementById("captcha-container").prepend(html);
                 }
@@ -147,7 +136,7 @@
                         'X-Response-View': 'Json'
                     },
                 }).then(function (response) {
-                    vendorreviews.PopupVendorReviewVueModal = response.data;
+                    vendorreviews.Model = response.data;
                     vendorreviews.Model.Items = response.data.Items;
 
                     var result = response.data.AddVendorReview.Result;

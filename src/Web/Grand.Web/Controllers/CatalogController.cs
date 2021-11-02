@@ -350,31 +350,16 @@ namespace Grand.Web.Controllers
 
         #region Vendor reviews
 
-        public virtual async Task<IActionResult> VendorReviews(string vendorId)
-        {
-            var vendor = await _vendorService.GetVendorById(vendorId);
-            if (vendor == null || !vendor.Active || !vendor.AllowCustomerReviews)
-                return RedirectToRoute("HomePage");
-
-            var model = await _mediator.Send(new GetVendorReviews() { Vendor = vendor });
-
-            //only registered users can leave reviews
-            if (await _groupService.IsGuest(_workContext.CurrentCustomer) && !_vendorSettings.AllowAnonymousUsersToReviewVendor)
-                ModelState.AddModelError("", _translationService.GetResource("VendorReviews.OnlyRegisteredUsersCanWriteReviews"));
-            //default value
-            model.AddVendorReview.Rating = _vendorSettings.DefaultVendorRatingValue;
-            return View(model);
-        }
-
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
-        public virtual async Task<IActionResult> VendorReviews(string vendorId, VendorReviewsModel model, bool captchaValid,
+        public virtual async Task<IActionResult> VendorReviews(
+            VendorReviewsModel model, bool captchaValid,
             [FromServices] CaptchaSettings captchaSettings)
         {
-            var vendor = await _vendorService.GetVendorById(vendorId);
+            var vendor = await _vendorService.GetVendorById(model.VendorId);
             if (vendor == null || !vendor.Active || !vendor.AllowCustomerReviews)
-                return RedirectToRoute("HomePage");
+                return Content("");
 
             //validate CAPTCHA
             if (captchaSettings.Enabled && captchaSettings.ShowOnVendorReviewPage && !captchaValid)
@@ -392,7 +377,7 @@ namespace Grand.Web.Controllers
                     !(await _mediator.Send(new GetOrderQuery()
                     {
                         CustomerId = _workContext.CurrentCustomer.Id,
-                        VendorId = vendorId,
+                        VendorId = vendor.Id,
                         Os = (int)OrderStatusSystem.Complete,
                         PageSize = 1
                     })).Any())
@@ -422,14 +407,16 @@ namespace Grand.Web.Controllers
                     model.AddVendorReview.Result = _translationService.GetResource("VendorReviews.SuccessfullyAdded");
                     model.VendorReviewOverview = PrepareVendorReviewOverviewModel(vendor);
                 }
-                return View(model);
+                return Json(model);
             }
 
-            model = await _mediator.Send(new GetVendorReviews() { Vendor = vendor });
-            model.AddVendorReview.SuccessfullyAdded = false;
-            model.AddVendorReview.Result = string.Join("; ", ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage));
+            var returnmodel = await _mediator.Send(new GetVendorReviews() { Vendor = vendor });
+            returnmodel.AddVendorReview.ReviewText = model.AddVendorReview.ReviewText;
+            returnmodel.AddVendorReview.Title = model.AddVendorReview.Title;
+            returnmodel.AddVendorReview.SuccessfullyAdded = false;
+            returnmodel.AddVendorReview.Result = string.Join("; ", ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage));
 
-            return View(model);
+            return Json(returnmodel);
         }
 
         [HttpPost]

@@ -1,31 +1,32 @@
-﻿@{
-    var vendorlink = @Url.RouteUrl("Vendor");
+﻿@model VendorReviewsModel
+@{
+    var vendorlink = @Url.RouteUrl("Vendor", new { SeName = Model.VendorSeName } );
 }
-
 <b-modal id="ModalVendorReview" ref="ModalVendorReview" :dark-theme="darkMode" size="xl" @@shown="vendorreviews.modalReviewShown()" @@hide="vendorreviews.modalReviewClose()" centered hide-footer hide-header>
-    <template v-if="vendorreviews.PopupVendorReviewVueModal !== null">
-        <h2 class="generalTitle h3">@Loc["Reviews.VendorReviewsFor"] <a href="@vendorlink">{{vendorreviews.PopupVendorReviewVueModal.VendorName}}</a></h2>
+    <template v-if="vendorreviews.Model !== null">
+        <h2 class="generalTitle h3">@Loc["Reviews.VendorReviewsFor"] <a href="@vendorlink">{{vendorreviews.Model.VendorName}}</a></h2>
         <a class="modal-close" @@click="$bvModal.hide('ModalVendorReview')"><b-icon icon="x"></b-icon></a>
-        <template v-if="!vendorreviews.PopupVendorReviewVueModal.AddVendorReview.SuccessfullyAdded">
+        <template v-if="!vendorreviews.Model.AddVendorReview.SuccessfullyAdded">
             <div class="write-review" id="review-form">
                 <h5 class="generalTitle"><strong>@Loc["Reviews.Write"]</strong></h5>
                 <validation-observer v-slot="{ handleSubmit }">
-                    <form id="addReviewForm" :action="'/vendoreviews/' + vendorreviews.PopupVendorReviewVueModal.VendorId" method="post" ref="modalForm" v-on:submit.prevent="handleSubmit(vendorreviews.submitVendorReview)" :data-title="'@Loc["Reviews.VendorReviewsFor"] ' + vendorreviews.PopupVendorReviewVueModal.VendorName">
-                        <input type="hidden" name="VendorId" :value="vendorreviews.PopupVendorReviewVueModal.VendorId" />
+                    <form id="addReviewForm" asp-route="VendorReviews" asp-route-VendorId="@Model.VendorId"
+                          method="post" ref="modalForm" v-on:submit.prevent="handleSubmit(vendorreviews.submitVendorReview)" :data-title="'@Loc["Reviews.VendorReviewsFor"] ' + vendorreviews.Model.VendorName">
+                        <input type="hidden" name="VendorId" :value="vendorreviews.Model.VendorId" />
                         <div asp-validation-summary="ModelOnly" class="message-error alert alert-danger my-3"></div>
                         <fieldset>
                             <div class="form-fields">
                                 <div class="form-group">
                                     <validation-provider tag="div" rules="required" name="AddVendorReview.Title" v-slot="{ errors, classes }">
                                         <label for="AddVendorReview_Title" class="col-form-label">@Loc["Reviews.Fields.Title"]:</label>
-                                        <input data-val-required="@Loc["reviews.fields.title.required"]" v-model="vendorreviews.PopupVendorReviewVueModal.ReviewTitle" id="AddVendorReview_Title" name="AddVendorReview.Title" v-bind:class="[classes , 'form-control review-title']" :disabled="!vendorreviews.PopupVendorReviewVueModal.AddVendorReview.CanCurrentCustomerLeaveReview" />
+                                        <input data-val-required="@Loc["reviews.fields.title.required"]" v-model="vendorreviews.Model.AddVendorReview.Title" id="AddVendorReview_Title" name="AddVendorReview.Title" v-bind:class="[classes , 'form-control review-title']" :disabled="!vendorreviews.Model.AddVendorReview.CanCurrentCustomerLeaveReview" />
                                         <span class="field-validation-error">{{ errors[0] }}</span>
                                     </validation-provider>
                                 </div>
                                 <div class="form-group">
                                     <validation-provider tag="div" rules="required" name="AddVendorReview.ReviewText" v-slot="{ errors, classes }">
                                         <label for="AddVendorReview_ReviewText" class="col-form-label">@Loc["Reviews.Fields.ReviewText"]:</label>
-                                        <textarea data-val-required="@Loc["reviews.fields.reviewtext.required"]" v-model="vendorreviews.PopupVendorReviewVueModal.ReviewText" id="AddVendorReview_ReviewText" name="AddVendorReview.ReviewText" v-bind:class="[classes , 'form-control review-text']" :disabled="!vendorreviews.PopupVendorReviewVueModal.AddVendorReview.CanCurrentCustomerLeaveReview"></textarea>
+                                        <textarea data-val-required="@Loc["reviews.fields.reviewtext.required"]" v-model="vendorreviews.Model.AddVendorReview.ReviewText" id="AddVendorReview_ReviewText" name="AddVendorReview.ReviewText" v-bind:class="[classes , 'form-control review-text']" :disabled="!vendorreviews.Model.AddVendorReview.CanCurrentCustomerLeaveReview"></textarea>
                                         <span class="field-validation-error">{{ errors[0] }}</span>
                                     </validation-provider>
                                 </div>
@@ -34,13 +35,13 @@
                                     <b-form-rating v-model="value" variant="warning" show-value value="5" inline></b-form-rating>
                                     <input class="sr-only" id="AddVendorReview_Rating" name="AddVendorReview.Rating" v-model="value" />
                                 </div>
-                                <template v-if="vendorreviews.PopupVendorReviewVueModal.AddVendorReview.DisplayCaptcha">
+                                <template v-if="vendorreviews.Model.AddVendorReview.DisplayCaptcha">
                                     <div id="captcha-popup"></div>
                                 </template>
                             </div>
                         </fieldset>
                         <div class="buttons my-3">
-                            <input type="submit" class="btn btn-info write-vendor-review-button" value="@Loc[" Reviews.SubmitButton"]" :disabled="!vendorreviews.PopupVendorReviewVueModal.AddVendorReview.CanCurrentCustomerLeaveReview" />
+                            <input type="submit" class="btn btn-info write-vendor-review-button" value="@Loc[" Reviews.SubmitButton"]" :disabled="!vendorreviews.Model.AddVendorReview.CanCurrentCustomerLeaveReview" />
                         </div>
                     </form>
                 </validation-observer>
