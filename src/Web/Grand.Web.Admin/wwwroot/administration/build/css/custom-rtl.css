@@ -7294,6 +7294,22 @@ h2 {
     background-color: #2F3C48;
 }
 
+/* elfinder */
+
+.elfinder.ui-helper-clearfix:before {
+    content: "";
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    background-color: rgba(0,0,0,.5);
+    z-index: -1;
+}
+
+/* end elfinder */
+
 /* summernote */
 
 .note-editor + textarea {

@@ -35,7 +35,7 @@
 
 /* product overview */
 
-.product-details-page .product-label {
+.product-details-page .overview .product-label {
     position: absolute;
     top: -20px;
     left: 15px;
