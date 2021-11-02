@@ -18,6 +18,7 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
@@ -229,7 +230,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     var searchInProductTags = searchInDescriptions;
 
                     IList<string> alreadyFilteredSpecOptionIds = await request.Model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
-                        (_httpContextAccessor, _specificationAttributeService);
+                        (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
 
                     //products
                     var searchproducts = (await _mediator.Send(new GetSearchProductsQuery() {
@@ -263,7 +264,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     //specs
                     await request.Model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
                         searchproducts.filterableSpecificationAttributeOptionIds,
-                        _specificationAttributeService, _httpContextAccessor, _cacheBase, request.Language.Id);
+                        _specificationAttributeService, _httpContextAccessor.HttpContext.Request.GetDisplayUrl(), request.Language.Id);
 
                     request.Model.NoResults = !request.Model.Products.Any();
 

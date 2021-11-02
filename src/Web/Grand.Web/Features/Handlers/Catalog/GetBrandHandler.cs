@@ -8,6 +8,7 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -58,7 +59,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             model.PagingFilteringContext = options.command;
 
             IList<string> alreadyFilteredSpecOptionIds = await model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
-                (_httpContextAccessor, _specificationAttributeService);
+                (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
 
             var products = (await _mediator.Send(new GetSearchProductsQuery()
             {
@@ -85,7 +86,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             //specs
             await model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
                 products.filterableSpecificationAttributeOptionIds,
-                _specificationAttributeService, _httpContextAccessor, _cacheBase, request.Language.Id);
+                _specificationAttributeService, _httpContextAccessor.HttpContext.Request.GetDisplayUrl(), request.Language.Id);
 
             return model;
         }
