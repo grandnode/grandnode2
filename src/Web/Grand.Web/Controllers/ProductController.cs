@@ -569,8 +569,14 @@ namespace Grand.Web.Controllers
                 if (!productReview.IsApproved)
                     model.AddProductReview.Result = _translationService.GetResource("Reviews.SeeAfterApproving");
                 else
+                {
                     model.AddProductReview.Result = _translationService.GetResource("Reviews.SuccessfullyAdded");
-
+                    model.ProductReviewOverviewModel = await _mediator.Send(new GetProductReviewOverview() {
+                        Product = product,
+                        Language = _workContext.WorkingLanguage,
+                        Store = _workContext.CurrentStore
+                    });
+                }
                 return View(model);
             }
 
