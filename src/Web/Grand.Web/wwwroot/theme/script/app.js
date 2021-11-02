@@ -416,6 +416,10 @@
                         this.toast();
                     }
                 });
+
+                if (response.data.ProductReviewOverviewModel !== null) {
+                    productreviewsoverview.Model = response.data.ProductReviewOverviewModel;
+                }
             });
             return
         }
