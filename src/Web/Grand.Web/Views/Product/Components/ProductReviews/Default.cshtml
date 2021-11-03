@@ -7,60 +7,62 @@
 
 <template id="product-review-list" v-if="productreviews.Model !== null">
     <div class="product-review-list">
-        <h5 class="mb-3"><strong>@Loc["Reviews.ExistingReviews"]</strong></h5>
-        <template v-for="review in productreviews.Model.Items">
-            <div class="card product-review-item mb-3">
-                <div class="card-header">
-                    <div class="review-info d-inline-flex w-100">
-                        <div class="user d-inline-flex align-items-center">
-                            <small class="text-muted mr-2">@Loc["Reviews.From"]:</small>
-                            <h6 class="mb-0">{{review.CustomerName}}</h6>
-                        </div>
-                        <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
-                        <small class="date text-muted">
-                            <span class="ml-1">@Loc["Reviews.Date"]:</span>
-                            <span>{{review.WrittenOnStr}}</span>
-                        </small>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="review-title mb-3">
-                        <h5 class="mb-0">{{review.Title}}</h5>
-                        <b-form-rating id='rating-inline2' class='p-0' variant='warning' no-border size='sm' show-value precision='2' readonly inline :value='review.Rating'></b-form-rating>
-                    </div>
-                    <div class="review-content">
-                        <div class="review-text">
-                            {{review.ReviewText}}
+        <template v-if="productreviews.Model.Items.length > 0">
+            <h5 class="mb-3"><strong>@Loc["Reviews.ExistingReviews"]</strong></h5>
+            <template v-for="review in productreviews.Model.Items">
+                <div class="card product-review-item mb-3">
+                    <div class="card-header">
+                        <div class="review-info d-inline-flex w-100">
+                            <div class="user d-inline-flex align-items-center">
+                                <small class="text-muted mr-2">@Loc["Reviews.From"]:</small>
+                                <h6 class="mb-0">{{review.CustomerName}}</h6>
+                            </div>
+                            <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                            <small class="date text-muted">
+                                <span class="ml-1">@Loc["Reviews.Date"]:</span>
+                                <span>{{review.WrittenOnStr}}</span>
+                            </small>
                         </div>
                     </div>
-                </div>
-                <template v-if="review.ReplyText !== null">
-                    <div class="reply-content">
-                        <blockquote class="administration-response px-3">
-                            <h5 class="administration-response-header">@Loc["Reviews.AdministrationResponse"]</h5>
-                            <span>{{review.ReplyText}}</span>
-                            <figcaption class="blockquote-footer">
-                                {{review.Signature}}
-                            </figcaption>
-                        </blockquote>
+                    <div class="card-body">
+                        <div class="review-title mb-3">
+                            <h5 class="mb-0">{{review.Title}}</h5>
+                            <b-form-rating id='rating-inline2' class='p-0' variant='warning' no-border size='sm' show-value precision='2' readonly inline :value='review.Rating'></b-form-rating>
+                        </div>
+                        <div class="review-content">
+                            <div class="review-text">
+                                {{review.ReviewText}}
+                            </div>
+                        </div>
                     </div>
-                </template>
-                <div class="card-footer">
-                    <div class="product-review-helpfulness d-inline-flex justify-content-end align-items-center flex-wrap">
-                        <span class="question">@Loc["Reviews.Helpfulness.WasHelpful?"]</span>
-                        <span class="vote-options btn-group">
-                            <span :id="'vote-yes-' + review.Helpfulness.ProductReviewId" @@click="productreviews.setProductReviewHelpfulness('@Url.RouteUrl("SetProductReviewHelpfulness")', 'true', review.Id, '@Model.ProductId', '@Loc[" Reviews.Helpfulness.WasHelpful?"]')" class="btn btn-sm btn-outline vote"><b-icon variant="success" icon="hand-thumbs-up"></b-icon></span>
-                            <span :id="'vote-no-' + review.Helpfulness.ProductReviewId" @@click="productreviews.setProductReviewHelpfulness('@Url.RouteUrl("SetProductReviewHelpfulness")', 'false', review.Id, '@Model.ProductId', '@Loc[" Reviews.Helpfulness.WasHelpful?"]')" class="btn btn-sm btn-outline vote"><b-icon variant="danger" icon="hand-thumbs-down"></b-icon></span>
-                        </span>
-                        <span class="vote-stats d-inline-flex">
-                            (<span :id="'helpfulness-vote-yes-' + review.Helpfulness.ProductReviewId">{{review.Helpfulness.HelpfulYesTotal}}</span>/<span :id="'helpfulness-vote-no-' + review.Helpfulness.ProductReviewId">{{review.Helpfulness.HelpfulNoTotal}}</span>)
-                        </span>
+                    <template v-if="review.ReplyText !== null">
+                        <div class="reply-content">
+                            <blockquote class="administration-response px-3">
+                                <h5 class="administration-response-header">@Loc["Reviews.AdministrationResponse"]</h5>
+                                <span>{{review.ReplyText}}</span>
+                                <figcaption class="blockquote-footer">
+                                    {{review.Signature}}
+                                </figcaption>
+                            </blockquote>
+                        </div>
+                    </template>
+                    <div class="card-footer">
+                        <div class="product-review-helpfulness d-inline-flex justify-content-end align-items-center flex-wrap">
+                            <span class="question">@Loc["Reviews.Helpfulness.WasHelpful?"]</span>
+                            <span class="vote-options btn-group">
+                                <span :id="'vote-yes-' + review.Helpfulness.ProductReviewId" @@click="productreviews.setProductReviewHelpfulness('@Url.RouteUrl("SetProductReviewHelpfulness")', 'true', review.Id, '@Model.ProductId', '@Loc[" Reviews.Helpfulness.WasHelpful?"]')" class="btn btn-sm btn-outline vote"><b-icon variant="success" icon="hand-thumbs-up"></b-icon></span>
+                                <span :id="'vote-no-' + review.Helpfulness.ProductReviewId" @@click="productreviews.setProductReviewHelpfulness('@Url.RouteUrl("SetProductReviewHelpfulness")', 'false', review.Id, '@Model.ProductId', '@Loc[" Reviews.Helpfulness.WasHelpful?"]')" class="btn btn-sm btn-outline vote"><b-icon variant="danger" icon="hand-thumbs-down"></b-icon></span>
+                            </span>
+                            <span class="vote-stats d-inline-flex">
+                                (<span :id="'helpfulness-vote-yes-' + review.Helpfulness.ProductReviewId">{{review.Helpfulness.HelpfulYesTotal}}</span>/<span :id="'helpfulness-vote-no-' + review.Helpfulness.ProductReviewId">{{review.Helpfulness.HelpfulNoTotal}}</span>)
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </template>
         </template>
         <template v-else>
-            <p class="text-muted">@Loc["Products.Reviews.Empty"]</p>
+            <div class="alert alert-info">@Loc["Products.Reviews.Empty"]</div>
         </template>
     </div>
 </template>
