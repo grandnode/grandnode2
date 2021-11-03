@@ -3825,6 +3825,9 @@
   <Resource Name="Admin.Catalog.ProductTags.Updated">
     <Value>The product tag has been updated successfully.</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.SaveBeforeEdit">
+    <Value>You need to save the entity before you can edit it.</Value>
+  </Resource>
   <Resource Name="admin.catalog.stores.fields.name">
     <Value>Store name</Value>
   </Resource>
