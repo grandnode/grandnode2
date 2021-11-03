@@ -16536,6 +16536,15 @@
   <Resource Name="UpgradeSystem.RunUpgrade">
     <Value>Run upgrade</Value>
   </Resource>
+  <Resource Name="Vendor.Address">
+    <Value>Address</Value>
+  </Resource>
+  <Resource Name="Vendor.Description">
+    <Value>Description</Value>
+  </Resource>
+  <Resource Name="Vendor.Reviews">
+    <Value>Reviews</Value>
+  </Resource>
   <Resource Name="VendorReviews.Helpfulness.OnlyRegistered">
     <Value>Only registered customers can set review helpfulness.</Value>
   </Resource>
