@@ -97,7 +97,7 @@
                             <partial name="_Codes" model="Model" />
                             <!--delivery-->
                             @if ((Model.FreeShippingNotificationEnabled && Model.IsFreeShipping) || !string.IsNullOrWhiteSpace(Model.DeliveryDate)
-                               || Model.NotReturnable || Model.AdditionalShippingCharge > 0)
+                              || Model.NotReturnable || Model.AdditionalShippingCharge > 0)
                             {
                                 <partial name="_DeliveryInfo" model="Model" />
                             }
@@ -236,7 +236,11 @@
                 <vc:related-products product-id="@Model.Id" product-thumb-picture-size="null"></vc:related-products>
                 <vc:similar-products product-id="@Model.Id" product-thumb-picture-size="null"></vc:similar-products>
                 <vc:recommended-products product-id="@Model.Id" product-thumb-picture-size="null"></vc:recommended-products>
-            </div>
+                @if (Model.RenderCaptcha)
+                {
+                    <partial name="_Captcha" />
+                }
+                </div>
         </form>
     </validation-observer>
     <vc:widget widget-zone="productdetails_bottom" additional-data="@Model.Id"></vc:widget>

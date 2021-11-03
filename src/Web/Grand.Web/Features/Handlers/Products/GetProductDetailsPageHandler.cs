@@ -393,7 +393,10 @@ namespace Grand.Web.Features.Handlers.Products
                 NotReturnable = product.NotReturnable,
                 EmailAFriendEnabled = _catalogSettings.EmailAFriendEnabled,
                 AskQuestionEnabled = _catalogSettings.AskQuestionEnabled,
-                AskQuestionOnProduct = _catalogSettings.AskQuestionOnProduct
+                AskQuestionOnProduct = _catalogSettings.AskQuestionOnProduct,
+                RenderCaptcha = _captchaSettings.Enabled && (_captchaSettings.ShowOnEmailProductToFriendPage 
+                                                            || _captchaSettings.ShowOnProductReviewPage 
+                                                            || _captchaSettings.ShowOnAskQuestionPage)
             };
 
             //automatically generate product description?
