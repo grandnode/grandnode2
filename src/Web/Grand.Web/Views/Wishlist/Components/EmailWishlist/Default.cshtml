@@ -1,0 +1,155 @@
+﻿@model WishlistEmailAFriendModel
+@if (Model.DisplayCaptcha) { 
+    <div id="captcha-container">
+        <div class="captcha-box" id="captcha-box">
+            <captcha />
+        </div>
+    </div>
+}
+<b-modal id="ModalEmailWishlist" ref="ModalEmailWishlist" :dark-theme="darkMode" size="xl" @if (Model.DisplayCaptcha) { <text> @@shown="emailwishlist.modalEmailWishlistShown()" @@hide="emailwishlist.modalEmailWishlistClose()" </text> } centered hide-footer hide-header>
+    <div class="card">
+        <a class="modal-close" @@click="$bvModal.hide('ModalEmailWishlist')"><b-icon icon="x"></b-icon></a>
+        <div class="card-header">
+            <h4 class="h4 generalTitle text-xs-center">@Loc["Wishlist.EmailAFriend.Title"]</h4>
+        </div>
+        <div class="card-body">
+            @if (Model.SuccessfullySent)
+            {
+                <div class="result alert alert-info">
+                    @Model.Result
+                </div>
+            }
+            else
+            {
+                <template v-if="emailwishlist.Message.Result !== null && emailwishlist.Message.SuccessfullySent">
+                    <div class="alert alert-success">
+                        {{emailwishlist.Message.Result}}
+                    </div>
+                </template>
+                <template v-else>
+                    <validation-observer v-slot="{ handleSubmit }">
+                        <form asp-route="EmailWishlist" id="EmailWishlist" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit($event))">
+                            <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                            <div class="form-fields">
+                                <div class="form-group">
+                                    <validation-provider tag="div" rules="required|email" name="FriendEmail" v-slot="{ errors, classes }">
+                                        <label asp-for="FriendEmail" class="col-form-label">@Loc["Wishlist.EmailAFriend.FriendEmail"]:</label>
+                                        <span class="required">*</span>
+                                        <input asp-for="FriendEmail" v-model="emailwishlist.FriendEmail" placeholder="@Loc["Wishlist.EmailAFriend.FriendEmail.Hint"]" v-bind:class="[classes , 'form-control']" />
+                                        <span class="field-validation-error">{{ errors[0] }}</span>
+                                        <span asp-validation-for="FriendEmail"></span>
+                                    </validation-provider>
+                                </div>
+                                <div class="form-group">
+                                    <validation-provider tag="div" rules="required|email" name="YourEmailAddress" v-slot="{ errors, classes }">
+                                        <label asp-for="YourEmailAddress" class="col-form-label">@Loc["Wishlist.EmailAFriend.YourEmailAddress"]:</label>
+                                        <span class="required">*</span>
+                                        <input asp-for="YourEmailAddress" v-model="emailwishlist.YourEmailAddress" placeholder="@Loc["Wishlist.EmailAFriend.YourEmailAddress.Hint"]" v-bind:class="[classes , 'form-control']" />
+                                        <span class="field-validation-error">{{ errors[0] }}</span>
+                                        <span asp-validation-for="YourEmailAddress"></span>
+                                    </validation-provider>
+                                </div>
+                                <div class="form-group">
+                                    <validation-provider tag="div" rules="required" name="PersonalMessage" v-slot="{ errors, classes }">
+                                        <label asp-for="PersonalMessage" class="col-form-label">@Loc["Wishlist.EmailAFriend.PersonalMessage"]:</label>
+                                        <span class="required">*</span>
+                                        <textarea asp-for="PersonalMessage" v-model="emailwishlist.PersonalMessage" placeholder="@Loc["Wishlist.EmailAFriend.PersonalMessage.Hint"]" v-bind:class="[classes , 'form-control']" rows="4"></textarea>
+                                        <span class="field-validation-error">{{ errors[0] }}</span>
+                                        <span asp-validation-for="PersonalMessage"></span>
+                                    </validation-provider>
+                                </div>
+                                @if (Model.DisplayCaptcha)
+                                {
+                                    <div id="captcha-popup"></div>
+                                }
+                            </div>
+                            <div class="btn-group mt-3">
+                                <input type="submit" class="btn btn-info send-email-a-friend-button" data-form="emailwishlist.submitEmailWishlist('@Url.RouteUrl("EmailWishlist")')" value="@Loc["Wishlist.EmailAFriend.Button"]">
+                            </div>
+                        </form>
+                    </validation-observer>
+                </template>
+                <script asp-location="Footer" asp-order="300">
+                    var emailwishlist = new Vue({
+                            data: () => ({
+                                @{
+                                    <text>
+                                        FriendEmail: '@Html.Raw(Model.FriendEmail)',
+                                        YourEmailAddress: '@Html.Raw(Model.YourEmailAddress)',
+                                        PersonalMessage: '@Html.Raw(Model.PersonalMessage)',
+                                        Message: {
+                                            Result: null,
+                                            SuccessfullySent: false
+                                        }
+                                    </text>
+                                }
+                            }),
+                            methods: {
+                                        @{ 
+                                            if (Model.DisplayCaptcha) { 
+                                                <text>
+                                                    modalEmailWishlistShown: function () {
+                                                        if (document.querySelector("#ModalEmailWishlist .captcha-box") == null && !emailwishlist.Message.SuccessfullyAdded) {
+                                                            var html = document.getElementById("captcha-box");
+                                                            document.getElementById("captcha-popup").prepend(html);
+                                                        }
+                                                    },
+                                                    modalEmailWishlistClose: function () {
+                                                        if (document.querySelector("#ModalEmailWishlist .captcha-box") !== null) {
+                                                            var html = document.getElementById("captcha-box");
+                                                            document.getElementById("captcha-container").prepend(html);
+                                                        }
+                                                    },
+                                                </text>
+                                            }
+                                        }
+                                        submitEmailWishlist(url) {
+                                            var bodyFormData = new FormData(document.getElementById("EmailWishlist"));
+                                            axios({
+                                                url: url,
+                                                data: bodyFormData,
+                                                method: 'post',
+                                                headers: {
+                                                    'Accept': 'application/json',
+                                                    'Content-Type': 'application/json',
+                                                    'X-Response-View': 'Json'
+                                                }
+                                            }).then(function (response) {
+                                                emailwishlist.Message.Result = response.data.Result;
+                                                emailwishlist.Message.SuccessfullySent = response.data.SuccessfullySent;
+
+                                                var result = response.data.Result;
+                                                var variant = "";
+
+                                                if (response.data.SuccessfullySent) {
+                                                    variant = "info";
+                                                    document.getElementById("EmailWishlist").style.display = "none";
+                                                    vm.$refs['ModalEmailWishlist'].hide();
+                                                } else {
+                                                    variant = "danger";
+                                                }
+
+                                                new Vue({
+                                                    el: ".modal-place",
+                                                    methods: {
+                                                        toast() {
+                                                            this.$bvToast.toast(result, {
+                                                                variant: variant,
+                                                                autoHideDelay: 3000,
+                                                                solid: true
+                                                            })
+                                                        }
+                                                    },
+                                                    mounted: function () {
+                                                        this.toast();
+                                                    }
+                                                });
+                                            })
+                                        }
+                            }
+                        });
+                </script>
+            }
+        </div>
+    </div>
+</b-modal>

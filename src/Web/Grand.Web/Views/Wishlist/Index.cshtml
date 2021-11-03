@@ -167,7 +167,7 @@
                     </div>
                 </div>
                 <template v-if="vmwishlist.Model.IsEditable && vmwishlist.Model.EmailWishlistEnabled">
-                    <button type="button" class="btn btn-secondary email-a-friend-wishlist-button d-flex align-items-center my-3" onclick="location='@Url.RouteUrl("EmailWishlist")'">
+                    <button type="button" class="btn btn-secondary email-a-friend-wishlist-button d-flex align-items-center my-3" @@click="$bvModal.show('ModalEmailWishlist')">
                         <b-icon font-scale="2" icon="envelope" class="pr-2"></b-icon>
                         <span class="d-sm-block d-none">@Loc["Wishlist.EmailAFriend"]</span>
                     </button>
@@ -189,4 +189,8 @@
         </div>
     </template>
 </div>
+@if (Model.IsEditable && Model.Items.Any())
+{
+    @await Component.InvokeAsync("EmailWishlist")
+}
 <partial name="_ModelScript" model="Model" />
