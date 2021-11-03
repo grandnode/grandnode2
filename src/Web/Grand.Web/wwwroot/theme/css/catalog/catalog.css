@@ -219,10 +219,13 @@
 [dark-theme="true"] .block-recently-viewed-products .card img {
     background-color: #2d3133;
 }
-[dark-theme="true"] .block-recently-viewed-products .card {
+[dark-theme="true"] .block-recently-viewed-products .card, [dark-theme="true"] .nav-tabs .nav-link {
     background-color: transparent;
 }
-[dark-theme="true"] .block-recently-viewed-products .card .card-body h5 a {
+[dark-theme="true"]  .nav-tabs .nav-link.active {
+    background-color: #363c40;
+}
+[dark-theme="true"] .block-recently-viewed-products .card .card-body h5 a, [dark-theme="true"] .nav-tabs .nav-link:hover:not(.active), [dark-theme="true"] .nav-tabs .nav-link, [dark-theme="true"]  .nav-tabs .nav-link.active  {
     color: #fff;
 }
 [dark-theme="true"] .block-recently-viewed-products .card .card-body h5 a:hover, [dark-theme="true"] .generalLeftSide li.active.last > a, [dark-theme="true"] .generalLeftSide .block-category-navigation li.active .sublist > li.last > a {
