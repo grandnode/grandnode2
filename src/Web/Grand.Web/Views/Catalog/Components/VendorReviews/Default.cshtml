@@ -4,7 +4,7 @@
     <a class="btn btn-info" @@click="vendorreviews.addVendorReview()">@Loc["Reviews.Overview.AddNew"]</a>
 </div>
 
-<partial name="_VendorReview.Modal" model="Model" />
+<partial name="_VendorReview.Modal.cshtml" model="Model" />
 
 <template id="vendor-review-list" v-if="vendorreviews.Model.Items.length > 0">
     <div class="vendor-review-list">
