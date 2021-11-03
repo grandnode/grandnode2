@@ -41,11 +41,12 @@
             <div class="row">
                 <div class="col-12">
                     <b-tabs class="mt-3" content-class="mt-3" align="center">
-                        <template v-if="catalog.Model.Description !== null">
+                        @if (!String.IsNullOrEmpty(Model.Description))
+                        {
                             <b-tab id="description-tab" title="@Loc["vendor.Description"]" active>
                                 <article class="text-xs-center generalMarginSupporter vendor-description" v-html="catalog.Model.Description"></article>
                             </b-tab>
-                        </template>
+                        }
                         @if (Model.Address != null)
                         {
                             <b-tab id="address-tab" title="@Loc["Vendor.Address"]">
@@ -128,16 +129,18 @@
                                 </ul>
                             </b-tab>
                         }
-                        <template v-if="catalog.Model.VendorReviewOverview.AllowCustomerReviews">
+                        @if (Model.VendorReviewOverview.AllowCustomerReviews)
+                        {
                             <b-tab id="review-tab" title="@Loc["vendor.Reviews"]" :active="active ? true : false">
                                 @await Component.InvokeAsync("VendorReviews", new { vendorId = Model.Id })
                             </b-tab>
-                        </template>
-                        <template v-if="catalog.Model.AllowCustomersToContactVendors">
-                            <b-tab id="contact-tab" title="@Loc["ContactVendor"]">
+                        }
+                        @if (Model.AllowCustomersToContactVendors)
+                        {
+                            <b-tab id="contact-tab" title="@Loc["ContactVendor"]" @@click="contactvendor.getCaptcha()">
                                 @await Component.InvokeAsync("VendorContact", new { vendorId = Model.Id })
                             </b-tab>
-                        </template>
+                        }
                     </b-tabs>
                 </div>
             </div>
@@ -178,7 +181,7 @@
         </template>
     </div>
 </div>
-@if(Model.RenderCaptcha)
+@if (Model.RenderCaptcha)
 {
     <div id="captcha-container">
         <div class="captcha-box" id="captcha-box">

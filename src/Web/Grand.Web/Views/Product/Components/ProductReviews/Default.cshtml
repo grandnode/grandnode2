@@ -3,14 +3,6 @@
 <div class="mb-3">
     <a class="btn btn-info" @@click="productreviews.addProductReview()">@Loc["Reviews.Overview.AddNew"]</a>
 </div>
-@if (Model.AddProductReview.DisplayCaptcha)
-{
-    <div id="captcha-container">
-        <div class="captcha-box" id="captcha-box">
-            <captcha />
-        </div>
-    </div>
-}
 <partial name="_ProductReview.Modal.cshtml" model="Model" />
 
 <template id="product-review-list" v-if="productreviews.Model !== null">
@@ -121,7 +113,7 @@
                 vm.$refs['ModalProductReview'].show();
             },
             modalReviewShown: function () {
-                if (productreviews.Model.AddProductReview.DisplayCaptcha && document.querySelector("#ModalProductReview .captcha-box") == null) {
+                if (productreviews.Model.AddProductReview.DisplayCaptcha && document.querySelector("#ModalProductReview .captcha-box") == null && !productreviews.Model.AddProductReview.SuccessfullyAdded) {
                     var html = document.getElementById("captcha-box");
                     document.getElementById("captcha-popup").prepend(html);
                 }

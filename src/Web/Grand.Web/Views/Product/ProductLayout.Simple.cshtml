@@ -225,7 +225,7 @@
                             }
                             @if (Model.AskQuestionOnProduct)
                             {
-                                <b-tab title="@Loc["Products.ContactUs"]">
+                                <b-tab title="@Loc["Products.ContactUs"]" @if (Model.ProductAskQuestion.DisplayCaptcha) { <text> @@click="askquestion.getCaptcha()" </text> }>
                                     <partial name="_AskQuestionOnProduct" model="Model.ProductAskQuestion" />
                                 </b-tab>
                             }

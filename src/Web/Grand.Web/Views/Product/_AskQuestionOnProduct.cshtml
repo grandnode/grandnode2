@@ -1,10 +1,10 @@
 ﻿@model ProductAskQuestionSimpleModel
-<input value="@Model.Id" type="hidden" id="AskQuestionProductId" name="AskQuestionProductId" />
+<input value="@Model.Id" type="hidden" id="AskQuestionProductId" ref="AskQuestionProductId" name="AskQuestionProductId" />
 <div id="contact-us-product">
     <fieldset class="form-group">
         <validation-provider tag="div" rules="required|email" name="AskQuestionEmail" v-slot="{ errors, classes }">
             <label asp-for="AskQuestionEmail" class="col-form-label">@Loc["Products.AskQuestion.Email"]:</label>
-            <input asp-for="AskQuestionEmail" v-model="askquestion.AskQuestionEmail" placeholder="@Loc["Products.AskQuestion.Email.Hint"]" v-bind:class="[classes , 'form-control ask-question-email']" />
+            <input asp-for="AskQuestionEmail" ref="AskQuestionEmail" v-model="askquestion.AskQuestionEmail" placeholder="@Loc["Products.AskQuestion.Email.Hint"]" v-bind:class="[classes , 'form-control ask-question-email']" />
             <span class="field-validation-error">{{ errors[0] }}</span>
             <span asp-validation-for="AskQuestionEmail"></span>
         </validation-provider>
@@ -12,19 +12,19 @@
     <fieldset class="form-group">
         <validation-provider tag="div" rules="required" name="AskQuestionFullName" v-slot="{ errors, classes }">
             <label asp-for="AskQuestionFullName" class="col-form-label">@Loc["Products.AskQuestion.FullName"]:</label>
-            <input asp-for="AskQuestionFullName" v-model="askquestion.AskQuestionFullName" placeholder="@Loc["Products.AskQuestion.FullName.Hint"]" v-bind:class="[classes , 'form-control ask-question-fullname']" />
+            <input asp-for="AskQuestionFullName" ref="AskQuestionFullName" v-model="askquestion.AskQuestionFullName" placeholder="@Loc["Products.AskQuestion.FullName.Hint"]" v-bind:class="[classes , 'form-control ask-question-fullname']" />
             <span class="field-validation-error">{{ errors[0] }}</span>
             <span asp-validation-for="AskQuestionFullName"></span>
         </validation-provider>
     </fieldset>
     <fieldset class="form-group">
         <label asp-for="AskQuestionPhone" class="col-form-label">@Loc["Products.AskQuestion.Phone"]:</label>
-        <input asp-for="AskQuestionPhone" placeholder="@Loc["Products.AskQuestion.Phone.Hint"]" class="form-control ask-question-phone" />
+        <input asp-for="AskQuestionPhone" ref="AskQuestionPhone" placeholder="@Loc["Products.AskQuestion.Phone.Hint"]" class="form-control ask-question-phone" />
     </fieldset>
     <fieldset class="form-group">
         <validation-provider tag="div" rules="required" name="AskQuestionMessage" v-slot="{ errors, classes }">
             <label asp-for="AskQuestionMessage" class="col-form-label">@Loc["Products.AskQuestion.Message"]:</label>
-            <textarea asp-for="AskQuestionMessage" v-model="askquestion.AskQuestionMessage" placeholder="@Loc["Products.AskQuestion.Message.Hint"]" v-bind:class="[classes , 'form-control ask-question-message']" rows="4"></textarea>
+            <textarea asp-for="AskQuestionMessage" ref="AskQuestionMessage" v-model="askquestion.AskQuestionMessage" placeholder="@Loc["Products.AskQuestion.Message.Hint"]" v-bind:class="[classes , 'form-control ask-question-message']" rows="4"></textarea>
             <span class="field-validation-error">{{ errors[0] }}</span>
             <span asp-validation-for="AskQuestionMessage"></span>
         </validation-provider>
@@ -39,19 +39,60 @@
                                 AskQuestionMessage: '@Html.Raw(Model.AskQuestionMessage)',
                             </text>
                         }
-                    })
+                    }),
+                    methods: {
+                        sendContactUsForm(urladd) {
+
+                            var bodyFormData = new FormData();
+                            bodyFormData.append('AskQuestionEmail', vm.$refs.AskQuestionEmail.value);
+                            bodyFormData.append('AskQuestionFullName', vm.$refs.AskQuestionFullName.value);
+                            bodyFormData.append('AskQuestionPhone', vm.$refs.AskQuestionPhone.value);
+                            bodyFormData.append('AskQuestionMessage', vm.$refs.AskQuestionMessage.value);
+                            bodyFormData.append('Id', vm.$refs.AskQuestionProductId.value);
+                            bodyFormData.append('__RequestVerificationToken', document.querySelector('.product-details-page input[name=__RequestVerificationToken]').value);
+                            if (document.querySelector("#contact-us-product textarea[id^='g-recaptcha-response']")) {
+                                bodyFormData.append('g-recaptcha-response-value', document.querySelector(".product-details-page textarea[id^='g-recaptcha-response']").value);
+                            }
+
+                            axios({
+                                url: urladd,
+                                data: bodyFormData,
+                                method: 'post',
+                                headers: { 'Content-Type': 'multipart/form-data' }
+                            }).then(function (response) {
+                                if (response.data.success) {
+                                    document.querySelector('.product-standard #contact-us-product').style.display = "none";
+                                    document.querySelector('.product-standard .product-contact-error').style.display = "none";
+                                    document.querySelector('.product-standard .product-contact-send').innerHTML = response.data.message;
+                                    document.querySelector('.product-standard .product-contact-send').style.display = "block";
+                                }
+                                else {
+                                    document.querySelector('.product-standard .product-contact-error').innerHTML = response.data.message;
+                                    document.querySelector('.product-standard .product-contact-error').style.display = "block";
+                                }
+                            }).catch(function (error) {
+                                alert(error);
+                            });
+                        },
+                        @if (Model.DisplayCaptcha) {
+                            <text>
+                                    getCaptcha() {
+                                        var html = document.getElementById("captcha-box");
+                                        document.getElementById("captcha-place").prepend(html);
+                                    }
+                            </text>
+                        }
+                    }
                 });
     </script>
     @if (Model.DisplayCaptcha)
     {
-        <div class="captcha-box">
-            <captcha />
-        </div>
+        <div id="captcha-place"></div>
     }
 
     <div class="buttons generalMarginSupporter pt-1 pb-1">
         <input type="submit" name="send-email" class="btn btn-info send-ask-question-button"
-               value="@Loc["Products.AskQuestion.Button"]" data-form="sendcontactusform('@Url.RouteUrl("AskQuestionOnProduct")')" />
+               value="@Loc["Products.AskQuestion.Button"]" data-form="askquestion.sendContactUsForm('@Url.RouteUrl("AskQuestionOnProduct")')" />
         <span class="sr-only">@Loc["Products.AskQuestion.Button"]</span>
     </div>
 

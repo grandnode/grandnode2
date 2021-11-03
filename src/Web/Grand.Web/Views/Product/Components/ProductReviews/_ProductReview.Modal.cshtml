@@ -49,5 +49,10 @@
                 </validation-observer>
             </div>
         </template>
+        <template v-else>
+            <div class="alert alert-info">
+                {{productreviews.Model.AddProductReview.Result}}
+            </div>
+        </template>
     </template>
 </b-modal>

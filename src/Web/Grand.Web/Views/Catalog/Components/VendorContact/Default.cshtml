@@ -8,12 +8,11 @@
 }
 else
 {
-    <template v-if="contactvendor.Message.Result !== null">
-        <div v-bind:class="{'alert alert-info': contactvendor.Message.SuccessfullySent,  'alert alert-danger': !contactvendor.Message.SuccessfullySent}">
-            {{contactvendor.Message.Result}}
-        </div>
-    </template>
-    <template v-else>
+        <template v-if="contactvendor.Message.Result !== null && contactvendor.Message.SuccessfullySent">
+            <div class="alert alert-success">
+                {{contactvendor.Message.Result}}
+            </div>
+        </template>
         <validation-observer v-slot="{ handleSubmit }">
             <form asp-route="ContactVendor" id="vendorContact" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit($event))">
                 <input type="hidden" asp-for="@Model.VendorId" />
@@ -58,19 +57,16 @@ else
                             <span asp-validation-for="Enquiry"></span>
                         </validation-provider>
                     </div>
-                    @if (Model.DisplayCaptcha)
-                    {
-                        <div class="captcha-box px-3">
-                            <captcha />
-                        </div>
-                    }
                 </div>
+                @if (Model.DisplayCaptcha)
+                {
+                    <div id="captcha-place"></div>
+                }
                 <div class="btn-group text-sm-center pt-3 pb-3">
                     <input type="submit" name="send-email" class="btn btn-info contact-us-button" data-form="contactvendor.submitVendorContact('@Url.RouteUrl("ContactVendor", new { vendorId = Model.VendorId })')" value="@Loc["ContactVendor.Button"]" />
                 </div>
             </form>
         </validation-observer>
-    </template>
     <script asp-location="Footer" asp-order="300">
                 var contactvendor = new Vue({
                     data: () => ({
@@ -87,7 +83,18 @@ else
                             </text>
                         }
                     }),
+                    created() {
+
+                    },
                     methods: {
+                        getCaptcha() {
+                            @if (Model.DisplayCaptcha) {
+                                <text>
+                                    var html = document.getElementById("captcha-box");
+                                    document.getElementById("captcha-place").prepend(html);
+                                </text>
+                            }
+                        },
                         submitVendorContact(url) {
                             var bodyFormData = new FormData(document.getElementById("vendorContact"));
                             axios({
@@ -102,6 +109,32 @@ else
                             }).then(function (response) {
                                 contactvendor.Message.Result = response.data.Result;
                                 contactvendor.Message.SuccessfullySent = response.data.SuccessfullySent;
+
+                                var result = response.data.Result;
+                                var variant = "";
+
+                                if (response.data.SuccessfullySent) {
+                                    variant = "info";
+                                    document.getElementById("vendorContact").style.display = "none";
+                                } else {
+                                    variant = "danger";
+                                }
+
+                                new Vue({
+                                    el: ".modal-place",
+                                    methods: {
+                                        toast() {
+                                            this.$bvToast.toast(result, {
+                                                variant: variant,
+                                                autoHideDelay: 3000,
+                                                solid: true
+                                            })
+                                        }
+                                    },
+                                    mounted: function () {
+                                        this.toast();
+                                    }
+                                });
                             })
                         }
                     }
