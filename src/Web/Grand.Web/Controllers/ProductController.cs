@@ -649,21 +649,6 @@ namespace Grand.Web.Controllers
 
         #region Email a friend
 
-        public virtual async Task<IActionResult> ProductEmailAFriend(string productId)
-        {
-            var product = await _productService.GetProductById(productId);
-            if (product == null || !product.Published || !_catalogSettings.EmailAFriendEnabled)
-                return RedirectToRoute("HomePage");
-
-            var model = new ProductEmailAFriendModel();
-            model.ProductId = product.Id;
-            model.ProductName = product.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id);
-            model.ProductSeName = product.GetSeName(_workContext.WorkingLanguage.Id);
-            model.YourEmailAddress = _workContext.CurrentCustomer.Email;
-            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnEmailProductToFriendPage;
-            return View(model);
-        }
-
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
@@ -672,7 +657,7 @@ namespace Grand.Web.Controllers
         {
             var product = await _productService.GetProductById(model.ProductId);
             if (product == null || !product.Published || !_catalogSettings.EmailAFriendEnabled)
-                return RedirectToRoute("HomePage");
+                return Content("");
 
             //validate CAPTCHA
             if (_captchaSettings.Enabled && _captchaSettings.ShowOnEmailProductToFriendPage && !captchaValid)
@@ -704,7 +689,7 @@ namespace Grand.Web.Controllers
                 model.SuccessfullySent = true;
                 model.Result = _translationService.GetResource("Products.EmailAFriend.SuccessfullySent");
 
-                return View(model);
+                return Json(model);
             }
 
             //If we got this far, something failed, redisplay form
@@ -712,7 +697,10 @@ namespace Grand.Web.Controllers
             model.ProductName = product.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id);
             model.ProductSeName = product.GetSeName(_workContext.WorkingLanguage.Id);
             model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnEmailProductToFriendPage;
-            return View(model);
+            model.SuccessfullySent = false;
+            model.Result = string.Join(",", ModelState.Values.SelectMany(v => v.Errors).Select(x => x.ErrorMessage));
+
+            return Json(model);
         }
 
         #endregion
