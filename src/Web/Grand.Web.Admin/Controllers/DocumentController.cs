@@ -3,6 +3,7 @@ using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Customers.Interfaces;
 using Grand.Business.Marketing.Interfaces.Documents;
+using Grand.Domain.Common;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
@@ -11,6 +12,8 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Controllers
@@ -52,6 +55,12 @@ namespace Grand.Web.Admin.Controllers
         {
             if (!string.IsNullOrEmpty(model.CustomerId))
                 model.SearchEmail = (await _customerService.GetCustomerById(model.CustomerId))?.Email;
+
+            if (model.Reference > 0 && string.IsNullOrEmpty(model.ObjectId))
+                return Json(new DataSourceResult {
+                    Data = Enumerable.Empty<DocumentModel>(),
+                    Total = 0
+                });
 
             var documents = await _documentViewModelService.PrepareDocumentListModel(model, command.Page, command.PageSize);
             var gridModel = new DataSourceResult {
