@@ -7,6 +7,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure.Caching;
+using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Products;
@@ -34,6 +35,7 @@ namespace Grand.Web.Features.Handlers.Catalog
         private readonly VendorSettings _vendorSettings;
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
+        private readonly CaptchaSettings _captchaSettings;
 
         public GetVendorHandler(
             IMediator mediator,
@@ -44,7 +46,8 @@ namespace Grand.Web.Features.Handlers.Catalog
             ISpecificationAttributeService specificationAttributeService,
             IHttpContextAccessor httpContextAccessor,
             ICacheBase cacheBase,
-            CatalogSettings catalogSettings)
+            CatalogSettings catalogSettings,
+            CaptchaSettings captchaSettings)
         {
             _mediator = mediator;
             _pictureService = pictureService;
@@ -55,6 +58,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             _httpContextAccessor = httpContextAccessor;
             _cacheBase = cacheBase;
             _catalogSettings = catalogSettings;
+            _captchaSettings = captchaSettings;
         }
 
         public async Task<VendorModel> Handle(GetVendor request, CancellationToken cancellationToken)
@@ -68,6 +72,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 MetaTitle = request.Vendor.GetTranslation(x => x.MetaTitle, request.Language.Id),
                 SeName = request.Vendor.GetSeName(request.Language.Id),
                 AllowCustomersToContactVendors = _vendorSettings.AllowCustomersToContactVendors,
+                RenderCaptcha = _captchaSettings.Enabled && (_captchaSettings.ShowOnVendorReviewPage || _captchaSettings.ShowOnContactUsPage)
                 UserFields = request.Vendor.UserFields
             };
 

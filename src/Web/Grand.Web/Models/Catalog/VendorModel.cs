@@ -21,6 +21,7 @@ namespace Grand.Web.Models.Catalog
         public string MetaTitle { get; set; }
         public string SeName { get; set; }
         public bool AllowCustomersToContactVendors { get; set; }
+        public bool RenderCaptcha { get; set; }
         public VendorAddressModel Address { get; set; }
         public PictureModel PictureModel { get; set; }
         public CatalogPagingFilteringModel PagingFilteringContext { get; set; }
