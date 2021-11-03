@@ -111,7 +111,7 @@
                 vm.$refs['ModalVendorReview'].show();
             },
             modalReviewShown: function () {
-                if (vendorreviews.Model.AddVendorReview.DisplayCaptcha && document.querySelector("#ModalVendorReview .captcha-box") == null) {                    
+                if (vendorreviews.Model.AddVendorReview.DisplayCaptcha && document.querySelector("#ModalVendorReview .captcha-box") == null) {
                     var html = document.getElementById("captcha-box");
                     document.getElementById("captcha-popup").prepend(html);
                 }

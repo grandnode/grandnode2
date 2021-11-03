@@ -1,7 +1,7 @@
 ﻿@model ProductReviewsModel
 
 <div class="mb-3">
-    <a class="btn btn-info" @@click="addProductReview('@Url.RouteUrl("ProductReviews", new { productId = Model.ProductId })')">@Loc["Reviews.Overview.AddNew"]</a>
+    <a class="btn btn-info" @@click="productreviews.addProductReview()">@Loc["Reviews.Overview.AddNew"]</a>
 </div>
 @if (Model.AddProductReview.DisplayCaptcha)
 {
@@ -11,11 +11,12 @@
         </div>
     </div>
 }
-<partial name="_ProductReview.Modal" />
+<partial name="_ProductReview.Modal.cshtml" model="Model" />
+
 <template id="product-review-list" v-if="productreviews.Model !== null">
     <div class="product-review-list">
         <h5 class="mb-3"><strong>@Loc["Reviews.ExistingReviews"]</strong></h5>
-        <template v-for="review in productreviews.Model">
+        <template v-for="review in productreviews.Model.Items">
             <div class="card product-review-item mb-3">
                 <div class="card-header">
                     <div class="review-info d-inline-flex w-100">
@@ -82,7 +83,7 @@
             }
         },
         created() {
-            this.Model = @Json.Serialize(Model.Items);
+            this.Model = @Json.Serialize(Model);
         },
         methods: {
             setProductReviewHelpfulness(url, wasHelpful, reviewId, productId, toastTitle) {
@@ -115,6 +116,72 @@
                 }).catch(function (error) {
                     alert(error);
                 })
+            },
+            addProductReview: function () {
+                vm.$refs['ModalProductReview'].show();
+            },
+            modalReviewShown: function () {
+                if (productreviews.Model.AddProductReview.DisplayCaptcha && document.querySelector("#ModalProductReview .captcha-box") == null) {
+                    var html = document.getElementById("captcha-box");
+                    document.getElementById("captcha-popup").prepend(html);
+                }
+                productreviews.Model = Object.assign({}, productreviews.Model, { ReviewTitle: '', ReviewText: '' })
+            },
+            modalReviewClose: function () {
+                if (productreviews.Model.AddProductReview.DisplayCaptcha && document.querySelector("#ModalProductReview .captcha-box") !== null) {
+                    var html = document.getElementById("captcha-box");
+                    document.getElementById("captcha-container").prepend(html);
+                }
+            },
+            submitProductReview: function () {
+                var form = document.getElementById("addReviewForm");
+                var url = form.getAttribute("action");
+                var resultTitle = form.getAttribute("data-title");
+                var bodyFormData = new FormData(form);
+                axios({
+                    method: "post",
+                    url: url,
+                    data: bodyFormData,
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        'X-Response-View': 'Json'
+                    },
+                }).then(function (response) {
+                    productreviews.Model = response.data;
+                    var result = response.data.AddProductReview.Result;
+                    var variant = "";
+
+                    if (response.data.AddProductReview.SuccessfullyAdded) {
+
+                        variant = "info";
+                        vm.$refs['ModalProductReview'].hide();
+
+                    } else {
+                        variant = "danger";
+                    }
+
+                    new Vue({
+                        el: ".modal-place",
+                        methods: {
+                            toast() {
+                                this.$bvToast.toast(result, {
+                                    title: resultTitle,
+                                    variant: variant,
+                                    autoHideDelay: 3000,
+                                    solid: true
+                                })
+                            }
+                        },
+                        mounted: function () {
+                            this.toast();
+                        }
+                    });
+
+                    if (response.data.ProductReviewOverviewModel !== null) {
+                        productreviewsoverview.Model = response.data.ProductReviewOverviewModel;
+                    }
+                });
+                return
             }
         }
     });

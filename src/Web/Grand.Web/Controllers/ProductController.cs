@@ -485,28 +485,6 @@ namespace Grand.Web.Controllers
         #endregion
 
         #region Product reviews
-        public virtual async Task<IActionResult> ProductReviews(string productId,
-            [FromServices] IGroupService groupService)
-        {
-            var product = await _productService.GetProductById(productId);
-            if (product == null || !product.Published || !product.AllowCustomerReviews)
-                return RedirectToRoute("HomePage");
-
-            var model = await _mediator.Send(new GetProductReviews() {
-                Customer = _workContext.CurrentCustomer,
-                Language = _workContext.WorkingLanguage,
-                Product = product,
-                Store = _workContext.CurrentStore,
-                Size = _catalogSettings.NumberOfReview
-            });
-
-            //only registered users can leave reviews
-            if (await groupService.IsGuest(_workContext.CurrentCustomer) && !_catalogSettings.AllowAnonymousUsersToReviewProduct)
-                ModelState.AddModelError("", _translationService.GetResource("Reviews.OnlyRegisteredUsersCanWriteReviews"));
-            //default value
-            model.AddProductReview.Rating = _catalogSettings.DefaultProductRatingValue;
-            return View(model);
-        }
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
