@@ -377,28 +377,6 @@ namespace Grand.Web.Controllers
             return RedirectToAction("Info");
         }
 
-        //contact vendor page
-        public virtual async Task<IActionResult> ContactVendor(string vendorId)
-        {
-            if (!_vendorSettings.AllowCustomersToContactVendors)
-                return RedirectToRoute("HomePage");
-
-            var vendor = await _vendorService.GetVendorById(vendorId);
-            if (vendor == null || !vendor.Active || vendor.Deleted)
-                return RedirectToRoute("HomePage");
-
-            var model = new ContactVendorModel
-            {
-                Email = _workContext.CurrentCustomer.Email,
-                FullName = _workContext.CurrentCustomer.GetFullName(),
-                SubjectEnabled = _commonSettings.SubjectFieldOnContactUsForm,
-                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnContactUsPage,
-                VendorId = vendor.Id,
-                VendorName = vendor.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id)
-            };
-
-            return View(model);
-        }
 
         [HttpPost, ActionName("ContactVendor")]
         [AutoValidateAntiforgeryToken]
