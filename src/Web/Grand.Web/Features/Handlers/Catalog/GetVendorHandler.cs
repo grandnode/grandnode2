@@ -72,7 +72,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 MetaTitle = request.Vendor.GetTranslation(x => x.MetaTitle, request.Language.Id),
                 SeName = request.Vendor.GetSeName(request.Language.Id),
                 AllowCustomersToContactVendors = _vendorSettings.AllowCustomersToContactVendors,
-                RenderCaptcha = _captchaSettings.Enabled && (_captchaSettings.ShowOnVendorReviewPage || _captchaSettings.ShowOnContactUsPage)
+                RenderCaptcha = _captchaSettings.Enabled && (_captchaSettings.ShowOnVendorReviewPage || _captchaSettings.ShowOnContactUsPage),
                 UserFields = request.Vendor.UserFields
             };
 
