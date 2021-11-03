@@ -97,7 +97,7 @@
                             <partial name="_Codes" model="Model" />
                             <!--delivery-->
                             @if ((Model.FreeShippingNotificationEnabled && Model.IsFreeShipping) || !string.IsNullOrWhiteSpace(Model.DeliveryDate)
-                              || Model.NotReturnable || Model.AdditionalShippingCharge > 0)
+                            || Model.NotReturnable || Model.AdditionalShippingCharge > 0)
                             {
                                 <partial name="_DeliveryInfo" model="Model" />
                             }
@@ -240,8 +240,12 @@
                 {
                     <partial name="_Captcha" />
                 }
-                </div>
+            </div>
         </form>
     </validation-observer>
+    @if (Model.EmailAFriendEnabled)
+    {
+        @await Component.InvokeAsync("ProductEmailAFriend", new { productId = Model.Id })
+    }
     <vc:widget widget-zone="productdetails_bottom" additional-data="@Model.Id"></vc:widget>
 </div>
