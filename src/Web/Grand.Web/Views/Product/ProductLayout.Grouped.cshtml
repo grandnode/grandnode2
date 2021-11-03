@@ -150,7 +150,7 @@
                             <di class="card overflow-hidden associatedItem mb-3">
                                 <div class="row no-gutters">
                                     <div class="col-lg-3 col-md-4">
-                                        <img class="img-fluid" id="main-product-img-@variant.Id" alt="@variant.DefaultPictureModel.AlternateText" src="@variant.DefaultPictureModel.ImageUrl" class="rounded-0"/>
+                                        <img class="img-fluid" id="main-product-img-@variant.Id" alt="@variant.DefaultPictureModel.AlternateText" src="@variant.DefaultPictureModel.ImageUrl" class="rounded-0" />
                                     </div>
                                     <div class="col-lg-9 col-md-8">
                                         <div class="card-body overview" title="@variant.Name">
@@ -163,7 +163,7 @@
                                             <partial name="_Codes" model="variant" />
                                             <!--delivery-->
                                             @if ((variant.FreeShippingNotificationEnabled && Model.IsFreeShipping) || !string.IsNullOrWhiteSpace(variant.DeliveryDate)
-                                     || variant.NotReturnable || variant.AdditionalShippingCharge > 0)
+                                   || variant.NotReturnable || variant.AdditionalShippingCharge > 0)
                                             {
                                                 <partial name="_DeliveryInfo" model="variant" />
                                             }
@@ -227,9 +227,17 @@
                         }
                     </div>
                 </div>
+                @if (Model.RenderCaptcha)
+                {
+                    <partial name="_Captcha" />
+                }
             </div>
             @await Component.InvokeAsync("RelatedProducts", new { productId = Model.Id })
         </form>
     </validation-observer>
+    @if (Model.EmailAFriendEnabled)
+    {
+        @await Component.InvokeAsync("ProductEmailAFriend", new { productId = Model.Id })
+    }
     @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_bottom", additionalData = Model.Id })
 </div>
