@@ -11,13 +11,11 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
-using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -170,7 +168,7 @@ namespace Grand.Web.Controllers
             if (warnings.Any())
                 return Json(new { success = false, message = string.Join(',', warnings) });
 
-            if(_shoppingCartSettings.MoveItemsFromWishlistToCart)
+            if (_shoppingCartSettings.MoveItemsFromWishlistToCart)
                 await _shoppingCartService.DeleteShoppingCartItem(_workContext.CurrentCustomer, itemCart);
 
             return Json(new { success = true, message = "" });
@@ -197,24 +195,7 @@ namespace Grand.Web.Controllers
             return Json(new { success = true, message = "" });
 
         }
-        [HttpGet]
-        public virtual async Task<IActionResult> EmailWishlist([FromServices] CaptchaSettings captchaSettings)
-        {
-            if (!await _permissionService.Authorize(StandardPermission.EnableWishlist) || !_shoppingCartSettings.EmailWishlistEnabled)
-                return RedirectToRoute("HomePage");
-
-            var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist);
-
-            if (!cart.Any())
-                return RedirectToRoute("HomePage");
-
-            var model = new WishlistEmailAFriendModel {
-                YourEmailAddress = _workContext.CurrentCustomer.Email,
-                DisplayCaptcha = captchaSettings.Enabled && captchaSettings.ShowOnEmailWishlistToFriendPage
-            };
-            return View(model);
-        }
-
+        
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
