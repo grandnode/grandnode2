@@ -816,6 +816,7 @@ namespace Grand.Web.Admin.Controllers
             model.SecuritySettings.CaptchaShowOnNewsCommentPage = captchaSettings.ShowOnNewsCommentPage;
             model.SecuritySettings.CaptchaShowOnProductReviewPage = captchaSettings.ShowOnProductReviewPage;
             model.SecuritySettings.CaptchaShowOnApplyVendorPage = captchaSettings.ShowOnApplyVendorPage;
+            model.SecuritySettings.CaptchaShowOnVendorReviewPage = captchaSettings.ShowOnVendorReviewPage;
             model.SecuritySettings.ReCaptchaVersion = captchaSettings.ReCaptchaVersion;
             model.SecuritySettings.AvailableReCaptchaVersions = GoogleReCaptchaVersion.V2.ToSelectList(HttpContext, false).ToList();
             model.SecuritySettings.ReCaptchaPublicKey = captchaSettings.ReCaptchaPublicKey;
@@ -938,6 +939,7 @@ namespace Grand.Web.Admin.Controllers
             captchaSettings.ShowOnNewsCommentPage = model.SecuritySettings.CaptchaShowOnNewsCommentPage;
             captchaSettings.ShowOnProductReviewPage = model.SecuritySettings.CaptchaShowOnProductReviewPage;
             captchaSettings.ShowOnApplyVendorPage = model.SecuritySettings.CaptchaShowOnApplyVendorPage;
+            captchaSettings.ShowOnVendorReviewPage = model.SecuritySettings.CaptchaShowOnVendorReviewPage;
             captchaSettings.ReCaptchaVersion = model.SecuritySettings.ReCaptchaVersion;
             captchaSettings.ReCaptchaPublicKey = model.SecuritySettings.ReCaptchaPublicKey;
             captchaSettings.ReCaptchaPrivateKey = model.SecuritySettings.ReCaptchaPrivateKey;
