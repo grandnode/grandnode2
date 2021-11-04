@@ -197,7 +197,7 @@ namespace Grand.Web.Controllers
 
         #endregion
 
-        public virtual async Task<IActionResult> Index([FromServices] IShoppingCartService shoppingCartService, [FromServices] IProductService productService)
+        public virtual async Task<IActionResult> Index()
         {
             var customer = _workContext.CurrentCustomer;
 
@@ -222,13 +222,13 @@ namespace Grand.Web.Controllers
             //validation (each shopping cart item)
             foreach (ShoppingCartItem sci in cart)
             {
-                var product = await productService.GetProductById(sci.ProductId);
+                var product = await _productService.GetProductById(sci.ProductId);
                 var sciWarnings = await _shoppingCartValidator.GetShoppingCartItemWarnings(customer, sci, product, new ShoppingCartValidatorOptions());
                 if (sciWarnings.Any())
                     return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });
             }
 
-            return RedirectToRoute("CheckoutOnePage");
+            return RedirectToRoute("Checkout");
         }
 
         public virtual async Task<IActionResult> Completed(string orderId)
@@ -786,7 +786,7 @@ namespace Grand.Web.Controllers
 
                 //parse selected method 
                 string shippingoption = form["shippingoption"];
-                if (String.IsNullOrEmpty(shippingoption))
+                if (string.IsNullOrEmpty(shippingoption))
                     throw new Exception("Selected shipping method can't be parsed");
                 var splittedOption = shippingoption.Split(new[] { "___" }, StringSplitOptions.RemoveEmptyEntries);
                 if (splittedOption.Length != 2)
@@ -820,7 +820,7 @@ namespace Grand.Web.Controllers
                 }
 
                 var shippingOption = shippingOptions
-                    .Find(so => !String.IsNullOrEmpty(so.Name) && so.Name.Equals(selectedName, StringComparison.OrdinalIgnoreCase));
+                    .Find(so => !string.IsNullOrEmpty(so.Name) && so.Name.Equals(selectedName, StringComparison.OrdinalIgnoreCase));
                 if (shippingOption == null)
                     throw new Exception("Selected shipping method can't be loaded");
 
@@ -853,9 +853,8 @@ namespace Grand.Web.Controllers
 
                 string paymentmethod = form["paymentmethod"];
                 //payment method 
-                if (String.IsNullOrEmpty(paymentmethod))
+                if (string.IsNullOrEmpty(paymentmethod))
                     throw new Exception("Selected payment method can't be parsed");
-
 
                 var model = new CheckoutPaymentMethodModel();
                 await TryUpdateModelAsync(model);
@@ -869,7 +868,7 @@ namespace Grand.Web.Controllers
                 }
 
                 //Check whether payment workflow is required
-                bool isPaymentWorkflowRequired = await _mediator.Send(new GetIsPaymentWorkflowRequired() { Cart = cart });
+                var isPaymentWorkflowRequired = await _mediator.Send(new GetIsPaymentWorkflowRequired() { Cart = cart });
                 if (!isPaymentWorkflowRequired)
                 {
                     //payment is not required
@@ -991,7 +990,6 @@ namespace Grand.Web.Controllers
                     Store = _workContext.CurrentStore
                 }))
                     throw new Exception(_translationService.GetResource("Checkout.MinOrderPlacementInterval"));
-
 
                 var placeOrderResult = await _mediator.Send(new PlaceOrderCommand());
                 if (placeOrderResult.Success)
