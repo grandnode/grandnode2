@@ -507,9 +507,11 @@ namespace Grand.Web.Controllers
                 else
                 {
                     //new address
-                    ModelState.Clear();
                     var model = new CheckoutBillingAddressModel();
                     await TryUpdateModelAsync(model.NewAddress, "BillingNewAddress");
+
+                    ModelState.Clear();
+                    TryValidateModel(model);
 
                     //custom address attributes
                     var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes() { Form = form });
@@ -661,9 +663,11 @@ namespace Grand.Web.Controllers
                     }
                     else
                     {
-                        ModelState.Clear();
                         //new address
                         await TryUpdateModelAsync(model.NewAddress, "ShippingNewAddress");
+                        ModelState.Clear();
+                        TryValidateModel(model);
+
                         //custom address attributes
                         var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes() { Form = form });
                         var customAttributeWarnings = await _addressAttributeParser.GetAttributeWarnings(customAttributes);
