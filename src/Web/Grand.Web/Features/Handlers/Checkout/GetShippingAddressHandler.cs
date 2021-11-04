@@ -4,7 +4,6 @@ using Grand.Business.Checkout.Interfaces.Shipping;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Interfaces.Stores;
 using Grand.Domain.Common;
 using Grand.Domain.Shipping;
 using Grand.Web.Features.Models.Checkout;
@@ -30,6 +29,7 @@ namespace Grand.Web.Features.Handlers.Checkout
         private readonly IAclService _aclService;
         private readonly IMediator _mediator;
         private readonly ShippingSettings _shippingSettings;
+        private readonly AddressSettings _addressSettings;
 
         public GetShippingAddressHandler(
             IShippingService shippingService,
@@ -41,7 +41,8 @@ namespace Grand.Web.Features.Handlers.Checkout
             ICountryService countryService,
             IAclService aclService,
             IMediator mediator,
-            ShippingSettings shippingSettings)
+            ShippingSettings shippingSettings,
+            AddressSettings addressSettings)
         {
             _shippingService = shippingService;
             _pickupPointService = pickupPointService;
@@ -53,6 +54,7 @@ namespace Grand.Web.Features.Handlers.Checkout
             _aclService = aclService;
             _mediator = mediator;
             _shippingSettings = shippingSettings;
+            _addressSettings = addressSettings;
         }
 
         public async Task<CheckoutShippingAddressModel> Handle(GetShippingAddress request, CancellationToken cancellationToken)
@@ -71,8 +73,7 @@ namespace Grand.Web.Features.Handlers.Checkout
             //new address
             model.NewAddress.CountryId = request.SelectedCountryId;
             var countries = await _countryService.GetAllCountriesForShipping(request.Language.Id, request.Store.Id);
-            model.NewAddress = await _mediator.Send(new GetAddressModel()
-            {
+            model.NewAddress = await _mediator.Send(new GetAddressModel() {
                 Language = request.Language,
                 Store = request.Store,
                 Model = model.NewAddress,
@@ -83,6 +84,8 @@ namespace Grand.Web.Features.Handlers.Checkout
                 Customer = request.Customer,
                 OverrideAttributes = request.OverrideAttributes,
             });
+            model.NewAddress.AddressTypeId = _addressSettings.AddressTypeEnabled ? (int)AddressType.Shipping : (int)AddressType.Any;
+
             return model;
         }
 
@@ -94,8 +97,7 @@ namespace Grand.Web.Features.Handlers.Checkout
             {
                 foreach (var pickupPoint in pickupPoints)
                 {
-                    var pickupPointModel = new CheckoutPickupPointModel()
-                    {
+                    var pickupPointModel = new CheckoutPickupPointModel() {
                         Id = pickupPoint.Id,
                         Name = pickupPoint.Name,
                         Description = pickupPoint.Description,
@@ -143,8 +145,7 @@ namespace Grand.Web.Features.Handlers.Checkout
             }
             foreach (var address in addresses)
             {
-                var addressModel = await _mediator.Send(new GetAddressModel()
-                {
+                var addressModel = await _mediator.Send(new GetAddressModel() {
                     Language = request.Language,
                     Store = request.Store,
                     Model = null,
