@@ -84,8 +84,13 @@
                                                 </td>
                                             </template>
                                             <td role="cell" class="text-center">
-                                                <div>
-                                                    <a :href="item.ProductUrl" class="product-name">{{item.ProductName}}</a>
+                                                <div class="d-inline-flex align-items-center">
+                                                    <a :href="item.ProductUrl" class="product-name">
+                                                        {{item.ProductName}}
+                                                    </a>
+                                                    <div v-if="vmwishlist.Model.IsEditable && item.AllowItemEditing" class="edit-item">
+                                                        <a class="btn btn-link" @@click="vmwishlist.getItemCart(item.Id)"><b-icon icon="pencil"></b-icon></a>
+                                                    </div>
                                                 </div>
                                                 <template v-if="vmwishlist.Model.ShowSku && item.Sku !== null">
                                                     <span class="sku-number">{{item.Sku}}</span>
@@ -104,10 +109,7 @@
                                                 </template>
                                                 <template v-if="item.RecurringInfo !== null">
                                                     <div class="recurring-info" v-html="item.RecurringInfo"></div>
-                                                </template>
-                                                <template v-if="vmwishlist.Model.IsEditable && item.AllowItemEditing">
-                                                    <a class="btn btn-sm btn-secondary mt-2" @@click="vmwishlist.getItemCart(item.Id)">@Loc["Common.Edit"]</a>
-                                                </template>
+                                                </template> 
                                             </td>
                                             <template v-if="vmwishlist.Model.IsEditable">
                                                 <td role="cell" class="text-center">
