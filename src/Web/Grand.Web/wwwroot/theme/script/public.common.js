@@ -71,27 +71,6 @@ function displayPopupNewsletterCategory(html) {
     });
 }
 
-
-function displayBarNotification(message, messagetype, timeout) {
-    if (messagetype == 'error') {
-        toastHTML = '<b-toast id="grandToast" auto-hide-delay=' + timeout +' variant="danger" title=' + messagetype +'>'+ message +'</b-toast>'
-    } else {
-        toastHTML = '<b-toast id="grandToast" auto-hide-delay=' + timeout +' variant="info" title=' + messagetype+'>' + message + '</b-toast>'
-    }
-    document.querySelector('.modal-place').innerHTML = toastHTML;
-    new Vue({
-        el: ".modal-place",
-        methods: {
-            toast: function () {
-                this.$bvToast.show('grandToast')
-            }
-        },
-        mounted: function () {
-            this.toast();
-        }
-    });
-}
-
 // CSRF (XSRF) security
 function addAntiForgeryToken(data) {
     //if the object is undefined, create a new one.

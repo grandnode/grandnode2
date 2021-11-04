@@ -136,7 +136,7 @@ var AxiosCart = {
         });  
     },
     //add a product to compare list
-    addproducttocomparelist: function (id, message) {
+    addproducttocomparelist: function (id, message, url) {
         if (this.loadWaiting != false) {
             return;
         }
@@ -153,7 +153,7 @@ var AxiosCart = {
         this.setCookie('Grand.CompareProduct', cookie);
         vm.updateCompareProductsQty();
 
-        displayBarNotification(message, 'success', 3500);
+        vm.displayBarNotification(message, url, 'success', 3500);
 
         this.resetLoadWaiting();
 
@@ -179,15 +179,6 @@ var AxiosCart = {
             vm.flycartindicator = newfly.TotalProducts;
 
         }
-        //if (response.data.comparemessage) {
-        //    if (response.data.success == true) {
-        //        displayBarNotification(response.data.comparemessage, 'success', 3500);
-        //    }
-        //    else {
-        //        displayBarNotification(response.data.comparemessage, 'error', 3500);
-        //    }
-        //    return false;
-        //}
         if (response.data.product) {
             if (response.data.success == true) {
 
@@ -228,7 +219,7 @@ var AxiosCart = {
             }
             else {
                 //error
-                displayBarNotification(response.data.message, 'error', 3500);
+                vm.displayBarNotification(response.data.message, '', 'error', 3500);
             }
             return false;
         }

@@ -45,6 +45,23 @@
         }
     },
     methods: {
+        displayBarNotification(message, url, messagetype, timeout) {
+            var variant;
+
+            if (messagetype == 'error') {
+                variant = "danger";
+            } else {
+                variant = "info";
+            }
+
+            this.$bvToast.toast(message, {
+                title: messagetype,
+                variant: variant,
+                href: url,
+                autoHideDelay: timeout,
+                solid: true
+            })
+        },
         deletecartitem: function (href) {
             axios({
                 method: "post",

@@ -288,7 +288,7 @@
                 }
                 @if (!Model.ProductPrice.DisableAddToCompareListButton && Model.ProductType == ProductType.SimpleProduct)
                 {
-                    <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-secondary" onclick="AxiosCart.addproducttocomparelist('@Model.Id', '@string.Format(Loc["Products.ProductHasBeenAddedToCompareList.Link"], Url.RouteUrl("CompareProducts"))')">
+                    <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-secondary" onclick="AxiosCart.addproducttocomparelist('@Model.Id', '@Loc["Products.ProductHasBeenAddedToCompareList.Link"]', '@Url.RouteUrl("CompareProducts")')">
                         <span class="sr-only">AddToCompareList</span>
                         <b-icon icon="shuffle"></b-icon>
                     </button>
