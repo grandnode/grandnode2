@@ -1,22 +1,4 @@
-﻿function deletecartitem(href) {
-    axios({
-        method: "post",
-        baseURL: href
-    }).then(function (response) {
-        var newfly = response.data.sidebarshoppingcartmodel;
-        this.flycart = newfly;
-        this.flycartitems = newfly.Items;
-        this.flycartindicator = newfly.TotalProducts;
-        vm.flycart = newfly;
-        vm.flycartitems = newfly.Items;
-        vm.flycartindicator = newfly.TotalProducts;
-    }).catch(function (error) {
-        alert(error);
-    });
-    return false;
-}
-
-function displayPopupPrivacyPreference(html) {
+﻿function displayPopupPrivacyPreference(html) {
     new Vue({
         el: '#ModalPrivacyPreference',
         data: {

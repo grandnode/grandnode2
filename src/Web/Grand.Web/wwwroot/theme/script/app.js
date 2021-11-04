@@ -45,6 +45,20 @@
         }
     },
     methods: {
+        deletecartitem: function (href) {
+            axios({
+                method: "post",
+                baseURL: href
+            }).then(function (response) {
+                const newfly = response.data.sidebarshoppingcartmodel;
+                vm.flycart = newfly;
+                vm.flycartitems = newfly.Items;
+                vm.flycartindicator = newfly.TotalProducts;
+            }).catch(function (error) {
+                alert(error);
+            });
+            return false;
+        },
         updateCompareProductsQty: function () {
             const cookie = AxiosCart.getCookie('Grand.CompareProduct');
             if (cookie !== '') {
