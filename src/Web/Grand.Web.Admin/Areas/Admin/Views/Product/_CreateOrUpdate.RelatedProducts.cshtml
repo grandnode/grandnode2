@@ -20,6 +20,7 @@
         $(document).ready(function () {
             $('#btnAddNewRelatedProduct').magnificPopup({
                 type: 'ajax',
+                midClick: true,
                 settings: { cache: false, async: false },
                 callbacks: {
                     parseAjax: function (mfpResponse) {

@@ -19,6 +19,7 @@
             $('#btnAddNewAttributes').magnificPopup({
                 type: 'ajax',
                 settings: { cache: false, async: false },
+                midClick: true,
                 callbacks: {
                     parseAjax: function (mfpResponse) {
                         mfpResponse.data = $('<div></div>').html(mfpResponse.data);
@@ -106,6 +107,7 @@
                     $('.btnMagnificPopup').magnificPopup({
                         type: 'ajax',
                         settings: { cache: false, async: false },
+                        midClick: true,
                         callbacks: {
                             parseAjax: function (mfpResponse) {
                                 mfpResponse.data = $('<div></div>').html(mfpResponse.data);
@@ -208,6 +210,7 @@
                     $('.btnProductAttributeValueEditPopup').magnificPopup({
                         type: 'ajax',
                         settings: { cache: false, async: false },
+                        midClick: true,
                         callbacks: {
                             parseAjax: function (mfpResponse) {
                                 mfpResponse.data = $('<div></div>').html(mfpResponse.data);
