@@ -84,6 +84,7 @@ namespace Grand.Web.Features.Handlers.Checkout
                 Customer = request.Customer,
                 OverrideAttributes = request.OverrideAttributes,
             });
+            model.NewAddress.HideAddressType = true;
             model.NewAddress.AddressTypeId = _addressSettings.AddressTypeEnabled ? (int)AddressType.Shipping : (int)AddressType.Any;
 
             return model;

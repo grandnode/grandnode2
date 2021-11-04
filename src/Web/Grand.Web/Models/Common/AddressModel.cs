@@ -93,5 +93,6 @@ namespace Grand.Web.Models.Common
         [GrandResourceDisplayName("Address.Fields.AddressType")]
         public int AddressTypeId { get; set; }
 
+        public bool HideAddressType { get; set; }
     }
 }

@@ -272,7 +272,7 @@
             <span asp-validation-for="Note"></span>
         </div>
     }
-    @if (Model.AddressTypeEnabled)
+    @if (Model.AddressTypeEnabled && !Model.HideAddressType)
     {
         <div class="form-group col-sm-12 col-md-6">
             <label asp-for="AddressTypeId" class="col-form-label">@Loc["Address.Fields.AddressType"]:</label>
