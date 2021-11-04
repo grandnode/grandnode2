@@ -197,7 +197,7 @@ namespace Grand.Web.Controllers
 
         #endregion
 
-        public virtual async Task<IActionResult> Index([FromServices] IShoppingCartService shoppingCartService, [FromServices] IProductService productService)
+        public virtual async Task<IActionResult> Index()
         {
             var customer = _workContext.CurrentCustomer;
 
@@ -222,13 +222,13 @@ namespace Grand.Web.Controllers
             //validation (each shopping cart item)
             foreach (ShoppingCartItem sci in cart)
             {
-                var product = await productService.GetProductById(sci.ProductId);
+                var product = await _productService.GetProductById(sci.ProductId);
                 var sciWarnings = await _shoppingCartValidator.GetShoppingCartItemWarnings(customer, sci, product, new ShoppingCartValidatorOptions());
                 if (sciWarnings.Any())
                     return RedirectToRoute("ShoppingCart", new { checkoutAttributes = true });
             }
 
-            return RedirectToRoute("CheckoutOnePage");
+            return RedirectToRoute("Checkout");
         }
 
         public virtual async Task<IActionResult> Completed(string orderId)
