@@ -265,6 +265,17 @@
         background-color: #555;
     }
 }
+@media (max-width: 1400px) {
+    .shopping-cart.table .product-unit-price, .shopping-cart .prod-total, .shopping-cart.table thead th {
+        font-size: 16px;
+    }
+    .shopping-cart.table .product-name {
+        font-size: 14px;
+    }
+    .shopping-cart .qty-input {
+        max-width: 60px;
+    }
+}
 @media (max-width: 1199px) {
     .shopping-cart.table .attributes {
         font-size: 10px;
