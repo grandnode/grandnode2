@@ -37,7 +37,8 @@
                 success: function (data) {
                     if (data == "") {
                         $.magnificPopup.instance.close();
-                        $('#btnRefreshProductAttributes').click();
+                        $('#btnRefreshProductAttributesValues').attr('data-id', '@Model.ProductAttributeMappingId');
+                        $('#btnRefreshProductAttributesValues').click();
                     } else {
                         $.magnificPopup.open({
                             items: {
