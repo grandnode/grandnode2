@@ -44,7 +44,7 @@
     }
 
     //render scripts
-    <script>
+    <script asp-location="Footer" asp-order="300">
         function @(attributeChangeHandlerFuncName)() {
             var form = document.getElementById('product-details-form');
             var data = new FormData(form);

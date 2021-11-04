@@ -18,6 +18,7 @@
                 $('#btnAddNewValue').magnificPopup({
                         type: 'ajax',
                         settings: { cache: false, async: false },
+                        midClick: true,
                         callbacks: {
                             parseAjax: function (mfpResponse) {
                                 mfpResponse.data = $('<div></div>').html(mfpResponse.data);
@@ -32,6 +33,7 @@
                         $('.editvalue').magnificPopup({
                             type: 'ajax',
                             settings: { cache: false, async: false },
+                            midClick: true,
                             callbacks: {
                                 parseAjax: function (mfpResponse) {
                                     mfpResponse.data = $('<div></div>').html(mfpResponse.data);
