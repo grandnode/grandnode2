@@ -49,7 +49,7 @@
 <div class="page product-details-page product-standard product-grouped">
     @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_top", additionalData = Model.Id })
     <validation-observer v-slot="{ handleSubmit }">
-        <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form" ref="form" v-on:submit.prevent="handleSubmit(formSubmit($event))">
+        <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form" ref="form" v-on:submit.prevent="handleSubmit($event, formSubmit)">
             <div itemscope itemtype="http://schema.org/Product" data-productid="@Model.Id">
                 <div class="product-essential">
                     <div class="container">
