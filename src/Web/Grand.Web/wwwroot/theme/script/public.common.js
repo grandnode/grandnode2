@@ -1,77 +1,4 @@
-﻿function displayPopupPrivacyPreference(html) {
-    new Vue({
-        el: '#ModalPrivacyPreference',
-        data: {
-            template: null,
-            darkMode: false,
-        },
-        render: function (createElement) {
-            if (!this.template) {
-                return createElement('b-overlay', {
-                    attrs: { show: 'true' }
-                });
-            } else {
-                return this.template();
-            }
-        },
-        methods: {
-            showModal: function() {
-                this.$refs['ModalPrivacyPreference'].show()
-            }
-        },
-        watch: {
-            darkMode: function (newValue) {
-                localStorage.darkMode = newValue;
-            },
-        },
-        mounted: function () {
-            var self = this;
-            self.template = Vue.compile(html).render;
-            if (localStorage.darkMode == "true") this.darkMode = true;
-        },
-        updated: function () {
-            this.showModal();
-        }
-    });
-}
-function displayPopupNewsletterCategory(html) {
-    new Vue({
-        el: '#ModalNewsletterCategory',
-        data: {
-            template: null,
-            darkMode: false,
-        },
-        render: function (createElement) {
-            if (!this.template) {
-                return createElement('b-overlay', {
-                    attrs: { show: 'true' }
-                });
-            } else {
-                return this.template();
-            }
-        },
-        methods: {
-            showModal: function () {
-                this.$refs['ModalNewsletterCategory'].show()
-            }
-        },
-        watch: {
-            darkMode: function (newValue) {
-                localStorage.darkMode = newValue;
-            },
-        },
-        mounted: function () {
-            var self = this;
-            self.template = Vue.compile(html).render;
-            if (localStorage.darkMode == "true") this.darkMode = true;
-        },
-        updated: function () {
-            this.showModal();
-        }
-    });
-}
-
-// CSRF (XSRF) security
+﻿// CSRF (XSRF) security
 function addAntiForgeryToken(data) {
     //if the object is undefined, create a new one.
     if (!data) {
@@ -84,84 +11,6 @@ function addAntiForgeryToken(data) {
     }
     return data;
 };
-
-function newsletter_subscribe(subscribe) {
-    var subscribeProgress = document.getElementById("subscribe-loading-progress");
-    subscribeProgress.style.display = "block";
-    var postData = {
-        subscribe: subscribe,
-        email: document.getElementById("newsletter-email").value
-    };
-    var href = document.getElementById("newsletterbox").getAttribute('data-href');
-    axios({
-        url: href,
-        params: postData,
-        method: 'post',
-    }).then(function (response) {
-        subscribeProgress.style.display = "none";
-        document.querySelector("#newsletter-result-block .alert").innerHTML = response.data.Result;
-        if (response.data.Success) {
-            document.querySelector('.newsletter-inputs .input-group').style.display = "none";
-            if (document.querySelector('.newsletter-inputs .newsletter-subscribe-unsubscribe')) {
-                document.querySelector('.newsletter-inputs .newsletter-subscribe-unsubscribe').style.display = "none";
-            }
-            document.querySelector("#newsletter-result-block").style.display = "block";
-            document.getElementById('newsletter-result-block').classList.add("success");
-            document.getElementById('newsletter-result-block').style.bottom = "unset";
-            if (response.data.Showcategories) {
-                displayPopupNewsletterCategory(response.data.ResultCategory)
-            }
-        } else {
-            document.querySelector("#newsletter-result-block").style.display = "block";
-            window.setTimeout(function () {
-                document.getElementById('newsletter-result-block').style.display = "none"
-            }, 2000);
-        }
-    }).catch(function (error) {
-        subscribeProgress.style.display = "none";
-    })
-}
-
-function newsletter_subscribe_category(url) {
-    var form = document.getElementById('newsletter-category-method-form');
-    var data = new FormData(form);
-    axios({
-        url: url,
-        method: 'post',
-        data: data,
-    }).then(function (response) {
-        if (!response.data.Success) {
-            alert(response.data.Message);
-        }
-    }).catch(function (error) {
-        alert(error);
-    })
-}
-
-function newsletterBox() {
-    if (document.getElementById('newsletter-subscribe-button')) {
-        var el = document.getElementById('newsletter-subscribe-button');
-        el.onclick = function () {
-            var allowToUnsubscribe = document.getElementById("newsletterbox").getAttribute('data-allowtounsubscribe').toLowerCase();
-            if (allowToUnsubscribe == 'true') {
-                if (document.getElementById('newsletter_subscribe').checked) {
-                    newsletter_subscribe('true');
-                }
-                else {
-                    newsletter_subscribe('false');
-                }
-            }
-            else {
-                newsletter_subscribe('true');
-            }
-        };
-        document.getElementById("newsletter-email").addEventListener("keyup", function (event) {
-            if (event.keyCode == 13) {
-                document.getElementById("newsletter-subscribe-button").click();
-            }
-        });
-    }
-}
 
 // runs an array of async functions in sequential order
 function seq(arr, callback, index) {
@@ -256,30 +105,6 @@ function runScripts($container) {
     // insert the script tags sequentially
     // to preserve execution order
     seq(runList, scriptsDone)
-}
-
-function GetPrivacyPreference(href) {
-    axios({
-        url: href,
-        method: 'get',
-    }).then(function (response) {
-        displayPopupPrivacyPreference(response.data.html)
-    }).catch(function (error) {
-        alert(error);
-    });
-}
-function SavePrivacyPreference(href) {
-    var form = document.querySelector('#frmPrivacyPreference');
-    var data = new FormData(form);
-    axios({
-        url: href,
-        method: 'post',
-        data: data
-    }).then(function (response) {
-        
-    }).catch(function (error) {
-        alert(error);
-    });
 }
 
 function SaveCurrentPossition(href, latitude, longitude) {
@@ -414,7 +239,7 @@ function backToTop() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    newsletterBox();
+/*    newsletterBox();*/
     backToTop();
 });
 

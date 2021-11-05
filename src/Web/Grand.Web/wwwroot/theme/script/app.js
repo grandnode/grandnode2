@@ -45,6 +45,114 @@
         }
     },
     methods: {
+        newsletterBox(AllowToUnsubscribe, url) {
+            let subscribe;
+            if (AllowToUnsubscribe) {
+                subscribe = this.$refs.newsletterSubscribe.checked
+            } else {
+                subscribe = true
+            }
+            var postData = {
+                subscribe: subscribe,
+                email: document.getElementById("newsletter-email").value
+            };
+            axios({
+                url: url,
+                params: postData,
+                method: 'post',
+            }).then(function (response) {
+                let result = response.data.Result;
+                let resultCategory = response.data.ResultCategory;
+                let showCategories = response.data.Showcategories;
+                let success = response.data.Success;
+                let variant;
+
+                if (success) {
+                    variant = "info";
+                } else {
+                    variant = "danger";
+                }
+
+                vm.$bvToast.toast(result, {
+                    variant: variant,
+                    autoHideDelay: 3500,
+                    solid: true,
+                });
+
+                if (showCategories) {
+                    vm.displayPopup(resultCategory, 'ModalNewsletterCategory');
+                }
+
+            });
+        },
+        newsletterSubscribeCategory(url) {
+            let form = document.getElementById('newsletter-category-method-form');
+            let data = new FormData(form);
+            axios({
+                url: url,
+                method: 'post',
+                data: data,
+            }).then(function (response) {
+                if (!response.data.Success) {
+                    alert(response.data.Message);
+                }
+            }).catch(function (error) {
+                alert(error);
+            })
+        },
+        getPrivacyPreference(href) {
+            axios({
+                url: href,
+                method: 'get',
+            }).then(function (response) {
+                vm.displayPopup(response.data.html, 'ModalPrivacyPreference')
+            }).catch(function (error) {
+                alert(error);
+            });
+        },
+        savePrivacyPreference(href) {
+            let form = document.getElementById('frmPrivacyPreference');
+            let data = new FormData(form);
+            axios({
+                url: href,
+                method: 'post',
+                data: data
+            }).catch(function (error) {
+                alert(error);
+            });
+        },
+        displayPopup(html, el) {
+            new Vue({
+                el: '#' + el,
+                data: {
+                    template: null,
+                },
+                render: function (createElement) {
+                    if (!this.template) {
+                        return createElement('b-overlay', {
+                            attrs: {
+                                show: 'true'
+                            }
+                        });
+                    } else {
+                        return this.template();
+                    }
+                },
+                methods: {
+                    showModal: function () {
+                        this.$refs[el].show()
+                    }
+                },
+                mounted: function () {
+                    var self = this;
+                    self.template = Vue.compile(html).render;
+                    this.darkMode = vm.darkMode;
+                },
+                updated: function () {
+                    this.showModal();
+                }
+            });
+        },
         displayBarNotification(message, url, messagetype, timeout) {
             var variant;
 
