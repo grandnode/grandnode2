@@ -12352,7 +12352,10 @@
     <Value>Reference to the object</Value>
   </Resource>
   <Resource Name="Admin.System.QueuedEmails.Fields.ReplyToName">
-    <Value>ReplyTo name</Value>
+    <Value>Reply To</Value>
+  </Resource>
+    <Resource Name="Admin.System.QueuedEmails.Fields.ReplyToName">
+    <Value>Reply To Name</Value>
   </Resource>
   <Resource Name="Admin.System.QueuedEmails.Fields.SendImmediately">
     <Value>Send immediately</Value>
