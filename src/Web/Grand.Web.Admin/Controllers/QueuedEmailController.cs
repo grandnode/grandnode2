@@ -94,17 +94,7 @@ namespace Grand.Web.Admin.Controllers
            
             return Json(PrepareDataSource(queuedEmails));
         }
-        [PermissionAuthorizeAction(PermissionActionName.Preview)]
-        [HttpPost]
-        public async Task<IActionResult> GoToEmailByNumber(QueuedEmailListModel model)
-        {
-            var queuedEmail = await _queuedEmailService.GetQueuedEmailById(model.GoDirectlyToNumber);
-            if (queuedEmail == null)
-                return List();
-
-            return RedirectToAction("Edit", "QueuedEmail", new { id = queuedEmail.Id });
-        }
-
+        
         [PermissionAuthorizeAction(PermissionActionName.List)]
         [HttpPost]
         public async Task<IActionResult> QueuedEmailByReference(DataSourceRequest command, int reference, string objectId)

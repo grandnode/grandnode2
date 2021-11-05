@@ -12396,9 +12396,6 @@
   <Resource Name="Admin.System.QueuedEmails.List.FromEmail">
     <Value>From address</Value>
   </Resource>
-  <Resource Name="Admin.System.QueuedEmails.List.GoDirectlyToNumber">
-    <Value>Go directly to email #</Value>
-  </Resource>
   <Resource Name="Admin.System.QueuedEmails.List.LoadNotSent">
     <Value>Load not sent emails only</Value>
   </Resource>
