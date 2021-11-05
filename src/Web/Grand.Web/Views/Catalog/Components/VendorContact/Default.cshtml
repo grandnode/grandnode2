@@ -14,7 +14,7 @@ else
             </div>
         </template>
         <validation-observer v-slot="{ handleSubmit }">
-            <form asp-route="ContactVendor" id="vendorContact" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit($event))">
+            <form asp-route="ContactVendor" id="vendorContact" method="post" ref="form" v-on:submit.prevent="handleSubmit($event, formSubmit)">
                 <input type="hidden" asp-for="@Model.VendorId" />
                 <div asp-validation-summary="ModelOnly" class="message-error"></div>
                 <div class="form-fields d-flex row">
