@@ -22,8 +22,8 @@
                     </div>
                 </template>
                 <template v-else>
-                    <validation-observer v-slot="{ handleSubmit }">
-                        <form asp-route="ProductEmailAFriend" id="ProductEmailAFriend" method="post" ref="form" v-on:submit.prevent="handleSubmit($event, formSubmit)">
+                    <validation-observer ref="ProductEmailAFriendObserver">
+                        <form asp-route="ProductEmailAFriend" id="ProductEmailAFriend" method="post" ref="form" v-on:submit.prevent="formSubmitParam($event, vm.$refs.ProductEmailAFriendObserver)">
                             <div asp-validation-summary="ModelOnly" class="message-error"></div>
                             <div class="form-fields">
                                 <div class="form-group">

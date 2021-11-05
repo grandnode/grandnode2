@@ -51,8 +51,8 @@
 <vc:widget widget-zone="productdetails_after_breadcrumb" additional-data="@Model.Id"></vc:widget>
 <div class="page product-details-page product-standard">
     <vc:widget widget-zone="productdetails_top" additional-data="@Model.Id"></vc:widget>
-    <validation-observer v-slot="{ handleSubmit }">
-        <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form" ref="form" v-on:submit.prevent="handleSubmit($event, formSubmit)">
+    <validation-observer ref="ProductFormObserver">
+        <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form" ref="form" v-on:submit.prevent="formSubmitParam($event, vm.$refs.ProductFormObserver)">
             <div itemscope itemtype="http://schema.org/Product" data-productid="@Model.Id">
                 <div class="container position-relative">
                     <div class="row">

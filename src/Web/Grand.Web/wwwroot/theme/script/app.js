@@ -281,11 +281,19 @@
             var Image = parent.querySelectorAll(".main-product-img")[0];
             Image.setAttribute('src', Imagesrc);
         },
-        formSubmit(e) {
-            if (e) {
-                var submitter = e.target.querySelector('[type="submit"]'); eval(submitter.dataset.form)
-            } else {
-                vm.$refs.form.submit();
+        formSubmit() {
+            vm.$refs.form.submit();
+        },
+        formSubmitParam(e, observer) {
+            if (e && observer) {
+                observer.validate().then(success => {
+                    if (!success) {
+                        return
+                    } else {
+                        var submitter = e.target.querySelector('[type="submit"]');
+                        eval(submitter.dataset.form)
+                    }
+                });
             }
         },
         isMobile: function () {
