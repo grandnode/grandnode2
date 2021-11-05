@@ -16,7 +16,7 @@
                     </div>
                 }
                 <div class="newsletter-category-save pt-1 pb-1">
-                    <input type="button" value="@Loc["NewsletterCategory.Options.Save"]" id="newsletter-category-button" @@click="$bvModal.hide('ModalNewsletterCategory')" onclick="newsletter_subscribe_category('@(Url.RouteUrl("SubscribeNewsletterCategory"))')" class="btn btn-outline-info newsletter-subscribe-button" />
+                    <input type="button" value="@Loc["NewsletterCategory.Options.Save"]" id="newsletter-category-button" @@click="$bvModal.hide('ModalNewsletterCategory');vm.newsletterSubscribeCategory('@(Url.RouteUrl("SubscribeNewsletterCategory"))')" class="btn btn-outline-info newsletter-subscribe-button" />
                 </div>
             </div>
         </form>

@@ -21,7 +21,7 @@
                         </div>
                     </div>
                 }
-                <input type="button" class="btn btn-info w-100" @@click="$bvModal.hide('ModalPrivacyPreference')" value="Save" onclick="SavePrivacyPreference('@Url.RouteUrl("PrivacyPreference")');" />
+                <input type="button" class="btn btn-info w-100" @@click="$bvModal.hide('ModalPrivacyPreference');vm.savePrivacyPreference('@Url.RouteUrl("PrivacyPreference")')" value="Save" />
             </div>
         </form>
     }
