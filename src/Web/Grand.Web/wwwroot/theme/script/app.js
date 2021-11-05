@@ -174,8 +174,8 @@
             Image.setAttribute('src', Imagesrc);
         },
         formSubmit(e) {
-            if (e && e.submitter.dataset.form !== undefined) {
-                eval(e.submitter.dataset.form)
+            if (e) {
+                var submitter = e.target.querySelector('[type="submit"]'); eval(submitter.dataset.form)
             } else {
                 vm.$refs.form.submit();
             }
