@@ -58,7 +58,8 @@ namespace Grand.Business.Catalog.Services.Prices
             string result = "";
             if (!String.IsNullOrEmpty(targetCurrency.CustomFormatting))
             {
-                result = amount.ToString(targetCurrency.CustomFormatting);
+                var cultureInfo = !String.IsNullOrEmpty(targetCurrency.DisplayLocale) ? new CultureInfo(targetCurrency.DisplayLocale) : null;
+                result = amount.ToString(targetCurrency.CustomFormatting, cultureInfo);
             }
             else
             {
