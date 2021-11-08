@@ -984,7 +984,7 @@ input:checked ~ .color-container .color::before {
 }
 #small-searchterms + .field-validation-error {
     position: absolute;
-    top: 34px;
+    top: 60px;
     font-size: 14px;
     display: block;
     z-index: 3;
