@@ -138,72 +138,6 @@ function resetSelectedAddress() {
     }
 }
 
-function displayPopupNotification(message, messagetype) {
-    //types: success, error
-
-    //we do not encode displayed message
-    var htmlcode = '';
-    if ((typeof message) == 'string') {
-        htmlcode = '<b-modal ref="grandModal" id="grandModal" centered hide-footer hide-header><div class="alert alert-info d-block mb-0">' + message + '</div></b-modal>';
-        document.querySelector('.modal-place').innerHTML = htmlcode;
-        new Vue({
-            el: '#grandModal',
-            data: {
-                template: null,
-                hover: false
-            },
-            render: function (createElement) {
-                if (!this.template) {
-                    return createElement('b-overlay', {
-                        attrs: { show: 'true' }
-                    });
-                } else {
-                    return this.template();
-                }
-            },
-            methods: {
-                showModal: function () {
-                    this.$refs['grandModal'].show()
-                },
-            },
-            mounted: function () {
-                var self = this;
-                self.template = Vue.compile(htmlcode).render;
-            },
-            updated: function () {
-                this.showModal();
-            }
-        });
-    } else {
-            new Vue({
-                el: "#app",
-                methods: {
-                    toast: function () {
-                        for (var i = 0; i < message.length; i++) {
-                            if (messagetype == 'error') {
-                                this.$bvToast.toast(message[i], {
-                                    title: messagetype,
-                                    variant: 'danger',
-                                    autoHideDelay: 5000,
-                                })
-                            } else {
-                                this.$bvToast.toast(message[i], {
-                                    title: messagetype,
-                                    variant: 'info',
-                                    autoHideDelay: 5000,
-                                })
-                            }
-                        }
-                    }
-                },
-                mounted: function () {
-                    this.toast();
-                }
-            });
-
-    }
-}
-
 function StopPropagation(event) {
     event.stopPropagation();
 }
@@ -239,7 +173,6 @@ function backToTop() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-/*    newsletterBox();*/
     backToTop();
 });
 
