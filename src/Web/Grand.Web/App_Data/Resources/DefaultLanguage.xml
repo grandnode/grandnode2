@@ -14235,6 +14235,9 @@
   <Resource Name="Login.TwoFactorAuth.SendCode">
     <Value>Send code</Value>
   </Resource>
+  <Resource Name="Logo">
+    <Value>Logo</Value>
+  </Resource>
   <Resource Name="LoyaltyPoints.CurrentBalance">
     <Value>Your current balance is {0} loyalty points ({1}).</Value>
   </Resource>

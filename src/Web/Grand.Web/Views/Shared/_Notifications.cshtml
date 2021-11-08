@@ -25,14 +25,14 @@
 }
 @foreach (var message in successMessages)
 {
-    <script asp-location="Footer" asp-order="300">
-            displayPopupNotification('@Html.Raw(JavaScriptEncoder.Default.Encode(message))', 'success', false);
+    <script asp-location="Footer" asp-order="901">
+        vm.displayBarNotification('@Html.Raw(JavaScriptEncoder.Default.Encode(message))','', 'success', 3500);
     </script>
 }
 @foreach (var message in errorMessages)
 {
-    <script asp-location="Footer" asp-order="300">
-            displayPopupNotification('@Html.Raw(JavaScriptEncoder.Default.Encode(message))', 'error', false);
+    <script asp-location="Footer" asp-order="901">
+        vm.displayBarNotification('@Html.Raw(JavaScriptEncoder.Default.Encode(message))','', 'error', 3500);
     </script>
 }
 
