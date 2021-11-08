@@ -41,7 +41,12 @@
 
             @if (Model.ShowAddOrderNote)
             {
-                <a href="@Url.RouteUrl("AddOrderNote", new { orderId = Model.Id })" class="btn btn-outline-secondary">@Loc["Order.AddOrderNote"]</a>
+                <a @@click="$bvModal.show('ModalAddOrderNote')" class="btn btn-outline-secondary">@Loc["Order.AddOrderNote"]</a>
+
+                var notemodel = new AddOrderNoteModel();
+                notemodel.OrderId = Model.Id;
+
+                <partial name="_AddOrderNote" model="@notemodel"/>
             }
         </div>
     }
