@@ -38,6 +38,7 @@ namespace Grand.Business.Storage.Services
         private readonly ICacheBase _cacheBase;
         private readonly IMediaFileStore _mediaFileStore;
         private readonly MediaSettings _mediaSettings;
+        private readonly StorageSettings _storageSettings;
 
         //Used when images stored on file system
         private readonly string _imagePath;
@@ -70,7 +71,8 @@ namespace Grand.Business.Storage.Services
             IWorkContext workContext,
             ICacheBase cacheBase,
             IMediaFileStore mediaFileStore,
-            MediaSettings mediaSettings)
+            MediaSettings mediaSettings,
+            StorageSettings storageSettings)
         {
             _pictureRepository = pictureRepository;
             _logger = logger;
@@ -80,6 +82,7 @@ namespace Grand.Business.Storage.Services
             _cacheBase = cacheBase;
             _mediaFileStore = mediaFileStore;
             _mediaSettings = mediaSettings;
+            _storageSettings = storageSettings;
 
             _imagePath = _mediaFileStore.Combine("assets", "images");
             _thumbPath = _mediaFileStore.Combine("assets", "images", "thumbs");
@@ -264,7 +267,7 @@ namespace Grand.Business.Storage.Services
         /// <returns>Picture binary</returns>
         public virtual async Task<byte[]> LoadPictureBinary(Picture picture)
         {
-            return await LoadPictureBinary(picture, _mediaSettings.StoreInDb);
+            return await LoadPictureBinary(picture, _storageSettings.PictureStoreInDb);
         }
 
         /// <summary>
@@ -495,7 +498,7 @@ namespace Grand.Business.Storage.Services
             await DeletePictureThumbs(picture);
 
             //delete from file system
-            if (!_mediaSettings.StoreInDb)
+            if (!_storageSettings.PictureStoreInDb)
                 await DeletePictureOnFileSystem(picture);
 
             //delete from database
@@ -587,7 +590,7 @@ namespace Grand.Business.Storage.Services
                 pictureBinary = ValidatePicture(pictureBinary, mimeType);
 
             var picture = new Picture {
-                PictureBinary = _mediaSettings.StoreInDb ? pictureBinary : new byte[0],
+                PictureBinary = _storageSettings.PictureStoreInDb ? pictureBinary : new byte[0],
                 MimeType = mimeType,
                 SeoFilename = seoFilename,
                 AltAttribute = altAttribute,
@@ -598,7 +601,7 @@ namespace Grand.Business.Storage.Services
             };
             await _pictureRepository.InsertAsync(picture);
 
-            if (!_mediaSettings.StoreInDb)
+            if (!_storageSettings.PictureStoreInDb)
                 await SavePictureInFile(picture.Id, pictureBinary, mimeType);
 
             //event notification
@@ -641,7 +644,7 @@ namespace Grand.Business.Storage.Services
 
             if (pictureBinary != null)
             {
-                picture.PictureBinary = _mediaSettings.StoreInDb ? pictureBinary : Array.Empty<byte>();
+                picture.PictureBinary = _storageSettings.PictureStoreInDb ? pictureBinary : Array.Empty<byte>();
                 await _pictureRepository.UpdateField(picture.Id, x => x.PictureBinary, picture.PictureBinary);
             }
 
@@ -660,7 +663,7 @@ namespace Grand.Business.Storage.Services
             picture.IsNew = isNew;
             await _pictureRepository.UpdateField(picture.Id, x => x.IsNew, picture.IsNew);
 
-            if (!_mediaSettings.StoreInDb && pictureBinary != null)
+            if (!_storageSettings.PictureStoreInDb && pictureBinary != null)
                 await SavePictureInFile(picture.Id, pictureBinary, mimeType);
 
             //event notification

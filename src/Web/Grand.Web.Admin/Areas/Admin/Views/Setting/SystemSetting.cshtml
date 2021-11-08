@@ -63,6 +63,30 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-body">
+                            <div class="form-group">
+                                <div class="col-8 col-md-4 col-sm-4 text-right">
+                                    <admin-label asp-for="PicturesStoredIntoDatabase" class="control-label" />
+                                </div>
+                                <div class="col-4 col-md-8 col-sm-8">
+                                    <div class="note note-info">
+                                        @if (Model.PicturesStoredIntoDatabase)
+                                        {
+                                            @Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.Database"]
+                                        }
+                                        else
+                                        {
+                                            @Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.FileSystem"]
+                                        }
+                                    </div>
+                                    <button type="submit" name="change-picture-storage" asp-action="ChangePictureStorage" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');" class="k-button"><span class="k-icon k-i-rotate"></span>&nbsp;@Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.Change"]</button>
+                                    <p>&nbsp;</p>
+                                    <div class="note note-warning">
+                                        <span>@Loc["Admin.Settings.Media.PicturesStoredIntoDatabase.Note"]</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <div class="col-8 col-md-4 col-sm-4 text-right">
                                 <admin-label asp-for="UseIsoDateTimeConverterInJson" class="control-label" />

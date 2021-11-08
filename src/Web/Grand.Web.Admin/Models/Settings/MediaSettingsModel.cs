@@ -8,9 +8,6 @@ namespace Grand.Web.Admin.Models.Settings
         #region Standard Media Settings
         public string ActiveStore { get; set; }
 
-        [GrandResourceDisplayName("Admin.Settings.Media.PicturesStoredIntoDatabase")]
-        public bool PicturesStoredIntoDatabase { get; set; }
-
         [GrandResourceDisplayName("Admin.Settings.Media.ProductThumbPictureSize")]
         public int ProductThumbPictureSize { get; set; }
 

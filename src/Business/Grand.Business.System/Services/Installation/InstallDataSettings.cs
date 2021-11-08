@@ -96,8 +96,11 @@ namespace Grand.Business.System.Services.Installation
                 ImageQuality = 100,
                 DefaultPictureZoomEnabled = true,
                 StoreLocation = "/",
-                StoreInDb = true
             });
+
+            await _settingService.SaveSetting(new StorageSettings {
+                PictureStoreInDb = true
+            }); 
 
             await _settingService.SaveSetting(new SeoSettings {
                 PageTitleSeparator = ". ",

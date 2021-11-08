@@ -37,6 +37,7 @@ namespace Grand.Business.Storage.Services
             ICacheBase cacheBase,
             IMediaFileStore mediaFileStore,
             MediaSettings mediaSettings,
+            StorageSettings storageSettings,
             AppConfig config)
             : base(pictureRepository,
                 logger,
@@ -45,7 +46,8 @@ namespace Grand.Business.Storage.Services
                 workContext,
                 cacheBase,
                 mediaFileStore,
-                mediaSettings)
+                mediaSettings,
+                storageSettings)
         {
             _config = config;
 
