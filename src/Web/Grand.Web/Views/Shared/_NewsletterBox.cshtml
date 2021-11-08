@@ -20,7 +20,7 @@
                                           placeholder="@Loc["Newsletter.Email.Placeholder"]" aria-label="@Loc["Newsletter.Email.Placeholder"]"/>
                             <label for="newsletter-email" class="sr-only">newsletter</label>
                             <div class="input-group-append">
-                                <button class="btn btn-secondary newsletter-email-button" id="newsletter-subscribe-button" @@click="newsletterBox('@customerSettings.NewsletterBlockAllowToUnsubscribe', '@(Url.RouteUrl("SubscribeNewsletter"))')">
+                                <button class="btn btn-secondary newsletter-email-button" id="newsletter-subscribe-button" @@click="newsletterBox(@customerSettings.NewsletterBlockAllowToUnsubscribe.ToString().ToLower(), '@(Url.RouteUrl("SubscribeNewsletter"))')">
                                     <b-icon icon="envelope"></b-icon>
                                 </button>
                             </div>
