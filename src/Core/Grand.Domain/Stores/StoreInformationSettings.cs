@@ -27,7 +27,8 @@ namespace Grand.Domain.Stores
         /// <summary>
         /// Gets or sets a logo
         /// </summary>
-        public string LogoPicture { get; set; }
+        public string LogoPictureId { get; set; }
+
         /// <summary>
         /// Gets or sets a value indicating whether we should display info about the cookie
         /// </summary>

@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Storage.Interfaces;
 using Grand.Business.System.Interfaces.Installation;
 using Grand.Domain.AdminSearch;
 using Grand.Domain.Blogs;
@@ -25,6 +26,7 @@ using Grand.Domain.Vendors;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,6 +37,11 @@ namespace Grand.Business.System.Services.Installation
         protected virtual async Task InstallSettings(bool installSampleData)
         {
             var _settingService = _serviceProvider.GetRequiredService<ISettingService>();
+            var _pictureService = _serviceProvider.GetRequiredService<IPictureService>();
+
+            var path = Path.Combine(_hostingEnvironment.WebRootPath, "logo.png");
+
+            var storePictureId = (await _pictureService.InsertPicture(File.ReadAllBytes(path), "image/png", "Logo")).Id;
 
             await _settingService.SaveSetting(new MenuItemSettings {
                 DisplayHomePageMenu = !installSampleData,
@@ -319,11 +326,11 @@ namespace Grand.Business.System.Services.Installation
             });
 
             await _settingService.SaveSetting(new StoreInformationSettings {
+                LogoPictureId = storePictureId,
                 StoreClosed = false,
                 DefaultStoreTheme = "Default",
                 AllowCustomerToSelectTheme = false,
                 DisplayCookieInformation = false,
-                LogoPicture = "logo.png",
                 FacebookLink = "https://www.facebook.com/grandnodecom",
                 TwitterLink = "https://twitter.com/grandnode",
                 YoutubeLink = "http://www.youtube.com/user/grandnode",

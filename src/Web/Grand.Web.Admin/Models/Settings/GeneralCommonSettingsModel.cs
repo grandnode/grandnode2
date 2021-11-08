@@ -54,9 +54,9 @@ namespace Grand.Web.Admin.Models.Settings
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.AllowToSelectAdminTheme")]
             public bool AllowToSelectAdminTheme { get; set; }
 
-            [UIHint("Logo")]
+            [UIHint("Picture")]
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.Logo")]
-            public string LogoPicture { get; set; }
+            public string LogoPictureId { get; set; }
 
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.DisplayCookieInformation")]
             public bool DisplayCookieInformation { get; set; }
