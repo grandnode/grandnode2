@@ -564,10 +564,12 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Media(MediaSettingsModel model)
         {
             //load settings for a chosen store scope
-            var mediaSettings = _settingService.LoadSetting<MediaSettings>();
+            var storeScope = await GetActiveStore();
+
+            var mediaSettings = _settingService.LoadSetting<MediaSettings>(storeScope);
             mediaSettings = model.ToEntity(mediaSettings);
 
-            await _settingService.SaveSetting(mediaSettings);
+            await _settingService.SaveSetting(mediaSettings, storeScope);
 
             //now clear cache
             await ClearCache();
