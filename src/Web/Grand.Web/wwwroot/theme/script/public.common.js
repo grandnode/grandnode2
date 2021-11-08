@@ -142,40 +142,6 @@ function StopPropagation(event) {
     event.stopPropagation();
 }
 
-function backToTop() {
-    if (!document.querySelector('.up-btn')) {
-        const upBtn = document.createElement('div');
-        const upBtnContent = document.createElement('div');
-
-        upBtn.classList.add('up-btn', 'up-btn__hide');
-
-        function showBtn(num) {
-            if (document.documentElement.scrollTop >= num) {
-                upBtn.classList.remove('up-btn__hide');
-            } else {
-                upBtn.classList.add('up-btn__hide');
-            }
-        }
-
-        document.body.append(upBtn);
-        upBtn.append(upBtnContent)
-        window.addEventListener('scroll', () => {
-            showBtn(400);
-        });
-
-        upBtn.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth"
-            });
-        });
-    }
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    backToTop();
-});
-
 /* MENU */
 (function () {
     function $(selector, context) {

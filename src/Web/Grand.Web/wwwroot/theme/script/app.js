@@ -32,6 +32,7 @@
         if (localStorage.fluid == "") this.fluid = "false";
         if (localStorage.darkMode == "true") this.darkMode = true;
         this.updateCompareProductsQty();
+        this.backToTop();
     },
     watch: {
         fluid: function (newName) {
@@ -45,6 +46,35 @@
         }
     },
     methods: {
+        backToTop() {
+            if (!document.querySelector('.up-btn')) {
+                const upBtn = document.createElement('div');
+                const upBtnContent = document.createElement('div');
+
+                upBtn.classList.add('up-btn', 'up-btn__hide');
+
+                function showBtn(num) {
+                    if (document.documentElement.scrollTop >= num) {
+                        upBtn.classList.remove('up-btn__hide');
+                    } else {
+                        upBtn.classList.add('up-btn__hide');
+                    }
+                }
+
+                document.body.append(upBtn);
+                upBtn.append(upBtnContent)
+                window.addEventListener('scroll', () => {
+                    showBtn(400);
+                });
+
+                upBtn.addEventListener('click', () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
+                });
+            }
+        },
         newsletterBox(AllowToUnsubscribe, url) {
             let subscribe;
             if (AllowToUnsubscribe) {
