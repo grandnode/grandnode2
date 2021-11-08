@@ -2,11 +2,9 @@
 using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Checkout.Interfaces.Payments;
 using Grand.Business.Checkout.Interfaces.Shipping;
-using Grand.Business.Checkout.Utilities;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Pdf;
-using Grand.Web.Common.Controllers;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
@@ -65,24 +63,19 @@ namespace Grand.Web.Controllers
 
         #region Utilities
 
-        protected virtual bool IsRequestBeingRedirected
-        {
-            get
-            {
+        protected virtual bool IsRequestBeingRedirected {
+            get {
                 var response = HttpContext.Response;
                 return new List<int> { 301, 302 }.Contains(response.StatusCode);
             }
         }
-        protected virtual bool IsPostBeingDone
-        {
-            get
-            {
+        protected virtual bool IsPostBeingDone {
+            get {
                 if (HttpContext.Items["grand.IsPOSTBeingDone"] == null)
                     return false;
                 return Convert.ToBoolean(HttpContext.Items["grand.IsPOSTBeingDone"]);
             }
-            set
-            {
+            set {
                 HttpContext.Items["grand.IsPOSTBeingDone"] = value;
             }
         }
@@ -98,8 +91,7 @@ namespace Grand.Web.Controllers
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
 
-            var model = await _mediator.Send(new GetCustomerOrderList()
-            {
+            var model = await _mediator.Send(new GetCustomerOrderList() {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore,
@@ -137,7 +129,7 @@ namespace Grand.Web.Controllers
         public virtual async Task<IActionResult> CancelOrder(string orderId)
         {
             var order = await _orderService.GetOrderById(orderId);
-            if (!await order.Access(_workContext.CurrentCustomer, _groupService) 
+            if (!await order.Access(_workContext.CurrentCustomer, _groupService)
                 || order.PaymentStatusId != Domain.Payments.PaymentStatus.Pending
                 || (order.ShippingStatusId != ShippingStatus.ShippingNotRequired && order.ShippingStatusId != ShippingStatus.Pending)
                 || order.OrderStatusId != (int)OrderStatusSystem.Pending
@@ -168,22 +160,7 @@ namespace Grand.Web.Controllers
             return File(bytes, "application/pdf", string.Format("order_{0}.pdf", order.Id));
         }
 
-        //My account / Order details page / Add order note
-        public virtual async Task<IActionResult> AddOrderNote(string orderId)
-        {
-            if (!_orderSettings.AllowCustomerToAddOrderNote)
-                return RedirectToRoute("HomePage");
-
-            var order = await _orderService.GetOrderById(orderId);
-            if (!await order.Access(_workContext.CurrentCustomer, _groupService))
-                return Challenge();
-
-            var model = new AddOrderNoteModel();
-            model.OrderId = orderId;
-            return View("AddOrderNote", model);
-        }
-
-        //My account / Order details page / Add order note
+        //My account / Order details page / Add order note        
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         public virtual async Task<IActionResult> AddOrderNote(AddOrderNoteModel model)
@@ -234,7 +211,7 @@ namespace Grand.Web.Controllers
 
             var paymentTransaction = await _paymentTransactionService.GetByOrdeGuid(order.OrderGuid);
 
-            if (paymentTransaction ==null || !await _paymentService.CanRePostRedirectPayment(paymentTransaction))
+            if (paymentTransaction == null || !await _paymentService.CanRePostRedirectPayment(paymentTransaction))
                 return RedirectToRoute("OrderDetails", new { orderId = orderId });
 
             await _paymentService.PostRedirectPayment(paymentTransaction);
@@ -261,8 +238,7 @@ namespace Grand.Web.Controllers
             if (!await order.Access(_workContext.CurrentCustomer, _groupService))
                 return Challenge();
 
-            var model = await _mediator.Send(new GetShipmentDetails()
-            {
+            var model = await _mediator.Send(new GetShipmentDetails() {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Order = order,
@@ -281,8 +257,7 @@ namespace Grand.Web.Controllers
             if (!loyaltyPointsSettings.Enabled)
                 return RedirectToRoute("CustomerInfo");
 
-            var model = await _mediator.Send(new GetCustomerLoyaltyPoints()
-            {
+            var model = await _mediator.Send(new GetCustomerLoyaltyPoints() {
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore,
                 Currency = _workContext.WorkingCurrency
