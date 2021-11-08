@@ -199,6 +199,7 @@ namespace Grand.Business.System.Services.Installation
                 DefaultProductRatingValue = 5,
                 AllowAnonymousUsersToReviewProduct = false,
                 ProductReviewPossibleOnlyAfterPurchasing = false,
+                ProductReviewPossibleOnlyOnce = false,
                 NotifyStoreOwnerAboutNewProductReviews = false,
                 EmailAFriendEnabled = true,
                 AskQuestionEnabled = false,

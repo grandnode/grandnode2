@@ -72,6 +72,9 @@ namespace Grand.Web.Admin.Models.Settings
         [GrandResourceDisplayName("Admin.Settings.Catalog.ProductReviewPossibleOnlyAfterPurchasing")]
         public bool ProductReviewPossibleOnlyAfterPurchasing { get; set; }
 
+        [GrandResourceDisplayName("Admin.Settings.Catalog.ProductReviewPossibleOnlyOnce")]
+        public bool ProductReviewPossibleOnlyOnce { get; set; }
+
         [GrandResourceDisplayName("Admin.Settings.Catalog.NotifyStoreOwnerAboutNewProductReviews")]
         public bool NotifyStoreOwnerAboutNewProductReviews { get; set; }
 

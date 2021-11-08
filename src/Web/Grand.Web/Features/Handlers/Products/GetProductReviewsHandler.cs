@@ -47,11 +47,11 @@ namespace Grand.Web.Features.Handlers.Products
             if (request.Product == null)
                 throw new ArgumentNullException(nameof(request.Product));
 
-            var model = new ProductReviewsModel();
-
-            model.ProductId = request.Product.Id;
-            model.ProductName = request.Product.GetTranslation(x => x.Name, request.Language.Id);
-            model.ProductSeName = request.Product.GetSeName(request.Language.Id);
+            var model = new ProductReviewsModel {
+                ProductId = request.Product.Id,
+                ProductName = request.Product.GetTranslation(x => x.Name, request.Language.Id),
+                ProductSeName = request.Product.GetSeName(request.Language.Id)
+            };
             var productReviews = await _productReviewService.GetAllProductReviews("", true, null, null, "", "", request.Product.Id, 0, request.Size);
             foreach (var pr in productReviews)
             {

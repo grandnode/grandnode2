@@ -49,7 +49,7 @@ namespace Grand.Web.Commands.Handler.Products
                 rating = _catalogSettings.DefaultProductRatingValue;
             var isApproved = !_catalogSettings.ProductReviewsMustBeApproved;
 
-            var confirmPurchased = _catalogSettings.ProductReviewPossibleOnlyAfterPurchasing ? true :
+            var confirmPurchased =
                 (await _mediator.Send(new GetOrderQuery()
                 {
                     CustomerId = request.Customer.Id,

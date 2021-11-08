@@ -488,9 +488,13 @@ namespace Grand.Web.Controllers
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
-        public virtual async Task<IActionResult> ProductReviews(string productId, ProductReviewsModel model, bool captchaValid,
+        public virtual async Task<IActionResult> ProductReviews(
+            string productId, 
+            ProductReviewsModel model, 
+            bool captchaValid,
             [FromServices] IGroupService groupService,
-            [FromServices] IOrderService orderService)
+            [FromServices] IOrderService orderService,
+            [FromServices] IProductReviewService productReviewService)
         {
             var product = await _productService.GetProductById(productId);
             if (product == null || !product.Published || !product.AllowCustomerReviews)
@@ -510,6 +514,15 @@ namespace Grand.Web.Controllers
             if (_catalogSettings.ProductReviewPossibleOnlyAfterPurchasing &&
                     !(await orderService.SearchOrders(customerId: _workContext.CurrentCustomer.Id, productId: productId, os: (int)OrderStatusSystem.Complete)).Any())
                 ModelState.AddModelError(string.Empty, _translationService.GetResource("Reviews.ProductReviewPossibleOnlyAfterPurchasing"));
+
+            if (_catalogSettings.ProductReviewPossibleOnlyOnce)
+            {
+                var reviews = await productReviewService.GetAllProductReviews(customerId: _workContext.CurrentCustomer.Id, 
+                                                                              productId: productId,
+                                                                              pageSize: 1);
+                if(reviews.Any())
+                    ModelState.AddModelError(string.Empty, _translationService.GetResource("Reviews.ProductReviewPossibleOnlyOnce"));
+            }
 
             if (ModelState.IsValid)
             {
