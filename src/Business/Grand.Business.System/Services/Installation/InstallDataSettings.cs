@@ -95,12 +95,13 @@ namespace Grand.Business.System.Services.Installation
                 MaximumImageSize = 1980,
                 ImageQuality = 100,
                 DefaultPictureZoomEnabled = true,
+                AllowedFileTypes = ".gif, .jpg, .jpeg, .png, .bmp, .webp",
                 StoreLocation = "/",
             });
 
             await _settingService.SaveSetting(new StorageSettings {
                 PictureStoreInDb = true
-            }); 
+            });
 
             await _settingService.SaveSetting(new SeoSettings {
                 PageTitleSeparator = ". ",
@@ -341,7 +342,7 @@ namespace Grand.Business.System.Services.Installation
                 InstagramLink = "https://www.instagram.com/grandnode/",
                 LinkedInLink = "https://www.linkedin.com/company/grandnode.com/",
                 PinterestLink = "",
-                VoiceNavigation  = false,
+                VoiceNavigation = false,
             });
 
             await _settingService.SaveSetting(new LoyaltyPointsSettings {
