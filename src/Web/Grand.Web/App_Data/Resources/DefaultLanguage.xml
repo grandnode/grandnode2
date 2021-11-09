@@ -15892,7 +15892,7 @@
     <Value>Say what do you want to find in our store, i.e Mi Notebook</Value>
   </Resource>
   <Resource Name="search.voice.go">
-    <Value>Go</Value>
+    <Value>go</Value>
   </Resource>
   <Resource Name="search.voice.holdtospeak">
     <Value>Hold to speak</Value>
@@ -15904,10 +15904,10 @@
     <Value>Say something ...</Value>
   </Resource>
   <Resource Name="search.voice.reset">
-    <Value>Reset</Value>
+    <Value>reset</Value>
   </Resource>
   <Resource Name="search.voice.stop">
-    <Value>Stop</Value>
+    <Value>stop</Value>
   </Resource>
   <Resource Name="Shipment.Document">
     <Value>Shipment document {0}</Value>
