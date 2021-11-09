@@ -106,17 +106,8 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     case AttributeControlType.Datepicker:
                         {
                             request.Form.TryGetValue(controlId, out var dateAttributes);
-                            DateTime? selectedDate = null;
-                            try
-                            {
-                                selectedDate = DateTime.Parse(dateAttributes);
-                            }
-                            catch { }
-                            if (selectedDate.HasValue)
-                            {
-                                customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
-                                    attribute, selectedDate.Value.ToString("D")).ToList();
-                            }
+                            customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                    attribute, dateAttributes).ToList();
                         }
                         break;
                     case AttributeControlType.FileUpload:
