@@ -99,19 +99,6 @@ namespace Grand.Web.Models.ShoppingCart
             public bool IsRequired { get; set; }
 
             /// <summary>
-            /// Selected day value for datepicker
-            /// </summary>
-            public int? SelectedDay { get; set; }
-            /// <summary>
-            /// Selected month value for datepicker
-            /// </summary>
-            public int? SelectedMonth { get; set; }
-            /// <summary>
-            /// Selected year value for datepicker
-            /// </summary>
-            public int? SelectedYear { get; set; }
-
-            /// <summary>
             /// Allowed file extensions for customer uploaded files
             /// </summary>
             public IList<string> AllowedFileExtensions { get; set; }

@@ -326,10 +326,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                                     if (DateTime.TryParseExact(selectedDateStr[0], "D", CultureInfo.CurrentCulture,
                                                            DateTimeStyles.None, out selectedDate))
                                     {
-                                        //successfully parsed
-                                        attributeModel.SelectedDay = selectedDate.Day;
-                                        attributeModel.SelectedMonth = selectedDate.Month;
-                                        attributeModel.SelectedYear = selectedDate.Year;
+                                        attributeModel.DefaultValue = selectedDateStr[0];
                                     }
                                 }
                             }
