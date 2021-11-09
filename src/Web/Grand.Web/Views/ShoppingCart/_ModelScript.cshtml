@@ -6,7 +6,6 @@
                 cart: @Json.Serialize(Model),
                 totals: null,
                 checkoutAsGuest: false,
-                date: null,
                 // confirm order
                 MinOrderTotalWarning: null,
                 TermsOfServiceOnOrderConfirmPage: null,
@@ -24,22 +23,6 @@
             terms: function () {
                 if (this.terms == true) {
                     this.acceptTerms = false;
-                }
-            },
-            date: function () {
-                var d = new Date(this.date);
-
-                if (!!d.valueOf()) { // Valid date
-
-                    const day = d.getDate();
-                    const month = d.getMonth();
-                    const year = d.getFullYear();
-
-                    document.getElementById("dateDay").value = day;
-                    document.getElementById("dateMonth").value = month;
-                    document.getElementById("dateYear").value = year;
-
-                    checkoutAttributeChange();
                 }
             }
         },
