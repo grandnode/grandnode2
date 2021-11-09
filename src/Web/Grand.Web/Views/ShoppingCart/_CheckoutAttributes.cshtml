@@ -79,7 +79,7 @@
                 <textarea class="form-control" :id="'checkout_attribute_' + attribute.Id" :name="'checkout_attribute_' + attribute.Id" v-model="attribute.DefaultValue" :value="attribute.DefaultValue" onchange="checkoutAttributeChange()">{{attribute.DefaultValue}}</textarea>
             </template>
             <template v-if="attribute.AttributeControlType == 20">
-                <input :name="'checkout_attribute_' + attribute.Id" class="form-control" :value="attribute.DefaultValue" onchange="checkoutAttributeChange();" type="date" />
+                <input :id="'checkout_attribute_' + attribute.Id" :name="'checkout_attribute_' + attribute.Id" class="form-control" :value="attribute.DefaultValue" v-model="attribute.DefaultValue" onchange="checkoutAttributeChange();" type="date" />
             </template>
             <template v-if="attribute.AttributeControlType == 30">
                 <template>
@@ -174,6 +174,12 @@
                     url: '@Html.Raw(Url.Action("checkoutattributechange", "shoppingcart"))',
                 }).then(function (response) {
                     vmorder.totals = response.data.model;
+                    if (response.data.checkoutattributeinfo) {
+                        vmorder.cart.CheckoutAttributeInfo = response.data.checkoutattributeinfo;
+                    }
+                    else {
+                        vmorder.cart.CheckoutAttributeInfo = '';
+                    }
                     if (response.data.enabledattributeids) {
                         for (var i = 0; i < response.data.enabledattributeids.length; i++) {
                             if (document.querySelector('#checkout_attribute_label_' + response.data.enabledattributeids[i])) {
@@ -193,12 +199,6 @@
                                 document.querySelector('#checkout_attribute_input_' + response.data.disabledattributeids[i]).style.display = 'none';
                             }
                         }
-                    }
-                    if (response.data.checkoutattributeinfo) {
-                        vmorder.cart.CheckoutAttributeInfo = response.data.checkoutattributeinfo
-                    }
-                    else {
-                        vmorder.cart.CheckoutAttributeInfo = '';
                     }
                 })
             }
