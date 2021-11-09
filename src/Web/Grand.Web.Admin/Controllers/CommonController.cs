@@ -358,12 +358,13 @@ namespace Grand.Web.Admin.Controllers
 
         [HttpPost]
         public async Task<IActionResult> MaintenanceConvertPicture(
-            [FromServices] IPictureService pictureService, 
+            [FromServices] IPictureService pictureService,
+            [FromServices] StorageSettings storageSettings,
             [FromServices] MediaSettings mediaSettings, 
             [FromServices] ILogger logger)
         {
             var numberOfConvertItems = 0;
-            if (mediaSettings.StoreInDb)
+            if (storageSettings.PictureStoreInDb)
             {
                 var pictures = pictureService.GetPictures();
                 foreach (var picture in pictures)

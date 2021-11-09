@@ -464,6 +464,21 @@ namespace Grand.Business.System.Services.ExportImport
                     case "height":
                         product.Height = property.DecimalValue;
                         break;
+                    case "displayorder":
+                        product.DisplayOrder = property.IntValue;
+                        break;
+                    case "displayordercategory":
+                        product.DisplayOrderCategory = property.IntValue;
+                        break;
+                    case "displayorderbrand":
+                        product.DisplayOrderBrand = property.IntValue;
+                        break;
+                    case "displayordercollection":
+                        product.DisplayOrderCollection = property.IntValue;
+                        break;
+                    case "onsale":
+                        product.OnSale = property.IntValue;
+                        break;
                 }
             }
         }

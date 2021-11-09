@@ -984,7 +984,7 @@ input:checked ~ .color-container .color::before {
 }
 #small-searchterms + .field-validation-error {
     position: absolute;
-    top: 34px;
+    top: 60px;
     font-size: 14px;
     display: block;
     z-index: 3;
@@ -1807,7 +1807,7 @@ footer .list-group-item span:last-child {
 [dark-theme="true"] .categoryGrid a, [dark-theme="true"] .product-box .card-title a, [dark-theme="true"] .product-box .actual-price, [dark-theme="true"] #search-box .input-group .search-box-button,
 [dark-theme="true"] .product-box .rating .b-rating + a, [dark-theme="true"] .b-rating .b-rating-value, [dark-theme="true"] .product-box .quick-view-button,
 [dark-theme="true"] .Menu li > a, [dark-theme="true"] .Menu li > div, [dark-theme="true"] .product-box .spec-name, [dark-theme="true"] .breadcrumb-item.active, [dark-theme="true"] .generalLeftSide li a,
-[dark-theme="true"] .generalLeftSide .block-category-navigation li.active > .sublist > li a, [dark-theme="true"] .table, [dark-theme="true"] .sidebar-cart .item .col a, [dark-theme="true"] .advanced-search-results .title, [dark-theme="true"] .cookie-bar-notification p, [dark-theme="true"] button.close {
+[dark-theme="true"] .generalLeftSide .block-category-navigation li.active > .sublist > li a, [dark-theme="true"] .table, [dark-theme="true"] .advanced-search-results .title, [dark-theme="true"] .cookie-bar-notification p, [dark-theme="true"] button.close {
     color: #fff;
 }
 [dark-theme="true"] .newsletter-email::placeholder {

@@ -27,6 +27,7 @@ namespace Grand.Business.Storage.Tests.Services
         private Mock<IMediaFileStore> _mediaFileStoreMock;
 
         private MediaSettings _settings;
+        private StorageSettings _storagesettings;
         private PictureService _service;
 
         [TestInitialize]
@@ -40,8 +41,9 @@ namespace Grand.Business.Storage.Tests.Services
             _cacheMock = new Mock<ICacheBase>();
             _mediaFileStoreMock = new Mock<IMediaFileStore>();
             _settings = new MediaSettings();
+            _storagesettings = new StorageSettings();
             _service = new PictureService(_repoMock.Object, _logerMock.Object, _mediatorMock.Object, _webHostMock.Object, _workContextMock.Object
-                , _cacheMock.Object, _mediaFileStoreMock.Object, _settings);
+                , _cacheMock.Object, _mediaFileStoreMock.Object, _settings, _storagesettings);
         }
 
         [TestMethod]
@@ -72,7 +74,7 @@ namespace Grand.Business.Storage.Tests.Services
         [TestMethod]
         public async Task InsertPicture_InvokeExpectedMethods()
         {
-            _settings.StoreInDb = true;
+            _storagesettings.PictureStoreInDb = true;
             await _service.InsertPicture(new byte[] { }, "image/jpeg", "image", validateBinary: false);
             _repoMock.Verify(c => c.InsertAsync(It.IsAny<Picture>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<Picture>>(), default), Times.Once);
@@ -81,7 +83,7 @@ namespace Grand.Business.Storage.Tests.Services
         [TestMethod]
         public async Task UpdatePicture_InvokeExpectedMethods()
         {
-            _settings.StoreInDb = true;
+            _storagesettings.PictureStoreInDb = true;
             await _service.UpdatePicture(new Picture());
             _repoMock.Verify(c => c.UpdateAsync(It.IsAny<Picture>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Picture>>(), default), Times.Once);

@@ -10714,6 +10714,9 @@
   <Resource Name="Admin.Settings.Catalog.ProductReviewPossibleOnlyAfterPurchasing">
     <Value>Product review possible only after purchasing product</Value>
   </Resource>
+  <Resource Name="Admin.Settings.Catalog.ProductReviewPossibleOnlyOnce">
+    <Value>Product review possible only once by customer</Value>
+  </Resource>
   <Resource Name="Admin.Settings.Catalog.ProductReviews">
     <Value>Product reviews</Value>
   </Resource>
@@ -15791,6 +15794,9 @@
   </Resource>
   <Resource Name="Reviews.ProductReviewPossibleOnlyAfterPurchasing">
     <Value>Product can be reviewed only after purchasing it</Value>
+  </Resource>
+  <Resource Name="Reviews.ProductReviewPossibleOnlyOnce">
+    <Value>Product can be reviewed only once by customer</Value>
   </Resource>
   <Resource Name="Reviews.ProductReviewsFor">
     <Value>Product reviews for</Value>

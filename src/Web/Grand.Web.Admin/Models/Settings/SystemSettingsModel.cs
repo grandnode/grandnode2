@@ -34,6 +34,13 @@ namespace Grand.Web.Admin.Models.Settings
 
         #endregion
 
+        #region StorageSettings
+
+        [GrandResourceDisplayName("Admin.Settings.Media.PicturesStoredIntoDatabase")]
+        public bool PicturesStoredIntoDatabase { get; set; }
+
+        #endregion
+
         #region Language settings
 
         [GrandResourceDisplayName("Admin.Settings.System.DefaultAdminLanguageId")]

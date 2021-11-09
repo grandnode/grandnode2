@@ -182,7 +182,7 @@ extend('confirmed', {
         return value === target;
     },
     message: (fieldName) => {
-        var text = vee_getMessage(fieldName, 'confirmed');
+        const text = vee_getMessage(fieldName, 'confirmed');
         if (text) {
             return text;
         }
@@ -204,7 +204,7 @@ extend('email', {
         return true;
     },
     message: (fieldName) => {
-        var text = vee_getMessage(fieldName, 'email');
+        const text = vee_getMessage(fieldName, 'email');
         if (text) {
             return text;
         }
@@ -232,7 +232,7 @@ extend('required', {
     },
     computesRequired: true,
     message: (fieldName) => {
-        var text = vee_getMessage(fieldName, 'required');
+        const text = vee_getMessage(fieldName, 'required');
         if (text) {
             return text;
         }
@@ -240,13 +240,40 @@ extend('required', {
     }
 });
 
+extend('min', {
+    params: ['target'],
+    options: {
+        hasTarget: true
+    },
+    validate: function (value, ref) {
+        const minVal = ref.target;
+        const length = value.length;
+
+        if (!value) {
+            return true;
+        }
+        if (length < minVal) {
+            return false;
+        }
+
+        return true;
+    },
+    message: (fieldName) => {
+        const text = vee_getMessage(fieldName, 'min');
+        if (text) {
+            return text;
+        }
+        return 'This ' + fieldName + ' should have at least  characters.'
+    }
+});
+
 //ValidationExtend('min', min);
 //ValidationExtend('confirmed', confirmed);
 
 export function vee_getMessage(field, rule) {
-    var element = document.getElementsByName(field);
+    const element = document.getElementsByName(field);
     if (element && element[0]) {
-        var text = element[0].getAttribute('data-val-' + rule);
+        const text = element[0].getAttribute('data-val-' + rule);
         if (text)
             return text;
     }

@@ -6,113 +6,118 @@
 }
 <template id="searchBoxContainer">
     <a class="modal-close" @@click="$bvModal.hide('search-box')"><b-icon icon="x"></b-icon></a>
-    <form asp-route="ProductSearch" method="get" id="small-search-box-form" ref="searchForm" class="searchBox w-100">
-        <input type="hidden" asp-for="Box" value="true" />
-        <label for="small-searchterms" class="sr-only">@Loc["Search.SearchBox.Tooltip"]</label>
-        <div class="input-group flex-row">
-            <input minlength="@(Model.SearchTermMinimumLength)" maxlength="20" @if (Model.AutoCompleteEnabled) { <text> @@input="searchbox.autocompleteVue()" </text> } v-model="searchbox.text" type="search" name="q" ref="searchBoxInput" class="form-control search-box-text" id="small-searchterms" :placeholder="searchbox.placeholder">
-            @if (Model.AvailableCategories.Any())
-            {
-                <select asp-for="SearchCategoryId" asp-items="Model.AvailableCategories" class="search-box-select custom-select input-group-addon"></select>
-            }
-            @await Component.InvokeAsync("Widget", new { widgetZone = "searchbox_before_search_button" })
+    <validation-observer v-slot="{ handleSubmit }">
+        <form asp-route="ProductSearch" method="get" id="small-search-box-form" ref="searchForm" v-on:submit.prevent="handleSubmit(searchbox.formSubmit)" class="searchBox w-100">
+            <validation-provider tag="div" rules="required|min:@(Model.SearchTermMinimumLength)" name="q" v-slot="{ errors, classes }">
+                <input type="hidden" asp-for="Box" value="true" />
+                <label for="small-searchterms" class="sr-only">@Loc["Search.SearchBox.Tooltip"]</label>
+                <div class="input-group flex-row">
+                    <input minlength="@(Model.SearchTermMinimumLength)"  maxlength="20" data-val-min="@string.Format(Loc["search.searchtermminimumlengthisncharacters"], Model.SearchTermMinimumLength)"  @if (Model.AutoCompleteEnabled) { <text> @@input="searchbox.autocompleteVue()" </text> } v-model="searchbox.text" type="search" name="q" ref="searchBoxInput" class="form-control search-box-text" id="small-searchterms" :placeholder="searchbox.placeholder">
+                    <span class="field-validation-error">{{ errors[0] }}</span>
+                    @if (Model.AvailableCategories.Any())
+                    {
+                        <select asp-for="SearchCategoryId" asp-items="Model.AvailableCategories" class="search-box-select custom-select input-group-addon"></select>
+                    }
+                    @await Component.InvokeAsync("Widget", new { widgetZone = "searchbox_before_search_button" })
 
-            <div class="input-group-append">
-                <button id="voiceSearchButton"
-                        v-if="searchbox.allowed"
-                        @@touchstart="searchbox.recording = true" 
-                        @@touchcancel="searchbox.recording = false; $root.$emit('bv::hide::tooltip')" 
-                        @@touchend="searchbox.recording = false; $root.$emit('bv::hide::tooltip')" 
-                        @@mousedown="searchbox.recording = true" 
-                        @@mouseup="searchbox.recording = false" 
-                        @@mouseleave="searchbox.recording = false" 
-                        v-b-tooltip.hover.bottom :title="searchbox.micMessage" ref="micBtn" type="button" v-bind:class="[{ focus: searchbox.recording }, 'btn btn-link']">
-                    <template v-if="searchbox.recording">
-                        <b-icon icon="mic" variant="info"></b-icon>
-                    </template>
-                    <template v-else>
-                        <b-icon icon="mic-mute" variant="danger"></b-icon>
-                    </template>
-                </button>
-                <button type="submit" class="btn btn-link search-box-button float-sm-right d-inline-flex align-items-center">
-                    <span class="sr-only">@Loc["Search.SearchBox.Tooltip"]</span>
-                    <b-icon icon="search"></b-icon>
-                </button>
-            </div>
-            <small v-if="searchbox.recording" class="annotation form-text text-muted w-100">@Loc["search.voice.annotation"]</small>
-        </div>
-        <template v-if="searchbox.searchitems !== null">
-            <div id="adv_search" class="advanced-search-results" onclick="StopPropagation(event)">
-                <div class="col-12">
-                    <div class="form-row">
-                        <div class="col-md-6 col-12">
-                            <h5 class="title">@Loc["search.category"]</h5>
-                            <div v-if="searchbox.searchcategories.length">
-                                <ul class="list px-0">
-                                    <li v-for="item in searchbox.searchcategories">
-                                        <h6 class="mb-0"><a :href="item.Url">{{item.Label}}</a></h6>
-                                        <p v-if="item.Desc">{{item.Desc}}</p>
-                                    </li>
-                                </ul>
-                            </div>
-                            <ul v-else class="px-0 mb-1">
-                                <li class="alert alert-info">@Loc["search.noresultstextcategory"]</li>
-                            </ul>
-                            <h5 class="title">@Loc["search.brand"]</h5>
-                            <div v-if="searchbox.searchbrands.length">
-                                <ul class="list px-0">
-                                    <li v-for="item in searchbox.searchbrands">
-                                        <h6 class="mb-0"><a :href="item.Url">{{item.Label}}</a></h6>
-                                        <p v-if="item.Desc">{{item.Desc}}</p>
-                                    </li>
-                                </ul>
-                            </div>
-                            <ul v-else class="px-0 mb-1">
-                                <li class="alert alert-info">@Loc["search.noresultstextbrand"]</li>
-                            </ul>
-                            @if (blogSettings.ShowBlogPostsInSearchAutoComplete)
-                            {
-                                <h5 class="title">@Loc["search.blog"]</h5>
-                                <div v-if="searchbox.searchblog.length">
+                    <div class="input-group-append">
+                        <button id="voiceSearchButton"
+                                v-if="searchbox.allowed"
+                                @@touchstart="searchbox.recording = true" 
+                                @@touchcancel="searchbox.recording = false; $root.$emit('bv::hide::tooltip')" 
+                                @@touchend="searchbox.recording = false; $root.$emit('bv::hide::tooltip')" 
+                                @@mousedown="searchbox.recording = true" 
+                                @@mouseup="searchbox.recording = false" 
+                                @@mouseleave="searchbox.recording = false" 
+                                v-b-tooltip.hover.bottom :title="searchbox.micMessage" ref="micBtn" type="button" v-bind:class="[{ focus: searchbox.recording }, 'btn btn-link']">
+                            <template v-if="searchbox.recording">
+                                <b-icon icon="mic" variant="info"></b-icon>
+                            </template>
+                            <template v-else>
+                                <b-icon icon="mic-mute" variant="danger"></b-icon>
+                            </template>
+                        </button>
+                        <button type="submit" class="btn btn-link search-box-button float-sm-right d-inline-flex align-items-center">
+                            <span class="sr-only">@Loc["Search.SearchBox.Tooltip"]</span>
+                            <b-icon icon="search"></b-icon>
+                        </button>
+                    </div>
+                    <small v-if="searchbox.recording" class="annotation form-text text-muted w-100">@Loc["search.voice.annotation"]</small>
+                </div>
+            </validation-provider>
+            <template v-if="searchbox.searchitems !== null">
+                <div id="adv_search" class="advanced-search-results" onclick="StopPropagation(event)">
+                    <div class="col-12">
+                        <div class="form-row">
+                            <div class="col-md-6 col-12">
+                                <h5 class="title">@Loc["search.category"]</h5>
+                                <div v-if="searchbox.searchcategories.length">
                                     <ul class="list px-0">
-                                        <li v-for="item in searchbox.searchblog">
+                                        <li v-for="item in searchbox.searchcategories">
                                             <h6 class="mb-0"><a :href="item.Url">{{item.Label}}</a></h6>
                                             <p v-if="item.Desc">{{item.Desc}}</p>
                                         </li>
                                     </ul>
                                 </div>
                                 <ul v-else class="px-0 mb-1">
-                                    <li class="alert alert-info">@Loc["search.noresultstextblog"]</li>
+                                    <li class="alert alert-info">@Loc["search.noresultstextcategory"]</li>
                                 </ul>
-                            }
-                        </div>
-                        <div class="col-md-6 col-12 products">
-                            <h5 class="title">@Loc["search.products"]</h5>
-                            <div v-if="searchbox.searchproducts.length">
-                                <ul class="list px-0">
-                                    <li class="media" v-for="item in searchbox.searchproducts">
-                                        <div class="media-aside" v-if="item.PictureUrl">
-                                            <img class="img-fluid" alt="placeholder" :src="item.PictureUrl" />
-                                        </div>
-                                        <div class="media-body">
+                                <h5 class="title">@Loc["search.brand"]</h5>
+                                <div v-if="searchbox.searchbrands.length">
+                                    <ul class="list px-0">
+                                        <li v-for="item in searchbox.searchbrands">
                                             <h6 class="mb-0"><a :href="item.Url">{{item.Label}}</a></h6>
-                                            <b-form-rating class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline :value="item.Rating / 20"></b-form-rating>
-                                            <div v-if="item.Price" class="price">{{item.Price}}</div>
-                                            <p v-html="item.Desc" class="mt-1 mb-0"></p>
-                                        </div>
-                                    </li>
+                                            <p v-if="item.Desc">{{item.Desc}}</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <ul v-else class="px-0 mb-1">
+                                    <li class="alert alert-info">@Loc["search.noresultstextbrand"]</li>
+                                </ul>
+                                @if (blogSettings.ShowBlogPostsInSearchAutoComplete)
+                                {
+                                    <h5 class="title">@Loc["search.blog"]</h5>
+                                    <div v-if="searchbox.searchblog.length">
+                                        <ul class="list px-0">
+                                            <li v-for="item in searchbox.searchblog">
+                                                <h6 class="mb-0"><a :href="item.Url">{{item.Label}}</a></h6>
+                                                <p v-if="item.Desc">{{item.Desc}}</p>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <ul v-else class="px-0 mb-1">
+                                        <li class="alert alert-info">@Loc["search.noresultstextblog"]</li>
+                                    </ul>
+                                }
+                            </div>
+                            <div class="col-md-6 col-12 products">
+                                <h5 class="title">@Loc["search.products"]</h5>
+                                <div v-if="searchbox.searchproducts.length">
+                                    <ul class="list px-0">
+                                        <li class="media" v-for="item in searchbox.searchproducts">
+                                            <div class="media-aside" v-if="item.PictureUrl">
+                                                <img class="img-fluid" alt="placeholder" :src="item.PictureUrl" />
+                                            </div>
+                                            <div class="media-body">
+                                                <h6 class="mb-0"><a :href="item.Url">{{item.Label}}</a></h6>
+                                                <b-form-rating class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline :value="item.Rating / 20"></b-form-rating>
+                                                <div v-if="item.Price" class="price">{{item.Price}}</div>
+                                                <p v-html="item.Desc" class="mt-1 mb-0"></p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <ul v-else class="px-0 mb-1">
+                                    <li class="alert alert-info">@Loc["search.noresultstext"]</li>
                                 </ul>
                             </div>
-                            <ul v-else class="px-0 mb-1">
-                                <li class="alert alert-info">@Loc["search.noresultstext"]</li>
-                            </ul>
                         </div>
                     </div>
                 </div>
-            </div>
-        </template>
-        @await Component.InvokeAsync("Widget", new { widgetZone = "searchbox" })
-    </form>
+            </template>
+            @await Component.InvokeAsync("Widget", new { widgetZone = "searchbox" })
+        </form>
+    </validation-observer>
 </template>
 <script asp-location="Footer" asp-order="300">
     var searchBox = Vue.extend({
@@ -132,6 +137,9 @@
             allowed: true,
         }),
         methods: {
+            formSubmit() {
+                vm.$refs.searchForm.submit();
+            },
             startRecording() {
                 this.recognition.start();
             },
@@ -162,6 +170,9 @@
                 }
             },
             autocompleteVue() {
+                const minLength = vm.$refs.searchBoxInput.getAttribute('minlength');
+                const length = vm.$refs.searchBoxInput.value.length;
+
                 var delayTimer;
                 function getCategories(item) {
                     if (item.SearchType == 'Category') {
@@ -183,6 +194,7 @@
                         return item
                     }
                 }
+
                 clearTimeout(delayTimer);
                 delayTimer = setTimeout(function () {
                     var value = searchbox.text;
@@ -190,34 +202,36 @@
                     if (document.getElementById("SearchCategoryId")) {
                         category = document.getElementById("SearchCategoryId").value;
                     }
-                    axios({
-                        url: '/catalog/searchtermautocomplete',
-                        method: 'get',
-                        params: {
-                            term: value,
-                            categoryId: category
-                        }
-                    }).then(function (response) {
-                        if (response.data) {
-                            searchbox.searchitems = response.data;
-                            var categories = response.data.map(getCategories).filter(function (element) {
-                                return element !== undefined;
-                            });
-                            var brands = response.data.map(getBrands).filter(function (element) {
-                                return element !== undefined;
-                            });
-                            var blog = response.data.map(getBlog).filter(function (element) {
-                                return element !== undefined;
-                            });
-                            var products = response.data.map(getProducts).filter(function (element) {
-                                return element !== undefined;
-                            });
-                            searchbox.searchcategories = categories;
-                            searchbox.searchbrands = brands;
-                            searchbox.searchblog = blog;
-                            searchbox.searchproducts = products;
-                        }
-                    })
+                    if (length >= minLength) {
+                        axios({
+                            url: '/catalog/searchtermautocomplete',
+                            method: 'get',
+                            params: {
+                                term: value,
+                                categoryId: category
+                            }
+                        }).then(function (response) {
+                            if (response.data) {
+                                searchbox.searchitems = response.data;
+                                var categories = response.data.map(getCategories).filter(function (element) {
+                                    return element !== undefined;
+                                });
+                                var brands = response.data.map(getBrands).filter(function (element) {
+                                    return element !== undefined;
+                                });
+                                var blog = response.data.map(getBlog).filter(function (element) {
+                                    return element !== undefined;
+                                });
+                                var products = response.data.map(getProducts).filter(function (element) {
+                                    return element !== undefined;
+                                });
+                                searchbox.searchcategories = categories;
+                                searchbox.searchbrands = brands;
+                                searchbox.searchblog = blog;
+                                searchbox.searchproducts = products;
+                            }
+                        })
+                    }
                 }, 600);
             }
         },

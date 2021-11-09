@@ -4,11 +4,11 @@ using Grand.Business.Storage.Extensions;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
+using Grand.Web.Admin.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,15 +34,6 @@ namespace Grand.Web.Admin.Controllers
             _permissionService = permissionService;
             _mediaFileStore = mediaFileStore;
             _mediaSettings = mediaSettings;
-        }
-
-        [NonAction]
-        protected virtual IList<string> GetAllowedFileTypes()
-        {
-            if (string.IsNullOrEmpty(_mediaSettings.AllowedFileTypes))
-                return new List<string> { ".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp" };
-            else
-                return _mediaSettings.AllowedFileTypes.Split(',');
         }
 
         [HttpPost]
@@ -81,7 +72,7 @@ namespace Grand.Web.Admin.Controllers
             if (!string.IsNullOrEmpty(fileExtension))
                 fileExtension = fileExtension.ToLowerInvariant();
 
-            if (!GetAllowedFileTypes().Contains(fileExtension))
+            if (!FileExtensions.GetAllowedMediaFileTypes(_mediaSettings.AllowedFileTypes).Contains(fileExtension))
             {
                 return Json(new
                 {
@@ -139,7 +130,7 @@ namespace Grand.Web.Admin.Controllers
             if (!string.IsNullOrEmpty(fileExtension))
                 fileExtension = fileExtension.ToLowerInvariant();
 
-            if (!GetAllowedFileTypes().Contains(fileExtension))
+            if (!FileExtensions.GetAllowedMediaFileTypes(_mediaSettings.AllowedFileTypes).Contains(fileExtension))
             {
                 return Json(new
                 {

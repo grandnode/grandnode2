@@ -15,6 +15,7 @@
             RelatedProducts: null,
             compareproducts: null,
             compareProductsQty: 0,
+            loader: false,
         }
     },
     props: {
@@ -31,7 +32,9 @@
         if (localStorage.fluid == "fluid") this.fluid = "fluid";
         if (localStorage.fluid == "") this.fluid = "false";
         if (localStorage.darkMode == "true") this.darkMode = true;
+        this.wishindicator = parseInt(this.$refs.wishlistQty.innerText);
         this.updateCompareProductsQty();
+        this.backToTop();
     },
     watch: {
         fluid: function (newName) {
@@ -45,6 +48,35 @@
         }
     },
     methods: {
+        backToTop() {
+            if (!document.querySelector('.up-btn')) {
+                const upBtn = document.createElement('div');
+                const upBtnContent = document.createElement('div');
+
+                upBtn.classList.add('up-btn', 'up-btn__hide');
+
+                function showBtn(num) {
+                    if (document.documentElement.scrollTop >= num) {
+                        upBtn.classList.remove('up-btn__hide');
+                    } else {
+                        upBtn.classList.add('up-btn__hide');
+                    }
+                }
+
+                document.body.append(upBtn);
+                upBtn.append(upBtnContent)
+                window.addEventListener('scroll', () => {
+                    showBtn(400);
+                });
+
+                upBtn.addEventListener('click', () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
+                });
+            }
+        },
         newsletterBox(AllowToUnsubscribe, url) {
             let subscribe;
             if (AllowToUnsubscribe) {
@@ -211,37 +243,45 @@
             ))    
         },
         updateWishlist: function () {
-            axios({
-                baseURL: '/wishlist',
-                method: 'get',
-                data: null,
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
-                }
-            }).then(response => (
-                this.flywish = response.data,
-                this.wishlistitems = response.data.Items,
-                this.wishindicator = response.data.Items.length
-            ))
+            if (parseInt(vm.$refs.wishlistQty.innerText) > 0) {
+                this.loader = true;
+                axios({
+                    baseURL: '/wishlist',
+                    method: 'get',
+                    data: null,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Response-View': 'Json'
+                    }
+                }).then(response => (
+                    this.loader = false,
+                    this.flywish = response.data,
+                    this.wishlistitems = response.data.Items,
+                    this.wishindicator = response.data.Items.length
+                ))
+            }
         },
         getCompareList: function () {
-            axios({
-                baseURL: '/compareproducts',
-                method: 'get',
-                params: {
-                    t: new Date().getTime()
-                },
-                data: null,
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
-                }
-            }).then(response => {
-                this.compareproducts = response.data
-            })
+            if (this.compareProductsQty > 0) {
+                this.loader = true;
+                axios({
+                    baseURL: '/compareproducts',
+                    method: 'get',
+                    params: {
+                        t: new Date().getTime()
+                    },
+                    data: null,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Response-View': 'Json'
+                    }
+                }).then(response => {
+                    this.loader = false;
+                    this.compareproducts = response.data
+                })
+            }
         },
         removeFromCompareList: function (id) {
             if (id !== undefined) {

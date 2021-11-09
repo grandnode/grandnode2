@@ -21,14 +21,14 @@
                                 <div class="form-group">
                                     <validation-provider tag="div" rules="required" name="AddProductReview.Title" v-slot="{ errors, classes }">
                                         <label for="AddProductReview_Title" class="col-form-label">@Loc["Reviews.Fields.Title"]:</label>
-                                        <input data-val-required="@Loc["reviews.fields.title.required"]" v-model="productreviews.Model.ReviewTitle" id="AddProductReview_Title" name="AddProductReview.Title" v-bind:class="[classes , 'form-control review-title']" :disabled="!productreviews.Model.AddProductReview.CanCurrentCustomerLeaveReview" />
+                                        <input data-val-required="@Loc["reviews.fields.title.required"]" v-model="productreviews.Model.AddProductReview.Title" id="AddProductReview_Title" name="AddProductReview.Title" v-bind:class="[classes , 'form-control review-title']" :disabled="!productreviews.Model.AddProductReview.CanCurrentCustomerLeaveReview" />
                                         <span class="field-validation-error">{{ errors[0] }}</span>
                                     </validation-provider>
                                 </div>
                                 <div class="form-group">
                                     <validation-provider tag="div" rules="required" name="AddProductReview.ReviewText" v-slot="{ errors, classes }">
                                         <label for="AddProductReview_ReviewText" class="col-form-label">@Loc["Reviews.Fields.ReviewText"]:</label>
-                                        <textarea data-val-required="@Loc["reviews.fields.reviewtext.required"]" v-model="productreviews.Model.ReviewText" id="AddProductReview_ReviewText" name="AddProductReview.ReviewText" v-bind:class="[classes , 'form-control review-text']" :disabled="!productreviews.Model.AddProductReview.CanCurrentCustomerLeaveReview"></textarea>
+                                        <textarea data-val-required="@Loc["reviews.fields.reviewtext.required"]" v-model="productreviews.Model.AddProductReview.ReviewText" id="AddProductReview_ReviewText" name="AddProductReview.ReviewText" v-bind:class="[classes , 'form-control review-text']" :disabled="!productreviews.Model.AddProductReview.CanCurrentCustomerLeaveReview"></textarea>
                                         <span class="field-validation-error">{{ errors[0] }}</span>
                                     </validation-provider>
                                 </div>

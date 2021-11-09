@@ -1248,7 +1248,7 @@ namespace Grand.Web.Admin.Controllers
                     _ = new FileExtensionContentTypeProvider().TryGetContentType(fileName, out contentType);
                 }
 
-                if (GetAllowedFileTypes(mediaSettings).Contains(fileExtension))
+                if (FileExtensions.GetAllowedMediaFileTypes(mediaSettings.AllowedFileTypes).Contains(fileExtension))
                 {
                     var fileBinary = file.GetDownloadBits();
                     //insert picture
@@ -1265,14 +1265,6 @@ namespace Grand.Web.Admin.Controllers
             }
 
             return Json(new { success = values.Any(), data = values });
-        }
-
-        protected virtual IList<string> GetAllowedFileTypes(MediaSettings mediaSettings)
-        {
-            if (string.IsNullOrEmpty(mediaSettings.AllowedFileTypes))
-                return new List<string> { ".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp" };
-            else
-                return mediaSettings.AllowedFileTypes.Split(',');
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
