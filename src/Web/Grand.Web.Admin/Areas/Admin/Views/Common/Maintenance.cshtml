@@ -104,6 +104,20 @@
                             }
                         </div>
                         <div class="form-body panel panel-default">
+                            <div class="note note-info">
+                                <strong>@Loc["Admin.System.Maintenance.DeleteSystemLog"]</strong>
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" name="delete-systemlog" asp-action="MaintenanceDeleteSystemlog" class="btn red offset-md-3" value="@Loc["Admin.Common.Delete"]" />
+                            </div>
+                            @if (Model.DeleteSystemLog)
+                            {
+                                <div class="form-group">
+                                    <label class="offset-md-3">@Loc["Admin.System.Maintenance.DeleteSystemLog.Deleted"]</label>
+                                </div>
+                            }
+                        </div>
+                        <div class="form-body panel panel-default">
                             <div class="note note-info form-actions">
                                 <strong>@Loc["Admin.System.Maintenance.ConvertPicture"]</strong>
                             </div>

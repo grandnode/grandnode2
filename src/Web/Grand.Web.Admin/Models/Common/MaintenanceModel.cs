@@ -21,6 +21,7 @@ namespace Grand.Web.Admin.Models.Common
         public ConvertPictureModel ConvertedPictureModel { get; set; }
 
         public bool DeleteActivityLog { get; set; }
+        public bool DeleteSystemLog { get; set; }
 
         #region Nested classes
 

@@ -12279,6 +12279,12 @@
   <Resource Name="Admin.System.Maintenance.DeleteGuests.TotalDeleted">
     <Value>{0} customers were deleted</Value>
   </Resource>
+  <Resource Name="Admin.System.Maintenance.DeleteSystemLog">
+    <Value>Deleting system Log</Value>
+  </Resource>
+  <Resource Name="Admin.System.Maintenance.DeleteSystemLog.Deleted">
+    <Value>Deleted system Log</Value>
+  </Resource>
   <Resource Name="Admin.System.QueuedEmails">
     <Value>Message Queue</Value>
   </Resource>

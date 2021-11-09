@@ -53,7 +53,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly ILanguageService _languageService;
         private readonly IWorkContext _workContext;
         private readonly ITranslationService _translationService;
-        private readonly IStoreService _storeService;
         private readonly IMachineNameProvider _machineNameProvider;
         private readonly IHostApplicationLifetime _applicationLifetime;
         private readonly IMediator _mediator;
@@ -76,7 +75,6 @@ namespace Grand.Web.Admin.Controllers
             ILanguageService languageService,
             IWorkContext workContext,
             ITranslationService translationService,
-            IStoreService storeService,
             IMachineNameProvider machineNameProvider,
             IHostApplicationLifetime applicationLifetime,
             IMediator mediator,
@@ -97,7 +95,6 @@ namespace Grand.Web.Admin.Controllers
             _languageService = languageService;
             _workContext = workContext;
             _translationService = translationService;
-            _storeService = storeService;
             _applicationLifetime = applicationLifetime;
             _appConfig = appConfig;
             _machineNameProvider = machineNameProvider;
@@ -310,6 +307,9 @@ namespace Grand.Web.Admin.Controllers
             if (TempData["DeleteActivityLog"] != null)
                 model.DeleteActivityLog = (bool)TempData["DeleteActivityLog"];
 
+            if (TempData["DeleteSystemLog"] != null)
+                model.DeleteSystemLog = (bool)TempData["DeleteSystemLog"];
+
             if (TempData["NumberOfConvertItems"] != null)
             {
                 model.ConvertedPictureModel = new MaintenanceModel.ConvertPictureModel {
@@ -357,6 +357,15 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> MaintenanceDeleteSystemlog(MaintenanceModel model, [FromServices] ILogger logger)
+        {
+            await logger.ClearLog();
+            TempData["DeleteSystemLog"] = true;
+            return RedirectToAction("Maintenance");
+        }
+
+
+        [HttpPost]
         public async Task<IActionResult> MaintenanceConvertPicture(
             [FromServices] IPictureService pictureService,
             [FromServices] StorageSettings storageSettings,
@@ -386,6 +395,7 @@ namespace Grand.Web.Admin.Controllers
             TempData["NumberOfConvertItems"] = numberOfConvertItems;
             return RedirectToAction("Maintenance");
         }
+
 
         public async Task<IActionResult> ClearCache(string returnUrl, [FromServices] ICacheBase cacheBase)
         {
