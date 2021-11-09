@@ -15,6 +15,7 @@
             RelatedProducts: null,
             compareproducts: null,
             compareProductsQty: 0,
+            loader: false,
         }
     },
     props: {
@@ -257,21 +258,25 @@
             ))
         },
         getCompareList: function () {
-            axios({
-                baseURL: '/compareproducts',
-                method: 'get',
-                params: {
-                    t: new Date().getTime()
-                },
-                data: null,
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
-                }
-            }).then(response => {
-                this.compareproducts = response.data
-            })
+            if (this.compareProductsQty > 0) {
+                this.loader = true;
+                axios({
+                    baseURL: '/compareproducts',
+                    method: 'get',
+                    params: {
+                        t: new Date().getTime()
+                    },
+                    data: null,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Response-View': 'Json'
+                    }
+                }).then(response => {
+                    this.loader = false;
+                    this.compareproducts = response.data
+                })
+            }
         },
         removeFromCompareList: function (id) {
             if (id !== undefined) {
