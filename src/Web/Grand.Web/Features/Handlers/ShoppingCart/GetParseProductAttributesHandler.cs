@@ -105,13 +105,11 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                         break;
                     case AttributeControlType.Datepicker:
                         {
-                            request.Form.TryGetValue(controlId + "_day", out var day);
-                            request.Form.TryGetValue(controlId + "_month", out var month);
-                            request.Form.TryGetValue(controlId + "_year", out var year);
+                            request.Form.TryGetValue(controlId, out var dateAttributes);
                             DateTime? selectedDate = null;
                             try
                             {
-                                selectedDate = new DateTime(int.Parse(year), int.Parse(month), int.Parse(day));
+                                selectedDate = DateTime.Parse(dateAttributes);
                             }
                             catch { }
                             if (selectedDate.HasValue)
