@@ -77,10 +77,10 @@ namespace Grand.SharedKernel.Extensions
             RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
             var byteArray = new byte[length];
             provider.GetBytes(byteArray);
-            for (int i = 0; i < length; i++)
-                str = String.Concat(str, byteArray[i].ToString());
+            for (var i = 0; i < length; i++)
+                str = string.Concat(str, byteArray[i].ToString());
 
-            return str.Substring(0, length);
+            return str[..length];
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace Grand.SharedKernel.Extensions
             if (str.Length > maxLength)
             {
                 var pLen = postfix == null ? 0 : postfix.Length;
-                var result = str.Substring(0, maxLength - pLen);
+                var result = str[..(maxLength - pLen)];
                 if (!String.IsNullOrEmpty(postfix))
                 {
                     result += postfix;

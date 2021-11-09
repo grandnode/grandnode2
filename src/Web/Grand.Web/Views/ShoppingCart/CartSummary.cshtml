@@ -61,25 +61,27 @@
                                                 </a>
                                             </td>
                                             <td class="product">
-                                                <a :href="item.ProductUrl" class="product-name">
-                                                    {{item.ProductName}}
-                                                </a>
+                                                <div class="d-inline-flex align-items-center">
+                                                    <a :href="item.ProductUrl" class="product-name">
+                                                        {{item.ProductName}}
+                                                    </a>
+                                                    <div v-if="vmorder.cart.IsEditable && item.AllowItemEditing" class="edit-item">
+                                                        <a class="btn btn-link" @@click="vmorder.updateOnCart(item.Id)"><b-icon icon="pencil"></b-icon></a>
+                                                    </div>
+                                                </div>
                                                 <span v-if="vmorder.cart.ShowSku" class="sku-number">
                                                     {{item.Sku}}
                                                 </span>
-                                                <div v-if="item.AttributeInfo != ''" v-html="item.AttributeInfo" class="attributes small"></div>
-                                                <div v-if="item.WarehouseName != null" v-html="item.WarehouseName" class="attributes small"></div>
-                                                <div v-if="item.VendorName != null" v-html="item.VendorName" class="attributes small"></div>
-                                                <div v-if="item.AuctionInfo != ''" v-html="item.AuctionInfo" class="attributes small"></div>
-                                                <div v-if="item.RecurringInfo != null" v-html="item.RecurringInfo" class="recurring-info"></div>
-                                                <div v-if="item.ReservationInfo != null" v-html="item.ReservationInfo" class="rental-info attributes small"></div>
+                                                <div v-if="item.AttributeInfo !== ''" v-html="item.AttributeInfo" class="attributes small"></div>
+                                                <div v-if="item.WarehouseName !== null" v-html="item.WarehouseName" class="attributes small"></div>
+                                                <div v-if="item.VendorName !== null" v-html="item.VendorName" class="attributes small"></div>
+                                                <div v-if="item.AuctionInfo !== null" v-html="item.AuctionInfo" class="attributes small"></div>
+                                                <div v-if="item.RecurringInfo !== null" v-html="item.RecurringInfo" class="recurring-info"></div>
+                                                <div v-if="item.ReservationInfo !== null" v-html="item.ReservationInfo" class="rental-info attributes small"></div>
                                                 <div v-if="typeof item.Warnings !== 'undefined' && item.Warnings.length > 0" class="message-error small alert alert-danger mt-2 mb-0">
                                                     <ul v-for="warning in item.Warnings" class="mb-0 p-0">
                                                         <li>{{warning}}</li>
                                                     </ul>
-                                                </div>
-                                                <div v-if="vmorder.cart.IsEditable && item.AllowItemEditing" class="edit-item mt-2">
-                                                    <a class="btn btn-sm btn-secondary" @@click="vmorder.updateOnCart(item.Id)">@Loc["Common.Edit"]</a>
                                                 </div>
                                             </td>
                                             <td class="unit-price">
@@ -190,10 +192,10 @@
                                                     </span>
                                                 }
                                             </b-form-checkbox>
-                                            <b-alert variant="info" class="my-2" :show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</b-alert>
+                                            <div class="alert alert-info my-2" v-show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</div>
                                         </div>
-                                        <div class="checkout-buttons text-center mt-3">
-                                            <b-button type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="vmorder.termsCheck(true)" variant="secondary" class="checkout-as-guest-button mx-1">
+                                        <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
+                                            <b-button type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="vmorder.termsCheck(true)" variant="secondary" class="checkout-as-guest-button mx-sm-1 mx-0">
                                                 @Loc["Account.Login.CheckoutAsGuest"]
                                             </b-button>
                                             <b-button id="checkout" name="checkout" @@click="vmorder.termsCheck(false)" variant="info" class="checkout-button mt-sm-0 mt-1">
@@ -207,8 +209,8 @@
                                         </div>
                                     </template>
                                     <template v-else>
-                                        <div class="checkout-buttons text-center mt-3">
-                                            <b-button type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="location.href='@Url.RouteUrl("Checkout")'" variant="secondary" class="checkout-as-guest-button mx-1">
+                                        <div class="checkout-buttons flex-sm-nowrap flex-wrap text-center mt-3">
+                                            <b-button type="button" id="checkoutasguest" v-if="vmorder.cart.ShowCheckoutAsGuestButton" @@click="location.href='@Url.RouteUrl("Checkout")'" variant="secondary" class="checkout-as-guest-button mx-sm-1 mx-0">
                                                 @Loc["Account.Login.CheckoutAsGuest"]
                                             </b-button>
                                             <b-button id="checkout" name="checkout" @@click="document.querySelector('#shopping-cart-form').setAttribute('action', '@Url.RouteUrl("StartCheckout")');document.querySelector('#shopping-cart-form').submit();" variant="info" class="checkout-button mt-sm-0 mt-1">

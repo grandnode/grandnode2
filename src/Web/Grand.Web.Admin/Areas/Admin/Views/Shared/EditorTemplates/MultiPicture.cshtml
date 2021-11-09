@@ -65,8 +65,7 @@
                 acceptFiles: 'image/*',
             }
         }).on("complete", function(event, id, name, responseJSON, xhr) {
-            if (responseJSON.success) {
-                $("#@(clientId + "image")").append("<img src='" + responseJSON.data[0].Item1 + "'/>");
+            if (responseJSON.success) {               
                 $("#@click").click();
             }
             else {

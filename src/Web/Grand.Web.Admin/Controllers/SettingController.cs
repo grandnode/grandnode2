@@ -1,15 +1,11 @@
-﻿using Grand.Business.Catalog.Interfaces.Tax;
-using Grand.Business.Checkout.Commands.Models.Orders;
+﻿using Grand.Business.Checkout.Commands.Models.Orders;
 using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Common.Services.Security;
-using Grand.Business.Customers.Interfaces;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.AdminSearch;
 using Grand.Domain.Blogs;
@@ -32,7 +28,6 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
-using Grand.Web.Admin.Models.PushNotifications;
 using Grand.Web.Admin.Models.Settings;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
@@ -41,6 +36,7 @@ using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Themes;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
@@ -62,7 +58,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly IDateTimeService _dateTimeService;
         private readonly IThemeProvider _themeProvider;
         private readonly ICustomerActivityService _customerActivityService;
-        private readonly IStoreService _storeService;
         private readonly IWorkContext _workContext;
         private readonly IMediator _mediator;
         private readonly IMerchandiseReturnService _merchandiseReturnService;
@@ -81,7 +76,6 @@ namespace Grand.Web.Admin.Controllers
             IDateTimeService dateTimeService,
             IThemeProvider themeProvider,
             ICustomerActivityService customerActivityService,
-            IStoreService storeService,
             IWorkContext workContext,
             IMediator mediator,
             IMerchandiseReturnService merchandiseReturnService,
@@ -96,7 +90,6 @@ namespace Grand.Web.Admin.Controllers
             _dateTimeService = dateTimeService;
             _themeProvider = themeProvider;
             _customerActivityService = customerActivityService;
-            _storeService = storeService;
             _workContext = workContext;
             _mediator = mediator;
             _merchandiseReturnService = merchandiseReturnService;
@@ -109,7 +102,6 @@ namespace Grand.Web.Admin.Controllers
 
         #region Utilities
 
-
         protected async Task ClearCache()
         {
             await _cacheBase.Clear();
@@ -118,17 +110,15 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Content()
         {
             //load settings for a chosen store scope
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var blogSettings = _settingService.LoadSetting<BlogSettings>(storeScope);
             var newsSettings = _settingService.LoadSetting<NewsSettings>(storeScope);
             var knowledgebaseSettings = _settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
             var model = new ContentSettingsModel() {
                 BlogSettings = blogSettings.ToModel(),
-                NewsSettings = newsSettings.ToModel()
+                NewsSettings = newsSettings.ToModel(),
+                KnowledgebaseSettings = knowledgebaseSettings.ToModel()
             };
-            model.KnowledgebaseSettings.Enabled = knowledgebaseSettings.Enabled;
-            model.KnowledgebaseSettings.AllowNotRegisteredUsersToLeaveComments = knowledgebaseSettings.AllowNotRegisteredUsersToLeaveComments;
-            model.KnowledgebaseSettings.NotifyAboutNewArticleComments = knowledgebaseSettings.NotifyAboutNewArticleComments;
 
             model.ActiveStore = storeScope;
             return View(model);
@@ -137,7 +127,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Content(ContentSettingsModel model)
         {
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             //blog
             var blogSettings = _settingService.LoadSetting<BlogSettings>(storeScope);
             blogSettings = model.BlogSettings.ToEntity(blogSettings);
@@ -150,9 +140,7 @@ namespace Grand.Web.Admin.Controllers
 
             //knowledgebase
             var knowledgeBaseSettings = _settingService.LoadSetting<KnowledgebaseSettings>(storeScope);
-            knowledgeBaseSettings.Enabled = model.KnowledgebaseSettings.Enabled;
-            knowledgeBaseSettings.AllowNotRegisteredUsersToLeaveComments = model.KnowledgebaseSettings.AllowNotRegisteredUsersToLeaveComments;
-            knowledgeBaseSettings.NotifyAboutNewArticleComments = model.KnowledgebaseSettings.NotifyAboutNewArticleComments;
+            knowledgeBaseSettings = model.KnowledgebaseSettings.ToEntity(knowledgeBaseSettings);
             await _settingService.SaveSetting(knowledgeBaseSettings, storeScope);
 
             //selected tab
@@ -162,7 +150,9 @@ namespace Grand.Web.Admin.Controllers
             await ClearCache();
 
             //activity log
-            await _customerActivityService.InsertActivity("EditSettings", "", _translationService.GetResource("ActivityLog.EditSettings"));
+            _ = _customerActivityService.InsertActivity("EditSettings", "",
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Content");
@@ -171,25 +161,10 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Vendor()
         {
             //load settings for a chosen store scope
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var vendorSettings = _settingService.LoadSetting<VendorSettings>(storeScope);
             var model = vendorSettings.ToModel();
-            model.AddressSettings.CityEnabled = vendorSettings.CityEnabled;
-            model.AddressSettings.CityRequired = vendorSettings.CityRequired;
-            model.AddressSettings.CompanyEnabled = vendorSettings.CompanyEnabled;
-            model.AddressSettings.CompanyRequired = vendorSettings.CompanyRequired;
-            model.AddressSettings.CountryEnabled = vendorSettings.CountryEnabled;
-            model.AddressSettings.FaxEnabled = vendorSettings.FaxEnabled;
-            model.AddressSettings.FaxRequired = vendorSettings.FaxRequired;
-            model.AddressSettings.PhoneEnabled = vendorSettings.PhoneEnabled;
-            model.AddressSettings.PhoneRequired = vendorSettings.PhoneRequired;
-            model.AddressSettings.StateProvinceEnabled = vendorSettings.StateProvinceEnabled;
-            model.AddressSettings.StreetAddress2Enabled = vendorSettings.StreetAddress2Enabled;
-            model.AddressSettings.StreetAddress2Required = vendorSettings.StreetAddress2Required;
-            model.AddressSettings.StreetAddressEnabled = vendorSettings.StreetAddressEnabled;
-            model.AddressSettings.StreetAddressRequired = vendorSettings.StreetAddressRequired;
-            model.AddressSettings.ZipPostalCodeEnabled = vendorSettings.ZipPostalCodeEnabled;
-            model.AddressSettings.ZipPostalCodeRequired = vendorSettings.ZipPostalCodeRequired;
+
             model.ActiveStore = storeScope;
 
             return View(model);
@@ -198,25 +173,9 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Vendor(VendorSettingsModel model)
         {
             //load settings for a chosen store scope
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var vendorSettings = _settingService.LoadSetting<VendorSettings>(storeScope);
             vendorSettings = model.ToEntity(vendorSettings);
-            vendorSettings.CityEnabled = model.AddressSettings.CityEnabled;
-            vendorSettings.CityRequired = model.AddressSettings.CityRequired;
-            vendorSettings.CompanyEnabled = model.AddressSettings.CompanyEnabled;
-            vendorSettings.CompanyRequired = model.AddressSettings.CompanyRequired;
-            vendorSettings.CountryEnabled = model.AddressSettings.CountryEnabled;
-            vendorSettings.FaxEnabled = model.AddressSettings.FaxEnabled;
-            vendorSettings.FaxRequired = model.AddressSettings.FaxRequired;
-            vendorSettings.PhoneEnabled = model.AddressSettings.PhoneEnabled;
-            vendorSettings.PhoneRequired = model.AddressSettings.PhoneRequired;
-            vendorSettings.StateProvinceEnabled = model.AddressSettings.StateProvinceEnabled;
-            vendorSettings.StreetAddress2Enabled = model.AddressSettings.StreetAddress2Enabled;
-            vendorSettings.StreetAddress2Required = model.AddressSettings.StreetAddress2Required;
-            vendorSettings.StreetAddressEnabled = model.AddressSettings.StreetAddressEnabled;
-            vendorSettings.StreetAddressRequired = model.AddressSettings.StreetAddressRequired;
-            vendorSettings.ZipPostalCodeEnabled = model.AddressSettings.ZipPostalCodeEnabled;
-            vendorSettings.ZipPostalCodeRequired = model.AddressSettings.ZipPostalCodeRequired;
 
             await _settingService.SaveSetting(vendorSettings, storeScope);
 
@@ -224,7 +183,9 @@ namespace Grand.Web.Admin.Controllers
             await ClearCache();
 
             //activity log
-            await _customerActivityService.InsertActivity("EditSettings", "", _translationService.GetResource("ActivityLog.EditSettings"));
+            _ = _customerActivityService.InsertActivity("EditSettings", "",
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Vendor");
@@ -233,7 +194,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Catalog()
         {
             //load settings for a chosen store scope
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var catalogSettings = _settingService.LoadSetting<CatalogSettings>(storeScope);
             var model = catalogSettings.ToModel();
             model.ActiveStore = storeScope;
@@ -243,7 +204,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Catalog(CatalogSettingsModel model)
         {
             //load settings for a chosen store scope
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var catalogSettings = _settingService.LoadSetting<CatalogSettings>(storeScope);
             catalogSettings = model.ToEntity(catalogSettings);
 
@@ -253,7 +214,9 @@ namespace Grand.Web.Admin.Controllers
             await ClearCache();
 
             //activity log
-            await _customerActivityService.InsertActivity("EditSettings", "", _translationService.GetResource("ActivityLog.EditSettings"));
+            _ = _customerActivityService.InsertActivity("EditSettings", "",
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
 
@@ -268,7 +231,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> SortOptionsList(DataSourceRequest command)
         {
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var catalogSettings = _settingService.LoadSetting<CatalogSettings>(storeScope);
             var model = new List<SortOptionModel>();
             foreach (int option in Enum.GetValues(typeof(ProductSortingEnum)))
@@ -290,7 +253,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> SortOptionUpdate(SortOptionModel model)
         {
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var catalogSettings = _settingService.LoadSetting<CatalogSettings>(storeScope);
 
             catalogSettings.ProductSortingEnumDisplayOrder[model.Id] = model.DisplayOrder;
@@ -311,7 +274,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Sales()
         {
             //load settings for a chosen store scope
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var loyaltyPointsSettings = _settingService.LoadSetting<LoyaltyPointsSettings>(storeScope);
             var orderSettings = _settingService.LoadSetting<OrderSettings>(storeScope);
             var shoppingCartSettings = _settingService.LoadSetting<ShoppingCartSettings>(storeScope);
@@ -345,7 +308,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Sales(SalesSettingsModel model)
         {
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
 
             if (ModelState.IsValid)
             {
@@ -380,7 +343,9 @@ namespace Grand.Web.Admin.Controllers
             await ClearCache();
 
             //activity log
-            await _customerActivityService.InsertActivity("EditSettings", "", _translationService.GetResource("ActivityLog.EditSettings"));
+            _ = _customerActivityService.InsertActivity("EditSettings", "",
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Sales");
@@ -587,13 +552,11 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Media()
         {
             //load settings for a chosen store scope
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var mediaSettings = _settingService.LoadSetting<MediaSettings>(storeScope);
             var model = mediaSettings.ToModel();
             model.ActiveStore = storeScope;
 
-            var mediaStoreSetting = _settingService.LoadSetting<MediaSettings>("");
-            model.PicturesStoredIntoDatabase = mediaStoreSetting.StoreInDb;
             return View(model);
         }
 
@@ -601,10 +564,12 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Media(MediaSettingsModel model)
         {
             //load settings for a chosen store scope
-            var mediaSettings = _settingService.LoadSetting<MediaSettings>();
+            var storeScope = await GetActiveStore();
+
+            var mediaSettings = _settingService.LoadSetting<MediaSettings>(storeScope);
             mediaSettings = model.ToEntity(mediaSettings);
 
-            await _settingService.SaveSetting(mediaSettings);
+            await _settingService.SaveSetting(mediaSettings, storeScope);
 
             //now clear cache
             await ClearCache();
@@ -613,56 +578,9 @@ namespace Grand.Web.Admin.Controllers
             await _pictureService.ClearThumbs();
 
             //activity log
-            await _customerActivityService.InsertActivity("EditSettings", "", _translationService.GetResource("ActivityLog.EditSettings"));
-
-            Success(_translationService.GetResource("Admin.Configuration.Updated"));
-            return RedirectToAction("Media");
-        }
-        [HttpPost]
-        public async Task<IActionResult> ChangePictureStorage()
-        {
-            var mediaSettings = _settingService.LoadSetting<MediaSettings>();
-            var storeIdDb = !mediaSettings.StoreInDb;
-            mediaSettings.StoreInDb = storeIdDb;
-
-            //save the new setting value
-            await _settingService.SaveSetting(mediaSettings);
-
-            int pageIndex = 0;
-            const int pageSize = 100;
-            try
-            {
-                while (true)
-                {
-                    var pictures = _pictureService.GetPictures(pageIndex, pageSize);
-                    pageIndex++;
-                    if (!pictures.Any())
-                        break;
-
-                    foreach (var picture in pictures)
-                    {
-                        var pictureBinary = await _pictureService.LoadPictureBinary(picture, !storeIdDb);
-                        if (storeIdDb)
-                            await _pictureService.DeletePictureOnFileSystem(picture);
-                        else
-                            //now on file system
-                            await _pictureService.SavePictureInFile(picture.Id, pictureBinary, picture.MimeType);
-                        picture.PictureBinary = storeIdDb ? pictureBinary : new byte[0];
-                        picture.IsNew = true;
-
-                        await _pictureService.UpdatePicture(picture);
-                    }
-                }
-            }
-            finally
-            {
-            }
-
-            //activity log
-            await _customerActivityService.InsertActivity("EditSettings", "", _translationService.GetResource("ActivityLog.EditSettings"));
-
-            //now clear cache
-            await ClearCache();
+            _ = _customerActivityService.InsertActivity("EditSettings", "",
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Media");
@@ -670,7 +588,7 @@ namespace Grand.Web.Admin.Controllers
 
         public async Task<IActionResult> Customer()
         {
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var customerSettings = _settingService.LoadSetting<CustomerSettings>(storeScope);
             var addressSettings = _settingService.LoadSetting<AddressSettings>(storeScope);
 
@@ -685,7 +603,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Customer(CustomerSettingsModel model)
         {
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var customerSettings = _settingService.LoadSetting<CustomerSettings>(storeScope);
             var addressSettings = _settingService.LoadSetting<AddressSettings>(storeScope);
 
@@ -699,7 +617,9 @@ namespace Grand.Web.Admin.Controllers
             await ClearCache();
 
             //activity log
-            await _customerActivityService.InsertActivity("EditSettings", "", _translationService.GetResource("ActivityLog.EditSettings"));
+            _ = _customerActivityService.InsertActivity("EditSettings", "",
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
 
@@ -708,20 +628,16 @@ namespace Grand.Web.Admin.Controllers
 
             return RedirectToAction("Customer");
         }
+
         public async Task<IActionResult> GeneralCommon()
         {
             var model = new GeneralCommonSettingsModel();
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             model.ActiveStore = storeScope;
-            //store information
-            var storeInformationSettings = _settingService.LoadSetting<StoreInformationSettings>(storeScope);
-            var commonSettings = _settingService.LoadSetting<CommonSettings>(storeScope);
-            var googleAnalyticsSettings = _settingService.LoadSetting<GoogleAnalyticsSettings>(storeScope);
-            var adminareasettings = _settingService.LoadSetting<AdminAreaSettings>(storeScope);
+            //datettime settings
             var dateTimeSettings = _settingService.LoadSetting<DateTimeSettings>(storeScope);
-
             model.DateTimeSettings.DefaultStoreTimeZoneId = dateTimeSettings.DefaultStoreTimeZoneId;
-            var iswindows = Grand.Infrastructure.OperatingSystem.IsWindows();
+            var iswindows = Infrastructure.OperatingSystem.IsWindows();
             foreach (TimeZoneInfo timeZone in _dateTimeService.GetSystemTimeZones())
             {
                 var name = iswindows ? timeZone.DisplayName : $"{timeZone.StandardName} ({timeZone.Id})";
@@ -731,73 +647,28 @@ namespace Grand.Web.Admin.Controllers
                     Selected = timeZone.Id.Equals(dateTimeSettings.DefaultStoreTimeZoneId, StringComparison.OrdinalIgnoreCase)
                 });
             }
+            //store information
+            var storeInformationSettings = _settingService.LoadSetting<StoreInformationSettings>(storeScope);
+            model.StoreInformationSettings = storeInformationSettings.ToModel();
 
-            model.StoreInformationSettings.StoreClosed = storeInformationSettings.StoreClosed;
-
-            //themes
-            model.StoreInformationSettings.DefaultStoreTheme = storeInformationSettings.DefaultStoreTheme;
             model.StoreInformationSettings.AvailableStoreThemes = _themeProvider
                 .GetConfigurations()
-                .Select(x => new GeneralCommonSettingsModel.StoreInformationSettingsModel.ThemeConfigurationModel {
-                    ThemeTitle = x.Title,
-                    ThemeName = x.Name,
-                    ThemeVersion = x.Version,
-                    PreviewImageUrl = x.PreviewImageUrl,
-                    PreviewText = x.PreviewText,
-                    SupportRtl = x.SupportRtl,
-                    Selected = x.Name.Equals(storeInformationSettings.DefaultStoreTheme, StringComparison.OrdinalIgnoreCase)
-                })
-                .ToList();
-            model.StoreInformationSettings.AllowCustomerToSelectTheme = storeInformationSettings.AllowCustomerToSelectTheme;
-            model.StoreInformationSettings.AllowToSelectAdminTheme = storeInformationSettings.AllowToSelectAdminTheme;
-
-            model.StoreInformationSettings.LogoPicture = storeInformationSettings.LogoPicture;
-            //EU Cookie law
-            model.StoreInformationSettings.DisplayCookieInformation = storeInformationSettings.DisplayCookieInformation;
-            model.StoreInformationSettings.DisplayPrivacyPreference = storeInformationSettings.DisplayPrivacyPreference;
-            //social pages
-            model.StoreInformationSettings.FacebookLink = storeInformationSettings.FacebookLink;
-            model.StoreInformationSettings.TwitterLink = storeInformationSettings.TwitterLink;
-            model.StoreInformationSettings.YoutubeLink = storeInformationSettings.YoutubeLink;
-            model.StoreInformationSettings.InstagramLink = storeInformationSettings.InstagramLink;
-            model.StoreInformationSettings.LinkedInLink = storeInformationSettings.LinkedInLink;
-            model.StoreInformationSettings.PinterestLink = storeInformationSettings.PinterestLink;
+                .Select(x => x.ToModel(storeInformationSettings.DefaultStoreTheme)).ToList();
 
             //common
-            model.StoreInformationSettings.StoreInDatabaseContactUsForm = commonSettings.StoreInDatabaseContactUsForm;
-            model.StoreInformationSettings.SubjectFieldOnContactUsForm = commonSettings.SubjectFieldOnContactUsForm;
-            model.StoreInformationSettings.UseSystemEmailForContactUsForm = commonSettings.UseSystemEmailForContactUsForm;
-            model.StoreInformationSettings.SitemapEnabled = commonSettings.SitemapEnabled;
-            model.StoreInformationSettings.SitemapIncludeCategories = commonSettings.SitemapIncludeCategories;
-            model.StoreInformationSettings.SitemapIncludeImage = commonSettings.SitemapIncludeBrands;
-            model.StoreInformationSettings.SitemapIncludeBrands = commonSettings.SitemapIncludeBrands;
-            model.StoreInformationSettings.SitemapIncludeProducts = commonSettings.SitemapIncludeProducts;
-            model.StoreInformationSettings.AllowToSelectStore = commonSettings.AllowToSelectStore;
-            model.StoreInformationSettings.AllowToReadLetsEncryptFile = commonSettings.AllowToReadLetsEncryptFile;
-            model.StoreInformationSettings.Log404Errors = commonSettings.Log404Errors;
-            model.StoreInformationSettings.PopupForTermsOfServiceLinks = commonSettings.PopupForTermsOfServiceLinks;
+            var commonSettings = _settingService.LoadSetting<CommonSettings>(storeScope);
+            model.CommonSettings = commonSettings.ToModel();
 
             //seo settings
             var seoSettings = _settingService.LoadSetting<SeoSettings>(storeScope);
-            model.SeoSettings.PageTitleSeparator = seoSettings.PageTitleSeparator;
-            model.SeoSettings.PageTitleSeoAdjustment = seoSettings.PageTitleSeoAdjustment;
-            model.SeoSettings.DefaultTitle = seoSettings.DefaultTitle;
-            model.SeoSettings.DefaultMetaKeywords = seoSettings.DefaultMetaKeywords;
-            model.SeoSettings.DefaultMetaDescription = seoSettings.DefaultMetaDescription;
-            model.SeoSettings.GenerateProductMetaDescription = seoSettings.GenerateProductMetaDescription;
-            model.SeoSettings.ConvertNonWesternChars = seoSettings.ConvertNonWesternChars;
-            model.SeoSettings.SeoCharConversion = seoSettings.SeoCharConversion;
-            model.SeoSettings.CanonicalUrlsEnabled = seoSettings.CanonicalUrlsEnabled;
-            model.SeoSettings.TwitterMetaTags = seoSettings.TwitterMetaTags;
-            model.SeoSettings.OpenGraphMetaTags = seoSettings.OpenGraphMetaTags;
-            model.SeoSettings.StorePictureId = seoSettings.StorePictureId;
-            model.SeoSettings.AllowSlashChar = seoSettings.AllowSlashChar;
-            model.SeoSettings.AllowUnicodeCharsInUrls = seoSettings.AllowUnicodeCharsInUrls;
-            model.SeoSettings.CustomHeadTags = seoSettings.CustomHeadTags;
+            model.SeoSettings = seoSettings.ToModel();
 
             //security settings
             var securitySettings = _settingService.LoadSetting<SecuritySettings>(storeScope);
+            //captcha settings
             var captchaSettings = _settingService.LoadSetting<CaptchaSettings>(storeScope);
+            model.SecuritySettings = captchaSettings.ToModel();
+
             if (securitySettings.AdminAreaAllowedIpAddresses != null)
                 for (int i = 0; i < securitySettings.AdminAreaAllowedIpAddresses.Count; i++)
                 {
@@ -805,44 +676,20 @@ namespace Grand.Web.Admin.Controllers
                     if (i != securitySettings.AdminAreaAllowedIpAddresses.Count - 1)
                         model.SecuritySettings.AdminAreaAllowedIpAddresses += ",";
                 }
-            model.SecuritySettings.CaptchaEnabled = captchaSettings.Enabled;
-            model.SecuritySettings.CaptchaShowOnLoginPage = captchaSettings.ShowOnLoginPage;
-            model.SecuritySettings.CaptchaShowOnRegistrationPage = captchaSettings.ShowOnRegistrationPage;
-            model.SecuritySettings.CaptchaShowOnPasswordRecoveryPage = captchaSettings.ShowOnPasswordRecoveryPage;
-            model.SecuritySettings.CaptchaShowOnContactUsPage = captchaSettings.ShowOnContactUsPage;
-            model.SecuritySettings.CaptchaShowOnEmailWishlistToFriendPage = captchaSettings.ShowOnEmailWishlistToFriendPage;
-            model.SecuritySettings.CaptchaShowOnEmailProductToFriendPage = captchaSettings.ShowOnEmailProductToFriendPage;
-            model.SecuritySettings.CaptchaShowOnAskQuestionPage = captchaSettings.ShowOnAskQuestionPage;
-            model.SecuritySettings.CaptchaShowOnBlogCommentPage = captchaSettings.ShowOnBlogCommentPage;
-            model.SecuritySettings.CaptchaShowOnArticleCommentPage = captchaSettings.ShowOnArticleCommentPage;
-            model.SecuritySettings.CaptchaShowOnNewsCommentPage = captchaSettings.ShowOnNewsCommentPage;
-            model.SecuritySettings.CaptchaShowOnProductReviewPage = captchaSettings.ShowOnProductReviewPage;
-            model.SecuritySettings.CaptchaShowOnApplyVendorPage = captchaSettings.ShowOnApplyVendorPage;
-            model.SecuritySettings.ReCaptchaVersion = captchaSettings.ReCaptchaVersion;
+
             model.SecuritySettings.AvailableReCaptchaVersions = GoogleReCaptchaVersion.V2.ToSelectList(HttpContext, false).ToList();
-            model.SecuritySettings.ReCaptchaPublicKey = captchaSettings.ReCaptchaPublicKey;
-            model.SecuritySettings.ReCaptchaPrivateKey = captchaSettings.ReCaptchaPrivateKey;
 
             //PDF settings
             var pdfSettings = _settingService.LoadSetting<PdfSettings>(storeScope);
-            model.PdfSettings.LogoPictureId = pdfSettings.LogoPictureId;
-            model.PdfSettings.DisablePdfInvoicesForPendingOrders = pdfSettings.DisablePdfInvoicesForPendingOrders;
-            model.PdfSettings.InvoiceHeaderText = pdfSettings.InvoiceHeaderText;
-            model.PdfSettings.InvoiceFooterText = pdfSettings.InvoiceFooterText;
+            model.PdfSettings = pdfSettings.ToModel();
 
             //google analytics
-            model.GoogleAnalyticsSettings.GaprivateKey = googleAnalyticsSettings.gaprivateKey;
-            model.GoogleAnalyticsSettings.GaserviceAccountEmail = googleAnalyticsSettings.gaserviceAccountEmail;
-            model.GoogleAnalyticsSettings.GaviewID = googleAnalyticsSettings.gaviewID;
+            var googleAnalyticsSettings = _settingService.LoadSetting<GoogleAnalyticsSettings>(storeScope);
+            model.GoogleAnalyticsSettings = googleAnalyticsSettings.ToModel();
 
             //display menu settings
             var displayMenuItemSettings = _settingService.LoadSetting<MenuItemSettings>(storeScope);
-            model.DisplayMenuSettings.DisplayHomePageMenu = displayMenuItemSettings.DisplayHomePageMenu;
-            model.DisplayMenuSettings.DisplayNewProductsMenu = displayMenuItemSettings.DisplayNewProductsMenu;
-            model.DisplayMenuSettings.DisplaySearchMenu = displayMenuItemSettings.DisplaySearchMenu;
-            model.DisplayMenuSettings.DisplayCustomerMenu = displayMenuItemSettings.DisplayCustomerMenu;
-            model.DisplayMenuSettings.DisplayBlogMenu = displayMenuItemSettings.DisplayBlogMenu;
-            model.DisplayMenuSettings.DisplayContactUsMenu = displayMenuItemSettings.DisplayContactUsMenu;
+            model.DisplayMenuSettings = displayMenuItemSettings.ToModel();
 
             return View(model);
         }
@@ -851,101 +698,47 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> GeneralCommon(GeneralCommonSettingsModel model)
         {
             //load settings for a chosen store scope
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
 
             //store information settings
             var storeInformationSettings = _settingService.LoadSetting<StoreInformationSettings>(storeScope);
-            var commonSettings = _settingService.LoadSetting<CommonSettings>(storeScope);
-
-            storeInformationSettings.StoreClosed = model.StoreInformationSettings.StoreClosed;
-            storeInformationSettings.DefaultStoreTheme = model.StoreInformationSettings.DefaultStoreTheme;
-            storeInformationSettings.AllowCustomerToSelectTheme = model.StoreInformationSettings.AllowCustomerToSelectTheme;
-            storeInformationSettings.AllowToSelectAdminTheme = model.StoreInformationSettings.AllowToSelectAdminTheme;
-            storeInformationSettings.LogoPicture = model.StoreInformationSettings.LogoPicture;
-            //EU Cookie law
-            storeInformationSettings.DisplayCookieInformation = model.StoreInformationSettings.DisplayCookieInformation;
-            storeInformationSettings.DisplayPrivacyPreference = model.StoreInformationSettings.DisplayPrivacyPreference;
-            //social pages
-            storeInformationSettings.FacebookLink = model.StoreInformationSettings.FacebookLink;
-            storeInformationSettings.TwitterLink = model.StoreInformationSettings.TwitterLink;
-            storeInformationSettings.YoutubeLink = model.StoreInformationSettings.YoutubeLink;
-            storeInformationSettings.InstagramLink = model.StoreInformationSettings.InstagramLink;
-            storeInformationSettings.LinkedInLink = model.StoreInformationSettings.LinkedInLink;
-            storeInformationSettings.PinterestLink = model.StoreInformationSettings.PinterestLink;
-
+            storeInformationSettings = model.StoreInformationSettings.ToEntity(storeInformationSettings);
             await _settingService.SaveSetting(storeInformationSettings, storeScope);
 
+            //datetime settings
             var dateTimeSettings = _settingService.LoadSetting<DateTimeSettings>(storeScope);
             dateTimeSettings.DefaultStoreTimeZoneId = model.DateTimeSettings.DefaultStoreTimeZoneId;
             await _settingService.SaveSetting(dateTimeSettings, storeScope);
 
-            //contact us
-            commonSettings.StoreInDatabaseContactUsForm = model.StoreInformationSettings.StoreInDatabaseContactUsForm;
-            commonSettings.SubjectFieldOnContactUsForm = model.StoreInformationSettings.SubjectFieldOnContactUsForm;
-            commonSettings.UseSystemEmailForContactUsForm = model.StoreInformationSettings.UseSystemEmailForContactUsForm;
-            commonSettings.SitemapEnabled = model.StoreInformationSettings.SitemapEnabled;
-            commonSettings.SitemapIncludeCategories = model.StoreInformationSettings.SitemapIncludeCategories;
-            commonSettings.SitemapIncludeImage = model.StoreInformationSettings.SitemapIncludeImage;
-            commonSettings.SitemapIncludeBrands = model.StoreInformationSettings.SitemapIncludeBrands;
-            commonSettings.SitemapIncludeProducts = model.StoreInformationSettings.SitemapIncludeProducts;
-            commonSettings.AllowToSelectStore = model.StoreInformationSettings.AllowToSelectStore;
-            commonSettings.AllowToReadLetsEncryptFile = model.StoreInformationSettings.AllowToReadLetsEncryptFile;
-            commonSettings.Log404Errors = model.StoreInformationSettings.Log404Errors;
-            commonSettings.PopupForTermsOfServiceLinks = model.StoreInformationSettings.PopupForTermsOfServiceLinks;
-
+            //common settings
+            var commonSettings = _settingService.LoadSetting<CommonSettings>(storeScope);
+            commonSettings = model.CommonSettings.ToEntity(commonSettings);
             await _settingService.SaveSetting(commonSettings, storeScope);
 
             //seo settings
             var seoSettings = _settingService.LoadSetting<SeoSettings>(storeScope);
-            seoSettings.PageTitleSeparator = model.SeoSettings.PageTitleSeparator;
-            seoSettings.PageTitleSeoAdjustment = model.SeoSettings.PageTitleSeoAdjustment;
-            seoSettings.DefaultTitle = model.SeoSettings.DefaultTitle;
-            seoSettings.DefaultMetaKeywords = model.SeoSettings.DefaultMetaKeywords;
-            seoSettings.DefaultMetaDescription = model.SeoSettings.DefaultMetaDescription;
-            seoSettings.GenerateProductMetaDescription = model.SeoSettings.GenerateProductMetaDescription;
-            seoSettings.ConvertNonWesternChars = model.SeoSettings.ConvertNonWesternChars;
-            seoSettings.SeoCharConversion = model.SeoSettings.SeoCharConversion;
-            seoSettings.CanonicalUrlsEnabled = model.SeoSettings.CanonicalUrlsEnabled;
-            seoSettings.TwitterMetaTags = model.SeoSettings.TwitterMetaTags;
-            seoSettings.OpenGraphMetaTags = model.SeoSettings.OpenGraphMetaTags;
-            seoSettings.StorePictureId = model.SeoSettings.StorePictureId;
-            seoSettings.AllowSlashChar = model.SeoSettings.AllowSlashChar;
-            seoSettings.AllowUnicodeCharsInUrls = model.SeoSettings.AllowUnicodeCharsInUrls;
-            seoSettings.CustomHeadTags = model.SeoSettings.CustomHeadTags;
-
+            seoSettings = model.SeoSettings.ToEntity(seoSettings);
             await _settingService.SaveSetting(seoSettings, storeScope);
 
             //security settings
             var securitySettings = _settingService.LoadSetting<SecuritySettings>(storeScope);
-            var captchaSettings = _settingService.LoadSetting<CaptchaSettings>(storeScope);
+
             if (securitySettings.AdminAreaAllowedIpAddresses == null)
                 securitySettings.AdminAreaAllowedIpAddresses = new List<string>();
             securitySettings.AdminAreaAllowedIpAddresses.Clear();
-            if (!String.IsNullOrEmpty(model.SecuritySettings.AdminAreaAllowedIpAddresses))
-                foreach (string s in model.SecuritySettings.AdminAreaAllowedIpAddresses.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    if (!String.IsNullOrWhiteSpace(s))
+            if (!string.IsNullOrEmpty(model.SecuritySettings.AdminAreaAllowedIpAddresses))
+                foreach (var s in model.SecuritySettings.AdminAreaAllowedIpAddresses.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    if (!string.IsNullOrWhiteSpace(s))
                         securitySettings.AdminAreaAllowedIpAddresses.Add(s.Trim());
 
             await _settingService.SaveSetting(securitySettings);
-            captchaSettings.Enabled = model.SecuritySettings.CaptchaEnabled;
-            captchaSettings.ShowOnLoginPage = model.SecuritySettings.CaptchaShowOnLoginPage;
-            captchaSettings.ShowOnRegistrationPage = model.SecuritySettings.CaptchaShowOnRegistrationPage;
-            captchaSettings.ShowOnPasswordRecoveryPage = model.SecuritySettings.CaptchaShowOnPasswordRecoveryPage;
-            captchaSettings.ShowOnContactUsPage = model.SecuritySettings.CaptchaShowOnContactUsPage;
-            captchaSettings.ShowOnEmailWishlistToFriendPage = model.SecuritySettings.CaptchaShowOnEmailWishlistToFriendPage;
-            captchaSettings.ShowOnAskQuestionPage = model.SecuritySettings.CaptchaShowOnAskQuestionPage;
-            captchaSettings.ShowOnEmailProductToFriendPage = model.SecuritySettings.CaptchaShowOnEmailProductToFriendPage;
-            captchaSettings.ShowOnBlogCommentPage = model.SecuritySettings.CaptchaShowOnBlogCommentPage;
-            captchaSettings.ShowOnArticleCommentPage = model.SecuritySettings.CaptchaShowOnArticleCommentPage;
-            captchaSettings.ShowOnNewsCommentPage = model.SecuritySettings.CaptchaShowOnNewsCommentPage;
-            captchaSettings.ShowOnProductReviewPage = model.SecuritySettings.CaptchaShowOnProductReviewPage;
-            captchaSettings.ShowOnApplyVendorPage = model.SecuritySettings.CaptchaShowOnApplyVendorPage;
-            captchaSettings.ReCaptchaVersion = model.SecuritySettings.ReCaptchaVersion;
-            captchaSettings.ReCaptchaPublicKey = model.SecuritySettings.ReCaptchaPublicKey;
-            captchaSettings.ReCaptchaPrivateKey = model.SecuritySettings.ReCaptchaPrivateKey;
+
+            //captcha settings
+            var captchaSettings = _settingService.LoadSetting<CaptchaSettings>(storeScope);
+            captchaSettings = model.SecuritySettings.ToEntity(captchaSettings);
             await _settingService.SaveSetting(captchaSettings);
             if (captchaSettings.Enabled &&
-                (String.IsNullOrWhiteSpace(captchaSettings.ReCaptchaPublicKey) || String.IsNullOrWhiteSpace(captchaSettings.ReCaptchaPrivateKey)))
+                (string.IsNullOrWhiteSpace(captchaSettings.ReCaptchaPublicKey) || string.IsNullOrWhiteSpace(captchaSettings.ReCaptchaPrivateKey)))
             {
                 //captcha is enabled but the keys are not entered
                 Error("Captcha is enabled but the appropriate keys are not entered");
@@ -953,41 +746,26 @@ namespace Grand.Web.Admin.Controllers
 
             //PDF settings
             var pdfSettings = _settingService.LoadSetting<PdfSettings>(storeScope);
-            pdfSettings.LogoPictureId = model.PdfSettings.LogoPictureId;
-            pdfSettings.DisablePdfInvoicesForPendingOrders = model.PdfSettings.DisablePdfInvoicesForPendingOrders;
-            pdfSettings.InvoiceHeaderText = model.PdfSettings.InvoiceHeaderText;
-            pdfSettings.InvoiceFooterText = model.PdfSettings.InvoiceFooterText;
+            pdfSettings = model.PdfSettings.ToEntity(pdfSettings);
             await _settingService.SaveSetting(pdfSettings, storeScope);
-
-            //admin settings
-            var adminareasettings = _settingService.LoadSetting<AdminAreaSettings>(storeScope);
-
-            await _settingService.SaveSetting(adminareasettings);
 
             //googleanalytics settings
             var googleAnalyticsSettings = _settingService.LoadSetting<GoogleAnalyticsSettings>(storeScope);
-            googleAnalyticsSettings.gaprivateKey = model.GoogleAnalyticsSettings.GaprivateKey;
-            googleAnalyticsSettings.gaserviceAccountEmail = model.GoogleAnalyticsSettings.GaserviceAccountEmail;
-            googleAnalyticsSettings.gaviewID = model.GoogleAnalyticsSettings.GaviewID;
-
+            googleAnalyticsSettings = model.GoogleAnalyticsSettings.ToEntity(googleAnalyticsSettings);
             await _settingService.SaveSetting(googleAnalyticsSettings, storeScope);
 
-            //Menu item settings
+            //menu item settings
             var displayMenuItemSettings = _settingService.LoadSetting<MenuItemSettings>(storeScope);
-            displayMenuItemSettings.DisplayHomePageMenu = model.DisplayMenuSettings.DisplayHomePageMenu;
-            displayMenuItemSettings.DisplayNewProductsMenu = model.DisplayMenuSettings.DisplayNewProductsMenu;
-            displayMenuItemSettings.DisplaySearchMenu = model.DisplayMenuSettings.DisplaySearchMenu;
-            displayMenuItemSettings.DisplayCustomerMenu = model.DisplayMenuSettings.DisplayCustomerMenu;
-            displayMenuItemSettings.DisplayBlogMenu = model.DisplayMenuSettings.DisplayBlogMenu;
-            displayMenuItemSettings.DisplayContactUsMenu = model.DisplayMenuSettings.DisplayContactUsMenu;
-
+            displayMenuItemSettings = model.DisplayMenuSettings.ToEntity(displayMenuItemSettings);
             await _settingService.SaveSetting(displayMenuItemSettings, storeScope);
 
             //now clear cache
             await ClearCache();
 
             //activity log
-            await _customerActivityService.InsertActivity("EditSettings", "", _translationService.GetResource("ActivityLog.EditSettings"));
+            _ = _customerActivityService.InsertActivity("EditSettings", "",
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
 
@@ -999,41 +777,20 @@ namespace Grand.Web.Admin.Controllers
 
         public async Task<IActionResult> PushNotifications()
         {
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var settings = _settingService.LoadSetting<PushNotificationsSettings>(storeScope);
-
-            var model = new ConfigurationModel {
-                AllowGuestNotifications = settings.AllowGuestNotifications,
-                AuthDomain = settings.AuthDomain,
-                DatabaseUrl = settings.DatabaseUrl,
-                ProjectId = settings.ProjectId,
-                PushApiKey = settings.PublicApiKey,
-                SenderId = settings.SenderId,
-                StorageBucket = settings.StorageBucket,
-                PrivateApiKey = settings.PrivateApiKey,
-                AppId = settings.AppId,
-                Enabled = settings.Enabled
-            };
+            var model = settings.ToModel();
 
             return View(model);
         }
 
         [HttpPost]
-        [IgnoreAntiforgeryToken]
-        public async Task<IActionResult> PushNotifications(ConfigurationModel model)
+        public async Task<IActionResult> PushNotifications(PushNotificationsSettingsModel model)
         {
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var settings = _settingService.LoadSetting<PushNotificationsSettings>(storeScope);
-            settings.AllowGuestNotifications = model.AllowGuestNotifications;
-            settings.AuthDomain = model.AuthDomain;
-            settings.DatabaseUrl = model.DatabaseUrl;
-            settings.ProjectId = model.ProjectId;
-            settings.PublicApiKey = model.PushApiKey;
-            settings.SenderId = model.SenderId;
-            settings.StorageBucket = model.StorageBucket;
-            settings.PrivateApiKey = model.PrivateApiKey;
-            settings.AppId = model.AppId;
-            settings.Enabled = model.Enabled;
+            settings = model.ToEntity(settings);
+
             await _settingService.SaveSetting(settings);
 
             //now clear cache
@@ -1046,7 +803,7 @@ namespace Grand.Web.Admin.Controllers
             return await PushNotifications();
         }
 
-        private void SavePushNotificationsToFile(ConfigurationModel model)
+        private void SavePushNotificationsToFile(PushNotificationsSettingsModel model)
         {
             //edit js file needed by firebase
             var filename = "firebase-messaging-sw.js";
@@ -1055,7 +812,6 @@ namespace Grand.Web.Admin.Controllers
             if (System.IO.File.Exists(oryginalFilePath))
             {
                 string[] lines = System.IO.File.ReadAllLines(oryginalFilePath);
-
                 int i = 0;
                 foreach (var line in lines)
                 {
@@ -1063,37 +819,30 @@ namespace Grand.Web.Admin.Controllers
                     {
                         lines[i] = "apiKey: \"" + model.PushApiKey + "\",";
                     }
-
                     if (line.Contains("authDomain"))
                     {
                         lines[i] = "authDomain: \"" + model.AuthDomain + "\",";
                     }
-
                     if (line.Contains("databaseURL"))
                     {
                         lines[i] = "databaseURL: \"" + model.DatabaseUrl + "\",";
                     }
-
                     if (line.Contains("projectId"))
                     {
                         lines[i] = "projectId: \"" + model.ProjectId + "\",";
                     }
-
                     if (line.Contains("storageBucket"))
                     {
                         lines[i] = "storageBucket: \"" + model.StorageBucket + "\",";
                     }
-
                     if (line.Contains("messagingSenderId"))
                     {
                         lines[i] = "messagingSenderId: \"" + model.SenderId + "\",";
                     }
-
                     if (line.Contains("appId"))
                     {
                         lines[i] = "appId: \"" + model.AppId + "\",";
                     }
-
                     i++;
                 }
                 System.IO.File.WriteAllLines(savedFilePath, lines);
@@ -1102,71 +851,19 @@ namespace Grand.Web.Admin.Controllers
                 throw new ArgumentNullException($"{oryginalFilePath} not exist");
 
         }
+
         public IActionResult AdminSearch()
         {
             var settings = _settingService.LoadSetting<AdminSearchSettings>();
-            var model = new AdminSearchSettingsModel {
-                SearchInBlogs = settings.SearchInBlogs,
-                SearchInCategories = settings.SearchInCategories,
-                SearchInCustomers = settings.SearchInCustomers,
-                SearchInCollections = settings.SearchInCollections,
-                SearchInNews = settings.SearchInNews,
-                SearchInOrders = settings.SearchInOrders,
-                SearchInProducts = settings.SearchInProducts,
-                SearchInPages = settings.SearchInPages,
-                MinSearchTermLength = settings.MinSearchTermLength,
-                MaxSearchResultsCount = settings.MaxSearchResultsCount,
-                ProductsDisplayOrder = settings.ProductsDisplayOrder,
-                CategoriesDisplayOrder = settings.CategoriesDisplayOrder,
-                CollectionsDisplayOrder = settings.CollectionsDisplayOrder,
-                PagesDisplayOrder = settings.PagesDisplayOrder,
-                NewsDisplayOrder = settings.NewsDisplayOrder,
-                BlogsDisplayOrder = settings.BlogsDisplayOrder,
-                CustomersDisplayOrder = settings.CustomersDisplayOrder,
-                OrdersDisplayOrder = settings.OrdersDisplayOrder,
-                SearchInMenu = settings.SearchInMenu,
-                MenuDisplayOrder = settings.MenuDisplayOrder,
-                CategorySizeLimit = settings.CategorySizeLimit,
-                BrandSizeLimit = settings.BrandSizeLimit,
-                CollectionSizeLimit = settings.CollectionSizeLimit,
-                VendorSizeLimit = settings.VendorSizeLimit,
-                CustomerGroupSizeLimit = settings.CustomerGroupSizeLimit
-            };
-
+            var model = settings.ToModel();
             return View(model);
         }
 
         [HttpPost]
-        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> AdminSearch(AdminSearchSettingsModel model)
         {
             var settings = _settingService.LoadSetting<AdminSearchSettings>();
-            settings.SearchInBlogs = model.SearchInBlogs;
-            settings.SearchInCategories = model.SearchInCategories;
-            settings.SearchInCustomers = model.SearchInCustomers;
-            settings.SearchInCollections = model.SearchInCollections;
-            settings.SearchInNews = model.SearchInNews;
-            settings.SearchInOrders = model.SearchInOrders;
-            settings.SearchInProducts = model.SearchInProducts;
-            settings.SearchInPages = model.SearchInPages;
-            settings.MinSearchTermLength = model.MinSearchTermLength;
-            settings.MaxSearchResultsCount = model.MaxSearchResultsCount;
-            settings.ProductsDisplayOrder = model.ProductsDisplayOrder;
-            settings.CategoriesDisplayOrder = model.CategoriesDisplayOrder;
-            settings.CollectionsDisplayOrder = model.CollectionsDisplayOrder;
-            settings.PagesDisplayOrder = model.PagesDisplayOrder;
-            settings.NewsDisplayOrder = model.NewsDisplayOrder;
-            settings.BlogsDisplayOrder = model.BlogsDisplayOrder;
-            settings.CustomersDisplayOrder = model.CustomersDisplayOrder;
-            settings.OrdersDisplayOrder = model.OrdersDisplayOrder;
-            settings.SearchInMenu = model.SearchInMenu;
-            settings.MenuDisplayOrder = model.MenuDisplayOrder;
-            settings.CategorySizeLimit = model.CategorySizeLimit;
-            settings.BrandSizeLimit = model.BrandSizeLimit;
-            settings.CollectionSizeLimit = model.CollectionSizeLimit;
-            settings.VendorSizeLimit = model.VendorSizeLimit;
-            settings.CustomerGroupSizeLimit = model.CustomerGroupSizeLimit;
-
+            settings = model.ToEntity(settings);
             await _settingService.SaveSetting(settings);
 
             //now clear cache
@@ -1182,19 +879,24 @@ namespace Grand.Web.Admin.Controllers
         {
             var settings = _settingService.LoadSetting<SystemSettings>();
 
-            var model = new SystemSettingsModel();
+            var model = new SystemSettingsModel {
+                //order ident
+                OrderIdent = await _mediator.Send(new MaxOrderNumberCommand()),
+                //system settings
+                DaysToCancelUnpaidOrder = settings.DaysToCancelUnpaidOrder,
+                DeleteGuestTaskOlderThanMinutes = settings.DeleteGuestTaskOlderThanMinutes
+            };
 
-            //order ident
-            model.OrderIdent = await _mediator.Send(new MaxOrderNumberCommand());
-            //system settings
-            model.DaysToCancelUnpaidOrder = settings.DaysToCancelUnpaidOrder;
-            model.DeleteGuestTaskOlderThanMinutes = settings.DeleteGuestTaskOlderThanMinutes;
+            //storage settings
+            var storagesettings = _settingService.LoadSetting<StorageSettings>();
+            model.PicturesStoredIntoDatabase = storagesettings.PictureStoreInDb;
 
             //area admin settings
             var adminsettings = _settingService.LoadSetting<AdminAreaSettings>();
             model.DefaultGridPageSize = adminsettings.DefaultGridPageSize;
             model.GridPageSizes = adminsettings.GridPageSizes;
             model.UseIsoDateTimeConverterInJson = adminsettings.UseIsoDateTimeConverterInJson;
+            model.HideStoreColumn = adminsettings.HideStoreColumn;
 
             //language settings 
             var langsettings = _settingService.LoadSetting<LanguageSettings>();
@@ -1210,7 +912,6 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [HttpPost]
-        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> SystemSetting(SystemSettingsModel model)
         {
             //system 
@@ -1218,7 +919,6 @@ namespace Grand.Web.Admin.Controllers
             settings.DaysToCancelUnpaidOrder = model.DaysToCancelUnpaidOrder;
             settings.DeleteGuestTaskOlderThanMinutes = model.DeleteGuestTaskOlderThanMinutes;
             await _settingService.SaveSetting(settings);
-
 
             //order ident
             if (model.OrderIdent.HasValue && model.OrderIdent.Value > 0)
@@ -1231,9 +931,8 @@ namespace Grand.Web.Admin.Controllers
             adminAreaSettings.DefaultGridPageSize = model.DefaultGridPageSize;
             adminAreaSettings.GridPageSizes = model.GridPageSizes;
             adminAreaSettings.UseIsoDateTimeConverterInJson = model.UseIsoDateTimeConverterInJson;
-
+            adminAreaSettings.HideStoreColumn = model.HideStoreColumn;
             await _settingService.SaveSetting(adminAreaSettings);
-
 
             //language settings 
             var langsettings = _settingService.LoadSetting<LanguageSettings>();
@@ -1253,6 +952,68 @@ namespace Grand.Web.Admin.Controllers
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
 
             return await SystemSetting();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePictureStorage()
+        {
+            var storageSettings = _settingService.LoadSetting<StorageSettings>();
+            var storeIdDb = !storageSettings.PictureStoreInDb;
+            storageSettings.PictureStoreInDb = storeIdDb;
+
+            //save the new setting value
+            await _settingService.SaveSetting(storageSettings);
+
+            //save picture
+            await SavePictureStorage(storeIdDb);
+
+            //activity log
+            _ = _customerActivityService.InsertActivity("EditSettings", "",
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditSettings"));
+
+            //now clear cache
+            await ClearCache();
+
+            Success(_translationService.GetResource("Admin.Configuration.Updated"));
+            return RedirectToAction("SystemSetting");
+        }
+
+        private async Task SavePictureStorage(bool storeIdDb)
+        {
+            int pageIndex = 0;
+            const int pageSize = 100;
+            try
+            {
+                while (true)
+                {
+                    var pictures = _pictureService.GetPictures(pageIndex, pageSize);
+                    pageIndex++;
+                    if (!pictures.Any())
+                        break;
+
+                    foreach (var picture in pictures)
+                    {
+                        var pictureBinary = await _pictureService.LoadPictureBinary(picture, !storeIdDb);
+                        if (storeIdDb)
+                            await _pictureService.DeletePictureOnFileSystem(picture);
+                        else
+                        {
+                            //now on file system
+                            if (pictureBinary != null)
+                                await _pictureService.SavePictureInFile(picture.Id, pictureBinary, picture.MimeType);
+                        }
+                        picture.PictureBinary = storeIdDb ? pictureBinary : Array.Empty<byte>();
+                        picture.IsNew = true;
+
+                        await _pictureService.UpdatePicture(picture);
+                    }
+                }
+            }
+            finally
+            {
+            }
+
         }
         #endregion
 

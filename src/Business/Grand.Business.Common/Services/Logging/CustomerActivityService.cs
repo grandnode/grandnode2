@@ -3,11 +3,9 @@ using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Logging;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.SharedKernel.Extensions;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,9 +26,7 @@ namespace Grand.Business.Common.Services.Logging
         private readonly ICacheBase _cacheBase;
         private readonly IRepository<ActivityLog> _activityLogRepository;
         private readonly IRepository<ActivityLogType> _activityLogTypeRepository;
-        private readonly IWorkContext _workContext;
         private readonly IActivityKeywordsProvider _activityKeywordsProvider;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         #endregion
 
@@ -43,16 +39,12 @@ namespace Grand.Business.Common.Services.Logging
             ICacheBase cacheBase,
             IRepository<ActivityLog> activityLogRepository,
             IRepository<ActivityLogType> activityLogTypeRepository,
-            IWorkContext workContext,
-            IActivityKeywordsProvider activityKeywordsProvider,
-            IHttpContextAccessor httpContextAccessor)
+            IActivityKeywordsProvider activityKeywordsProvider)
         {
             _cacheBase = cacheBase;
             _activityLogRepository = activityLogRepository;
             _activityLogTypeRepository = activityLogTypeRepository;
-            _workContext = workContext;
             _activityKeywordsProvider = activityKeywordsProvider;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -64,13 +56,20 @@ namespace Grand.Business.Common.Services.Logging
         protected virtual async Task<IList<ActivityLogType>> GetAllActivityTypesCached()
         {
             //cache
-            string key = string.Format(CacheKey.ACTIVITYTYPE_ALL_KEY);
-            return await _cacheBase.GetAsync(key, async () =>
+            return await _cacheBase.GetAsync(CacheKey.ACTIVITYTYPE_ALL_KEY, async () =>
             {
                 return await GetAllActivityTypes();
             });
         }
 
+        /// <summary>
+        /// Gets all activity log types (caching)
+        /// </summary>
+        /// <returns>Activity log types</returns>
+        protected virtual IList<ActivityLogType> GetAllActivityTypesCachedSync()
+        {
+            return _cacheBase.Get(CacheKey.ACTIVITYTYPE_ALL_KEY, () => ActivityLogTypes().ToList());
+        }
 
         #region Methods
 
@@ -113,16 +112,22 @@ namespace Grand.Business.Common.Services.Logging
             await _cacheBase.RemoveByPrefix(CacheKey.ACTIVITYTYPE_PATTERN_KEY);
         }
 
+        private IQueryable<ActivityLogType> ActivityLogTypes()
+        {
+            var query = from alt in _activityLogTypeRepository.Table
+                        orderby alt.Name
+                        select alt;
+
+            return query;
+        }
+
         /// <summary>
         /// Gets all activity log type items
         /// </summary>
         /// <returns>Activity log type items</returns>
         public virtual async Task<IList<ActivityLogType>> GetAllActivityTypes()
-        {
-            var query = from alt in _activityLogTypeRepository.Table
-                        orderby alt.Name
-                        select alt;
-            return await Task.FromResult(query.ToList());
+        {            
+            return await Task.FromResult(ActivityLogTypes().ToList());
         }
 
         /// <summary>
@@ -143,31 +148,20 @@ namespace Grand.Business.Common.Services.Logging
         /// Inserts an activity log item
         /// </summary>
         /// <param name="systemKeyword">The system keyword</param>
-        /// <param name="comment">The activity comment</param>
-        /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
-        /// <returns>Activity log item</returns>
-        public virtual async Task InsertActivity(string systemKeyword, string entityKeyId,
-            string comment, params object[] commentParams)
-        {
-            await InsertActivity(systemKeyword, entityKeyId, comment, _workContext.CurrentCustomer, commentParams);
-        }
-
-        /// <summary>
-        /// Inserts an activity log item
-        /// </summary>
-        /// <param name="systemKeyword">The system keyword</param>
-        /// <param name="comment">The activity comment</param>
+        /// <param name="entityKeyId">Entity key ident</param>
         /// <param name="customer">The customer</param>
+        /// <param name="ipAddress">Ip address</param>
+        /// <param name="comment">The activity comment</param>
         /// <param name="commentParams">The activity comment parameters for string.Format() function.</param>
         /// <returns>Activity log item</returns>
-        public virtual async Task<ActivityLog> InsertActivity(string systemKeyword, string entityKeyId,
-            string comment, Customer customer, params object[] commentParams)
+        public virtual Task InsertActivity(string systemKeyword, string entityKeyId,
+            Customer customer, string ipAddress, string comment, params object[] commentParams)
         {
             if (customer == null)
                 return null;
 
-            var activityTypes = await GetAllActivityTypesCached();
-            var activityType = activityTypes.ToList().Find(at => at.SystemKeyword == systemKeyword);
+            var activityTypes = GetAllActivityTypesCachedSync();
+            var activityType = activityTypes.FirstOrDefault(at => at.SystemKeyword == systemKeyword);
             if (activityType == null || !activityType.Enabled)
                 return null;
 
@@ -175,16 +169,17 @@ namespace Grand.Business.Common.Services.Logging
             comment = string.Format(comment, commentParams);
             comment = CommonHelper.EnsureMaximumLength(comment, 4000);
 
-            var activity = new ActivityLog();
-            activity.ActivityLogTypeId = activityType.Id;
-            activity.CustomerId = customer.Id;
-            activity.EntityKeyId = entityKeyId;
-            activity.Comment = comment;
-            activity.CreatedOnUtc = DateTime.UtcNow;
-            activity.IpAddress = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
-            await _activityLogRepository.InsertAsync(activity);
+            var activity = new ActivityLog {
+                ActivityLogTypeId = activityType.Id,
+                CustomerId = customer.Id,
+                EntityKeyId = entityKeyId,
+                Comment = comment,
+                CreatedOnUtc = DateTime.UtcNow,
+                IpAddress = ipAddress
+            };
+            _activityLogRepository.InsertAsync(activity);
 
-            return activity;
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -259,7 +254,7 @@ namespace Grand.Business.Common.Services.Logging
             if (!String.IsNullOrEmpty(activityLogTypeId))
                 query = query.Where(al => activityLogTypeId == al.ActivityLogTypeId);
 
-            var gquery = query.GroupBy(key=> new { key.ActivityLogTypeId, key.EntityKeyId })
+            var gquery = query.GroupBy(key => new { key.ActivityLogTypeId, key.EntityKeyId })
                 .Select(g => new ActivityStats {
                     ActivityLogTypeId = g.Key.ActivityLogTypeId,
                     EntityKeyId = g.Key.EntityKeyId,

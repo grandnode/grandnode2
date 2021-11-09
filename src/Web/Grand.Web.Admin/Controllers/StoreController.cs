@@ -78,6 +78,9 @@ namespace Grand.Web.Admin.Controllers
             {
                 var store = await _storeViewModelService.InsertStoreModel(model);
                 Success(_translationService.GetResource("Admin.Configuration.Stores.Added"));
+                //selected tab
+                await SaveSelectedTabIndex();
+
                 return continueEditing ? RedirectToAction("Edit", new { id = store.Id }) : RedirectToAction("List");
             }
             //languages
@@ -132,6 +135,9 @@ namespace Grand.Web.Admin.Controllers
             {
                 store = await _storeViewModelService.UpdateStoreModel(store, model);
                 Success(_translationService.GetResource("Admin.Configuration.Stores.Updated"));
+                //selected tab
+                await SaveSelectedTabIndex();
+
                 return continueEditing ? RedirectToAction("Edit", new { id = store.Id }) : RedirectToAction("List");
             }
 

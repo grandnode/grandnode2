@@ -365,10 +365,10 @@ namespace Grand.Web.Common
         {
             Language language = null;
 
-            var adminAreaUrl = _httpContextAccessor.HttpContext.Request.Path.StartsWithSegments(new PathString("/Admin"));
-            var allStoreLanguages = await _languageService.GetAllLanguages(showHidden: adminAreaUrl);
+            var adminAreaUrl = _httpContextAccessor.HttpContext?.Request?.Path.StartsWithSegments(new PathString("/Admin"));
+            var allStoreLanguages = await _languageService.GetAllLanguages(showHidden: adminAreaUrl ?? false);
 
-            if (allStoreLanguages.Count() == 1)
+            if (allStoreLanguages.Count == 1)
                 return _cachedLanguage = allStoreLanguages.FirstOrDefault();
 
             if (_config.SeoFriendlyUrlsForLanguagesEnabled)
@@ -417,8 +417,8 @@ namespace Grand.Web.Common
         public virtual async Task<Currency> SetWorkingCurrency(Customer customer)
         {
             //return store currency when we're you are in admin panel
-            var adminAreaUrl = _httpContextAccessor.HttpContext.Request.Path.StartsWithSegments(new PathString("/Admin"));
-            if (adminAreaUrl)
+            var adminAreaUrl = _httpContextAccessor.HttpContext?.Request?.Path.StartsWithSegments(new PathString("/Admin"));
+            if (adminAreaUrl.HasValue && adminAreaUrl.Value)
             {
                 var primaryStoreCurrency = await _currencyService.GetPrimaryStoreCurrency();
                 if (primaryStoreCurrency != null)
@@ -429,7 +429,7 @@ namespace Grand.Web.Common
             }
             var allStoreCurrencies = await _currencyService.GetAllCurrencies(storeId: CurrentStore?.Id);
 
-            if (allStoreCurrencies.Count() == 1)
+            if (allStoreCurrencies.Count == 1)
                 return _cachedCurrency = allStoreCurrencies.FirstOrDefault();
 
             var customerCurrencyId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.CurrencyId, CurrentStore.Id);

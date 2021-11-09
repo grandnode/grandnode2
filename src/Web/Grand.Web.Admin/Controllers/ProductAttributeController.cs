@@ -110,7 +110,9 @@ namespace Grand.Web.Admin.Controllers
                 await _productAttributeService.InsertProductAttribute(productAttribute);
 
                 //activity log
-                await _customerActivityService.InsertActivity("AddNewProductAttribute", productAttribute.Id, _translationService.GetResource("ActivityLog.AddNewProductAttribute"), productAttribute.Name);
+                _ = _customerActivityService.InsertActivity("AddNewProductAttribute", productAttribute.Id,
+                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.AddNewProductAttribute"), productAttribute.Name);
 
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.ProductAttributes.Added"));
                 return continueEditing ? RedirectToAction("Edit", new { id = productAttribute.Id }) : RedirectToAction("List");
@@ -159,7 +161,9 @@ namespace Grand.Web.Admin.Controllers
                 await _productAttributeService.UpdateProductAttribute(productAttribute);
 
                 //activity log
-                await _customerActivityService.InsertActivity("EditProductAttribute", productAttribute.Id, _translationService.GetResource("ActivityLog.EditProductAttribute"), productAttribute.Name);
+                _ = _customerActivityService.InsertActivity("EditProductAttribute", productAttribute.Id,
+                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.EditProductAttribute"), productAttribute.Name);
 
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.ProductAttributes.Updated"));
                 if (continueEditing)
@@ -198,7 +202,9 @@ namespace Grand.Web.Admin.Controllers
                 await _productAttributeService.DeleteProductAttribute(productAttribute);
 
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteProductAttribute", productAttribute.Id, _translationService.GetResource("ActivityLog.DeleteProductAttribute"), productAttribute.Name);
+                _ = _customerActivityService.InsertActivity("DeleteProductAttribute", productAttribute.Id,
+                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.DeleteProductAttribute"), productAttribute.Name);
 
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.ProductAttributes.Deleted"));
                 return RedirectToAction("List");
@@ -285,9 +291,7 @@ namespace Grand.Web.Admin.Controllers
                 var ppav = model.ToEntity();
                 productAttribute.PredefinedProductAttributeValues.Add(ppav);
                 await _productAttributeService.UpdateProductAttribute(productAttribute);
-
-                ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
             //If we got this far, something failed, redisplay form
             return View(model);
@@ -323,9 +327,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 ppav = model.ToEntity(ppav);
                 await _productAttributeService.UpdateProductAttribute(productAttribute);
-
-                ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
             //If we got this far, something failed, redisplay form
             return View(model);

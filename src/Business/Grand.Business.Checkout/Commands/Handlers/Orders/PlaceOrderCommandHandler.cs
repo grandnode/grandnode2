@@ -110,7 +110,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             ICurrencyService currencyService,
             IAffiliateService affiliateService,
             IMediator mediator,
-            IPdfService pdfService,
             IProductReservationService productReservationService,
             IAuctionService auctionService,
             ICountryService countryService,
@@ -224,7 +223,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             }
             catch (Exception exc)
             {
-                _logger.Error(exc.Message, exc);
+                _ = _logger.Error(exc.Message, exc);
                 result.AddError(exc.Message);
             }
 
@@ -241,7 +240,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             {
                 //log it
                 string logError = string.Format("Error while placing order. {0}", error);
-                _logger.Error(logError);
+                _ = _logger.Error(logError);
             }
 
             #endregion
@@ -433,7 +432,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             var customerCurrency = (currencyTmp != null && currencyTmp.Published) ? currencyTmp : _workContext.WorkingCurrency;
             details.Currency = customerCurrency;
             var primaryStoreCurrency = await _currencyService.GetPrimaryStoreCurrency();
-            details.CurrencyRate = customerCurrency.Rate / primaryStoreCurrency.Rate;
+            details.CurrencyRate = Math.Round(customerCurrency.Rate / primaryStoreCurrency.Rate, 6);
             details.PrimaryCurrencyCode = primaryStoreCurrency.CurrencyCode;
 
             //customer language
@@ -1106,6 +1105,12 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         {
             using var scope = scopeFactory.CreateScope();
 
+            var workContext = scope.ServiceProvider.GetService<IWorkContext>();
+            await workContext.SetCurrentCustomer(customer);
+            await workContext.SetWorkingLanguage(customer);
+            await workContext.SetWorkingCurrency(customer);
+            await workContext.SetTaxDisplayType(customer);
+
             var orderService = scope.ServiceProvider.GetRequiredService<IOrderService>();
             var messageProviderService = scope.ServiceProvider.GetRequiredService<IMessageProviderService>();
             var orderSettings = scope.ServiceProvider.GetRequiredService<OrderSettings>();
@@ -1141,19 +1146,8 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 }
 
                 //send email notifications
-                int orderPlacedStoreOwnerNotificationQueuedEmailId = await messageProviderService.SendOrderPlacedStoreOwnerMessage(order, customer, languageSettings.DefaultAdminLanguageId);
-                if (orderPlacedStoreOwnerNotificationQueuedEmailId > 0)
-                {
-                    await orderService.InsertOrderNote(new OrderNote
-                    {
-                        Note = "Order placed email (to store owner) has been queued",
-                        DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = order.Id,
-
-                    });
-                }
-
+                await messageProviderService.SendOrderPlacedStoreOwnerMessage(order, customer, languageSettings.DefaultAdminLanguageId);
+                
                 string orderPlacedAttachmentFilePath = string.Empty, orderPlacedAttachmentFileName = string.Empty;
                 var orderPlacedAttachments = new List<string>();
 
@@ -1168,39 +1162,18 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error($"Error - order placed attachment file {order.OrderNumber}", ex);
+                    _ = _logger.Error($"Error - order placed attachment file {order.OrderNumber}", ex);
                 }
 
-                int orderPlacedCustomerNotificationQueuedEmailId = await messageProviderService
+                await messageProviderService
                     .SendOrderPlacedCustomerMessage(order, customer, order.CustomerLanguageId, orderPlacedAttachmentFilePath, orderPlacedAttachmentFileName, orderPlacedAttachments);
 
-                if (orderPlacedCustomerNotificationQueuedEmailId > 0)
-                {
-                    await orderService.InsertOrderNote(new OrderNote
-                    {
-                        Note = "Order placed email (to customer) has been queued",
-                        DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = order.Id,
-
-                    });
-                }
                 if (order.OrderItems.Any(x => !string.IsNullOrEmpty(x.VendorId)))
                 {
                     var vendors = await mediator.Send(new GetVendorsInOrderQuery() { Order = order });
                     foreach (var vendor in vendors)
                     {
-                        int orderPlacedVendorNotificationQueuedEmailId = await messageProviderService.SendOrderPlacedVendorMessage(order, customer, vendor, languageSettings.DefaultAdminLanguageId);
-                        if (orderPlacedVendorNotificationQueuedEmailId > 0)
-                        {
-                            await orderService.InsertOrderNote(new OrderNote
-                            {
-                                Note = "Order placed email (to vendor) has been queued",
-                                DisplayToCustomer = false,
-                                CreatedOnUtc = DateTime.UtcNow,
-                                OrderId = order.Id,
-                            });
-                        }
+                        await messageProviderService.SendOrderPlacedVendorMessage(order, customer, vendor, languageSettings.DefaultAdminLanguageId);                        
                     }
                 }
             }

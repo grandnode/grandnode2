@@ -438,7 +438,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 }
                 else
                 {
-                    resolvedLabelText = expression.Substring(index + 1);
+                    resolvedLabelText = expression[(index + 1)..];
                 }
             }
 

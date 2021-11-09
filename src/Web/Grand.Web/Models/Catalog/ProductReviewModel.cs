@@ -30,6 +30,7 @@ namespace Grand.Web.Models.Catalog
 
         public IList<ProductReviewModel> Items { get; set; }
         public AddProductReviewModel AddProductReview { get; set; }
+        public ProductReviewOverviewModel ProductReviewOverviewModel { get; set; }
     }
 
     public partial class ProductReviewModel : BaseEntityModel

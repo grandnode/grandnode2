@@ -1,15 +1,9 @@
 ﻿@model StateProvinceModel
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
-    //page title
-    ViewBag.Title = Loc["Admin.Configuration.Countries.States.AddNew"];
+    Layout = "";
 }
-
-<form asp-area="@Constants.AreaAdmin" asp-controller="Country" asp-action="StateCreatePopup"
-      asp-route-countryId="@Context.Request.Query["countryId"]"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
-    
+<form id="StateCreatePopup" asp-area="@Constants.AreaAdmin" asp-controller="Country" asp-action="StateCreatePopup"
+      asp-route-countryId="@Context.Request.Query["countryId"]">
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -18,10 +12,6 @@
                         <i class="fa fa-globe"></i>
                         @Loc["Admin.Configuration.Countries.States.AddNew"]
                     </div>
-                    <div class="actions">
-                        <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                        <vc:admin-widget widget-zone="country_state_details_buttons" additional-data="null" />
-                    </div>
                 </div>
                 <div class="x_content form">
                    <partial name="_CreateOrUpdateState" model="Model" />
@@ -29,4 +19,35 @@
             </div>
         </div>
     </div>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#StateCreatePopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefresh').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 </form>

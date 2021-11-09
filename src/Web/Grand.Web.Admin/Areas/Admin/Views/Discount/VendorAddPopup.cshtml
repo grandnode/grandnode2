@@ -1,12 +1,12 @@
 ﻿@model DiscountModel.AddVendorToDiscountModel
 @inject AdminAreaSettings adminAreaSettings
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["admin.marketing.Discounts.AppliedToVendors.AddNew"];
 }
 
-<form asp-area="@Constants.AreaAdmin" asp-controller="Discount" asp-action="VendorAddPopup" method="post"
+<form id="VendorAddPopup" asp-area="@Constants.AreaAdmin" asp-controller="Discount" asp-action="VendorAddPopup" method="post"
       asp-route-DiscountId="@Context.Request.Query["DiscountId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
@@ -53,18 +53,36 @@
             </div>
         </div>
     </div>
-
-
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-            try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-            catch (e){}
-            window.close();
-        </script>
-    }
     <script>
-        $(document).ready(function () {
+            var mfp = $.magnificPopup.instance;
+            $("#VendorAddPopup").submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data == "") {
+                            mfp.close();
+                            $('#btnRefreshVendors').click();
+                        } else {
+                            $.magnificPopup.open({
+                                items: {
+                                    src: data,
+                                    type: 'inline'
+                                },
+                                callbacks: {
+                                    open: function () {
+                                        $('.mfp-wrap').removeAttr('tabindex');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            });
             $("#vendors-grid").kendoGrid({
                 dataSource: {
                     transport: {
@@ -116,11 +134,6 @@
                 }
                 ]
             });
-        });
-    </script>
-
-    <script>
-        $(document).ready(function() {
             $('#search-vendors').click(function() {
                 var grid = $('#vendors-grid').data('kendoGrid');
                 grid.dataSource.page(1); //new search. Set page size to 1
@@ -152,7 +165,6 @@
             $('#vendors-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function(e) {
                 updateMasterCheckbox();
             });
-        });
 
         function additionalData() {
             var data = {

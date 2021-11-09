@@ -8,17 +8,22 @@ namespace Grand.Web.Common.TagHelpers
     
     [HtmlTargetElement("script", Attributes = LocationAttributeName)]
     [HtmlTargetElement("script", Attributes = SrcAttributeName)]
+    [HtmlTargetElement("script", Attributes = OrderAttributeName)]
     public class ScriptTagHelper : TagHelper
     {
 
         private const string LocationAttributeName = "asp-location";
         private const string SrcAttributeName = "asp-src";
+        private const string OrderAttributeName = "asp-order";
 
         [HtmlAttributeName(LocationAttributeName)]
         public ScriptLocation Location { get; set; }
 
         [HtmlAttributeName(SrcAttributeName)]
         public string Src { get; set; }
+
+        [HtmlAttributeName(OrderAttributeName)]
+        public int DisplayOrder { get; set; }
 
         private readonly IResourceManager _resourceManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -52,15 +57,15 @@ namespace Grand.Web.Common.TagHelpers
                 switch (Location)
                 {
                     case ScriptLocation.Head:
-                        _resourceManager.RegisterHeadScript(builder);
+                        _resourceManager.RegisterHeadScript(builder, DisplayOrder);
                         break;
 
                     case ScriptLocation.Header:
-                        _resourceManager.RegisterHeaderScript(builder);
+                        _resourceManager.RegisterHeaderScript(builder, DisplayOrder);
                         break;
 
                     case ScriptLocation.Footer:
-                        _resourceManager.RegisterFootScript(builder);
+                        _resourceManager.RegisterFootScript(builder, DisplayOrder);
                         break;
 
                     default:

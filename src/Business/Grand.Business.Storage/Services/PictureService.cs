@@ -1,24 +1,24 @@
-﻿using Grand.Business.Storage.Interfaces;
+﻿using Grand.Business.Common.Extensions;
+using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Storage.Interfaces;
+using Grand.Domain;
+using Grand.Domain.Common;
+using Grand.Domain.Data;
+using Grand.Domain.Media;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
-using Grand.Domain;
-using Grand.Domain.Data;
-using Grand.Domain.Media;
+using Grand.Infrastructure.Extensions;
+using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using SkiaSharp;
 using System;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Infrastructure.Extensions;
-using Grand.Business.Common.Extensions;
-using Grand.SharedKernel.Extensions;
-using Grand.Domain.Common;
-using System.Linq.Expressions;
 
 namespace Grand.Business.Storage.Services
 {
@@ -38,6 +38,7 @@ namespace Grand.Business.Storage.Services
         private readonly ICacheBase _cacheBase;
         private readonly IMediaFileStore _mediaFileStore;
         private readonly MediaSettings _mediaSettings;
+        private readonly StorageSettings _storageSettings;
 
         //Used when images stored on file system
         private readonly string _imagePath;
@@ -70,7 +71,8 @@ namespace Grand.Business.Storage.Services
             IWorkContext workContext,
             ICacheBase cacheBase,
             IMediaFileStore mediaFileStore,
-            MediaSettings mediaSettings)
+            MediaSettings mediaSettings,
+            StorageSettings storageSettings)
         {
             _pictureRepository = pictureRepository;
             _logger = logger;
@@ -80,6 +82,7 @@ namespace Grand.Business.Storage.Services
             _cacheBase = cacheBase;
             _mediaFileStore = mediaFileStore;
             _mediaSettings = mediaSettings;
+            _storageSettings = storageSettings;
 
             _imagePath = _mediaFileStore.Combine("assets", "images");
             _thumbPath = _mediaFileStore.Combine("assets", "images", "thumbs");
@@ -264,7 +267,7 @@ namespace Grand.Business.Storage.Services
         /// <returns>Picture binary</returns>
         public virtual async Task<byte[]> LoadPictureBinary(Picture picture)
         {
-            return await LoadPictureBinary(picture, _mediaSettings.StoreInDb);
+            return await LoadPictureBinary(picture, _storageSettings.PictureStoreInDb);
         }
 
         /// <summary>
@@ -360,26 +363,15 @@ namespace Grand.Business.Storage.Services
             bool showDefaultPicture = true,
             string storeLocation = null)
         {
-
             if (picture == null)
-            {
                 return showDefaultPicture ? await GetDefaultPictureUrl(targetSize, storeLocation) : string.Empty;
-            }
-
-            byte[] pictureBinary = null;
 
             if (picture.IsNew)
             {
-                if ((picture.PictureBinary?.Length ?? 0) == 0)
-                    pictureBinary = await LoadPictureBinary(picture);
-                else
-                    pictureBinary = picture.PictureBinary;
-
                 await DeletePictureThumbs(picture);
 
-                //we do not validate picture binary here to ensure that no exception ("Parameter is not valid") will be thrown
                 picture = await UpdatePicture(picture.Id,
-                    pictureBinary,
+                    null,
                     picture.MimeType,
                     picture.SeoFilename,
                     picture.AltAttribute,
@@ -388,8 +380,8 @@ namespace Grand.Business.Storage.Services
                     false);
             }
 
-            string seoFileName = picture.SeoFilename;
-            string lastPart = GetFileExtensionFromMimeType(picture.MimeType);
+            var seoFileName = picture.SeoFilename;
+            var lastPart = GetFileExtensionFromMimeType(picture.MimeType);
             string thumbFileName;
 
             if (targetSize == 0)
@@ -403,14 +395,12 @@ namespace Grand.Business.Storage.Services
                 if (!string.IsNullOrEmpty(thumbFilePath))
                     return GetThumbUrl(thumbFileName, storeLocation);
 
-                pictureBinary ??= await LoadPictureBinary(picture);
+                var pictureBinary = await LoadPictureBinary(picture);
 
                 using (var mutex = new Mutex(false, thumbFileName))
                 {
                     mutex.WaitOne();
-
                     await SaveThumb(thumbFileName, pictureBinary);
-
                     mutex.ReleaseMutex();
                 }
             }
@@ -425,7 +415,7 @@ namespace Grand.Business.Storage.Services
                 if (!string.IsNullOrEmpty(thumbFilePath))
                     return GetThumbUrl(thumbFileName, storeLocation);
 
-                pictureBinary ??= await LoadPictureBinary(picture);
+                var pictureBinary = await LoadPictureBinary(picture);
 
                 using (var mutex = new Mutex(false, thumbFileName))
                 {
@@ -434,10 +424,8 @@ namespace Grand.Business.Storage.Services
                     {
                         try
                         {
-                            using (var image = SKBitmap.Decode(pictureBinary))
-                            {
-                                pictureBinary = ApplyResize(image, EncodedImageFormat(picture.MimeType), targetSize);
-                            }
+                            using var image = SKBitmap.Decode(pictureBinary);
+                            pictureBinary = ApplyResize(image, EncodedImageFormat(picture.MimeType), targetSize);
                         }
                         catch { }
                     }
@@ -482,8 +470,7 @@ namespace Grand.Business.Storage.Services
                 var query = _pictureRepository.Table
                     .Where(p => p.Id == pictureId)
                     .Select(p =>
-                        new Picture
-                        {
+                        new Picture {
                             Id = p.Id,
                             AltAttribute = p.AltAttribute,
                             IsNew = p.IsNew,
@@ -511,7 +498,7 @@ namespace Grand.Business.Storage.Services
             await DeletePictureThumbs(picture);
 
             //delete from file system
-            if (!_mediaSettings.StoreInDb)
+            if (!_storageSettings.PictureStoreInDb)
                 await DeletePictureOnFileSystem(picture);
 
             //delete from database
@@ -557,7 +544,7 @@ namespace Grand.Business.Storage.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex.Message, ex);
+                    _ = _logger.Error(ex.Message, ex);
                 }
             }
             await Task.CompletedTask;
@@ -602,9 +589,8 @@ namespace Grand.Business.Storage.Services
             if (validateBinary)
                 pictureBinary = ValidatePicture(pictureBinary, mimeType);
 
-            var picture = new Picture
-            {
-                PictureBinary = _mediaSettings.StoreInDb ? pictureBinary : new byte[0],
+            var picture = new Picture {
+                PictureBinary = _storageSettings.PictureStoreInDb ? pictureBinary : new byte[0],
                 MimeType = mimeType,
                 SeoFilename = seoFilename,
                 AltAttribute = altAttribute,
@@ -615,7 +601,7 @@ namespace Grand.Business.Storage.Services
             };
             await _pictureRepository.InsertAsync(picture);
 
-            if (!_mediaSettings.StoreInDb)
+            if (!_storageSettings.PictureStoreInDb)
                 await SavePictureInFile(picture.Id, pictureBinary, mimeType);
 
             //event notification
@@ -645,7 +631,7 @@ namespace Grand.Business.Storage.Services
 
             seoFilename = CommonHelper.EnsureMaximumLength(seoFilename, 100);
 
-            if (validateBinary)
+            if (validateBinary && pictureBinary != null)
                 pictureBinary = ValidatePicture(pictureBinary, mimeType);
 
             var picture = await GetPictureById(pictureId);
@@ -653,19 +639,31 @@ namespace Grand.Business.Storage.Services
                 return null;
 
             //delete old thumbs if a picture has been changed
-            if (seoFilename != picture.SeoFilename)
+            if (seoFilename != picture.SeoFilename || pictureBinary != null)
                 await DeletePictureThumbs(picture);
 
-            picture.PictureBinary = _mediaSettings.StoreInDb ? pictureBinary : new byte[0];
+            if (pictureBinary != null)
+            {
+                picture.PictureBinary = _storageSettings.PictureStoreInDb ? pictureBinary : Array.Empty<byte>();
+                await _pictureRepository.UpdateField(picture.Id, x => x.PictureBinary, picture.PictureBinary);
+            }
+
             picture.MimeType = mimeType;
+            await _pictureRepository.UpdateField(picture.Id, x => x.MimeType, picture.MimeType);
+
             picture.SeoFilename = seoFilename;
+            await _pictureRepository.UpdateField(picture.Id, x => x.SeoFilename, picture.SeoFilename);
+
             picture.AltAttribute = altAttribute;
+            await _pictureRepository.UpdateField(picture.Id, x => x.AltAttribute, picture.AltAttribute);
+
             picture.TitleAttribute = titleAttribute;
+            await _pictureRepository.UpdateField(picture.Id, x => x.TitleAttribute, picture.TitleAttribute);
+
             picture.IsNew = isNew;
+            await _pictureRepository.UpdateField(picture.Id, x => x.IsNew, picture.IsNew);
 
-            await _pictureRepository.UpdateAsync(picture);
-
-            if (!_mediaSettings.StoreInDb)
+            if (!_storageSettings.PictureStoreInDb && pictureBinary != null)
                 await SavePictureInFile(picture.Id, pictureBinary, mimeType);
 
             //event notification
@@ -703,7 +701,7 @@ namespace Grand.Business.Storage.Services
         /// </summary>
         /// <param name="picture">Picture</param>
         /// <returns>Picture</returns>
-        public virtual async Task UpdatField<T>(Picture picture, Expression<Func<Picture, T>> expression, T value)
+        public virtual async Task UpdatePictureField<T>(Picture picture, Expression<Func<Picture, T>> expression, T value)
         {
             if (picture == null)
                 throw new ArgumentNullException(nameof(picture));
@@ -717,7 +715,7 @@ namespace Grand.Business.Storage.Services
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PICTURE_BY_ID, picture.Id));
 
         }
-        
+
         /// <summary>
         /// Save picture on file system
         /// </summary>
@@ -735,7 +733,7 @@ namespace Grand.Business.Storage.Services
                 File.WriteAllBytes(filepath, pictureBinary);
             }
             else
-                _logger.Error("Drirectory path not exist.");
+                _ = _logger.Error("Drirectory path not exist.");
 
             return Task.CompletedTask;
         }
@@ -756,7 +754,7 @@ namespace Grand.Business.Storage.Services
             {
                 //update SeoFilename picture
                 picture.SeoFilename = seoFilename;
-                await UpdatField(picture, p=> p.SeoFilename, seoFilename);
+                await UpdatePictureField(picture, p => p.SeoFilename, seoFilename);
 
                 //event notification
                 await _mediator.EntityUpdated(picture);
@@ -867,11 +865,11 @@ namespace Grand.Business.Storage.Services
 
             try
             {
-                using (var resized = image.Resize(new SKImageInfo((int)width, (int)height), SKFilterQuality.None))
+                using (var resized = image.Resize(new SKImageInfo((int)width, (int)height), SKFilterQuality.High))
                 {
                     using (var resimage = SKImage.FromBitmap(resized))
                     {
-                        return resimage.Encode(format, 100).ToArray();
+                        return resimage.Encode(format, _mediaSettings.ImageQuality).ToArray();
                     }
                 }
             }

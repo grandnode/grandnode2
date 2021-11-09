@@ -53,6 +53,9 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
                     if (!(stores.Count == 1 && languages.Count == 1))
                         file = $"sitemap-{store.Shortcut}-{lang.UniqueSeoCode}.xml";
 
+                    if (stores.Count == 1 && languages.Count > 1)
+                        file = $"sitemap-{lang.UniqueSeoCode}.xml";
+
                     await _mediaFileStore.WriteAllText(file, siteMap);
                 }
             }

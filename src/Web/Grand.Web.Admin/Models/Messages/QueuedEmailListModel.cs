@@ -28,9 +28,6 @@ namespace Grand.Web.Admin.Models.Messages
         public bool SearchLoadNotSent { get; set; }
 
         [GrandResourceDisplayName("Admin.System.QueuedEmails.List.MaxSentTries")]
-        public int SearchMaxSentTries { get; set; }
-
-        [GrandResourceDisplayName("Admin.System.QueuedEmails.List.GoDirectlyToNumber")]
-        public string GoDirectlyToNumber { get; set; }
+        public int SearchMaxSentTries { get; set; }        
     }
 }

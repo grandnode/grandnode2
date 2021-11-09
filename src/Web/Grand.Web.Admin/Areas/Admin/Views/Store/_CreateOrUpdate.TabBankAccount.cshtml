@@ -1,0 +1,34 @@
+﻿@model StoreModel
+
+<div class="form-horizontal">
+    <div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="BankAccount.BankCode" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="BankAccount.BankCode" />
+                <span asp-validation-for="BankAccount.BankCode"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="BankAccount.BankName" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="BankAccount.BankName" />
+                <span asp-validation-for="BankAccount.BankName"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="BankAccount.SwiftCode" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="BankAccount.SwiftCode" />
+                <span asp-validation-for="BankAccount.SwiftCode"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="BankAccount.AccountNumber" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="BankAccount.AccountNumber" />
+                <span asp-validation-for="BankAccount.AccountNumber"></span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -227,7 +227,7 @@ namespace Grand.Business.Checkout.Services.Shipping
                     foreach (string error in getShippingOptionResponse.Errors)
                     {
                         result.AddError(error);
-                        _logger.Warning(string.Format("Shipping ({0}). {1}", srcm.FriendlyName, error));
+                        _ = _logger.Warning(string.Format("Shipping ({0}). {1}", srcm.FriendlyName, error));
                     }
                     //clear the shipping options in this case
                     srcmShippingOptions = new List<ShippingOption>();

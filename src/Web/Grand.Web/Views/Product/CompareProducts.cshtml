@@ -8,13 +8,6 @@
 }
 @using Grand.Web.Models.Catalog;
 @{
-    string columnWidth = "";
-    if (Model.Products.Any())
-    {
-        columnWidth = Math.Round((double)(90M / Model.Products.Count), 0).ToString() + "%";
-    }
-
-
     var specificationAttributes = new List<ProductSpecificationModel>();
     foreach (var product in Model.Products)
     {
@@ -29,125 +22,115 @@
 }
 <div class="page compare-products-page">
     <h2 class="text-center generalTitle">@Loc["Products.Compare.Title"]</h2>
-    @if (Model.Products.Any())
-    {
-        <button onclick="location = ('@Url.RouteUrl("ClearCompareList")')" class="btn btn-outline-secondary clear-list mb-3">@Loc["Products.Compare.Clear"]</button>
+    <template v-if="compareproducts !== null && compareproducts.Products.length > 0">
+        <a class="btn btn-danger mb-3" @@click="removeFromCompareList()">@Loc["Products.Compare.Clear"]</a>
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover compare-products-table table-bordered">
                 <tbody>
                     <tr class="remove-product">
                         <td class="empty">&nbsp;</td>
-                        @foreach (var product in Model.Products)
-                        {
-                            <td style="width: @columnWidth;">
-                                <button type="button" title="@Loc["Common.Remove"]" class="btn btn-sm btn-outline-danger remove-button d-flex align-items-center justify-content-center" onclick="location = ('@Url.RouteUrl("RemoveProductFromCompareList", new { productId = product.Id })')">
-                                    <b-icon icon="trash" aria-hidden="true"></b-icon>
+                        <template v-for="product in compareproducts.Products">
+                            <td class="same-width">
+                                <button type="button" title="@Loc["Common.Remove"]" class="btn btn-sm btn-link remove-button d-flex align-items-center justify-content-center" @@click="removeFromCompareList(product.Id)">
+                                    <b-icon icon="trash" variant="danger" aria-hidden="true"></b-icon>
                                 </button>
                             </td>
-                        }
+                        </template>
                     </tr>
                     <tr class="product-picture">
                         <td class="empty">&nbsp;</td>
-                        @foreach (var product in Model.Products)
-                        {
-                            <td style="width: @columnWidth;">
-                                <a class="picture" href="@Url.RouteUrl("Product", new { SeName = product.SeName })"><img class="img-wish" alt="@product.DefaultPictureModel.AlternateText" src="@product.DefaultPictureModel.ImageUrl" title="@product.DefaultPictureModel.Title" /></a>
+                        <template v-for="product in compareproducts.Products">
+                            <td class="same-width">
+                                <a class="picture" :href="product.Url"><img class="compare-img" :alt="product.DefaultPictureModel.AlternateText" :src="product.DefaultPictureModel.ImageUrl" :title="product.DefaultPictureModel.Title" /></a>
                             </td>
-                        }
+                        </template>
                     </tr>
                     <tr class="product-name">
                         <td>
                             <label>@Loc["Products.Compare.Name"]</label>
                         </td>
-                        @foreach (var product in Model.Products)
-                        {
-                            <td style="width: @columnWidth;">
-                                <a href="@Url.RouteUrl("Product", new { SeName = product.SeName })">@product.Name</a>
+                        <template v-for="product in compareproducts.Products">
+                            <td class="same-width">
+                                <a :href="product.Url">{{product.Name}}</a>
                             </td>
-                        }
+                        </template>
                     </tr>
                     <tr class="product-price">
                         <td>
                             <label><strong>@Loc["Products.Compare.Price"]</strong></label>
                         </td>
-                        @foreach (var product in Model.Products)
-                        {
-                            <td style="width: @columnWidth;">
-                                <strong>@product.ProductPrice.Price</strong>
+                        <template v-for="product in compareproducts.Products">
+                            <td class="same-width">
+                                <strong>{{product.ProductPrice.Price}}</strong>
                             </td>
-                        }
+                        </template>
                     </tr>
-                    @if (Model.IncludeShortDescriptionInCompareProducts)
-                    {
+                    <template v-if="compareproducts.IncludeShortDescriptionInCompareProducts">
                         <tr class="short-description">
                             <td>
                                 <label>@Loc["Products.Compare.ShortDescription"]</label>
                             </td>
-                            @foreach (var product in Model.Products)
-                            {
-                                <td style="width: @columnWidth;">
-                                    @Html.Raw(product.ShortDescription)
+                            <template v-for="product in compareproducts.Products">
+                                <td class="same-width">
+                                    <div v-html="product.ShortDescription"></div>
                                 </td>
-                            }
+                            </template>
                         </tr>
-                    }
-                    @foreach (var specificationAttribute in specificationAttributes)
-                    {
+                    </template>
+                    <template v-for="specificationAttribute in specificationAttributes.Model">
                         <tr class="specification">
                             <td>
-                                <label>@specificationAttribute.SpecificationAttributeName</label>
+                                <label>{{specificationAttribute.SpecificationAttributeName}}</label>
                             </td>
-                            @foreach (var product in Model.Products)
-                            {
-                                var foundProductSpec = product.SpecificationAttributeModels.FirstOrDefault(psa => psa.SpecificationAttributeId == specificationAttribute.SpecificationAttributeId);
-                                var specValue = foundProductSpec != null ? foundProductSpec.ValueRaw : "";
-
-                                <td style="width: @columnWidth;">
-                                    @if (foundProductSpec != null)
-                                    {
-                                        if (String.IsNullOrEmpty(foundProductSpec.ColorSquaresRgb))
-                                        {
-                                            @Html.Raw(foundProductSpec.ValueRaw)
-                                        }
-                                        else
-                                        {
-                                            <div class="color-squares">
-                                                <span class="color-container" title="@Html.Raw(foundProductSpec.ValueRaw)">
-                                                    <span class="color" style="background-color: @(foundProductSpec.ColorSquaresRgb);">&nbsp;</span>
-                                                </span>
-                                            </div>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <text>&nbsp;</text>
-                                    }
+                            <template v-for="product in compareproducts.Products">
+                                <td class="same-width">
+                                    <template v-for="spec in product.SpecificationAttributeModels">
+                                        <template v-if="spec.SpecificationAttributeId == specificationAttribute.SpecificationAttributeId">
+                                            <template v-if="spec.ColorSquaresRgb == null">
+                                                <div v-html="spec.ValueRaw" class="d-inline-flex mx-1"></div>
+                                            </template>
+                                            <template v-else>
+                                                <div class="color-squares d-inline-flex mx-1">
+                                                    <span class="color-container" :title="spec.ValueRaw">
+                                                        <span class="color" :style="'background-color:' + spec.ColorSquaresRgb">&nbsp;</span>
+                                                    </span>
+                                                </div>
+                                            </template>
+                                        </template>
+                                    </template>
                                 </td>
-                            }
+                            </template>
                         </tr>
-                    }
-                    @if (Model.IncludeFullDescriptionInCompareProducts)
-                    {
+                    </template>
+                    <template v-if="compareproducts.IncludeFullDescriptionInCompareProducts">
                         <tr class="full-description">
                             <td>
                                 <label>@Loc["Products.Compare.FullDescription"]</label>
                             </td>
-                            @foreach (var product in Model.Products)
-                            {
-                                <td style="width: @columnWidth;">
-                                    @Html.Raw(product.FullDescription)
+                            <template v-for="product in compareproducts.Products">
+                                <td class="same-width">
+                                    <div v-html="product.FullDescription"></div>
                                 </td>
-                            }
+                            </template>
                         </tr>
-                    }
+                    </template>
                 </tbody>
             </table>
         </div>
-    }
-    else
-    {
+    </template>
+    <template v-else>
         <div class="no-data alert alert-info text-center my-3">
             @Loc["Products.Compare.NoItems"]
         </div>
-    }
+    </template>
 </div>
+<script asp-location="Footer" asp-order="300">
+    var specificationAttributes = new Vue({
+        data: () => ({
+            Model: @Json.Serialize(specificationAttributes),
+        }),
+    })
+    document.addEventListener("DOMContentLoaded", function () {
+        vm.getCompareList()
+    })
+</script>

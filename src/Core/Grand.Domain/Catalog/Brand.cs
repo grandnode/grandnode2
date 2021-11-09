@@ -113,6 +113,11 @@ namespace Grand.Domain.Catalog
         public IList<string> Stores { get; set; }
 
         /// <summary>
+        /// Gets or sets the ExternalId
+        /// </summary>
+        public string ExternalId { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the entity is published
         /// </summary>
         public bool Published { get; set; }

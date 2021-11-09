@@ -26,6 +26,13 @@ namespace Grand.Business.Common.Interfaces.Localization
         Task<Language> GetLanguageById(string languageId);
 
         /// <summary>
+        /// Gets a language
+        /// </summary>
+        /// <param name="languageCode">Language code</param>
+        /// <returns>Language</returns>
+        Task<Language> GetLanguageByCode(string languageCode);
+
+        /// <summary>
         /// Inserts a language
         /// </summary>
         /// <param name="language">Language</param>

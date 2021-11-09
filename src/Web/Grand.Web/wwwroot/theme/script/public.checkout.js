@@ -1,63 +1,72 @@
-var Order = Vue.extend({
-    props: {
-        cart: null,
-        totals: null,
-        checkoutAsGuest: false,
-        BillingAddress: false,
-        ShippingMethod: false,
-        PaymentMethod: false,
-        PaymentInfo: false,
-        Confirm: false,
-        // billing address
-        BillingExistingAddresses: null,
-        BillingNewAddress: null,
-        BillingNewAddressPreselected: null,
-        BillingWarnings: null,
-        // shipping address
-        ShippingAllowPickUpInStore: null,
-        ShippingExistingAddresses: null,
-        ShippingNewAddress: null,
-        ShippingNewAddressPreselected: null,
-        ShippingPickUpInStore: null,
-        ShippingPickUpInStoreOnly: null,
-        ShippingPickupPoints: null,
-        ShippingWarnings: null,
-        ShippingMethodError: null,
-        // shipping method
-        ShippingMethods: null,
-        ShippingMethodWarnings: null,
-        // payment methods
-        DisplayLoyaltyPoints: null,
-        PaymentMethods: null,
-        LoyaltyPointsAmount: null,
-        LoyaltyPointsBalance: null,
-        LoyaltyPointsEnoughToPayForOrder: null,
-        UseLoyaltyPoints: null,
-        // payment info
-        PaymentViewComponentName: null,
-        // confirm order
-        MinOrderTotalWarning: null,
-        TermsOfServiceOnOrderConfirmPage: null,
-        ConfirmWarnings: null,
-        // terms of service
-        terms: false,
-        acceptTerms: false,
-        // checkout steps methods
-        Checkout: null,
-        vShipping: null,
-        vBilling: null,
-        vShippingMethod: null,
-        vPaymentMethod: null,
-        vPaymentInfo: null,
-        vConfirmOrder: null,
-        // paymentinfobussy
-        paymentBussy: false,
-        // shippingbussy
-        shippingBussy: false,
-        // selectedshipping
-        selectedShippingMethod: 0
+var vmorder = new Vue({
+    data: function () {
+        return {
+            cart: null,
+            totals: null,
+            checkoutAsGuest: false,
+            BillingAddress: false,
+            ShippingMethod: false,
+            PaymentMethod: false,
+            PaymentInfo: false,
+            Confirm: false,
+            // billing address
+            BillingExistingAddresses: null,
+            BillingNewAddress: null,
+            BillingNewAddressPreselected: null,
+            BillingWarnings: null,
+            // shipping address
+            ShippingAllowPickUpInStore: null,
+            ShippingExistingAddresses: null,
+            ShippingNewAddress: null,
+            ShippingNewAddressPreselected: null,
+            ShippingPickUpInStore: null,
+            ShippingPickUpInStoreOnly: null,
+            ShippingPickupPoints: null,
+            ShippingWarnings: null,
+            ShippingMethodError: null,
+            // shipping method
+            ShippingMethods: null,
+            ShippingMethodWarnings: null,
+            // payment methods
+            DisplayLoyaltyPoints: null,
+            PaymentMethods: null,
+            LoyaltyPointsAmount: null,
+            LoyaltyPointsBalance: null,
+            LoyaltyPointsEnoughToPayForOrder: null,
+            UseLoyaltyPoints: null,
+            // payment info
+            PaymentViewComponentName: null,
+            // confirm order
+            MinOrderTotalWarning: null,
+            TermsOfServiceOnOrderConfirmPage: null,
+            ConfirmWarnings: null,
+            // terms of service
+            terms: false,
+            acceptTerms: false,
+            // checkout steps methods
+            Checkout: null,
+            vShipping: null,
+            vBilling: null,
+            vShippingMethod: null,
+            vPaymentMethod: null,
+            vPaymentInfo: null,
+            vConfirmOrder: null,
+            // paymentinfobussy
+            paymentBussy: false,
+            // shippingbussy
+            shippingBussy: false,
+            // selectedshipping
+            selectedShippingMethod: 0,
+            shippingAddressErrors: null,
+            billingAddressErrors: null,
+        }
     },
     methods: {
+        formCheckoutSubmit() {
+            vmorder.vShipping.save();
+            vmorder.shippingAddressErrors = null;
+            vmorder.billingAddressErrors = null;
+        },
         setDisabled(e) {
             var button = e.target;
             button.classList.add('disabled');
@@ -238,18 +247,13 @@ var Order = Vue.extend({
                             }
                         }
                     }
+
                     if (response.data.allow_sections) {
                         response.data.allow_sections.forEach(function (e) {
                             document.querySelector('#button-' + e).classList.add('allow');
                         });
                     }
 
-                    if (document.querySelector("#shipping-address-select")) {
-                        vmorder.vShipping.newAddress(!document.querySelector('#shipping-address-select').value);
-                    }
-                    if (document.querySelector("#billing-address-select")) {
-                        vmorder.vBilling.newAddress(!document.querySelector('#billing-address-select').value);
-                    }
                     if (response.data.update_section) {
                         vmorder.Checkout.gotoSection(response.data.update_section.name);
                         return true;
@@ -292,8 +296,10 @@ var Order = Vue.extend({
                     if (isNew) {
                         this.resetSelectedAddress();
                         document.querySelector('#shipping-new-address-form').style.display = 'block';
+                        document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "document.getElementById('opc-shipping-submit').click()");
                     } else {
                         document.querySelector('#shipping-new-address-form').style.display = 'none';
+                        document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vShipping.save();");
                     }
                 },
 
@@ -305,8 +311,12 @@ var Order = Vue.extend({
 
                         document.querySelector('#pickup-points-form').style.display = 'block';
                         document.getElementById("BillToTheSameAddress").disabled = true;
-
-                        if (!document.querySelector("#shipping-address-select").value) {
+                        if (document.getElementById("select-shipping-address")) {
+                            if (document.getElementById("shipping-address-select").value !== '') {
+                                document.querySelector('#shipping-new-address-form').style.display = 'none';
+                            }
+                        } else {
+                            document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vShipping.save();");
                             document.querySelector('#shipping-new-address-form').style.display = 'none';
                         }
                     }
@@ -316,9 +326,19 @@ var Order = Vue.extend({
 
                         document.querySelector('#pickup-points-form').style.display = 'none';
                         document.getElementById("BillToTheSameAddress").disabled = false;
-
-                        if (!document.querySelector("#shipping-address-select").value) {
-                            document.querySelector('#shipping-new-address-form').style.display = 'block';
+                        if (document.getElementById("select-shipping-address")) {
+                            if (document.getElementById("shipping-address-select").value == '') {
+                                document.querySelector('#shipping-new-address-form').style.display = 'block';
+                            }
+                        } else {
+                            if (document.getElementById("shipping-address-select")) {
+                                if (document.getElementById("shipping-address-select").value == '') {
+                                    document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "document.getElementById('opc-shipping-submit').click()");
+                                    document.querySelector('#shipping-new-address-form').style.display = 'block';
+                                }
+                            } else {
+                                document.querySelector('#shipping-new-address-form').style.display = 'block';
+                            }
                         }
 
                     }
@@ -348,6 +368,9 @@ var Order = Vue.extend({
                                 vmorder.vShipping.nextStep(response);
                             }
                         }
+                        if (response.data.wrong_shipping_address) {
+                            vmorder.shippingAddressErrors = response.data.model_state;
+                        }
                     }).catch(function (error) {
                         error.axiosFailure;
                     }).then(function () {
@@ -360,6 +383,7 @@ var Order = Vue.extend({
                 },
 
                 nextStep: function (response) {
+
                     if (response.data.error) {
                         if ((typeof response.data.message) == 'string') {
                             alert(response.data.message);
@@ -389,11 +413,13 @@ var Order = Vue.extend({
                         vmorder.BillingNewAddressPreselected = true;
                         if (document.querySelector('#billing-new-address-form'))
                             document.querySelector('#billing-new-address-form').style.display = 'block';
+                            document.querySelector('#billing-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vBilling.save(); document.getElementById('opc-billing-submit').click()");
 
                     } else {
                         vmorder.BillingNewAddressPreselected = false;
                         if (document.querySelector('#billing-new-address-form'))
                             document.querySelector('#billing-new-address-form').style.display = 'none';
+                            document.querySelector('#billing-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vBilling.save();");
                     }
 
                 },
@@ -419,6 +445,9 @@ var Order = Vue.extend({
                     }).then(function (response) {
                         if (document.querySelector('#back-' + response.data.goto_section)) {
                             document.querySelector('#back-' + response.data.goto_section).setAttribute('onclick', 'document.querySelector("#button-billing").click(); vmorder.ShippingMethod = false;');
+                        }
+                        if (response.data.wrong_billing_address) {
+                            vmorder.billingAddressErrors = response.data.model_state;
                         }
                         vmorder.vBilling.nextStep(response);
 
@@ -823,7 +852,7 @@ var Order = Vue.extend({
             });
         }
     },
-    mounted() {
+    created() {
         this.vmCheckout();
         this.vmShipping();
         this.vmBilling();
@@ -847,9 +876,15 @@ var Order = Vue.extend({
                 vmorder.Checkout.init('/cart/');
             }
         },
+        BillingAddress: function () {
+            setTimeout(function () {
+                if (document.getElementById("billing-address-select").value == '') {
+                    document.querySelector('#billing-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vBilling.save(); document.getElementById('opc-billing-submit').click()");
+                }
+            }, 300);
+        },
         vShipping: function () {
             if (this.vShipping !== null) {
-                vmorder.vShipping.init('#co-shipping-form', '/checkout/SaveShipping/');
                 if (document.querySelector("#shipping-address-select")) {
                     vmorder.vShipping.newAddress(!document.querySelector('#shipping-address-select').value);
                 }
@@ -857,32 +892,10 @@ var Order = Vue.extend({
         },
         vBilling: function () {
             if (this.vBilling !== null) {
-                vmorder.vBilling.init('#co-billing-form', '/checkout/SaveBilling/');
                 if (document.querySelector("#billing-address-select")) {
                     vmorder.vBilling.newAddress(!document.querySelector('#billing-address-select').value);
                 }
             }
-        },
-        vShippingMethod: function () {
-            if (this.vShippingMethod !== null) {
-                vmorder.vShippingMethod.init('#co-shipping-method-form', '/checkout/SaveShippingMethod/');
-            }
-        },
-        vPaymentMethod: function () {
-            if (this.vPaymentMethod !== null) {
-                vmorder.vPaymentMethod.init('#co-payment-method-form', '/checkout/SavePaymentMethod/');
-            }
-        },
-        vPaymentInfo: function () {
-            if (this.vPaymentInfo !== null) {
-                vmorder.vPaymentInfo.init('#co-payment-info-form', '/checkout/SavePaymentInfo/');
-            }
-        },
-        vConfirmOrder: function () {
-            if (this.vConfirmOrder !== null) {
-                vmorder.vConfirmOrder.init('/checkout/ConfirmOrder/', '/checkout/completed/');
-            }
-        },
+        }
     }
 });
-var vmorder = new Order().$mount('#ordersummarypagecart')

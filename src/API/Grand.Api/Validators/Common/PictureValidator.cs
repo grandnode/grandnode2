@@ -13,9 +13,19 @@ namespace Grand.Api.Validators.Common
             ITranslationService translationService)
             : base(validators)
         {
-            RuleFor(x => x.PictureBinary).NotEmpty().WithMessage(translationService.GetResource("Api.Common.Picture.Fields.PictureBinary.Required"));
             RuleFor(x => x.MimeType).NotEmpty().WithMessage(translationService.GetResource("Api.Common.Picture.Fields.MimeType.Required"));
-            RuleFor(x => x.Id).Empty().WithMessage(translationService.GetResource("Api.Common.Picture.Fields.Id.NotRequired"));
+            RuleFor(x => x.PictureBinary).Must((x, context) =>
+            {
+                if (!string.IsNullOrEmpty(x.Id) && (x.PictureBinary==null || x.PictureBinary.Length == 0))
+                {
+                    return true;
+                }
+                if (string.IsNullOrEmpty(x.Id) && (x.PictureBinary == null || x.PictureBinary.Length == 0))
+                {
+                    return false;
+                }
+                return true;
+            }).WithMessage(translationService.GetResource("Api.Common.Picture.Fields.PictureBinary.Required"));
         }
     }
 }

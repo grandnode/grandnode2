@@ -1,9 +1,9 @@
 ﻿@model object
-<script asp-location="Header">
-    var Catalog = Vue.extend({
+<script asp-location="Footer" asp-order="300">
+    var catalog = new Vue({
         data: function () {
             return {
-                Model: null,
+                Model: [],
                 pager: []
             }
         },
@@ -38,7 +38,10 @@
                 urlPagenumber.searchParams.set('pagenumber', page);
                 catalog.loadProducts(urlPagenumber.href);
             },
-            
+
+        },
+        created() {
+            this.Model = @Model;
         },
         watch: {
             Model: function(val) {
@@ -81,10 +84,6 @@
                     catalog.Model.PagingFilteringContext.SpecificationFilter.AlreadyFilteredItems = groupBy(filteredList, filterName);
                 }
             }
-        },
-        mounted() {
-            this.Model = @Model;
         }
     });
-    var catalog = new Catalog().$mount('#catalog-products');
 </script>

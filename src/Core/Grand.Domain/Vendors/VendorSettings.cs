@@ -82,6 +82,11 @@ namespace Grand.Domain.Vendors
         public bool DefaultAllowCustomerReview { get; set; }
 
         /// <summary>
+        /// Gets or sets a number of review on vendor page
+        /// </summary>
+        public int NumberOfReview { get; set; } = 10;
+
+        /// <summary>
         /// Gets or sets the identifier of the default admin theme for the vendors
         /// </summary>
         public string DefaultAdminTheme { get; set; }

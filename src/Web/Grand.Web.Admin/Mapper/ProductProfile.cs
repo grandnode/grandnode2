@@ -25,7 +25,6 @@ namespace Grand.Web.Admin.Mapper
                 .ForMember(dest => dest.AvailableProductAttributes, mo => mo.Ignore())
                 .ForMember(dest => dest.AddPictureModel, mo => mo.Ignore())
                 .ForMember(dest => dest.ProductPictureModels, mo => mo.Ignore())
-                .ForMember(dest => dest.AddSpecificationAttributeModel, mo => mo.Ignore())
                 .ForMember(dest => dest.CopyProductModel, mo => mo.Ignore())
                 .ForMember(dest => dest.ProductWarehouseInventoryModels, mo => mo.Ignore())
                 .ForMember(dest => dest.IsLoggedInAsVendor, mo => mo.Ignore())

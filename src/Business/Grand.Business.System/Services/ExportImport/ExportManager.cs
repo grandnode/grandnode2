@@ -74,7 +74,8 @@ namespace Grand.Business.System.Services.ExportImport
                 new PropertyByName<Brand>("AllowCustomersToSelectPageSize", p => p.AllowCustomersToSelectPageSize),
                 new PropertyByName<Brand>("PageSizeOptions", p => p.PageSizeOptions),
                 new PropertyByName<Brand>("Published", p => p.Published),
-                new PropertyByName<Brand>("DisplayOrder", p => p.DisplayOrder)
+                new PropertyByName<Brand>("DisplayOrder", p => p.DisplayOrder),
+                new PropertyByName<Brand>("ExternalId", p => p.ExternalId)
             };
 
             return ExportToXlsx(properties, brands);
@@ -101,7 +102,8 @@ namespace Grand.Business.System.Services.ExportImport
                 new PropertyByName<Collection>("AllowCustomersToSelectPageSize", p => p.AllowCustomersToSelectPageSize),
                 new PropertyByName<Collection>("PageSizeOptions", p => p.PageSizeOptions),
                 new PropertyByName<Collection>("Published", p => p.Published),
-                new PropertyByName<Collection>("DisplayOrder", p => p.DisplayOrder)
+                new PropertyByName<Collection>("DisplayOrder", p => p.DisplayOrder),
+                new PropertyByName<Collection>("ExternalId", p => p.ExternalId)
             };
 
             return ExportToXlsx(properties, collections);
@@ -242,6 +244,11 @@ namespace Grand.Business.System.Services.ExportImport
                 new PropertyByName<Product>("Length", p => p.Length),
                 new PropertyByName<Product>("Width", p => p.Width),
                 new PropertyByName<Product>("Height", p => p.Height),
+                new PropertyByName<Product>("DisplayOrder", p => p.DisplayOrder),
+                new PropertyByName<Product>("DisplayOrderCategory", p => p.DisplayOrderCategory),
+                new PropertyByName<Product>("DisplayOrderBrand", p => p.DisplayOrderBrand),
+                new PropertyByName<Product>("DisplayOrderCollection", p => p.DisplayOrderCollection),
+                new PropertyByName<Product>("OnSale", p => p.OnSale),
                 new PropertyByName<Product>("CategoryIds", p =>  string.Join(";", p.ProductCategories.Select(n => n.CategoryId).ToArray())),
                 new PropertyByName<Product>("CollectionIds", p=>  string.Join(";", p.ProductCollections.Select(n => n.CollectionId).ToArray())),
                 new PropertyByName<Product>("Picture1", p => GetPictures(p).Result[0]),

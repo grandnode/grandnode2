@@ -53,7 +53,7 @@ namespace Grand.Web.Common
                 if (_cachedStore == null)
                 {
                     //try to determine the current store by HOST header
-                    string host = _httpContextAccessor.HttpContext?.Request?.Headers[HeaderNames.Host];
+                    string host = _httpContextAccessor.HttpContext?.Request?.Host.Host;
 
                     var allStores = _storeService.GetAll();
                     var stores = allStores.Where(s => s.ContainsHostValue(host));

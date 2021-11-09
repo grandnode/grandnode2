@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Grand.Web.Controllers
@@ -376,28 +377,6 @@ namespace Grand.Web.Controllers
             return RedirectToAction("Info");
         }
 
-        //contact vendor page
-        public virtual async Task<IActionResult> ContactVendor(string vendorId)
-        {
-            if (!_vendorSettings.AllowCustomersToContactVendors)
-                return RedirectToRoute("HomePage");
-
-            var vendor = await _vendorService.GetVendorById(vendorId);
-            if (vendor == null || !vendor.Active || vendor.Deleted)
-                return RedirectToRoute("HomePage");
-
-            var model = new ContactVendorModel
-            {
-                Email = _workContext.CurrentCustomer.Email,
-                FullName = _workContext.CurrentCustomer.GetFullName(),
-                SubjectEnabled = _commonSettings.SubjectFieldOnContactUsForm,
-                DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnContactUsPage,
-                VendorId = vendor.Id,
-                VendorName = vendor.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id)
-            };
-
-            return View(model);
-        }
 
         [HttpPost, ActionName("ContactVendor")]
         [AutoValidateAntiforgeryToken]
@@ -405,11 +384,11 @@ namespace Grand.Web.Controllers
         public virtual async Task<IActionResult> ContactVendor(ContactVendorModel model, bool captchaValid)
         {
             if (!_vendorSettings.AllowCustomersToContactVendors)
-                return RedirectToRoute("HomePage");
+                return Content("");
 
             var vendor = await _vendorService.GetVendorById(model.VendorId);
             if (vendor == null || !vendor.Active || vendor.Deleted)
-                return RedirectToRoute("HomePage");
+                return Content("");
 
             //validate CAPTCHA
             if (_captchaSettings.Enabled && _captchaSettings.ShowOnContactUsPage && !captchaValid)
@@ -421,12 +400,15 @@ namespace Grand.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                model = await _mediator.Send(new ContactVendorSendCommand() { Model = model, Vendor = vendor, Store = _workContext.CurrentStore }); ;
-                return View(model);
+                model = await _mediator.Send(new ContactVendorSendCommand() { Model = model, Vendor = vendor, Store = _workContext.CurrentStore, IpAddress = HttpContext.Connection?.RemoteIpAddress?.ToString() });
+                return Json(model);
             }
 
             model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnContactUsPage;
-            return View(model);
+            model.Result = string.Join(",", ModelState.Values.SelectMany(v => v.Errors).Select(x => x.ErrorMessage));
+            model.SuccessfullySent = false;
+
+            return Json(model);
         }
         #endregion
     }

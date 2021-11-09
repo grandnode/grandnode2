@@ -1,4 +1,5 @@
-﻿using Grand.Api.Commands.Models.Common;
+﻿using Grand.Api.Commands.Models.Catalog;
+using Grand.Api.Commands.Models.Common;
 using Grand.Api.DTOs.Common;
 using Grand.Api.Queries.Models.Common;
 using Grand.Business.Common.Interfaces.Security;
@@ -6,6 +7,7 @@ using Grand.Business.Common.Services.Security;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Grand.Api.Controllers.OData
@@ -46,6 +48,27 @@ namespace Grand.Api.Controllers.OData
             {
                 model = await _mediator.Send(new AddPictureCommand() { PictureDto = model });
                 return Ok(model);
+            }
+            return BadRequest(ModelState);
+        }
+
+        [SwaggerOperation(summary: "Update entity in Picture", OperationId = "UpdatePicture")]
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody] PictureDto model)
+        {
+            if (!await _permissionService.Authorize(PermissionSystemName.Categories))
+                return Forbid();
+
+            if (ModelState.IsValid)
+            {
+                var picture = await _mediator.Send(new GetPictureByIdQuery() { Id = model.Id });
+                if (picture == null)
+                {
+                    return NotFound();
+                }
+
+                var result = await _mediator.Send(new UpdatePictureCommand() { Model = model });
+                return Ok(result);
             }
             return BadRequest(ModelState);
         }

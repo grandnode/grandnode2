@@ -79,7 +79,7 @@ namespace Grand.Business.Storage.Services
                         .Select(f =>
                         {
                             var fileSystemInfo = new PhysicalDirectoryInfo(new DirectoryInfo(f));
-                            var fileRelativePath = f.Substring(_fileSystemPath.Length);
+                            var fileRelativePath =  f[_fileSystemPath.Length..];
                             var filePath = this.NormalizePath(fileRelativePath);
                             return new FileSystemStoreEntry(filePath, fileSystemInfo);
                         }));
@@ -92,7 +92,7 @@ namespace Grand.Business.Storage.Services
                     .Select(f =>
                     {
                         var fileSystemInfo = new PhysicalFileInfo(new FileInfo(f));
-                        var fileRelativePath = f.Substring(_fileSystemPath.Length);
+                        var fileRelativePath = f[_fileSystemPath.Length..];
                         var filePath = this.NormalizePath(fileRelativePath);
                         return new FileSystemStoreEntry(filePath, fileSystemInfo);
                     }));

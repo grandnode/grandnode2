@@ -166,11 +166,7 @@ namespace Grand.Business.Checkout.Services.GiftVouchers
         /// <returns>Result</returns>
         public virtual string GenerateGiftVoucherCode()
         {
-            int length = 8;
-            string result = Guid.NewGuid().ToString();
-            if (result.Length > length)
-                result = result.Substring(0, length);
-            return result;
+            return Guid.NewGuid().ToString()[..8];
         }
 
         #endregion

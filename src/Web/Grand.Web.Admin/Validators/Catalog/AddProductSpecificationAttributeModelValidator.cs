@@ -7,6 +7,7 @@ using Grand.Domain.Customers;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Catalog;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Grand.Web.Admin.Validators.Catalog
 {
@@ -14,7 +15,8 @@ namespace Grand.Web.Admin.Validators.Catalog
     {
         public AddProductSpecificationAttributeModelValidator(
             IEnumerable<IValidatorConsumer<ProductModel.AddProductSpecificationAttributeModel>> validators,
-            ITranslationService translationService, IProductService productService, IWorkContext workContext)
+            ITranslationService translationService, IProductService productService, IWorkContext workContext,
+            ISpecificationAttributeService specificationAttributeService)
             : base(validators)
         {
             if (!string.IsNullOrEmpty(workContext.CurrentCustomer.StaffStoreId))
@@ -41,6 +43,31 @@ namespace Grand.Web.Admin.Validators.Catalog
                     return true;
                 }).WithMessage(translationService.GetResource("Admin.Catalog.Products.Permisions"));
             }
+
+            RuleFor(x => x).MustAsync(async (x, y, context) =>
+            {
+                if (x.AttributeTypeId == Domain.Catalog.SpecificationAttributeType.Option)
+                {
+                    if (string.IsNullOrEmpty(x.SpecificationAttributeId))
+                        return false;
+                    if (string.IsNullOrEmpty(x.SpecificationAttributeOptionId))
+                        return false;
+
+                    var specification = await specificationAttributeService.GetSpecificationAttributeById(x.SpecificationAttributeId);
+                    if (specification == null)
+                        return false;
+
+                    if(specification.SpecificationAttributeOptions.FirstOrDefault(z=>z.Id == x.SpecificationAttributeOptionId) == null)
+                        return false;
+
+                    return true;
+                }
+
+                if (string.IsNullOrEmpty(x.CustomValue))
+                    return false;
+
+                return true;
+            }).WithMessage(translationService.GetResource("Admin.Catalog.Products.SpecificationAttributes.Validate"));
         }
     }
 }

@@ -3,7 +3,6 @@ using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Common.Interfaces.Pdf;
 using Grand.Business.Customers.Interfaces;
 using Grand.Business.Messages.Interfaces;
-using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using MediatR;
 using System;
@@ -58,8 +57,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             await _orderService.UpdateOrder(request.Order);
 
             //order notes, notifications
-            await _orderService.InsertOrderNote(new OrderNote
-            {
+            await _orderService.InsertOrderNote(new OrderNote {
                 Note = string.Format("Order status has been changed to {0}", request.Os.ToString()),
                 DisplayToCustomer = false,
                 OrderId = request.Order.Id,
@@ -82,19 +80,9 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 var orderCompletedAttachments = _orderSettings.AttachPdfInvoiceToOrderCompletedEmail && _orderSettings.AttachPdfInvoiceToBinary ?
                     new List<string> { await _pdfService.SaveOrderToBinary(request.Order, "") } : new List<string>();
 
-                int orderCompletedCustomerNotificationQueuedEmailId = await _messageProviderService
+                await _messageProviderService
                     .SendOrderCompletedCustomerMessage(request.Order, customer, request.Order.CustomerLanguageId, orderCompletedAttachmentFilePath,
                     orderCompletedAttachmentFileName, orderCompletedAttachments);
-                if (orderCompletedCustomerNotificationQueuedEmailId > 0)
-                {
-                    await _orderService.InsertOrderNote(new OrderNote
-                    {
-                        Note = "\"Order completed\" email (to customer) has been queued.",
-                        DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = request.Order.Id,
-                    });
-                }
             }
 
             if (prevOrderStatus != (int)OrderStatusSystem.Cancelled &&
@@ -102,17 +90,8 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 && request.NotifyCustomer)
             {
                 //notification customer
-                int orderCancelledCustomerNotificationQueuedEmailId = await _messageProviderService.SendOrderCancelledCustomerMessage(request.Order, customer, request.Order.CustomerLanguageId);
-                if (orderCancelledCustomerNotificationQueuedEmailId > 0)
-                {
-                    await _orderService.InsertOrderNote(new OrderNote
-                    {
-                        Note = "\"Order cancelled\" email (to customer) has been queued.",
-                        DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = request.Order.Id,
-                    });
-                }
+                await _messageProviderService.SendOrderCancelledCustomerMessage(request.Order, customer, request.Order.CustomerLanguageId);
+
                 //notification for vendor
                 await VendorNotification(request.Order);
             }
@@ -125,8 +104,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 var orderCancelledStoreOwnerNotificationQueuedEmailId = await _messageProviderService.SendOrderCancelledStoreOwnerMessage(request.Order, customer, request.Order.CustomerLanguageId);
                 if (orderCancelledStoreOwnerNotificationQueuedEmailId > 0)
                 {
-                    await _orderService.InsertOrderNote(new OrderNote
-                    {
+                    await _orderService.InsertOrderNote(new OrderNote {
                         Note = "\"Order cancelled\" by customer.",
                         DisplayToCustomer = true,
                         CreatedOnUtc = DateTime.UtcNow,

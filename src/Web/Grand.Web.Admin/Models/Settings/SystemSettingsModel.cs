@@ -29,6 +29,15 @@ namespace Grand.Web.Admin.Models.Settings
         [GrandResourceDisplayName("Admin.Settings.System.UseIsoDateTimeConverterInJson")]
         public bool UseIsoDateTimeConverterInJson { get; set; }
 
+        [GrandResourceDisplayName("Admin.Settings.System.HideStoreColumn")]
+        public bool HideStoreColumn { get; set; }
+
+        #endregion
+
+        #region StorageSettings
+
+        [GrandResourceDisplayName("Admin.Settings.Media.PicturesStoredIntoDatabase")]
+        public bool PicturesStoredIntoDatabase { get; set; }
 
         #endregion
 

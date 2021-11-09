@@ -18,21 +18,19 @@ namespace Grand.Web.Admin.Validators.Knowledgebase
             RuleFor(x => x.Name).NotEmpty().WithMessage(translationService.GetResource("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.Name.Required"));
             RuleFor(x => x.ParentCategoryId).MustAsync(async (x, y, context) =>
             {
-                var category = await knowledgebaseService.GetKnowledgebaseCategory(x.ParentCategoryId);
-                if (category != null || string.IsNullOrEmpty(x.ParentCategoryId))
+                if (!string.IsNullOrEmpty(x.ParentCategoryId))
                 {
-                    return true;
-                }
-                else
-                {
-                    var categories = await knowledgebaseService.GetKnowledgebaseCategories();
-                    if (!categories.Any())
+                    if (x.Id == x.ParentCategoryId)
+                        return false;
+
+                    var category = await knowledgebaseService.GetKnowledgebaseCategory(x.ParentCategoryId);
+                    if (category == null)
                     {
-                        return true;
+                        return false;
                     }
                 }
 
-                return false;
+                return true;
             }).WithMessage(translationService.GetResource("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.ParentCategoryId.MustExist"));
         }
     }

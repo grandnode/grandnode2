@@ -1,0 +1,165 @@
+﻿@{
+    var fileLink = @Url.RouteUrl("UploadFileProductAttribute");
+}
+<td :id="'product_attribute_label_' + attribute.Id">
+    <span class="attribute-name">{{attribute.Name}}</span> <span v-if="attribute.IsRequired" class="required">*</span>
+    <template v-if="attribute.TextPrompt !==null">
+        <span class="text-prompt">{{attribute.TextPrompt}}</span>
+    </template>
+    <template v-if="attribute.Description !==null">
+        <span v-html="attribute.Description" class="attribute-description"></span>
+    </template>
+</td>
+<td :id="'product_attribute_input_' + attribute.Id">
+    <template v-if="attribute.AttributeControlType==4">
+        <label :for="'product_attribute_' + attribute.Id" class="sr-only">product_attribute_{{attribute.Id}}</label>
+        <input :name="'product_attribute_' + attribute.Id" type="text" class="form-control textbox" :id="'product_attribute_' + attribute.Id" :value="attribute.DefaultValue" @@change="vm.attrchange(attribute.ProductId, true)" />
+    </template>
+    <template v-if="attribute.AttributeControlType==1">
+        <label :for="'product_attribute_' + attribute.Id" class="sr-only">product_attribute_{{attribute.Id}}</label>
+        <select :id="'product_attribute_' + attribute.Id" class="form-control custom-select" :name="'product_attribute_' + attribute.Id" @@change="vm.attrchange(attribute.ProductId, true)">
+            <template v-if="attribute.IsRequired==false">
+                <option value="">---</option>
+            </template>
+            <option v-for="attributeValue in attribute.Values" :selected="attributeValue.IsPreSelected" :data-disable="attributeValue.Id" :value="attributeValue.Id">
+                <template v-if="attributeValue.PriceAdjustment==null">
+                    {{attributeValue.Name}}
+                </template>
+                <template v-else>
+                    {{attributeValue.Name}}[{{attributeValue.PriceAdjustment}}]
+                </template>
+            </option>
+        </select>
+    </template>
+    <template v-if="attribute.AttributeControlType==2">
+        <ul class="option-list px-0 mb-0">
+            <li v-for="attributeValue in attribute.Values">
+                <fieldset>
+                    <legend class="sr-only">product_attribute_{{attribute.Id}}</legend>
+                    <label class="custom-control custom-radio">
+                        <input class="custom-control-input"
+                               :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id"
+                               type="radio"
+                               :name="'product_attribute_' + attribute.Id"
+                               :value="attributeValue.Id"
+                               :checked="attributeValue.IsPreSelected"
+                               :data-disable="attributeValue.Id"
+                               @@change="vm.attrchange(attribute.ProductId, true)" />
+                        <span class="custom-control-label"></span>
+                        <span class="custom-control-description" :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id">
+                            <template v-if="attributeValue.PriceAdjustment==null">
+                                {{attributeValue.Name}}
+                            </template>
+                            <template v-else>
+                                {{attributeValue.Name}}[{{attributeValue.PriceAdjustment}}]
+                            </template>
+                        </span>
+                    </label>
+                </fieldset>
+            </li>
+        </ul>
+    </template>
+    <template v-if="attribute.AttributeControlType==3 || attribute.AttributeControlType==50">
+        <fieldset>
+            <legend></legend>
+            <ul class="option-list px-0 mb-0">
+                <li v-for="attributeValue in attribute.Values">
+                    <label class="custom-control custom-checkbox">
+                        <input v-if="attribute.AttributeControlType==50"
+                               class="custom-control-input"
+                               :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id"
+                               type="checkbox"
+                               :name="'product_attribute_' + attribute.Id"
+                               :value="attributeValue.Id"
+                               :checked="attributeValue.IsPreSelected"
+                               @@change="vm.attrchange(attribute.ProductId, true)"
+                               disabled="disabled" />
+                        <input v-else
+                               class="custom-control-input"
+                               :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id"
+                               type="checkbox"
+                               :name="'product_attribute_' + attribute.Id"
+                               :value="attributeValue.Id"
+                               :checked="attributeValue.IsPreSelected"
+                               :data-disable="attributeValue.Id"
+                               @@change="vm.attrchange(attribute.ProductId, true)" />
+                        <span class="custom-control-label"></span>
+                        <span class="custom-control-description" :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id">
+                            <template v-if="attributeValue.PriceAdjustment==null">
+                                {{attributeValue.Name}}
+                            </template>
+                            <template v-else>
+                                {{attributeValue.Name}}[{{attributeValue.PriceAdjustment}}]
+                            </template>
+                        </span>
+                    </label>
+                </li>
+            </ul>
+        </fieldset>
+    </template>
+    <template v-if="attribute.AttributeControlType==10">
+        <textarea :id="'product_attribute_' + attribute.Id" :name="'product_attribute_' + attribute.Id">{{attribute.DefaultValue}}</textarea>
+    </template>
+    <template v-if="attribute.AttributeControlType==30">
+        <template>
+            <div :id="'product_attribute_' + attribute.Id + 'uploader'">
+                <b-form-file :accept="attribute.AllowedFileExtensions"
+                             type="file"
+                             id="qqfile"
+                             name="qqfile"
+                             :data-url="'@fileLink/' + attribute.Id + '?productId=' + attribute.ProductId"
+                             @@change="vm.uploadFile($event.target)" />
+            </div>
+        </template>
+        <input class="hidden-upload-input"
+               type="hidden"
+               :id="'product_attribute_' + attribute.Id"
+               :name="'product_attribute_' + attribute.Id"
+               v-model="attribute.DefaultValue"
+               :value="attribute.DefaultValue" />
+        <div id="download-message" class="alert my-2" style="display: none;"></div>
+        <div :id="'product_attribute_' + attribute.Id + 'downloadurl'" class="download-file" style="display: none;"><a class="btn btn-outline-info"> Download </a></div>
+    </template>
+    <template v-if="attribute.AttributeControlType==40">
+        <ul class="option-list color-squares w-100 d-inline-flex flex-wrap px-0 mb-0" :id="'color-squares-' + attribute.Id">
+            <li v-for="attributeValue in attribute.Values" class="mr-1 p-0">
+                <label :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" class="mb-0">
+                    <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'product_attribute_' + attribute.Id" :value="attributeValue.Id" :data-disable="attributeValue.Id" :checked="attributeValue.IsPreSelected" @@change="vm.attrchange(attribute.ProductId, true)" />
+                    <template v-if="attributeValue.PriceAdjustment==null">
+                        <span class="color-container" :title="attributeValue.Name"> <span class="color" :style="'background-color:' + attributeValue.ColorSquaresRgb"></span> </span>
+                    </template>
+                    <template v-else>
+                        <span class="color-container" :title="attributeValue.Name + ' [' + attributeValue.PriceAdjustment + ']'"> <span class="color" :style="'background-color:' + attributeValue.ColorSquaresRgb"></span> </span>
+                    </template>
+                </label>
+            </li>
+        </ul>
+    </template>
+    <template v-if="attribute.AttributeControlType==45">
+        <ul class="option-list color-squares w-100 d-inline-flex flex-wrap px-0 mb-0" :id="'color-squares-' + attribute.Id">
+            <li v-for="attributeValue in attribute.Values" class="mr-1 p-0">
+                <label :for="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" class="mb-0">
+                    <template v-if="attributeValue.PriceAdjustment==null">
+                        <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'product_attribute_' + attribute.Id" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected" :data-disable="attributeValue.Id" @@change="vm.attrchange(attribute.ProductId, true)" />
+                        <span :id="'imgSqr_' + attributeValue.Id" class="color-container">
+                            <span class="color" :style="'background: url(' + attributeValue.ImageSquaresPictureModel.ImageUrl + ') 50% 50% no-repeat;'"></span>
+                        </span>
+                        <b-tooltip :target="'imgSqr_' + attributeValue.Id" placement="bottom">
+                            <div class="image-square-tooltip"><img :src="attributeValue.ImageSquaresPictureModel.FullSizeImageUrl" :alt="attributeValue.Name" /> <span>{{attributeValue.Name}}</span></div>
+                        </b-tooltip>
+                    </template>
+                    <template v-else>
+                        <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'product_attribute_' + attribute.Id" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected" :data-disable="attributeValue.Id" @@change="vm.attrchange(attribute.ProductId, true)" />
+                        <span class="color-container"> <span class="color" :style="'background: url(' + attributeValue.ImageSquaresPictureModel.ImageUrl + ') 50% 50% no-repeat;'"></span> </span>
+                        <b-tooltip :target="'imgSqr_' + attributeValue.Id" placement="bottom">
+                            <div class="image-square-tooltip">
+                                <img :src="attributeValue.ImageSquaresPictureModel.FullSizeImageUrl" :alt="attributeValue.Name + ' [' + attributeValue.PriceAdjustment + ']'" />
+                                <span>{{attributeValue.Name}}[{{attributeValue.PriceAdjustment}}]</span>
+                            </div>
+                        </b-tooltip>
+                    </template>
+                </label>
+            </li>
+        </ul>
+    </template>
+</td>

@@ -2,11 +2,9 @@
 
 @model ProductModel.ProductPictureModel
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
-    //page title
-    ViewBag.Title = Loc["Admin.Catalog.Products.Pictures.Details"];
+    Layout = "";
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductPicturePopup" enctype="multipart/form-data" method="post"
+<form id="ProductPicturePopup" asp-area="@Constants.AreaAdmin" asp-controller="Product" asp-action="ProductPicturePopup" enctype="multipart/form-data" method="post"
       asp-route-ProductId="@Context.Request.Query["ProductId"]"
       asp-route-Id="@Context.Request.Query["Id"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
@@ -41,6 +39,12 @@
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cubes"></i>
+                        <text> @Loc["Admin.Catalog.Products.Pictures.Details"]</text>
+                    </div>
+                </div>
                 <div class="x_content form">
                     <div class="form-horizontal">
                         <div class="form-body">
@@ -75,26 +79,46 @@
                                     <span asp-validation-for="DisplayOrder"></span>
                                 </div>
                             </div>
-                            <div class="form-actions">
-                                <div class="row">
-                                    <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">
-                                        <button class="k-button" type="submit" name="save"><i class="fa fa-check"></i>@Loc["Admin.Common.Save"] </button>
-                                    </div>
+                            <div class="form-group">
+                                <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
+                                    <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-            try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-            catch (e){}
-            window.close();
-        </script>
-    }
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#ProductPicturePopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefreshProductPictures').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 </form>

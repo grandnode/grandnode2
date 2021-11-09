@@ -210,7 +210,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (importcsvfile != null && importcsvfile.Length > 0)
                 {
-                    int count = await _importManager.ImportNewsletterSubscribersFromTxt(importcsvfile.OpenReadStream());
+                    int count = await _importManager.ImportNewsletterSubscribersFromTxt(importcsvfile.OpenReadStream(), _workContext.CurrentStore.Id);
                     Success(String.Format(_translationService.GetResource("admin.marketing.NewsLetterSubscriptions.ImportEmailsSuccess"), count));
                     return RedirectToAction("List");
                 }

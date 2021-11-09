@@ -1,13 +1,10 @@
 ﻿using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Common.Extensions;
-using Grand.Web.Common.Page.Paging;
 using Grand.Domain.Catalog;
-using Grand.Infrastructure;
-using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Extensions;
 using Grand.Infrastructure.Models;
+using Grand.Web.Common.Page.Paging;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
@@ -102,11 +99,11 @@ namespace Grand.Web.Models.Catalog
             #region Methods
 
             public virtual async Task<List<string>> GetAlreadyFilteredSpecOptionIds
-                (IHttpContextAccessor httpContextAccessor, ISpecificationAttributeService specificationAttributeService)
+                (IQueryCollection query, ISpecificationAttributeService specificationAttributeService)
             {
                 var result = new List<string>();
 
-                foreach (var item in httpContextAccessor.HttpContext.Request.Query)
+                foreach (var item in query)
                 {
                     var spec = await specificationAttributeService.GetSpecificationAttributeBySeName(item.Key);
                     if (spec != null)
@@ -133,8 +130,7 @@ namespace Grand.Web.Models.Catalog
             public virtual async Task PrepareSpecsFilters(IList<string> alreadyFilteredSpecOptionIds,
                 IList<string> filterableSpecificationAttributeOptionIds,
                 ISpecificationAttributeService specificationAttributeService,
-                IHttpContextAccessor httpContextAccessor,
-                ICacheBase cacheBase, string langId)
+                string url, string langId)
             {
                 Enabled = false;
 
@@ -144,8 +140,7 @@ namespace Grand.Web.Models.Catalog
                     var sa = await specificationAttributeService.GetSpecificationAttributeByOptionId(sao);
                     if (sa != null)
                     {
-                        allFilters.Add(new SpecificationAttributeOptionFilter
-                        {
+                        allFilters.Add(new SpecificationAttributeOptionFilter {
                             SpecificationAttributeId = sa.Id,
                             SpecificationAttributeName = sa.GetTranslation(x => x.Name, langId),
                             SpecificationAttributeSeName = sa.SeName,
@@ -170,7 +165,7 @@ namespace Grand.Web.Models.Catalog
 
                 //prepare the model properties
                 Enabled = true;
-                string removeFilterUrl = httpContextAccessor.HttpContext.Request.GetDisplayUrl();
+                var removeFilterUrl = url;
                 foreach (var item in allFilters.GroupBy(x => x.SpecificationAttributeSeName))
                 {
                     removeFilterUrl = CommonExtensions.ModifyQueryString(removeFilterUrl, item.Key, null);
@@ -184,10 +179,9 @@ namespace Grand.Web.Models.Catalog
                     var alreadyFiltered = alreadyFilteredOptions.Where(y => y.SpecificationAttributeId == x.SpecificationAttributeId).Select(z => z.SpecificationAttributeOptionSeName)
                     .Except(new List<string> { x.SpecificationAttributeOptionSeName }).ToList();
 
-                    var filterUrl = CommonExtensions.ModifyQueryString(httpContextAccessor.HttpContext.Request.GetDisplayUrl(), x.SpecificationAttributeSeName, GenerateFilteredSpecQueryParam(alreadyFiltered));
+                    var filterUrl = CommonExtensions.ModifyQueryString(url, x.SpecificationAttributeSeName, GenerateFilteredSpecQueryParam(alreadyFiltered));
 
-                    return new SpecificationFilterItem
-                    {
+                    return new SpecificationFilterItem {
                         SpecificationAttributeName = x.SpecificationAttributeName,
                         SpecificationAttributeSeName = x.SpecificationAttributeSeName,
                         SpecificationAttributeOptionName = x.SpecificationAttributeOptionName,
@@ -204,9 +198,8 @@ namespace Grand.Web.Models.Catalog
                     var alreadyFiltered = alreadyFilteredOptions.Where(y => y.SpecificationAttributeId == x.SpecificationAttributeId).Select(x => x.SpecificationAttributeOptionSeName)
                     .Concat(new List<string> { x.SpecificationAttributeOptionSeName });
 
-                    var filterUrl = CommonExtensions.ModifyQueryString(httpContextAccessor.HttpContext.Request.GetDisplayUrl(), x.SpecificationAttributeSeName, GenerateFilteredSpecQueryParam(alreadyFiltered.ToList()));
-                    return new SpecificationFilterItem()
-                    {
+                    var filterUrl = CommonExtensions.ModifyQueryString(url, x.SpecificationAttributeSeName, GenerateFilteredSpecQueryParam(alreadyFiltered.ToList()));
+                    return new SpecificationFilterItem() {
                         SpecificationAttributeName = x.SpecificationAttributeName,
                         SpecificationAttributeSeName = x.SpecificationAttributeSeName,
                         SpecificationAttributeOptionName = x.SpecificationAttributeOptionName,

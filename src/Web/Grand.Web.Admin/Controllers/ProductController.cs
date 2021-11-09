@@ -26,6 +26,8 @@ using Grand.Web.Common.Security.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.StaticFiles;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -649,15 +651,15 @@ namespace Grand.Web.Admin.Controllers
 
                 //a vendor should have access only to his products
                 model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
-                ViewBag.RefreshPage = true;
+                return Content("");
             }
             else
             {
                 Error(ModelState);
                 model = await _productViewModelService.PrepareRelatedProductModel();
                 model.ProductId = model.ProductId;
+                return View(model);
             }
-            return View(model);
         }
 
         #endregion
@@ -752,15 +754,15 @@ namespace Grand.Web.Admin.Controllers
                 }
                 //a vendor should have access only to his products
                 model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
-                ViewBag.RefreshPage = true;
+                return Content("");
             }
             else
             {
                 Error(ModelState);
                 model = await _productViewModelService.PrepareSimilarProductModel();
                 model.ProductId = model.ProductId;
+                return View(model);
             }
-            return View(model);
         }
 
         #endregion
@@ -856,15 +858,15 @@ namespace Grand.Web.Admin.Controllers
 
                 //a vendor should have access only to his products
                 model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
-                ViewBag.RefreshPage = true;
+                return Content("");
             }
             else
             {
                 Error(ModelState);
                 model = await _productViewModelService.PrepareBundleProductModel();
                 model.ProductId = model.ProductId;
+                return View(model);
             }
-            return View(model);
         }
 
         #endregion
@@ -951,17 +953,15 @@ namespace Grand.Web.Admin.Controllers
                 {
                     await _productViewModelService.InsertCrossSellProductModel(model);
                 }
-                //a vendor should have access only to his products
-                model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
-                ViewBag.RefreshPage = true;
+                return Content("");
             }
             else
             {
                 Error(ModelState);
                 model = await _productViewModelService.PrepareCrossSellProductModel();
                 model.ProductId = model.ProductId;
+                return View(model);
             }
-            return View(model);
         }
 
         #endregion
@@ -1047,17 +1047,15 @@ namespace Grand.Web.Admin.Controllers
                 {
                     await _productViewModelService.InsertRecommendedProductModel(model);
                 }
-                //a vendor should have access only to his products
-                model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
-                ViewBag.RefreshPage = true;
+                return Content("");
             }
             else
             {
                 Error(ModelState);
                 model = await _productViewModelService.PrepareRecommendedProductModel();
                 model.ProductId = model.ProductId;
+                return View(model);
             }
-            return View(model);
         }
 
         #endregion
@@ -1164,17 +1162,15 @@ namespace Grand.Web.Admin.Controllers
                 {
                     await _productViewModelService.InsertAssociatedProductModel(model);
                 }
-                //a vendor should have access only to his products
-                model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
-                ViewBag.RefreshPage = true;
+                return Content("");
             }
             else
             {
                 Error(ModelState);
                 model = await _productViewModelService.PrepareAssociatedProductModel();
                 model.ProductId = model.ProductId;
+                return View(model);
             }
-            return View(model);
         }
 
         #endregion
@@ -1232,12 +1228,12 @@ namespace Grand.Web.Admin.Controllers
                     });
 
             var values = new List<(string pictureUrl, string pictureId)>();
-
+            var message = string.Empty;
             foreach (var file in httpPostedFiles)
             {
                 var qqFileNameParameter = "qqfilename";
                 var fileName = file.FileName;
-                if (String.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
+                if (string.IsNullOrEmpty(fileName) && form.ContainsKey(qqFileNameParameter))
                     fileName = form[qqFileNameParameter].ToString();
 
                 fileName = Path.GetFileName(fileName);
@@ -1249,7 +1245,7 @@ namespace Grand.Web.Admin.Controllers
 
                 if (string.IsNullOrEmpty(contentType))
                 {
-                    contentType = GetContentType(fileExtension);
+                    _ = new FileExtensionContentTypeProvider().TryGetContentType(fileName, out contentType);
                 }
 
                 if (GetAllowedFileTypes(mediaSettings).Contains(fileExtension))
@@ -1262,10 +1258,13 @@ namespace Grand.Web.Admin.Controllers
                     values.Add((pictureUrl, picture.Id));
                     //assign picture to the product
                     await _productViewModelService.InsertProductPicture(product, picture, 0);
+
                 }
+                else
+                    message += $"Not allowed file types to import {fileName}";
             }
 
-            return Json(new { success = true, data = values });
+            return Json(new { success = values.Any(), data = values });
         }
 
         protected virtual IList<string> GetAllowedFileTypes(MediaSettings mediaSettings)
@@ -1275,31 +1274,6 @@ namespace Grand.Web.Admin.Controllers
             else
                 return mediaSettings.AllowedFileTypes.Split(',');
         }
-        protected virtual string GetContentType(string fileExtension)
-        {
-            switch (fileExtension)
-            {
-                case ".bmp":
-                    return "image/bmp";
-                case ".gif":
-                    return "image/gif";
-                case ".jpeg":
-                case ".jpg":
-                case ".jpe":
-                case ".jfif":
-                case ".pjpeg":
-                case ".pjp":
-                    return "image/jpeg";
-                case ".png":
-                    return "image/png";
-                case ".tiff":
-                case ".tif":
-                    return "image/tiff";
-                default:
-                    return "";
-            }
-        }
-
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
         [HttpPost]
@@ -1361,15 +1335,13 @@ namespace Grand.Web.Admin.Controllers
 
                 await _productViewModelService.UpdateProductPicture(model);
 
-                ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
 
             Error(ModelState);
 
             return View(model);
         }
-
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
@@ -1389,29 +1361,13 @@ namespace Grand.Web.Admin.Controllers
         [AcceptVerbs("GET")]
         public async Task<IActionResult> GetOptionsByAttributeId(string attributeId, [FromServices] ISpecificationAttributeService specificationAttributeService)
         {
-            if (String.IsNullOrEmpty(attributeId))
-                throw new ArgumentNullException("attributeId");
+            if (string.IsNullOrEmpty(attributeId))
+                return Json("");
 
             var options = (await specificationAttributeService.GetSpecificationAttributeById(attributeId)).SpecificationAttributeOptions.OrderBy(x => x.DisplayOrder);
             var result = (from o in options
                           select new { id = o.Id, name = o.Name }).ToList();
             return Json(result);
-        }
-
-        [PermissionAuthorizeAction(PermissionActionName.Edit)]
-        public async Task<IActionResult> ProductSpecificationAttributeAdd(ProductModel.AddProductSpecificationAttributeModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var product = await _productService.GetProductById(model.ProductId);
-                if (product == null)
-                    return Content("Product not exists");
-
-                await _productViewModelService.InsertProductSpecificationAttributeModel(model, product);
-
-                return Json(new { Result = true });
-            }
-            return Json(new { Result = false });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
@@ -1433,8 +1389,39 @@ namespace Grand.Web.Admin.Controllers
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        public async Task<IActionResult> ProductSpecAttrPopup(
+            [FromServices] ISpecificationAttributeService specificationAttributeService,
+            string productId, string id)
+        {
+            var product = await _productService.GetProductById(productId);
+
+            var permission = await CheckAccessToProduct(product);
+            if (!permission.allow)
+                return Content(permission.message);
+
+            var model = new ProductModel.AddProductSpecificationAttributeModel {
+                //default specs values
+                ShowOnProductPage = true
+            };
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                var specification = product.ProductSpecificationAttributes.FirstOrDefault(x => x.Id == id);
+                if (specification != null)
+                {
+                    model = specification.ToModel();
+                }
+            }
+            model.AvailableAttributes = await PrepareAvailableAttributes(specificationAttributeService);
+
+            return View(model);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> ProductSpecAttrUpdate(ProductSpecificationAttributeModel model)
+        public async Task<IActionResult> ProductSpecAttrPopup(
+            [FromServices] ISpecificationAttributeService specificationAttributeService,
+            ProductModel.AddProductSpecificationAttributeModel model)
         {
             if (ModelState.IsValid)
             {
@@ -1442,14 +1429,31 @@ namespace Grand.Web.Admin.Controllers
                 if (product == null)
                     return Content("Product not exists");
 
-                var psa = product.ProductSpecificationAttributes.Where(x => x.SpecificationAttributeId == model.ProductSpecificationId).Where(x => x.Id == model.Id).FirstOrDefault();
+                var psa = product.ProductSpecificationAttributes.Where(x => x.Id == model.Id).FirstOrDefault();
                 if (psa == null)
-                    return Content("No product specification attribute found with the specified id");
+                    await _productViewModelService.InsertProductSpecificationAttributeModel(model, product);
+                else
+                    await _productViewModelService.UpdateProductSpecificationAttributeModel(product, psa, model);
 
-                await _productViewModelService.UpdateProductSpecificationAttributeModel(product, psa, model);
                 return new JsonResult("");
             }
-            return ErrorForKendoGridJson(ModelState);
+
+            Error(ModelState);
+            model.AvailableAttributes = await PrepareAvailableAttributes(specificationAttributeService);
+            
+            return View(model);
+        }
+        private async Task<List<SelectListItem>> PrepareAvailableAttributes(ISpecificationAttributeService specificationAttributeService)
+        {
+            var availableSpecificationAttributes = new List<SelectListItem>();
+            foreach (var sa in await specificationAttributeService.GetSpecificationAttributes())
+            {
+                availableSpecificationAttributes.Add(new SelectListItem {
+                    Text = sa.Name,
+                    Value = sa.Id.ToString()
+                });
+            }
+            return availableSpecificationAttributes;
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -1462,7 +1466,7 @@ namespace Grand.Web.Admin.Controllers
                 if (product == null)
                     return Content("Product not exists");
 
-                var psa = product.ProductSpecificationAttributes.Where(x => x.Id == model.Id && x.SpecificationAttributeId == model.ProductSpecificationId).FirstOrDefault();
+                var psa = product.ProductSpecificationAttributes.Where(x => x.Id == model.Id).FirstOrDefault();
                 if (psa == null)
                     throw new ArgumentException("No specification attribute found with the specified id");
 
@@ -1829,16 +1833,16 @@ namespace Grand.Web.Admin.Controllers
 
                 var tierPrice = model.ToEntity(_dateTimeService);
                 await _productService.InsertTierPrice(tierPrice, product.Id);
-                ViewBag.RefreshPage = true;
-                return View(model);
+
+                return Content("");
             }
             else
             {
                 Error(ModelState);
+                //If we got this far, something failed, redisplay form
+                await _productViewModelService.PrepareTierPriceModel(model);
+                return View(model);
             }
-            //If we got this far, something failed, redisplay form
-            await _productViewModelService.PrepareTierPriceModel(model);
-            return View(model);
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -1879,8 +1883,7 @@ namespace Grand.Web.Admin.Controllers
                 tierPrice = model.ToEntity(tierPrice, _dateTimeService);
                 await _productService.UpdateTierPrice(tierPrice, product.Id);
 
-                ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
             Error(ModelState);
             //stores
@@ -1968,8 +1971,7 @@ namespace Grand.Web.Admin.Controllers
                 else
                     await _productViewModelService.UpdateProductAttributeMappingModel(model);
 
-                ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
             Error(ModelState);
             model = await _productViewModelService.PrepareProductAttributeMappingModel(model);
@@ -2034,8 +2036,7 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await _productViewModelService.UpdateProductAttributeValidationRulesModel(productAttributeMapping, model);
-                ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
             Error(ModelState);
             model = await _productViewModelService.PrepareProductAttributeMappingModel(productAttributeMapping);
@@ -2090,8 +2091,7 @@ namespace Grand.Web.Admin.Controllers
                 formcollection.Add(item.Key, item.Value);
             }
             await _productViewModelService.UpdateProductAttributeConditionModel(product, productAttributeMapping, model, formcollection);
-            ViewBag.RefreshPage = true;
-            return View(model);
+            return Content("");
         }
 
         #endregion
@@ -2202,8 +2202,8 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await _productViewModelService.InsertProductAttributeValueModel(model);
-                ViewBag.RefreshPage = true;
-                return View(model);
+
+                return Content("");
             }
             //If we got this far, something failed, redisplay form
             await _productViewModelService.PrepareProductAttributeValueModel(product, model);
@@ -2270,8 +2270,7 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await _productViewModelService.UpdateProductAttributeValueModel(pav, model);
-                ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
             //If we got this far, something failed, redisplay form
             await _productViewModelService.PrepareProductAttributeValueModel(product, model);
@@ -2338,11 +2337,7 @@ namespace Grand.Web.Admin.Controllers
             if (_workContext.CurrentVendor != null && associatedProduct.VendorId != _workContext.CurrentVendor.Id && !await _groupService.IsStaff(_workContext.CurrentCustomer))
                 return Content("This is not your product");
 
-            model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
-            ViewBag.RefreshPage = true;
-            ViewBag.productId = associatedProduct.Id;
-            ViewBag.productName = associatedProduct.Name;
-            return View(model);
+            return Content("");
         }
 
         #endregion
@@ -2440,8 +2435,7 @@ namespace Grand.Web.Admin.Controllers
             var warnings = await _productViewModelService.InsertOrUpdateProductAttributeCombinationPopup(product, model, formcollection);
             if (!warnings.Any())
             {
-                ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
             //If we got this far, something failed, redisplay form
             await _productViewModelService.PrepareAddProductAttributeCombinationModel(model, product);
@@ -2926,7 +2920,9 @@ namespace Grand.Web.Admin.Controllers
                 if (string.IsNullOrEmpty(toDelete.OrderId))
                 {
                     //activity log
-                    await customerActivityService.InsertActivity("DeleteBid", toDelete.ProductId, _translationService.GetResource("ActivityLog.DeleteBid"), product.Name);
+                    _ = customerActivityService.InsertActivity("DeleteBid", toDelete.ProductId,
+                        _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                        _translationService.GetResource("ActivityLog.DeleteBid"), product.Name);
                     //delete bid
                     await _auctionService.DeleteBid(toDelete);
                     return Json("");

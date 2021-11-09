@@ -47,8 +47,15 @@ namespace Grand.Business.Common.Interfaces.Logging
         /// <param name="shortMessage">The short message</param>
         /// <param name="fullMessage">The full message</param>
         /// <param name="customer">The customer to associate log record with</param>
+        /// <param name="ipAddress">Ip address</param>
+        /// <param name="pageurl">Page url</param>
+        /// <param name="referrerUrl">Referrer url</param>
         /// <returns>A log item</returns>
-        Task<Log> InsertLog(LogLevel logLevel, string shortMessage, string fullMessage = "", Customer customer = null);
+        Task InsertLog(LogLevel logLevel, string shortMessage, string fullMessage = "", Customer customer = null, 
+            string ipAddress = default, 
+            string pageurl = default, 
+            string referrerUrl = default);
+
         /// <summary>
         /// Determines whether a log level is enabled
         /// </summary>

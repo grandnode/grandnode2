@@ -302,7 +302,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Settings()
         {
             //load settings for a chosen store scope
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var shippingSettings = _settingService.LoadSetting<ShippingSettings>(storeScope);
             var model = shippingSettings.ToModel();
             model.ActiveStore = storeScope;
@@ -342,14 +342,16 @@ namespace Grand.Web.Admin.Controllers
             [FromServices] ICustomerActivityService customerActivityService)
         {
             //load settings for a chosen store scope
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var shippingSettings = _settingService.LoadSetting<ShippingSettings>(storeScope);
             shippingSettings = model.ToEntity(shippingSettings);
 
             await _settingService.SaveSetting(shippingSettings, storeScope);
 
             //activity log
-            await customerActivityService.InsertActivity("EditSettings", "", _translationService.GetResource("ActivityLog.EditSettings"));
+            _ = customerActivityService.InsertActivity("EditSettings", "",
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Settings");

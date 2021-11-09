@@ -11,11 +11,15 @@
     var siteMap = new SiteMap(adminSiteMapService, permissionService);
     await siteMap.Load();
 }
-
+<div id="sidebar-button" class="sidebar_button" onclick="sidebarToggle()">
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
 <div class="col-md-3 left_col">
     <div class="left_col scroll-view">
         <div class="navbar nav_title">
-            <a href="~/Admin" class="site_title"><img src="/_content/Grand.Web.Admin/administration/build/images/grandLogo.png" width="35px" height="35px" /> <span>GrandNode</span></a>
+            <a href="~/Admin" class="site_title"><img src="/_content/Grand.Web.Admin/administration/build/images/grandLogo.png" width="35" height="35" /> <span>GrandNode</span></a>
         </div>
         <div class="clearfix"></div>
         <div class="main_menu_side hidden-print main_menu" id="sidebar-menu">

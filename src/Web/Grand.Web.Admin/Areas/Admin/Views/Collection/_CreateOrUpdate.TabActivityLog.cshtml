@@ -36,6 +36,7 @@
                     serverFiltering: true,
                     serverSorting: true
                 },
+                autoBind: false,
                 pageable: {
                     refresh: true,
                     pageSizes: [@(adminAreaSettings.GridPageSizes)]
@@ -66,4 +67,10 @@
             });
         });
     </script>
+}
+else
+{
+    <div class="note note-info">
+        @Loc["Admin.Catalog.SaveBeforeEdit"]
+    </div>
 }

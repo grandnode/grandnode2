@@ -1,0 +1,9 @@
+﻿@{
+    var addtocomparelink = Url.RouteUrl("AddProductToCompare");
+}
+<template v-if="PopupQuickViewVueModal.CompareProductsEnabled">
+    <a class="btn btn-secondary add-to-compare-list-button mr-1" :onclick="'AxiosCart.addproducttocomparelist(`'+ PopupQuickViewVueModal.Id +'`, `@string.Format(Loc["Products.ProductHasBeenAddedToCompareList.Link"], Url.RouteUrl("CompareProducts"))`)'" v-b-tooltip.hover.bottom title="@Loc["Products.Compare.AddToCompareList"]">
+        <b-icon icon="shuffle"></b-icon>
+        <span class="sr-only">@Loc["Products.Compare.AddToCompareList"]</span>
+    </a>
+</template>

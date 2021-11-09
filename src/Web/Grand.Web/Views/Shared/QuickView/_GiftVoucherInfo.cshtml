@@ -1,0 +1,33 @@
+﻿<template v-if="PopupQuickViewVueModal.GiftVoucher.IsGiftVoucher">
+    <div class="giftvoucher generalMarginSupporter">
+        <fieldset>
+            <legend class="sr-only">@Loc["Products.GiftVoucher.RecipientName"]</legend>
+            <label :for="'giftvoucher_'+ PopupQuickViewVueModal.Id +'_RecipientName'" class="col-form-label">@Loc["Products.GiftVoucher.RecipientName"]:</label>
+            <input :id="'giftvoucher_'+ PopupQuickViewVueModal.Id +'_RecipientName'" v-model="PopupQuickViewVueModal.GiftVoucher.RecipientName" :name="'giftvoucher_'+ PopupQuickViewVueModal.Id +'.RecipientName'" class="form-control recipient-name" />
+        </fieldset>
+        <template v-if="PopupQuickViewVueModal.GiftVoucher.GiftVoucherType == 0">
+            <fieldset>
+                <legend class="sr-only">@Loc["Products.GiftVoucher.RecipientEmail"]</legend>
+                <label :for="'giftvoucher_'+ PopupQuickViewVueModal.Id +'_RecipientEmail'" class="col-form-label">@Loc["Products.GiftVoucher.RecipientEmail"]:</label>
+                <input :id="'giftvoucher_'+ PopupQuickViewVueModal.Id +'_RecipientEmail'" v-model="PopupQuickViewVueModal.GiftVoucher.RecipientEmail" :name="'giftvoucher_'+ PopupQuickViewVueModal.Id +'.RecipientEmail'" class="form-control recipient-email" />
+            </fieldset>
+        </template>
+        <fieldset>
+            <legend class="sr-only">@Loc["Products.GiftVoucher.SenderName"]</legend>
+            <label :for="'giftvoucher_'+ PopupQuickViewVueModal.Id +'_SenderName'" class="col-form-label">@Loc["Products.GiftVoucher.SenderName"]:</label>
+            <input :id="'giftvoucher_'+ PopupQuickViewVueModal.Id +'_SenderName'" v-model="PopupQuickViewVueModal.GiftVoucher.SenderName" :name="'giftvoucher_'+ PopupQuickViewVueModal.Id +'.SenderName'" class="form-control seder-name" />
+        </fieldset>
+        <template v-if="PopupQuickViewVueModal.GiftVoucher.GiftVoucherType == 0">
+            <fieldset>
+                <legend class="sr-only">@Loc["Products.GiftVoucher.SenderEmail"]</legend>
+                <label :for="'giftvoucher_'+ PopupQuickViewVueModal.Id +'_SenderEmail'" class="col-form-label">@Loc["Products.GiftVoucher.SenderEmail"]:</label>
+                <input :id="'giftvoucher_'+ PopupQuickViewVueModal.Id +'_SenderEmail'" v-model="PopupQuickViewVueModal.GiftVoucher.SenderEmail" :name="'giftvoucher_'+ PopupQuickViewVueModal.Id +'.SenderEmail'" class="form-control seder-email" />
+            </fieldset>
+        </template>
+        <fieldset>
+            <legend class="sr-only">@Loc["Products.GiftVoucher.Message"]</legend>
+            <label :for="'giftvoucher_'+ PopupQuickViewVueModal.Id +'_Message'" class="col-form-label">@Loc["Products.GiftVoucher.Message"]:</label>
+            <textarea :id="'giftvoucher_'+ PopupQuickViewVueModal.Id +'_Message'" v-model="PopupQuickViewVueModal.GiftVoucher.Message" :name="'giftvoucher_'+ PopupQuickViewVueModal.Id +'.Message'" class="form-control seder-message"></textarea>
+        </fieldset>
+    </div>
+</template>

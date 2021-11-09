@@ -152,14 +152,21 @@
                         headerAttributes: { style: "text-align:center" },
                         attributes: { style: "text-align:center" },
                         template: '# if(Active) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
-                    }, {
-                        field: "StoreName",
-                        title: "@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Store"]",
-                        width: 150
-                    }, {
+                    },
+                    @if (!adminAreaSettings.HideStoreColumn)
+                    {
+                        <text>
+                        {
+                            field: "StoreName",
+                            title: "@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Store"]",
+                            width: 150
+                        },
+                        </text>
+                    }
+                    {
                         field: "Categories",
-                         title: "@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Categories"]",
-                         width: 300
+                        title: "@Loc["admin.marketing.NewsLetterSubscriptions.Fields.Categories"]",
+                        width: 300
                     }, {
                         field: "CreatedOn",
                         title: "@Loc["admin.marketing.NewsLetterSubscriptions.Fields.CreatedOn"]",

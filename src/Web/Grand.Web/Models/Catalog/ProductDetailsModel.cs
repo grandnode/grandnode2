@@ -72,7 +72,9 @@ namespace Grand.Web.Models.Catalog
         public bool IncBothDate { get; set; }
         public List<SelectListItem> Parameters { get; set; }
         public DateTime StartDate { get; set; }
-
+        public DateTime? RentalStartDateUtc { get; set; }
+        public DateTime? RentalEndDateUtc { get; set; }
+        public string RentalReservationId { get; set; }
         public string StockAvailability { get; set; }
         public bool DisplayOutOfStockSubscription { get; set; }
         public bool EmailAFriendEnabled { get; set; }
@@ -101,6 +103,7 @@ namespace Grand.Web.Models.Catalog
         public DateTime? EndTime { get; set; }
         public DateTime? EndTimeLocalTime { get; set; }
         public bool AuctionEnded { get; set; }
+        public bool RenderCaptcha { get; set; }
 
         #region Nested Classes
         public partial class ProductBreadcrumbModel : BaseModel

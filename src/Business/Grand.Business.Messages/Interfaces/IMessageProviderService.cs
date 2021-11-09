@@ -279,16 +279,9 @@ namespace Grand.Business.Messages.Interfaces
         /// <summary>
         /// Sends "email a friend" message
         /// </summary>
-        /// <param name="customer">Customer instance</param>
-        /// <param name="store">Store</param>
-        /// <param name="languageId">Message language identifier</param>
-        /// <param name="product">Product instance</param>
-        /// <param name="customerEmail">Customer's email</param>
-        /// <param name="friendsEmail">Friend's email</param>
-        /// <param name="personalMessage">Personal message</param>
         /// <returns>Queued email identifier</returns>
         Task<int> SendProductQuestionMessage(Customer customer, Store store, string languageId,
-            Product product, string customerEmail, string fullName, string phone, string message);
+            Product product, string customerEmail, string fullName, string phone, string message, string ipaddress);
 
         #endregion
 
@@ -453,21 +446,24 @@ namespace Grand.Business.Messages.Interfaces
         /// <param name="body">Email body</param>
         /// <param name="attrInfo">Attr info</param>
         /// <param name="customAttributes">Custom Attributes</param>
+        /// <param name="ipaddress">ip address</param>
         /// <returns>Queued email identifier</returns>
-        Task<int> SendContactUsMessage(Customer customer, Store store, string languageId, string senderEmail, string senderName, string subject, string body, string attrInfo, IList<CustomAttribute> customAttributes);
+        Task<int> SendContactUsMessage(Customer customer, Store store, string languageId, string senderEmail, string senderName, string subject, string body, string attrInfo, IList<CustomAttribute> customAttributes, string ipaddress);
 
         /// <summary>
         /// Sends "contact vendor" message
         /// </summary>
-        /// <param name="vendor">Vendor</param>
+        /// <param name="customer">Customer</param>
         /// <param name="store">Store</param>
+        /// <param name="vendor">Vendor</param>
         /// <param name="languageId">Message language identifier</param>
         /// <param name="senderEmail">Sender email</param>
         /// <param name="senderName">Sender name</param>
         /// <param name="subject">Email subject. Pass null if you want a message template subject to be used.</param>
         /// <param name="body">Email body</param>
+        /// <param name="ipaddress">Ip Address</param>
         /// <returns>Queued email identifier</returns>
-        Task<int> SendContactVendorMessage(Customer customer, Store store, Vendor vendor, string languageId, string senderEmail, string senderName, string subject, string body);
+        Task<int> SendContactVendorMessage(Customer customer, Store store, Vendor vendor, string languageId, string senderEmail, string senderName, string subject, string body, string ipaddress);
 
         /// <summary>
         /// Sends a customer action event - Add to cart notification to a customer
@@ -563,6 +559,8 @@ namespace Grand.Business.Messages.Interfaces
         /// <param name="fromEmail">Sender email. If specified, then it overrides passed "emailAccount" details</param>
         /// <param name="fromName">Sender name. If specified, then it overrides passed "emailAccount" details</param>
         /// <param name="subject">Subject. If specified, then it overrides subject of a message template</param>
+        /// <param name="reference">Reference object</param>
+        /// <param name="objectId">Reference object ident</param>
         /// <returns>Queued email identifier</returns>
         Task<int> SendNotification(MessageTemplate messageTemplate,
             EmailAccount emailAccount, string languageId, LiquidObject liquidObject,
@@ -570,7 +568,8 @@ namespace Grand.Business.Messages.Interfaces
             string attachmentFilePath = null, string attachmentFileName = null,
             IEnumerable<string> attachedDownloads = null,
             string replyToEmailAddress = null, string replyToName = null,
-            string fromEmail = null, string fromName = null, string subject = null);
+            string fromEmail = null, string fromName = null, string subject = null,
+            Reference reference = Reference.None, string objectId = "");
 
         #endregion
     }

@@ -1,4 +1,5 @@
 ﻿@model CustomerModel
+@inject AdminAreaSettings adminAreaSettings
 
 <div class="panel panel-default">
     <vc:admin-widget widget-zone="customer_details_loyalty_points_top" additional-data="Model" />
@@ -34,6 +35,7 @@
                     serverFiltering: true,
                     serverSorting: true
                 },
+                autoBind: false,
                 pageable: {
                     refresh: true,
                     numeric: false,
@@ -45,10 +47,17 @@
                     mode: "inline"
                 },
                 scrollable: false,
-                columns: [{
-                    field: "StoreName",
-                    title: "@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.Store"]"
-                },{
+                columns: [
+                @if (!adminAreaSettings.HideStoreColumn)
+                {
+                    <text>
+                    {
+                        field: "StoreName",
+                        title: "@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.Store"]"
+                    },
+                    </text>
+                }
+                {
                     field: "Points",
                     title: "@Loc["Admin.Customers.Customers.LoyaltyPoints.Fields.Points"]"
                 }, {

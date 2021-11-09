@@ -20,23 +20,16 @@ namespace Grand.Business.Marketing.Commands.Handlers
             _customerReminderHistory = customerReminderHistory;
         }
 
-        public async Task<bool> Handle(UpdateCustomerReminderHistoryCommand request, CancellationToken cancellationToken)
+        public Task<bool> Handle(UpdateCustomerReminderHistoryCommand request, CancellationToken cancellationToken)
         {
             var update = UpdateBuilder<CustomerReminderHistory>.Create()
                 .Set(x => x.EndDate, DateTime.UtcNow)
                 .Set(x => x.Status, CustomerReminderHistoryStatusEnum.CompletedOrdered)
                 .Set(x => x.OrderId, request.OrderId);
 
-            await _customerReminderHistory.UpdateManyAsync(x => x.CustomerId == request.CustomerId && x.Status == CustomerReminderHistoryStatusEnum.Started, update);
+            _customerReminderHistory.UpdateManyAsync(x => x.CustomerId == request.CustomerId && x.Status == CustomerReminderHistoryStatusEnum.Started, update);
 
-            update = UpdateBuilder<CustomerReminderHistory>.Create()
-                .Set(x => x.Status, CustomerReminderHistoryStatusEnum.CompletedOrdered)
-                .Set(x => x.OrderId, request.OrderId);
-
-            await _customerReminderHistory.UpdateManyAsync(x => x.CustomerId == request.CustomerId 
-                    && x.Status == CustomerReminderHistoryStatusEnum.CompletedOrdered && x.EndDate == DateTime.UtcNow.AddHours(-36), update);
-
-            return true;
+            return Task.FromResult(true);
         }
     }
 }

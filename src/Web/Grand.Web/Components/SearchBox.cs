@@ -24,7 +24,8 @@ namespace Grand.Web.ViewComponents
         {
             var model = await _mediator.Send(new GetSearchBox() {
                 Customer = _workContext.CurrentCustomer,
-                Store = _workContext.CurrentStore
+                Store = _workContext.CurrentStore,
+                Language = _workContext.WorkingLanguage
             });
             return View(model);
         }

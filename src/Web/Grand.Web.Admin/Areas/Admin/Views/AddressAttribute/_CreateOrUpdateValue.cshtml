@@ -4,14 +4,6 @@
 <input asp-for="Id" type="hidden" />
 <input asp-for="AddressAttributeId" type="hidden" />
 
-@if (ViewBag.RefreshPage == true)
-{
-    <script>
-        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-        catch (e){}
-        window.close();
-    </script>
-}
 <vc:admin-widget widget-zone="address_attribute_value_details_top" additional-data="Model" />
 @{ Func<int, HelperResult>
          template = @<div class="form-body">
@@ -54,6 +46,11 @@
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="DisplayOrder" />
                 <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
+                <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
             </div>
         </div>
     </div>

@@ -35,6 +35,7 @@
                     serverFiltering: true,
                     serverSorting: true
                 },
+                autoBind: false,
                 pageable: {
                     refresh: true,
                     pageSizes: [@(adminAreaSettings.GridPageSizes)]
@@ -75,11 +76,18 @@
                     field: "ShippingStatus",
                     title: "@Loc["Admin.Customers.Customers.Orders.ShippingStatus"]",
                     width: 180
-                }, {
-                    field: "StoreName",
-                    title: "@Loc["Admin.Customers.Customers.Orders.Store"]",
-                    width: 200
-                }, {
+                },
+                @if (!adminAreaSettings.HideStoreColumn)
+                {
+                    <text>
+                    {
+                        field: "StoreName",
+                        title: "@Loc["Admin.Customers.Customers.Orders.Store"]",
+                        width: 200
+                    },
+                    </text>
+                }
+                {
                     field: "CreatedOn",
                     title: "@Loc["Admin.System.Log.Fields.CreatedOn"]",
                     width: 220,

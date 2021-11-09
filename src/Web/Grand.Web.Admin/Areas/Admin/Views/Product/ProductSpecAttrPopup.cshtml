@@ -1,0 +1,199 @@
+﻿@model ProductModel.AddProductSpecificationAttributeModel
+@{
+    Layout = "";
+}
+<form id="ProductSpecificationPopup" asp-area="@Constants.AreaAdmin" 
+      asp-controller="Product" asp-action="ProductSpecAttrPopup" 
+      enctype="multipart/form-data" method="post"
+      asp-route-ProductId="@Context.Request.Query["ProductId"]"
+      asp-route-Id="@Context.Request.Query["Id"]">
+
+    <div asp-validation-summary="All"></div>
+    <input asp-for="ProductId" type="hidden" />
+    <input asp-for="Id" type="hidden" />
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-cubes"></i>
+                        @if (string.IsNullOrEmpty(Model.Id))
+                        {
+                            <text> @Loc["Admin.Catalog.Products.SpecificationAttributes.AddNew"]</text>
+                        }
+                        else
+                        {
+                            <text>@Loc["Admin.Catalog.Products.SpecificationAttributes.Edit"]</text>
+                        }
+                    </div>
+                </div>
+                <div class="x_content form">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <admin-label asp-for="AttributeTypeId" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-select asp-for="AttributeTypeId" asp-items="((SpecificationAttributeType)Model.AttributeTypeId).ToSelectList(Context)" />
+                                    <span asp-validation-for="AttributeTypeId"></span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="disableOnCustom">
+                                <admin-label asp-for="SpecificationAttributeId" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-select asp-for="SpecificationAttributeId" asp-items="Model.AvailableAttributes" />
+                                    <span asp-validation-for="SpecificationAttributeId"></span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="pnlSpecificationAttributeOptionId">
+                                <admin-label asp-for="SpecificationAttributeOptionId" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-select asp-for="SpecificationAttributeOptionId" asp-items="Model.AvailableOptions" />
+                                    <span asp-validation-for="SpecificationAttributeOptionId"></span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="pnlCustomName">
+                                <admin-label asp-for="CustomName" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="CustomName" />
+                                    <span asp-validation-for="CustomName"></span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="pnlCustomValue">
+                                <admin-label asp-for="CustomValue" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="CustomValue" />
+                                    <span asp-validation-for="CustomValue"></span>
+                                </div>
+                            </div>
+                            <div class="form-group" id="pnlAllowFiltering">
+                                <admin-label asp-for="AllowFiltering" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="AllowFiltering" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="AllowFiltering"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="ShowOnProductPage" />
+                                <div class="col-md-9 col-sm-9">
+                                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                                        <admin-input asp-for="ShowOnProductPage" />
+                                        <div class="control__indicator"></div>
+                                    </label>
+                                    <span asp-validation-for="ShowOnProductPage"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <admin-label asp-for="DisplayOrder" />
+                                <div class="col-md-9 col-sm-9">
+                                    <admin-input asp-for="DisplayOrder" />
+                                    <span asp-validation-for="DisplayOrder"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
+                                    <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#ProductSpecificationPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefreshProductSpec').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+
+        $("#@Html.IdFor(model => model.SpecificationAttributeId)").change(function() {
+                var selectedAttributeId = $(this).val();
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    url: "@(Url.Action("GetOptionsByAttributeId", "Product", new { area = Constants.AreaAdmin }))",
+                    data: { "attributeId": selectedAttributeId },
+                    success: function (data) {
+                        var ddlSpecOptions = $("#@Html.IdFor(model => model.SpecificationAttributeOptionId)");
+                        ddlSpecOptions.html('');
+                        $.each(data, function (id, option) {
+                            var selected = '';
+                            if ('@Model.SpecificationAttributeOptionId' == option.id) {
+                                selected = ' selected '
+                            }
+                            ddlSpecOptions.append($('<option ' + selected+'></option>').val(option.id).html(kendo.htmlEncode(option.name)));
+                        });
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        alert('Failed to retrieve specification options.');
+                    }
+                });
+            });
+
+        $(document).ready(function() {
+            $("#@Html.IdFor(model => model.AttributeTypeId)").change(toggleAttributeType);
+            $("#@Html.IdFor(model => model.SpecificationAttributeId)").change();
+            toggleAttributeType();
+        });
+
+
+        function toggleAttributeType() {
+            var selectedTypeId = $("#@Html.IdFor(model => model.AttributeTypeId)").val();
+            if (selectedTypeId == @(((int)SpecificationAttributeType.Option).ToString())) {
+                $('#pnlSpecificationAttributeOptionId').show();
+                $('#pnlCustomValue').hide();
+                $('#pnlCustomName').hide();
+                $('#disableOnCustom').show();
+                $('#pnlAllowFiltering').show();
+            } else if (selectedTypeId == @(((int)SpecificationAttributeType.CustomText).ToString())) {
+                $('#pnlSpecificationAttributeOptionId').hide();
+                $('#pnlCustomName').show();
+                $('#pnlCustomValue').show();
+                $('#disableOnCustom').hide();
+                $('#pnlAllowFiltering').hide();
+            } else if (selectedTypeId == @(((int)SpecificationAttributeType.CustomHtmlText).ToString())) {
+                $('#pnlSpecificationAttributeOptionId').hide();
+                $('#pnlCustomName').show();
+                $('#pnlCustomValue').show();
+                $('#disableOnCustom').hide();
+                $('#pnlAllowFiltering').hide();
+            } else if (selectedTypeId == @(((int)SpecificationAttributeType.Hyperlink).ToString())) {
+                $('#pnlSpecificationAttributeOptionId').hide();
+                $('#pnlCustomName').show();
+                $('#pnlCustomValue').show();
+                $('#disableOnCustom').hide();
+                $('#pnlAllowFiltering').hide();
+            }
+        }
+    </script>
+</form>

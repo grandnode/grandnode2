@@ -20,7 +20,7 @@ namespace Grand.Web.Commands.Handler.Products
         {
             await _messageProviderService.SendProductQuestionMessage(request.Customer, request.Store,
                                request.Language.Id, request.Product, request.Model.Email, request.Model.FullName, request.Model.Phone,
-                               FormatText.ConvertText(request.Model.Message));
+                               FormatText.ConvertText(request.Model.Message), request.RemoteIpAddress);
 
             return true;
         }

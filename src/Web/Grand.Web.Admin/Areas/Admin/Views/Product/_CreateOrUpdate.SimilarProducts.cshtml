@@ -11,13 +11,26 @@
             <div id="similarproducts-grid"></div>
         </div>
         <div class="panel-footer">
-            <button type="submit" id="btnAddNewSimilarProduct" onclick="javascript:OpenWindow('@(Url.Action("SimilarProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshSimilarProducts", formId = "product-form", area = Constants.AreaAdmin }))    ', 1000, 1000, true); return false;" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.SimilarProducts.AddNew"]</button>
+            <a id="btnAddNewSimilarProduct" href="@(Url.Action("SimilarProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshSimilarProducts", formId = "product-form", area = Constants.AreaAdmin }))    " class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.SimilarProducts.AddNew"]</a>
             <input type="submit" id="btnRefreshSimilarProducts" style="display: none" />
         </div>
     </div>
 
     <script>
         $(document).ready(function () {
+            $('#btnAddNewSimilarProduct').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                midClick: true,
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
             $("#similarproducts-grid").kendoGrid({
                 dataSource: {
                     transport: {
@@ -67,6 +80,7 @@
                     serverFiltering: true,
                     serverSorting: true
                 },
+                autoBind: false,
                 pageable: {
                     refresh: true,
                     numeric: false,
@@ -87,7 +101,7 @@
                     title: "@Loc["Admin.Catalog.Products.SimilarProducts.Fields.DisplayOrder"]",
                     //integer format
                     format: "{0:0}",
-                    width: 100,
+                    width: 120,
                     headerAttributes: { style: "text-align:center" },
                     attributes: { style: "text-align:center" },
                 }, {

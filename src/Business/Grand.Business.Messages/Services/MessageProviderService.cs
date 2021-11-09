@@ -38,7 +38,6 @@ namespace Grand.Business.Messages.Services
         private readonly IQueuedEmailService _queuedEmailService;
         private readonly ILanguageService _languageService;
         private readonly IEmailAccountService _emailAccountService;
-        private readonly IMessageTokenProvider _messageTokenProvider;
         private readonly IStoreService _storeService;
         private readonly IStoreHelper _storeHelper;
         private readonly IGroupService _groupService;
@@ -55,7 +54,6 @@ namespace Grand.Business.Messages.Services
             IQueuedEmailService queuedEmailService,
             ILanguageService languageService,
             IEmailAccountService emailAccountService,
-            IMessageTokenProvider messageTokenProvider,
             IStoreService storeService,
             IStoreHelper storeHelper,
             IGroupService groupService,
@@ -67,7 +65,6 @@ namespace Grand.Business.Messages.Services
             _queuedEmailService = queuedEmailService;
             _languageService = languageService;
             _emailAccountService = emailAccountService;
-            _messageTokenProvider = messageTokenProvider;
             _storeService = storeService;
             _storeHelper = storeHelper;
             _groupService = groupService;
@@ -176,7 +173,7 @@ namespace Grand.Business.Messages.Services
             var toName = toEmailAccount ? emailAccount.DisplayName : customer.GetFullName();
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName, reference: Reference.Customer, objectId: customer.Id);
         }
 
         /// <summary>
@@ -341,7 +338,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Order, objectId: order.Id);
         }
 
 
@@ -463,7 +461,8 @@ namespace Grand.Business.Messages.Services
                 toEmail, toName,
                 attachmentFilePath,
                 attachmentFileName,
-                attachments);
+                attachments,
+                reference: Reference.Order, objectId: order.Id);
         }
 
 
@@ -545,7 +544,8 @@ namespace Grand.Business.Messages.Services
             var toName = vendor.Name;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Order, objectId: order.Id);
         }
 
 
@@ -614,7 +614,8 @@ namespace Grand.Business.Messages.Services
             var toName = string.Format("{0} {1}", order.BillingAddress.FirstName, order.BillingAddress.LastName);
             return await SendNotification(messageTemplate, emailAccount,
                 language.Id, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Shipment, objectId: shipment.Id);
         }
 
 
@@ -658,7 +659,8 @@ namespace Grand.Business.Messages.Services
             var toName = string.Format("{0} {1}", order.BillingAddress.FirstName, order.BillingAddress.LastName);
             return await SendNotification(messageTemplate, emailAccount,
                 language.Id, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Order, objectId: order.Id);
         }
 
         #endregion
@@ -724,7 +726,8 @@ namespace Grand.Business.Messages.Services
             var toName = "";
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: subscription.CustomerId);
         }
         #endregion
 
@@ -773,7 +776,8 @@ namespace Grand.Business.Messages.Services
             var toName = "";
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer.Id);
         }
 
         /// <summary>
@@ -816,23 +820,17 @@ namespace Grand.Business.Messages.Services
             var toName = "";
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer.Id);
         }
 
 
         /// <summary>
         /// Sends "email a friend" message
         /// </summary>
-        /// <param name="customer">Customer instance</param>
-        /// <param name="store">Store</param>
-        /// <param name="languageId">Message language identifier</param>
-        /// <param name="product">Product instance</param>
-        /// <param name="customerEmail">Customer's email</param>
-        /// <param name="friendsEmail">Friend's email</param>
-        /// <param name="personalMessage">Personal message</param>
         /// <returns>Queued email identifier</returns>
         public virtual async Task<int> SendProductQuestionMessage(Customer customer, Store store, string languageId,
-            Product product, string customerEmail, string fullName, string phone, string message)
+            Product product, string customerEmail, string fullName, string phone, string message, string ipaddress)
         {
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
@@ -876,7 +874,8 @@ namespace Grand.Business.Messages.Services
                     Enquiry = bodyReplaced,
                     FullName = fullName,
                     Subject = subjectReplaced,
-                    EmailAccountId = emailAccount.Id
+                    EmailAccountId = emailAccount.Id,
+                    RemoteIpAddress = ipaddress
                 });
             }
 
@@ -894,7 +893,8 @@ namespace Grand.Business.Messages.Services
             }
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName, replyToEmailAddress: customerEmail);
+                toEmail, toName, replyToEmailAddress: customerEmail,
+                reference: Reference.Customer, objectId: customer.Id);
         }
 
         #endregion
@@ -954,7 +954,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.MerchandiseReturn, objectId: merchandiseReturn.Id);
         }
 
         /// <summary>
@@ -1000,7 +1001,8 @@ namespace Grand.Business.Messages.Services
                 customer.GetFullName();
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.MerchandiseReturn, objectId: merchandiseReturn.Id);
         }
 
         /// <summary>
@@ -1045,7 +1047,8 @@ namespace Grand.Business.Messages.Services
                 customer.GetFullName();
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.MerchandiseReturn, objectId: merchandiseReturn.Id);
         }
 
         /// <summary>
@@ -1093,7 +1096,8 @@ namespace Grand.Business.Messages.Services
                 customer.GetFullName();
             return await SendNotification(messageTemplate, emailAccount,
                 language.Id, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.MerchandiseReturn, objectId: merchandiseReturn.Id);
         }
 
         #endregion
@@ -1137,7 +1141,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer.Id);
         }
 
         /// <summary>
@@ -1171,7 +1176,8 @@ namespace Grand.Business.Messages.Services
             var toEmail = emailAccount.Email;
             var toName = emailAccount.DisplayName;
 
-            return await SendNotification(messageTemplate, emailAccount, languageId, liquidObject, toEmail, toName);
+            return await SendNotification(messageTemplate, emailAccount, languageId, liquidObject, toEmail, toName,
+                reference: Reference.Vendor, objectId: vendor.Id);
         }
 
 
@@ -1255,7 +1261,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Product, objectId: product.Id);
         }
 
 
@@ -1302,7 +1309,8 @@ namespace Grand.Business.Messages.Services
             var toName = vendor.Name;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer?.Id);
         }
 
         /// <summary>
@@ -1337,7 +1345,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Product, objectId: product.Id);
         }
 
         /// <summary>
@@ -1373,7 +1382,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Product, objectId: product.Id);
         }
 
         /// <summary>
@@ -1409,7 +1419,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer.Id);
         }
 
         /// <summary>
@@ -1447,7 +1458,8 @@ namespace Grand.Business.Messages.Services
             var toName = emailAccount.DisplayName;
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Blog, objectId: blogPost.Id);
         }
 
         /// <summary>
@@ -1565,7 +1577,8 @@ namespace Grand.Business.Messages.Services
             var toName = customer.GetFullName();
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer?.Id);
         }
 
         /// <summary>
@@ -1582,7 +1595,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="customAttributes">CustomAttributes</param>
         /// <returns>Queued email identifier</returns>
         public virtual async Task<int> SendContactUsMessage(Customer customer, Store store, string languageId, string senderEmail,
-            string senderName, string subject, string body, string attrInfo, IList<CustomAttribute> customAttributes)
+            string senderName, string subject, string body, string attrInfo, IList<CustomAttribute> customAttributes, string ipaddress)
         {
             var language = await EnsureLanguageIsActive(languageId, store.Id);
             var messageTemplate = await GetMessageTemplate("Service.ContactUs", store.Id);
@@ -1633,7 +1646,8 @@ namespace Grand.Business.Messages.Services
                     Subject = string.IsNullOrEmpty(subject) ? "Contact Us (form)" : subject,
                     ContactAttributeDescription = attrInfo,
                     ContactAttributes = customAttributes,
-                    EmailAccountId = emailAccount.Id
+                    EmailAccountId = emailAccount.Id,
+                    RemoteIpAddress = ipaddress
                 });
             }
             return await SendNotification(messageTemplate, emailAccount, languageId, liquidObject, toEmail, toName,
@@ -1641,22 +1655,24 @@ namespace Grand.Business.Messages.Services
                 fromName: fromName,
                 subject: subject,
                 replyToEmailAddress: senderEmail,
-                replyToName: senderName);
+                replyToName: senderName, reference: Reference.Customer, objectId: customer?.Id);
         }
 
         /// <summary>
         /// Sends "contact vendor" message
         /// </summary>
-        /// <param name="vendor">Vendor</param>
+        /// <param name="customer">Customer</param>
         /// <param name="store">Store</param>
+        /// <param name="vendor">Vendor</param>
         /// <param name="languageId">Message language identifier</param>
         /// <param name="senderEmail">Sender email</param>
         /// <param name="senderName">Sender name</param>
         /// <param name="subject">Email subject. Pass null if you want a message template subject to be used.</param>
         /// <param name="body">Email body</param>
+        /// <param name="ipaddress">Ip address</param>
         /// <returns>Queued email identifier</returns>
         public virtual async Task<int> SendContactVendorMessage(Customer customer, Store store, Vendor vendor, string languageId, string senderEmail,
-            string senderName, string subject, string body)
+            string senderName, string subject, string body, string ipaddress)
         {
             if (vendor == null)
                 throw new ArgumentNullException(nameof(vendor));
@@ -1708,6 +1724,7 @@ namespace Grand.Business.Messages.Services
                     VendorId = vendor.Id,
                     Email = senderEmail,
                     Enquiry = body,
+                    RemoteIpAddress = ipaddress,
                     FullName = senderName,
                     Subject = String.IsNullOrEmpty(subject) ? "Contact Us (form)" : subject,
                     EmailAccountId = emailAccount.Id
@@ -1719,7 +1736,8 @@ namespace Grand.Business.Messages.Services
                 fromName: fromName,
                 subject: subject,
                 replyToEmailAddress: senderEmail,
-                replyToName: senderName);
+                replyToName: senderName,
+                reference: Reference.Vendor, objectId: vendor?.Id);
         }
 
         #region Customer Action Event
@@ -1765,7 +1783,8 @@ namespace Grand.Business.Messages.Services
 
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer?.Id);
         }
 
 
@@ -1819,7 +1838,8 @@ namespace Grand.Business.Messages.Services
 
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer?.Id);
 
         }
 
@@ -1861,7 +1881,8 @@ namespace Grand.Business.Messages.Services
                 var toName = customer.GetFullName();
                 return await SendNotification(messageTemplate, emailAccount,
                     languageId, liquidObject,
-                    toEmail, toName);
+                    toEmail, toName,
+                    reference: Reference.Customer, objectId: customer.Id);
             }
             return 0;
         }
@@ -1909,7 +1930,8 @@ namespace Grand.Business.Messages.Services
                     var toName = customer.GetFullName();
                     await SendNotification(messageTemplate, emailAccount,
                         languageId, liquidObject2,
-                        toEmail, toName);
+                        toEmail, toName,
+                        reference: Reference.Customer, objectId: customer?.Id);
                 }
             }
             return 0;
@@ -1955,7 +1977,8 @@ namespace Grand.Business.Messages.Services
                     var toName = customer.GetFullName();
                     await SendNotification(messageTemplate, emailAccount,
                         languageId, liquidObject2,
-                        toEmail, toName);
+                        toEmail, toName,
+                        reference: Reference.Customer, objectId: customer.Id);
                 }
             }
 
@@ -2056,7 +2079,8 @@ namespace Grand.Business.Messages.Services
             var toName = customer.GetFullName();
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer?.Id);
         }
         #endregion
 
@@ -2097,7 +2121,8 @@ namespace Grand.Business.Messages.Services
 
             return await SendNotification(messageTemplate, emailAccount,
                 languageId, liquidObject,
-                toEmail, toName);
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer.Id);
         }
 
         #endregion
@@ -2108,15 +2133,16 @@ namespace Grand.Business.Messages.Services
             string attachmentFilePath = null, string attachmentFileName = null,
             IEnumerable<string> attachedDownloads = null,
             string replyToEmailAddress = null, string replyToName = null,
-            string fromEmail = null, string fromName = null, string subject = null)
+            string fromEmail = null, string fromName = null, string subject = null,
+            Reference reference = Reference.None, string objectId = "")
         {
-            if (String.IsNullOrEmpty(toEmailAddress))
+            if (string.IsNullOrEmpty(toEmailAddress))
                 return 0;
 
             //retrieve translation message template data
             var bcc = messageTemplate.GetTranslation(mt => mt.BccEmailAddresses, languageId);
 
-            if (String.IsNullOrEmpty(subject))
+            if (string.IsNullOrEmpty(subject))
                 subject = messageTemplate.GetTranslation(mt => mt.Subject, languageId);
 
             var body = messageTemplate.GetTranslation(mt => mt.Body, languageId);
@@ -2153,6 +2179,8 @@ namespace Grand.Business.Messages.Services
             email.EmailAccountId = emailAccount.Id;
             email.DontSendBeforeDateUtc = !messageTemplate.DelayBeforeSend.HasValue ? null
                     : (DateTime?)(DateTime.UtcNow + TimeSpan.FromHours(messageTemplate.DelayPeriodId.ToHours(messageTemplate.DelayBeforeSend.Value)));
+            email.Reference = reference;
+            email.ObjectId = objectId;
 
             await _queuedEmailService.InsertQueuedEmail(email);
             return 1;

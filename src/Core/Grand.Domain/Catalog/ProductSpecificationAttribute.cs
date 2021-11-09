@@ -22,6 +22,11 @@ namespace Grand.Domain.Catalog
         public string SpecificationAttributeOptionId { get; set; }
 
         /// <summary>
+        /// Gets or sets the custom name
+        /// </summary>
+        public string CustomName { get; set; }
+
+        /// <summary>
         /// Gets or sets the custom value
         /// </summary>
         public string CustomValue { get; set; }

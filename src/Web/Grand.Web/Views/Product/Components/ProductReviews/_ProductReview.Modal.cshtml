@@ -1,0 +1,58 @@
+﻿@model ProductReviewsModel
+
+@{
+    var productlink = @Url.RouteUrl("Product", new { SeName = Model.ProductSeName });
+}
+
+<b-modal id="ModalProductReview" ref="ModalProductReview" :dark-theme="darkMode" size="xl" @@shown="productreviews.modalReviewShown()" @@hide="productreviews.modalReviewClose()" centered hide-footer hide-header>
+    <template v-if="productreviews.Model !== null">
+        <h2 class="generalTitle h3">@Loc["Reviews.ProductReviewsFor"] <a :href="'@productlink'">{{productreviews.Model.ProductName}}</a></h2>
+        <a class="modal-close" @@click="$bvModal.hide('ModalProductReview')"><b-icon icon="x"></b-icon></a>
+        <template v-if="!productreviews.Model.AddProductReview.SuccessfullyAdded">
+            <div class="write-review" id="review-form">
+                <h5 class="generalTitle"><strong>@Loc["Reviews.Write"]</strong></h5>
+                <validation-observer v-slot="{ handleSubmit }">
+                    <form id="addReviewForm" asp-route="ProductReviews" asp-route-ProductId="@Model.ProductId" method="post" ref="modalForm" 
+                          v-on:submit.prevent="handleSubmit(productreviews.submitProductReview)" :data-title="'@Loc["Reviews.ProductReviewsFor"] ' + productreviews.Model.ProductName">
+                        <input type="hidden" asp-for="@Model.ProductId" />
+                        <div asp-validation-summary="ModelOnly" class="message-error alert alert-danger my-3"></div>
+                        <fieldset>
+                            <div class="form-fields">
+                                <div class="form-group">
+                                    <validation-provider tag="div" rules="required" name="AddProductReview.Title" v-slot="{ errors, classes }">
+                                        <label for="AddProductReview_Title" class="col-form-label">@Loc["Reviews.Fields.Title"]:</label>
+                                        <input data-val-required="@Loc["reviews.fields.title.required"]" v-model="productreviews.Model.AddProductReview.Title" id="AddProductReview_Title" name="AddProductReview.Title" v-bind:class="[classes , 'form-control review-title']" :disabled="!productreviews.Model.AddProductReview.CanCurrentCustomerLeaveReview" />
+                                        <span class="field-validation-error">{{ errors[0] }}</span>
+                                    </validation-provider>
+                                </div>
+                                <div class="form-group">
+                                    <validation-provider tag="div" rules="required" name="AddProductReview.ReviewText" v-slot="{ errors, classes }">
+                                        <label for="AddProductReview_ReviewText" class="col-form-label">@Loc["Reviews.Fields.ReviewText"]:</label>
+                                        <textarea data-val-required="@Loc["reviews.fields.reviewtext.required"]" v-model="productreviews.Model.AddProductReview.ReviewText" id="AddProductReview_ReviewText" name="AddProductReview.ReviewText" v-bind:class="[classes , 'form-control review-text']" :disabled="!productreviews.Model.AddProductReview.CanCurrentCustomerLeaveReview"></textarea>
+                                        <span class="field-validation-error">{{ errors[0] }}</span>
+                                    </validation-provider>
+                                </div>
+                                <div class="form-group review-rating d-flex flex-wrap">
+                                    <label for="AddProductReview_Rating" class="col-form-label w-100">@Loc["Reviews.Fields.Rating"]:</label>
+                                    <b-form-rating v-model="value" variant="warning" show-value value="5" inline></b-form-rating>
+                                    <input class="sr-only" id="AddProductReview_Rating" name="AddProductReview.Rating" v-model="value" />
+                                </div>
+                                <template v-if="productreviews.Model.AddProductReview.DisplayCaptcha">
+                                    <div id="captcha-popup"></div>
+                                </template>
+                            </div>
+                        </fieldset>
+                        <div class="buttons my-3">
+                            <input type="submit" class="btn btn-info write-product-review-button" value="@Loc[" Reviews.SubmitButton"]" :disabled="!productreviews.Model.AddProductReview.CanCurrentCustomerLeaveReview" />
+                        </div>
+                    </form>
+                </validation-observer>
+            </div>
+        </template>
+        <template v-else>
+            <div class="alert alert-info">
+                {{productreviews.Model.AddProductReview.Result}}
+            </div>
+        </template>
+    </template>
+</b-modal>

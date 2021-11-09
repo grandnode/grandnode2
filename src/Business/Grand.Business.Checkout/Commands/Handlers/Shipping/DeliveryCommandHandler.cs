@@ -1,5 +1,4 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Checkout.Commands.Models.Orders;
+﻿using Grand.Business.Checkout.Commands.Models.Orders;
 using Grand.Business.Checkout.Commands.Models.Shipping;
 using Grand.Business.Checkout.Extensions;
 using Grand.Business.Checkout.Interfaces.Orders;
@@ -60,8 +59,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Shipping
             }
 
             //add a note
-            await _orderService.InsertOrderNote(new OrderNote
-            {
+            await _orderService.InsertOrderNote(new OrderNote {
                 Note = $"Shipment #{request.Shipment.ShipmentNumber} has been delivered",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
@@ -70,17 +68,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Shipping
             if (request.NotifyCustomer)
             {
                 //send email notification
-                int queuedEmailId = await _messageProviderService.SendShipmentDeliveredCustomerMessage(request.Shipment, order);
-                if (queuedEmailId > 0)
-                {
-                    await _orderService.InsertOrderNote(new OrderNote
-                    {
-                        Note = "\"Delivered\" email (to customer) has been queued.",
-                        DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = order.Id,
-                    });
-                }
+                await _messageProviderService.SendShipmentDeliveredCustomerMessage(request.Shipment, order);
             }
             //event
             await _mediator.PublishShipmentDelivered(request.Shipment);

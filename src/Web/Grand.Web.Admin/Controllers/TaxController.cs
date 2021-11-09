@@ -78,7 +78,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Providers(DataSourceRequest command)
         {
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var taxSettings = _settingService.LoadSetting<TaxSettings>(storeScope);
             var taxProviderSettings = _settingService.LoadSetting<TaxProviderSettings>();
 
@@ -135,7 +135,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Settings()
         {
             //load settings for a chosen store scope
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var taxSettings = _settingService.LoadSetting<TaxSettings>(storeScope);
             var model = taxSettings.ToModel();
 
@@ -184,7 +184,7 @@ namespace Grand.Web.Admin.Controllers
             [FromServices] ICustomerActivityService customerActivityService)
         {
             //load settings for a chosen store scope
-            var storeScope = await GetActiveStore(_storeService, _workContext);
+            var storeScope = await GetActiveStore();
             var taxSettings = _settingService.LoadSetting<TaxSettings>(storeScope);
             taxSettings = model.ToEntity(taxSettings);
 
@@ -194,7 +194,9 @@ namespace Grand.Web.Admin.Controllers
             await ClearCache();
 
             //activity log
-            await customerActivityService.InsertActivity("EditSettings", "", _translationService.GetResource("ActivityLog.EditSettings"));
+            _ = customerActivityService.InsertActivity("EditSettings", "",
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditSettings"));
 
             Success(_translationService.GetResource("Admin.Configuration.Updated"));
             return RedirectToAction("Settings");

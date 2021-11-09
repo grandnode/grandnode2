@@ -161,7 +161,7 @@ namespace Grand.Business.Storage.Interfaces
         /// Updates the picture field
         /// </summary>
         /// <param name="picture">Picture</param>
-        Task UpdatField<T>(Picture picture,
+        Task UpdatePictureField<T>(Picture picture,
             Expression<Func<Picture, T>> expression, T value);
 
         /// <summary>

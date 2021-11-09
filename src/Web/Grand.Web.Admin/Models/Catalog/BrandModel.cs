@@ -24,15 +24,12 @@ namespace Grand.Web.Admin.Models.Catalog
         }
 
         [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.Name")]
-
         public string Name { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.Description")]
-
         public string Description { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.BottomDescription")]
-
         public string BottomDescription { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.BrandLayout")]
@@ -40,7 +37,6 @@ namespace Grand.Web.Admin.Models.Catalog
         public IList<SelectListItem> AvailableBrandLayouts { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.MetaKeywords")]
-
         public string MetaKeywords { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.MetaDescription")]
@@ -83,6 +79,9 @@ namespace Grand.Web.Admin.Models.Catalog
 
         [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.DisplayOrder")]
         public int DisplayOrder { get; set; }
+
+        [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.ExternalId")]
+        public string ExternalId { get; set; }
 
         public IList<BrandLocalizedModel> Locales { get; set; }
 
@@ -143,5 +142,6 @@ namespace Grand.Web.Admin.Models.Catalog
         [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.SeName")]
 
         public string SeName { get; set; }
+
     }
 }

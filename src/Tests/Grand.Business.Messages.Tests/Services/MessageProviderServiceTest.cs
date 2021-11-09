@@ -75,7 +75,6 @@ namespace Grand.Business.Messages.Tests.Services
                 _queuedEmailServiceMock.Object,
                 _languageServiceMock.Object,
                 _emailAccountServiceMock.Object,
-                _messageTokenProviderMock.Object,
                 _storeServiceMock.Object,
                 _storeHelperServiceMock.Object,
                 _groupService.Object,

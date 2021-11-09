@@ -14,5 +14,6 @@ namespace Grand.Web.Commands.Models.Products
         public Language Language { get; set; }
         public Product Product { get; set; }
         public ProductAskQuestionModel Model { get; set; }
+        public string RemoteIpAddress { get; set; }
     }
 }

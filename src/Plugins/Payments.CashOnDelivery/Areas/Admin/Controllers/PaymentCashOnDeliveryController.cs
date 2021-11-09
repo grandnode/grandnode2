@@ -61,7 +61,8 @@ namespace Payments.CashOnDelivery.Controllers
                 AdditionalFee = cashOnDeliveryPaymentSettings.AdditionalFee,
                 AdditionalFeePercentage = cashOnDeliveryPaymentSettings.AdditionalFeePercentage,
                 ShippableProductRequired = cashOnDeliveryPaymentSettings.ShippableProductRequired,
-                DisplayOrder = cashOnDeliveryPaymentSettings.DisplayOrder
+                DisplayOrder = cashOnDeliveryPaymentSettings.DisplayOrder,
+                SkipPaymentInfo = cashOnDeliveryPaymentSettings.SkipPaymentInfo,
             };
             model.DescriptionText = cashOnDeliveryPaymentSettings.DescriptionText;
 
@@ -86,6 +87,7 @@ namespace Payments.CashOnDelivery.Controllers
             cashOnDeliveryPaymentSettings.AdditionalFeePercentage = model.AdditionalFeePercentage;
             cashOnDeliveryPaymentSettings.ShippableProductRequired = model.ShippableProductRequired;
             cashOnDeliveryPaymentSettings.DisplayOrder = model.DisplayOrder;
+            cashOnDeliveryPaymentSettings.SkipPaymentInfo = model.SkipPaymentInfo;
 
             await _settingService.SaveSetting(cashOnDeliveryPaymentSettings, storeScope);
 

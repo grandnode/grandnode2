@@ -20,6 +20,7 @@ namespace Grand.Api.DTOs.Catalog
         public bool IncludeInMenu { get; set; }
         public string Icon { get; set; }
         public bool Published { get; set; }
+        public string ExternalId { get; set; }
         public int DisplayOrder { get; set; }
     }
 }

@@ -30,7 +30,9 @@ namespace Payments.CashOnDelivery.Models
         [GrandResourceDisplayName("Plugins.Payment.CashOnDelivery.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
-
+        [GrandResourceDisplayName("Plugins.Payment.CashOnDelivery.SkipPaymentInfo")]
+        public bool SkipPaymentInfo { get; set; }
+        
         public IList<ConfigurationLocalizedModel> Locales { get; set; }
 
         #region Nested class

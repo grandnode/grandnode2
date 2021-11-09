@@ -69,7 +69,7 @@ namespace Grand.Web.Features.Handlers.Blogs
                     var description = post.GetTranslation(x => x.BodyOverview, _workContext.WorkingLanguage.Id);
                     item.SeName = post.GetSeName(_workContext.WorkingLanguage.Id);
                     item.Title = post.GetTranslation(x => x.Title, _workContext.WorkingLanguage.Id);
-                    item.Short = description?.Length > _blogSettings.MaxTextSizeHomePage ? description.Substring(0, _blogSettings.MaxTextSizeHomePage) : description;
+                    item.Short = description?.Length > _blogSettings.MaxTextSizeHomePage ? description[.._blogSettings.MaxTextSizeHomePage] : description;
                     item.CreatedOn = _dateTimeService.ConvertToUserTime(post.StartDateUtc ?? post.CreatedOnUtc, DateTimeKind.Utc);
                     item.UserFields = post.UserFields;
                     item.Category = (await _blogService.GetBlogCategoryByPostId(post.Id)).FirstOrDefault()?.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id);

@@ -8,7 +8,7 @@
 }
 
 <div class="page category-page">
-    <button class="btn btn-outline-info mt-3" href="@Url.RouteUrl("Course", new { SeName = Model.CourseSeName })">@Loc["Course.GoBack"]: @Model.CourseName</button>
+    <a class="btn btn-outline-info mt-3" href="@Url.RouteUrl("Course", new { SeName = Model.CourseSeName })">@Loc["Course.GoBack"]: @Model.CourseName</a>
     @await Component.InvokeAsync("Widget", new { widgetZone = "courselessondetails_top", additionalData = Model.Id })
     <div class="mt-3">
         <div class="container d-inline-flex px-0">

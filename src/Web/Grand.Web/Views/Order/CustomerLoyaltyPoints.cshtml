@@ -23,46 +23,46 @@
         <h5><strong>@Loc["LoyaltyPoints.History"]</strong></h5>
         @if (Model.LoyaltyPoints.Any())
         {
-                        <div id="customer-loyalty-points"></div>
-                        <script>
-                            var CustomerLoyaltyPoints = Vue.extend({
-                                template: '<b-table :fields="fields" :items="items"> <template v-slot:cell(date)="data"> <div v-html="data.value.date"></div></template> <template v-slot:cell(points)="data"> <div v-html="data.value.points"></div></template> <template v-slot:cell(pointsbalance)="data"> <div v-html="data.value.pointsbalance"></div></template> <template v-slot:cell(message)="data"> <div v-html="data.value.message"></div></template> </b-table>',
-                                data: function () {
-                                    return {
-                                         fields: [
-                                            { key: 'date', label: '@Loc["LoyaltyPoints.Fields.Date"]'},
-                                            { key: 'points', label: '@Loc["LoyaltyPoints.Fields.Points"]'},
-                                            { key: 'pointsbalance', label: '@Loc["LoyaltyPoints.Fields.PointsBalance"]'},
-                                            { key: 'message', label: '@Loc["LoyaltyPoints.Fields.Message"]'},
-                                        ],
-                                        items: [
-                                             @for (int i = 0; i < Model.LoyaltyPoints.Count; i++)
-                                             {
-                                             <text>
-                                                @{ var item = Model.LoyaltyPoints[i];}
-                                            {
-                                                date: {
-                                                    date: '@item.CreatedOn'
-                                                },
-                                                points: {
-                                                    points: '@item.Points'
-                                                },
-                                                pointsbalance: {
-                                                    pointsbalance: '@item.PointsBalance'
-                                                },
-                                                message: {
-                                                    message: '@item.Message',
-                                                }
-
-                                            },
-                                            </text>
-                                            }
-                                        ]
+                        <div id="customer-loyalty-points" class="table-responsive">
+                            <table class="table">
+                                <thead role="rowgroup">
+                                    <tr role="row">
+                                        <th role="columnheader"><div>@Loc["LoyaltyPoints.Fields.Date"]</div></th>
+                                        <th role="columnheader"><div>@Loc["LoyaltyPoints.Fields.Points"]</div></th>
+                                        <th role="columnheader"><div>@Loc["LoyaltyPoints.Fields.PointsBalance"]</div></th>
+                                        <th role="columnheader"><div>@Loc["LoyaltyPoints.Fields.Message"]</div></th>
+                                    </tr>
+                                </thead>
+                                <tbody role="rowgroup">
+                                    @for (int i = 0; i < Model.LoyaltyPoints.Count; i++)
+                                    {
+                                        var item = Model.LoyaltyPoints[i];
+                                        <tr role="row">
+                                            <td>
+                                                <div>
+                                                    @item.CreatedOn
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    @item.Points
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    @item.PointsBalance
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    @item.Message
+                                                </div>
+                                            </td>
+                                        </tr>
                                     }
-                                }
-                            })
-                            new CustomerLoyaltyPoints().$mount('#customer-loyalty-points')
-                        </script>
+                                </tbody>
+                            </table>
+                        </div>
         }
         else
         {

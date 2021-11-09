@@ -2,35 +2,37 @@ using Grand.Domain.Customers;
 using Grand.Domain.Logging;
 using System;
 using Grand.Business.Common.Interfaces.Logging;
+using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Extensions
 {
     public static class LoggingExtensions
     {
-        public static void Information(this ILogger logger, string message, Exception exception = null, Customer customer = null)
+        public static Task Information(this ILogger logger, string message, Exception exception = null, Customer customer = null)
         {
-            FilteredLog(logger, LogLevel.Information, message, exception, customer);
+            return FilteredLog(logger, LogLevel.Information, message, exception, customer);
         }
-        public static void Warning(this ILogger logger, string message, Exception exception = null, Customer customer = null)
+        public static Task Warning(this ILogger logger, string message, Exception exception = null, Customer customer = null)
         {
-            FilteredLog(logger, LogLevel.Warning, message, exception, customer);
+            return FilteredLog(logger, LogLevel.Warning, message, exception, customer);
         }
-        public static void Error(this ILogger logger, string message, Exception exception = null, Customer customer = null)
+        public static Task Error(this ILogger logger, string message, Exception exception = null, Customer customer = null)
         {
-            FilteredLog(logger, LogLevel.Error, message, exception, customer);
+            return FilteredLog(logger, LogLevel.Error, message, exception, customer);
         }
-        public static void Fatal(this ILogger logger, string message, Exception exception = null, Customer customer = null)
+        public static Task Fatal(this ILogger logger, string message, Exception exception = null, Customer customer = null)
         {
-            FilteredLog(logger, LogLevel.Fatal, message, exception, customer);
+            return FilteredLog(logger, LogLevel.Fatal, message, exception, customer);
         }
 
-        private static void FilteredLog(ILogger logger, LogLevel level, string message, Exception exception = null, Customer customer = null)
+        private static Task FilteredLog(ILogger logger, LogLevel level, string message, Exception exception = null, Customer customer = null)
         {
             if (logger.IsEnabled(level))
             {
-                string fullMessage = exception == null ? string.Empty : exception.ToString();
-                logger.InsertLog(level, message, fullMessage, customer);
+                var fullMessage = exception == null ? string.Empty : exception.ToString();
+                return logger.InsertLog(level, message, fullMessage, customer);
             }
+            return Task.CompletedTask;
         }
     }
 }

@@ -1,12 +1,12 @@
 ﻿@model CustomerTagProductModel.AddProductModel
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["Admin.Customers.CustomerTags.Products.AddNew"];
 }
 @inject AdminAreaSettings adminAreaSettings
 
-<form asp-area="@Constants.AreaAdmin" asp-controller="CustomerTag" asp-action="ProductAddPopup" method="post"
+<form id="ProductAddPopup" asp-area="@Constants.AreaAdmin" asp-controller="CustomerTag" asp-action="ProductAddPopup" method="post"
       asp-route-CustomerTagId="@Context.Request.Query["CustomerTagId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
@@ -26,23 +26,23 @@
                         <div class="form-body">
                             <div class="main-header col-12 px-0">
                                 <div class="row align-items-end">
-                                    <div class="col-md-8 col-ms-12 col-12">
+                                    <div class="col-md col-ms-12 col-12">
                                         <div class="form-group mb-0">
                                             <admin-label asp-for="SearchProductName" class="control-label" />
                                             <admin-input asp-for="SearchProductName" />
                                         </div>
                                     </div>
-                                    <div class="col-md-4 col-sm-12 col-12">
+                                    <div class="col-md-auto col-sm-12 col-12">
                                         <div class="form-actions">
-                                            <div class="btn-group btn-group-sm btn-group-devided">
+                                            <div class="btn-group btn-group-devided">
                                                 <button class="btn btn-success filter-submit" id="search-products">
                                                     <i class="fa fa-search"></i>&nbsp; @Loc["Admin.Common.Search"]
                                                 </button>
-                                                <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> &nbsp; @Loc["Admin.Common.Save"] </button>
                                                 <button class="btn btn-info" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
                                                     <i class="fa fa-filter"></i>&nbsp; @Loc["Admin.Common.Filters"]
                                                 </button>
                                             </div>
+                                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> &nbsp; @Loc["Admin.Common.Save"] </button>
                                         </div>
                                     </div>
                                 </div>
@@ -94,19 +94,36 @@
             </div>
         </div>
     </div>
-
-
-
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-            try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-            catch (e){}
-            window.close();
-        </script>
-    }
     <script>
-        $(document).ready(function () {
+            var mfp = $.magnificPopup.instance;
+            $("#ProductAddPopup").submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data == "") {
+                            mfp.close();
+                            $('#btnRefreshProducts').click();
+                        } else {
+                            $.magnificPopup.open({
+                                items: {
+                                    src: data,
+                                    type: 'inline'
+                                },
+                                callbacks: {
+                                    open: function () {
+                                        $('.mfp-wrap').removeAttr('tabindex');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            });
 
             $('.extend-collapse').hide();
             $('.filter-extend-button').click(function () {
@@ -168,12 +185,7 @@
                     template: '# if(Published) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
                 }]
             });
-        });
-    </script>
 
-
-    <script>
-        $(document).ready(function () {
             $('#search-products').click(function () {
                 var grid = $('#products-grid').data('kendoGrid');
                 grid.dataSource.page(1); //new search. Set page size to 1
@@ -198,7 +210,6 @@
             $('#products-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function(e) {
                 updateMasterCheckbox();
             });
-        });
 
         function additionalData() {
             var data = {

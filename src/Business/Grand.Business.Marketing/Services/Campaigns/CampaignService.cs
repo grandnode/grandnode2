@@ -26,7 +26,6 @@ namespace Grand.Business.Marketing.Services.Campaigns
         private readonly IRepository<NewsLetterSubscription> _newsLetterSubscriptionRepository;
         private readonly IRepository<Customer> _customerRepository;
         private readonly IEmailSender _emailSender;
-        private readonly IMessageTokenProvider _messageTokenProvider;
         private readonly IQueuedEmailService _queuedEmailService;
         private readonly ICustomerService _customerService;
         private readonly IStoreService _storeService;
@@ -40,7 +39,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
             IRepository<CampaignHistory> campaignHistoryRepository,
             IRepository<NewsLetterSubscription> newsLetterSubscriptionRepository,
             IRepository<Customer> customerRepository,
-            IEmailSender emailSender, IMessageTokenProvider messageTokenProvider,
+            IEmailSender emailSender, 
             IQueuedEmailService queuedEmailService,
             ICustomerService customerService, IStoreService storeService,
             IMediator mediator,
@@ -54,7 +53,6 @@ namespace Grand.Business.Marketing.Services.Campaigns
             _newsLetterSubscriptionRepository = newsLetterSubscriptionRepository;
             _customerRepository = customerRepository;
             _emailSender = emailSender;
-            _messageTokenProvider = messageTokenProvider;
             _queuedEmailService = queuedEmailService;
             _storeService = storeService;
             _customerService = customerService;
@@ -354,15 +352,15 @@ namespace Grand.Business.Marketing.Services.Campaigns
                 email.Body = body;
                 email.CreatedOnUtc = DateTime.UtcNow;
                 email.EmailAccountId = emailAccount.Id;
+                email.Reference = Domain.Common.Reference.Campaign;
+                email.ObjectId = campaign.Id;
 
                 await _queuedEmailService.InsertQueuedEmail(email);
                 await InsertCampaignHistory(new CampaignHistory() { CampaignId = campaign.Id, CustomerId = subscription.CustomerId, Email = subscription.Email, CreatedDateUtc = DateTime.UtcNow, StoreId = campaign.StoreId });
 
                 //activity log
                 if (customer != null)
-                    await _customerActivityService.InsertActivity("CustomerReminder.SendCampaign", campaign.Id, _translationService.GetResource("ActivityLog.SendCampaign"), customer, campaign.Name);
-                else
-                    await _customerActivityService.InsertActivity("CustomerReminder.SendCampaign", campaign.Id, _translationService.GetResource("ActivityLog.SendCampaign"), campaign.Name + " - " + subscription.Email);
+                    _ = _customerActivityService.InsertActivity("CustomerReminder.SendCampaign", campaign.Id, customer, "", _translationService.GetResource("ActivityLog.SendCampaign"), campaign.Name);
 
                 totalEmailsSent++;
             }

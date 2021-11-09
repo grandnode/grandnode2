@@ -7,6 +7,7 @@ using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Common.Services.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Directory;
+using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
@@ -172,13 +173,15 @@ namespace Grand.Web.Admin.Controllers
         //delete
         [HttpPost]
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
-        public async Task<IActionResult> Delete(string id, [FromServices] ICustomerActivityService customerActivityService)
+        public async Task<IActionResult> Delete(string id, 
+            [FromServices] IWorkContext workContext,  
+            [FromServices] ICustomerActivityService customerActivityService)
         {
             var checkoutAttribute = await _checkoutAttributeService.GetCheckoutAttributeById(id);
             await _checkoutAttributeService.DeleteCheckoutAttribute(checkoutAttribute);
 
             //activity log
-            await customerActivityService.InsertActivity("DeleteCheckoutAttribute", checkoutAttribute.Id, _translationService.GetResource("ActivityLog.DeleteCheckoutAttribute"), checkoutAttribute.Name);
+            await customerActivityService.InsertActivity("DeleteCheckoutAttribute", checkoutAttribute.Id, workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(), _translationService.GetResource("ActivityLog.DeleteCheckoutAttribute"), checkoutAttribute.Name);
 
             Success(_translationService.GetResource("Admin.Orders.CheckoutAttributes.Deleted"));
             return RedirectToAction("List");
@@ -233,9 +236,8 @@ namespace Grand.Web.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                var cav = await _checkoutAttributeViewModelService.InsertCheckoutAttributeValueModel(checkoutAttribute, model);
-                ViewBag.RefreshPage = true;
-                return View(model);
+                await _checkoutAttributeViewModelService.InsertCheckoutAttributeValueModel(checkoutAttribute, model);
+                return Content("");
             }
 
             //If we got this far, something failed, redisplay form
@@ -287,8 +289,7 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await _checkoutAttributeViewModelService.UpdateCheckoutAttributeValueModel(checkoutAttribute, cav, model);
-                ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
 
             //If we got this far, something failed, redisplay form

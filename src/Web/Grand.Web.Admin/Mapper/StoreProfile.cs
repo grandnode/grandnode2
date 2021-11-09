@@ -25,6 +25,9 @@ namespace Grand.Web.Admin.Mapper
             CreateMap<DomainHost, DomainHostModel>();
             CreateMap<DomainHostModel, DomainHost>();
 
+            CreateMap<BankAccount, StoreModel.BankAccountModel>();
+            CreateMap<StoreModel.BankAccountModel, BankAccount>();
+
         }
 
         public int Order => 0;

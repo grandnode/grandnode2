@@ -105,6 +105,20 @@
             </div>
         </div>
         <div class="form-group">
+            <admin-label asp-for="CompanyRegNo" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="CompanyRegNo" />
+                <span asp-validation-for="CompanyRegNo"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <admin-label asp-for="CompanyVat" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="CompanyVat" />
+                <span asp-validation-for="CompanyVat"></span>
+            </div>
+        </div>
+        <div class="form-group">
             <admin-label asp-for="CompanyAddress" />
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="CompanyAddress" />
@@ -116,13 +130,6 @@
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="CompanyPhoneNumber" />
                 <span asp-validation-for="CompanyPhoneNumber"></span>
-            </div>
-        </div>
-        <div class="form-group">
-            <admin-label asp-for="CompanyVat" />
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="CompanyVat" />
-                <span asp-validation-for="CompanyVat"></span>
             </div>
         </div>
         <div class="form-group">

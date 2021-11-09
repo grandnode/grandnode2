@@ -1,0 +1,39 @@
+﻿<template v-if="PopupQuickViewVueModal.ProductType == 20">
+    <div>
+        <template v-if="PopupQuickViewVueModal.Parameters.length > 0">
+            <div class="container" style="margin-left:-15px">
+                <label for="parameterDropdown" class="col-form-label">@Loc["Products.AdditionalParameter"]:</label>
+                <select class="custom-select form-control" name="parameterDropdown" id="parameterDropdown">
+                    <template v-for="parameter in PopupQuickViewVueModal.Parameters">
+                        <option :value="parameter.Value">{{parameter.Text}}</option>
+                    </template>
+                </select>
+            </div>
+        </template>
+        <template v-if="PopupQuickViewVueModal.IntervalUnit == 10">
+            <div>
+                <h5>@Loc["Products.Reservation.DateFrom"]:</h5>
+                <input :name="'reservationDatepickerFrom_' + PopupQuickViewVueModal.Id" id="reservationDatepickerFrom" class="form-control datepicker" v-model="PopupQuickViewVueModal.RentalStartDateUtc" />
+            </div>
+            <div>
+                <h5>@Loc["Products.Reservation.DateTo"]:</h5>
+                <input :name="'reservationDatepickerTo_' + PopupQuickViewVueModal.Id" id="reservationDatepickerTo" class="form-control datepicker" v-model="PopupQuickViewVueModal.RentalEndDateUtc" />
+            </div>
+        </template>
+        <template v-else>
+            <div>
+                <h5>@Loc["Products.Reservation.Date"]:</h5>
+                <template v-if="PopupQuickViewVueModal.RentalStartDateUtc !== null">
+                    <input id="reservationDatepicker" class="form-control datepicker" v-model="PopupQuickViewVueModal.RentalStartDateUtc" />
+                </template>
+                <template v-else>
+                    <input id="reservationDatepicker" class="form-control datepicker" />
+                </template>
+            </div>
+            <div>
+                <h5 style="margin-top:10px">@Loc["Products.Reservation.Hour"]:</h5>
+                <div id="hoursDiv" class="d-inline-flex flex-wrap" data-toggle="buttons"></div>
+            </div>
+        </template>
+    </div>
+</template>

@@ -1,10 +1,14 @@
 ﻿[
   {
-    "outputFileName": "wwwroot/bundles/site.min.css",
+    "outputFileName": "wwwroot/bundles/style.rtl.min.css",
     "inputFiles": [
-      "wwwroot/theme/bootstrap-vue/bootstrap.min.css",
-      "wwwroot/theme/bootstrap-vue/bootstrap-vue.min.css",
-      "wwwroot/theme/css/animate.min.css"
+      "wwwroot/theme/css/common/common.rtl.css",
+      "wwwroot/theme/css/header/header.rtl.css",
+      "wwwroot/theme/css/catalog/catalog.rtl.css",
+      "wwwroot/theme/css/product/product.rtl.css",
+      "wwwroot/theme/css/customer/customer.rtl.css",
+      "wwwroot/theme/css/cart/cart.rtl.css"
+
     ],
     "minify": {
       "enabled": true,
@@ -13,15 +17,48 @@
     "sourceMap": false
   },
   {
+    "outputFileName": "wwwroot/bundles/style.min.css",
+    "inputFiles": [
+      "wwwroot/theme/css/common/common.css",
+      "wwwroot/theme/css/header/header.css",
+      "wwwroot/theme/css/catalog/catalog.css",
+      "wwwroot/theme/css/product/product.css",
+      "wwwroot/theme/css/customer/customer.css",
+      "wwwroot/theme/css/cart/cart.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/theme/script/public.common.min.js",
+    "inputFiles": [
+      "wwwroot/theme/script/public.common.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": false
+    },
+    "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/theme/script/public.axios.min.js",
+    "inputFiles": [
+      "wwwroot/theme/script/public.axios.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": false
+    },
+    "sourceMap": false
+  },
+  {
     "outputFileName": "wwwroot/bundles/site.min.js",
     "inputFiles": [
-      "wwwroot/theme/lib/vue.min.js",
-      "wwwroot/theme/lib/portal-vue.umd.min.js",
-      "wwwroot/theme/lib/bootstrap-vue.min.js",
-      "wwwroot/theme/lib/bootstrap-vue-icons-slim.min.js",
-      "wwwroot/theme/lib/axios.min.js",
-      "wwwroot/theme/lib/vue-awesome-countdown.umd.min.js",
-      "wwwroot/theme/lib/vee-validate.minimal.min.js"
+      "wwwroot/theme/script/public.common.min.js",
+      "wwwroot/theme/script/public.axios.min.js"
     ],
     "minify": {
       "enabled": false,

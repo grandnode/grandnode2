@@ -192,6 +192,9 @@
   <Resource Name="Account.CustomerMerchandiseReturns.Comments">
     <Value>Your Comments:</Value>
   </Resource>
+  <Resource Name="Account.CustomerMerchandiseReturns.Count">
+    <Value>Count</Value>
+  </Resource>
   <Resource Name="Account.CustomerMerchandiseReturns.Date">
     <Value>Date Requested:</Value>
   </Resource>
@@ -204,6 +207,9 @@
   <Resource Name="Account.CustomerMerchandiseReturns.Nomerchandisereturns">
     <Value>No merchandise returns</Value>
   </Resource>
+  <Resource Name="Account.CustomerMerchandiseReturns.Number">
+    <Value>Number</Value>
+  </Resource>
   <Resource Name="Account.CustomerMerchandiseReturns.PickupAddress">
     <Value>Pickup address</Value>
   </Resource>
@@ -215,6 +221,9 @@
   </Resource>
   <Resource Name="Account.CustomerMerchandiseReturns.Reason">
     <Value>Return Reason:</Value>
+  </Resource>
+  <Resource Name="Account.CustomerMerchandiseReturns.Status">
+    <Value>Status:</Value>
   </Resource>
   <Resource Name="Account.CustomerMerchandiseReturns.Title">
     <Value>Return #{0} - {1}</Value>
@@ -278,6 +287,9 @@
   </Resource>
   <Resource Name="Account.DeleteAccount.Fields.Password.Required">
     <Value>Password field is required</Value>
+  </Resource>
+  <Resource Name="Account.Delete.Success">
+    <Value>The account was successfully deleted.</Value>
   </Resource>
   <Resource Name="Account.Documents">
     <Value>Documents</Value>
@@ -489,11 +501,17 @@
   <Resource Name="Account.Login.Fields.Password">
     <Value>Password</Value>
   </Resource>
+  <Resource Name="Account.Login.Fields.Password.Required">
+    <Value>Please enter password</Value>
+  </Resource>
   <Resource Name="Account.Login.Fields.RememberMe">
     <Value>Remember me?</Value>
   </Resource>
   <Resource Name="Account.Login.Fields.UserName">
     <Value>Username</Value>
+  </Resource>
+  <Resource Name="Account.Login.Fields.UserName.Required">
+    <Value>Please enter user name</Value>
   </Resource>
   <Resource Name="Account.Login.ForgotPassword">
     <Value>Forgot password?</Value>
@@ -1242,6 +1260,9 @@
   <Resource Name="Address">
     <Value>Address</Value>
   </Resource>
+  <Resource Name="Address.Fields.Address">
+    <Value>Address</Value>
+  </Resource>
   <Resource Name="Address.Fields.Address1">
     <Value>Address 1</Value>
   </Resource>
@@ -1298,6 +1319,9 @@
   </Resource>
   <Resource Name="Address.Fields.LastName.Required">
     <Value>Last name is required.</Value>
+  </Resource>
+  <Resource Name="Address.Fields.Name">
+    <Value>Name</Value>
   </Resource>
   <Resource Name="Address.Fields.Note">
     <Value>Note</Value>
@@ -2013,6 +2037,9 @@
   <Resource Name="Admin.Catalog.Brands.Fields.DisplayOrder">
     <Value>Display order</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.Brands.Fields.ExternalId">
+    <Value>External identifier</Value>
+  </Resource>
   <Resource Name="Admin.Catalog.Brands.Fields.Icon">
     <Value>Icon</Value>
   </Resource>
@@ -2406,6 +2433,9 @@
   <Resource Name="Admin.Catalog.Collections.Fields.DisplayOrder">
     <Value>Display order</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.Collections.Fields.ExternalId">
+    <Value>External identifier</Value>
+  </Resource>  
   <Resource Name="Admin.Catalog.Collections.Fields.FeaturedProductsOnHomePage">
     <Value>Show featured products on home page</Value>
   </Resource>
@@ -3468,9 +3498,6 @@
   <Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.Condition.EnableCondition">
     <Value>Enable condition</Value>
   </Resource>
-  <Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.Condition.ViewLink">
-    <Value>View/Edit condition</Value>
-  </Resource>
   <Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute">
     <Value>Attribute</Value>
   </Resource>
@@ -3510,8 +3537,8 @@
   <Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.MinLength">
     <Value>Minimum length</Value>
   </Resource>
-  <Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.ViewLink">
-    <Value>View/Edit rules</Value>
+  <Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.Link">
+    <Value>Edit rules</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.Values">
     <Value>Values</Value>
@@ -3679,16 +3706,25 @@
     <Value>Specification attributes</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.SpecificationAttributes.AddButton">
-    <Value>Add attribute</Value>
+    <Value>Add product specification</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.SpecificationAttributes.AddNew">
     <Value>Add a new product specification attribute</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Edit">
+    <Value>Edit a product specification attribute</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Validate">
+    <Value>A product specification attribute is not valid</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Fields.AllowFiltering">
     <Value>Allow filtering</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Fields.AttributeType">
     <Value>Attribute type</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Fields.CustomName">
+    <Value>Name</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Fields.CustomValue">
     <Value>Value</Value>
@@ -3710,9 +3746,6 @@
   </Resource>
   <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Fields.Value">
     <Value>Value</Value>
-  </Resource>
-  <Resource Name="Admin.Catalog.Products.SpecificationAttributes.NoAttributes">
-    <Value>No specification attributes defined.</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.SpecificationAttributes.SaveBeforeEdit">
     <Value>You need to save the product before you can add product specification attributes for this product page.</Value>
@@ -3791,6 +3824,9 @@
   </Resource>
   <Resource Name="Admin.Catalog.ProductTags.Updated">
     <Value>The product tag has been updated successfully.</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.SaveBeforeEdit">
+    <Value>You need to save the entity before you can edit it.</Value>
   </Resource>
   <Resource Name="admin.catalog.stores.fields.name">
     <Value>Store name</Value>
@@ -5064,6 +5100,18 @@
   <Resource Name="Admin.Configuration.Stores.BackToList">
     <Value>back to store list</Value>
   </Resource>
+  <Resource Name="Admin.Configuration.Stores.BankAccount.Fields.AccountNumber">
+    <Value>Account number</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.BankAccount.Fields.BankCode">
+    <Value>Bank Code</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.BankAccount.Fields.BankName">
+    <Value>Bank Name</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.BankAccount.Fields.SwiftCode">
+    <Value>BIC/SWIFT Code</Value>
+  </Resource>
   <Resource Name="Admin.Configuration.Stores.Deleted">
     <Value>The store has been deleted successfully.</Value>
   </Resource>
@@ -5102,6 +5150,9 @@
   </Resource>
   <Resource Name="Admin.Configuration.Stores.Fields.CompanyPhoneNumber">
     <Value>Company phone number</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Fields.CompanyRegNo">
+    <Value>Company Reg. No.</Value>
   </Resource>
   <Resource Name="Admin.Configuration.Stores.Fields.CompanyVat">
     <Value>Company VAT</Value>
@@ -7873,6 +7924,9 @@
   <Resource Name="Admin.Download.UseDownloadURL">
     <Value>Use download URL</Value>
   </Resource>
+  <Resource Name="Admin.FileManager.Picture">
+    <Value>Manage pictures</Value>
+  </Resource>
   <Resource Name="Admin.GiftVouchers">
     <Value>Gift vouchers</Value>
   </Resource>
@@ -9304,6 +9358,9 @@
   <Resource Name="Admin.Orders.MerchandiseReturns.View">
     <Value>View</Value>
   </Resource>
+  <Resource Name="Admin.Orders.Notifications">
+    <Value>Notifications</Value>
+  </Resource>
   <Resource Name="Admin.Orders.OrderNotes">
     <Value>Order notes</Value>
   </Resource>
@@ -9375,6 +9432,9 @@
   </Resource>
   <Resource Name="Admin.Orders.PaymentTransaction.BackToList">
     <Value>back to the payment transactions list</Value>
+  </Resource>
+  <Resource Name="Admin.Orders.PaymentTransaction.Deleted">
+    <Value>The payment transaction has been deleted successfully.</Value>
   </Resource>
   <Resource Name="Admin.Orders.PaymentTransaction.Details">
     <Value>Payment Transaction Details</Value>
@@ -10654,6 +10714,9 @@
   <Resource Name="Admin.Settings.Catalog.ProductReviewPossibleOnlyAfterPurchasing">
     <Value>Product review possible only after purchasing product</Value>
   </Resource>
+  <Resource Name="Admin.Settings.Catalog.ProductReviewPossibleOnlyOnce">
+    <Value>Product review possible only once by customer</Value>
+  </Resource>
   <Resource Name="Admin.Settings.Catalog.ProductReviews">
     <Value>Product reviews</Value>
   </Resource>
@@ -11146,6 +11209,9 @@
   <Resource Name="Admin.Settings.GeneralCommon.CaptchaShowOnRegistrationPage">
     <Value>Show on registration page</Value>
   </Resource>
+  <Resource Name="Admin.Settings.GeneralCommon.CaptchaShowOnVendorReviewPage">
+    <Value>Show on vendor reviews page</Value>
+  </Resource>
   <Resource Name="Admin.Settings.GeneralCommon.ConvertNonWesternChars">
     <Value>Convert non-western chars</Value>
   </Resource>
@@ -11373,6 +11439,9 @@
   <Resource Name="Admin.Settings.GeneralCommon.UseSystemEmailForContactUsForm">
     <Value>Contact us page. Use system email</Value>
   </Resource>
+  <Resource Name="Admin.Settings.GeneralCommon.VoiceNavigation">
+    <Value>Enable voice navigation</Value>
+  </Resource>
   <Resource Name="Admin.Settings.GeneralCommon.YoutubeLink">
     <Value>YouTube channel URL</Value>
   </Resource>
@@ -11475,8 +11544,17 @@
   <Resource Name="Admin.Settings.Media.DefaultPictureZoomEnabled">
     <Value>Default picture zoom enabled</Value>
   </Resource>
+  <Resource Name="Admin.Settings.Media.FileManagerEnabledCommands">
+    <Value>File manager - enabled commands</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.Media.FileManagerDisabledUICommands">
+    <Value>File manager - disabled UI commands</Value>
+  </Resource>
   <Resource Name="Admin.Settings.Media.ImageSquarePictureSize">
     <Value>Image square attribute picture size</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.Media.ImageQuality">
+    <Value>Image quality</Value>
   </Resource>
   <Resource Name="Admin.Settings.Media.LessonThumbPictureSize">
     <Value>Lesson thumb picture size</Value>
@@ -11862,6 +11940,9 @@
   <Resource Name="Admin.Settings.System.GridPageSizes">
     <Value>Grid Page Sizes</Value>
   </Resource>
+  <Resource Name="Admin.Settings.System.HideStoreColumn">
+    <Value>Hide column The Store on the grid</Value>
+  </Resource>
   <Resource Name="Admin.Settings.System.IgnoreRtlPropertyForAdminArea">
     <Value>Ignore RTL language property for admin area</Value>
   </Resource>
@@ -11961,6 +12042,9 @@
   <Resource Name="Admin.Settings.Vendor.NotifyVendorAboutNewVendorReviews">
     <Value>Notify about new vendor reviews</Value>
   </Resource>
+  <Resource Name="Admin.Settings.Vendor.NumberOfReview">
+    <Value>Number of review visible on vendor page</Value>
+  </Resource>
   <Resource Name="Admin.Settings.Vendor.ShowVendorOnProductDetailsPage">
     <Value>Show vendor on product details page</Value>
   </Resource>
@@ -11981,6 +12065,9 @@
   </Resource>
   <Resource Name="Admin.Settings.Vendor.VendorSettings">
     <Value>Vendor settings</Value>
+  </Resource>
+  <Resource Name="Admin.Stores.BankInfo">
+    <Value>House bank</Value>
   </Resource>
   <Resource Name="Admin.Stores.Domains">
     <Value>Domains</Value>
@@ -12086,6 +12173,9 @@
   </Resource>
   <Resource Name="Admin.System.Log.ClearLog">
     <Value>Clear log</Value>
+  </Resource>
+  <Resource Name="Admin.System.Log.Deleted">
+    <Value>Log was successfully deleted</Value>
   </Resource>
   <Resource Name="Admin.System.Log.DeleteSelected">
     <Value>Delete selected</Value>
@@ -12258,11 +12348,17 @@
   <Resource Name="Admin.System.QueuedEmails.Fields.ReadOn.notread">
     <Value>Not read</Value>
   </Resource>
-  <Resource Name="Admin.System.QueuedEmails.Fields.ReplyTo">
-    <Value>ReplyTo</Value>
+  <Resource Name="Admin.System.QueuedEmails.Fields.ReadOn.notread">
+    <Value>Not read</Value>
+  </Resource>
+  <Resource Name="Admin.System.QueuedEmails.Fields.Reference">
+    <Value>Reference to the object</Value>
   </Resource>
   <Resource Name="Admin.System.QueuedEmails.Fields.ReplyToName">
-    <Value>ReplyTo name</Value>
+    <Value>Reply To</Value>
+  </Resource>
+    <Resource Name="Admin.System.QueuedEmails.Fields.ReplyToName">
+    <Value>Reply To Name</Value>
   </Resource>
   <Resource Name="Admin.System.QueuedEmails.Fields.SendImmediately">
     <Value>Send immediately</Value>
@@ -12302,9 +12398,6 @@
   </Resource>
   <Resource Name="Admin.System.QueuedEmails.List.FromEmail">
     <Value>From address</Value>
-  </Resource>
-  <Resource Name="Admin.System.QueuedEmails.List.GoDirectlyToNumber">
-    <Value>Go directly to email #</Value>
   </Resource>
   <Resource Name="Admin.System.QueuedEmails.List.LoadNotSent">
     <Value>Load not sent emails only</Value>
@@ -14145,6 +14238,9 @@
   <Resource Name="Login.TwoFactorAuth.SendCode">
     <Value>Send code</Value>
   </Resource>
+  <Resource Name="Logo">
+    <Value>Logo</Value>
+  </Resource>
   <Resource Name="LoyaltyPoints.CurrentBalance">
     <Value>Your current balance is {0} loyalty points ({1}).</Value>
   </Resource>
@@ -15259,7 +15355,7 @@
     <Value>Attribute combinations not exists.</Value>
   </Resource>
   <Resource Name="Products.Availability.Attributes.Backordering">
-    <Value>Out of Stock - on backorder and will be dispatched once in stock.</Value>
+    <Value>Out of Stock - on backorder and will be dispatched once back in stock.</Value>
   </Resource>
   <Resource Name="Products.Availability.Attributes.InStock">
     <Value>In stock</Value>
@@ -15268,7 +15364,7 @@
     <Value>Out of stock</Value>
   </Resource>
   <Resource Name="Products.Availability.Backordering">
-    <Value>Out of Stock - on backorder and will be dispatched once in stock.</Value>
+    <Value>Out of Stock - on backorder and will be dispatched once back in stock.</Value>
   </Resource>
   <Resource Name="Products.Availability.InStock">
     <Value>In stock</Value>
@@ -15493,7 +15589,7 @@
     <Value>The product has been added to your product comparison</Value>
   </Resource>
   <Resource Name="Products.ProductHasBeenAddedToCompareList.Link">
-    <Value><![CDATA[The product has been added to your <a href="{0}">product comparison</a>]]></Value>
+    <Value>The product has been added to your product comparison</Value>
   </Resource>
   <Resource Name="Products.ProductHasBeenAddedToTheCart">
     <Value>The product has been added to your shopping cart</Value>
@@ -15699,6 +15795,9 @@
   <Resource Name="Reviews.ProductReviewPossibleOnlyAfterPurchasing">
     <Value>Product can be reviewed only after purchasing it</Value>
   </Resource>
+  <Resource Name="Reviews.ProductReviewPossibleOnlyOnce">
+    <Value>Product can be reviewed only once by customer</Value>
+  </Resource>
   <Resource Name="Reviews.ProductReviewsFor">
     <Value>Product reviews for</Value>
   </Resource>
@@ -15788,6 +15887,27 @@
   </Resource>
   <Resource Name="Search.Vendor">
     <Value>Vendor</Value>
+  </Resource>
+  <Resource Name="search.voice.annotation">
+    <Value>Say what do you want to find in our store, i.e Mi Notebook</Value>
+  </Resource>
+  <Resource Name="search.voice.go">
+    <Value>Go</Value>
+  </Resource>
+  <Resource Name="search.voice.holdtospeak">
+    <Value>Hold to speak</Value>
+  </Resource>
+  <Resource Name="search.voice.notsupported">
+    <Value>Your browser does not support this feature</Value>
+  </Resource>
+  <Resource Name="search.voice.placeholder">
+    <Value>Say something ...</Value>
+  </Resource>
+  <Resource Name="search.voice.reset">
+    <Value>Reset</Value>
+  </Resource>
+  <Resource Name="search.voice.stop">
+    <Value>Stop</Value>
   </Resource>
   <Resource Name="Shipment.Document">
     <Value>Shipment document {0}</Value>
@@ -16425,6 +16545,15 @@
   <Resource Name="UpgradeSystem.RunUpgrade">
     <Value>Run upgrade</Value>
   </Resource>
+  <Resource Name="Vendor.Address">
+    <Value>Address</Value>
+  </Resource>
+  <Resource Name="Vendor.Description">
+    <Value>Description</Value>
+  </Resource>
+  <Resource Name="Vendor.Reviews">
+    <Value>Reviews</Value>
+  </Resource>
   <Resource Name="VendorReviews.Helpfulness.OnlyRegistered">
     <Value>Only registered customers can set review helpfulness.</Value>
   </Resource>
@@ -16506,8 +16635,47 @@
   <Resource Name="Vendors.List">
     <Value>Vendor List</Value>
   </Resource>
+  <Resource Name="Vendors.List">
+    <Value>Vendor List</Value>
+  </Resource>
   <Resource Name="Vendors.ViewAll">
     <Value>View all</Value>
+  </Resource>
+  <Resource Name="voicenavigator.voice.annotation">
+    <Value>Say what do you want to do in the store, i.e Show me the cart</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.blog">
+    <Value>blog, blog posts</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.cart">
+    <Value>cart, shopping cart, basket</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.contactus">
+    <Value>contact us, contact</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.homepage">
+    <Value>homepage, home</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.login">
+    <Value>login, log me in</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.wishlist">
+    <Value>wishlist, waitlist</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.register">
+    <Value>register, create account</Value>
+  </Resource>
+  <Resource Name="voicenavigator.voice.holdtospeak">
+    <Value>Hold to speak</Value>
+  </Resource>
+  <Resource Name="voicenavigator.voice.placeholder">
+    <Value>Say something...</Value>
+  </Resource>
+  <Resource Name="voicenavigator.voice.notsupported">
+    <Value>Your browser doesn't support this feature</Value>
+  </Resource>
+  <Resource Name="voicenavigator.voice.tryagain">
+    <Value>Try again</Value>
   </Resource>
   <Resource Name="Wishlist">
     <Value>Wishlist</Value>

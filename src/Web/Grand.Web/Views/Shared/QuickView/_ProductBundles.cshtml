@@ -1,0 +1,32 @@
+﻿<template v-if="PopupQuickViewVueModal.ProductBundleModels.length > 0">
+    <div class="product-bundle my-3">
+        <template v-for="item in PopupQuickViewVueModal.ProductBundleModels">
+            <div class="card mb-2">
+                <div class="row">
+                    <div class="col-md-3 col-4 d-flex justify-content-center align-items-start pr-0">
+                        <div class="img-fluid text-center">
+                            <img class="img-fluid" :alt="item.DefaultPictureModel.AlternateText" :src="item.DefaultPictureModel.ImageUrl" :title="item.DefaultPictureModel.Title" />
+                        </div>
+                    </div>
+                    <div class="col-md-9 col-8">
+                        <div class="py-3">
+                            <h6 class="card-title">{{item.Quantity}} x <a :href="'/' + item.SeName"> {{item.Name}} </a>({{item.Price}})</h6>
+                            <p class="card-text small" v-html="item.ShortDescription"></p>
+                        </div>
+                    </div>
+                </div>
+                <template v-if="item.ProductAttributes.length > 0">
+                    <div class="col-12">
+                        <div class="attributes">
+                            <table class="table">
+                                <tr v-for="attribute in item.ProductAttributes">
+                                    <partial name="QuickView/_Attributes" />
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </template>
+    </div>
+</template>

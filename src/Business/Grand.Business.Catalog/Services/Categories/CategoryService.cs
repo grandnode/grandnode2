@@ -101,7 +101,7 @@ namespace Grand.Business.Catalog.Services.Categories
                 }
             }
 
-            query = query.OrderBy(c => c.ParentCategoryId).ThenBy(c => c.DisplayOrder).ThenBy(c => c.Name);
+            query = query.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name);
 
             //pagination
             return await Task.FromResult(new PagedList<Category>(query, pageIndex, pageSize));
@@ -417,7 +417,7 @@ namespace Grand.Business.Catalog.Services.Categories
         {
             if (category == null)
                 throw new ArgumentNullException(nameof(category));
-            if (String.IsNullOrEmpty(category.ParentCategoryId))
+            if (string.IsNullOrEmpty(category.ParentCategoryId))
                 category.ParentCategoryId = "";
 
             //validate category hierarchy

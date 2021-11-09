@@ -41,6 +41,7 @@
                     serverFiltering: true,
                     serverSorting: true
                 },
+                autoBind: false,
                 pageable: {
                     refresh: true,
                     pageSizes: [@(gridPageSizes)]
@@ -110,6 +111,7 @@
                         serverFiltering: true,
                         serverSorting: true
                     },
+                    autoBind: false,
                     pageable: {
                         refresh: true,
                         pageSizes: [@(gridPageSizes)]
@@ -121,11 +123,18 @@
                         width: 100,
                         type: "date",
                         format: "{0:G}"
-                    }, {
-                        field: "Store",
-                        title: "@Loc["Admin.System.ContactForm.Fields.Store"]",
-                        width: 100
-                    }, {
+                    },
+                    @if (!adminAreaSettings.HideStoreColumn)
+                    {
+                        <text>
+                        {
+                            field: "Store",
+                            title: "@Loc["Admin.System.ContactForm.Fields.Store"]",
+                            width: 100
+                        },
+                        </text>
+                    }
+                    {
                         field: "Email",
                         title: "@Loc["Admin.System.ContactForm.Fields.FullName"]",
                         width: 150
@@ -197,6 +206,7 @@
                         serverFiltering: true,
                         serverSorting: true
                     },
+                    autoBind: false,
                     pageable: {
                         refresh: true,
                         pageSizes: [@(adminAreaSettings.GridPageSizes)]

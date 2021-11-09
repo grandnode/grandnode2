@@ -16,4 +16,4 @@ To start with us, you should do this few steps:
 
 And that's all, you are GrandNode official contributor!
 
-[Coding standards and guides](http://docs.grandnode.com/developer-guides)
+[Coding standards and guides](http://docs.grandnode.com/developers-guide)

@@ -45,7 +45,7 @@ namespace Grand.Business.System.Services.BackgroundServices
                     var task = await scheduleTaskService.GetTaskByType(_taskType);
                     if (task == null)
                     {
-                        logger.Information($"Task {_taskType} is not exists in the database");
+                        _ = logger.Information($"Task {_taskType} is not exists in the database");
                         break;
                     }
 

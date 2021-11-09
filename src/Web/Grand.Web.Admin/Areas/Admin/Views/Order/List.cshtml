@@ -317,7 +317,7 @@
                         width: 120,
                         template: '<a class="k-link" href="Edit/#=Id#">#=ShippingStatus#</a>'
                     },</text>
-                                }
+                    }
                     {
                         field: "CustomerEmail",
                         title: "@Loc["Admin.Orders.Fields.Customer"]",
@@ -331,12 +331,18 @@
                             </text>
                         }
                         },
+                    @if (!adminAreaSettings.HideStoreColumn)
                     {
-                        field: "StoreName",
-                        title: "@Loc["Admin.Orders.Fields.Store"]",
-                        width: 150,
-                        minScreenWidth: 770,
-                    }, {
+                        <text>
+                        {
+                            field: "StoreName",
+                            title: "@Loc["Admin.Orders.Fields.Store"]",
+                            width: 150,
+                            minScreenWidth: 770,
+                        },
+                        </text>
+                    }
+                        {
                         field: "CreatedOn",
                         title: "@Loc["Admin.Orders.Fields.CreatedOn"]",
                         width: 180,
@@ -353,7 +359,7 @@
                         width: 150,
                         template: '#=OrderTotal#',
                         headerAttributes: { style: "text-align:right" },
-                        attributes: { style: "text-align:right" },                        
+                        attributes: { style: "text-align:right" },
                     },</text>
                     }
                 ]

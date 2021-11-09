@@ -20,58 +20,56 @@
                 <b-tab title="@Loc["Account.Auctions.Tab.Ongoing"]" active>
                     @if (Model.ProductBidList.Where(x => !x.Ended).Any())
                     {
-                        <div id="auction-table-ongoing"></div>
-                        <script>
-                            var AuctionTableOngoing = Vue.extend({
-                                template: '<b-table :fields="fields" :items="items"><template v-slot:cell(product)="data"><div v-html="data.value.nameraw"></div></template><template v-slot:cell(status)="data"><div v-html="data.value.statusraw"></div></template><template v-slot:cell(bid)="data"><div v-html="data.value.bidraw"></div></template><template v-slot:cell(endtime)="data"><div v-html="data.value.endtimeraw"></div></template></b-table>',
-                                data: function () {
-                                    return {
-                                        fields: [
-                                            { key: 'product', label: '@Loc["Account.CustomerAuctions.ProductName"]'},
-                                            { key: 'status', label: '@Loc["Account.CustomerAuctions.Status"]'},
-                                            { key: 'bid', label: '@Loc["Account.CustomerAuctions.Highestbid"]'},
-                                            { key: 'endtime', label: '@Loc["Account.CustomerAuctions.AuctionEndTime"]'},
-                                        ],
-                                        items: [
-                                            @{
-                                                var ongoing = Model.ProductBidList.Where(x => !x.Ended);
-                                            }
-                                            @foreach (var item in ongoing)
-                                            {
-                                                        <text>
-                                            {
-                                                product: {
-                                                    nameraw: '<a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>'
-                                                },
-                                                status: {
-                                                                @if (item.HighestBidder)
-                                                                {
-                                                                    <text>
-                                                    statusraw: '<span class="text-success">@Loc["Account.CustomerAuctions.Status.HighestBidder"]</span>'
-                                                                    </text>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <text>
-                                                                        statusraw: '<span class="text-danger">@Loc["Account.CustomerAuctions.Status.Outbid"]</span>'
-                                                                    </text>
-                                                                }
-                                                },
-                                                bid: {
-                                                    bidraw: '@item.CurrentBidAmount @if (item.CurrentBidAmountValue > item.BidAmountValue) { <small>(@item.BidAmount)</small> }'
-                                                },
-                                                endtime: {
-                                                    endtimeraw: '@item.EndBidDate'
-                                                }
-                                            },
-                                                        </text>
-                                             }
-                                        ]
+                        <div id="auction-table-ongoing" class="table-responsive">
+                            <table class="table">
+                                <thead role="rowgroup">
+                                    <tr role="row">
+                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.ProductName"]</div></th>
+                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.Status"]</div></th>
+                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.Highestbid"]</div></th>
+                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.AuctionEndTime"]</div></th>
+                                    </tr>
+                                </thead>
+                                <tbody role="rowgroup">
+                                    @{
+                                        var ongoing = Model.ProductBidList.Where(x => !x.Ended);
                                     }
-                                }
-                            })
-                            new AuctionTableOngoing().$mount('#auction-table-ongoing')
-                        </script>
+                                    @foreach (var item in ongoing)
+                                    {
+                                        <tr role="row">
+                                            <td>
+                                                <div><a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a></div>
+                                            </td>
+                                            @if (item.HighestBidder)
+                                            {
+                                                <td>
+                                                    <div>
+                                                        <span class="text-success">@Loc["Account.CustomerAuctions.Status.HighestBidder"]</span>
+                                                    </div>
+                                                </td>
+                                            }
+                                            else
+                                            {
+                                                <td>
+                                                    <div>
+                                                        <span class="text-danger">@Loc["Account.CustomerAuctions.Status.Outbid"]</span>
+                                                    </div>
+                                                </td>
+                                            }
+                                            <td>
+                                                <div>
+                                                    @item.CurrentBidAmount @if (item.CurrentBidAmountValue > item.BidAmountValue)
+                                                    {<small>(@item.BidAmount)</small>}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>@item.EndBidDate</div>
+                                            </td>
+                                        </tr>
+                                     }
+                                    </tbody>
+                            </table>
+                        </div>
                     }
                     else
                     {
@@ -84,59 +82,57 @@
                     @if (Model.ProductBidList.Where(x => x.Ended).Any())
                     {
 
-                        <div id="auction-table-ended"></div>
-                        <script>
-                            var AuctionTableEnded = Vue.extend({
-                                template: '<b-table :fields="fields" :items="items"><template v-slot:cell(product)="data"><div v-html="data.value.nameraw"></div></template><template v-slot:cell(status)="data"><div v-html="data.value.statusraw"></div></template><template v-slot:cell(bid)="data"><div v-html="data.value.bidraw"></div></template><template v-slot:cell(endtime)="data"><div v-html="data.value.endtimeraw"></div></template></b-table>',
-                                data: function () {
-                                    return {
-                                        fields: [
-                                            { key: 'product', label: '@Loc["Account.CustomerAuctions.ProductName"]'},
-                                            { key: 'status', label: '@Loc["Account.CustomerAuctions.Status"]'},
-                                            { key: 'bid', label: '@Loc["Account.CustomerAuctions.Highestbid"]'},
-                                            { key: 'endtime', label: '@Loc["Account.CustomerAuctions.AuctionEndTime"]'},
-                                        ],
-                                        items:  [
-                                            @{
-                                                var ended = Model.ProductBidList.Where(x => x.Ended);
-                                            }
-
-                                            @foreach (var item in ended)
-                                            {
-                                                        <text>
-                                                        {
-                                                            product: {
-                                                                nameraw: '<a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>'
-                                                            },
-                                                            status: {
-                                                                @if (item.HighestBidder)
-                                                                {
-                                                                    <text>
-                                                                        statusraw: '<span class="text-success">@Loc["Account.CustomerAuctions.Status.HighestBidder"]</span>'
-                                                                    </text>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <text>
-                                                                        statusraw: '<span class="text-danger">@Loc["Account.CustomerAuctions.Status.Outbid"]</span>'
-                                                                    </text>
-                                                                }
-                                                            },
-                                                            bid: {
-                                                                bidraw: '@item.CurrentBidAmount @if (item.CurrentBidAmountValue > item.BidAmountValue) { <small>(@item.BidAmount)</small> }'
-                                                            },
-                                                            endtime: {
-                                                                endtimeraw: '@item.EndBidDate'
-                                                            }
-                                                        },
-                                                        </text>
-                                             }
-                                                ]
+                        <div id="auction-table-ended" class="table-responsive">
+                            <table class="table">
+                                <thead role="rowgroup">
+                                    <tr role="row">
+                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.ProductName"]</div></th>
+                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.Status"]</div></th>
+                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.Highestbid"]</div></th>
+                                        <th role="columnheader"><div>@Loc["Account.CustomerAuctions.AuctionEndTime"]</div></th>
+                                    </tr>
+                                </thead>
+                                <tbody role="rowgroup">
+                                        @{
+                                            var ended = Model.ProductBidList.Where(x => x.Ended);
                                         }
-                                    }
-                                })
-                            new AuctionTableEnded().$mount('#auction-table-ended')
-                        </script>
+
+                                        @foreach (var item in ended)
+                                        {
+                                            <tr role="row">
+                                                <td>
+                                                    <div><a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a></div>
+                                                </td>
+                                                @if (item.HighestBidder)
+                                                {
+                                                    <td>
+                                                        <div>
+                                                            <span class="text-success">@Loc["Account.CustomerAuctions.Status.HighestBidder"]</span>
+                                                        </div>
+                                                    </td>
+                                                }
+                                                else
+                                                {
+                                                    <td>
+                                                        <div>
+                                                            <span class="text-danger">@Loc["Account.CustomerAuctions.Status.Outbid"]</span>
+                                                        </div>
+                                                    </td>
+                                                }
+                                                <td>
+                                                    <div>
+                                                        @item.CurrentBidAmount @if (item.CurrentBidAmountValue > item.BidAmountValue)
+                                                        {<small>(@item.BidAmount)</small>}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div>@item.EndBidDate</div>
+                                                </td>
+                                            </tr>
+                                        }
+                                </tbody>
+                            </table>
+                        </div>
                     }
                     else
                     {

@@ -6,15 +6,6 @@
 <input asp-for="FormId" type="hidden" />
 <input asp-for="AttributeId" type="hidden" />
 
-@if (ViewBag.RefreshPage == true)
-{
-    <script>
-        try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-        catch (e){}
-        window.close();
-    </script>
-}
-
 @{ Func<int, HelperResult>
         template = @<div class="form-body">
     <div class="form-group">
@@ -56,6 +47,11 @@
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="DisplayOrder" />
                 <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
+                <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
             </div>
         </div>
     </div>

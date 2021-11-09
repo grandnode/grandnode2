@@ -328,8 +328,7 @@ namespace Grand.Web.Admin.Controllers
 
                 await _pictureViewModelService.UpdatePicture(model);
 
-                ViewBag.RefreshPage = true;
-                return View("PicturePopup", model);
+                return Content("");
             }
 
             Error(ModelState);
@@ -468,12 +467,14 @@ namespace Grand.Web.Admin.Controllers
                 {
                     await _collectionViewModelService.InsertCollectionProductModel(model);
                 }
-                ViewBag.RefreshPage = true;
+                return Content("");
             }
             else
+            {
                 Error(ModelState);
+                return View(model);
+            }
 
-            return View(model);
         }
         #endregion
 

@@ -7,6 +7,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure.Caching;
+using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Products;
@@ -14,6 +15,7 @@ using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -33,6 +35,7 @@ namespace Grand.Web.Features.Handlers.Catalog
         private readonly VendorSettings _vendorSettings;
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
+        private readonly CaptchaSettings _captchaSettings;
 
         public GetVendorHandler(
             IMediator mediator,
@@ -43,7 +46,8 @@ namespace Grand.Web.Features.Handlers.Catalog
             ISpecificationAttributeService specificationAttributeService,
             IHttpContextAccessor httpContextAccessor,
             ICacheBase cacheBase,
-            CatalogSettings catalogSettings)
+            CatalogSettings catalogSettings,
+            CaptchaSettings captchaSettings)
         {
             _mediator = mediator;
             _pictureService = pictureService;
@@ -54,12 +58,12 @@ namespace Grand.Web.Features.Handlers.Catalog
             _httpContextAccessor = httpContextAccessor;
             _cacheBase = cacheBase;
             _catalogSettings = catalogSettings;
+            _captchaSettings = captchaSettings;
         }
 
         public async Task<VendorModel> Handle(GetVendor request, CancellationToken cancellationToken)
         {
-            var model = new VendorModel
-            {
+            var model = new VendorModel {
                 Id = request.Vendor.Id,
                 Name = request.Vendor.GetTranslation(x => x.Name, request.Language.Id),
                 Description = request.Vendor.GetTranslation(x => x.Description, request.Language.Id),
@@ -68,19 +72,18 @@ namespace Grand.Web.Features.Handlers.Catalog
                 MetaTitle = request.Vendor.GetTranslation(x => x.MetaTitle, request.Language.Id),
                 SeName = request.Vendor.GetSeName(request.Language.Id),
                 AllowCustomersToContactVendors = _vendorSettings.AllowCustomersToContactVendors,
+                RenderCaptcha = _captchaSettings.Enabled && (_captchaSettings.ShowOnVendorReviewPage || _captchaSettings.ShowOnContactUsPage),
                 UserFields = request.Vendor.UserFields
             };
 
-            model.Address = await _mediator.Send(new GetVendorAddress()
-            {
+            model.Address = await _mediator.Send(new GetVendorAddress() {
                 Language = request.Language,
                 Address = request.Vendor.Address,
                 ExcludeProperties = false,
             });
 
             //prepare picture model
-            var pictureModel = new PictureModel
-            {
+            var pictureModel = new PictureModel {
                 Id = request.Vendor.PictureId,
                 FullSizeImageUrl = await _pictureService.GetPictureUrl(request.Vendor.PictureId),
                 ImageUrl = await _pictureService.GetPictureUrl(request.Vendor.PictureId, _mediaSettings.VendorThumbPictureSize),
@@ -90,8 +93,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             model.PictureModel = pictureModel;
 
             //view/sorting/page size
-            var options = await _mediator.Send(new GetViewSortSizeOptions()
-            {
+            var options = await _mediator.Send(new GetViewSortSizeOptions() {
                 Command = request.Command,
                 PagingFilteringModel = request.Command,
                 Language = request.Language,
@@ -102,11 +104,10 @@ namespace Grand.Web.Features.Handlers.Catalog
             model.PagingFilteringContext = options.command;
 
             IList<string> alreadyFilteredSpecOptionIds = await model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
-              (_httpContextAccessor, _specificationAttributeService);
+              (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
 
             //products
-            var products = (await _mediator.Send(new GetSearchProductsQuery()
-            {
+            var products = (await _mediator.Send(new GetSearchProductsQuery() {
                 LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
                 Customer = request.Customer,
                 VendorId = request.Vendor.Id,
@@ -118,8 +119,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 PageSize = request.Command.PageSize
             }));
 
-            model.Products = (await _mediator.Send(new GetProductOverview()
-            {
+            model.Products = (await _mediator.Send(new GetProductOverview() {
                 Products = products.products,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
             })).ToList();
@@ -129,7 +129,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             //specs
             await model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
                 products.filterableSpecificationAttributeOptionIds,
-                _specificationAttributeService, _httpContextAccessor, _cacheBase, request.Language.Id);
+                _specificationAttributeService, _httpContextAccessor.HttpContext.Request.GetDisplayUrl(), request.Language.Id);
 
             return model;
         }

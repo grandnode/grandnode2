@@ -1,4 +1,5 @@
-﻿using Grand.Infrastructure.ModelBinding;
+﻿using Grand.Domain.Common;
+using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -80,7 +81,11 @@ namespace Grand.Web.Admin.Models.Messages
         public DateTime? ReadOn { get; set; }
 
         [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.EmailAccountName")]
-
         public string EmailAccountName { get; set; }
+
+        [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.Reference")]
+        public Reference Reference { get; set; }
+
+        public string ObjectId { get; set; }
     }
 }

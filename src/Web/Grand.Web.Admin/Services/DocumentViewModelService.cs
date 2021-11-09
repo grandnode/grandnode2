@@ -4,14 +4,19 @@ using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Checkout.Interfaces.Shipping;
 using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Customers.Interfaces;
 using Grand.Business.Marketing.Interfaces.Documents;
+using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Common;
 using Grand.Domain.Documents;
+using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Documents;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,6 +37,10 @@ namespace Grand.Web.Admin.Services
         private readonly ICollectionService _collectionService;
         private readonly IVendorService _vendorService;
         private readonly ISalesEmployeeService _salesEmployeeService;
+        private readonly ICustomerActivityService _customerActivityService;
+        private readonly IDownloadService _downloadService;
+        private readonly IWorkContext _workContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public DocumentViewModelService(
             IDocumentService documentService,
@@ -45,8 +54,11 @@ namespace Grand.Web.Admin.Services
             ICategoryService categoryService,
             ICollectionService collectionService,
             IVendorService vendorService,
-            ISalesEmployeeService salesEmployeeService
-            )
+            ISalesEmployeeService salesEmployeeService,
+            ICustomerActivityService customerActivityService,
+            IDownloadService downloadService,
+            IWorkContext workContext,
+            IHttpContextAccessor httpContextAccessor)
         {
             _documentService = documentService;
             _documentTypeService = documentTypeService;
@@ -60,6 +72,10 @@ namespace Grand.Web.Admin.Services
             _collectionService = collectionService;
             _vendorService = vendorService;
             _salesEmployeeService = salesEmployeeService;
+            _customerActivityService = customerActivityService;
+            _downloadService = downloadService;
+            _workContext = workContext;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public virtual async Task<(IEnumerable<DocumentModel> documetListModel, int totalCount)> PrepareDocumentListModel(DocumentListModel model, int pageIndex, int pageSize)
@@ -205,5 +221,68 @@ namespace Grand.Web.Admin.Services
             return model;
         }
 
+        public virtual async Task<Document> InsertDocument(DocumentModel model)
+        {
+            if (string.IsNullOrEmpty(model.CustomerId))
+                model.CustomerId = (await _customerService.GetCustomerByEmail(model.CustomerEmail))?.Id;
+
+            var document = model.ToEntity();
+            document.CreatedOnUtc = DateTime.UtcNow;
+
+            await _documentService.Insert(document);
+
+            //activity log
+            _ = _customerActivityService.InsertActivity("AddNewDocument", document.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.AddNewDocument"), document.Name);
+
+            return document;
+        }
+        public virtual async Task<Document> UpdateDocument(Document document, DocumentModel model)
+        {
+            var prevAttachmentId = document.DownloadId;
+
+            if (string.IsNullOrEmpty(model.CustomerId))
+                model.CustomerId = (await _customerService.GetCustomerByEmail(model.CustomerEmail))?.Id;
+
+            document = model.ToEntity(document);
+            document.UpdatedOnUtc = DateTime.UtcNow;
+
+            await _documentService.Update(document);
+
+            //delete an old "attachment" file (if deleted or updated)
+            if (!string.IsNullOrEmpty(prevAttachmentId) && prevAttachmentId != document.DownloadId)
+            {
+                var prevAttachment = await _downloadService.GetDownloadById(prevAttachmentId);
+                if (prevAttachment != null)
+                    await _downloadService.DeleteDownload(prevAttachment);
+            }
+
+            //activity log
+            _ = _customerActivityService.InsertActivity("EditDocument", document.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.EditDocument"), document.Name);
+
+            return document;
+        }
+
+        public virtual async Task DeleteDocument(Document document)
+        {
+            await _documentService.Delete(document);
+
+            //delete an old "attachment" file
+            if (!string.IsNullOrEmpty(document.DownloadId))
+            {
+                var prevAttachment = await _downloadService.GetDownloadById(document.DownloadId);
+                if (prevAttachment != null)
+                    await _downloadService.DeleteDownload(prevAttachment);
+            }
+
+            //activity log
+            _ = _customerActivityService.InsertActivity("DeleteDocument", document.Id,
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.DeleteDocument"), document.Name);
+
+        }
     }
 }

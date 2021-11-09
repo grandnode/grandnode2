@@ -154,6 +154,12 @@ namespace Grand.Domain.Catalog
         /// Gets or sets a value indicating whether product can be reviewed only by customer who have already ordered it
         /// </summary>
         public bool ProductReviewPossibleOnlyAfterPurchasing { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether product can be reviewed only once by customer 
+        /// </summary>
+        public bool ProductReviewPossibleOnlyOnce { get; set; }
+
         /// <summary>
         /// Gets or sets a number of "Recently viewed products"
         /// </summary>

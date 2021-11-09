@@ -16,36 +16,51 @@
     <h1 class="h2 generalTitle">@Loc["Account.CustomerMerchandiseReturns"]</h1>
     @if (Model.Items.Any())
     {
-        <div class="row">
-            @foreach (var item in Model.Items)
-            {
-                <div class="col col-lg-6 col-md-6 col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">
-                                @string.Format(Loc["Account.CustomerMerchandiseReturns.Title"], item.ReturnNumber, item.MerchandiseReturnStatus)
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-inline-flex align-items-center flex-wrap mb-3">
-                                <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
-                                <small class="date text-muted">
-                                    <label class="mb-0">@Loc["Account.CustomerMerchandiseReturns.Date"]</label>
-                                    <span>@item.CreatedOn.ToString()</span>
-                                </small>
-                            </div>
-                            <div class="alert alert-info mb-0">
-                                @string.Format(Loc["Account.CustomerMerchandiseReturns.Totals"], item.ProductsCount, item.ReturnTotal)
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn btn-sm btn-info" onclick="location = ('@Url.RouteUrl("MerchandiseReturnDetails", new { merchandiseReturnId = item.Id })')">
-                                @Loc["Account.CustomerMerchandiseReturns.Details"]
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            }
+        <div class="table-responsive">
+            <table class="table hover-table">
+                <thead>
+                    <tr>
+                        <th scope="col">@Loc["Account.CustomerMerchandiseReturns.Number"]</th>
+                        <th scope="col">@Loc["Account.CustomerMerchandiseReturns.Status"]</th>
+                        <th scope="col">@Loc["Account.CustomerMerchandiseReturns.Date"]</th>
+                        <th scope="col">@Loc["Account.CustomerMerchandiseReturns.Count"]</th>
+                        <th scope="col">@Loc["Account.CustomerMerchandiseReturns.Totals"]</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    { 
+                        <tr>
+                            <td>
+                                <span>@item.ReturnNumber</span>
+                            </td>
+                            <td>
+                                <span class="@item.MerchandiseReturnStatus.ToLower() badge status">@item.MerchandiseReturnStatus</span>
+                            </td>
+                            <td>
+                                <div class="d-inline-flex align-items-center flex-nowrap">
+                                    <b-icon icon="calendar2-check" variant="info" class="mx-2"></b-icon>
+                                    <small class="date text-muted">
+                                        <span>@item.CreatedOn.ToString()</span>
+                                    </small>
+                                </div>
+                            </td>
+                            <td>
+                                <span>@item.ProductsCount</span>
+                            </td>
+                            <td>
+                                <span>@item.ReturnTotal</span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info" onclick="location = ('@Url.RouteUrl("MerchandiseReturnDetails", new { merchandiseReturnId = item.Id })')">
+                                    @Loc["Account.CustomerMerchandiseReturns.Details"]
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     }
     else

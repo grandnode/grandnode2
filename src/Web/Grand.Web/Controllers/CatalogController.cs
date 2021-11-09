@@ -145,7 +145,9 @@ namespace Grand.Web.Controllers
                 DisplayEditLink(Url.Action("Edit", "Category", new { id = category.Id, area = "Admin" }));
 
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.ViewCategory", category.Id, _translationService.GetResource("ActivityLog.PublicStore.ViewCategory"), category.Name);
+            _ = _customerActivityService.InsertActivity("PublicStore.ViewCategory", category.Id,
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.PublicStore.ViewCategory"), category.Name);
             await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers["Referer"].ToString() : "");
 
             //model
@@ -198,7 +200,9 @@ namespace Grand.Web.Controllers
                 DisplayEditLink(Url.Action("Edit", "Brand", new { id = brand.Id, area = "Admin" }));
 
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.ViewBrand", brand.Id, _translationService.GetResource("ActivityLog.PublicStore.ViewBrand"), brand.Name);
+            _ = _customerActivityService.InsertActivity("PublicStore.ViewBrand", brand.Id,
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.PublicStore.ViewBrand"), brand.Name);
             await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers[HeaderNames.Referer].ToString() : "");
 
             //model
@@ -262,7 +266,9 @@ namespace Grand.Web.Controllers
                 DisplayEditLink(Url.Action("Edit", "Collection", new { id = collection.Id, area = "Admin" }));
 
             //activity log
-            await _customerActivityService.InsertActivity("PublicStore.ViewCollection", collection.Id, _translationService.GetResource("ActivityLog.PublicStore.ViewCollection"), collection.Name);
+            _ = _customerActivityService.InsertActivity("PublicStore.ViewCollection", collection.Id,
+                _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                _translationService.GetResource("ActivityLog.PublicStore.ViewCollection"), collection.Name);
             await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers[HeaderNames.Referer].ToString() : "");
 
             //model
@@ -344,31 +350,16 @@ namespace Grand.Web.Controllers
 
         #region Vendor reviews
 
-        public virtual async Task<IActionResult> VendorReviews(string vendorId)
-        {
-            var vendor = await _vendorService.GetVendorById(vendorId);
-            if (vendor == null || !vendor.Active || !vendor.AllowCustomerReviews)
-                return RedirectToRoute("HomePage");
-
-            var model = await _mediator.Send(new GetVendorReviews() { Vendor = vendor });
-
-            //only registered users can leave reviews
-            if (await _groupService.IsGuest(_workContext.CurrentCustomer) && !_vendorSettings.AllowAnonymousUsersToReviewVendor)
-                ModelState.AddModelError("", _translationService.GetResource("VendorReviews.OnlyRegisteredUsersCanWriteReviews"));
-            //default value
-            model.AddVendorReview.Rating = _vendorSettings.DefaultVendorRatingValue;
-            return View(model);
-        }
-
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
-        public virtual async Task<IActionResult> VendorReviews(string vendorId, VendorReviewsModel model, bool captchaValid,
+        public virtual async Task<IActionResult> VendorReviews(
+            VendorReviewsModel model, bool captchaValid,
             [FromServices] CaptchaSettings captchaSettings)
         {
-            var vendor = await _vendorService.GetVendorById(vendorId);
+            var vendor = await _vendorService.GetVendorById(model.VendorId);
             if (vendor == null || !vendor.Active || !vendor.AllowCustomerReviews)
-                return RedirectToRoute("HomePage");
+                return Content("");
 
             //validate CAPTCHA
             if (captchaSettings.Enabled && captchaSettings.ShowOnVendorReviewPage && !captchaValid)
@@ -386,7 +377,7 @@ namespace Grand.Web.Controllers
                     !(await _mediator.Send(new GetOrderQuery()
                     {
                         CustomerId = _workContext.CurrentCustomer.Id,
-                        VendorId = vendorId,
+                        VendorId = vendor.Id,
                         Os = (int)OrderStatusSystem.Complete,
                         PageSize = 1
                     })).Any())
@@ -396,7 +387,9 @@ namespace Grand.Web.Controllers
             {
                 var vendorReview = await _mediator.Send(new InsertVendorReviewCommand() { Vendor = vendor, Store = _workContext.CurrentStore, Model = model });
                 //activity log
-                await _customerActivityService.InsertActivity("PublicStore.AddVendorReview", vendor.Id, _translationService.GetResource("ActivityLog.PublicStore.AddVendorReview"), vendor.Name);
+                _ = _customerActivityService.InsertActivity("PublicStore.AddVendorReview", vendor.Id,
+                    _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.PublicStore.AddVendorReview"), vendor.Name);
 
                 //raise event
                 if (vendorReview.IsApproved)
@@ -410,13 +403,20 @@ namespace Grand.Web.Controllers
                 if (!vendorReview.IsApproved)
                     model.AddVendorReview.Result = _translationService.GetResource("VendorReviews.SeeAfterApproving");
                 else
+                { 
                     model.AddVendorReview.Result = _translationService.GetResource("VendorReviews.SuccessfullyAdded");
-
-                return View(model);
+                    model.VendorReviewOverview = PrepareVendorReviewOverviewModel(vendor);
+                }
+                return Json(model);
             }
-            model = await _mediator.Send(new GetVendorReviews() { Vendor = vendor });
 
-            return View(model);
+            var returnmodel = await _mediator.Send(new GetVendorReviews() { Vendor = vendor });
+            returnmodel.AddVendorReview.ReviewText = model.AddVendorReview.ReviewText;
+            returnmodel.AddVendorReview.Title = model.AddVendorReview.Title;
+            returnmodel.AddVendorReview.SuccessfullyAdded = false;
+            returnmodel.AddVendorReview.Result = string.Join("; ", ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage));
+
+            return Json(returnmodel);
         }
 
         [HttpPost]

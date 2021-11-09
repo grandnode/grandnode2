@@ -12,12 +12,13 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure.Caching;
+using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
-using Grand.Web.Events.Cache;
 using Grand.Web.Models.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
@@ -87,8 +88,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 request.Model.adv = true;
 
             //view/sorting/page size
-            var options = await _mediator.Send(new GetViewSortSizeOptions()
-            {
+            var options = await _mediator.Send(new GetViewSortSizeOptions() {
                 Command = request.Command,
                 PagingFilteringModel = request.Model.PagingFilteringContext,
                 Language = request.Language,
@@ -108,7 +108,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             {
                 var categoriesModel = new List<SearchModel.CategoryModel>();
                 //all categories
-                var allCategories = await _categoryService.GetAllCategories(parentId: "", storeId: request.Store.Id);
+                var allCategories = await _categoryService.GetAllCategories(storeId: request.Store.Id, pageSize: 100);
                 foreach (var c in allCategories)
                 {
                     //generate full category name (breadcrumb)
@@ -120,8 +120,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                         if (i != breadcrumb.Count - 1)
                             categoryBreadcrumb += " >> ";
                     }
-                    categoriesModel.Add(new SearchModel.CategoryModel
-                    {
+                    categoriesModel.Add(new SearchModel.CategoryModel {
                         Id = c.Id,
                         Breadcrumb = categoryBreadcrumb
                     });
@@ -131,16 +130,14 @@ namespace Grand.Web.Features.Handlers.Catalog
             if (categories.Any())
             {
                 //first empty entry
-                request.Model.AvailableCategories.Add(new SelectListItem
-                {
+                request.Model.AvailableCategories.Add(new SelectListItem {
                     Value = "",
                     Text = _translationService.GetResource("Common.All")
                 });
                 //all other categories
                 foreach (var c in categories)
                 {
-                    request.Model.AvailableCategories.Add(new SelectListItem
-                    {
+                    request.Model.AvailableCategories.Add(new SelectListItem {
                         Value = c.Id.ToString(),
                         Text = c.Breadcrumb,
                         Selected = request.Model.cid == c.Id
@@ -148,17 +145,15 @@ namespace Grand.Web.Features.Handlers.Catalog
                 }
             }
 
-            var collections = await _collectionService.GetAllCollections();
+            var collections = await _collectionService.GetAllCollections(pageSize: 100);
             if (collections.Any())
             {
-                request.Model.AvailableCollections.Add(new SelectListItem
-                {
+                request.Model.AvailableCollections.Add(new SelectListItem {
                     Value = "",
                     Text = _translationService.GetResource("Common.All")
                 });
                 foreach (var m in collections)
-                    request.Model.AvailableCollections.Add(new SelectListItem
-                    {
+                    request.Model.AvailableCollections.Add(new SelectListItem {
                         Value = m.Id.ToString(),
                         Text = m.GetTranslation(x => x.Name, request.Language.Id),
                         Selected = request.Model.mid == m.Id
@@ -168,17 +163,15 @@ namespace Grand.Web.Features.Handlers.Catalog
             request.Model.asv = _vendorSettings.AllowSearchByVendor;
             if (request.Model.asv)
             {
-                var vendors = await _vendorService.GetAllVendors();
+                var vendors = await _vendorService.GetAllVendors(pageSize: 100);
                 if (vendors.Any())
                 {
-                    request.Model.AvailableVendors.Add(new SelectListItem
-                    {
+                    request.Model.AvailableVendors.Add(new SelectListItem {
                         Value = "",
                         Text = _translationService.GetResource("Common.All")
                     });
                     foreach (var vendor in vendors)
-                        request.Model.AvailableVendors.Add(new SelectListItem
-                        {
+                        request.Model.AvailableVendors.Add(new SelectListItem {
                             Value = vendor.Id.ToString(),
                             Text = vendor.GetTranslation(x => x.Name, request.Language.Id),
                             Selected = request.Model.vid == vendor.Id
@@ -237,11 +230,10 @@ namespace Grand.Web.Features.Handlers.Catalog
                     var searchInProductTags = searchInDescriptions;
 
                     IList<string> alreadyFilteredSpecOptionIds = await request.Model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
-                        (_httpContextAccessor, _specificationAttributeService);
+                        (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
 
                     //products
-                    var searchproducts = (await _mediator.Send(new GetSearchProductsQuery()
-                    {
+                    var searchproducts = (await _mediator.Send(new GetSearchProductsQuery() {
                         LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
                         CategoryIds = categoryIds,
                         CollectionId = collectionId,
@@ -262,8 +254,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                         VendorId = vendorId
                     }));
 
-                    request.Model.Products = (await _mediator.Send(new GetProductOverview()
-                    {
+                    request.Model.Products = (await _mediator.Send(new GetProductOverview() {
                         Products = searchproducts.products,
                         PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
                     })).ToList();
@@ -273,7 +264,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     //specs
                     await request.Model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFilters(alreadyFilteredSpecOptionIds,
                         searchproducts.filterableSpecificationAttributeOptionIds,
-                        _specificationAttributeService, _httpContextAccessor, _cacheBase, request.Language.Id);
+                        _specificationAttributeService, _httpContextAccessor.HttpContext.Request.GetDisplayUrl(), request.Language.Id);
 
                     request.Model.NoResults = !request.Model.Products.Any();
 
@@ -288,8 +279,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                         }
                         else
                         {
-                            searchTerm = new SearchTerm
-                            {
+                            searchTerm = new SearchTerm {
                                 Keyword = searchTerms,
                                 StoreId = request.Store.Id,
                                 Count = 1

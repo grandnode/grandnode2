@@ -63,7 +63,9 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<MenuModel> Handle(GetMenu request, CancellationToken cancellationToken)
         {
-            string cacheKey = string.Format(CacheKeyConst.CATEGORIES_BY_MENU, request.Store.Id, string.Join(",", request.Customer.GetCustomerGroupIds()));
+            var cacheKey = string.Format(CacheKeyConst.CATEGORIES_BY_MENU,
+                request.Language.Id, 
+                request.Store.Id, string.Join(",", request.Customer.GetCustomerGroupIds()));
             var cachedCategoriesModel = await _cacheBase.GetAsync(cacheKey, async () =>
             {
                 //categories

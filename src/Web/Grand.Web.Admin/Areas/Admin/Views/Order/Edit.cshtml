@@ -6,9 +6,11 @@
     //has "Manage Documents" permission?
     var canManageDocuments = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageDocuments);
     var canManageUserFields = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageUserFields);
+    var canManageMessageQueue = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageMessageQueue);
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Order" asp-action="Edit" method="post" id="order-form">
-   <input type="hidden" asp-for="Id" /> 
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="All"></div>
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -45,7 +47,7 @@
                     </div>
                 </div>
                 <div class="x_content form">
-                    <admin-tabstrip name="order-edit" SetTabPos="true">
+                    <admin-tabstrip name="order-edit" SetTabPos="true" BindGrid="true">
                         <items>
                             <tabstrip-item text="@Loc["Admin.Orders.Info"]" tab-index="0">
                                 <content>
@@ -118,6 +120,16 @@
                                     </content>
                                 </tabstrip-item>
                             }
+                            @if (canManageMessageQueue)
+                            {
+                                <tabstrip-item text="@Loc["Admin.Orders.Notifications"]" tab-index="7">
+                                    <content>
+                                        <div>
+                                            <partial name="_OrderDetails.Notifications" model="Model" />
+                                        </div>
+                                    </content>
+                                </tabstrip-item>
+                            }
                             <vc:admin-widget widget-zone="order_details_tabs" additional-data="Model" />
                         </items>
                     </admin-tabstrip>
@@ -125,7 +137,5 @@
             </div>
         </div>
     </div>
-    <div asp-validation-summary="All"></div>
-
 </form>
 <admin-delete-confirmation button-id="order-delete" />

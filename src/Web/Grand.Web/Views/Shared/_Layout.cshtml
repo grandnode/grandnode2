@@ -23,8 +23,11 @@
     <resources asp-type="HeadScript" />
     @RenderSection("head", required: false)    
 </head>
-<body>   
+<body>
+
+    <resources asp-type="TemplateHeader" />
     <resources asp-type="ScriptHeader" />
+
     @await Component.InvokeAsync("Widget", new { widgetZone = "body_start_html_tag_after" })
 
     <div id="app" :dark-theme="darkMode" v-cloak>
@@ -34,7 +37,7 @@
         <partial name="_Notifications" />
         <vc:get-coordinate></vc:get-coordinate>
         <partial name="Header" />
-        <b-container :fluid="fluid" class="main-container">
+        <b-container class="main-container">
             @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
             @if (IsSectionDefined("Breadcrumb"))
             {
@@ -42,6 +45,7 @@
             }
             @RenderBody()
             @await Component.InvokeAsync("Widget", new { widgetZone = "content_after" })
+            <vc:voice-navigation></vc:voice-navigation>
         </b-container>
         @await Component.InvokeAsync("Footer")
         <partial name="_Cookie" />

@@ -42,6 +42,7 @@ namespace Grand.Web.Admin.Services
         private readonly IDownloadService _downloadService;
         private readonly IShippingService _shippingService;
         private readonly IStockQuantityService _stockQuantityService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly MeasureSettings _measureSettings;
         private readonly ShippingSettings _shippingSettings;
         private readonly ShippingProviderSettings _shippingProviderSettings;
@@ -62,6 +63,7 @@ namespace Grand.Web.Admin.Services
             IDownloadService downloadService,
             IShippingService shippingService,
             IStockQuantityService stockQuantityService,
+            IHttpContextAccessor httpContextAccessor,
             MeasureSettings measureSettings,
             ShippingSettings shippingSettings,
             ShippingProviderSettings shippingProviderSettings)
@@ -81,6 +83,7 @@ namespace Grand.Web.Admin.Services
             _downloadService = downloadService;
             _shippingService = shippingService;
             _stockQuantityService = stockQuantityService;
+            _httpContextAccessor = httpContextAccessor;
             _measureSettings = measureSettings;
             _shippingSettings = shippingSettings;
             _shippingProviderSettings = shippingProviderSettings;
@@ -280,11 +283,21 @@ namespace Grand.Web.Admin.Services
 
             shipmentNote.ShipmentId = shipment.Id;
             await _shipmentService.DeleteShipmentNote(shipmentNote);
+
+            //delete an old "attachment" file
+            if (!string.IsNullOrEmpty(shipmentNote.DownloadId))
+            {
+                var attachment = await _downloadService.GetDownloadById(shipmentNote.DownloadId);
+                if (attachment != null)
+                    await _downloadService.DeleteDownload(attachment);
+            }
         }
 
-        public virtual async Task LogShipment(string shipmentId, string message)
+        public virtual Task LogShipment(string shipmentId, string message)
         {
-            await _customerActivityService.InsertActivity("EditShipment", shipmentId, message);
+            _ = _customerActivityService.InsertActivity("EditShipment", shipmentId, 
+                _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(), message);
+            return Task.CompletedTask;
         }
         public virtual async Task<(IEnumerable<Shipment> shipments, int totalCount)> PrepareShipments(ShipmentListModel model, int pageIndex, int pageSize)
         {

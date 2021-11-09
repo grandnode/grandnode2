@@ -29,7 +29,6 @@ namespace Grand.Web.Models.Common
         public bool SitemapEnabled { get; set; }        
         public bool BlogEnabled { get; set; }
         public bool NewsEnabled { get; set; }
-        public bool CompareProductsEnabled { get; set; }
         public bool RecentlyViewedProductsEnabled { get; set; }
         public bool RecommendedProductsEnabled { get; set; }
         public bool NewProductsEnabled { get; set; }

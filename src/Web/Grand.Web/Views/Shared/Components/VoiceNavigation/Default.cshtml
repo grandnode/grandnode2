@@ -1,0 +1,184 @@
+﻿@inject IWorkContext workContext
+@{
+    var lang = workContext.WorkingLanguage.LanguageCulture;
+}
+<template v-if="voicenavigator.allowed">
+    <button id="voicePageButton"
+            @@touchstart="voicenavigator.recording = true"
+            @@touchcancel="voicenavigator.recording = false;"
+            @@touchend="voicenavigator.recording = false;"
+            @@mousedown="voicenavigator.recording = true"
+            @@mouseup="voicenavigator.recording = false"
+            @@mouseleave="voicenavigator.recording = false"
+            ref="voicePageButton" type="button" v-bind:class="[{ focus: voicenavigator.recording }, 'btn btn-link voice-page-button']">
+        <template v-if="voicenavigator.recording">
+            <b-icon icon="mic" variant="info"></b-icon>
+        </template>
+        <template v-else>
+            <b-icon icon="mic-mute" variant="danger"></b-icon>
+        </template>
+    </button>
+    <b-alert :show="voicenavigator.recording"
+             class="voice-alert position-fixed fixed-top m-0 rounded-0"
+             :variant="voicenavigator.variant">
+        <div class="recording-window">
+            <div class="recording-aniamtion">
+                <template v-if="voicenavigator.variant !== 'success'">
+                    <b-icon icon="mic" variant="info"></b-icon>
+                </template>
+                <template v-else>
+                    <b-icon icon="check" variant="success"></b-icon>
+                </template>
+            </div>
+            <input type="text" placeholder="@Loc["voicenavigator.voice.placeholder"]" v-model="voicenavigator.transcript" class="form-control" readonly />
+        </div>
+        <small class="form-text w-100">@Loc["voicenavigator.voice.annotation"]</small>
+    </b-alert>
+</template>
+<script asp-location="Footer" asp-order="300">
+    var voicenavigator = new Vue({
+        data: () => ({
+            recording: false,
+            recognition: null,
+            lang: '@lang',
+            commands: [
+                {
+                    "name": "cart",
+                    "url": "/cart",
+                    "triggers": @Html.Raw(Json.Serialize(Loc["voicenavigator.commands.cart"].Value.Split(',')))
+                },
+                {
+                    "name": "blog",
+                    "url": "/blog",
+                    "triggers": @Html.Raw(Json.Serialize(Loc["voicenavigator.commands.blog"].Value.Split(',')))
+                },
+                {
+                    "name": "homepage",
+                    "url": "/",
+                    "triggers": @Html.Raw(Json.Serialize(Loc["voicenavigator.commands.homepage"].Value.Split(',')))
+                },
+                {
+                    "name": "wishlist",
+                    "url": "/wishlist",
+                    "triggers": @Html.Raw(Json.Serialize(Loc["voicenavigator.commands.wishlist"].Value.Split(',')))
+                },
+                {
+                    "name": "login",
+                    "url": "/login",
+                    "triggers": @Html.Raw(Json.Serialize(Loc["voicenavigator.commands.login"].Value.Split(',')))
+                },
+                {
+                    "name": "register",
+                    "url": "/register",
+                    "triggers": @Html.Raw(Json.Serialize(Loc["voicenavigator.commands.register"].Value.Split(',')))
+                },
+                {
+                    "name": "contactus",
+                    "url": "/contactus",
+                    "triggers": @Html.Raw(Json.Serialize(Loc["voicenavigator.commands.contactus"].Value.Split(',')))
+                }
+            ],
+            transcript: "",
+            variant: "info",
+            micMessage: "@Loc["voicenavigator.voice.holdtospeak"]",
+            voiceMessage: "@Loc["voicenavigator.voice.tryagain"]",
+            allowed: true,
+        }),
+        methods: {
+            startRecording() {
+                this.recognition.start();
+            },
+            stopRecording() {
+                this.recognition.stop();
+            },
+            allowCheck() {
+                var checkPermission = navigator.permissions
+                if (checkPermission) {
+                    navigator.permissions.query(
+                        { name: 'microphone' }
+                    ).then(function (permissionStatus) {
+
+                        if (permissionStatus.state == "denied") {
+                            voicenavigator.allowed = false;
+                        } else {
+                            voicenavigator.allowed = true;
+                        }
+
+                        permissionStatus.onchange = function () {
+                            if (this.state == "denied") {
+                                voicenavigator.allowed = false;
+                            } else {
+                                voicenavigator.allowed = true;
+                            }
+                        }
+                    })
+                }
+            }
+        },
+        created() {
+            this.allowCheck();
+        },
+        watch: {
+            recording: function () {
+                const speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (speech) {
+                    if (this.recording) {
+                        this.recognition = new speech();
+                        this.recognition.continuous = true;
+                        this.recognition.lang = voicenavigator.lang;
+                        this.recognition.interimResults = false;
+                        this.recognition.maxAlternatives = 1;
+
+                        this.startRecording();
+
+                        this.micMessage = '@Loc["voicenavigator.voice.placeholder"]';
+
+                        this.recognition.addEventListener("result", resultOfSpeechRecognition);
+
+                        function resultOfSpeechRecognition(event) {
+                            if (voicenavigator.recording) {
+                                const current = event.resultIndex;
+                                const transcript = event.results[current][0].transcript;
+                                if (event.results[0].isFinal) {
+                                    const concatTranscript = transcript.replace(/[`~!#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '').toLowerCase();
+                                    voicenavigator.transcript = transcript;
+
+                                    for (const [key, element] of Object.entries(voicenavigator.commands)) {
+                                        const found = element.triggers.some(r => concatTranscript.includes(r));
+
+                                        if (found) {
+                                            voicenavigator.stopRecording();
+                                            voicenavigator.variant = "success";
+
+                                            setTimeout(function () {
+                                                window.location.href = element.url;
+                                            }, 300)
+
+                                            break
+                                        } else {
+                                            if (key == voicenavigator.commands.length - 1) {
+                                                setTimeout(function () {
+                                                    var msg = new SpeechSynthesisUtterance();
+                                                    msg.text = voicenavigator.voiceMessage;
+                                                    window.speechSynthesis.speak(msg);
+                                                }, 300)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    } else {
+                        this.stopRecording();
+                        this.transcript = "";
+                        this.variant = "info"
+                        this.micMessage = '@Loc["voicenavigator.voice.holdtospeak"]';
+                    }
+                } else {
+                    this.allowed = false;
+                }
+            }
+        }
+    });
+</script>

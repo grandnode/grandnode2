@@ -1,0 +1,147 @@
+﻿@model ProductEmailAFriendModel
+
+<b-modal id="ModalProductEmailAFriend" ref="ModalProductEmailAFriend" :dark-theme="darkMode" size="xl" @if (Model.DisplayCaptcha) { <text> @@shown="emailafriend.modalEmailAFriendShown()" @@hide="emailafriend.modalEmailAFriendClose()" </text> } centered hide-footer hide-header>
+    <a class="modal-close" @@click="$bvModal.hide('ModalProductEmailAFriend')"><b-icon icon="x"></b-icon></a>
+    <h1 class="h2 text-xs-center generalTitle">@Loc["Products.EmailAFriend.Title"]</h1>
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0"><a href="@Url.RouteUrl("Product", new { SeName = Model.ProductSeName })" class="product">@Model.ProductName</a></h4>
+        </div>
+        <div class="card-body">
+            @if (Model.SuccessfullySent)
+            {
+                <div class="alert alert-info my-3 text-center result">
+                    @Model.Result
+                </div>
+            }
+            else
+            {
+                <template v-if="emailafriend.Message.Result !== null && emailafriend.Message.SuccessfullySent">
+                    <div class="alert alert-success">
+                        {{emailafriend.Message.Result}}
+                    </div>
+                </template>
+                <template v-else>
+                    <validation-observer ref="ProductEmailAFriendObserver">
+                        <form asp-route="ProductEmailAFriend" id="ProductEmailAFriend" method="post" ref="form" v-on:submit.prevent="formSubmitParam($event, vm.$refs.ProductEmailAFriendObserver)">
+                            <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                            <div class="form-fields">
+                                <div class="form-group">
+                                    <validation-provider tag="div" rules="required|email" name="FriendEmail" v-slot="{ errors, classes }">
+                                        <label asp-for="FriendEmail" class="col-form-label">@Loc["Products.EmailAFriend.FriendEmail"]:</label>
+                                        <input asp-for="FriendEmail" v-model="emailafriend.FriendEmail" placeholder="@Loc["Products.EmailAFriend.FriendEmail.Hint"]" v-bind:class="[classes , 'form-control friend-email']" autofocus="autofocus" />
+                                        <span class="field-validation-error">{{ errors[0] }}</span>
+                                        <span asp-validation-for="FriendEmail"></span>
+                                    </validation-provider>
+                                </div>
+                                <div class="form-group">
+                                    <validation-provider tag="div" rules="required|email" name="YourEmailAddress" v-slot="{ errors, classes }">
+                                        <label asp-for="YourEmailAddress" class="col-form-label">@Loc["Products.EmailAFriend.YourEmailAddress"]:</label>
+                                        <input asp-for="YourEmailAddress" v-model="emailafriend.YourEmailAddress" placeholder="@Loc["Products.EmailAFriend.YourEmailAddress.Hint"]" v-bind:class="[classes , 'form-control your-email']" autofocus="autofocus" />
+                                        <span class="field-validation-error">{{ errors[0] }}</span>
+                                        <span asp-validation-for="YourEmailAddress"></span>
+                                    </validation-provider>
+                                </div>
+                                <div class="form-group">
+                                    <validation-provider tag="div" rules="required" name="PersonalMessage" v-slot="{ errors, classes }">
+                                        <label asp-for="PersonalMessage" class="col-form-label">@Loc["Products.EmailAFriend.PersonalMessage"]:</label>
+                                        <textarea asp-for="PersonalMessage" v-model="emailafriend.PersonalMessage" placeholder="@Loc["Products.EmailAFriend.PersonalMessage.Hint"]" v-bind:class="[classes , 'form-control your-email']" autofocus="autofocus" rows="4"></textarea>
+                                        <span class="field-validation-error">{{ errors[0] }}</span>
+                                        <span asp-validation-for="YourEmailAddress"></span>
+                                    </validation-provider>
+                                </div>
+                                @if (Model.DisplayCaptcha)
+                                {
+                                    <div id="captcha-popup" class="mb-3"></div>
+                                }
+                            </div>
+                            <div class="btn-group">
+                                <input type="submit" name="send-email" class="btn btn-info send-email-a-friend-button" data-form="emailafriend.submitEmailAFriend('@Url.RouteUrl("ProductEmailAFriend", new { productId = Model.ProductId })')" value="@Loc["Products.EmailAFriend.Button"]" />
+                            </div>
+                        </form>
+                    </validation-observer>
+                </template>
+                <script asp-location="Footer" asp-order="300">
+                        var emailafriend = new Vue({
+                            data: () => ({
+                                @{
+                                    <text>
+                                        FriendEmail: '@Html.Raw(Model.FriendEmail)',
+                                        YourEmailAddress: '@Html.Raw(Model.YourEmailAddress)',
+                                        PersonalMessage: '@Html.Raw(Model.PersonalMessage)',
+                                        Message: {
+                                            Result: null,
+                                            SuccessfullySent: false
+                                        }
+                                    </text>
+                                }
+                            }),
+                            methods: {
+                                @{ 
+                                    if (Model.DisplayCaptcha) { 
+                                        <text>
+                                            modalEmailAFriendShown: function () {
+                                                if (document.querySelector("#ModalProductEmailAFriend .captcha-box") == null && !emailafriend.Message.SuccessfullyAdded) {
+                                                    var html = document.getElementById("captcha-box");
+                                                    document.getElementById("captcha-popup").prepend(html);
+                                                }
+                                            },
+                                            modalEmailAFriendClose: function () {
+                                                if (document.querySelector("#ModalProductEmailAFriend .captcha-box") !== null) {
+                                                    var html = document.getElementById("captcha-box");
+                                                    document.getElementById("captcha-container").prepend(html);
+                                                }
+                                            },
+                                        </text>
+                                    }
+                                }
+                                submitEmailAFriend(url) {
+                                    var bodyFormData = new FormData(document.getElementById("ProductEmailAFriend"));
+                                    axios({
+                                        url: url,
+                                        data: bodyFormData,
+                                        method: 'post',
+                                        headers: {
+                                            'Accept': 'application/json',
+                                            'Content-Type': 'application/json',
+                                            'X-Response-View': 'Json'
+                                        }
+                                    }).then(function (response) {
+                                        emailafriend.Message.Result = response.data.Result;
+                                        emailafriend.Message.SuccessfullySent = response.data.SuccessfullySent;
+
+                                        var result = response.data.Result;
+                                        var variant = "";
+
+                                        if (response.data.SuccessfullySent) {
+                                            variant = "info";
+                                            document.getElementById("ProductEmailAFriend").style.display = "none";
+                                            vm.$refs['ModalProductEmailAFriend'].hide();
+                                        } else {
+                                            variant = "danger";
+                                        }
+
+                                        new Vue({
+                                            el: ".modal-place",
+                                            methods: {
+                                                toast() {
+                                                    this.$bvToast.toast(result, {
+                                                        variant: variant,
+                                                        autoHideDelay: 3000,
+                                                        solid: true
+                                                    })
+                                                }
+                                            },
+                                            mounted: function () {
+                                                this.toast();
+                                            }
+                                        });
+                                    })
+                                }
+                            }
+                        });
+                </script>
+            }
+        </div>
+    </div>
+</b-modal>

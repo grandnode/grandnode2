@@ -8,7 +8,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>@LocalizedService.GetResource("Title")</title>
+    <title>@LocalizedService.GetResource(Model.SelectedLanguage, "Title")</title>
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
     <link href="@Url.Content("~/assets/install/style.css")" type="text/css" rel="stylesheet">
@@ -26,7 +26,7 @@
                 <div class="col-xl-7 col-lg-6 col-md-12">
                     <div class="row">
                         <div class="col-md">
-                            <h1 class="generalTitle">@LocalizedService.GetResource("Title")</h1>
+                            <h1 class="generalTitle">@LocalizedService.GetResource(Model.SelectedLanguage, "Title")</h1>
                         </div>
                         <div class="col-md-3 col-5 pt-3">
                             @Html.DropDownList("language", Model.AvailableLanguages, new { @class = "custom-select", onchange = "window.location.href = this.value;" })
@@ -36,7 +36,7 @@
             </div>
             <div class="content">
                 <p>
-                    @LocalizedService.GetResource("Tooltip2")
+                    @LocalizedService.GetResource(Model.SelectedLanguage, "Tooltip2")
                     <div style="color: Red;">
                         @Html.ValidationSummary(false)
                     </div>
@@ -47,20 +47,20 @@
             </div>
             <div class="card">
                 <h3 class="card-header">
-                    @LocalizedService.GetResource("CompanyInformation")
+                    @LocalizedService.GetResource(Model.SelectedLanguage, "CompanyInformation")
                 </h3>
                 <div class="card-body">
 
                     <div class="row">
                         <div class="col-md-6 col-12">
                             <label for="AdminPassword">
-                                @LocalizedService.GetResource("CompanyName"):
+                                @LocalizedService.GetResource(Model.SelectedLanguage, "CompanyName"):
                             </label>
                             <input asp-for="CompanyName" class="form-control" />
                         </div>
                         <div class="col-md-6">
                             <label for="ConfirmPassword">
-                                @LocalizedService.GetResource("CompanyAddress"):
+                                @LocalizedService.GetResource(Model.SelectedLanguage, "CompanyAddress"):
                             </label>
                             <input asp-for="CompanyAddress" class="form-control" />
                         </div>
@@ -68,13 +68,13 @@
                     <div class="row">
                         <div class="col-md-6 col-12">
                             <label for="AdminPassword">
-                                @LocalizedService.GetResource("CompanyPhoneNumber"):
+                                @LocalizedService.GetResource(Model.SelectedLanguage, "CompanyPhoneNumber"):
                             </label>
                             <input asp-for="CompanyPhoneNumber" class="form-control" />
                         </div>
                         <div class="col-md-6">
                             <label for="ConfirmPassword">
-                                @LocalizedService.GetResource("CompanyEmail"):
+                                @LocalizedService.GetResource(Model.SelectedLanguage, "CompanyEmail"):
                             </label>
                             <input asp-for="CompanyEmail" class="form-control" />
                         </div>
@@ -83,23 +83,23 @@
             </div>
             <div class="card">
                 <h3 class="card-header">
-                    @LocalizedService.GetResource("StoreInformation")
+                    @LocalizedService.GetResource(Model.SelectedLanguage, "StoreInformation")
                 </h3>
                 <div class="card-body">
                     <label for="AdminEmail" class="col-form-label">
-                        @LocalizedService.GetResource("AdminEmail"):
+                        @LocalizedService.GetResource(Model.SelectedLanguage, "AdminEmail"):
                     </label>
                     <input asp-for="AdminEmail" class="form-control" required />
                     <div class="row">
                         <div class="col-md-6 col-12">
                             <label for="AdminPassword">
-                                @LocalizedService.GetResource("AdminPassword"):
+                                @LocalizedService.GetResource(Model.SelectedLanguage, "AdminPassword"):
                             </label>
                             <input asp-for="AdminPassword" class="form-control password" required />
                         </div>
                         <div class="col-md-6">
                             <label for="ConfirmPassword">
-                                @LocalizedService.GetResource("ConfirmPassword"):
+                                @LocalizedService.GetResource(Model.SelectedLanguage, "ConfirmPassword"):
                             </label>
                             <input asp-for="ConfirmPassword" class="form-control password" required />
                         </div>
@@ -108,7 +108,7 @@
             </div>
             <div class="card">
                 <h3 class="card-header">
-                    @LocalizedService.GetResource("DataProvider")
+                    @LocalizedService.GetResource(Model.SelectedLanguage, "DataProvider")
                 </h3>
                 <div class="card-body">
                     @Html.DropDownList("DataProvider", Model.AvailableProviders, new { @class = "custom-select", onchange = "DataProviderChange(this.value);" })
@@ -120,7 +120,7 @@
                     <label class="custom-control custom-checkbox my-3">
                         <input asp-for="InstallSampleData" class="custom-control-input" />
                         <span class="custom-control-label"></span>
-                        <span class="custom-control-description">@LocalizedService.GetResource("CreateSampleData")</span>
+                        <span class="custom-control-description">@LocalizedService.GetResource(Model.SelectedLanguage, "CreateSampleData")</span>
                     </label>
                 </div>
             }
@@ -128,23 +128,23 @@
                 <div id="DBSampleData">
                     <div class="card">
                         <h3 class="card-header">
-                            @LocalizedService.GetResource("DatabaseInformation")
+                            @LocalizedService.GetResource(Model.SelectedLanguage, "DatabaseInformation")
                         </h3>
                         <div class="card-body">
                             <label for="MongoDBServerName">
-                                @LocalizedService.GetResource("MongoDBServerName"):
+                                @LocalizedService.GetResource(Model.SelectedLanguage, "MongoDBServerName"):
                             </label>
                             <input asp-for="MongoDBServerName" class="form-control" />
                             <div class="row mongoDBDatabaseName">
                                 <div class="col-6">
                                     <label for="MongoDBDatabaseName">
-                                        @LocalizedService.GetResource("DatabaseName"):
+                                        @LocalizedService.GetResource(Model.SelectedLanguage, "DatabaseName"):
                                     </label>
                                     <input asp-for="MongoDBDatabaseName" class="form-control" />
                                 </div>
                                 <div class="col-6 collation" id="collation">
                                     <label for="Collation">
-                                        @LocalizedService.GetResource("Collation"):
+                                        @LocalizedService.GetResource(Model.SelectedLanguage, "Collation"):
                                     </label>
                                     @Html.DropDownList("Collation", Model.AvailableCollation, new { @class = "custom-select" })
                                 </div>
@@ -152,13 +152,13 @@
                             <div class="row">
                                 <div class="col-6">
                                     <label for="MongoDBUsername">
-                                        @LocalizedService.GetResource("MongoDBUsername"):
+                                        @LocalizedService.GetResource(Model.SelectedLanguage, "MongoDBUsername"):
                                     </label>
                                     <input asp-for="MongoDBUsername" class="form-control" />
                                 </div>
                                 <div class="col-6">
                                     <label for="MongoDBPassword">
-                                        @LocalizedService.GetResource("MongoDBPassword"):
+                                        @LocalizedService.GetResource(Model.SelectedLanguage, "MongoDBPassword"):
                                     </label>
                                     <input asp-for="MongoDBPassword" class="form-control password" />
                                 </div>
@@ -171,14 +171,14 @@
                 <label class="custom-control custom-checkbox my-3">
                     <input asp-for="ConnectionInfo" onchange="toggleMongoDBConnectionInfo()" class="custom-control-input" />
                     <span class="custom-control-label"></span>
-                    <span class="custom-control-description">@LocalizedService.GetResource("ConnectionString"):</span>
+                    <span class="custom-control-description">@LocalizedService.GetResource(Model.SelectedLanguage, "ConnectionString"):</span>
                 </label>
                 <div id="DatabaseConnectionString" class="connection-string-container" style="display:none;">
                     <span style="white-space: nowrap;">
                         <input asp-for="DatabaseConnectionString" class="textbox form-control" />
                     </span>
                     <span class="hint">
-                        @LocalizedService.GetResource("Example"):<br />
+                        @LocalizedService.GetResource(Model.SelectedLanguage, "Example"):<br />
                         For MongoDB: @Html.Raw("mongodb://[username:password@]host1[:port1]/databaseName")
                         (Find more info <a href="https://docs.mongodb.org/manual/reference/connection-string/" target="_blank">here</a>)
                     </span>
@@ -186,14 +186,14 @@
             </section>
             <div class="row">
                 <div class="col-12">
-                    @LocalizedService.GetResource("Documentation1") <a href="https://docs.grandnode.com/" target="_blank">@LocalizedService.GetResource("Documentation2")</a>.
+                    @LocalizedService.GetResource(Model.SelectedLanguage, "Documentation1") <a href="https://docs.grandnode.com/" target="_blank">@LocalizedService.GetResource(Model.SelectedLanguage, "Documentation2")</a>.
                 </div>
                 <div class="col-6 text-left">
-                    <input class="btn btn-success" type="button" id="installation" name="installation" value="@LocalizedService.GetResource("Install")" style="width: 100px;" />
+                    <input class="btn btn-success" type="button" id="installation" name="installation" value="@LocalizedService.GetResource(Model.SelectedLanguage, "Install")" style="width: 100px;" />
                 </div>
                 <div class="col-6 text-right">
-                    <a class="btn btn-secondary" href="@Url.Action("RestartInstall", "Install")" title="@LocalizedService.GetResource("RestartInstallationTooltip")">
-                        @LocalizedService.GetResource("RestartInstallation")
+                    <a class="btn btn-secondary" href="@Url.Action("RestartInstall", "Install")" title="@LocalizedService.GetResource(Model.SelectedLanguage, "RestartInstallationTooltip")">
+                        @LocalizedService.GetResource(Model.SelectedLanguage, "RestartInstallation")
                     </a>
                 </div>
             </div>
@@ -202,7 +202,7 @@
                 </div>
                 <div class="curtain-content">
                     <div>
-                        <h1 class="throbber-header">@LocalizedService.GetResource("Installing")</h1>
+                        <h1 class="throbber-header">@LocalizedService.GetResource(Model.SelectedLanguage, "Installing")</h1>
                         <div class="spinner active">
                             <svg style="width:100px; height:100px" viewBox="0 0 64 64">
                                 <circle cx="32" cy="32" r="29" fill="none" stroke-width="3" stroke-miterlimit="10"></circle>
@@ -223,14 +223,14 @@
                     <div class="col-12">
                         <div class="row">
                             <div class="col">
-                                <h1 class="generalTitle">@LocalizedService.GetResource("Title")</h1>
+                                <h1 class="generalTitle">@LocalizedService.GetResource(Model.SelectedLanguage, "Title")</h1>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col text-center">
-                        <h2 class="text-center">@LocalizedService.GetResource("Installed")</h2>
+                        <h2 class="text-center">@LocalizedService.GetResource(Model.SelectedLanguage, "Installed")</h2>
                     </div>
                 </div>
             </div>

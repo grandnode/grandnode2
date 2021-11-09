@@ -15,7 +15,7 @@ namespace Grand.Business.Messages.DotLiquidDrops
             foreach (var drop in drops)
             {
                 toReturn.AddRange(drop.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                    .Select(x => "{{" + drop.Name.Substring(6, drop.Name.Length - 6) + "." + x.Name + "}}"));
+                    .Select(x => "{{" + drop.Name[6..] + "." + x.Name + "}}"));
             }
 
             return toReturn;

@@ -2,14 +2,13 @@
 @{ 
     var addToCartUrl = Model.EmailWishlistEnabled && !Model.IsEditable ? Url.RouteUrl("AddItemToCartFromWishlist", new { customerGuid = @Model.CustomerGuid }) + "&shoppingcartId=" : Url.RouteUrl("AddItemToCartFromWishlist") + "?shoppingcartId=";
 }
-<script asp-location="Header">
-    var Wishlist = Vue.extend({
-        props: {
-            Model: null,
-            PopupUpdateVueModal: null,
-        },
-        mounted() {
-            this.Model = @Json.Serialize(Model);
+<script asp-location="Footer" asp-order="300">
+    var vmwishlist = new Vue({
+        data: function () {
+            return {
+                Model: @Json.Serialize(Model),
+                PopupUpdateVueModal: null,
+            }
         },
         methods: {
             deleteFromWishlist(id) {
@@ -113,5 +112,4 @@
             }
         }
     });
-    var vmwishlist = new Wishlist().$mount('#wishlistPage')
 </script>

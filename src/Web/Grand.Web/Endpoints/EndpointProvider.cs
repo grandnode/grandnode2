@@ -304,25 +304,10 @@ namespace Grand.Web.Endpoints
                             pattern + "productreviews/{productId}",
                             new { controller = "Product", action = "ProductReviews" });
 
-            //comparing products
-            endpointRouteBuilder.MapControllerRoute("AddProductToCompare",
-                            pattern + "compareproducts/add/{productId?}",
-                            new { controller = "Product", action = "AddProductToCompareList" });
-
             //set review helpfulness (AJAX link)
             endpointRouteBuilder.MapControllerRoute("SetProductReviewHelpfulness",
                             pattern + "setproductreviewhelpfulness",
                             new { controller = "Product", action = "SetProductReviewHelpfulness" });
-
-            //comparing products
-            endpointRouteBuilder.MapControllerRoute("RemoveProductFromCompareList",
-                            pattern + "compareproducts/remove/{productId}",
-                            new { controller = "Product", action = "RemoveProductFromCompareList" });
-
-            endpointRouteBuilder.MapControllerRoute("ClearCompareList",
-                            pattern + "clearcomparelist/",
-                            new { controller = "Product", action = "ClearCompareList" });
-
 
             //product attributes with "upload file" type
             endpointRouteBuilder.MapControllerRoute("UploadFileProductAttribute",
@@ -345,14 +330,15 @@ namespace Grand.Web.Endpoints
 
             //change currency 
             endpointRouteBuilder.MapControllerRoute("ChangeCurrency",
-                            pattern + "changecurrency/{customercurrency}",
+                            pattern + "changecurrency/{currencycode}",
                             new { controller = "Common", action = "SetCurrency" });
 
             //change language 
             endpointRouteBuilder.MapControllerRoute("ChangeLanguage",
-                            pattern + "changelanguage/{langid}",
+                            pattern + "changelanguage/{langcode}",
                             new { controller = "Common", action = "SetLanguage" });
 
+            
             //change tax 
             endpointRouteBuilder.MapControllerRoute("ChangeTaxType",
                             pattern + "changetaxtype/{customertaxtype}",
@@ -360,7 +346,7 @@ namespace Grand.Web.Endpoints
 
             //change store 
             endpointRouteBuilder.MapControllerRoute("ChangeStore",
-                            pattern + "changestore/{store}",
+                            pattern + "changestore/{shortcut}",
                             new { controller = "Common", action = "SetStore" });
 
             //get state list by country ID 

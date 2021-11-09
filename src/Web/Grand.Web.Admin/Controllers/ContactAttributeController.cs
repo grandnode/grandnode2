@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Grand.Infrastructure;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -153,7 +154,9 @@ namespace Grand.Web.Admin.Controllers
         //delete
         [HttpPost]
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
-        public async Task<IActionResult> Delete(string id, [FromServices] ICustomerActivityService customerActivityService)
+        public async Task<IActionResult> Delete(string id,
+            [FromServices] IWorkContext workContext,
+            [FromServices] ICustomerActivityService customerActivityService)
         {
             if (ModelState.IsValid)
             {
@@ -161,7 +164,9 @@ namespace Grand.Web.Admin.Controllers
                 await _contactAttributeService.DeleteContactAttribute(contactAttribute);
 
                 //activity log
-                await customerActivityService.InsertActivity("DeleteContactAttribute", contactAttribute.Id, _translationService.GetResource("ActivityLog.DeleteContactAttribute"), contactAttribute.Name);
+                _ = customerActivityService.InsertActivity("DeleteContactAttribute", contactAttribute.Id,
+                    workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
+                    _translationService.GetResource("ActivityLog.DeleteContactAttribute"), contactAttribute.Name);
 
                 Success(_translationService.GetResource("Admin.Catalog.Attributes.ContactAttributes.Deleted"));
                 return RedirectToAction("List");
@@ -229,8 +234,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 await _contactAttributeViewModelService.InsertContactAttributeValueModel(contactAttribute, model);
 
-                ViewBag.RefreshPage = true;
-                return View(model);
+                return Content("");
             }
 
             //If we got this far, something failed, redisplay form
@@ -278,8 +282,8 @@ namespace Grand.Web.Admin.Controllers
             if (ModelState.IsValid)
             {
                 await _contactAttributeViewModelService.UpdateContactAttributeValueModel(contactAttribute, cav, model);
-                ViewBag.RefreshPage = true;
-                return View(model);
+
+                return Content("");
             }
 
             //If we got this far, something failed, redisplay form

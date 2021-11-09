@@ -29,7 +29,13 @@ namespace Grand.Domain.Data.Mongo
             return binary;
 
         }
-        public async Task<string> BucketUploadFromBytesAsync(string filename, byte[] source)
+        public async Task BucketDelete(string id)
+        {
+            var bucket = new MongoDB.Driver.GridFS.GridFSBucket(_database);
+            await bucket.DeleteAsync(new ObjectId(id));
+        }
+
+        public async Task<string> BucketUploadFromBytes(string filename, byte[] source)
         {
             var bucket = new MongoDB.Driver.GridFS.GridFSBucket(_database);
             var id = await bucket.UploadFromBytesAsync(filename, source);

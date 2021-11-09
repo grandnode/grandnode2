@@ -54,7 +54,7 @@ namespace Grand.Business.Common.Services.Directory
             }
             catch (Exception exc)
             {
-                _logger.Warning("Cannot load MaxMind record", exc);
+                _ = _logger.Warning("Cannot load MaxMind record", exc);
                 return null;
             }
         }

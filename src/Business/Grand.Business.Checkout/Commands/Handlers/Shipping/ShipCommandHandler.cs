@@ -1,5 +1,4 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Checkout.Commands.Models.Orders;
+﻿using Grand.Business.Checkout.Commands.Models.Orders;
 using Grand.Business.Checkout.Commands.Models.Shipping;
 using Grand.Business.Checkout.Extensions;
 using Grand.Business.Checkout.Interfaces.Orders;
@@ -20,23 +19,17 @@ namespace Grand.Business.Checkout.Commands.Handlers.Shipping
         private readonly IMediator _mediator;
         private readonly IOrderService _orderService;
         private readonly IShipmentService _shipmentService;
-        private readonly IProductService _productService;
-        private readonly IInventoryManageService _inventoryManageService;
         private readonly IMessageProviderService _messageProviderService;
 
         public ShipCommandHandler(
             IMediator mediator,
             IOrderService orderService,
             IShipmentService shipmentService,
-            IProductService productService,
-            IInventoryManageService inventoryManageService,
             IMessageProviderService messageProviderService)
         {
             _mediator = mediator;
             _orderService = orderService;
             _shipmentService = shipmentService;
-            _productService = productService;
-            _inventoryManageService = inventoryManageService;
             _messageProviderService = messageProviderService;
         }
 
@@ -69,8 +62,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Shipping
             await _orderService.UpdateOrder(order);
 
             //add a note
-            await _orderService.InsertOrderNote(new OrderNote
-            {
+            await _orderService.InsertOrderNote(new OrderNote {
                 Note = $"Shipment #{request.Shipment.ShipmentNumber} has been sent",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
@@ -80,17 +72,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Shipping
             if (request.NotifyCustomer)
             {
                 //notify customer
-                int queuedEmailId = await _messageProviderService.SendShipmentSentCustomerMessage(request.Shipment, order);
-                if (queuedEmailId > 0)
-                {
-                    await _orderService.InsertOrderNote(new OrderNote
-                    {
-                        Note = "\"Shipped\" email (to customer) has been queued.",
-                        DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = order.Id,
-                    });
-                }
+                await _messageProviderService.SendShipmentSentCustomerMessage(request.Shipment, order);
             }
             //event
             await _mediator.PublishShipmentSent(request.Shipment);

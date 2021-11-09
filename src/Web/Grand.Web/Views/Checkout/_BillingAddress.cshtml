@@ -40,6 +40,17 @@
                 <partial name="_CreateOrUpdateAddress" model="Model.BillingAddress.NewAddress" view-data="dataDictAddress" />
             }
         </div>
+        <template v-if="vmorder.billingAddressErrors !== null">
+            <div class="alert alert-danger">
+                <ul class="m-0 p-0">
+                    <template v-for="message in vmorder.billingAddressErrors">
+                        <li>
+                            {{message}}
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </template>
     </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_billing_address_bottom" })
 </div>

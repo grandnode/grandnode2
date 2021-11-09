@@ -6,6 +6,7 @@ namespace Grand.Web.Common.TagHelpers
        HeadLink,
        HeadScript,
        ScriptHeader,
-       ScriptFooter
+       ScriptFooter,
+       TemplateHeader
     }
 }

@@ -136,22 +136,28 @@ var AxiosCart = {
         });  
     },
     //add a product to compare list
-    addproducttocomparelist: function (urladd) {
+    addproducttocomparelist: function (id, message, url) {
         if (this.loadWaiting != false) {
             return;
         }
         this.setLoadWaiting(true);
 
-        axios({
-            url: urladd,
-            method: 'post'
-        }).then(function (response) {
-            this.AxiosCart.success_process(response);
-        }).catch(function (error) {
-            error.axiosFailure;
-        }).then(function () {
-            this.AxiosCart.resetLoadWaiting();
-        });  
+        var cookie = this.getCookie('Grand.CompareProduct');
+        if (cookie !== '') {
+            if (!cookie.includes(id)) {
+                cookie = cookie + '|' + id;
+            }
+        } else {
+            cookie = id;
+        }
+        this.setCookie('Grand.CompareProduct', cookie);
+        vm.updateCompareProductsQty();
+
+        vm.displayBarNotification(message, url, 'success', 3500);
+
+        this.resetLoadWaiting();
+
+        return false;  
     },
 
     setLoadWaiting: function (display) {
@@ -172,15 +178,6 @@ var AxiosCart = {
             vm.flycartitems = newfly.Items;
             vm.flycartindicator = newfly.TotalProducts;
 
-        }
-        if (response.data.comparemessage) {
-            if (response.data.success == true) {
-                displayBarNotification(response.data.comparemessage, 'success', 3500);
-            }
-            else {
-                displayBarNotification(response.data.comparemessage, 'error', 3500);
-            }
-            return false;
         }
         if (response.data.product) {
             if (response.data.success == true) {
@@ -222,7 +219,7 @@ var AxiosCart = {
             }
             else {
                 //error
-                displayBarNotification(response.data.message, 'error', 3500);
+                vm.displayBarNotification(response.data.message, '', 'error', 3500);
             }
             return false;
         }
@@ -239,5 +236,28 @@ var AxiosCart = {
 
     axiosFailure: function () {
         alert('Failed to add the product. Please refresh the page and try one more time.');
+    },
+    setCookie: function (cname, cvalue, exdays) {
+        const d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        let expires = "expires=" + d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    },
+    getCookie: function (cname) {
+        let name = cname + "=";
+        let ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    },
+    deleteCookie: function (cname) {
+        document.cookie = "" + cname +"=; expires=Thu, 01 Jan 1970 00:00:00 UTC;"
     }
 };

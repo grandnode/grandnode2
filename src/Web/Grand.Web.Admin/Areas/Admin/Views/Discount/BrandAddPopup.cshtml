@@ -6,7 +6,7 @@
     ViewBag.Title = Loc["admin.marketing.Discounts.AppliedToBrands.AddNew"];
 }
 
-<form asp-area="@Constants.AreaAdmin" asp-controller="Discount" asp-action="BrandAddPopup" method="post"
+<form id="BrandAddPopup" asp-area="@Constants.AreaAdmin" asp-controller="Discount" asp-action="BrandAddPopup" method="post"
       asp-route-DiscountId="@Context.Request.Query["DiscountId"]"
       asp-route-btnId="@Context.Request.Query["btnId"]"
       asp-route-formId="@Context.Request.Query["formId"]">
@@ -48,17 +48,36 @@
         </div>
     </div>
 
-
-    @if (ViewBag.RefreshPage == true)
-    {
-        <script>
-            try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
-            catch (e){}
-            window.close();
-        </script>
-    }
     <script>
-        $(document).ready(function () {
+            var mfp = $.magnificPopup.instance;
+            $("#BrandAddPopup").submit(function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data == "") {
+                            mfp.close();
+                            $('#btnRefreshBrands').click();
+                        } else {
+                            $.magnificPopup.open({
+                                items: {
+                                    src: data,
+                                    type: 'inline'
+                                },
+                                callbacks: {
+                                    open: function () {
+                                        $('.mfp-wrap').removeAttr('tabindex');
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            });
             $("#brands-grid").kendoGrid({
                 dataSource: {
                     transport: {
@@ -106,11 +125,7 @@
                 }
                 ]
             });
-        });
-    </script>
 
-    <script>
-        $(document).ready(function() {
             $('#search-brands').click(function() {
                 var grid = $('#brands-grid').data('kendoGrid');
                 grid.dataSource.page(1); //new search. Set page size to 1
@@ -135,7 +150,6 @@
             $('#brands-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function(e) {
                 updateMasterCheckbox();
             });
-        });
 
         function additionalData() {
             var data = {

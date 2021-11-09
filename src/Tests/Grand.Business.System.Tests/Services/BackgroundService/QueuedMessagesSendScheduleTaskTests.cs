@@ -36,7 +36,7 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
         public async Task Execute_InovekExpectedMethods()
         {
             _queuedEmailServiceMock.Setup(c => c.SearchEmails(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime?>(),
-                It.IsAny<DateTime?>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(),
+                It.IsAny<DateTime?>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<string>(),
                 It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(() => new PagedList<QueuedEmail>() { new QueuedEmail() { Bcc = "bcc", CC = "cc", EmailAccountId = "id" } });
             _emailAccountServiceMock.Setup(c => c.GetEmailAccountById(It.IsAny<string>())).ReturnsAsync(new EmailAccount());
 
@@ -53,7 +53,7 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
         public async Task Execute_ThrowExecption_InovekExpectedMethodsAndInsertLog()
         {
             _queuedEmailServiceMock.Setup(c => c.SearchEmails(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime?>(),
-                It.IsAny<DateTime?>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(),
+                It.IsAny<DateTime?>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<string>(),
                 It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(() => new PagedList<QueuedEmail>() { new QueuedEmail() { Bcc = "bcc", CC = "cc", EmailAccountId = "id" } });
             _emailAccountServiceMock.Setup(c => c.GetEmailAccountById(It.IsAny<string>())).ReturnsAsync(new EmailAccount());
             _emailSenderMock.Setup(c => c.SendEmail(It.IsAny<EmailAccount>(), It.IsAny<string>(), It.IsAny<string>(),
@@ -62,7 +62,7 @@ namespace Grand.Business.System.Tests.Services.BackgroundService
                  It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>())).ThrowsAsync(new Exception());
             _loggerMock.Setup(c => c.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
             await _task.Execute();
-            _loggerMock.Verify(c => c.InsertLog(Domain.Logging.LogLevel.Error, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Customer>()), Times.Once);
+            _loggerMock.Verify(c => c.InsertLog(Domain.Logging.LogLevel.Error, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Customer>(), null, null, null), Times.Once);
             _queuedEmailServiceMock.Verify(c => c.UpdateQueuedEmail(It.IsAny<QueuedEmail>()), Times.Once);
         }
     }

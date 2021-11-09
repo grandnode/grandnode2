@@ -232,7 +232,7 @@ namespace Grand.Web.Admin.Controllers
                 var errors = await _mediator.Send(new CaptureCommand() { PaymentTransaction = paymentTransaction });
 
                 foreach (var error in errors)
-                    Error(error, false);
+                    Error(error);
 
                 return RedirectToAction("Edit", "PaymentTransaction", new { id = id });
             }
@@ -288,7 +288,8 @@ namespace Grand.Web.Admin.Controllers
             {
                 var errors = await _mediator.Send(new RefundCommand() { PaymentTransaction = paymentTransaction });
                 foreach (var error in errors)
-                    Error(error, false);
+                    Error(error);
+
                 return RedirectToAction("Edit", "PaymentTransaction", new { id = id });
             }
             catch (Exception exc)
@@ -342,7 +343,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 var errors = await _mediator.Send(new VoidCommand() { PaymentTransaction = paymentTransaction });
                 foreach (var error in errors)
-                    Error(error, false);
+                    Error(error);
 
                 return RedirectToAction("Edit", "PaymentTransaction", new { id = id });
             }
@@ -437,7 +438,8 @@ namespace Grand.Web.Admin.Controllers
                 }
                 //error
                 foreach (var error in errors)
-                    Error(error, false);
+                    Error(error);
+
                 return View(model);
             }
             catch (Exception exc)

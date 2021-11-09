@@ -67,8 +67,8 @@ namespace Grand.Api.Infrastructure
             }
         }
 
-        public int Priority => 500;
-        public bool BeforeConfigure => false;
+        public int Priority => 90;
+        public bool BeforeConfigure => true;
 
     }
 }

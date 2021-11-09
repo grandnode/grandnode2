@@ -1,15 +1,8 @@
 ﻿@model PredefinedProductAttributeValueModel
 @{    
-    // layout
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
-
-    //page title
-    ViewBag.Title = Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.AddNew"];
+    Layout = "";
 }
-<form asp-area="@Constants.AreaAdmin" asp-controller="ProductAttribute" asp-action="PredefinedProductAttributeValueCreatePopup" method="post"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]"> 
-    
+<form id="PredefinedProductAttributeValueCreatePopup" asp-area="@Constants.AreaAdmin" asp-controller="ProductAttribute" asp-action="PredefinedProductAttributeValueCreatePopup" method="post">
     <div class="row">
         <div class="col-md-12">
             <div class="x_panel light form-fit">
@@ -18,10 +11,6 @@
                         <i class="fa fa-list-alt"></i>
                         @Loc["Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.AddNew"]
                     </div>
-                    <div class="actions">
-                        <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
-                        <vc:admin-widget widget-zone="product_attribute_predefined_value_details_buttons" additional-data="null" />
-                    </div>
                 </div>
                 <div class="x_content form">
                    <partial name="_CreateOrUpdatePredefinedProductAttributeValue" model="Model" />
@@ -29,4 +18,35 @@
             </div>
         </div>
     </div>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#PredefinedProductAttributeValueCreatePopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    if (data == "") {
+                        mfp.close();
+                        $('#btnRefresh').click();
+                    } else {
+                        $.magnificPopup.open({
+                            items: {
+                                src: data,
+                                type: 'inline'
+                            },
+                            callbacks: {
+                                open: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 </form>

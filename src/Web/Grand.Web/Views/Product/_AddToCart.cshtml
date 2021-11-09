@@ -75,7 +75,7 @@
         }
         }
 
-        <script asp-location="Footer">
+        <script asp-location="Footer" asp-order="300">
                     if (document.getElementById("@Html.IdFor(model => model.EnteredQuantity)")) {
                         document.getElementById("@Html.IdFor(model => model.EnteredQuantity)").addEventListener("keyup", function (event) {
                             if (event.keyCode == 13) {

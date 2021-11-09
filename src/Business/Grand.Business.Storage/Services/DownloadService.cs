@@ -96,7 +96,7 @@ namespace Grand.Business.Storage.Services
                 throw new ArgumentNullException(nameof(download));
             if (!download.UseDownloadUrl)
             {
-                download.DownloadObjectId = await _storeFilesContext.BucketUploadFromBytesAsync(download.Filename, download.DownloadBinary);
+                download.DownloadObjectId = await _storeFilesContext.BucketUploadFromBytes(download.Filename, download.DownloadBinary);
             }
 
             download.DownloadBinary = null;
@@ -129,6 +129,10 @@ namespace Grand.Business.Storage.Services
                 throw new ArgumentNullException(nameof(download));
 
             await _downloadRepository.DeleteAsync(download);
+
+            //delete from bucket
+            if(!string.IsNullOrEmpty(download.DownloadObjectId))
+                await _storeFilesContext.BucketDelete(download.DownloadObjectId);
 
             await _mediator.EntityDeleted(download);
         }

@@ -34,7 +34,7 @@ namespace Grand.Web.Commands.Handler.Vendors
             var body = FormatText.ConvertText(request.Model.Enquiry);
 
             await _messageProviderService.SendContactVendorMessage(_workContext.CurrentCustomer, request.Store, request.Vendor, _workContext.WorkingLanguage.Id,
-                request.Model.Email.Trim(), request.Model.FullName, subject, body);
+                request.Model.Email.Trim(), request.Model.FullName, subject, body, request.IpAddress);
 
             request.Model.SuccessfullySent = true;
             request.Model.Result = _translationService.GetResource("ContactVendor.YourEnquiryHasBeenSent");

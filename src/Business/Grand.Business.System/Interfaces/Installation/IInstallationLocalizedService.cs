@@ -11,21 +11,17 @@ namespace Grand.Business.System.Interfaces.Installation
         /// <summary>
         /// Get locale resource value
         /// </summary>
+        /// <param name="languageCode">Language code</param>
         /// <param name="resourceName">Resource name</param>
         /// <returns>Resource value</returns>
-        string GetResource(string resourceName);
+        string GetResource(string languageCode, string resourceName);
 
         /// <summary>
         /// Get current language for the installation page
         /// </summary>
         /// <returns>Current language</returns>
-        InstallationLanguage GetCurrentLanguage();
-
-        /// <summary>
-        /// Save a language for the installation page
-        /// </summary>
-        /// <param name="languageCode">Language code</param>
-        void SaveCurrentLanguage(string languageCode);
+        /// <param name="languageCode">Language Code</param>
+        InstallationLanguage GetCurrentLanguage(string languageCode = default);
 
         /// <summary>
         /// Get a list of available languages

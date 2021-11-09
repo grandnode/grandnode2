@@ -38,44 +38,62 @@
             </div>
         </div>
     </localized-editor>
-        <div class="form-body">
-            <div class="form-group">
-                <div class="col-md-3 col-sm-3 text-right">
-                    <admin-label asp-for="AdditionalFee" class="control-label" />
-                </div>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="AdditionalFee" />
-                    <span asp-validation-for="AdditionalFee"></span>
-                </div>
+    <div class="form-body">
+        <div class="form-group">
+            <div class="col-md-3 col-sm-3 text-right">
+                <admin-label asp-for="AdditionalFee" class="control-label" />
             </div>
-            <div class="form-group">
-                <div class="col-md-3 col-sm-3 text-right">
-                    <admin-label asp-for="AdditionalFeePercentage" class="control-label" />
-                </div>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="AdditionalFeePercentage" />
-                    <span asp-validation-for="AdditionalFeePercentage"></span>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="col-md-3 col-sm-3 text-right">
-                    <admin-label asp-for="ShippableProductRequired" class="control-label" />
-                </div>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="ShippableProductRequired" />
-                    <span asp-validation-for="ShippableProductRequired"></span>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="col-md-3 col-sm-3 text-right">
-                    <admin-label asp-for="DisplayOrder" class="control-label" />
-                </div>
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="DisplayOrder" />
-                    <span asp-validation-for="DisplayOrder"></span>
-                </div>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="AdditionalFee" />
+                <span asp-validation-for="AdditionalFee"></span>
             </div>
         </div>
+        <div class="form-group">
+            <div class="col-md-3 col-sm-3 text-right">
+                <admin-label asp-for="AdditionalFeePercentage" class="control-label" />
+            </div>
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="AdditionalFeePercentage" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="AdditionalFeePercentage"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-3 col-sm-3 text-right">
+                <admin-label asp-for="ShippableProductRequired" class="control-label" />
+            </div>
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="ShippableProductRequired" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="ShippableProductRequired"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-3 col-sm-3 text-right">
+                <admin-label asp-for="SkipPaymentInfo" class="control-label" />
+            </div>
+            <div class="col-md-9 col-sm-9">
+                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                    <admin-input asp-for="SkipPaymentInfo" />
+                    <div class="control__indicator"></div>
+                </label>
+                <span asp-validation-for="SkipPaymentInfo"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-3 col-sm-3 text-right">
+                <admin-label asp-for="DisplayOrder" class="control-label" />
+            </div>
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="DisplayOrder" />
+                <span asp-validation-for="DisplayOrder"></span>
+            </div>
+        </div>
+    </div>
         <div class="form-actions">
             <div class="row">
                 <div class="offset-md-3 offset-sm-3 col-md-9 col-sm-9">

@@ -10,7 +10,6 @@ namespace Grand.Web.Admin.Mapper
         public MediaSettingsProfile()
         {
             CreateMap<MediaSettings, MediaSettingsModel>()
-                .ForMember(dest => dest.PicturesStoredIntoDatabase, mo => mo.Ignore())
                 .ForMember(dest => dest.ActiveStore, mo => mo.Ignore())
                 .ForMember(dest => dest.UserFields, mo => mo.Ignore());
             CreateMap<MediaSettingsModel, MediaSettings>();

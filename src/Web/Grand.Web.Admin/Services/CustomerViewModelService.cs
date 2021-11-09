@@ -70,6 +70,7 @@ namespace Grand.Web.Admin.Services
         private readonly IProductService _productService;
         private readonly ISalesEmployeeService _salesEmployeeService;
         private readonly ICustomerNoteService _customerNoteService;
+        private readonly IDownloadService _downloadService;
         private readonly IServiceProvider _serviceProvider;
 
         private readonly TaxSettings _taxSettings;
@@ -102,6 +103,7 @@ namespace Grand.Web.Admin.Services
             IProductService productService,
             ISalesEmployeeService salesEmployeeService,
             ICustomerNoteService customerNoteService,
+            IDownloadService downloadService,
             IServiceProvider serviceProvider,
             CustomerSettings customerSettings,
             TaxSettings taxSettings,
@@ -137,6 +139,7 @@ namespace Grand.Web.Admin.Services
             _productService = productService;
             _salesEmployeeService = salesEmployeeService;
             _customerNoteService = customerNoteService;
+            _downloadService = downloadService;
             _serviceProvider = serviceProvider;
         }
 
@@ -796,7 +799,7 @@ namespace Grand.Web.Admin.Services
             await SaveCustomerTags(customer, ParseCustomerTags(model.CustomerTags));
 
             //activity log
-            await _customerActivityService.InsertActivity("AddNewCustomer", customer.Id, _translationService.GetResource("ActivityLog.AddNewCustomer"), customer.Id);
+            _ = _customerActivityService.InsertActivity("AddNewCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.AddNewCustomer"),  customer.Id);
 
             return customer;
         }
@@ -1017,7 +1020,7 @@ namespace Grand.Web.Admin.Services
             await SaveCustomerTags(customer, ParseCustomerTags(model.CustomerTags));
 
             //activity log
-            await _customerActivityService.InsertActivity("EditCustomer", customer.Id, _translationService.GetResource("ActivityLog.EditCustomer"), customer.Id);
+            _ = _customerActivityService.InsertActivity("EditCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.EditCustomer"), customer.Id);
             return customer;
         }
 
@@ -1034,7 +1037,7 @@ namespace Grand.Web.Admin.Services
             }
 
             //activity log
-            await _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
+            _ = _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
         }
 
         public virtual async Task DeleteSelected(IList<string> selectedIds)
@@ -1049,7 +1052,7 @@ namespace Grand.Web.Admin.Services
                     await _customerService.DeleteCustomer(customer);
                 }
                 //activity log
-                await _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
+                _ = _customerActivityService.InsertActivity("DeleteCustomer", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id);
             }
         }
 
@@ -1079,7 +1082,7 @@ namespace Grand.Web.Admin.Services
                         null : (DateTime?)_dateTimeService.ConvertToUtcTime(model.DontSendBeforeDate.Value)
             };
             await queuedEmailService.InsertQueuedEmail(email);
-            await _customerActivityService.InsertActivity("CustomerAdmin.SendEmail", "", _translationService.GetResource("ActivityLog.SendEmailfromAdminPanel"), customer, model.Subject);
+            _ = _customerActivityService.InsertActivity("CustomerAdmin.SendEmail", "", customer, "", _translationService.GetResource("ActivityLog.SendEmailfromAdminPanel"), model.Subject);
         }
 
         public virtual async Task<IEnumerable<CustomerModel.LoyaltyPointsHistoryModel>> PrepareLoyaltyPointsHistoryModel(string customerId)
@@ -1102,7 +1105,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<LoyaltyPointsHistory> InsertLoyaltyPointsHistory(Customer customer, string storeId, int addLoyaltyPointsValue, string addLoyaltyPointsMessage)
         {
             //activity log
-            await _customerActivityService.InsertActivity("AddLoyaltyPoints", customer.Id, _translationService.GetResource("ActivityLog.AddNewLoyaltyPoints"), customer.Email, addLoyaltyPointsValue);
+            _ = _customerActivityService.InsertActivity("AddLoyaltyPoints", customer.Id, _workContext.CurrentCustomer, "", _translationService.GetResource("ActivityLog.AddNewLoyaltyPoints"), customer.Email, addLoyaltyPointsValue);
 
             return await _loyaltyPointsService.AddLoyaltyPointsHistory(customer.Id, addLoyaltyPointsValue, storeId, addLoyaltyPointsMessage);
         }
@@ -1278,7 +1281,7 @@ namespace Grand.Web.Admin.Services
             if (cart != null)
             {
                 //activity log
-                await _customerActivityService.InsertActivity("CustomerAdmin.UpdateCartCustomer", _workContext.CurrentCustomer.Id,
+                _ = _customerActivityService.InsertActivity("CustomerAdmin.UpdateCartCustomer", customer.Id,_workContext.CurrentCustomer,"",
                     _translationService.GetResource("ActivityLog.UpdateCartCustomer"), customer.Email, customer.Id, unitprice);
 
                 return await _serviceProvider.GetRequiredService<IShoppingCartService>()
@@ -1525,6 +1528,14 @@ namespace Grand.Web.Admin.Services
                 throw new ArgumentException("No customer note found with the specified id");
 
             await _customerNoteService.DeleteCustomerNote(customerNote);
+
+            //delete an old "attachment" file
+            if (!string.IsNullOrEmpty(customerNote.DownloadId))
+            {
+                var attachment = await _downloadService.GetDownloadById(customerNote.DownloadId);
+                if (attachment != null)
+                    await _downloadService.DeleteDownload(attachment);
+            }
         }
     }
 }

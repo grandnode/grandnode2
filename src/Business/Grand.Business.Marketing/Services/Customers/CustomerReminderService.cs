@@ -129,10 +129,12 @@ namespace Grand.Business.Marketing.Services.Customers
             email.AttachedDownloads = null;
             email.CreatedOnUtc = DateTime.UtcNow;
             email.EmailAccountId = emailAccount.Id;
+            email.Reference = Reference.CustomerReminder;
+            email.ObjectId = customerReminder.Id;
 
             await _queuedEmailService.InsertQueuedEmail(email);
             //activity log
-            await _customerActivityService.InsertActivity(string.Format("CustomerReminder.{0}", customerReminder.ReminderRuleId.ToString()), customer.Id, _translationService.GetResource(string.Format("ActivityLog.{0}", customerReminder.ReminderRuleId.ToString())), customer, customerReminder.Name);
+            _ = _customerActivityService.InsertActivity(string.Format("CustomerReminder.{0}", customerReminder.ReminderRuleId.ToString()), customer.Id, customer, "", _translationService.GetResource(string.Format("ActivityLog.{0}", customerReminder.ReminderRuleId.ToString())), customerReminder.Name);
 
             return true;
         }
@@ -199,11 +201,13 @@ namespace Grand.Business.Marketing.Services.Customers
                 AttachedDownloads = null,
                 CreatedOnUtc = DateTime.UtcNow,
                 EmailAccountId = emailAccount.Id,
+                Reference = Reference.CustomerReminder,
+                ObjectId = customerReminder.Id,
             };
 
             await _queuedEmailService.InsertQueuedEmail(email);
             //activity log
-            await _customerActivityService.InsertActivity(string.Format("CustomerReminder.{0}", customerReminder.ReminderRuleId.ToString()), customer.Id, string.Format("ActivityLog.{0}", customerReminder.ReminderRuleId.ToString()), customer, customerReminder.Name);
+            _ = _customerActivityService.InsertActivity(string.Format("CustomerReminder.{0}", customerReminder.ReminderRuleId.ToString()), customer.Id, customer, "", string.Format("ActivityLog.{0}", customerReminder.ReminderRuleId.ToString()), customerReminder.Name);
 
             return true;
         }
