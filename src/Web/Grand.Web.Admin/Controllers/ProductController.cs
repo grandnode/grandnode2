@@ -1272,7 +1272,7 @@ namespace Grand.Web.Admin.Controllers
             if (string.IsNullOrEmpty(mediaSettings.AllowedFileTypes))
                 return new List<string> { ".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp" };
             else
-                return mediaSettings.AllowedFileTypes.Split(',');
+                return mediaSettings.AllowedFileTypes.Split(',').Select(x => x.Trim().ToLowerInvariant()).ToList();
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
