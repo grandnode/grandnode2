@@ -78,6 +78,12 @@
             <template v-if="attribute.AttributeControlType == 10">
                 <textarea class="form-control" :id="'checkout_attribute_' + attribute.Id" :name="'checkout_attribute_' + attribute.Id" v-model="attribute.DefaultValue" :value="attribute.DefaultValue" onchange="checkoutAttributeChange()">{{attribute.DefaultValue}}</textarea>
             </template>
+            <template v-if="attribute.AttributeControlType == 20">
+                <input id="dateDay" :name="'checkout_attribute_' + attribute.Id + '_day'" type="hidden" />
+                <input id="dateMonth" :name="'checkout_attribute_' + attribute.Id + '_month'" type="hidden" />
+                <input id="dateYear" :name="'checkout_attribute_' + attribute.Id + '_year'" type="hidden" />
+                <input type="date" class="form-control" v-model="vmorder.date" />
+            </template>
             <template v-if="attribute.AttributeControlType == 30">
                 <template>
                     <div :id="'checkout_attribute_' + attribute.Id + 'uploader'">
