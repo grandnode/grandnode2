@@ -18,5 +18,6 @@ namespace Grand.Web.Models.ShoppingCart
         public string Result { get; set; }
 
         public bool DisplayCaptcha { get; set; }
+        
     }
 }

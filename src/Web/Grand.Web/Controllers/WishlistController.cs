@@ -204,11 +204,11 @@ namespace Grand.Web.Controllers
             [FromServices] CaptchaSettings captchaSettings)
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist) || !_shoppingCartSettings.EmailWishlistEnabled)
-                return RedirectToRoute("HomePage");
+                return Content("");
 
             var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist);
             if (!cart.Any())
-                return RedirectToRoute("HomePage");
+                return Content(""); 
 
             //validate CAPTCHA
             if (captchaSettings.Enabled && captchaSettings.ShowOnEmailWishlistToFriendPage && !captchaValid)
@@ -232,12 +232,14 @@ namespace Grand.Web.Controllers
                 model.SuccessfullySent = true;
                 model.Result = _translationService.GetResource("Wishlist.EmailAFriend.SuccessfullySent");
 
-                return View(model);
+                return Json(model);
             }
 
             //If we got this far, something failed, redisplay form
             model.DisplayCaptcha = captchaSettings.Enabled && captchaSettings.ShowOnEmailWishlistToFriendPage;
-            return View(model);
+            model.Result = string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(x => x.ErrorMessage));
+
+            return Json(model);
         }
 
         #endregion
