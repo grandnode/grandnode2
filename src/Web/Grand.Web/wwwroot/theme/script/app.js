@@ -1,6 +1,6 @@
 ﻿var vm = new Vue({
     el: '#app',
-    data: function() {
+    data: function () {
         return {
             show: false,
             hover: false,
@@ -240,7 +240,7 @@
                 this.flycartitems = response.data.Items,
                 this.flycartindicator = response.data.TotalProducts,
                 this.flycartfirstload = false
-            ))    
+            ))
         },
         updateWishlist: function (url) {
             axios({
@@ -259,26 +259,24 @@
                 this.wishindicator = response.data.Items.length
             ))
         },
-        getCompareList: function () {
-            if (this.compareProductsQty > 0) {
-                this.loader = true;
-                axios({
-                    baseURL: '/compareproducts',
-                    method: 'get',
-                    params: {
-                        t: new Date().getTime()
-                    },
-                    data: null,
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Response-View': 'Json'
-                    }
-                }).then(response => {
-                    this.loader = false;
-                    this.compareproducts = response.data
-                })
-            }
+        getCompareList: function (url) {
+            this.loader = true;
+            axios({
+                baseURL: url,
+                method: 'get',
+                params: {
+                    t: new Date().getTime()
+                },
+                data: null,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Response-View': 'Json'
+                }
+            }).then(response => {
+                this.loader = false;
+                this.compareproducts = response.data
+            })
         },
         removeFromCompareList: function (id) {
             if (id !== undefined) {
@@ -290,7 +288,6 @@
                 AxiosCart.setCookie('Grand.CompareProduct', '');
             }
             this.updateCompareProductsQty();
-            this.getCompareList();
         },
         showModalOutOfStock: function () {
             this.$refs['out-of-stock'].show()
@@ -527,6 +524,6 @@
                 }
             }
         },
-       
+
     },
 });

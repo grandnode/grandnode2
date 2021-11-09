@@ -23,7 +23,7 @@
 <div class="page compare-products-page">
     <h2 class="text-center generalTitle">@Loc["Products.Compare.Title"]</h2>
     <template v-if="compareproducts !== null && compareproducts.Products.length > 0">
-        <a class="btn btn-danger mb-3" @@click="removeFromCompareList()">@Loc["Products.Compare.Clear"]</a>
+        <a class="btn btn-danger mb-3" @@click="removeFromCompareList(); getCompareList('@Url.RouteUrl("CompareProducts")')">@Loc["Products.Compare.Clear"]</a>
         <div class="table-responsive">
             <table class="table table-hover compare-products-table table-bordered">
                 <tbody>
@@ -31,7 +31,7 @@
                         <td class="empty">&nbsp;</td>
                         <template v-for="product in compareproducts.Products">
                             <td class="same-width">
-                                <button type="button" title="@Loc["Common.Remove"]" class="btn btn-sm btn-link remove-button d-flex align-items-center justify-content-center" @@click="removeFromCompareList(product.Id)">
+                                <button type="button" title="@Loc["Common.Remove"]" class="btn btn-sm btn-link remove-button d-flex align-items-center justify-content-center" @@click="removeFromCompareList(product.Id); getCompareList('@Url.RouteUrl("CompareProducts")')">
                                     <b-icon icon="trash" variant="danger" aria-hidden="true"></b-icon>
                                 </button>
                             </td>
@@ -131,6 +131,6 @@
         }),
     })
     document.addEventListener("DOMContentLoaded", function () {
-        vm.getCompareList()
+        vm.getCompareList('@Url.RouteUrl("CompareProducts")')
     })
 </script>

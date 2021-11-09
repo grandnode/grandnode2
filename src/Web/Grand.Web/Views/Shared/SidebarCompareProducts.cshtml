@@ -6,7 +6,7 @@
     <ul class="px-0">
         <li class="nav-item">
             <a href="#" target="_self" class="nav-link">
-                <b-icon icon="shuffle" :variant="[darkMode ? 'white' : 'dark']" @@click="getCompareList()" v-b-toggle.sidebar-compare></b-icon>
+                <b-icon icon="shuffle" :variant="[darkMode ? 'white' : 'dark']" @@click="getCompareList('@Url.RouteUrl("CompareProducts")')" v-b-toggle.sidebar-compare></b-icon>
                 <span class="qty-indicator">
                     {{compareProductsQty}}
                 </span>
@@ -30,7 +30,7 @@
                                         <div class="price"><span>@Loc["Wishlist.Mini.UnitPrice"]:</span> <strong>{{product.ProductPrice.Price}}</strong></div>
                                     </div>
                                     <div>
-                                        <a class="deleteitem" @@click="removeFromCompareList(product.Id)">
+                                        <a class="deleteitem" @@click="removeFromCompareList(product.Id); getCompareList('@Url.RouteUrl("CompareProducts")'); ">
                                             <b-icon icon="trash" variant="danger"></b-icon>
                                         </a>
                                     </div>
