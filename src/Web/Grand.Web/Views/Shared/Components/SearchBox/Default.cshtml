@@ -8,11 +8,11 @@
     <a class="modal-close" @@click="$bvModal.hide('search-box')"><b-icon icon="x"></b-icon></a>
     <validation-observer v-slot="{ handleSubmit }">
         <form asp-route="ProductSearch" method="get" id="small-search-box-form" ref="searchForm" v-on:submit.prevent="handleSubmit(searchbox.formSubmit)" class="searchBox w-100">
-            <validation-provider tag="div" rules="required|min:@(Model.SearchTermMinimumLength)" name="searchBoxInput" v-slot="{ errors, classes }">
+            <validation-provider tag="div" rules="required|min:@(Model.SearchTermMinimumLength)" name="q" v-slot="{ errors, classes }">
                 <input type="hidden" asp-for="Box" value="true" />
                 <label for="small-searchterms" class="sr-only">@Loc["Search.SearchBox.Tooltip"]</label>
                 <div class="input-group flex-row">
-                    <input minlength="@(Model.SearchTermMinimumLength)"  maxlength="20" data-val-min="@string.Format(Loc["search.searchtermminimumlengthisncharacters"], Model.SearchTermMinimumLength)"  @if (Model.AutoCompleteEnabled) { <text> @@input="searchbox.autocompleteVue()" </text> } v-model="searchbox.text" type="search" name="searchBoxInput" ref="searchBoxInput" class="form-control search-box-text" id="small-searchterms" :placeholder="searchbox.placeholder">
+                    <input minlength="@(Model.SearchTermMinimumLength)"  maxlength="20" data-val-min="@string.Format(Loc["search.searchtermminimumlengthisncharacters"], Model.SearchTermMinimumLength)"  @if (Model.AutoCompleteEnabled) { <text> @@input="searchbox.autocompleteVue()" </text> } v-model="searchbox.text" type="search" name="q" ref="searchBoxInput" class="form-control search-box-text" id="small-searchterms" :placeholder="searchbox.placeholder">
                     <span class="field-validation-error">{{ errors[0] }}</span>
                     @if (Model.AvailableCategories.Any())
                     {

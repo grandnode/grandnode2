@@ -8,7 +8,7 @@
         <li class="nav-item">
             <a href="#" target="_self" class="nav-link">
                 <b-icon icon="heart" :variant="[darkMode ? 'white' : 'dark']" @@click="updateWishlist('@Url.RouteUrl("Wishlist")')" v-b-toggle.sidebar-wishlist></b-icon>
-                <span class="qty-indicator wishlist-qty">
+                <span class="qty-indicator wishlist-qty" ref="wishlistQty">
                     @Loc["Wishlist.HeaderQuantity", Model]
                 </span>
             </a>
@@ -22,7 +22,7 @@
                     <template v-slot:title v-else>
                         @Loc["Wishlist.Mini.NoItems"]
                     </template>
-                    <div class="d-flex justify-content-center align-items-center h-100" v-if="wishlistitems == undefined">
+                    <div class="d-flex justify-content-center align-items-center h-100" v-if="loader">
                         <div class="spinner-border text-info" role="status">
                         </div>
                     </div>
@@ -53,7 +53,7 @@
                             </div>
                         </template>
                     </template>
-                    <template v-else-if="wishindicator !== undefined">
+                    <template v-else>
                         <div class="d-flex flex-column justify-content-center align-items-center">
                             <b-icon icon="cart-x" font-scale="7.5" variant="secondary"></b-icon>
                             <div class="text-center text-muted mt-3">@Loc["Wishlist.Mini.NoDataText"]</div>

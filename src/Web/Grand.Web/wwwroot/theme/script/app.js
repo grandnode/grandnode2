@@ -15,6 +15,7 @@
             RelatedProducts: null,
             compareproducts: null,
             compareProductsQty: 0,
+            loader: false,
         }
     },
     props: {
@@ -31,6 +32,7 @@
         if (localStorage.fluid == "fluid") this.fluid = "fluid";
         if (localStorage.fluid == "") this.fluid = "false";
         if (localStorage.darkMode == "true") this.darkMode = true;
+        this.wishindicator = parseInt(this.$refs.wishlistQty.innerText);
         this.updateCompareProductsQty();
         this.backToTop();
     },
@@ -251,27 +253,32 @@
                     'X-Response-View': 'Json'
                 }
             }).then(response => (
+                this.loader = false,
                 this.flywish = response.data,
                 this.wishlistitems = response.data.Items,
                 this.wishindicator = response.data.Items.length
             ))
         },
         getCompareList: function () {
-            axios({
-                baseURL: '/compareproducts',
-                method: 'get',
-                params: {
-                    t: new Date().getTime()
-                },
-                data: null,
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
-                }
-            }).then(response => {
-                this.compareproducts = response.data
-            })
+            if (this.compareProductsQty > 0) {
+                this.loader = true;
+                axios({
+                    baseURL: '/compareproducts',
+                    method: 'get',
+                    params: {
+                        t: new Date().getTime()
+                    },
+                    data: null,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Response-View': 'Json'
+                    }
+                }).then(response => {
+                    this.loader = false;
+                    this.compareproducts = response.data
+                })
+            }
         },
         removeFromCompareList: function (id) {
             if (id !== undefined) {
