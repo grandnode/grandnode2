@@ -4770,9 +4770,6 @@
   <Resource Name="Admin.Configuration.Permissions.Installed">
     <Value>Missing permissions has been installed</Value>
   </Resource>
-  <Resource Name="Admin.Configuration.Permissions.InstallMissingPermisions">
-    <Value>Install permissions</Value>
-  </Resource>
   <Resource Name="Admin.Configuration.Permissions.Permission">
     <Value>Permission name</Value>
   </Resource>
