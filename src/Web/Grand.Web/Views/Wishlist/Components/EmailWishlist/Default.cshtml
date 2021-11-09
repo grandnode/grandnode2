@@ -50,12 +50,9 @@
                                     </validation-provider>
                                 </div>
                                 <div class="form-group">
-                                    <validation-provider tag="div" rules="required" name="PersonalMessage" v-slot="{ errors, classes }">
+                                    <validation-provider tag="div" name="PersonalMessage" v-slot="{ classes }">
                                         <label asp-for="PersonalMessage" class="col-form-label">@Loc["Wishlist.EmailAFriend.PersonalMessage"]:</label>
-                                        <span class="required">*</span>
                                         <textarea asp-for="PersonalMessage" v-model="emailwishlist.PersonalMessage" placeholder="@Loc["Wishlist.EmailAFriend.PersonalMessage.Hint"]" v-bind:class="[classes , 'form-control']" rows="4"></textarea>
-                                        <span class="field-validation-error">{{ errors[0] }}</span>
-                                        <span asp-validation-for="PersonalMessage"></span>
                                     </validation-provider>
                                 </div>
                                 @if (Model.DisplayCaptcha)
