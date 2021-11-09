@@ -301,25 +301,13 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                         break;
                     case AttributeControlType.TextBox:
                     case AttributeControlType.MultilineTextbox:
+                    case AttributeControlType.Datepicker:
                         {
                             if (selectedCheckoutAttributes != null && selectedCheckoutAttributes.Any())
                             {
                                 var enteredText = selectedCheckoutAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value).ToList();
                                 if (enteredText.Any())
                                     attributeModel.DefaultValue = enteredText[0];
-                            }
-                        }
-                        break;
-                    case AttributeControlType.Datepicker:
-                        {
-                            if (selectedCheckoutAttributes != null && selectedCheckoutAttributes.Any())
-                            {
-                                //keep in mind my that the code below works only in the current culture
-                                var selectedDateStr = selectedCheckoutAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value).ToList();
-                                if (selectedDateStr.Any())
-                                {
-                                    attributeModel.DefaultValue = selectedDateStr[0];
-                                }
                             }
                         }
                         break;

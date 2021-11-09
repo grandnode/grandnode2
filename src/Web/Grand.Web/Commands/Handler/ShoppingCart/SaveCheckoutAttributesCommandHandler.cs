@@ -91,6 +91,7 @@ namespace Grand.Web.Commands.Handler.ShoppingCart
                         break;
                     case AttributeControlType.TextBox:
                     case AttributeControlType.MultilineTextbox:
+                    case AttributeControlType.Datepicker:
                         {
                             request.Form.TryGetValue(controlId, out var ctrlAttributes);
                             if (!string.IsNullOrEmpty(ctrlAttributes))
@@ -99,13 +100,6 @@ namespace Grand.Web.Commands.Handler.ShoppingCart
                                 customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }
-                        }
-                        break;
-                    case AttributeControlType.Datepicker:
-                        {
-                            request.Form.TryGetValue(controlId, out var dateAttributes);
-                            customAttributes = _checkoutAttributeParser.AddCheckoutAttribute(customAttributes,
-                                    attribute, dateAttributes).ToList();
                         }
                         break;
                     case AttributeControlType.FileUpload:

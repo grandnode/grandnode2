@@ -93,21 +93,15 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                         break;
                     case AttributeControlType.TextBox:
                     case AttributeControlType.MultilineTextbox:
+                    case AttributeControlType.Datepicker:
                         {
                             request.Form.TryGetValue(controlId, out var ctrlAttributes);
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                string enteredText = ctrlAttributes.ToString().Trim();
+                                var enteredText = ctrlAttributes.ToString().Trim();
                                 customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }
-                        }
-                        break;
-                    case AttributeControlType.Datepicker:
-                        {
-                            request.Form.TryGetValue(controlId, out var dateAttributes);
-                            customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
-                                    attribute, dateAttributes).ToList();
                         }
                         break;
                     case AttributeControlType.FileUpload:
