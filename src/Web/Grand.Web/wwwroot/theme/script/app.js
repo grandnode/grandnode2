@@ -32,6 +32,7 @@
         if (localStorage.fluid == "fluid") this.fluid = "fluid";
         if (localStorage.fluid == "") this.fluid = "false";
         if (localStorage.darkMode == "true") this.darkMode = true;
+        this.wishindicator = parseInt(this.$refs.wishlistQty.innerText);
         this.updateCompareProductsQty();
         this.backToTop();
     },
@@ -242,20 +243,24 @@
             ))    
         },
         updateWishlist: function () {
-            axios({
-                baseURL: '/wishlist',
-                method: 'get',
-                data: null,
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
-                }
-            }).then(response => (
-                this.flywish = response.data,
-                this.wishlistitems = response.data.Items,
-                this.wishindicator = response.data.Items.length
-            ))
+            if (parseInt(vm.$refs.wishlistQty.innerText) > 0) {
+                this.loader = true;
+                axios({
+                    baseURL: '/wishlist',
+                    method: 'get',
+                    data: null,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Response-View': 'Json'
+                    }
+                }).then(response => (
+                    this.loader = false,
+                    this.flywish = response.data,
+                    this.wishlistitems = response.data.Items,
+                    this.wishindicator = response.data.Items.length
+                ))
+            }
         },
         getCompareList: function () {
             if (this.compareProductsQty > 0) {
