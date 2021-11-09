@@ -840,6 +840,14 @@ table.no-margin .progress {
     margin-bottom: 0;
 }
 
+.table thead th {
+    white-space: nowrap;
+}
+
+.table-responsive > .table-bordered {
+    width: calc(100% - 2px);
+}
+
 .main_content {
     padding: 10px 20px;
 }

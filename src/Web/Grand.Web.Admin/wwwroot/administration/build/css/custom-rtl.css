@@ -1075,6 +1075,14 @@ body .container.body .right_col {
   float: left !important;
 }
 
+.table thead th {
+    white-space: nowrap;
+}
+
+.table-responsive > .table-bordered {
+    width: calc(100% - 2px);
+}
+
 table.tile h3 {
   font-weight: bold;
   vertical-align: middle !important;
