@@ -223,9 +223,9 @@
                 this.compareProductsQty = 0;
             }
         },
-        updateFly: function () {
+        updateSidebarShoppingCart: function (url) {
             axios({
-                baseURL: '/Component/Index?Name=SidebarShoppingCart',
+                baseURL: url,
                 method: 'get',
                 data: null,
                 headers: {

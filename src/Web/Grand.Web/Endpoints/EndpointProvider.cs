@@ -91,7 +91,7 @@ namespace Grand.Web.Endpoints
 
             // enable two factor authorization digit code page
             endpointRouteBuilder.MapControllerRoute("EnableTwoFactorAuthorization",
-                           "account/enable-two-factor-authorization",
+                           pattern + "account/enable-two-factor-authorization",
                            new { controller = "Account", action = "EnableTwoFactorAuthenticator" });
 
             endpointRouteBuilder.MapControllerRoute("CustomerAddresses",
@@ -361,8 +361,8 @@ namespace Grand.Web.Endpoints
 
             //Privacy Preference settings
             endpointRouteBuilder.MapControllerRoute("PrivacyPreference",
-                pattern + "privacypreference",
-                new { controller = "Common", action = "PrivacyPreference" });
+                            pattern + "privacypreference",
+                            new { controller = "Common", action = "PrivacyPreference" });
 
             // contact attributes with "upload file" type
             endpointRouteBuilder.MapControllerRoute("UploadFileContactAttribute",
@@ -371,8 +371,8 @@ namespace Grand.Web.Endpoints
 
             //CurrentPosition Save
             endpointRouteBuilder.MapControllerRoute("CurrentPosition",
-                pattern + "currentposition",
-                new { controller = "Common", action = "SaveCurrentPosition" });
+                            pattern + "currentposition",
+                            new { controller = "Common", action = "SaveCurrentPosition" });
 
             //robots.txt
             endpointRouteBuilder.MapControllerRoute("robots.txt",
@@ -517,6 +517,12 @@ namespace Grand.Web.Endpoints
         }
         private void RegisterCartRoute(IEndpointRouteBuilder endpointRouteBuilder, string pattern)
         {
+            
+            //side bar shopping cart
+            endpointRouteBuilder.MapControllerRoute("SidebarShoppingCart",
+                            $"{pattern}sidebarcart/",
+                            new { controller = "ShoppingCart", action = "SidebarShoppingCart" });
+
             //shopping cart
             endpointRouteBuilder.MapControllerRoute("ShoppingCart",
                             $"{pattern}cart/",
@@ -647,7 +653,7 @@ namespace Grand.Web.Endpoints
                             new { controller = "Order", action = "CancelOrder" });
 
             endpointRouteBuilder.MapControllerRoute("AddOrderNote",
-                            "orderdetails/ordernote/{orderId}",
+                            pattern + "orderdetails/ordernote/{orderId}",
                             new { controller = "Order", action = "AddOrderNote" });
 
         }

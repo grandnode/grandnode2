@@ -168,7 +168,7 @@
                     url: '@Url.RouteUrl("ChangeTypeCartItem")',
                 }).then(function (response) {
                     vmorder.cart = response.data.model;
-                    vm.updateFly();
+                    vm.updateSidebarShoppingCart('@Url.RouteUrl("SidebarShoppingCart")');
                 }).then(function () {
                     this.vmorder.updateTotals();
                 });

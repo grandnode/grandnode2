@@ -101,6 +101,24 @@ namespace Grand.Web.Controllers
 
         #region Shopping cart
 
+        public async Task<IActionResult> SidebarShoppingCart()
+        {
+            if (!_shoppingCartSettings.MiniShoppingCartEnabled)
+                return Content("");
+
+            if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
+                return Content("");
+
+            var model = await _mediator.Send(new GetMiniShoppingCart() {
+                Customer = _workContext.CurrentCustomer,
+                Currency = _workContext.WorkingCurrency,
+                Language = _workContext.WorkingLanguage,
+                TaxDisplayType = _workContext.TaxDisplayType,
+                Store = _workContext.CurrentStore
+            });
+            return Json(model);
+        }
+
         [HttpPost]
         public virtual async Task<IActionResult> CheckoutAttributeChange(IFormCollection form,
             [FromServices] ICheckoutAttributeParser checkoutAttributeParser,

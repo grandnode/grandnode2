@@ -32,7 +32,7 @@
                 }).then(function (response) {
                     if (response.data.success) {
                         vmwishlist.getModel();
-                        vm.updateFly();
+                        vm.updateSidebarShoppingCart('@Url.RouteUrl("SidebarShoppingCart")');
                         vmwishlist.displayWarning('@Loc["Wishlist.AddedToCart"]', 'info', '@Loc["common.success"]');
                     } else {
                         vmwishlist.displayWarning(response.data.message, 'danger');

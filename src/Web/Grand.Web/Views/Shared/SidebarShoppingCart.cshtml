@@ -7,7 +7,7 @@
     <ul class="sidebar-cart px-0">
         <li class="nav-item">
             <a href="#" target="_self" class="nav-link">
-                <b-icon icon="cart" :variant="[darkMode ? 'white' : 'dark']" @@click="if(flycartfirstload){updateFly()}" v-b-toggle.sidebar-cart></b-icon>
+                <b-icon icon="cart" :variant="[darkMode ? 'white' : 'dark']" @@click="if(flycartfirstload){updateSidebarShoppingCart('@Url.RouteUrl("SidebarShoppingCart")')}" v-b-toggle.sidebar-cart></b-icon>
                 <span class="qty-indicator cart-qty">
                     <template v-if="flycartindicator == null">
                         @Loc["ShoppingCart.HeaderQuantity", Model]
