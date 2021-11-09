@@ -7,7 +7,7 @@
     <ul class="sidebar-cart wishlist px-0">
         <li class="nav-item">
             <a href="#" target="_self" class="nav-link">
-                <b-icon icon="heart" :variant="[darkMode ? 'white' : 'dark']" @@click="updateWishlist()" v-b-toggle.sidebar-wishlist></b-icon>
+                <b-icon icon="heart" :variant="[darkMode ? 'white' : 'dark']" @@click="updateWishlist('@Url.RouteUrl("Wishlist")')" v-b-toggle.sidebar-wishlist></b-icon>
                 <span class="qty-indicator wishlist-qty">
                     @Loc["Wishlist.HeaderQuantity", Model]
                 </span>

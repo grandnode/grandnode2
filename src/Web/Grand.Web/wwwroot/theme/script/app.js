@@ -240,9 +240,9 @@
                 this.flycartfirstload = false
             ))    
         },
-        updateWishlist: function () {
+        updateWishlist: function (url) {
             axios({
-                baseURL: '/wishlist',
+                baseURL: url,
                 method: 'get',
                 data: null,
                 headers: {
