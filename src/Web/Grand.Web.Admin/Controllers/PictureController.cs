@@ -42,7 +42,7 @@ namespace Grand.Web.Admin.Controllers
             if (string.IsNullOrEmpty(_mediaSettings.AllowedFileTypes))
                 return new List<string> { ".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp" };
             else
-                return _mediaSettings.AllowedFileTypes.Split(',');
+                return _mediaSettings.AllowedFileTypes.Split(',').Select(x => x.Trim().ToLowerInvariant()).ToList();
         }
 
         [HttpPost]
