@@ -48,8 +48,7 @@ namespace Grand.Infrastructure.TypeConverters.Converter
         {
             if (destinationType == typeof(string))
             {
-                var refreshToken = value as RefreshToken;
-                if (refreshToken != null)
+                if (value is RefreshToken refreshToken)
                 {
                     return JsonSerializer.Serialize(refreshToken);
                 }
