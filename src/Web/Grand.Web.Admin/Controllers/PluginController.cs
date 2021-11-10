@@ -192,6 +192,8 @@ namespace Grand.Web.Admin.Controllers
 
                 Success(_translationService.GetResource("Admin.Plugins.Installed"));
 
+                _ = _logger.InsertLog(Domain.Logging.LogLevel.Information, $"The plugin has been installed by the user {_workContext.CurrentCustomer.Email}");
+
                 //stop application
                 _applicationLifetime.StopApplication();
             }
@@ -228,6 +230,8 @@ namespace Grand.Web.Admin.Controllers
                 await plugin.Uninstall();
 
                 Success(_translationService.GetResource("Admin.Plugins.Uninstalled"));
+
+                _ = _logger.InsertLog(Domain.Logging.LogLevel.Information, $"The plugin has been uninstalled by the user {_workContext.CurrentCustomer.Email}");
 
                 //stop application
                 _applicationLifetime.StopApplication();
@@ -275,6 +279,8 @@ namespace Grand.Web.Admin.Controllers
                 //uninstall plugin
                 Success(_translationService.GetResource("Admin.Plugins.Removed"));
 
+                _ = _logger.InsertLog(Domain.Logging.LogLevel.Information, $"The plugin has been removed by the user {_workContext.CurrentCustomer.Email}");
+
                 //stop application
                 _applicationLifetime.StopApplication();
             }
@@ -288,6 +294,8 @@ namespace Grand.Web.Admin.Controllers
 
         public IActionResult ReloadList()
         {
+            _ = _logger.InsertLog(Domain.Logging.LogLevel.Information, $"Reload list of plugins by the user {_workContext.CurrentCustomer.Email}");
+
             //stop application
             _applicationLifetime.StopApplication();
             return RedirectToAction("List");
@@ -334,6 +342,8 @@ namespace Grand.Web.Admin.Controllers
                 if (!string.IsNullOrEmpty(zipFilePath))
                     System.IO.File.Delete(zipFilePath);
             }
+
+            _ = _logger.InsertLog(Domain.Logging.LogLevel.Information, $"The plugin has been uploaded by the user {_workContext.CurrentCustomer.Email}");
 
             //stop application
             _applicationLifetime.StopApplication();

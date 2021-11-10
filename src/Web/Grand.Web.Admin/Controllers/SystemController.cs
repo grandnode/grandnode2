@@ -3,6 +3,7 @@ using Grand.Business.Checkout.Interfaces.Payments;
 using Grand.Business.Checkout.Interfaces.Shipping;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Storage.Interfaces;
 using Grand.Business.System.Interfaces.MachineNameProvider;
@@ -41,7 +42,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly ITranslationService _translationService;
         private readonly IMachineNameProvider _machineNameProvider;
         private readonly IHostApplicationLifetime _applicationLifetime;
-        private readonly IMediaFileStore _mediaFileStore;
+        private readonly ILogger _logger;
 
         private readonly CurrencySettings _currencySettings;
         private readonly MeasureSettings _measureSettings;
@@ -59,7 +60,7 @@ namespace Grand.Web.Admin.Controllers
             ITranslationService translationService,
             IMachineNameProvider machineNameProvider,
             IHostApplicationLifetime applicationLifetime,
-            IMediaFileStore mediaFileStore,
+            ILogger logger,
             CurrencySettings currencySettings,
             MeasureSettings measureSettings,
             AppConfig appConfig)
@@ -74,9 +75,9 @@ namespace Grand.Web.Admin.Controllers
             _workContext = workContext;
             _translationService = translationService;
             _applicationLifetime = applicationLifetime;
+            _logger = logger;
             _appConfig = appConfig;
             _machineNameProvider = machineNameProvider;
-            _mediaFileStore = mediaFileStore;
         }
 
         #endregion
@@ -271,6 +272,8 @@ namespace Grand.Web.Admin.Controllers
 
         public async Task<IActionResult> ClearCache(string returnUrl, [FromServices] ICacheBase cacheBase)
         {
+            _ = _logger.InsertLog(Domain.Logging.LogLevel.Information, $"Clear cache has been done by the user: {_workContext.CurrentCustomer.Email}");
+
             await cacheBase.Clear();
 
             //home page
@@ -285,6 +288,8 @@ namespace Grand.Web.Admin.Controllers
 
         public IActionResult RestartApplication(string returnUrl = "")
         {
+            _ = _logger.InsertLog(Domain.Logging.LogLevel.Information, $"The application has been restarted by the user {_workContext.CurrentCustomer.Email}");
+
             //stop application
             _applicationLifetime.StopApplication();
 
