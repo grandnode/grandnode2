@@ -965,7 +965,7 @@ namespace Grand.Business.System.Utilities
                     SystemName = "System",
                     ResourceName = "Admin.System",
                     PermissionNames = new List<string> { PermissionSystemName.SystemLog, PermissionSystemName.MessageQueue, PermissionSystemName.MessageContactForm,
-                        PermissionSystemName.Maintenance, PermissionSystemName.ScheduleTasks },
+                        PermissionSystemName.Maintenance, PermissionSystemName.ScheduleTasks, PermissionSystemName.System },
                     IconClass = "icon-info",
                     ChildNodes = new List<AdminSiteMap>() {
                         new AdminSiteMap {
@@ -979,8 +979,8 @@ namespace Grand.Business.System.Utilities
                         new AdminSiteMap {
                             SystemName = "System information",
                             ResourceName = "Admin.System.SystemInfo",
-                            PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                            ControllerName = "Common",
+                            PermissionNames = new List<string> { PermissionSystemName.System },
+                            ControllerName = "System",
                             ActionName = "SystemInfo",
                             IconClass = "fa fa-dot-circle-o"
                         },
@@ -1019,7 +1019,7 @@ namespace Grand.Business.System.Utilities
                         new AdminSiteMap {
                             SystemName = "Developer tools",
                             ResourceName = "Admin.System.DeveloperTools",
-                            PermissionNames = new List<string> { PermissionSystemName.Maintenance },
+                            PermissionNames = new List<string> { PermissionSystemName.Maintenance, PermissionSystemName.System },
                             IconClass = "fa fa-dot-circle-o",
                             ChildNodes = new List<AdminSiteMap>() {
                                 new AdminSiteMap {
@@ -1033,8 +1033,8 @@ namespace Grand.Business.System.Utilities
                                 new AdminSiteMap {
                                     SystemName = "Roslyn compiler",
                                     ResourceName = "Admin.System.Roslyn",
-                                    PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                                    ControllerName = "Common",
+                                    PermissionNames = new List<string> { PermissionSystemName.System },
+                                    ControllerName = "System",
                                     ActionName = "Roslyn",
                                     IconClass = "fa fa-dot-circle-o"
                                 },

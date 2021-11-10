@@ -37,6 +37,12 @@ namespace Grand.Business.Common.Services.Security
             Area = "Admin area",
             Category = CategorySystem
         };
+        public static readonly Permission ManageSystem = new Permission {
+            Name = "Manage System",
+            SystemName = PermissionSystemName.System,
+            Area = "Admin area",
+            Category = CategorySystem
+        };
         public static readonly Permission ManageFiles = new Permission
         {
             Name = "Manage Files",

@@ -67,6 +67,7 @@
         public const string MessageQueue = "ManageMessageQueue";
         public const string MessageContactForm = "ManageMessageContactForm";
         public const string Maintenance = "ManageMaintenance";
+        public const string System = "ManageSystem";
         public const string Files = "ManageFiles";
         public const string Pictures = "ManagePictures";
         public const string UserFields = "UserFields";

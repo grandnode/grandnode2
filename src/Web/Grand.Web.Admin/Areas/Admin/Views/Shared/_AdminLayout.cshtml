@@ -30,6 +30,7 @@
 
     //has "Manage Maintenance" permission?
     var canManageMaintenance = await permissionService.Authorize(StandardPermission.ManageMaintenance);
+    var canManageSystem = await permissionService.Authorize(StandardPermission.ManageSystem);
 
 }
 <!DOCTYPE html>
@@ -133,7 +134,7 @@
                                         </li>
                                     </ul>
                                 </li>
-                                @if (canManageMaintenance)
+                                @if (canManageSystem)
                                 {
                                     <li role="presentation" class="dropdown">
                                         <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown" aria-expanded="false">
@@ -141,14 +142,14 @@
                                         </a>
                                         <ul id="menu1" class="dropdown-menu dropdown-menu-right list-unstyled msg_list overflow-h" role="menu">
                                             <li>
-                                                <a href="@Url.Action("ClearCache", "Common", new { memory = true, returnurl = this.Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })">
+                                                <a href="@Url.Action("ClearCache", "System", new { memory = true, returnurl = this.Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })">
                                                     <i class="icon-refresh"></i>
                                                     @Loc["Admin.Header.ClearCacheMemory"]
                                                 </a>
                                             </li>
 
                                             <li>
-                                                <a href="@Url.Action("RestartApplication", "Common", new { returnurl = this.Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })" id="restart-application">
+                                                <a href="@Url.Action("RestartApplication", "System", new { returnurl = this.Context.Request.GetEncodedPathAndQuery(), area = Constants.AreaAdmin })" id="restart-application">
                                                     <i class="icon-reload"></i>
                                                     @Loc["Admin.Header.RestartApplication"]
                                                 </a>
