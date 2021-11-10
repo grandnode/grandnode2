@@ -108,20 +108,11 @@
                 components[name] = component;
             }
         }
-        function addFrame(err, iframe) {
-            bankFrame.appendChild(iframe);
-        }
-        function removeFrame() {
-            var iframe = bankFrame.querySelector('iframe');
-            iframe.parentNode.removeChild(iframe);
-        }
         function verifyCard(payload) {
             components.threeDSecure.verifyCard({
                 bin: payload.details.bin,
                 amount: '@ViewBag.OrderTotal',
                 nonce: payload.nonce,
-                addFrame: addFrame,
-                removeFrame: removeFrame,
                 challengeRequested: true,
                 email: '@_workContext.CurrentCustomer.BillingAddress?.Email',
                 billingAddress: {
@@ -136,11 +127,15 @@
                 onLookupComplete: function (data, next) {
                     // use `data` here, then call `next()`
                     next();
+                    setTimeout(function () {
+                        vmorder.vPaymentInfo.resetLoadWaiting();
+                    }, 1000);
                 }
             }, function (err, payload) {
                 if (err) {
                     var currentErrorvalue = document.querySelector('#@Html.IdFor(model => model.Errors)').value;
                     document.querySelector('#@Html.IdFor(model => model.Errors)').value = currentErrorvalue + '|' + err.message;
+                    vmorder.vPaymentInfo.resetLoadWaiting();
                     return;
                 }
                 // Add the nonce to the form and submit
@@ -153,15 +148,17 @@
             });
         }
 
-            document.querySelector('input.payment-info-next-step-button').addEventListener('click', function (data) {
+        document.querySelector('input.payment-info-next-step-button').addEventListener('click', function (data) {                
                 document.querySelector('#braintree-errors').innerHTML = '';
                 if (!submitForm) {
+                    vmorder.Checkout.setLoadWaiting('payment-info');
                     if (!stepBack) {
                         components.hostedFields.tokenize(function (err, payload) {
                             if (err) {
                                 var currentErrorvalue = document.querySelector('#@Html.IdFor(model => model.Errors)').value;
                                 document.querySelector('#@Html.IdFor(model => model.Errors)').value = currentErrorvalue + '|' + err.message;
                                 document.querySelector('#braintree-errors').innerHTML = err.message;
+                                vmorder.vPaymentInfo.resetLoadWaiting();
                                 return;
                             }
                             verifyCard(payload);
@@ -185,6 +182,7 @@
                             var currentErrorvalue = document.querySelector('#@Html.IdFor(model => model.Errors)').value;
                             document.querySelector('#@Html.IdFor(model => model.Errors)').value = currentErrorvalue + '|' + err.message;
                             document.querySelector('#braintree-errors').innerHTML = err.message;
+                            vmorder.vPaymentInfo.resetLoadWaiting();
                             return;
                         }
                         verifyCard(payload);
