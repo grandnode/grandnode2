@@ -12357,7 +12357,7 @@
   <Resource Name="Admin.System.QueuedEmails.Fields.Reference">
     <Value>Reference to the object</Value>
   </Resource>
-  <Resource Name="Admin.System.QueuedEmails.Fields.ReplyToName">
+  <Resource Name="Admin.System.QueuedEmails.Fields.ReplyTo">
     <Value>Reply To</Value>
   </Resource>
     <Resource Name="Admin.System.QueuedEmails.Fields.ReplyToName">
