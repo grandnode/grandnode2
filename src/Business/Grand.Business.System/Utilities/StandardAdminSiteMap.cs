@@ -667,7 +667,7 @@ namespace Grand.Business.System.Utilities
                             SystemName = "Search engine friendly names",
                             ResourceName = "Admin.Configuration.SeNames",
                             PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                            ControllerName = "Common",
+                            ControllerName = "Maintenance",
                             ActionName = "SeNames",
                             IconClass = "fa fa-dot-circle-o"
                         },
@@ -1004,7 +1004,7 @@ namespace Grand.Business.System.Utilities
                             SystemName = "Maintenance",
                             ResourceName = "Admin.System.Maintenance",
                             PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                            ControllerName = "Common",
+                            ControllerName = "Maintenance",
                             ActionName = "Maintenance",
                             IconClass = "fa fa-dot-circle-o"
                         },
@@ -1042,7 +1042,7 @@ namespace Grand.Business.System.Utilities
                                     SystemName = "Custom css",
                                     ResourceName = "Admin.System.CustomCss",
                                     PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                                    ControllerName = "Common",
+                                    ControllerName = "Maintenance",
                                     ActionName = "CustomCss",
                                     IconClass = "fa fa-dot-circle-o"
                                 },
@@ -1050,7 +1050,7 @@ namespace Grand.Business.System.Utilities
                                     SystemName = "Custom JS",
                                     ResourceName = "Admin.System.CustomJs",
                                     PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                                    ControllerName = "Common",
+                                    ControllerName = "Maintenance",
                                     ActionName = "CustomJs",
                                     IconClass = "fa fa-dot-circle-o"
                                 },
@@ -1058,7 +1058,7 @@ namespace Grand.Business.System.Utilities
                                     SystemName = "Robot.txt",
                                     ResourceName = "Admin.System.AdditionsRobotsTxt",
                                     PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                                    ControllerName = "Common",
+                                    ControllerName = "Maintenance",
                                     ActionName = "AdditionsRobotsTxt",
                                     IconClass = "fa fa-dot-circle-o"
                                 }

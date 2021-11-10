@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 namespace Grand.Web.Admin.Controllers
 {
     [PermissionAuthorize(PermissionSystemName.Maintenance)]
-    public partial class CommonController : BaseAdminController
+    public partial class MaintenanceController : BaseAdminController
     {
         #region Fields
 
@@ -40,7 +40,7 @@ namespace Grand.Web.Admin.Controllers
 
         #region Constructors
 
-        public CommonController(
+        public MaintenanceController(
             ICustomerService customerService,
             ISlugService slugService,
             IDateTimeService dateTimeService,

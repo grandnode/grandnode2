@@ -57,7 +57,7 @@
                         $('#btnSave').click(function () {
 				            $.ajax({
 					            cache: false,
-					            url: "@Url.Action("SaveEditor", "Common", new { area = Constants.AreaAdmin })",
+					            url: "@Url.Action("SaveEditor", "Maintenance", new { area = Constants.AreaAdmin })",
                                 data: additionalData(),
 					            type: 'POST',
 					            success: function (response) {

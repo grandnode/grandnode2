@@ -61,7 +61,7 @@
             dataSource: {
                 transport: {
                     read: {
-                        url: "@Html.Raw(Url.Action("SeNames", "Common", new { area = Constants.AreaAdmin }))",
+                        url: "@Html.Raw(Url.Action("SeNames", "Maintenance", new { area = Constants.AreaAdmin }))",
                         type: "POST",
                         dataType: "json",
                         data: additionalData
@@ -156,7 +156,7 @@
             $.ajax({
                 cache: false,
                 type: "POST",
-                url: "@(Url.Action("DeleteSelectedSeNames", "Common", new { area = Constants.AreaAdmin }))",
+                url: "@(Url.Action("DeleteSelectedSeNames", "Maintenance", new { area = Constants.AreaAdmin }))",
                 data: postData,
                 complete: function(data) {
                     //reload grid

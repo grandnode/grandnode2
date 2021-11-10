@@ -1,10 +1,17 @@
 ﻿@model Editor
 @{
     //page title
-    ViewBag.Title = Loc["Admin.System.AdditionsRobotsTxt"];
+    ViewBag.Title = Loc["Admin.System.CustomJs"];
 }
+
 <link rel="stylesheet" type="text/css" asp-src="/_content/Grand.Web.Admin/administration/codemirror/codemirror.css" />
+<link rel="stylesheet" type="text/css" asp-src="/_content/Grand.Web.Admin/administration/codemirror/hint/show-hint.css" />
+
 <script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/codemirror/codemirror.js"></script>
+<script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/codemirror/mode/javascript/javascript.js"></script>
+<script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/codemirror/hint/show-hint.js"></script>
+<script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/codemirror/hint/javascript-hint.js"></script>
+<script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/codemirror/edit/matchbrackets.js"></script>
 
 <style>
     .CodeMirror {
@@ -20,8 +27,11 @@
             <div class="x_title">
                 <div class="caption level-caption">
                     <i class="fa fa-sitemap"></i>
-                    @Loc["Admin.System.AdditionsRobotsTxt"]
+                    @Loc["Admin.System.CustomJs"]
                 </div>
+            </div>
+            <div class="note note-info">
+                <strong>@Loc["Admin.System.CustomJs.Tip"]</strong>
             </div>
             <div class="actions">
                 <div class="util-btn-margin-bottom-5">
@@ -31,20 +41,22 @@
                 </div>
             </div>
             <div class="x_content form">
-
                 <div class="col-12">
                     <textarea id="Content" name="Content">@Model.Content</textarea>
                 </div>
                 <script>
                     $(document).ready(function () {
                         var editor = CodeMirror.fromTextArea(document.getElementById('Content'), {
-                            lineNumbers: true
+                            lineNumbers: true,
+                            mode: "javascript",
+                            matchBrackets: true,
+                            extraKeys: { "Ctrl-Space": "autocomplete" }
                         });
 
                         $('#btnSave').click(function () {
 				            $.ajax({
 					            cache: false,
-					            url: "@Url.Action("SaveRobotsTxt", "Common", new { area = Constants.AreaAdmin })",
+					            url: "@Url.Action("SaveEditor", "Maintenance", new { area = Constants.AreaAdmin })",
                                 data: additionalData(),
 					            type: 'POST',
 					            success: function (response) {
@@ -56,7 +68,8 @@
 
                         function additionalData() {
                                 var data = {
-                                    content: editor.getValue()
+                                    content: editor.getValue(),
+                                    css: false
                                 };
                                 addAntiForgeryToken(data);
                                 return data;
@@ -68,3 +81,4 @@
         </div>
     </div>
 </div>
+
