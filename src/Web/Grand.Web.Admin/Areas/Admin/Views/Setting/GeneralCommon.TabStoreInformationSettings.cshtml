@@ -1,6 +1,11 @@
 ﻿@model GeneralCommonSettingsModel
+@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@using Grand.Business.Common.Services.Security;
+@{
+    var canUpload = await permissionService.Authorize(StandardPermission.ManagePlugins);
+}
 
-    <script>
+<script>
     $(document).ready(function () {
         $("#@Html.IdFor(model => model.StoreInformationSettings.DisplayCookieInformation)").click(togglePreferenceField);
 
@@ -15,7 +20,7 @@
             $('#DisplayPrivacyPreference').hide();
         }
     }
-    </script>
+</script>
 
 <div class="form-horizontal">
     <div class="form-body">
@@ -66,8 +71,11 @@
                     </ul>
                 </div>
                 <span asp-validation-for="StoreInformationSettings.DefaultStoreTheme"></span>
-                <div class="note note-info">@Loc["Admin.Settings.GeneralCommon.DefaultStoreTheme.GetMore"] <a href="http://www.grandnode.com/extensions?category=4&utm_source=admin-panel&utm_medium=theme-settings&utm_campaign=admin-panel" target="_blank">http://www.grandnode.com/extensions</a></div>
-                <input type="button" id="importfile" class="btn yellow" value="@Loc["Admin.Configuration.Themes.Upload"]" />
+                @if (canUpload)
+                {
+                    <div class="note note-info">@Loc["Admin.Settings.GeneralCommon.DefaultStoreTheme.GetMore"] <a href="http://www.grandnode.com/extensions?category=4&utm_source=admin-panel&utm_medium=theme-settings&utm_campaign=admin-panel" target="_blank">http://www.grandnode.com/extensions</a></div>
+                    <input type="button" id="importfile" class="btn yellow" value="@Loc["Admin.Configuration.Themes.Upload"]" />
+                }
             </div>
         </div>
         <div class="form-group">
