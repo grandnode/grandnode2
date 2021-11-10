@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="English">
+  <Resource Name="Account.CustomerMerchandiseReturns.Count">
+    <Value>Count</Value>
+  </Resource>
+  <Resource Name="Account.CustomerMerchandiseReturns.Number">
+    <Value>Number</Value>
+  </Resource>
+  <Resource Name="Account.CustomerMerchandiseReturns.Status">
+    <Value>Status:</Value>
+  </Resource>
+  <Resource Name="Account.Delete.Success">
+    <Value>The account was successfully deleted.</Value>
+  </Resource>
+  <Resource Name="Account.Login.Fields.Password.Required">
+    <Value>Please enter password</Value>
+  </Resource>
+  <Resource Name="Account.Login.Fields.UserName.Required">
+    <Value>Please enter user name</Value>
+  </Resource>
+  <Resource Name="Address.Fields.Address">
+    <Value>Address</Value>
+  </Resource>
+  <Resource Name="Address.Fields.Name">
+    <Value>Name</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Brands.Fields.ExternalId">
+    <Value>External identifier</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Collections.Fields.ExternalId">
+    <Value>External identifier</Value>
+  </Resource> 
+  <Resource Name="Admin.Catalog.Picture">
+    <Value>Picture</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Picture.Fields.AltAttribute">
+    <Value>Picture alternate text</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Picture.Fields.TitleAttribute">
+    <Value>Picture title</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.Pictures.Details">
+    <Value>Picture details</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.ValidationRules.Link">
+    <Value>Edit rules</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.SpecificationAttributes.AddButton">
+    <Value>Add product specification</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Edit">
+    <Value>Edit a product specification attribute</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Validate">
+    <Value>A product specification attribute is not valid</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.SpecificationAttributes.Fields.CustomName">
+    <Value>Name</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.SaveBeforeEdit">
+    <Value>You need to save the entity before you can edit it.</Value>
+  </Resource>
+  <Resource Name="Admin.Common.Picture.Attributes">
+    <Value>Picture attributes</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Countries.ExportStatesToExcel">
+    <Value>Export states to Excel</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Countries.ImportStatesFromExcel">
+    <Value>Import states from Excel</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Countries.ImportSuccess">
+    <Value>The states have been successfully imported</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.BankAccount.Fields.AccountNumber">
+    <Value>Account number</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.BankAccount.Fields.BankCode">
+    <Value>Bank Code</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.BankAccount.Fields.BankName">
+    <Value>Bank Name</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.BankAccount.Fields.SwiftCode">
+    <Value>BIC/SWIFT Code</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Domains.Fields.HostName">
+    <Value>Host name</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Domains.Fields.Primary">
+    <Value>Primary URL</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Domains.Fields.Url">
+    <Value>URL address</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Domains.Fields.Url.Required">
+    <Value>URL address is required</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Domains.Fields.Url.WrongFormat">
+    <Value>Wrong format for URL address</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Domains.SaveBeforeEdit">
+    <Value>You need to save the store before you can add values for domains.</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Fields.CompanyRegNo">
+    <Value>Company Reg. No.</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Fields.SecureUrl.WrongFormat">
+    <Value>Wrong format of the secure URL (e.g. https://google.com) </Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.Stores.Fields.Url.WrongFormat">
+    <Value>Wrong format of the URL (e.g. http://google.com) </Value>
+  </Resource>
+  <Resource Name="Admin.FileManager.Picture">
+    <Value>Manage pictures</Value>
+  </Resource>
+  <Resource Name="Admin.Orders.Notifications">
+    <Value>Notifications</Value>
+  </Resource>
+  <Resource Name="Admin.Orders.PaymentTransaction.Deleted">
+    <Value>The payment transaction has been deleted successfully.</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.Catalog.ProductReviewPossibleOnlyOnce">
+    <Value>Product review possible only once by customer</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.GeneralCommon.CaptchaShowOnVendorReviewPage">
+    <Value>Show on vendor reviews page</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.GeneralCommon.VoiceNavigation">
+    <Value>Enable voice navigation</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.Media.FileManagerEnabledCommands">
+    <Value>File manager - enabled commands</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.Media.FileManagerDisabledUICommands">
+    <Value>File manager - disabled UI commands</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.Media.ImageQuality">
+    <Value>Image quality</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.System.HideStoreColumn">
+    <Value>Hide column The Store on the grid</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.Vendor.NumberOfReview">
+    <Value>Number of review visible on vendor page</Value>
+  </Resource>
+  <Resource Name="Admin.Stores.BankInfo">
+    <Value>House bank</Value>
+  </Resource>
+  <Resource Name="Admin.Stores.Domains">
+    <Value>Domains</Value>
+  </Resource>
+  <Resource Name="Admin.Stores.Info">
+    <Value>Store info</Value>
+  </Resource>
+  <Resource Name="Admin.System.Log.Deleted">
+    <Value>Log was successfully deleted</Value>
+  </Resource>
+  <Resource Name="Admin.System.Maintenance.DeleteSystemLog">
+    <Value>Deleting system Log</Value>
+  </Resource>
+  <Resource Name="Admin.System.Maintenance.DeleteSystemLog.Deleted">
+    <Value>Deleted system Log</Value>
+  </Resource>
+  <Resource Name="Admin.System.QueuedEmails.Fields.ReadOn.notread">
+    <Value>Not read</Value>
+  </Resource>
+  <Resource Name="Admin.System.QueuedEmails.Fields.Reference">
+    <Value>Reference to the object</Value>
+  </Resource>
+  <Resource Name="Admin.System.QueuedEmails.Fields.ReplyTo">
+    <Value>Reply To</Value>
+  </Resource>
+  <Resource Name="Admin.System.QueuedEmails.Fields.ReplyToName">
+    <Value>Reply To Name</Value>
+  </Resource>
+  <Resource Name="Api.Catalog.Product.Fields.BrandId.Notexists">
+    <Value>Brand ident not exist</Value>
+  </Resource>
+  <Resource Name="Common.Success">
+    <Value>Success</Value>
+  </Resource>
+  <Resource Name="Logo">
+    <Value>Logo</Value>
+  </Resource>
+  <Resource Name="Media.Brand.ImageLinkTitleFormat">
+    <Value>Show brand for {0}</Value>
+  </Resource>
+  <Resource Name="Products.Availability.Attributes.Backordering">
+    <Value>Out of Stock - on backorder and will be dispatched once back in stock.</Value>
+  </Resource>
+  <Resource Name="Products.Availability.Backordering">
+    <Value>Out of Stock - on backorder and will be dispatched once back in stock.</Value>
+  </Resource>
+  <Resource Name="Products.ProductHasBeenAddedToCompareList.Link">
+    <Value>The product has been added to your product comparison</Value>
+  </Resource>
+  <Resource Name="Reviews.ProductReviewPossibleOnlyOnce">
+    <Value>Product can be reviewed only once by customer</Value>
+  </Resource>
+  <Resource Name="search.voice.annotation">
+    <Value>Say what do you want to find in our store, i.e Mi Notebook</Value>
+  </Resource>
+  <Resource Name="search.voice.go">
+    <Value>go</Value>
+  </Resource>
+  <Resource Name="search.voice.holdtospeak">
+    <Value>Hold to speak</Value>
+  </Resource>
+  <Resource Name="search.voice.notsupported">
+    <Value>Your browser does not support this feature</Value>
+  </Resource>
+  <Resource Name="search.voice.placeholder">
+    <Value>Say something ...</Value>
+  </Resource>
+  <Resource Name="search.voice.reset">
+    <Value>reset</Value>
+  </Resource>
+  <Resource Name="search.voice.stop">
+    <Value>stop</Value>
+  </Resource>
+  <Resource Name="Vendor.Address">
+    <Value>Address</Value>
+  </Resource>
+  <Resource Name="Vendor.Description">
+    <Value>Description</Value>
+  </Resource>
+  <Resource Name="Vendor.Reviews">
+    <Value>Reviews</Value>
+  </Resource>
+  <Resource Name="Vendors.List">
+    <Value>Vendor List</Value>
+  </Resource>
+  <Resource Name="voicenavigator.voice.annotation">
+    <Value>Say what do you want to do in the store, i.e Show me the cart</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.blog">
+    <Value>blog, blog posts</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.cart">
+    <Value>cart, shopping cart, basket</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.contactus">
+    <Value>contact us, contact</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.homepage">
+    <Value>homepage, home</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.login">
+    <Value>login, log me in</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.wishlist">
+    <Value>wishlist, waitlist</Value>
+  </Resource>
+  <Resource Name="voicenavigator.commands.register">
+    <Value>register, create account</Value>
+  </Resource>
+  <Resource Name="voicenavigator.voice.holdtospeak">
+    <Value>Hold to speak</Value>
+  </Resource>
+  <Resource Name="voicenavigator.voice.placeholder">
+    <Value>Say something...</Value>
+  </Resource>
+  <Resource Name="voicenavigator.voice.notsupported">
+    <Value>Your browser doesn't support this feature</Value>
+  </Resource>
+  <Resource Name="voicenavigator.voice.tryagain">
+    <Value>Try again</Value>
+  </Resource>
+  <Resource Name="Wishlist.AddedToCart">
+    <Value>Added to the cart</Value>
+  </Resource>
+</Language>
