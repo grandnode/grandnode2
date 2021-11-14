@@ -267,9 +267,6 @@ extend('min', {
     }
 });
 
-//ValidationExtend('min', min);
-//ValidationExtend('confirmed', confirmed);
-
 export function vee_getMessage(field, rule) {
     const element = document.getElementsByName(field);
     if (element && element[0]) {
@@ -278,7 +275,6 @@ export function vee_getMessage(field, rule) {
             return text;
     }
 }
-// Override the default message.
 
 import VueGallerySlideshow from 'vue-gallery-slideshow'
 
