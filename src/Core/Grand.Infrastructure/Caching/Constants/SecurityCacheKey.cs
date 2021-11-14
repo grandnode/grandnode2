@@ -2,15 +2,6 @@
 {
     public static partial class CacheKey
     {
-        #region ACL
-
-        /// <summary>
-        /// Key pattern to clear cache
-        /// </summary>
-        public static string ACLRECORD_PATTERN_KEY => "Grand.aclrecord.";
-
-        #endregion
-
         #region Permission
 
         /// <summary>

@@ -53,12 +53,7 @@
         /// {0} : store ID
         /// </remarks>
         public static string ORDERTAG_COUNT_KEY => "Grand.ordertag.count-{0}";
-
-        /// <summary>
-        /// Key for all tags
-        /// </summary>
-        public static string ORDERTAG_ALL_KEY => "Grand.ordertag.all";
-
+      
         /// <summary>
         /// Key pattern to clear cache
         /// </summary>
