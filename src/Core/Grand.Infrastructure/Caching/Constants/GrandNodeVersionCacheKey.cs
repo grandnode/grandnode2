@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Grand.Infrastructure.Caching.Constants
+﻿namespace Grand.Infrastructure.Caching.Constants
 {
     public static partial class CacheKey
     {
