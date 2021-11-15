@@ -118,9 +118,10 @@ namespace Grand.Web.Admin.Controllers
                     FullName = assembly.FullName,
                 });
             }
-            //store URL
-            var currentStoreUrl = _workContext.CurrentHost.Url;
-            if (!String.IsNullOrEmpty(currentStoreUrl) && (currentStoreUrl.Equals(HttpContext.Request.Host.Host, StringComparison.OrdinalIgnoreCase)))
+
+            //current host
+            var currenthostName = _workContext.CurrentHost.HostName;
+            if (!string.IsNullOrEmpty(currenthostName) && (currenthostName.Equals(HttpContext.Request.Host.Value, StringComparison.OrdinalIgnoreCase)))
                 model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Pass,
                     Text = _translationService.GetResource("Admin.System.Warnings.URL.Match")
@@ -128,7 +129,7 @@ namespace Grand.Web.Admin.Controllers
             else
                 model.SystemWarnings.Add(new SystemInfoModel.SystemWarningModel {
                     Level = SystemInfoModel.SystemWarningModel.SystemWarningLevel.Warning,
-                    Text = string.Format(_translationService.GetResource("Admin.System.Warnings.URL.NoMatch"), currentStoreUrl, HttpContext.Request.Host.Host)
+                    Text = string.Format(_translationService.GetResource("Admin.System.Warnings.URL.NoMatch"), currenthostName, HttpContext.Request.Host.Host)
                 });
 
 
