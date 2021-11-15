@@ -51,10 +51,10 @@ var vmorder = new Vue({
             vPaymentMethod: null,
             vPaymentInfo: null,
             vConfirmOrder: null,
-            // paymentinfobussy
-            paymentBussy: false,
-            // shippingbussy
-            shippingBussy: false,
+            // paymentinfobusy
+            paymentBusy: false,
+            // shippingbusy
+            shippingBusy: false,
             // selectedshipping
             selectedShippingMethod: 0,
             shippingAddressErrors: null,
@@ -197,7 +197,7 @@ var vmorder = new Vue({
                             var model = response.data.update_section.model;
                             vmorder.PaymentViewComponentName = model.PaymentViewComponentName;
                             vmorder.PaymentInfo = true;
-                            vmorder.paymentBussy = true;
+                            vmorder.paymentBusy = true;
                             document.querySelector(".payment-info-next-step-button").classList.add("disabled");
                             document.querySelector(".payment-info-next-step-button").setAttribute("onclick", "vmorder.vPaymentInfo.save()");
                             axios({
@@ -209,7 +209,7 @@ var vmorder = new Vue({
                                     'Content-Type': 'application/json',
                                 }
                             }).then(response => {
-                                vmorder.paymentBussy = false;
+                                vmorder.paymentBusy = false;
                                 var html = response.data;
                                 document.querySelector('.payment-info .info').innerHTML = html;
                             }).then(function () {
@@ -835,14 +835,14 @@ var vmorder = new Vue({
             card.classList.add('active');
         },
         loadPartialView(arg_value) {
-            vmorder.shippingBussy = true;
+            vmorder.shippingBusy = true;
             document.querySelector(".shipping-method-next-step-button").classList.add("disabled");
             var url = window.location.origin + '/checkout/GetShippingFormPartialView?shippingOption=' + arg_value;
             axios({
                 url: url,
                 method: 'post',
             }).then(function (response) {
-                vmorder.shippingBussy = false;
+                vmorder.shippingBusy = false;
                 document.getElementById('shipping_form').innerHTML = response.data;
                 document.querySelector(".shipping-method-next-step-button").classList.remove("disabled");
             }).then(function () {

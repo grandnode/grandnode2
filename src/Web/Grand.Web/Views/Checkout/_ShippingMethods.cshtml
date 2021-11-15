@@ -26,7 +26,7 @@
             <template v-if="vmorder.ShippingMethodError !== null && vmorder.ShippingMethodError !== undefined">
                 <div class="alert alert-info">{{vmorder.ShippingMethodError}}</div>
             </template>
-            <template v-if="vmorder.shippingBussy">
+            <template v-if="vmorder.shippingBusy">
                 <div style="height: 65px" class="d-flex justify-content-center align-items-center w-100">
                     <b-spinner variant="info" label="Loading..."></b-spinner>
                 </div>
