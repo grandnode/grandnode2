@@ -5,6 +5,7 @@ using Grand.Infrastructure.Migrations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 
 namespace Grand.Business.System.Services.Migrations._1._1
 {
@@ -29,16 +30,18 @@ namespace Grand.Business.System.Services.Migrations._1._1
             {
                 foreach (var store in repository.Table)
                 {
-                    var host = new HostString(store.Url);
-                    var httpscheme = store.SslEnabled ? "https" : "http";
-                    var domain = new DomainHost() {
-                        HostName = host.Host,
-                        Url = $"{httpscheme}://{host}",
-                        Primary = true
-                    };
-                    store.Domains.Add(domain);
-
-                    repository.Update(store);
+                    if (!store.Domains.Any())
+                    {
+                        var storeUri = new Uri(store.Url);
+                        var httpscheme = store.SslEnabled ? "https" : "http";
+                        var domain = new DomainHost() {
+                            HostName = storeUri.Authority,
+                            Url = $"{httpscheme}://{storeUri.Authority}",
+                            Primary = true
+                        };
+                        store.Domains.Add(domain);
+                        repository.Update(store);
+                    }
                 }
             }
             catch (Exception ex)
