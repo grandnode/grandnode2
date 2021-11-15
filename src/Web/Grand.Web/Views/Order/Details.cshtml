@@ -153,7 +153,7 @@
                                     }
                                     @if (Model.BillingAddress.CityEnabled && (Model.BillingAddress.StateProvinceEnabled || Model.BillingAddress.ZipPostalCodeEnabled))
                                     {
-                                        <text>,</text>
+                                        <text>, </text>
                                     }
                                     @if (Model.BillingAddress.StateProvinceEnabled)
                                     {
@@ -161,7 +161,7 @@
                                     }
                                     @if (Model.BillingAddress.ZipPostalCodeEnabled)
                                     {
-                                        @Model.BillingAddress.ZipPostalCode
+                                        <text> </text> @Model.BillingAddress.ZipPostalCode
                                     }
                                 </li>
                             }
@@ -297,7 +297,7 @@
                                             }
                                             @if (Model.ShippingAddress.CityEnabled && (Model.ShippingAddress.StateProvinceEnabled || Model.ShippingAddress.ZipPostalCodeEnabled))
                                             {
-                                                <text>,</text>
+                                                <text>, </text>
                                             }
                                             @if (Model.ShippingAddress.StateProvinceEnabled)
                                             {
@@ -305,7 +305,7 @@
                                             }
                                             @if (Model.ShippingAddress.ZipPostalCodeEnabled)
                                             {
-                                                @Model.ShippingAddress.ZipPostalCode
+                                                <text> </text> @Model.ShippingAddress.ZipPostalCode
                                             }
                                         </li>
                                     }

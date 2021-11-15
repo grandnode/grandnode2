@@ -38,6 +38,7 @@
                             <template v-if="vmorder.cart.OrderReviewData.BillingAddress.StateProvinceEnabled">
                                 {{vmorder.cart.OrderReviewData.BillingAddress.StateProvinceName}}
                             </template>
+                                 
                             <template v-if="vmorder.cart.OrderReviewData.BillingAddress.ZipPostalCodeEnabled">
                                 {{vmorder.cart.OrderReviewData.BillingAddress.ZipPostalCode}}
                             </template>
@@ -101,6 +102,7 @@
                                 <template v-if="vmorder.cart.OrderReviewData.ShippingAddress.StateProvinceEnabled">
                                     {{vmorder.cart.OrderReviewData.ShippingAddress.StateProvinceName}}
                                 </template>
+                                     
                                 <template v-if="vmorder.cart.OrderReviewData.ShippingAddress.ZipPostalCodeEnabled">
                                     {{vmorder.cart.OrderReviewData.ShippingAddress.ZipPostalCode}}
                                 </template>
