@@ -13,11 +13,8 @@ namespace Grand.Business.System.Services.Migrations._1._1
     {
 
         public int Priority => 0;
-
         public DbVersion Version => new(1, 1);
-
         public Guid Identity => new("7D8642FC-2FAA-4AC1-B062-5E3513DAC658");
-
         public string Name => "Update standard admin site map";
 
         /// <summary>
@@ -92,11 +89,5 @@ namespace Grand.Business.System.Services.Migrations._1._1
             }
             return true;
         }
-
-        private class SettingsMedia
-        {
-            public bool StoreInDb { get; set; }
-        }
-
     }
 }

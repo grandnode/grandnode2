@@ -13,13 +13,9 @@ namespace Grand.Business.System.Services.Migrations._1._1
 {
     public class MigrationSystemPermission : IMigration
     {
-
         public int Priority => 0;
-
         public DbVersion Version => new(1, 1);
-
         public Guid Identity => new("361F2D87-D067-44FE-B0A6-0817B201730A");
-
         public string Name => "Install new permission - System";
 
         /// <summary>
@@ -56,11 +52,5 @@ namespace Grand.Business.System.Services.Migrations._1._1
             }
             return true;
         }
-
-        private class SettingsMedia
-        {
-            public bool StoreInDb { get; set; }
-        }
-
     }
 }

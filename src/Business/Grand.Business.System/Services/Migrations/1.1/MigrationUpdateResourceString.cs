@@ -13,13 +13,9 @@ namespace Grand.Business.System.Services.Migrations._1._1
 {
     public class MigrationUpdateResourceString : IMigration
     {
-
         public int Priority => 0;
-
         public DbVersion Version => new(1, 1);
-
         public Guid Identity => new("21B022B6-FDA7-4574-A395-613A3FD80F5D");
-
         public string Name => "Update resource string for english language";
 
         /// <summary>
@@ -51,11 +47,5 @@ namespace Grand.Business.System.Services.Migrations._1._1
             }
             return true;
         }
-
-        private class SettingsMedia
-        {
-            public bool StoreInDb { get; set; }
-        }
-
     }
 }

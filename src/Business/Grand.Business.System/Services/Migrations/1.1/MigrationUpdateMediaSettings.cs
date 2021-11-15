@@ -14,11 +14,8 @@ namespace Grand.Business.System.Services.Migrations._1._1
     {
 
         public int Priority => 0;
-
         public DbVersion Version => new(1, 1);
-
         public Guid Identity => new("899F6A9F-99BA-41C1-8E1F-9AE63A78E531");
-
         public string Name => "Update media settings - add new settings storage settings";
 
         /// <summary>

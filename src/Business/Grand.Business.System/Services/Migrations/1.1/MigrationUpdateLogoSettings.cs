@@ -18,11 +18,8 @@ namespace Grand.Business.System.Services.Migrations._1._1
     {
 
         public int Priority => 0;
-
         public DbVersion Version => new(1, 1);
-
         public Guid Identity => new("82A5E26A-7861-4C72-9D5E-AF95477CE1F7");
-
         public string Name => "Update logo settings - StoreInformationSettings";
 
         /// <summary>
