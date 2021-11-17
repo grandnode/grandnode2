@@ -12,7 +12,6 @@
 <div class="form-horizontal form-userfield" id="form-userfield">
     @for (int item = 0; item < userFields.Count; item++)
     {
-
         <div id="UserFieldsItem_@item" class="form-body">
             <div class="form-group">
                 <label class="control-label col-md-3 col-sm-3">@userFields[item].Key</label>
@@ -22,7 +21,7 @@
                 </div>
                 <div class="col-md-3 col-sm-3 input-group custom-input-group">
                     <admin-select asp-for="@userFields[item].StoreId" asp-items="@stores" />
-                    <span class="input-group-addon btn red" onclick="deleteUserFields(@item)"><i class="fa fa fa-times"></i></span>
+                    <span class="input-group-addon btn red deleteuserfield" data-id="@item" onclick="deleteUserFields(@item)"><i class="fa fa fa-times"></i></span>
                 </div>
             </div>
         </div>
@@ -45,7 +44,7 @@
                         <option value="@store.Value">@store.Text</option>
                     }
                 </select>
-                <span class="input-group-addon btn red" onclick="deleteUserFields(${id})"><i class="fa fa fa-times"></i></span>
+                <span class="input-group-addon btn red deleteuserfield" data-id="${id}" onclick="deleteUserFields(${id})"><i class="fa fa fa-times"></i></span>
             </div>
         </div>
     </div>
@@ -107,22 +106,29 @@
        // update records
        const records = document.querySelectorAll('#form-userfield .form-body');
        records.forEach(function (element, id) {
-             const input_val = element.querySelector('input[type="text"]');
-             const input_key = element.querySelector('input[type="hidden"]');
-             const select = element.querySelector('select');
+           const input_val = element.querySelector('input[type="text"]');
+           const input_key = element.querySelector('input[type="hidden"]');
+           const input_del = element.querySelector('.deleteuserfield');
+           const select = element.querySelector('select');
 
-             element.id = 'UserFieldsItem_' + id;
+           input_del.setAttribute('data-id', id);
+           input_del.setAttribute('onclick', 'deleteUserFields('+id+')');
 
-             input_val.id = 'UserFields_' + id + '__Value';
-             input_val.setAttribute('name', 'UserFields[' + id + '].Value');
+           element.id = 'UserFieldsItem_' + id;
 
-             input_key.id = 'UserFields_' + id + '__Key';
-             input_key.setAttribute('name', 'UserFields[' + id + '].Key');
+           input_val.id = 'UserFields_' + id + '__Value';
+           input_val.setAttribute('name', 'UserFields[' + id + '].Value');
 
-             select.id = 'UserFields_' + id + '__StoreId';
-             select.setAttribute('name', 'UserFields[' + id + '].StoreId');
-             });
-      }
+           input_key.id = 'UserFields_' + id + '__Key';
+           input_key.setAttribute('name', 'UserFields[' + id + '].Key');
+
+           select.id = 'UserFields_' + id + '__StoreId';
+           select.setAttribute('name', 'UserFields[' + id + '].StoreId');
+
+
+           select.setAttribute('name', 'UserFields[' + id + '].StoreId');
+        });
+    }
 </script>
 <vc:admin-widget widget-zone="userfield_details_info_bottom" additional-data="Model" />
 
