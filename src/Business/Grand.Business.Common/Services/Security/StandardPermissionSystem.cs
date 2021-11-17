@@ -57,13 +57,6 @@ namespace Grand.Business.Common.Services.Security
             Area = "Admin area",
             Category = CategorySystem
         };
-        public static readonly Permission ManageUserFields = new Permission
-        {
-            Name = "Manage user Fields",
-            SystemName = PermissionSystemName.UserFields,
-            Area = "Admin area",
-            Category = CategorySystem
-        };
         public static readonly Permission HtmlEditorManagePictures = new Permission
         {
             Name = "HTML Editor. Manage pictures",

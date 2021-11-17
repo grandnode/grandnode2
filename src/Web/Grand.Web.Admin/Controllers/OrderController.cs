@@ -631,7 +631,7 @@ namespace Grand.Web.Admin.Controllers
             await _orderViewModelService.PrepareOrderDetailsModel(model, order);
 
             //selected tab
-            await SaveSelectedTabIndex(persistForTheNextRequest: false);
+            await SaveSelectedTabIndex(persistForTheNextRequest: true);
 
             return RedirectToAction("Edit", "Order", new { id = id });
         }
@@ -661,7 +661,7 @@ namespace Grand.Web.Admin.Controllers
             await _orderViewModelService.PrepareOrderDetailsModel(model, order);
 
             //selected tab
-            await SaveSelectedTabIndex(persistForTheNextRequest: false);
+            await SaveSelectedTabIndex(persistForTheNextRequest: true);
 
             return RedirectToAction("Edit", "Order", new { id = id });
         }
@@ -860,7 +860,7 @@ namespace Grand.Web.Admin.Controllers
             await _orderViewModelService.PrepareOrderDetailsModel(model, order);
 
             //selected tab
-            await SaveSelectedTabIndex(persistForTheNextRequest: false);
+            await SaveSelectedTabIndex(persistForTheNextRequest: true);
 
             return RedirectToAction("Edit", "Order", new { id = id });
         }
@@ -900,7 +900,7 @@ namespace Grand.Web.Admin.Controllers
             await _orderViewModelService.PrepareOrderDetailsModel(model, order);
 
             //selected tab
-            await SaveSelectedTabIndex(persistForTheNextRequest: false);
+            await SaveSelectedTabIndex(persistForTheNextRequest: true);
 
             return RedirectToAction("Edit", "Order", new { id = id });
         }

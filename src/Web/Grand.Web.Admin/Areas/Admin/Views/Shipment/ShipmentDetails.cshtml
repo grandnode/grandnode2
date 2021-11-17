@@ -4,8 +4,6 @@
     //page title
     ViewBag.Title = Loc["Admin.Orders.Shipments.ViewDetails"];
     var canManageDocuments = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageDocuments);
-    var canManageUserFields = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageUserFields);
-
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Shipment" asp-action="ShipmentDetails" method="post">
     <input type="hidden" asp-for="Id" />
@@ -99,25 +97,18 @@
                                     </div>
                                 </content>
                             </tabstrip-item>
-                            @if (canManageUserFields)
-                            {
-                                <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="3">
-                                    <content>
-                                        <div>
-                                            <div class="form-actions">
-                                                <input type="submit" asp-action="EditUserFields" value="@Loc["Admin.Common.Save"]" id="btnSaveUserFields" name="save-generic-attributes" class="k-button" />
-                                            </div>
-                                            <div class="form-horizontal">
-                                                @{
-                                                    ViewData["ObjectType"] = "Shipment";
-                                                    ViewData["TabIndex"] = 3;
-                                                }
-                                                <partial name="_UserFields" model="Model" view-data="ViewData" />
-                                            </div>
+                            <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="3">
+                                <content>
+                                    <div>
+                                        <div class="form-actions">
+                                            <input type="submit" asp-action="EditUserFields" value="@Loc["Admin.Common.Save"]" id="btnSaveUserFields" name="save-generic-attributes" class="k-button" />
                                         </div>
-                                    </content>
-                                </tabstrip-item>
-                            }
+                                        <div class="form-horizontal">
+                                            <partial name="_UserFields" model="Model" />
+                                        </div>
+                                    </div>
+                                </content>
+                            </tabstrip-item>
                             <vc:admin-widget widget-zone="shipment_details_tabs" additional-data="Model" />
                         </items>
                     </admin-tabstrip>

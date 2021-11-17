@@ -5,8 +5,6 @@
 @{
     //has "Manage Documents" permission?
     var canManageDocuments = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageDocuments);
-    //has "Manage User fields" permission?
-    var canManageUserFields = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageUserFields);
 }
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />
@@ -46,22 +44,15 @@
                 </div>
             </content>
         </tabstrip-item>
-        @if (canManageUserFields)
-        {
-            <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="4">
-                <content>
-                    <div>
-                        <div class="form-horizontal">
-                            @{
-                                ViewData["ObjectType"] = "MerchandiseReturn";
-                                ViewData["TabIndex"] = 4;
-                            }
-                            <partial name="_UserFields" model="Model" view-data="ViewData" />
-                        </div>
+        <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="4">
+            <content>
+                <div>
+                    <div class="form-horizontal">
+                        <partial name="_UserFields" model="Model" />
                     </div>
-                </content>
-            </tabstrip-item>
-        }
+                </div>
+            </content>
+        </tabstrip-item>
         <vc:admin-widget widget-zone="merchandisereturn_details_tabs" additional-data="Model" />
     </items>
 </admin-tabstrip>

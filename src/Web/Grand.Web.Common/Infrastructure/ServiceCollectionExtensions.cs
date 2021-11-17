@@ -7,6 +7,7 @@ using Grand.Domain.Configuration;
 using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearchers;
 using Grand.SharedKernel.Extensions;
