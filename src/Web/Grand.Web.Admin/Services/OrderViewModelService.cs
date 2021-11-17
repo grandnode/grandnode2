@@ -790,7 +790,10 @@ namespace Grand.Web.Admin.Services
 
                     orderItemModel.AttributeInfo = orderItem.AttributeDescription;
                     if (product.IsRecurring)
-                        orderItemModel.RecurringInfo = string.Format(_translationService.GetResource("Admin.Orders.Products.RecurringPeriod"), product.RecurringCycleLength, product.RecurringCyclePeriodId.GetTranslationEnum(_translationService, _workContext));
+                        orderItemModel.RecurringInfo = string.Format(_translationService.GetResource("Admin.Orders.Products.RecurringPeriod"), 
+                                                                    product.RecurringCycleLength, 
+                                                                    product.RecurringCyclePeriodId.GetTranslationEnum(_translationService, _workContext),
+                                                                    product.RecurringTotalCycles);
 
                     //merchandise returns
                     orderItemModel.MerchandiseReturnIds = (await _merchandiseReturnService.SearchMerchandiseReturns(orderItemId: orderItem.Id))

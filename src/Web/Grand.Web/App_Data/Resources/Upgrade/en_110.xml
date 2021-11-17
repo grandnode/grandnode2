@@ -273,4 +273,10 @@
   <Resource Name="ShoppingCart.CannotMixRecurringProducts">
     <Value>Your cart has mixed recurring items. Only one recurring type is allowed per order.</Value>
   </Resource>
+  <Resource Name="ShoppingCart.RecurringPeriod">
+    <Value>[Auto-ship, Every {0} {1} ({2})]</Value>
+  </Resource>
+  <Resource Name="Admin.Orders.Products.RecurringPeriod">
+    <Value>[Auto-ship, Every {0} {1} ({2})]</Value>
+  </Resource>
 </Language>

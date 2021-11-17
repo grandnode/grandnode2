@@ -15,7 +15,7 @@ namespace Grand.Business.System.Services.Migrations._1._1
     {
         public int Priority => 0;
         public DbVersion Version => new(1, 1);
-        public Guid Identity => new("BDB82CDE-7426-49A8-B494-9C31F1374B58");
+        public Guid Identity => new("136CB337-F46C-4228-96C0-2298E2074A90");
         public string Name => "Update resource string for english language";
 
         /// <summary>

@@ -9599,7 +9599,7 @@
     <Value>Quantity</Value>
   </Resource>
   <Resource Name="Admin.Orders.Products.RecurringPeriod">
-    <Value>[Auto-ship, Every {0} {1}]</Value>
+    <Value>[Auto-ship, Every {0} {1} ({2})]</Value>
   </Resource>
   <Resource Name="Admin.Orders.Products.SKU">
     <Value>SKU</Value>
@@ -16195,7 +16195,7 @@
     <Value>Enter valid recipient name</Value>
   </Resource>
   <Resource Name="ShoppingCart.RecurringPeriod">
-    <Value>[Auto-ship, Every {0} {1}]</Value>
+    <Value>[Auto-ship, Every {0} {1} ({2})]</Value>
   </Resource>
   <Resource Name="ShoppingCart.Remove">
     <Value>Remove</Value>

@@ -151,7 +151,10 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
                 //recurring info
                 if (product.IsRecurring)
-                    cartItemModel.RecurringInfo = string.Format(_translationService.GetResource("ShoppingCart.RecurringPeriod"), product.RecurringCycleLength, product.RecurringCyclePeriodId.GetTranslationEnum(_translationService, request.Language.Id));
+                    cartItemModel.RecurringInfo = string.Format(_translationService.GetResource("ShoppingCart.RecurringPeriod"), 
+                                                                product.RecurringCycleLength, 
+                                                                product.RecurringCyclePeriodId.GetTranslationEnum(_translationService, request.Language.Id),
+                                                                product.RecurringTotalCycles);
 
                 //unit prices
                 if (product.CallForPrice)
