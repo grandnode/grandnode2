@@ -8,81 +8,77 @@
         Value = store.Id,
     }).ToList();
 }
-@if (!string.IsNullOrEmpty(Model.Id))
-{
-    <vc:admin-widget widget-zone="userfield_details_info_top" additional-data="Model" />
-    <div class="panel panel-default">
-        <div class="form-horizontal form-userfield" id="form-userfield">
-            @for (int item = 0; item < userFields.Count; item++)
-            {
+<vc:admin-widget widget-zone="userfield_details_info_top" additional-data="Model" />
+<div class="form-horizontal form-userfield" id="form-userfield">
+    @for (int item = 0; item < userFields.Count; item++)
+    {
 
-                <div id="UserFieldsItem_@item" class="form-body">
-                    <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3">@userFields[item].Key</label>
-                        <div class="col-md-6 col-sm-6">
-                            <admin-input asp-for="@userFields[item].Value" />
-                            <input type="hidden" asp-for="@userFields[item].Key" />
-                        </div>
-                        <div class="col-md-3 col-sm-3 input-group custom-input-group">
-                            <admin-select asp-for="@userFields[item].StoreId" asp-items="@stores" />
-                            <span class="input-group-addon btn red" onclick="updateUserFields(@item,'@userFields[item].Key', true)"><i class="fa fa fa-times"></i></span>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
-
-    <script id="template" type="text/html">
-        <div id="UserFieldsItem_${id}" class="form-body">
+        <div id="UserFieldsItem_@item" class="form-body">
             <div class="form-group">
-                <label class="control-label col-md-3 col-sm-3">${key}</label>
+                <label class="control-label col-md-3 col-sm-3">@userFields[item].Key</label>
                 <div class="col-md-6 col-sm-6">
-                    <input class="form-control k-input text-box single-line valid"
-                           id="UserFields_${id}__Value" name="UserFields[${id}].Value" type="text" value="${value}">
-                    <input type="hidden" id="UserFields_${id}__Key" name="UserFields[${id}].Key" value="${key}">
+                    <admin-input asp-for="@userFields[item].Value" />
+                    <input type="hidden" asp-for="@userFields[item].Key" />
                 </div>
                 <div class="col-md-3 col-sm-3 input-group custom-input-group">
-                    <select id="UserFields_{id}__StoreId" name="UserFields[${id}].StoreId" class="form-control k-input valid">
-                        @foreach (var store in stores)
-                        {
-                            <option value="@store.Value">@store.Text</option>
-                        }
-                    </select>
-                    <span class="input-group-addon btn red" onclick="updateUserFields('${id}','${key}', true)" @*onclick="gadelete('${key}')"*@><i class="fa fa fa-times"></i></span>
+                    <admin-select asp-for="@userFields[item].StoreId" asp-items="@stores" />
+                    <span class="input-group-addon btn red" onclick="updateUserFields(@item,'@userFields[item].Key', true)"><i class="fa fa fa-times"></i></span>
                 </div>
             </div>
         </div>
+    }
+</div>
 
-    </script>
-
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <p>
-                <strong>@Loc["Admin.Common.UserFields.AddNew"]</strong>
-            </p>
-            <div class="form-horizontal">
-                <div class="form-body">
-                    <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3">@Loc["Admin.Common.UserFields.Fields.Key"]</label>
-                        <div class="col-md-9 col-sm-9">
-                            <input class="form-control k-input text-box single-line valid" id="ga_key" name="ga_key" type="text" value="">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-3 col-sm-3">@Loc["Admin.Common.UserFields.Fields.Value"]</label>
-                        <div class="col-md-9 col-sm-9">
-                            <input class="form-control k-input text-box single-line valid" id="ga_value" name="ga_value" type="text" value="">
-                        </div>
-                    </div>
-                </div>
+<script id="template" type="text/html">
+    <div id="UserFieldsItem_${id}" class="form-body">
+        <div class="form-group">
+            <label class="control-label col-md-3 col-sm-3">${key}</label>
+            <div class="col-md-6 col-sm-6">
+                <input class="form-control k-input text-box single-line valid"
+                       id="UserFields_${id}__Value" name="UserFields[${id}].Value" type="text" value="${value}">
+                <input type="hidden" id="UserFields_${id}__Key" name="UserFields[${id}].Key" value="${key}">
             </div>
-        </div>
-        <div class="panel-footer">
-            <button type="button" id="addUserField" onclick="updateUserFields(null, null, false)" class="k-primary k-button"><i class="fa fa-plus"></i>@Loc["Admin.Common.UserFields.AddNew.Button"]</button>
+            <div class="col-md-3 col-sm-3 input-group custom-input-group">
+                <select id="UserFields_{id}__StoreId" name="UserFields[${id}].StoreId" class="form-control k-input valid">
+                    @foreach (var store in stores)
+                    {
+                        <option value="@store.Value">@store.Text</option>
+                    }
+                </select>
+                <span class="input-group-addon btn red" onclick="updateUserFields('${id}','${key}', true)" @*onclick="gadelete('${key}')"*@><i class="fa fa fa-times"></i></span>
+            </div>
         </div>
     </div>
-    <script>
+
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <p>
+            <strong>@Loc["Admin.Common.UserFields.AddNew"]</strong>
+        </p>
+        <div class="form-horizontal">
+            <div class="form-body">
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3">@Loc["Admin.Common.UserFields.Fields.Key"]</label>
+                    <div class="col-md-9 col-sm-9">
+                        <input class="form-control k-input text-box single-line valid" id="ga_key" name="ga_key" type="text" value="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3">@Loc["Admin.Common.UserFields.Fields.Value"]</label>
+                    <div class="col-md-9 col-sm-9">
+                        <input class="form-control k-input text-box single-line valid" id="ga_value" name="ga_value" type="text" value="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer">
+        <button type="button" id="addUserField" onclick="updateUserFields(null, null, false)" class="k-primary k-button"><i class="fa fa-plus"></i>@Loc["Admin.Common.UserFields.AddNew.Button"]</button>
+    </div>
+</div>
+<script>
                 var counter = @userFields.Count;
                 function updateUserFields(id, remove) {
 
@@ -132,13 +128,6 @@
                         select.setAttribute('name', 'UserFields[' + id + '].StoreId');
                     });
                 }
-    </script>
-    <vc:admin-widget widget-zone="userfield_details_info_bottom" additional-data="Model" />
-}
-else
-{
-    <vc:admin-widget widget-zone="userfield_details_info_savebefore" additional-data="Model" />
-    <div class="note note-info">
-        @Loc["Admin.Common.UserFields.SaveBeforeEdit"]
-    </div>
-}
+</script>
+<vc:admin-widget widget-zone="userfield_details_info_bottom" additional-data="Model" />
+
