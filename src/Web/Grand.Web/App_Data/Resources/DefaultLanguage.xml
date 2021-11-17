@@ -228,8 +228,8 @@
   <Resource Name="Account.CustomerMerchandiseReturns.Title">
     <Value>Return #{0} - {1}</Value>
   </Resource>
-  <Resource Name="Account.CustomerMerchandiseReturns.Totals">
-    <Value>{0} product(s), {1} total</Value>
+  <Resource Name="Account.CustomerMerchandiseReturns.Total">
+    <Value>Total</Value>
   </Resource>
   <Resource Name="Account.CustomerMerchandiseReturns.UnitPrice">
     <Value>Unit price</Value>

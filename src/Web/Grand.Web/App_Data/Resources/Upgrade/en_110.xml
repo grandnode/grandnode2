@@ -279,4 +279,7 @@
   <Resource Name="Admin.Orders.Products.RecurringPeriod">
     <Value>[Auto-ship, Every {0} {1} ({2})]</Value>
   </Resource>
+  <Resource Name="Account.CustomerMerchandiseReturns.Total">
+    <Value>Total</Value>
+  </Resource>
 </Language>
