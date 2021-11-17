@@ -24,11 +24,7 @@
         <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="2">
             <content>
                 <div>
-                    @{
-                        ViewData["ObjectType"] = "Document";
-                        ViewData["TabIndex"] = 2;
-                    }
-                    <partial name="_UserFields" model="Model" view-data="ViewData" />
+                    <partial name="_UserFields" model="Model" />
                 </div>
             </content>
         </tabstrip-item>

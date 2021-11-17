@@ -1,6 +1,5 @@
 ﻿@model Grand.Infrastructure.Models.BaseEntityModel
 @inject Grand.Business.Common.Interfaces.Stores.IStoreService storeService
-@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
 @{
     var userFields = Model.UserFields.ToList();
     var stores = (await storeService.GetAllStores()).Select(store => new SelectListItem
@@ -8,7 +7,6 @@
         Text = store.Shortcut,
         Value = store.Id,
     }).ToList();
-    var permission = await permissionService.Authorize(Grand.Business.Common.Services.Security.PermissionSystemName.UserFields);
 }
 @if (!string.IsNullOrEmpty(Model.Id))
 {
@@ -58,35 +56,33 @@
 
     </script>
 
-    @if (permission)
-    {
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <p>
-                    <strong>@Loc["Admin.Common.UserFields.AddNew"]</strong>
-                </p>
-                <div class="form-horizontal">
-                    <div class="form-body">
-                        <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3">@Loc["Admin.Common.UserFields.Fields.Key"]</label>
-                            <div class="col-md-9 col-sm-9">
-                                <input class="form-control k-input text-box single-line valid" id="ga_key" name="ga_key" type="text" value="">
-                            </div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <p>
+                <strong>@Loc["Admin.Common.UserFields.AddNew"]</strong>
+            </p>
+            <div class="form-horizontal">
+                <div class="form-body">
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3">@Loc["Admin.Common.UserFields.Fields.Key"]</label>
+                        <div class="col-md-9 col-sm-9">
+                            <input class="form-control k-input text-box single-line valid" id="ga_key" name="ga_key" type="text" value="">
                         </div>
-                        <div class="form-group">
-                            <label class="control-label col-md-3 col-sm-3">@Loc["Admin.Common.UserFields.Fields.Value"]</label>
-                            <div class="col-md-9 col-sm-9">
-                                <input class="form-control k-input text-box single-line valid" id="ga_value" name="ga_value" type="text" value="">
-                            </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3">@Loc["Admin.Common.UserFields.Fields.Value"]</label>
+                        <div class="col-md-9 col-sm-9">
+                            <input class="form-control k-input text-box single-line valid" id="ga_value" name="ga_value" type="text" value="">
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="panel-footer">
-                <button type="button" id="addUserField" onclick="updateUserFields(null, null, false)" class="k-primary k-button"><i class="fa fa-plus"></i>@Loc["Admin.Common.UserFields.AddNew.Button"]</button>
-            </div>
         </div>
-        <script>
+        <div class="panel-footer">
+            <button type="button" id="addUserField" onclick="updateUserFields(null, null, false)" class="k-primary k-button"><i class="fa fa-plus"></i>@Loc["Admin.Common.UserFields.AddNew.Button"]</button>
+        </div>
+    </div>
+    <script>
                 var counter = @userFields.Count;
                 function updateUserFields(id, remove) {
 
@@ -136,9 +132,8 @@
                         select.setAttribute('name', 'UserFields[' + id + '].StoreId');
                     });
                 }
-        </script>
-        <vc:admin-widget widget-zone="userfield_details_info_bottom" additional-data="Model" />
-    }
+    </script>
+    <vc:admin-widget widget-zone="userfield_details_info_bottom" additional-data="Model" />
 }
 else
 {
