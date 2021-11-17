@@ -491,6 +491,13 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     }
                     throw new GrandException(warningsSb.ToString());
                 }
+                if (product.IsRecurring)
+                {
+                    details.IsRecurring = true;
+                    details.RecurringCycleLength = product.RecurringCycleLength;
+                    details.RecurringCyclePeriodId = product.RecurringCyclePeriodId;
+                    details.RecurringTotalCycles = product.RecurringTotalCycles;
+                }
             }
 
             //min totals validation
@@ -1029,6 +1036,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 RedeemedLoyaltyPoints = details.RedeemedLoyaltyPoints,
                 RedeemedLoyaltyPointsAmount = details.RedeemedLoyaltyPointsAmount,
                 LoyaltyPointsWereAdded = details.RedeemedLoyaltyPoints > 0,
+                IsRecurring = details.IsRecurring,
+                RecurringCycleLength = details.RecurringCycleLength,
+                RecurringCyclePeriodId = details.RecurringCyclePeriodId,
+                RecurringTotalCycles = details.RecurringTotalCycles,
                 CreatedOnUtc = DateTime.UtcNow,
             };
 

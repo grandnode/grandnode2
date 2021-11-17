@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Utilities;
+using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
@@ -36,17 +37,16 @@ namespace Grand.Business.Checkout.Utilities
         public string ShippingRateProviderSystemName { get; set; }
         public bool PickUpInStore { get; set; }
         public PickupPoint PickupPoint { get; set; }
-        
         public string CheckoutAttributeDescription { get; set; }
-
         public IList<CustomAttribute> CheckoutAttributes { get; set; }
-
         public IList<ShoppingCartItem> Cart { get; set; }
         public IList<OrderTax> Taxes { get; set; }
-
         public List<ApplyDiscount> AppliedDiscounts { get; set; }
         public List<AppliedGiftVoucher> AppliedGiftVouchers { get; set; }
-
+        public bool IsRecurring { get; set; }
+        public int RecurringCycleLength { get; set; }
+        public RecurringCyclePeriod RecurringCyclePeriodId { get; set; }
+        public int RecurringTotalCycles { get; set; }
         public double OrderSubTotalInclTax { get; set; }
         public double OrderSubTotalExclTax { get; set; }
         public double OrderSubTotalDiscountInclTax { get; set; }

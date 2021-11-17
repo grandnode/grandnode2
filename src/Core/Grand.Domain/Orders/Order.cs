@@ -1,3 +1,4 @@
+using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
@@ -263,6 +264,27 @@ namespace Grand.Domain.Orders
         /// Gets or sets a value indicating whether the entity has been imported
         /// </summary>
         public bool Imported { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the order is recurring
+        /// </summary>
+        public bool IsRecurring { get; set; }
+        /// <summary>
+        /// Gets or sets the cycle length
+        /// </summary>
+        public int RecurringCycleLength { get; set; }
+        /// <summary>
+        /// Gets or sets the cycle period
+        /// </summary>
+        public RecurringCyclePeriod RecurringCyclePeriodId { get; set; }
+        /// <summary>
+        /// Gets or sets the total cycles
+        /// </summary>
+        public int RecurringTotalCycles { get; set; }
+        /// <summary>
+        /// Gets or sets the total cycles
+        /// </summary>
+        public int RecurringUseCycles { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the url referrer exists
