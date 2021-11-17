@@ -15978,6 +15978,9 @@
   <Resource Name="ShoppingCart.CannotLoadProduct">
     <Value>Product (Id={0}) cannot be loaded</Value>
   </Resource>
+  <Resource Name="ShoppingCart.CannotMixRecurringProducts">
+    <Value>Your cart has mixed recurring items. Only one recurring type is allowed per order.</Value>
+  </Resource>
   <Resource Name="ShoppingCart.CannotMixStandardAndAutoshipProducts">
     <Value>Your cart has standard and auto-ship (recurring) items. Only one product type is allowed per order.</Value>
   </Resource>

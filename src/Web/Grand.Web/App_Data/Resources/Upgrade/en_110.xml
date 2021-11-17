@@ -270,4 +270,7 @@
   <Resource Name="Wishlist.AddedToCart">
     <Value>Added to the cart</Value>
   </Resource>
+  <Resource Name="ShoppingCart.CannotMixRecurringProducts">
+    <Value>Your cart has mixed recurring items. Only one recurring type is allowed per order.</Value>
+  </Resource>
 </Language>

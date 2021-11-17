@@ -682,8 +682,11 @@ namespace Grand.Business.Checkout.Services.Orders
             if (checkoutAttributes == null)
                 checkoutAttributes = new List<CustomAttribute>();
 
-            bool hasStandartProducts = false;
-            bool hasRecurringProducts = false;
+            var hasStandartProducts = false;
+            var hasRecurringProducts = false;
+            var hasRecurringProductsMix = false;
+
+            (RecurringCyclePeriod recurringCyclePeriod, int recurringCycleLength, int recurringTotalCycles)? recurringProducts = null;
 
             foreach (var sci in shoppingCart)
             {
@@ -695,7 +698,17 @@ namespace Grand.Business.Checkout.Services.Orders
                 }
 
                 if (product.IsRecurring)
+                {
                     hasRecurringProducts = true;
+                    if (!recurringProducts.HasValue)
+                        recurringProducts = (product.RecurringCyclePeriodId, product.RecurringCycleLength, product.RecurringTotalCycles);
+                    else
+                        if (recurringProducts.Value.recurringCyclePeriod != product.RecurringCyclePeriodId || 
+                            recurringProducts.Value.recurringCycleLength != product.RecurringCycleLength || 
+                            recurringProducts.Value.recurringTotalCycles != product.RecurringTotalCycles
+                        )
+                            hasRecurringProductsMix = true;
+                }
                 else
                     hasStandartProducts = true;
             }
@@ -703,6 +716,10 @@ namespace Grand.Business.Checkout.Services.Orders
             //don't mix standard and recurring products
             if (hasStandartProducts && hasRecurringProducts)
                 warnings.Add(_translationService.GetResource("ShoppingCart.CannotMixStandardAndAutoshipProducts"));
+
+            //don't mix recurring products
+            if (hasRecurringProducts && hasRecurringProductsMix)
+                warnings.Add(_translationService.GetResource("ShoppingCart.CannotMixRecurringProducts"));
 
             //validate checkout attributes
             if (validateCheckoutAttributes)
