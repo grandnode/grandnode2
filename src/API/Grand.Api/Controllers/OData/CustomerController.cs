@@ -98,7 +98,7 @@ namespace Grand.Api.Controllers.OData
         }
 
 
-        //odata/Customer(email)/AddAddress
+        //odata/Customer/(email)/AddAddress
         [SwaggerOperation(summary: "Invoke action AddAddress", OperationId = "AddAddress")]
         [Route("({key})/[action]")]
         [HttpPost]
@@ -118,7 +118,7 @@ namespace Grand.Api.Controllers.OData
             return Ok(address);
         }
 
-        //odata/Customer(email)/UpdateAddress
+        //odata/Customer/(email)/UpdateAddress
         [SwaggerOperation(summary: "Invoke action UpdateAddress", OperationId = "UpdateAddress")]
         [Route("({key})/[action]")]
         [HttpPost]
