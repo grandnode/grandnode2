@@ -222,7 +222,17 @@ namespace Grand.Business.Messages.DotLiquidDrops
             get { return string.Format("{0}/orderdetails/{1}", url, _order.Id); }
         }
 
-        public string AmountRefunded { get; set; }
+        public double PaidAmount {
+            get {
+                return _order.PaidAmount;
+            }
+        }
+
+        public double RefundedAmount {
+            get {
+                return _order.RefundedAmount;
+            }
+        }
 
         public string NewNoteText
         {
@@ -315,6 +325,31 @@ namespace Grand.Business.Messages.DotLiquidDrops
         public string RPTitle { get; set; }
 
         public string RPAmount { get; set; }
+
+
+        public bool IsRecurring {
+            get {
+                return _order.IsRecurring;
+            }
+        }
+
+        public int RecurringCycleLength {
+            get {
+                return _order.RecurringCycleLength;
+            }
+        }
+
+        public int RecurringCyclePeriodId {
+            get {
+                return (int)_order.RecurringCyclePeriodId;
+            }
+        }
+
+        public int RecurringTotalCycles {
+            get {
+                return _order.RecurringTotalCycles;
+            }
+        }
 
         public IDictionary<string, string> AdditionalTokens { get; set; }
     }
