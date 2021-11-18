@@ -125,7 +125,7 @@ namespace Grand.Api.Controllers.OData
         [SwaggerOperation(summary: "Invoke action UpdateStock", OperationId = "UpdateStock")]
         [Route("({key})/[action]")]
         [HttpPost]
-        public async Task<IActionResult> UpdateStock(string key, [FromBody] ODataActionParameters parameters)
+        public async Task<IActionResult> UpdateStock(string key, [FromBody] ProductUpdateStock model)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Products))
                 return Forbid();
@@ -134,20 +134,13 @@ namespace Grand.Api.Controllers.OData
             if (!product.Any())
                 return NotFound();
 
-            if (parameters == null)
+            if (model == null)
                 return BadRequest();
 
-            var warehouseId = parameters.FirstOrDefault(x => x.Key == "WarehouseId").Value;
-            var stock = parameters.FirstOrDefault(x => x.Key == "Stock").Value;
-            if (stock != null)
-            {
-                if (int.TryParse(stock.ToString(), out int stockqty))
-                {
-                    await _mediator.Send(new UpdateProductStockCommand() { Product = product.FirstOrDefault(), WarehouseId = warehouseId?.ToString(), Stock = stockqty });
-                    return Ok(true);
-                }
-            }
-            return Ok(false);
+            await _mediator.Send(new UpdateProductStockCommand() { Product = product.FirstOrDefault(), WarehouseId = model.WarehouseId, Stock = model.Stock });
+
+            return Ok(true);
+
         }
 
         #region Product category
@@ -210,9 +203,9 @@ namespace Grand.Api.Controllers.OData
         [SwaggerOperation(summary: "Invoke action DeleteProductCategory", OperationId = "DeleteProductCategory")]
         [Route("({key})/[action]")]
         [HttpPost]
-        public async Task<IActionResult> DeleteProductCategory(string key, [FromBody] ODataActionParameters parameters)
+        public async Task<IActionResult> DeleteProductCategory(string key, [FromBody] ProductCategoryDeleteDto model)
         {
-            if (parameters == null)
+            if (model == null)
                 return BadRequest();
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products))
@@ -222,9 +215,8 @@ namespace Grand.Api.Controllers.OData
             if (!product.Any())
                 return NotFound();
 
-
-            var categoryId = parameters.FirstOrDefault(x => x.Key == "CategoryId").Value;
-            if (categoryId != null)
+            var categoryId = model.CategoryId;
+            if (!string.IsNullOrEmpty(categoryId))
             {
                 var pc = product.FirstOrDefault().ProductCategories.Where(x => x.CategoryId == categoryId.ToString()).FirstOrDefault();
                 if (pc == null)
@@ -302,9 +294,9 @@ namespace Grand.Api.Controllers.OData
         [SwaggerOperation(summary: "Invoke action DeleteProductCollection", OperationId = "DeleteProductCollection")]
         [Route("({key})/[action]")]
         [HttpPost]
-        public async Task<IActionResult> DeleteProductCollection(string key, [FromBody] ODataActionParameters parameters)
+        public async Task<IActionResult> DeleteProductCollection(string key, [FromBody] ProductCollectionDeleteDto model)
         {
-            if (parameters == null)
+            if (model == null)
                 return BadRequest();
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products))
@@ -314,8 +306,8 @@ namespace Grand.Api.Controllers.OData
             if (!product.Any())
                 return NotFound();
 
-            var collectionId = parameters.FirstOrDefault(x => x.Key == "CollectionId").Value;
-            if (collectionId != null)
+            var collectionId = model.CollectionId;
+            if (!string.IsNullOrEmpty(collectionId))
             {
                 var pm = product.FirstOrDefault().ProductCollections.Where(x => x.CollectionId == collectionId.ToString()).FirstOrDefault();
                 if (pm == null)
@@ -394,9 +386,9 @@ namespace Grand.Api.Controllers.OData
         [SwaggerOperation(summary: "Invoke action DeleteProductPicture", OperationId = "DeleteProductPicture")]
         [Route("({key})/[action]")]
         [HttpPost]
-        public async Task<IActionResult> DeleteProductPicture(string key, [FromBody] ODataActionParameters parameters)
+        public async Task<IActionResult> DeleteProductPicture(string key, [FromBody] ProductPictureDeleteDto model)
         {
-            if (parameters == null)
+            if (model == null)
                 return BadRequest();
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products))
@@ -406,9 +398,8 @@ namespace Grand.Api.Controllers.OData
             if (!product.Any())
                 return NotFound();
 
-
-            var pictureId = parameters.FirstOrDefault(x => x.Key == "PictureId").Value;
-            if (pictureId != null)
+            var pictureId = model.PictureId;
+            if (!string.IsNullOrEmpty(pictureId))
             {
                 var pp = product.FirstOrDefault().ProductPictures.Where(x => x.PictureId == pictureId.ToString()).FirstOrDefault();
                 if (pp == null)
@@ -485,9 +476,9 @@ namespace Grand.Api.Controllers.OData
         [SwaggerOperation(summary: "Invoke action DeleteProductSpecification", OperationId = "DeleteProductSpecification")]
         [Route("({key})/[action]")]
         [HttpPost]
-        public async Task<IActionResult> DeleteProductSpecification(string key, [FromBody] ODataActionParameters parameters)
+        public async Task<IActionResult> DeleteProductSpecification(string key, [FromBody] ProductSpecificationAttributeDeleteDto model)
         {
-            if (parameters == null)
+            if (model == null)
                 return BadRequest();
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products))
@@ -497,9 +488,8 @@ namespace Grand.Api.Controllers.OData
             if (!product.Any())
                 return NotFound();
 
-
-            var specificationId = parameters.FirstOrDefault(x => x.Key == "Id").Value;
-            if (specificationId != null)
+            var specificationId = model.Id;
+            if (!string.IsNullOrEmpty(specificationId))
             {
                 var psa = product.FirstOrDefault().ProductSpecificationAttributes.Where(x => x.Id == specificationId.ToString()).FirstOrDefault();
                 if (psa == null)
@@ -576,9 +566,9 @@ namespace Grand.Api.Controllers.OData
         [SwaggerOperation(summary: "Invoke action DeleteProductTierPrice", OperationId = "DeleteProductTierPrice")]
         [Route("({key})/[action]")]
         [HttpPost]
-        public async Task<IActionResult> DeleteProductTierPrice(string key, [FromBody] ODataActionParameters parameters)
+        public async Task<IActionResult> DeleteProductTierPrice(string key, [FromBody] ProductTierPriceDeleteDto model)
         {
-            if (parameters == null)
+            if (model == null)
                 return BadRequest();
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products))
@@ -588,8 +578,8 @@ namespace Grand.Api.Controllers.OData
             if (!product.Any())
                 return NotFound();
 
-            var tierPriceId = parameters.FirstOrDefault(x => x.Key == "Id").Value;
-            if (tierPriceId != null)
+            var tierPriceId = model.Id;
+            if (!string.IsNullOrEmpty(tierPriceId))
             {
                 var pt = product.FirstOrDefault().TierPrices.Where(x => x.Id == tierPriceId.ToString()).FirstOrDefault();
                 if (pt == null)
@@ -666,9 +656,9 @@ namespace Grand.Api.Controllers.OData
         [SwaggerOperation(summary: "Invoke action DeleteProductAttributeMapping", OperationId = "DeleteProductAttributeMapping")]
         [Route("({key})/[action]")]
         [HttpPost]
-        public async Task<IActionResult> DeleteProductAttributeMapping(string key, [FromBody] ODataActionParameters parameters)
+        public async Task<IActionResult> DeleteProductAttributeMapping(string key, [FromBody] ProductAttributeMappingDeleteDto model)
         {
-            if (parameters == null)
+            if (model == null)
                 return BadRequest();
 
             if (!await _permissionService.Authorize(PermissionSystemName.Products))
@@ -678,9 +668,8 @@ namespace Grand.Api.Controllers.OData
             if (!product.Any())
                 return NotFound();
 
-
-            var attrId = parameters.FirstOrDefault(x => x.Key == "Id").Value;
-            if (attrId != null)
+            var attrId = model.Id;
+            if (!string.IsNullOrEmpty(attrId))
             {
                 var pam = product.FirstOrDefault().ProductAttributeMappings.Where(x => x.Id == attrId.ToString()).FirstOrDefault();
                 if (pam == null)

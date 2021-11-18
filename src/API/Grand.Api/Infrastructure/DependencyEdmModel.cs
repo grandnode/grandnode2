@@ -73,6 +73,13 @@ namespace Grand.Api.Infrastructure
             builder.ComplexType<ProductAttributeMappingDto>();
             builder.ComplexType<ProductAttributeValueDto>();
             builder.ComplexType<ProductAttributeCombinationDto>();
+            builder.ComplexType<ProductUpdateStock>();
+            builder.ComplexType<ProductCategoryDeleteDto>();
+            builder.ComplexType<ProductCollectionDeleteDto>();
+            builder.ComplexType<ProductPictureDeleteDto>();
+            builder.ComplexType<ProductSpecificationAttributeDeleteDto>();
+            builder.ComplexType<ProductTierPriceDeleteDto>();
+            builder.ComplexType<ProductAttributeMappingDeleteDto>();
 
             //update stock for product
             ActionConfiguration updateStock = product.Action("UpdateStock");
