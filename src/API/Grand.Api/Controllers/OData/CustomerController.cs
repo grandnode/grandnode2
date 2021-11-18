@@ -74,7 +74,7 @@ namespace Grand.Api.Controllers.OData
             if (ModelState.IsValid)
             {
                 model = await _mediator.Send(new UpdateCustomerCommand() { Model = model });
-                return Updated(model);
+                return Ok(model);
             }
             return BadRequest(ModelState);
         }
