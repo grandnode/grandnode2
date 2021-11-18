@@ -32,9 +32,9 @@ namespace Grand.Domain.Media
 
         public string AllowedFileTypes { get; set; }
 
-        public string FileManagerEnabledCommands { get; set; } = "back, chmod, colwidth, copy, cut, download, duplicate, edit, extract, forward, fullscreen, getfile, help, home, info, mkdir, mkfile, open, opendir, paste, places, quicklook, reload, rename, resize, restore, rm, search, sort, up, upload, view, ls";
+        public string FileManagerEnabledCommands { get; set; } = "abort,open,file,mkdir,mkfile,parents,tmb,dim,paste,duplicate,get,rm,ls,put,size,rename,tree,resize,search,upload";
 
-        public string FileManagerDisabledUICommands { get; set; } = "ping, hide, archive, extract, netmount, netunmount, zipdl";
+        public string FileManagerDisabledUICommands { get; set; } = "ping,hide,archive,extract,netmount,netunmount,zipdl";
 
         public string StoreLocation { get; set; }
 
