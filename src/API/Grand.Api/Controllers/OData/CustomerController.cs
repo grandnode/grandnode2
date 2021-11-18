@@ -8,7 +8,6 @@ using Grand.Business.Customers.Utilities;
 using Grand.Domain.Customers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Formatter;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -139,25 +138,24 @@ namespace Grand.Api.Controllers.OData
             return Ok(address);
         }
 
-        //odata/Customer(email)/DeleteAddress
+        //odata/Customer/(email)/DeleteAddress
         //body: { "addressId": "xxx" }
         [SwaggerOperation(summary: "Invoke action DeleteAddress", OperationId = "DeleteAddress")]
         [Route("({key})/[action]")]
         [HttpPost]
-        public async Task<IActionResult> DeleteAddress(string key, [FromBody] ODataActionParameters parameters)
+        public async Task<IActionResult> DeleteAddress(string key, [FromBody] DeleteAddressDto model)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers))
                 return Forbid();
 
-            var addressId = parameters.FirstOrDefault(x => x.Key == "addressId").Value;
-            if (addressId == null)
+            if (model == null || string.IsNullOrEmpty(model.AddressId))
                 return NotFound();
 
             var customer = await _mediator.Send(new GetCustomerQuery() { Email = key });
             if (customer == null)
                 return NotFound();
 
-            var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId.ToString());
+            var address = customer.Addresses.FirstOrDefault(x => x.Id == model.AddressId.ToString());
             if (address == null)
                 return NotFound();
 
@@ -167,21 +165,23 @@ namespace Grand.Api.Controllers.OData
         }
 
 
-        //odata/Customer(email)/SetPassword
+        //odata/Customer/(email)/SetPassword
         //body: { "password": "123456" }
         [SwaggerOperation(summary: "Invoke action SetPassword", OperationId = "SetPassword")]
         [Route("({key})/[action]")]
         [HttpPost]
-        public async Task<IActionResult> SetPassword(string key, [FromBody] ODataActionParameters parameters)
+        public async Task<IActionResult> SetPassword(string key, [FromBody] PasswordDto model)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers))
                 return Forbid();
 
-            var password = parameters.FirstOrDefault(x => x.Key == "password").Value;
-            if (password == null)
+            if (model == null || string.IsNullOrEmpty(model.Password))
                 return NotFound();
 
-            var changePassRequest = new ChangePasswordRequest(key, false, _customerSettings.DefaultPasswordFormat, password.ToString());
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var changePassRequest = new ChangePasswordRequest(key, false, _customerSettings.DefaultPasswordFormat, model.Password);
             var changePassResult = await _customerManagerService.ChangePassword(changePassRequest);
             if (!changePassResult.Success)
             {

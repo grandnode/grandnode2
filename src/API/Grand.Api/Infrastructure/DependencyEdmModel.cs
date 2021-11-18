@@ -267,6 +267,8 @@ namespace Grand.Api.Infrastructure
             builder.EntitySet<CustomerDto>("Customer");
             var customer = builder.EntityType<CustomerDto>();
             builder.ComplexType<AddressDto>();
+            builder.ComplexType<DeleteAddressDto>();
+            builder.ComplexType<PasswordDto>();
 
             ActionConfiguration addAddress = customer.Action("AddAddress");
             addAddress.Parameter<string>(nameof(AddressDto.Id)).Required();
@@ -309,11 +311,11 @@ namespace Grand.Api.Infrastructure
             updateAddress.Returns<AddressDto>();
 
             ActionConfiguration deleteAddress = customer.Action("DeleteAddress");
-            deleteAddress.Parameter<string>("addressId");
+            deleteAddress.Parameter<string>(nameof(DeleteAddressDto.AddressId));
             deleteAddress.Returns<bool>();
 
             ActionConfiguration changePassword = customer.Action("SetPassword");
-            changePassword.Parameter<string>("password");
+            changePassword.Parameter<string>(nameof(PasswordDto.Password));
             changePassword.Returns<bool>();
 
             #endregion
