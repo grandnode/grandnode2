@@ -6,13 +6,19 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 namespace Grand.Web.Common.TagHelpers
 {
     
-    [HtmlTargetElement("template", Attributes = AttributeName)]
+    [HtmlTargetElement("template", Attributes = AttributeNameHeader)]
+    [HtmlTargetElement("template", Attributes = AttributeNameFooter)]
     public class TemplateTagHelper : TagHelper
     {
-        private const string AttributeName = "asp-header";
+        private const string AttributeNameHeader = "asp-header";
 
-        [HtmlAttributeName(AttributeName)]
+        private const string AttributeNameFooter = "asp-footer";
+
+        [HtmlAttributeName(AttributeNameHeader)]
         public bool Header { get; set; }
+
+        [HtmlAttributeName(AttributeNameFooter)]
+        public bool Footer { get; set; }
 
         private readonly IResourceManager _resourceManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -39,10 +45,15 @@ namespace Grand.Web.Common.TagHelpers
                     builder.Attributes.Add(attribute.Name, attribute.Value.ToString());
                 }
 
-                if (Header)
+                if (Header && !Footer)
                 {
-                    _resourceManager.RegisterTemplate(builder);
+                    _resourceManager.RegisterTemplate(builder, true);
                 }
+                if (!Header && Footer)
+                {
+                    _resourceManager.RegisterTemplate(builder, false);
+                }
+
             }
         }
         

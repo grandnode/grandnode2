@@ -11,7 +11,8 @@ namespace Grand.Web.Common.TagHelpers
         private List<(IHtmlContent content, int order)> _headScripts;
         private List<(IHtmlContent content, int order)> _headerScripts;
         private List<(IHtmlContent content, int order)> _footScripts;
-        private List<IHtmlContent> _templates;
+        private List<IHtmlContent> _templatesHeader;
+        private List<IHtmlContent> _templatesFooter;
         private List<LinkEntry> _links;
 
         public ResourceManager()
@@ -34,9 +35,13 @@ namespace Grand.Web.Common.TagHelpers
         {
             return _footScripts.OrderBy(x => x.order).Select(x => x.content);
         }
-        public IEnumerable<IHtmlContent> GetRegisteredTemplates()
+        public IEnumerable<IHtmlContent> GetRegisteredTemplatesHeader()
         {
-            return _templates == null ? Enumerable.Empty<IHtmlContent>() : _templates;
+            return _templatesHeader == null ? Enumerable.Empty<IHtmlContent>() : _templatesHeader;
+        }
+        public IEnumerable<IHtmlContent> GetRegisteredTemplatesFooter()
+        {
+            return _templatesFooter == null ? Enumerable.Empty<IHtmlContent>() : _templatesFooter;
         }
 
         public void RegisterHeadScript(IHtmlContent script, int order)
@@ -52,14 +57,23 @@ namespace Grand.Web.Common.TagHelpers
         {
             _footScripts.Add((script, order));
         }
-        public void RegisterTemplate(IHtmlContent script)
-        {
-            if (_templates == null)
-            {
-                _templates = new List<IHtmlContent>();
-            }
 
-            _templates.Add(script);
+        public void RegisterTemplate(IHtmlContent script, bool head)
+        {
+            if (head)
+            {
+                if (_templatesHeader == null)
+                    _templatesHeader = new List<IHtmlContent>();
+
+                _templatesHeader.Add(script);
+            }
+            else
+            {
+                if (_templatesFooter == null)
+                    _templatesFooter = new List<IHtmlContent>();
+
+                _templatesFooter.Add(script);
+            }
         }
         /// <summary>
         /// Renders the registered head script tags.
@@ -131,10 +145,11 @@ namespace Grand.Web.Common.TagHelpers
                 builder.AppendHtml(link.GetTag());
             }
         }
-        public void RenderTemplate(IHtmlContentBuilder builder)
+        public void RenderTemplate(IHtmlContentBuilder builder, bool head)
         {
             var first = true;
-            foreach (var context in GetRegisteredTemplates())
+            var templates = head ? GetRegisteredTemplatesHeader() : GetRegisteredTemplatesFooter();
+            foreach (var context in templates)
             {
                 if (!first)
                 {

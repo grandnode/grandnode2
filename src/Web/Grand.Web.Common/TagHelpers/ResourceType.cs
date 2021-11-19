@@ -7,6 +7,7 @@ namespace Grand.Web.Common.TagHelpers
        HeadScript,
        ScriptHeader,
        ScriptFooter,
-       TemplateHeader
+       TemplateHeader,
+       TemplateFooter
     }
 }

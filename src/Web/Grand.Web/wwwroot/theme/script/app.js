@@ -1,4 +1,5 @@
-﻿var vm = new Vue({
+﻿
+var vm = new Vue({
     el: '#app',
     data: function () {
         return {
@@ -25,7 +26,7 @@
         flywish: null,
         wishlistitems: null,
         wishindicator: undefined,
-        UpdatedShoppingCartItemId: null
+        UpdatedShoppingCartItemId: null,        
     },
     mounted: function () {
         if (localStorage.fluid == "true") this.fluid = "fluid";
