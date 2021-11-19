@@ -59,7 +59,7 @@
                                   id="@Url.RouteUrl("Category", new { SeName = cat.SeName })">
                             </span>
                             <meta itemprop="position" content="@count" />
-                         </a>
+                        </a>
                     </li>
                 }
 
@@ -124,8 +124,8 @@
         </div>
     }
     @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_after_featured_products", additionalData = Model.Id })
-
-                @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_filters", additionalData = Model.Id })
+    <div id="catalog-products">
+        @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_filters", additionalData = Model.Id })
         <template v-if="catalog.Model !== undefined">
             <partial name="_Selectors" />
             <template v-if="catalog.Model.Products.length > 0">
@@ -159,8 +159,7 @@
                 </div>
             </template>
         </template>
-       
- 
+    </div>
     @*Rendering bottom description*@
     @if (!String.IsNullOrWhiteSpace(Model.BottomDescription))
     {
@@ -173,7 +172,9 @@
     @*Rendering rccently viewed products section*@
 
     @await Component.InvokeAsync("RecentlyViewedProductsBlock", new { productThumbPictureSize = 235 })
+    
 </div>
+
 @section filters
     {
     @*Rendering filtering section*@
