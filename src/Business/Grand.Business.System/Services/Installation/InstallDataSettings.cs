@@ -203,7 +203,6 @@ namespace Grand.Business.System.Services.Installation
                 ProductReviewPossibleOnlyOnce = false,
                 NotifyStoreOwnerAboutNewProductReviews = false,
                 EmailAFriendEnabled = true,
-                AskQuestionEnabled = false,
                 AskQuestionOnProduct = true,
                 AllowAnonymousUsersToEmailAFriend = false,
                 RecentlyViewedProductsNumber = 3,

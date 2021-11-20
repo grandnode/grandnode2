@@ -136,11 +136,6 @@ namespace Grand.Domain.Catalog
         public bool EmailAFriendEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether 'ask product question' feature is enabled
-        /// </summary>
-        public bool AskQuestionEnabled { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether 'contact us on the product page' feature is enabled
         /// </summary>
         public bool AskQuestionOnProduct { get; set; }

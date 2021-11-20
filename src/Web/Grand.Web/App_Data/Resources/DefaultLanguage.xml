@@ -10594,9 +10594,6 @@
   <Resource Name="Admin.Settings.Catalog.AllowViewUnpublishedProductPage">
     <Value>Allow viewing of unpublished product details page</Value>
   </Resource>
-  <Resource Name="Admin.Settings.Catalog.AskQuestionEnabled">
-    <Value>'Ask question' enabled</Value>
-  </Resource>
   <Resource Name="Admin.Settings.Catalog.AskQuestionOnProduct">
     <Value>'Ask question on the product page' enabled</Value>
   </Resource>

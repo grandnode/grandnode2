@@ -98,7 +98,6 @@
                                     @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_inside_overview_buttons_before", additionalData = Model.Id })
                                     <partial name="_ProductsComparison" model="Model" />
                                     <partial name="_SendFriend" model="Model" />
-                                    <partial name="_ProductAskQuestionButton" model="Model" />
                                     @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_inside_overview_buttons_after", additionalData = Model.Id })
                                 </b-btn-group>
                                 <partial name="_ShareButton" model="Model" />

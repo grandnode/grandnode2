@@ -78,7 +78,6 @@ namespace Grand.Web.Models.Catalog
         public string StockAvailability { get; set; }
         public bool DisplayOutOfStockSubscription { get; set; }
         public bool EmailAFriendEnabled { get; set; }
-        public bool AskQuestionEnabled { get; set; }
         public bool AskQuestionOnProduct { get; set; }
         public ProductAskQuestionSimpleModel ProductAskQuestion { get; set; }
         public bool CompareProductsEnabled { get; set; }

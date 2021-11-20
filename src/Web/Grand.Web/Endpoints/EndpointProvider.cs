@@ -288,12 +288,7 @@ namespace Grand.Web.Endpoints
             endpointRouteBuilder.MapControllerRoute("ProductEmailAFriend",
                             pattern + "productemailafriend/{productId?}",
                             new { controller = "Product", action = "ProductEmailAFriend" });
-
-            //product ask question
-            endpointRouteBuilder.MapControllerRoute("AskQuestion",
-                            pattern + "askquestion/{productId}",
-                            new { controller = "Product", action = "AskQuestion" });
-
+            
             //product ask question on product page
             endpointRouteBuilder.MapControllerRoute("AskQuestionOnProduct",
                             pattern + "askquestiononproduct",

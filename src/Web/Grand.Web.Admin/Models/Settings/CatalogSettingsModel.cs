@@ -81,9 +81,6 @@ namespace Grand.Web.Admin.Models.Settings
         [GrandResourceDisplayName("Admin.Settings.Catalog.EmailAFriendEnabled")]
         public bool EmailAFriendEnabled { get; set; }
 
-        [GrandResourceDisplayName("Admin.Settings.Catalog.AskQuestionEnabled")]
-        public bool AskQuestionEnabled { get; set; }
-
         [GrandResourceDisplayName("Admin.Settings.Catalog.AskQuestionOnProduct")]
         public bool AskQuestionOnProduct { get; set; }
 
