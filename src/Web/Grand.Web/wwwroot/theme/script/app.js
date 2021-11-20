@@ -1,4 +1,5 @@
-﻿var vm = new Vue({
+﻿
+var vm = new Vue({
     el: '#app',
     data: function () {
         return {
@@ -25,7 +26,7 @@
         flywish: null,
         wishlistitems: null,
         wishindicator: undefined,
-        UpdatedShoppingCartItemId: null
+        UpdatedShoppingCartItemId: null,        
     },
     mounted: function () {
         if (localStorage.fluid == "true") this.fluid = "fluid";
@@ -356,7 +357,11 @@
                     }
                 } else {
                     if (response.data.price) {
-                        vm.PopupQuickViewVueModal.ProductPrice.Price = response.data.price;
+                        if (vm.PopupQuickViewVueModal.ProductType == 0) {
+                            vm.PopupQuickViewVueModal.ProductPrice.Price = response.data.price;
+                        } else {
+                            vm.PopupQuickViewVueModal.AssociatedProducts.find(x => x.Id === pId).ProductPrice.Price = response.data.price;
+                        }
                     }
                     if (response.data.sku) {
                         vm.PopupQuickViewVueModal.Sku = response.data.sku;

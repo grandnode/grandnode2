@@ -17,13 +17,15 @@
                 </div>
                 <template v-if="item.ProductAttributes.length > 0">
                     <div class="col-12">
-                        <div class="attributes">
-                            <table class="table">
-                                <tr v-for="attribute in item.ProductAttributes">
-                                    <partial name="QuickView/_Attributes" />
-                                </tr>
-                            </table>
-                        </div>
+                        <template v-if="item.ProductAttributes.length > 0">
+                            <div class="attributes">
+                                <table class="table">
+                                    <template v-for="(attribute, index) in item.ProductAttributes">
+                                        <product-attribute-quickview :attribute="attribute"></product-attribute-quickview>
+                                    </template>
+                                </table>
+                            </div>
+                        </template>
                     </div>
                 </template>
             </div>

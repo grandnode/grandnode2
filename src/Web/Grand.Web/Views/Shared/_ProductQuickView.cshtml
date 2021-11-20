@@ -53,22 +53,36 @@
                                                     </div>
                                                 </template>
 
+
+
                                                 @* PRODUCT BUNDLES *@
 
                                                 <partial name="QuickView/_ProductBundles" />
 
                                                 @* ATTRIBUTES *@
 
+                                                <partial name="QuickView/_Attributes" />
+                                                
                                                 <template v-if="PopupQuickViewVueModal.ProductAttributes.length > 0">
                                                     <div class="attributes">
                                                         <table class="table">
-                                                            <tr v-for="attribute in PopupQuickViewVueModal.ProductAttributes">
-                                                                <partial name="QuickView/_Attributes" />
-                                                            </tr>
+                                                            <template v-for="(attribute, index) in PopupQuickViewVueModal.ProductAttributes">
+                                                                <product-attribute-quickview :ref="'QVattribute' + index" :attribute="attribute"></product-attribute-quickview>
+                                                            </template>
                                                         </table>
+                                                        
                                                     </div>
                                                 </template>
 
+                                                <script asp-location="Footer" asp-order="302">
+                                                    Vue.component('product-attribute-quickview', {
+                                                        template: '#product-attribute-quickview',
+                                                        props: {
+                                                            attribute: null
+                                                        }
+                                                    });
+
+                                                </script>
                                                 @* WAREHOUSES *@
 
                                                 <partial name="QuickView/_Warehouses" />
@@ -190,9 +204,9 @@
                                                                             <template v-if="variant.ProductAttributes.length > 0">
                                                                                 <div class="attributes">
                                                                                     <table class="table">
-                                                                                        <tr v-for="attribute in variant.ProductAttributes">
-                                                                                            <partial name="QuickView/_Attributes" />
-                                                                                        </tr>
+                                                                                        <template v-for="(attribute, index) in variant.ProductAttributes">
+                                                                                            <product-attribute-quickview :attribute="attribute"></product-attribute-quickview>
+                                                                                        </template>
                                                                                     </table>
                                                                                 </div>
                                                                             </template>
