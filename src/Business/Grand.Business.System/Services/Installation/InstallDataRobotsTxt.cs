@@ -15,7 +15,8 @@ namespace Grand.Business.System.Services.Installation
             var robotsTxt = new RobotsTxt() {
                 Name = "RobotsTXT",
                 StoreId = store.Id,
-                Text = @$"Sitemap: {url}sitemap.xml
+                Text = @$"User-agent: *
+Sitemap: {url}sitemap.xml
 Host: {url}
 Disallow: /admin
 Disallow: /bin/
