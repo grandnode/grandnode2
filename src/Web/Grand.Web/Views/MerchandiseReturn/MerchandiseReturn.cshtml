@@ -213,5 +213,13 @@
             }
             newAddress: false,
         }),
+        created() {
+            @if (Model.ShowPickupAddress && !Model.ExistingAddresses.Any())
+            {
+                <text>
+                    this.newAddress = true;
+                </text>
+            }
+        }
     });
 </script>
