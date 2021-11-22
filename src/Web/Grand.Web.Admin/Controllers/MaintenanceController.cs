@@ -11,6 +11,7 @@ using Grand.Domain.Media;
 using Grand.Domain.Seo;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Common;
+using Grand.Web.Admin.Models.Directory;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using MediatR;
@@ -33,6 +34,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly IDateTimeService _dateTimeService;
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
+        private readonly IRobotsTxtService _robotsTxtService;
         private readonly IMediator _mediator;
         private readonly IMediaFileStore _mediaFileStore;
 
@@ -46,6 +48,7 @@ namespace Grand.Web.Admin.Controllers
             IDateTimeService dateTimeService,
             ILanguageService languageService,
             ITranslationService translationService,
+            IRobotsTxtService robotsTxtService,
             IMediator mediator,
             IMediaFileStore mediaFileStore)
         {
@@ -54,6 +57,7 @@ namespace Grand.Web.Admin.Controllers
             _dateTimeService = dateTimeService;
             _languageService = languageService;
             _translationService = translationService;
+            _robotsTxtService = robotsTxtService;
             _mediaFileStore = mediaFileStore;
             _mediator = mediator;
         }
@@ -338,34 +342,50 @@ namespace Grand.Web.Admin.Controllers
                 return Json(ex.Message);
             }
         }
-        public async Task<IActionResult> AdditionsRobotsTxt()
+
+        public async Task<IActionResult> RobotsTxt()
         {
-            var model = new Editor();
-            var pathFile = _mediaFileStore.Combine("robots.additions.txt");
-            var file = await _mediaFileStore.GetFileInfo(pathFile);
-            if (file != null)
+            var storeScope = await GetActiveStore();
+
+            var model = new RobotsTxtModel();
+            var robots = await _robotsTxtService.GetRobotsTxt(storeScope);
+            if (robots != null)
             {
-                model.Content = await _mediaFileStore.ReadAllText(pathFile);
+                model.Name = robots.Name;
+                model.Text = robots.Text;
             }
 
             return View(model);
         }
 
-
         [HttpPost]
-        public async Task<IActionResult> SaveRobotsTxt(string content = "")
+        public async Task<IActionResult> RobotsTxt(RobotsTxtModel model)
         {
-            try
+            if (ModelState.IsValid)
             {
-                var pathFile = _mediaFileStore.Combine("robots.additions.txt");
-                await _mediaFileStore.WriteAllText(pathFile, content);
+                var storeScope = await GetActiveStore();
 
-                return Json(_translationService.GetResource("Admin.Common.Content.Saved"));
+                var robotsTxt = await _robotsTxtService.GetRobotsTxt(storeScope);
+                if (robotsTxt == null)
+                {
+                    await _robotsTxtService.InsertRobotsTxt(new Domain.Common.RobotsTxt() {
+                        Name = model.Name,
+                        Text = model.Text,
+                        StoreId = storeScope
+                    });
+                }
+                else
+                {
+                    robotsTxt.Text = model.Text;
+                    robotsTxt.Name = model.Name;
+                    await _robotsTxtService.UpdateRobotsTxt(robotsTxt);
+                }
+
+                Success(_translationService.GetResource("Admin.Common.Content.Saved"));
+                return RedirectToAction("RobotsTxt");
             }
-            catch (Exception ex)
-            {
-                return Json(ex.Message);
-            }
+
+            return View(model);
         }
 
         #endregion

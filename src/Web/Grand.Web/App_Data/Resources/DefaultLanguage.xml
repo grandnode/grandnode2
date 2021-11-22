@@ -4776,6 +4776,18 @@
   <Resource Name="Admin.Configuration.Permissions.Updated">
     <Value>The permissions has been updated successfully.</Value>
   </Resource>
+  <Resource Name="Admin.Configuration.RobotsTxt.Fields.Name">
+    <Value>Name</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.RobotsTxt.Fields.Name.Required">
+    <Value>Field name is required</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.RobotsTxt.Fields.Text">
+    <Value>Content</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.RobotsTxt.Fields.Text.Required">
+    <Value>Field content is required</Value>
+  </Resource>
   <Resource Name="Admin.Configuration.SeNames">
     <Value>SEO Names</Value>
   </Resource>
@@ -12072,9 +12084,6 @@
   <Resource Name="Admin.System">
     <Value>System</Value>
   </Resource>
-  <Resource Name="Admin.System.AdditionsRobotsTxt">
-    <Value>Additions Robots.txt</Value>
-  </Resource>
   <Resource Name="Admin.System.APIUsers">
     <Value>Manage api users</Value>
   </Resource>
@@ -12422,6 +12431,9 @@
   </Resource>
   <Resource Name="Admin.System.QueuedEmails.Updated">
     <Value>The queued email has been updated successfully.</Value>
+  </Resource>
+  <Resource Name="Admin.System.RobotsTxt">
+    <Value>Robots.txt</Value>
   </Resource>
   <Resource Name="Admin.System.Roslyn">
     <Value>Roslyn compilation</Value>

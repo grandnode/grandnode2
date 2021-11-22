@@ -504,7 +504,7 @@ namespace Grand.Web.Controllers
         [PublicStore(true)]
         public virtual async Task<IActionResult> RobotsTextFile()
         {
-            var sb = await _mediator.Send(new GetRobotsTextFile());
+            var sb = await _mediator.Send(new GetRobotsTextFile() { StoreId = _workContext.CurrentStore.Id });
             return Content(sb, "text/plain");
         }
 

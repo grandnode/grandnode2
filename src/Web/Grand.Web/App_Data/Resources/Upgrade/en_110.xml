@@ -282,4 +282,19 @@
   <Resource Name="Account.CustomerMerchandiseReturns.Total">
     <Value>Total</Value>
   </Resource>
+  <Resource Name="Admin.System.RobotsTxt">
+    <Value>Robots.txt</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.RobotsTxt.Fields.Name">
+    <Value>Name</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.RobotsTxt.Fields.Name.Required">
+    <Value>Field name is required</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.RobotsTxt.Fields.Text">
+    <Value>Content</Value>
+  </Resource>
+  <Resource Name="Admin.Configuration.RobotsTxt.Fields.Text.Required">
+    <Value>Field content is required</Value>
+  </Resource>
 </Language>

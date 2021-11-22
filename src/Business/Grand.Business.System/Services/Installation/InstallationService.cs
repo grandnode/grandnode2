@@ -152,6 +152,8 @@ namespace Grand.Business.System.Services.Installation
         private readonly IRepository<Banner> _bannerRepository;
         private readonly IRepository<Course> _courseRepository;
         private readonly IRepository<CourseLevel> _courseLevelRepository;
+        private readonly IRepository<RobotsTxt> _robotsTxtRepository;
+
 
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IServiceProvider _serviceProvider;
@@ -267,7 +269,8 @@ namespace Grand.Business.System.Services.Installation
             IRepository<InteractiveForm> formRepository,
             IRepository<Banner> bannerRepository,
             IRepository<Course> courseRepository,
-            IRepository<CourseLevel> courseLevelRepository)
+            IRepository<CourseLevel> courseLevelRepository,
+            IRepository<RobotsTxt> robotsTxtRepository)
         {
 
             _versionRepository = versionRepository;
@@ -375,7 +378,7 @@ namespace Grand.Business.System.Services.Installation
             _bannerRepository = bannerRepository;
             _courseRepository = courseRepository;
             _courseLevelRepository = courseLevelRepository;
-
+            _robotsTxtRepository = robotsTxtRepository;
             _hostingEnvironment = webHostEnvironment;
             _serviceProvider = serviceProvider;
         }

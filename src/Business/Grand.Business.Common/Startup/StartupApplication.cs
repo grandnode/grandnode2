@@ -66,6 +66,7 @@ namespace Grand.Business.Common.Startup
             serviceCollection.AddScoped<IExchangeRateService, ExchangeRateService>();
             serviceCollection.AddScoped<IMeasureService, MeasureService>();
             serviceCollection.AddScoped<IGroupService, GroupService>();
+            serviceCollection.AddScoped<IRobotsTxtService, RobotsTxtService>();
         }
         private void RegisterConfigurationService(IServiceCollection serviceCollection)
         {

@@ -92,6 +92,25 @@
 
         #endregion
 
+        #region Robots.txt
+
+        /// <summary>
+        /// Key for caching
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        public static string ROBOTS_ALL_KEY => "Grand.robots.";
+
+        /// <summary>
+        /// Key for caching by store id
+        /// </summary>
+        /// <remarks>
+        /// {0} : store ID
+        /// </remarks>
+        public static string ROBOTS_BY_STORE => "Grand.robots.id-{0}";
+
+        #endregion
+
         #region Country
         /// <summary>
         /// Key for caching

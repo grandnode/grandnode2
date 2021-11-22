@@ -1056,10 +1056,10 @@ namespace Grand.Business.System.Utilities
                                 },
                                 new AdminSiteMap {
                                     SystemName = "Robot.txt",
-                                    ResourceName = "Admin.System.AdditionsRobotsTxt",
+                                    ResourceName = "Admin.System.RobotsTxt",
                                     PermissionNames = new List<string> { PermissionSystemName.Maintenance },
                                     ControllerName = "Maintenance",
-                                    ActionName = "AdditionsRobotsTxt",
+                                    ActionName = "RobotsTxt",
                                     IconClass = "fa fa-dot-circle-o"
                                 }
                             }

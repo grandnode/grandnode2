@@ -1,0 +1,68 @@
+﻿@model RobotsTxtModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.System.RobotsTxt"];
+}
+<link rel="stylesheet" type="text/css" asp-src="/_content/Grand.Web.Admin/administration/codemirror/codemirror.css" />
+<script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/codemirror/codemirror.js"></script>
+
+<style>
+    .CodeMirror {
+        background: #f8f8f8;
+        border: 1px solid #eee;
+        height: 600px;
+    }
+</style>
+
+<form asp-area="@Constants.AreaAdmin" asp-controller="Maintenance" asp-action="RobotsTxt" method="post">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-fw fa-sliders"></i>
+                        @Loc["Admin.System.RobotsTxt"]
+                    </div>
+                    <div class="actions">
+                        <div class="btn-group btn-group-devided">
+                            <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                        </div>
+                    </div>
+                    <vc:admin-widget widget-zone="customer_user_settings_buttons" additional-data="null" />
+                </div>
+                <div class="x_content">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            @await Component.InvokeAsync("StoreScope")
+                        </div>
+                    </div>
+                </div>
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        <div class="form-group">
+                            <admin-label asp-for="Name" />
+                            <div class="col-md-9 col-sm-9">
+                                <admin-input asp-for="Name" />
+                                <span asp-validation-for="Name"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-12">
+                                <textarea id="Text" name="Text">@Model.Text</textarea>
+                                <span asp-validation-for="Text"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            CodeMirror.fromTextArea(document.getElementById('Text'), {
+                lineNumbers: true
+            });
+
+        });
+    </script>
+</form>

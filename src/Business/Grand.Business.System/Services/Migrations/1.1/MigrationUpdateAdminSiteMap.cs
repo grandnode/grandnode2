@@ -14,7 +14,7 @@ namespace Grand.Business.System.Services.Migrations._1._1
 
         public int Priority => 0;
         public DbVersion Version => new(1, 1);
-        public Guid Identity => new("7D8642FC-2FAA-4AC1-B062-5E3513DAC658");
+        public Guid Identity => new("91249F73-CBD2-4007-B2B9-884727279D57");
         public string Name => "Update standard admin site map";
 
         /// <summary>
@@ -62,7 +62,11 @@ namespace Grand.Business.System.Services.Migrations._1._1
 
                         var childnodeRobots = childnodeDevTools.ChildNodes.FirstOrDefault(x => x.SystemName == "Robot.txt");
                         if (childnodeRobots != null)
+                        {
                             childnodeRobots.ControllerName = "Maintenance";
+                            childnodeRobots.ActionName = "RobotsTxt";
+                            childnodeRobots.ResourceName = "Admin.System.RobotsTxt";
+                        }
                     }
                     
                     var childnodeMaintenance = sitemapSystem.ChildNodes.FirstOrDefault(x => x.SystemName == "Maintenance");

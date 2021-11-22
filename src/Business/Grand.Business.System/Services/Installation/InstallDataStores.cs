@@ -12,14 +12,12 @@ namespace Grand.Business.System.Services.Installation
             string httpscheme, HostString host,
             string companyName, string companyAddress, string companyPhoneNumber, string companyEmail)
         {
-            var stores = new List<Store>
-            {
-                new Store
-                {
+            var store =
+                new Store {
                     Name = "Your store name",
                     Shortcut = "Store",
-                    Url = $"http://{host}",
-                    SecureUrl = $"https://{host}",
+                    Url = $"http://{host}/",
+                    SecureUrl = $"https://{host}/",
                     SslEnabled = httpscheme.ToLowerInvariant() == "https" ? true : false,
                     DisplayOrder = 1,
                     CompanyName = companyName,
@@ -29,11 +27,12 @@ namespace Grand.Business.System.Services.Installation
                     CompanyVat = null,
                     CompanyEmail = companyEmail,
                     CompanyHours = "Monday - Sunday / 8:00AM - 6:00PM",
-                    Domains = new List<DomainHost>(){ new DomainHost() { HostName = host.Value, Url = $"{httpscheme}://{host}", Primary = true } }
-                },
-            };
+                    Domains = new List<DomainHost>() { new DomainHost() { HostName = host.Value, Url = $"{httpscheme}://{host}", Primary = true } }
+                };
 
-            await _storeRepository.InsertAsync(stores);
+            store = await _storeRepository.InsertAsync(store);
+
+            await InstallDataRobotsTxt(store);
         }
     }
 }
