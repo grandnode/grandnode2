@@ -80,7 +80,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<(IEnumerable<DocumentModel> documetListModel, int totalCount)> PrepareDocumentListModel(DocumentListModel model, int pageIndex, int pageSize)
         {
-            var documents = await _documentService.GetAll(customerId: "", name: model.SearchName, number: model.SearchNumber,
+            var documents = await _documentService.GetAll(name: model.SearchName, number: model.SearchNumber,
                 email: model.SearchEmail, reference: (Reference)model.Reference, objectId: model.ObjectId, status: model.StatusId, pageIndex: pageIndex - 1, pageSize: pageSize);
 
             var documentListModel = new List<DocumentModel>();
@@ -223,8 +223,10 @@ namespace Grand.Web.Admin.Services
 
         public virtual async Task<Document> InsertDocument(DocumentModel model)
         {
-            if (string.IsNullOrEmpty(model.CustomerId))
+            if (!string.IsNullOrEmpty(model.CustomerEmail))
                 model.CustomerId = (await _customerService.GetCustomerByEmail(model.CustomerEmail))?.Id;
+            else
+                model.CustomerId = string.Empty;
 
             var document = model.ToEntity();
             document.CreatedOnUtc = DateTime.UtcNow;
@@ -242,8 +244,13 @@ namespace Grand.Web.Admin.Services
         {
             var prevAttachmentId = document.DownloadId;
 
-            if (string.IsNullOrEmpty(model.CustomerId))
+            if (!string.IsNullOrEmpty(model.CustomerEmail))
+            {
+                model.CustomerEmail = model.CustomerEmail.ToLowerInvariant();
                 model.CustomerId = (await _customerService.GetCustomerByEmail(model.CustomerEmail))?.Id;
+            }
+            else
+                model.CustomerId = string.Empty;
 
             document = model.ToEntity(document);
             document.UpdatedOnUtc = DateTime.UtcNow;

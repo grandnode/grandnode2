@@ -33,14 +33,11 @@ namespace Grand.Business.Marketing.Services.Documents
             await _mediator.EntityDeleted(document);
         }
 
-        public virtual async Task<IPagedList<Document>> GetAll(string customerId = "", string name = "", string number = "", string email = "", string username = "",
+        public virtual async Task<IPagedList<Document>> GetAll(string name = "", string number = "", string email = "", string username = "",
             Reference reference = Reference.None, string objectId = "", string seId = "", int status = -1, int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var query = from d in _documentRepository.Table
                         select d;
-
-            if (!string.IsNullOrEmpty(customerId))
-                query = query.Where(d => d.CustomerId == customerId);
 
             if (!string.IsNullOrWhiteSpace(name))
                 query = query.Where(m => m.Name != null && m.Name.ToLower().Contains(name.ToLower()));
@@ -49,7 +46,7 @@ namespace Grand.Business.Marketing.Services.Documents
                 query = query.Where(m => m.Number != null && m.Number.ToLower().Contains(number.ToLower()));
 
             if (!string.IsNullOrWhiteSpace(email))
-                query = query.Where(m => m.CustomerEmail != null && m.CustomerEmail.ToLower().Contains(email.ToLower()));
+                query = query.Where(m => m.CustomerEmail == email.ToLower());
 
             if (!string.IsNullOrWhiteSpace(username))
                 query = query.Where(m => m.Username == username);

@@ -38,7 +38,7 @@ namespace Grand.Web.Features.Handlers.Customers
             {
                 CustomerId = request.Customer.Id
             };
-            var documents = await _documentService.GetAll(request.Customer.Id,
+            var documents = await _documentService.GetAll(email: request.Customer.Email,
                 pageIndex: request.Command.PageNumber - 1,
                 pageSize: request.Command.PageSize);
             model.PagingContext.LoadPagedList(documents);

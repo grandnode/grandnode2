@@ -1,9 +1,11 @@
 ﻿@model DocumentListModel
 @inject AdminAreaSettings adminAreaSettings
-
+@inject Grand.Business.Common.Interfaces.Localization.ITranslationService translationService 
 @{
     //page title
     ViewBag.Title = Loc["Admin.Documents.Document.Manage"];
+    var selectedList = DocumentStatus.Open.ToSelectList(Context, false).ToList();
+    selectedList.Insert(0, new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "-1", Selected = true });
 }
 
 <div class="row">
@@ -61,7 +63,7 @@
                                 <div class="form-group">
                                     <admin-label asp-for="StatusId" class="col-sm-3 control-label" />
                                     <div class="col-md-9 col-sm-9">
-                                        <admin-select asp-for="StatusId" asp-items="((DocumentStatus)Model.StatusId).ToSelectList(Context)" />
+                                        @Html.DropDownList("StatusId", selectedList, new { @class = "form-control" })
                                     </div>
                                 </div>
                             </div>
@@ -77,6 +79,8 @@
 </div>
 <script>
     $(document).ready(function () {
+        $('#StatusId').val("-1");
+
         $("#documents-grid").kendoGrid({
             dataSource: {
                 transport: {

@@ -17,7 +17,7 @@ $(document).ready(function () {
         dataSource: {
             transport: {
                 read: {
-                    url: "@Html.Raw(Url.Action("ListDocuments", "Document", new { customerId = Model.Id, area = Constants.AreaAdmin }))",
+                    url: "@Html.Raw(Url.Action("ListDocuments", "Document", new { customerId = Model.Id, StatusId = -1, area = Constants.AreaAdmin }))",
                     type: "POST",
                     dataType: "json",
                     data: addAntiForgeryToken
