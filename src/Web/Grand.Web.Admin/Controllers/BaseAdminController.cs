@@ -74,7 +74,7 @@ namespace Grand.Web.Admin.Controllers
             var storeId = workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration);
             var store = await storeService.GetStoreById(storeId);
 
-            return store != null ? store.Id : "";
+            return store != null ? store.Id : workContext.CurrentStore.Id;
         }
         /// <summary>
         /// Creates a <see cref="T:System.Web.Mvc.JsonResult"/> object that serializes the specified object to JavaScript Object Notation (JSON) format using the content type, content encoding, and the JSON request behavior.
