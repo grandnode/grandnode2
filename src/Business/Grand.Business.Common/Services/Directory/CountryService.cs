@@ -1,6 +1,5 @@
 using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Directory;
-using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
@@ -23,7 +22,6 @@ namespace Grand.Business.Common.Services.Directory
         #region Fields
 
         private readonly IRepository<Country> _countryRepository;
-        private readonly CatalogSettings _catalogSettings;
         private readonly IMediator _mediator;
         private readonly ICacheBase _cacheBase;
 
@@ -34,25 +32,23 @@ namespace Grand.Business.Common.Services.Directory
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="cacheBase">Cache manager</param>
         /// <param name="countryRepository">Country repository</param>
-        /// <param name="catalogSettings">Catalog settings</param>
         /// <param name="mediator">Mediator</param>
-        public CountryService(ICacheBase cacheBase,
+        /// <param name="cacheBase">Cache manager</param>
+        public CountryService(
             IRepository<Country> countryRepository,
-            CatalogSettings catalogSettings,
-            IMediator mediator)
+            IMediator mediator,
+            ICacheBase cacheBase)
         {
             _cacheBase = cacheBase;
             _countryRepository = countryRepository;
-            _catalogSettings = catalogSettings;
             _mediator = mediator;
         }
 
         #endregion
 
         #region Methods
-        
+
         /// <summary>
         /// Gets all countries
         /// </summary>
@@ -247,7 +243,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <returns>States</returns>
         public virtual async Task<IList<StateProvince>> GetStateProvincesByCountryId(string countryId, string languageId = "", bool showHidden = false)
         {
-            if(string.IsNullOrEmpty(countryId))
+            if (string.IsNullOrEmpty(countryId))
                 return new List<StateProvince>();
 
             var country = await GetCountryById(countryId);
