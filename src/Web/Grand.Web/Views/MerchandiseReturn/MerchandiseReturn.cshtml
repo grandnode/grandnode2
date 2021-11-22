@@ -125,7 +125,7 @@
                                         <label for="pickup-address-select">@Loc["MerchandiseReturns.SelectPickupAddressOrEnterNewOne"]</label>
                                         <div>
                                             <select name="pickup_address_id" id="pickup-address-select" class="custom-select address-select"
-                                                    title="" onchange="newAddress(!this.value)">
+                                                    title="" @@change="merchandisereturns.newAddress = !merchandisereturns.newAddress">
                                                 @foreach (var address in Model.ExistingAddresses)
                                                 {
                                                     var addressLine = "";
@@ -158,40 +158,39 @@
                                         </div>
                                     </div>
                                 }
-                                <div class="section new-pickup-address" id="pickup-new-address-form" ref="visible">
-                                    <div class="enter-address">
-                                        <div asp-validation-summary="ModelOnly" class="message-error"></div>
-                                        @{
-                                            var dataDictAddress = new ViewDataDictionary(ViewData);
-                                            dataDictAddress.TemplateInfo.HtmlFieldPrefix = "MerchandiseReturnNewAddress";
-                                            <partial name="_CreateOrUpdateAddress" model="Model.NewAddress" view-data="dataDictAddress" />
-                                        }
+                                <template v-if="merchandisereturns.newAddress">
+                                    <div class="section new-pickup-address" id="pickup-new-address-form" ref="visible">
+                                        <div class="enter-address">
+                                            <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                                            @{
+                                                var dataDictAddress = new ViewDataDictionary(ViewData);
+                                                dataDictAddress.TemplateInfo.HtmlFieldPrefix = "MerchandiseReturnNewAddress";
+                                                <partial name="_CreateOrUpdateAddress" model="Model.NewAddress" view-data="dataDictAddress" />
+                                            }
+                                        </div>
                                     </div>
-                                </div>
+                                </template>
                             </div>
                         </div>
                     }
                     @if (Model.ShowPickupDate)
                     {
-                        <div class="form-group">
-                            <validation-provider tag="div" rules="required" name="PickupDate" v-slot="{ errors, classes }">
+                        if (Model.PickupDateRequired)
+                        {
+                            <div class="form-group">
+                                <validation-provider tag="div" rules="required" name="PickupDate" v-slot="{ errors, classes }">
+                                    <label class="col-form-label">@Loc["MerchandiseReturns.PickupDate"]:</label>
+                                    <span class="required">*</span>
+                                    <input asp-for="PickupDate" type="date" v-model="merchandisereturns.PickupDate" v-bind:class="[classes , 'form-control datepicker']" />
+                                    <span class="field-validation-error">{{ errors[0] }}</span>
+                                </validation-provider>
+                            </div>   
+                        } else { 
+                            <div class="form-group">
                                 <label class="col-form-label">@Loc["MerchandiseReturns.PickupDate"]:</label>
-                                <span class="required">*</span>
-                                <input asp-for="PickupDate" type="date" v-model="merchandisereturns.PickupDate" v-bind:class="[classes , 'form-control datepicker']" />
-                                <span class="field-validation-error">{{ errors[0] }}</span>
-                            </validation-provider>
-                        </div>
-                        <script asp-location="Footer" asp-order="300">
-                            var merchandisereturns = new Vue({
-                                data: () => ({
-                                    @{
-                                        <text>
-                                            PickupDate: '@Html.Raw(Model.PickupDate)',
-                                        </text>
-                                    }
-                                })
-                            });
-                        </script>
+                                <input asp-for="PickupDate" type="date" v-model="merchandisereturns.PickupDate" class="form-control datepicker" />
+                            </div>
+                        }
                     }
                 </div>
                 <div class="row">
@@ -203,10 +202,16 @@
         </validation-observer>
     }
 </div>
-<script asp-location="Footer">
-    document.addEventListener("DOMContentLoaded", function () {
-        if (document.querySelector("#pickup-address-select").value != "") {
-            newAddress(false);
-        }
+<script asp-location="Footer" asp-order="300">
+    var merchandisereturns = new Vue({
+        data: () => ({
+            @if (Model.ShowPickupDate)
+            {
+                <text>
+                    PickupDate: '@Html.Raw(Model.PickupDate)',
+                </text>
+            }
+            newAddress: false,
+        }),
     });
 </script>
