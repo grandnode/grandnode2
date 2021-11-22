@@ -122,22 +122,6 @@ function SaveCurrentPossition(href, latitude, longitude) {
     });   
 }
 
-function newAddress(isNew) {
-    if (isNew) {
-        this.resetSelectedAddress();
-        document.getElementById('pickup-new-address-form').style.display = "block";
-    } else {
-        document.getElementById('pickup-new-address-form').style.display = "none";
-    }
-}
-
-function resetSelectedAddress() {
-    var selectElement = document.getElementById('pickup-address-select');
-    if (selectElement) {
-        selectElement.value = "";
-    }
-}
-
 function StopPropagation(event) {
     event.stopPropagation();
 }
