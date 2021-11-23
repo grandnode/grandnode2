@@ -30,6 +30,7 @@ Disallow: /addproducttocart/details/
 Disallow: /outofstocksubscriptions/manage
 Disallow: /cart
 Disallow: /changelanguage/*
+Disallow: /changecurrency/*
 Disallow: /checkout/*
 Disallow: /compareproducts
 Disallow: /account/*
