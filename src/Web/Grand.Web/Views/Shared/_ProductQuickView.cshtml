@@ -42,7 +42,6 @@
                                                     <div class="stock">
                                                         <label class="col-form-label">@Loc["Products.Availability"]:</label>
                                                         <span class="value" :id="'stock-availability-value-' + PopupQuickViewVueModal.Id">
-                                                            <link itemprop="availability" href="http://schema.org/InStock" />
                                                             <template v-if="PopupQuickViewVueModal.StockAvailability !== ''">
                                                                 {{PopupQuickViewVueModal.StockAvailability}}
                                                             </template>
@@ -194,7 +193,6 @@
                                                                                 <div class="stock">
                                                                                     <label class="col-form-label">@Loc["Products.Availability"]:</label>
                                                                                     <span class="value" :id="'stock-availability-value-' + variant.Id">
-                                                                                        <link itemprop="availability" href="http://schema.org/InStock" />
                                                                                         {{variant.StockAvailability}}
                                                                                     </span>
                                                                                 </div>
