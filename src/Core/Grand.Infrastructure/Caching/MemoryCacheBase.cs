@@ -39,18 +39,28 @@ namespace Grand.Infrastructure.Caching
 
         public virtual async Task<T> GetAsync<T>(string key, Func<Task<T>> acquire)
         {
+            return await GetAsync(key, acquire, CommonHelper.CacheTimeMinutes);
+        }
+
+        public virtual async Task<T> GetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime)
+        {
             return await _cache.GetOrCreateAsync(key, entry =>
             {
-                entry.SetOptions(GetMemoryCacheEntryOptions(CommonHelper.CacheTimeMinutes));
+                entry.SetOptions(GetMemoryCacheEntryOptions(cacheTime));
                 return acquire();
             });
         }
 
         public T Get<T>(string key, Func<T> acquire)
         {
+            return Get<T>(key, acquire, CommonHelper.CacheTimeMinutes);
+        }
+
+        public T Get<T>(string key, Func<T> acquire, int cacheTime)
+        {
             return _cache.GetOrCreate(key, entry =>
             {
-                entry.SetOptions(GetMemoryCacheEntryOptions(CommonHelper.CacheTimeMinutes));
+                entry.SetOptions(GetMemoryCacheEntryOptions(cacheTime));
                 return acquire();
             });
         }
