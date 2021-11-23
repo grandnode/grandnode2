@@ -63,9 +63,15 @@ var vmorder = new Vue({
     },
     methods: {
         formCheckoutSubmit() {
-            vmorder.vShipping.save();
-            vmorder.shippingAddressErrors = null;
-            vmorder.billingAddressErrors = null;
+            if (vmorder.BillingAddress) {
+                vmorder.vBilling.save();
+                vmorder.shippingAddressErrors = null;
+                vmorder.billingAddressErrors = null;
+            } else {
+                vmorder.vShipping.save();
+                vmorder.shippingAddressErrors = null;
+                vmorder.billingAddressErrors = null;
+            }
         },
         setDisabled(e) {
             var button = e.target;
@@ -316,7 +322,7 @@ var vmorder = new Vue({
                                 document.querySelector('#shipping-new-address-form').style.display = 'none';
                             }
                         } else {
-                            document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vShipping.save();");
+                            document.querySelector('#shipping-buttons-container .new-address-next-step-button').setAttribute('onclick', "document.getElementById('opc-shipping-submit').click()");
                             document.querySelector('#shipping-new-address-form').style.display = 'none';
                         }
                     }
@@ -364,7 +370,7 @@ var vmorder = new Vue({
                     }).then(function (response) {
                         if (response.data.goto_section !== undefined) {
                             if (!(response.data.update_section.name == "shipping")) {
-                                document.querySelector('#back-' + response.data.goto_section).setAttribute('onclick', 'document.querySelector("#button-shipping").click(); vmorder.Billing = false;');
+                                document.querySelector('#back-' + response.data.goto_section).setAttribute('onclick', 'document.querySelector("#button-shipping").click(); vmorder.BillingAddress = false;');
                                 vmorder.vShipping.nextStep(response);
                             }
                         }
@@ -413,7 +419,7 @@ var vmorder = new Vue({
                         vmorder.BillingNewAddressPreselected = true;
                         if (document.querySelector('#billing-new-address-form'))
                             document.querySelector('#billing-new-address-form').style.display = 'block';
-                            document.querySelector('#billing-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vBilling.save(); document.getElementById('opc-billing-submit').click()");
+                            document.querySelector('#billing-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.BillingAddress = true; document.getElementById('opc-billing-submit').click()");
 
                     } else {
                         vmorder.BillingNewAddressPreselected = false;
@@ -878,15 +884,15 @@ var vmorder = new Vue({
         },
         BillingAddress: function () {
             setTimeout(function () {
-                if (document.getElementById("billing-address-select").value == '') {
-                    document.querySelector('#billing-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vBilling.save(); document.getElementById('opc-billing-submit').click()");
+                if (document.getElementById("billing-address-select")) {
+                    document.querySelector('#billing-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.BillingAddress = true; document.getElementById('opc-billing-submit').click()");
                 }
             }, 300);
         },
         vShipping: function () {
             if (this.vShipping !== null) {
-                if (document.querySelector("#shipping-address-select")) {
-                    vmorder.vShipping.newAddress(!document.querySelector('#shipping-address-select').value);
+                if (document.getElementById("shipping-address-select")) {
+                    vmorder.vShipping.newAddress(!document.getElementById('shipping-address-select').value);
                 }
             }
         },

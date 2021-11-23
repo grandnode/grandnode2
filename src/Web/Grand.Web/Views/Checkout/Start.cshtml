@@ -92,14 +92,14 @@
                             <b-collapse id="opc-billing" @if (!Model.ShippingRequired) { <text> visible </text> } accordion="my-accordion" role="tabpanel" appear>
                                 <div class="card-body">
                                     <validation-observer v-slot="{ handleSubmit }">
-                                        <form id="co-billing-form" action="" v-on:submit.prevent="handleSubmit()">
+                                        <form id="co-billing-form" action="" v-on:submit.prevent="handleSubmit(vmorder.formCheckoutSubmit)">
                                             <div id="checkout-billing-load">
                                                 @if (Model.ShippingRequired)
                                                 {
                                                     <partial name="_BillingAddress" model="Model" />
                                                 }
                                                 else
-        {
+                                                {
                                                     <partial name="_BillingWithoutShipping" model="Model.BillingAddress" />
                                                 }
                                             </div>
@@ -108,7 +108,7 @@
                                     </validation-observer>
                                     <div class="col-12 buttons py-1 mt-3 px-0" id="billing-buttons-container">
                                         <a class="btn btn-secondary" id="back-billing" href="#" onclick="vmorder.Checkout.back(); return false; ">@Loc["Common.Back"]</a>
-                                        <input type="button" title="@Loc["Common.Continue"]" class="btn btn-info new-address-next-step-button" onclick="vmorder.vBilling.save();" value="@Loc["Common.Continue"]" />
+                                        <input type="button" title="@Loc["Common.Continue"]" class="btn btn-info new-address-next-step-button" onclick="document.getElementById('opc-billing-submit').click()" value="@Loc["Common.Continue"]" />
                                         <span class="please-wait" id="billing-please-wait" style="display: none;">@Loc["Common.LoadingNextStep"]</span>
                                     </div>
                                 </div>

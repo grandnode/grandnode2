@@ -69,7 +69,7 @@
 <script asp-location="Footer" asp-order="301">
     document.addEventListener("DOMContentLoaded", function () {
         if (document.getElementById("billing-address-select") == null) {
-            document.querySelector('#billing-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.vBilling.save(); document.getElementById('opc-billing-submit').click()");
+            document.querySelector('#billing-buttons-container .new-address-next-step-button').setAttribute('onclick', "vmorder.BillingAddress = true; document.getElementById('opc-billing-submit').click()");
         }
     });
 </script>
