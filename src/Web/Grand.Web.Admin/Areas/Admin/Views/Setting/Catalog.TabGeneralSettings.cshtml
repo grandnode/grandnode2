@@ -11,6 +11,7 @@
         $("#@Html.IdFor(model => model.NewProductsEnabled)").click(toggleNewProducts);
         $("#@Html.IdFor(model => model.NewProductsOnHomePage)").click(toggleNewProductsHomePage);
         $("#@Html.IdFor(model => model.ShowBestsellersOnHomepage)").click(toggleBestsellersOnHomepage);
+        $("#@Html.IdFor(model => model.BestsellersFromReports)").click(toggleBestsellersFromReports);
         $("#@Html.IdFor(model => model.ProductsAlsoPurchasedEnabled)").click(toggleProductsAlsoPurchasedNumber);
         $("#@Html.IdFor(model => model.ProductsByTagAllowCustomersToSelectPageSize)").click(toggleProductsByTagPageSize);
 
@@ -22,6 +23,7 @@
         toggleNewProducts();
         toggleNewProductsHomePage();
         toggleBestsellersOnHomepage();
+        toggleBestsellersFromReports();
         toggleProductsAlsoPurchasedNumber();
         toggleProductsByTagPageSize();
     });
@@ -91,9 +93,19 @@
     function toggleBestsellersOnHomepage() {
         if ($('#@Html.IdFor(model => model.ShowBestsellersOnHomepage)').is(':checked')) {
             $('#pnlNumberOfBestsellersOnHomepage').show();
+            $('#pnlBestsellersFromReports').show();
         }
         else {
             $('#pnlNumberOfBestsellersOnHomepage').hide();
+            $('#pnlBestsellersFromReports').hide();
+        }
+    }
+    function toggleBestsellersFromReports() {
+        if ($('#@Html.IdFor(model => model.BestsellersFromReports)').is(':checked')) {
+            $('#pnlPeriodBestsellers').show();
+        }
+        else {
+            $('#pnlPeriodBestsellers').hide();
         }
     }
 
@@ -452,7 +464,7 @@
                     <span asp-validation-for="NumberOfBestsellersOnHomepage"></span>
                 </div>
             </div>
-            <div class="form-group" id="pnlNumberOfBestsellersOnHomepage">
+            <div class="form-group" id="pnlBestsellersFromReports">
                 <div class="col-6 col-md-6 col-sm-6">
                     <admin-label asp-for="BestsellersFromReports" class="control-label text-left" />
                 </div>
@@ -464,7 +476,7 @@
                     <span asp-validation-for="BestsellersFromReports"></span>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group" id="pnlPeriodBestsellers">
                 <div class="col-6 col-md-6 col-sm-6">
                     <admin-label asp-for="PeriodBestsellers" class="control-label" />
                 </div>
