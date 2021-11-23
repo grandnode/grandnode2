@@ -867,7 +867,7 @@ namespace Grand.Business.Catalog.Services.Products
             foreach (var sci in cart)
             {
                 var product = await GetProductById(sci.ProductId);
-                if (product == null)
+                if (product == null || !product.Published)
                     continue;
 
                 var crossSells = product.CrossSellProduct;
