@@ -202,7 +202,7 @@ namespace Grand.Web.Controllers
         {
             var customer = _workContext.CurrentCustomer;
 
-            var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
+            var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
             if (!cart.Any())
                 return RedirectToRoute("ShoppingCart");
@@ -440,7 +440,7 @@ namespace Grand.Web.Controllers
         public virtual async Task<IActionResult> Start()
         {
             //validation
-            var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
+            var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
             if (!cart.Any())
                 return RedirectToRoute("ShoppingCart");
@@ -492,7 +492,7 @@ namespace Grand.Web.Controllers
             try
             {
                 //validation
-                var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
+                var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
                 await CartValidate(cart);
 
                 string billingAddressId = form["billing_address_id"];
@@ -594,7 +594,7 @@ namespace Grand.Web.Controllers
             try
             {
                 //validation
-                var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
+                var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
                 await CartValidate(cart);
 
                 if (!cart.RequiresShipping())
@@ -773,7 +773,7 @@ namespace Grand.Web.Controllers
                 var customer = _workContext.CurrentCustomer;
                 var store = _workContext.CurrentStore;
 
-                var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
+                var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
                 await CartValidate(cart);
 
                 if (!cart.RequiresShipping())
@@ -844,7 +844,7 @@ namespace Grand.Web.Controllers
             try
             {
                 //validation
-                var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
+                var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
                 await CartValidate(cart);
 
                 string paymentmethod = form["paymentmethod"];
@@ -917,7 +917,7 @@ namespace Grand.Web.Controllers
             try
             {
                 //validation
-                var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
+                var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
                 await CartValidate(cart);
 
                 var paymentMethodSystemName = await _workContext.CurrentCustomer.GetUserField<string>(
@@ -976,7 +976,7 @@ namespace Grand.Web.Controllers
             try
             {
                 //validation
-                var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
+                var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
                 await CartValidate(cart);
 
                 //prevent 2 orders being placed within an X seconds time frame

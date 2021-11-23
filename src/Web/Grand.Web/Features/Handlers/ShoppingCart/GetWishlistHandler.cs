@@ -119,7 +119,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             foreach (var sci in request.Cart)
             {
                 var product = await _productService.GetProductById(sci.ProductId);
-                if (!_aclService.Authorize(product, request.Customer))
+                if (product == null)
                     continue;
 
                 var sename = product.GetSeName(request.Language.Id);

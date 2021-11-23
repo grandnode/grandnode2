@@ -113,7 +113,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 if (_shoppingCartSettings.AllowOnHoldCart)
                     shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
 
-                var cart = _shoppingCartService.GetShoppingCart(request.Store.Id, shoppingCartTypes.ToArray());
+                var cart = await _shoppingCartService.GetShoppingCart(request.Store.Id, shoppingCartTypes.ToArray());
                 model.TotalProducts = cart.Sum(x => x.Quantity);
                 if (cart.Any())
                 {

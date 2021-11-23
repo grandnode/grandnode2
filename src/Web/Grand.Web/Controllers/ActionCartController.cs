@@ -152,7 +152,7 @@ namespace Grand.Web.Controllers
 
             string warehouseId = GetWarehouse(product);
 
-            var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, cartType);
+            var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, cartType);
 
             if (cartType != ShoppingCartType.Wishlist)
             {
@@ -235,7 +235,7 @@ namespace Grand.Web.Controllers
                         }
 
                         //display notification message and update appropriate blocks
-                        var qty = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist).Sum(x => x.Quantity);
+                        var qty = (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist)).Sum(x => x.Quantity);
                         var updatetopwishlistsectionhtml = string.Format(_translationService.GetResource("Wishlist.HeaderQuantity"), qty);
 
                         return Json(new
@@ -272,7 +272,7 @@ namespace Grand.Web.Controllers
                             shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
 
                         var updatetopcartsectionhtml = string.Format(_translationService.GetResource("ShoppingCart.HeaderQuantity"),
-                            _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, shoppingCartTypes.ToArray())
+                            (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, shoppingCartTypes.ToArray()))
                                 .Sum(x => x.Quantity));
 
                         var miniShoppingCartmodel = _shoppingCartSettings.MiniShoppingCartEnabled ? await _mediator.Send(new GetMiniShoppingCart() {
@@ -546,7 +546,7 @@ namespace Grand.Web.Controllers
                         }
 
                         //display notification message and update appropriate blocks
-                        var qty = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist).Sum(x => x.Quantity);
+                        var qty = (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist)).Sum(x => x.Quantity);
                         var updatetopwishlistsectionhtml = string.Format(_translationService.GetResource("Wishlist.HeaderQuantity"), qty);
 
                         return Json(new
@@ -583,7 +583,7 @@ namespace Grand.Web.Controllers
                             shoppingCartTypes.Add(ShoppingCartType.OnHoldCart);
 
                         var updatetopcartsectionhtml = string.Format(_translationService.GetResource("ShoppingCart.HeaderQuantity"),
-                            _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, shoppingCartTypes.ToArray())
+                            (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, shoppingCartTypes.ToArray()))
                                 .Sum(x => x.Quantity));
 
                         var miniShoppingCartmodel = _shoppingCartSettings.MiniShoppingCartEnabled ? await _mediator.Send(new GetMiniShoppingCart() {

@@ -1,9 +1,9 @@
 ﻿@inject IWorkContext workContext
 @inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@inject Grand.Business.Checkout.Interfaces.Orders.IShoppingCartService shoppingCartService
 @inject ShoppingCartSettings shoppingCartSettings
 @inject CatalogSettings catalogSettings
 @using Grand.Business.Common.Services.Security
-@using Grand.Business.Checkout.Extensions
 @{
 
     var shoppingCartTypes = new List<ShoppingCartType>();
@@ -15,16 +15,16 @@
     var shoppingCartEnabled = await permissionService.Authorize(StandardPermission.EnableShoppingCart);
     var wishlistEnabled = await permissionService.Authorize(StandardPermission.EnableWishlist);
     var miniShoppingCartEnabled = shoppingCartSettings.MiniShoppingCartEnabled;
-    var shoppingCartItems = workContext.CurrentCustomer.ShoppingCartItems.Any() ? workContext.CurrentCustomer.ShoppingCartItems
-                .Where(sci => shoppingCartTypes.Contains(sci.ShoppingCartTypeId))
-                .LimitPerStore(shoppingCartSettings.SharedCartBetweenStores, workContext.CurrentStore.Id)
-                .Sum(x => x.Quantity) : 0;
+
+    var shoppingCartItems =
+        workContext.CurrentCustomer.ShoppingCartItems.Any() ?
+        (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions))
+        .Sum(x => x.Quantity) : 0;
 
 
-    var wishlistItems = workContext.CurrentCustomer.ShoppingCartItems.Any() ? workContext.CurrentCustomer.ShoppingCartItems
-                .Where(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist)
-                .LimitPerStore(shoppingCartSettings.SharedCartBetweenStores, workContext.CurrentStore.Id)
-                .Sum(x => x.Quantity) : 0;
+    var wishlistItems = workContext.CurrentCustomer.ShoppingCartItems.Any() ?
+        (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, ShoppingCartType.Wishlist))
+        .Sum(x => x.Quantity) : 0;
 
 }
 @if (catalogSettings.CompareProductsEnabled)

@@ -77,10 +77,7 @@ namespace Grand.Web.Controllers
             if (customer == null)
                 return RedirectToRoute("HomePage");
 
-            var cart = customer.ShoppingCartItems.Where(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist);
-
-            if (!string.IsNullOrEmpty(_workContext.CurrentStore.Id))
-                cart = cart.LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _workContext.CurrentStore.Id);
+            var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist);
 
             var model = await _mediator.Send(new GetWishlist() {
                 Cart = cart.ToList(),
@@ -102,7 +99,7 @@ namespace Grand.Web.Controllers
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist))
                 return RedirectToRoute("HomePage");
 
-            var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist).FirstOrDefault(x => x.Id == shoppingcartId);
+            var cart = (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist)).FirstOrDefault(x => x.Id == shoppingcartId);
             if (cart == null)
             {
                 return Json(new
@@ -132,7 +129,7 @@ namespace Grand.Web.Controllers
             {
                 success = !warnings.Any(),
                 warnings = string.Join(", ", warnings),
-                totalproducts = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist).Sum(x => x.Quantity),
+                totalproducts = (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist)).Sum(x => x.Quantity),
             });
 
         }
@@ -206,7 +203,7 @@ namespace Grand.Web.Controllers
             if (!await _permissionService.Authorize(StandardPermission.EnableWishlist) || !_shoppingCartSettings.EmailWishlistEnabled)
                 return Content("");
 
-            var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist);
+            var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist);
             if (!cart.Any())
                 return Content(""); 
 

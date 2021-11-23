@@ -21,7 +21,7 @@ namespace Grand.Business.Checkout.Interfaces.Orders
         /// <param name="storeId">Store identifier; pass null to load all records</param>
         /// <param name="shoppingCartType">Shopping cart type; pass null to load all records</param>
         /// <returns>Shopping Cart</returns>
-        IList<ShoppingCartItem> GetShoppingCart(string storeId = null, params ShoppingCartType[] shoppingCartType);
+        Task<IList<ShoppingCartItem>> GetShoppingCart(string storeId = null, params ShoppingCartType[] shoppingCartType);
 
         /// <summary>
         /// Finds a shopping cart item in the cart

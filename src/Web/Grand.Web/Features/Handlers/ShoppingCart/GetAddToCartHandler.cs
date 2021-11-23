@@ -134,7 +134,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 model.Picture = await PrepareCartItemPicture(request);
             }
 
-            var cart = _shoppingCartService.GetShoppingCart(request.Store.Id, request.CartType);
+            var cart = await _shoppingCartService.GetShoppingCart(request.Store.Id, request.CartType);
 
             if (request.CartType != ShoppingCartType.Auctions)
             {

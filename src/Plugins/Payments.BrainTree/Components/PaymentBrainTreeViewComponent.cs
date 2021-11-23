@@ -43,7 +43,7 @@ namespace Payments.BrainTree.Components
 
             if (_brainTreePaymentSettings.Use3DS)
             {
-                var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart);
+                var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart);
 
                 if (!cart.Any())
                     throw new Exception("Your cart is empty");

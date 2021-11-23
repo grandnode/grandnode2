@@ -27,7 +27,7 @@ namespace Grand.Web.ViewComponents
             if (overriddenModel != null)
                 return View(overriddenModel);
 
-            var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
+            var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
             var model = await _mediator.Send(new GetShoppingCart()
             {

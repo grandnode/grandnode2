@@ -134,7 +134,7 @@ namespace Grand.Web.Controllers
             ShoppingCartItem updatecartitem = null;
             if (_shoppingCartSettings.AllowCartItemEditing && !String.IsNullOrEmpty(updatecartitemid))
             {
-                var cart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id);
+                var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id);
 
                 updatecartitem = cart.FirstOrDefault(x => x.Id == updatecartitemid);
                 //not found?
@@ -850,7 +850,7 @@ namespace Grand.Web.Controllers
             }
 
             var reservations = query.ToList();
-            var inCart = _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id)
+            var inCart = (await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id))
                 .Where(x => !string.IsNullOrEmpty(x.ReservationId)).ToList();
             foreach (var cartItem in inCart)
             {
