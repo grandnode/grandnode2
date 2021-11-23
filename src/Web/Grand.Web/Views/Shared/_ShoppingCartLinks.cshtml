@@ -48,7 +48,7 @@
             <li class="nav-item">
                 <a href="@Url.RouteUrl("Wishlist")" class="nav-link">
                     <b-icon icon="heart" :variant="[darkMode ? 'white' : 'dark']"></b-icon>
-                    <div class="qty-indicator wishlist-qty">@Loc["Wishlist.HeaderQuantity", wishlistItems]</div>
+                    <div class="qty-indicator wishlist-qty" ref="wishlistQty">@Loc["Wishlist.HeaderQuantity", wishlistItems]</div>
                 </a>
             </li>
         }
