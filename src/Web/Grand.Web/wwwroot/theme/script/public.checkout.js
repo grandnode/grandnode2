@@ -232,7 +232,6 @@ var vmorder = new Vue({
                             vmorder.paymentBusy = true;
                             vmorder.validPayment = true;
                             document.querySelector(".payment-info-next-step-button").classList.add("disabled");
-                            document.querySelector(".payment-info-next-step-button").setAttribute("onclick", "vmorder.vPaymentInfo.save()");
                             axios({
                                 baseURL: '/Component/Index?Name=' + model.PaymentViewComponentName,
                                 method: 'get',

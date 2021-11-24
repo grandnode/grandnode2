@@ -21,7 +21,7 @@
 
 @if (Model.AllowPickUpInStore)
 {
-    <div class="pickup-points" id="pickup-points-form">
+    <div class="pickup-points" id="pickup-points-form" v-show="vmorder.PickUpInStore">
         @if (Model.PickupPoints.Any())
         {
             if (Model.PickUpInStoreOnly)
