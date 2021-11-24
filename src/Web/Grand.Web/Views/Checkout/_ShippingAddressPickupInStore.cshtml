@@ -6,7 +6,7 @@
     <div class="section pickup-in-store">
         <p class="selector">
             <label class="custom-control custom-checkbox">
-                <input asp-for="PickUpInStore" class="custom-control-input" onclick="vmorder.vShipping.togglePickUpInStore(this)" />
+                <input asp-for="PickUpInStore" class="custom-control-input" v-model="vmorder.PickUpInStore" />
                 <span class="custom-control-label"></span>
                 <span class="custom-control-description" for="@Html.IdFor(model => model.PickUpInStore)">
                     @Loc["Checkout.PickupPoints"]

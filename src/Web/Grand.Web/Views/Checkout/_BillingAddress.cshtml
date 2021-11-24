@@ -4,7 +4,7 @@
     <div class="section select-billing-address">
         <label for="billing-address-select">@Loc["Checkout.SelectBillingAddressOrEnterNewOne"]</label>
         <div>
-            <select name="billing_address_id" id="billing-address-select" class="custom-select address-select" title="" onchange="vmorder.vBilling.newAddress(!this.value)">
+            <select name="billing_address_id" id="billing-address-select" ref="billingSelect" class="custom-select address-select" title="" onchange="vmorder.vBilling.newAddress(!this.value)">
                 <template v-for="address in vmorder.BillingExistingAddresses">
                     <option :value="address.Id">
                         {{address.FirstName}}

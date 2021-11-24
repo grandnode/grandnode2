@@ -32,8 +32,8 @@
             </button>
         </template>
         <template v-else>
-            <button class="btn btn-secondary" id="new-back-confirm_order">@Loc["Common.Back"]</button>
-            <input type="button" class="btn btn-info confirm-order-next-step-button" onclick="vmorder.vConfirmOrder.save()" value="@Loc["Common.Confirm"]" />
+            <button class="btn btn-secondary" id="new-back-confirm_order"  @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</button>
+            <input type="button" class="btn btn-info confirm-order-next-step-button" @@click="vmorder.vConfirmOrder.save()" value="@Loc["Common.Confirm"]" />
         </template>
     </div>
 </div>
