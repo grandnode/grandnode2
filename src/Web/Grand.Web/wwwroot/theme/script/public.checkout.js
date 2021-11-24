@@ -505,9 +505,9 @@ var vmorder = new Vue({
                             if (response.data.error !== undefined) {
                                 vmorder.ShippingMethodError = response.data.message;
                             } else {
+                                vmorder.previousStep.push('buttonShippingMethod');
                                 vmorder.ShippingMethodError = undefined;
                             }
-                            vmorder.previousStep.push('buttonShippingMethod');
                             vmorder.vShippingMethod.nextStep(response);
                         }).catch(function (error) {
                             error.axiosFailure;
