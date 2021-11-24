@@ -71,7 +71,7 @@
             hostedFields: null
         };
         var bankFrame = document.querySelector('#braintree-authentication');
-        document.querySelector('.payment-info-next-step-button').setAttribute('onclick', null);
+        vmorder.validPayment = false;
         braintree.client.create({ authorization: authorization }, onClientCreate);
         function onClientCreate(err, client) {
             if (err) {
@@ -168,6 +168,7 @@
                 }
                 else {
                     submitForm = false;
+                    vmorder.validPayment = true;
                     vmorder.vPaymentInfo.save();
                 }
             });
