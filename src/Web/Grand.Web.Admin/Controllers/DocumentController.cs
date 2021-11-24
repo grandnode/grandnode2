@@ -71,8 +71,13 @@ namespace Grand.Web.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (string.IsNullOrEmpty(model.CustomerId))
+                if (!string.IsNullOrEmpty(model.CustomerEmail))
+                {
+                    model.CustomerEmail = model.CustomerEmail.ToLowerInvariant();
                     model.CustomerId = (await _customerService.GetCustomerByEmail(model.CustomerEmail))?.Id;
+                }
+                else
+                    model.CustomerId = string.Empty;
 
                 var document = model.ToEntity();
                 document.CreatedOnUtc = DateTime.UtcNow;
@@ -112,8 +117,13 @@ namespace Grand.Web.Admin.Controllers
 
             if (ModelState.IsValid)
             {
-                if (string.IsNullOrEmpty(model.CustomerId))
+                if (!string.IsNullOrEmpty(model.CustomerEmail))
+                {
+                    model.CustomerEmail = model.CustomerEmail.ToLowerInvariant();
                     model.CustomerId = (await _customerService.GetCustomerByEmail(model.CustomerEmail))?.Id;
+                }
+                else
+                    model.CustomerId = string.Empty;
 
                 document = model.ToEntity(document);
                 document.UpdatedOnUtc = DateTime.UtcNow;

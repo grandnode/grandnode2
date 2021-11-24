@@ -49,7 +49,7 @@ namespace Grand.Business.Marketing.Services.Documents
                 query = query.Where(m => m.Number != null && m.Number.ToLower().Contains(number.ToLower()));
 
             if (!string.IsNullOrWhiteSpace(email))
-                query = query.Where(m => m.CustomerEmail != null && m.CustomerEmail.ToLower().Contains(email.ToLower()));
+                query = query.Where(m => m.CustomerEmail == email.ToLowerInvariant());
 
             if (!string.IsNullOrWhiteSpace(username))
                 query = query.Where(m => m.Username == username);
