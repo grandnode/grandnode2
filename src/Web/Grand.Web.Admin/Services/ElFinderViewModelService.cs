@@ -25,7 +25,7 @@ namespace Grand.Web.Admin.Services
         private readonly string _fullPathToUpload;
         private readonly string _fullPathToThumbs;
         private readonly string _urlThumb;
-        private readonly string _pathUploded;
+        private readonly string _urlpathUploded;
 
         public ElFinderViewModelService(
             IDriver driver,
@@ -44,8 +44,9 @@ namespace Grand.Web.Admin.Services
             _connector.Options.EnabledCommands = _mediaSettings.FileManagerEnabledCommands.Split(',').Select(x => x.Trim()).ToList();
             _connector.Options.DisabledUICommands = _mediaSettings.FileManagerDisabledUICommands.Split(',').Select(x => x.Trim()).ToList();
 
-            _pathUploded = Path.Combine("assets", "images", "uploaded");
-            _fullPathToUpload = Path.Combine(CommonPath.WebRootPath, _pathUploded);
+            _urlpathUploded = "/assets/images/uploaded/";
+
+            _fullPathToUpload = Path.Combine(CommonPath.WebRootPath, Path.Combine("assets", "images", "uploaded"));
             if (!Directory.Exists(_fullPathToUpload))
                 Directory.CreateDirectory(_fullPathToUpload);
 
@@ -75,7 +76,7 @@ namespace Grand.Web.Admin.Services
             var volume = new Volume(_driver,
                 _fullPathToUpload,
                 _fullPathToThumbs,
-                _pathUploded,
+                _urlpathUploded,
                 _urlThumb) {
                 Name = "Volume",
                 MaxUploadConnections = 3
