@@ -74,11 +74,11 @@ namespace Grand.Business.Checkout.Commands.Handlers.Shipping
                 //notify customer
                 await _messageProviderService.SendShipmentSentCustomerMessage(request.Shipment, order);
             }
-            //event
-            await _mediator.PublishShipmentSent(request.Shipment);
-
             //check order status
             await _mediator.Send(new CheckOrderStatusCommand() { Order = order });
+
+            //event
+            await _mediator.PublishShipmentSent(request.Shipment);
 
             return true;
         }

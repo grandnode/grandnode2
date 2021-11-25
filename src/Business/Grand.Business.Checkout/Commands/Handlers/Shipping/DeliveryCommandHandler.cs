@@ -70,11 +70,11 @@ namespace Grand.Business.Checkout.Commands.Handlers.Shipping
                 //send email notification
                 await _messageProviderService.SendShipmentDeliveredCustomerMessage(request.Shipment, order);
             }
-            //event
-            await _mediator.PublishShipmentDelivered(request.Shipment);
-
             //check order status
             await _mediator.Send(new CheckOrderStatusCommand() { Order = order });
+
+            //event
+            await _mediator.PublishShipmentDelivered(request.Shipment);
 
             return true;
         }
