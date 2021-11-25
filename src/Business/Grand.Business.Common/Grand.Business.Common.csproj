@@ -17,6 +17,6 @@
   <ItemGroup>
     <PackageReference Include="Google.Apis" Version="1.55.0" />
     <PackageReference Include="Google.Apis.AnalyticsReporting.v4" Version="1.55.0.2484" />
-    <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
+    <PackageReference Include="MaxMind.GeoIP2" Version="4.1.0" />
   </ItemGroup>
 </Project>
