@@ -41,8 +41,11 @@ namespace Grand.Web.Admin.Services
 
             _mediaSettings = mediaSettings;
 
-            _connector.Options.EnabledCommands = _mediaSettings.FileManagerEnabledCommands.Split(',').Select(x => x.Trim()).ToList();
-            _connector.Options.DisabledUICommands = _mediaSettings.FileManagerDisabledUICommands.Split(',').Select(x => x.Trim()).ToList();
+            if(!string.IsNullOrEmpty(_mediaSettings.FileManagerEnabledCommands))
+                _connector.Options.EnabledCommands = _mediaSettings.FileManagerEnabledCommands.Split(',').Select(x => x.Trim()).ToList();
+
+            if (!string.IsNullOrEmpty(_mediaSettings.FileManagerDisabledUICommands))
+                _connector.Options.DisabledUICommands = _mediaSettings.FileManagerDisabledUICommands.Split(',').Select(x => x.Trim()).ToList();
 
             _urlpathUploded = "/assets/images/uploaded/";
 
