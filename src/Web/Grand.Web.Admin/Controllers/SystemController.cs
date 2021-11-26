@@ -5,7 +5,6 @@ using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Common.Services.Security;
-using Grand.Business.Storage.Interfaces;
 using Grand.Business.System.Interfaces.MachineNameProvider;
 using Grand.Domain.Directory;
 using Grand.Infrastructure;
