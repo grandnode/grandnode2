@@ -34,7 +34,6 @@
         <div class="page-loader-container">
             <div class="page-loader"></div>
         </div>
-        <partial name="_Notifications" />
         <vc:get-coordinate></vc:get-coordinate>
         <partial name="Header" />
         <b-container class="main-container">
@@ -49,6 +48,7 @@
         </b-container>
         @await Component.InvokeAsync("Footer")
         <partial name="_Cookie" />
+        <partial name="_Notifications" />
     </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = "body_end_html_tag_before" })
     <resources asp-type="ScriptFooter" />

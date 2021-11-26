@@ -17,11 +17,11 @@
         </template>
     </div>
     <div class="card-body">
-        <h3 class="card-title mb-0">
+        <div class="card-title h3 mb-0">
             <a :href="Model.Url">
                 {{Model.Name}}
             </a>
-        </h3>
+        </div>
         <template v-if="Model.ShowSku && Model.Sku !== null">
             <span class="sku">{{Model.Sku}}</span>
         </template>
