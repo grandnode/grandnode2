@@ -27,8 +27,6 @@ namespace Grand.Web.Admin.Controllers
         {
             _elFinderViewModelService = elFinderViewModelService;
             _permissionService = permissionService;
-
-            //var x = Url.Action("Thumb");
         }
 
         #endregion
