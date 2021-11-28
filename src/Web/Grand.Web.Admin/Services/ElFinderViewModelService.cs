@@ -41,10 +41,10 @@ namespace Grand.Web.Admin.Services
 
             _mediaSettings = mediaSettings;
 
-            if(!string.IsNullOrEmpty(_mediaSettings.FileManagerEnabledCommands))
+            //if(!string.IsNullOrEmpty(_mediaSettings.FileManagerEnabledCommands))
                 _connector.Options.EnabledCommands = _mediaSettings.FileManagerEnabledCommands.Split(',').Select(x => x.Trim()).ToList();
 
-            if (!string.IsNullOrEmpty(_mediaSettings.FileManagerDisabledUICommands))
+            //if (!string.IsNullOrEmpty(_mediaSettings.FileManagerDisabledUICommands))
                 _connector.Options.DisabledUICommands = _mediaSettings.FileManagerDisabledUICommands.Split(',').Select(x => x.Trim()).ToList();
 
             _urlpathUploded = "/assets/images/uploaded/";
@@ -62,6 +62,9 @@ namespace Grand.Web.Admin.Services
 
         protected virtual bool NotAllowedExtensions(string extensions)
         {
+            if (string.IsNullOrEmpty(extensions))
+                return true;
+
             var allowedFileTypes = new List<string>();
             if (string.IsNullOrEmpty(_mediaSettings.AllowedFileTypes))
                 allowedFileTypes = new List<string> { ".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp" };
@@ -82,7 +85,8 @@ namespace Grand.Web.Admin.Services
                 _urlpathUploded,
                 _urlThumb) {
                 Name = "Volume",
-                MaxUploadConnections = 3
+                MaxUploadConnections = 3,
+                MaxUploadSizeInMb = 4
             };
             volume.ObjectAttributes = new List<FilteredObjectAttribute>() {
                 new FilteredObjectAttribute()
