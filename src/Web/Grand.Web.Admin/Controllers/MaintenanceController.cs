@@ -332,7 +332,10 @@ namespace Grand.Web.Admin.Controllers
         {
             try
             {
-                var pathFile = _mediaFileStore.Combine("assets", "custom", css ? "style.css" : "script.js");
+                var path = _mediaFileStore.Combine("assets", "custom");
+                _mediaFileStore.TryCreateDirectory(path);
+
+                var pathFile = _mediaFileStore.Combine(path, css ? "style.css" : "script.js");
                 await _mediaFileStore.WriteAllText(pathFile, content);
 
                 return Json(_translationService.GetResource("Admin.Common.Content.Saved"));
