@@ -1,6 +1,7 @@
 ﻿using elFinder.Net.AspNetCore.Extensions;
 using elFinder.Net.AspNetCore.Helper;
 using elFinder.Net.Core;
+using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Media;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Interfaces;
@@ -19,6 +20,7 @@ namespace Grand.Web.Admin.Services
         private readonly IDriver _driver;
         private readonly IConnector _connector;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMediaFileStore _mediaFileStore;
         private readonly LinkGenerator _linkGenerator;
         private readonly MediaSettings _mediaSettings;
 
@@ -31,6 +33,7 @@ namespace Grand.Web.Admin.Services
             IDriver driver,
             IConnector connector,
             IHttpContextAccessor httpContextAccessor,
+            IMediaFileStore mediaFileStore,
             LinkGenerator linkGenerator,
             MediaSettings mediaSettings)
         {
@@ -38,33 +41,39 @@ namespace Grand.Web.Admin.Services
             _connector = connector;
             _httpContextAccessor = httpContextAccessor;
             _linkGenerator = linkGenerator;
-
+            _mediaFileStore = mediaFileStore;
             _mediaSettings = mediaSettings;
 
-            //if(!string.IsNullOrEmpty(_mediaSettings.FileManagerEnabledCommands))
+            if (!string.IsNullOrEmpty(_mediaSettings.FileManagerEnabledCommands))
                 _connector.Options.EnabledCommands = _mediaSettings.FileManagerEnabledCommands.Split(',').Select(x => x.Trim()).ToList();
 
-            //if (!string.IsNullOrEmpty(_mediaSettings.FileManagerDisabledUICommands))
+            if (!string.IsNullOrEmpty(_mediaSettings.FileManagerDisabledUICommands))
                 _connector.Options.DisabledUICommands = _mediaSettings.FileManagerDisabledUICommands.Split(',').Select(x => x.Trim()).ToList();
 
-            _urlpathUploded = "/assets/images/uploaded/";
+            var uploaded = _mediaFileStore.GetDirectoryInfo(Path.Combine("assets", "images", "uploaded"));
+            if (uploaded == null)
+            {
+                _mediaFileStore.TryCreateDirectory(Path.Combine("assets", "images", "uploaded"));
+                uploaded = _mediaFileStore.GetDirectoryInfo(Path.Combine("assets", "images", "uploaded"));
+            }
+            _fullPathToUpload = uploaded.PhysicalPath;
 
-            _fullPathToUpload = Path.Combine(CommonPath.WebRootPath, Path.Combine("assets", "images", "uploaded"));
-            if (!Directory.Exists(_fullPathToUpload))
-                Directory.CreateDirectory(_fullPathToUpload);
+            _urlpathUploded = (string.IsNullOrEmpty(CommonPath.Param) ? $"/": $"/{CommonPath.Param}/")
+                                + uploaded.Path.Replace("\\", "/") + "/";
 
-            _fullPathToThumbs = Path.Combine(CommonPath.WebRootPath, Path.Combine("assets", "images", "thumbs"));
-            if (!Directory.Exists(_fullPathToThumbs))
-                Directory.CreateDirectory(_fullPathToThumbs);
+            var thumbs = _mediaFileStore.GetDirectoryInfo(Path.Combine("assets", "images", "thumbs"));
+            if (thumbs == null)
+            {
+                _mediaFileStore.TryCreateDirectory(Path.Combine("assets", "images", "thumbs"));
+                thumbs = _mediaFileStore.GetDirectoryInfo(Path.Combine("assets", "images", "thumbs"));
+            }
+            _fullPathToThumbs = thumbs.PhysicalPath;
 
             _urlThumb = $"{_linkGenerator.GetPathByAction(_httpContextAccessor.HttpContext, "Thumb", "ElFinder", new { area = "Admin" })}/";
         }
 
         protected virtual bool NotAllowedExtensions(string extensions)
         {
-            if (string.IsNullOrEmpty(extensions))
-                return true;
-
             var allowedFileTypes = new List<string>();
             if (string.IsNullOrEmpty(_mediaSettings.AllowedFileTypes))
                 allowedFileTypes = new List<string> { ".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp" };
@@ -125,7 +134,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<IActionResult> Thumbs(string id)
         {
             await SetupConnectorAsync();
-            
+
             var thumb = await _connector.GetThumbAsync(id, _httpContextAccessor.HttpContext.RequestAborted);
             var actionResult = ConnectorHelper.GetThumbResult(thumb);
             return actionResult;
