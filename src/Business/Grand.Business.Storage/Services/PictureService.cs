@@ -529,18 +529,18 @@ namespace Grand.Business.Storage.Services
         public virtual async Task ClearThumbs()
         {
             const string searchPattern = "*.*";
-            string path = Path.Combine(_hostingEnvironment.WebRootPath, "content/images/thumbs");
+            var path = _mediaFileStore.GetDirectoryInfo(Path.Combine("assets", "images", "thumbs"))?.PhysicalPath;
 
-            if (!System.IO.Directory.Exists(path))
+            if (!Directory.Exists(path))
                 return;
 
-            foreach (string str in System.IO.Directory.GetFiles(path, searchPattern, SearchOption.AllDirectories))
+            foreach (var file in Directory.GetFiles(path, searchPattern, SearchOption.AllDirectories))
             {
-                if (str.Contains("placeholder.txt"))
+                if (file.Contains("placeholder.txt"))
                     continue;
                 try
                 {
-                    File.Delete(await GetThumbPhysicalPath(str));
+                    File.Delete(file);
                 }
                 catch (Exception ex)
                 {
