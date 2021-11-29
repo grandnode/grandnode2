@@ -213,7 +213,7 @@
             newAddress: false,
         }),
         created() {
-            @if (Model.ShowPickupAddress && !Model.ExistingAddresses.Any())
+            @if (Model.ShowPickupAddress && (!Model.ExistingAddresses.Any() || Model.NewAddressPreselected))
             {
                 <text>
                     this.newAddress = true;
