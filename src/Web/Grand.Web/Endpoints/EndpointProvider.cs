@@ -206,6 +206,11 @@ namespace Grand.Web.Endpoints
                             pattern + "vendor/contact/{vendorId}",
                             new { controller = "Vendor", action = "ContactVendor" });
 
+            //vendor remove picture
+            endpointRouteBuilder.MapControllerRoute("CustomerVendorRemovePicture",
+                            pattern + "vendor/removepicture",
+                            new { controller = "Vendor", action = "RemovePicture" });
+
         }
 
         private void RegisterCatalogRoute(IEndpointRouteBuilder endpointRouteBuilder, string pattern)

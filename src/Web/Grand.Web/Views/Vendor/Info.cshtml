@@ -45,7 +45,7 @@
                     {
                         <div class="vendor-picture mt-3">
                             <img src="@(Model.PictureUrl)" alt="picture" style="width:100px; display:block" />
-                            <input type="submit" asp-action="RemovePicture" name="remove-picture" class="btn btn-danger remove-picture-button mt-3" value="@Loc["Account.VendorInfo.Picture.Remove"]" />
+                            <a asp-route="CustomerVendorRemovePicture" name="remove-picture" class="btn btn-danger remove-picture-button mt-3">@Loc["Account.VendorInfo.Picture.Remove"]</a>
                         </div>
                     }
                 </div>

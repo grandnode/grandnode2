@@ -351,8 +351,7 @@ namespace Grand.Web.Controllers
             return View(model);
         }
 
-        [HttpPost]
-        [AutoValidateAntiforgeryToken]
+        [HttpGet]
         public virtual async Task<IActionResult> RemovePicture()
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
