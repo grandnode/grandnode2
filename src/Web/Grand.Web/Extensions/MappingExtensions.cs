@@ -3,6 +3,7 @@ using Grand.Business.Common.Interfaces.Directory;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Courses;
+using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Pages;
 using Grand.Web.Models.Catalog;
@@ -24,8 +25,7 @@ namespace Grand.Web.Extensions
             if (entity == null)
                 return null;
 
-            var model = new CategoryModel
-            {
+            var model = new CategoryModel {
                 Id = entity.Id,
                 ParentCategoryId = entity.ParentCategoryId,
                 Name = entity.GetTranslation(x => x.Name, language.Id),
@@ -48,8 +48,7 @@ namespace Grand.Web.Extensions
             if (entity == null)
                 return null;
 
-            var model = new BrandModel
-            {
+            var model = new BrandModel {
                 Id = entity.Id,
                 Name = entity.GetTranslation(x => x.Name, language.Id),
                 Description = entity.GetTranslation(x => x.Description, language.Id),
@@ -69,8 +68,7 @@ namespace Grand.Web.Extensions
             if (entity == null)
                 return null;
 
-            var model = new CollectionModel
-            {
+            var model = new CollectionModel {
                 Id = entity.Id,
                 Name = entity.GetTranslation(x => x.Name, language.Id),
                 Description = entity.GetTranslation(x => x.Description, language.Id),
@@ -91,8 +89,7 @@ namespace Grand.Web.Extensions
             if (entity == null)
                 return null;
 
-            var model = new CourseModel
-            {
+            var model = new CourseModel {
                 Id = entity.Id,
                 Name = entity.GetTranslation(x => x.Name, language.Id),
                 Description = entity.GetTranslation(x => x.Description, language.Id),
@@ -110,8 +107,7 @@ namespace Grand.Web.Extensions
         //page
         public static PageModel ToModel(this Page entity, Language language, IDateTimeService dateTimeService, string password = "")
         {
-            var model = new PageModel
-            {
+            var model = new PageModel {
                 Id = entity.Id,
                 SystemName = entity.SystemName,
                 IncludeInSitemap = entity.IncludeInSitemap,
@@ -132,6 +128,20 @@ namespace Grand.Web.Extensions
 
         }
 
+        public static Address ToEntity(this AddressModel model, Customer customer, AddressSettings addressSettings, bool trimFields = true)
+        {
+            if (model == null)
+                return null;
+
+            var entity = new Address();
+            entity = ToEntity(model, entity, trimFields);
+            if (addressSettings.DisallowUsersToChangeEmail)
+            {
+                entity.Email = customer.Email;
+            }
+            return entity;
+        }
+
         public static Address ToEntity(this AddressModel model, bool trimFields = true)
         {
             if (model == null)
@@ -139,6 +149,16 @@ namespace Grand.Web.Extensions
 
             var entity = new Address();
             return ToEntity(model, entity, trimFields);
+        }
+
+        public static Address ToEntity(this AddressModel model, Address destination, Customer customer, AddressSettings addressSettings, bool trimFields = true)
+        {
+            var entity = ToEntity(model, destination, trimFields);
+            if (addressSettings.DisallowUsersToChangeEmail)
+            {
+                entity.Email = customer.Email;
+            }
+            return entity;
         }
 
         public static Address ToEntity(this AddressModel model, Address destination, bool trimFields = true)

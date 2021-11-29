@@ -26,7 +26,7 @@ namespace Grand.Web.Features.Handlers.Common
         private readonly ITranslationService _translationService;
         private readonly IAddressAttributeService _addressAttributeService;
         private readonly IAddressAttributeParser _addressAttributeParser;
-
+        private readonly IGroupService _groupService;
         private readonly AddressSettings _addressSettings;
 
         public GetAddressModelHandler(
@@ -34,12 +34,14 @@ namespace Grand.Web.Features.Handlers.Common
             ITranslationService translationService,
             IAddressAttributeService addressAttributeService,
             IAddressAttributeParser addressAttributeParser,
+            IGroupService groupService,
             AddressSettings addressSettings)
         {
             _countryService = countryService;
             _translationService = translationService;
             _addressAttributeService = addressAttributeService;
             _addressAttributeParser = addressAttributeParser;
+            _groupService = groupService;
             _addressSettings = addressSettings;
         }
 
@@ -171,6 +173,10 @@ namespace Grand.Web.Features.Handlers.Common
             model.FaxEnabled = _addressSettings.FaxEnabled;
             model.FaxRequired = _addressSettings.FaxRequired;
             model.NoteEnabled = _addressSettings.NoteEnabled;
+            if (customer != null && !await _groupService.IsGuest(customer))
+            {
+                model.DisallowUsersToChangeEmail = _addressSettings.DisallowUsersToChangeEmail;
+            }
             model.AddressTypeEnabled = _addressSettings.AddressTypeEnabled;
         }
 

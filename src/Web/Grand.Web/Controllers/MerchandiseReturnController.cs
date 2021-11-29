@@ -32,7 +32,7 @@ namespace Grand.Web.Controllers
         private readonly IGroupService _groupService;
         private readonly ITranslationService _translationService;
         private readonly IMediator _mediator;
-
+        private readonly AddressSettings _addressSettings;
         private readonly OrderSettings _orderSettings;
         #endregion
 
@@ -45,6 +45,7 @@ namespace Grand.Web.Controllers
             IGroupService groupService,
             ITranslationService translationService,
             IMediator mediator,
+            AddressSettings addressSettings,
             OrderSettings orderSettings)
         {
             _merchandiseReturnService = merchandiseReturnService;
@@ -53,6 +54,7 @@ namespace Grand.Web.Controllers
             _groupService = groupService;
             _translationService = translationService;
             _mediator = mediator;
+            _addressSettings = addressSettings;
             _orderSettings = orderSettings;
         }
 
@@ -97,7 +99,7 @@ namespace Grand.Web.Controllers
                         ModelState.AddModelError("", error);
                     }
                     await TryUpdateModelAsync(model.NewAddress, "MerchandiseReturnNewAddress");
-                    address = model.NewAddress.ToEntity();
+                    address = model.NewAddress.ToEntity(_workContext.CurrentCustomer, _addressSettings);
                     model.NewAddressPreselected = true;
                     address.Attributes = customAttributes;
                     address.CreatedOnUtc = DateTime.UtcNow;

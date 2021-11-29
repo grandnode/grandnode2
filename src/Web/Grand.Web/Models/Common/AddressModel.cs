@@ -94,5 +94,7 @@ namespace Grand.Web.Models.Common
         public int AddressTypeId { get; set; }
 
         public bool HideAddressType { get; set; }
+
+        public bool DisallowUsersToChangeEmail { get; set; }
     }
 }

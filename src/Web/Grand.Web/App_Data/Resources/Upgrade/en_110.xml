@@ -297,4 +297,7 @@
   <Resource Name="Admin.Configuration.RobotsTxt.Fields.Text.Required">
     <Value>Field content is required</Value>
   </Resource>
+  <Resource Name="Admin.Settings.Customer.AddressFormFields.DisallowUsersToChangeEmail">
+    <Value>Disallow user change email on the address fields</Value>
+  </Resource>
 </Language>

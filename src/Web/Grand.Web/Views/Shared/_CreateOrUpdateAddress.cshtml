@@ -64,7 +64,7 @@
         <validation-provider tag="div" rules="required|email" :name="'@prefix'  + '.Email'" v-slot="{ errors, classes }">
             <label asp-for="Email" class="col-form-label">@Loc["Address.Fields.Email"]:</label>
             <span class="required">*</span>
-            <input asp-for="Email" v-model="createorupdateaddress@{@prefix}.Email" v-bind:class="[classes , 'form-control']" />
+            <input asp-for="Email" v-model="createorupdateaddress@{@prefix}.Email" v-bind:class="[classes , 'form-control']" asp-readonly=@(Model.DisallowUsersToChangeEmail)/>
             <span class="field-validation-error">{{ errors[0] }}</span>
             <span asp-validation-for="Email"></span>
         </validation-provider>

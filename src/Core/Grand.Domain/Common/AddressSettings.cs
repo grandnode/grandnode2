@@ -95,5 +95,9 @@ namespace Grand.Domain.Common
         /// Gets or sets a value indicating whether 'AddressType' is enabled
         /// </summary>
         public bool AddressTypeEnabled { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether users are allowed to change their email on the address
+        /// </summary>
+        public bool DisallowUsersToChangeEmail { get; set; }
     }
 }

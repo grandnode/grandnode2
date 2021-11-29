@@ -245,6 +245,9 @@ namespace Grand.Web.Admin.Models.Settings
 
             [GrandResourceDisplayName("Admin.Settings.Customer.AddressFormFields.NoteEnabled")]
             public bool NoteEnabled { get; set; }
+
+            [GrandResourceDisplayName("Admin.Settings.Customer.AddressFormFields.DisallowUsersToChangeEmail")]
+            public bool DisallowUsersToChangeEmail { get; set; }
         }
 
 

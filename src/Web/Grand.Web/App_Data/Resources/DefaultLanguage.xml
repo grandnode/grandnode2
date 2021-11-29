@@ -10903,6 +10903,9 @@
   <Resource Name="Admin.Settings.Customer.AddressFormFields.Description">
     <Value>You can create and manage the address form fields available during checkout.</Value>
   </Resource>
+  <Resource Name="Admin.Settings.Customer.AddressFormFields.DisallowUsersToChangeEmail">
+    <Value>Disallow user change email on the address fields</Value>
+  </Resource>
   <Resource Name="Admin.Settings.Customer.AddressFormFields.FaxEnabled">
     <Value>'Fax number' enabled</Value>
   </Resource>

@@ -487,7 +487,7 @@ namespace Grand.Web.Controllers
             return View(model);
         }
 
-        public virtual async Task<IActionResult> SaveBilling(IFormCollection form)
+        public virtual async Task<IActionResult> SaveBilling([FromServices] AddressSettings addressSettings, IFormCollection form)
         {
             try
             {
@@ -558,7 +558,11 @@ namespace Grand.Web.Controllers
                     if (address == null)
                     {
                         //address is not found. create a new one
-                        address = model.NewAddress.ToEntity();
+                        address = 
+                            await _groupService.IsGuest(_workContext.CurrentCustomer) ?
+                            model.NewAddress.ToEntity() : 
+                            model.NewAddress.ToEntity(_workContext.CurrentCustomer, addressSettings);
+
                         address.Attributes = customAttributes;
                         address.CreatedOnUtc = DateTime.UtcNow;
                         address.AddressType = _addressSettings.AddressTypeEnabled ? AddressType.Billing : AddressType.Any;
@@ -589,7 +593,8 @@ namespace Grand.Web.Controllers
             }
         }
 
-        public virtual async Task<IActionResult> SaveShipping(CheckoutShippingAddressModel model, IFormCollection form)
+        public virtual async Task<IActionResult> SaveShipping([FromServices] AddressSettings addressSettings,
+            CheckoutShippingAddressModel model, IFormCollection form)
         {
             try
             {
@@ -711,7 +716,11 @@ namespace Grand.Web.Controllers
                             model.NewAddress.CountryId);
                         if (address == null)
                         {
-                            address = model.NewAddress.ToEntity();
+                            address =
+                                await _groupService.IsGuest(_workContext.CurrentCustomer) ?
+                                model.NewAddress.ToEntity() :
+                                model.NewAddress.ToEntity(_workContext.CurrentCustomer, addressSettings);
+
                             address.Attributes = customAttributes;
                             address.CreatedOnUtc = DateTime.UtcNow;
                             address.AddressType = _addressSettings.AddressTypeEnabled ? (model.BillToTheSameAddress ? AddressType.Any : AddressType.Shipping) : AddressType.Any;
