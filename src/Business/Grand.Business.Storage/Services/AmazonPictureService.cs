@@ -2,19 +2,18 @@
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Storage.Interfaces;
+using Grand.Domain.Data;
+using Grand.Domain.Media;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
-using Grand.Domain.Data;
-using Grand.Domain.Media;
 using MediatR;
-using Microsoft.AspNetCore.Hosting;
 using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Storage.Interfaces;
 
 namespace Grand.Business.Storage.Services
 {
@@ -38,7 +37,6 @@ namespace Grand.Business.Storage.Services
         public AmazonPictureService(IRepository<Picture> pictureRepository,
             ILogger logger,
             IMediator mediator,
-            IWebHostEnvironment hostingEnvironment,
             IWorkContext workContext,
             ICacheBase cacheBase,
             IMediaFileStore mediaFileStore,
@@ -48,7 +46,6 @@ namespace Grand.Business.Storage.Services
             : base(pictureRepository,
                 logger,
                 mediator,
-                hostingEnvironment,
                 workContext,
                 cacheBase,
                 mediaFileStore,
@@ -93,8 +90,7 @@ namespace Grand.Business.Storage.Services
                 while (_bucketExist == false)
                 {
                     S3Region s3region = S3Region.FindValue(_config.AmazonRegion);
-                    var putBucketRequest = new PutBucketRequest
-                    {
+                    var putBucketRequest = new PutBucketRequest {
                         BucketName = _bucketName,
                         BucketRegion = s3region,
                     };
@@ -135,8 +131,7 @@ namespace Grand.Business.Storage.Services
         {
             await CheckBucketExists();
 
-            var listObjectsRequest = new ListObjectsV2Request()
-            {
+            var listObjectsRequest = new ListObjectsV2Request() {
                 BucketName = _bucketName,
                 Prefix = picture.Id
             };
@@ -193,8 +188,7 @@ namespace Grand.Business.Storage.Services
 
             using (Stream stream = new MemoryStream(binary))
             {
-                var putObjectRequest = new PutObjectRequest()
-                {
+                var putObjectRequest = new PutObjectRequest() {
                     BucketName = _bucketName,
                     InputStream = stream,
                     Key = thumbFileName,
@@ -213,8 +207,7 @@ namespace Grand.Business.Storage.Services
         {
             await CheckBucketExists();
 
-            var listObjectsRequest = new ListObjectsV2Request()
-            {
+            var listObjectsRequest = new ListObjectsV2Request() {
                 BucketName = _bucketName
             };
             var listObjectsResponse = await _s3Client.ListObjectsV2Async(listObjectsRequest);

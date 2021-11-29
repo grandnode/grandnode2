@@ -11,7 +11,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using Microsoft.AspNetCore.Hosting;
 using SkiaSharp;
 using System;
 using System.IO;
@@ -33,21 +32,11 @@ namespace Grand.Business.Storage.Services
         private readonly IRepository<Picture> _pictureRepository;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
-        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IWorkContext _workContext;
         private readonly ICacheBase _cacheBase;
         private readonly IMediaFileStore _mediaFileStore;
         private readonly MediaSettings _mediaSettings;
         private readonly StorageSettings _storageSettings;
-
-        //Used when images stored on file system
-        private readonly string _imagePath;
-
-        //Used for thumb images
-        private readonly string _thumbPath;
-
-        //path to the no image file
-        private readonly string _path_no_image = "assets/images/no-image.png";
 
         #endregion
 
@@ -59,7 +48,6 @@ namespace Grand.Business.Storage.Services
         /// <param name="pictureRepository">Picture repository</param>
         /// <param name="logger">Logger</param>
         /// <param name="mediator">Mediator</param>
-        /// <param name="hostingEnvironment">hostingEnvironment</param>
         /// <param name="workContext">Current context</param>
         /// <param name="cacheBase">Cache manager</param>
         /// <param name="mediaFileStore">Media file storage</param>
@@ -67,7 +55,6 @@ namespace Grand.Business.Storage.Services
         public PictureService(IRepository<Picture> pictureRepository,
             ILogger logger,
             IMediator mediator,
-            IWebHostEnvironment hostingEnvironment,
             IWorkContext workContext,
             ICacheBase cacheBase,
             IMediaFileStore mediaFileStore,
@@ -77,15 +64,11 @@ namespace Grand.Business.Storage.Services
             _pictureRepository = pictureRepository;
             _logger = logger;
             _mediator = mediator;
-            _hostingEnvironment = hostingEnvironment;
             _workContext = workContext;
             _cacheBase = cacheBase;
             _mediaFileStore = mediaFileStore;
             _mediaSettings = mediaSettings;
             _storageSettings = storageSettings;
-
-            _imagePath = _mediaFileStore.Combine("assets", "images");
-            _thumbPath = _mediaFileStore.Combine("assets", "images", "thumbs");
         }
 
         #endregion
@@ -144,7 +127,7 @@ namespace Grand.Business.Storage.Services
         protected virtual Task DeletePictureThumbs(Picture picture)
         {
             string filter = string.Format("{0}*.*", picture.Id);
-            var thumbDirectoryPath = _mediaFileStore.GetDirectoryInfo(_thumbPath);
+            var thumbDirectoryPath = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageThumbPath);
             if (thumbDirectoryPath != null)
             {
                 string[] currentFiles = Directory.GetFiles(thumbDirectoryPath.PhysicalPath, filter, SearchOption.AllDirectories);
@@ -171,7 +154,7 @@ namespace Grand.Business.Storage.Services
         /// <returns>Local picture physical path</returns>
         protected virtual async Task<string> GetThumbPhysicalPath(string thumbFileName)
         {
-            var thumbFile = _mediaFileStore.Combine(_thumbPath, thumbFileName);
+            var thumbFile = _mediaFileStore.Combine(CommonPath.ImageThumbPath, thumbFileName);
             var fileInfo = await _mediaFileStore.GetFileInfo(thumbFile);
             return fileInfo?.PhysicalPath;
         }
@@ -190,7 +173,7 @@ namespace Grand.Business.Storage.Services
                                     _workContext.CurrentStore.SslEnabled ? _workContext.CurrentStore.SecureUrl : _workContext.CurrentStore.Url :
                                     _mediaSettings.StoreLocation;
 
-            return _mediaFileStore.Combine(storeLocation, CommonPath.Param, _thumbPath, thumbFileName);
+            return _mediaFileStore.Combine(storeLocation, CommonPath.Param, CommonPath.ImageThumbPath, thumbFileName);
         }
 
         /// <summary>
@@ -200,7 +183,7 @@ namespace Grand.Business.Storage.Services
         /// <returns>Physical picture path</returns>
         protected virtual async Task<string> GetPicturePhysicalPath(string fileName)
         {
-            var fileinfo = await _mediaFileStore.GetFileInfo(_mediaFileStore.Combine(_imagePath, fileName));
+            var fileinfo = await _mediaFileStore.GetFileInfo(_mediaFileStore.Combine(CommonPath.ImagePath, fileName));
             return fileinfo?.PhysicalPath;
         }
 
@@ -231,12 +214,12 @@ namespace Grand.Business.Storage.Services
         {
             try
             {
-                var dirThumb = _mediaFileStore.GetDirectoryInfo(_thumbPath);
+                var dirThumb = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageThumbPath);
                 if (dirThumb == null)
                 {
-                    var result = _mediaFileStore.TryCreateDirectory(_thumbPath);
+                    var result = _mediaFileStore.TryCreateDirectory(CommonPath.ImageThumbPath);
                     if (result)
-                        dirThumb = _mediaFileStore.GetDirectoryInfo(_thumbPath);
+                        dirThumb = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageThumbPath);
                 }
 
                 if (dirThumb != null)
@@ -291,7 +274,7 @@ namespace Grand.Business.Storage.Services
             var filePath = await GetPicturePhysicalPath(_mediaSettings.DefaultImageName);
             if (string.IsNullOrEmpty(filePath))
             {
-                return _path_no_image;
+                return _mediaFileStore.Combine(CommonPath.ImagePath, "no-image.png");
             }
             if (targetSize == 0)
             {
@@ -299,7 +282,7 @@ namespace Grand.Business.Storage.Services
                         ? storeLocation
                         : string.IsNullOrEmpty(_mediaSettings.StoreLocation) ?
                         _workContext.CurrentStore.SslEnabled ? _workContext.CurrentStore.SecureUrl : _workContext.CurrentStore.Url :
-                        _mediaFileStore.Combine(_mediaSettings.StoreLocation, _imagePath, _mediaSettings.DefaultImageName);
+                        _mediaFileStore.Combine(_mediaSettings.StoreLocation, CommonPath.ImagePath, _mediaSettings.DefaultImageName);
             }
             else
             {
@@ -529,7 +512,7 @@ namespace Grand.Business.Storage.Services
         public virtual async Task ClearThumbs()
         {
             const string searchPattern = "*.*";
-            var path = _mediaFileStore.GetDirectoryInfo(Path.Combine("assets", "images", "thumbs"))?.PhysicalPath;
+            var path = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageThumbPath)?.PhysicalPath;
 
             if (!Directory.Exists(path))
                 return;
@@ -726,7 +709,7 @@ namespace Grand.Business.Storage.Services
         {
             var lastPart = GetFileExtensionFromMimeType(mimeType);
             var fileName = string.Format("{0}_0.{1}", pictureId, lastPart);
-            var dirpath = _mediaFileStore.GetDirectoryInfo(_imagePath);
+            var dirpath = _mediaFileStore.GetDirectoryInfo(CommonPath.ImagePath);
             if (dirpath != null)
             {
                 var filepath = _mediaFileStore.Combine(dirpath.PhysicalPath, fileName);

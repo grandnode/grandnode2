@@ -36,13 +36,12 @@ namespace Grand.Business.Storage.Tests.Services
             _repoMock = new Mock<IRepository<Picture>>();
             _logerMock = new Mock<ILogger>();
             _mediatorMock = new Mock<IMediator>();
-            _webHostMock = new Mock<IWebHostEnvironment>();
             _workContextMock = new Mock<IWorkContext>();
             _cacheMock = new Mock<ICacheBase>();
             _mediaFileStoreMock = new Mock<IMediaFileStore>();
             _settings = new MediaSettings();
             _storagesettings = new StorageSettings();
-            _service = new PictureService(_repoMock.Object, _logerMock.Object, _mediatorMock.Object, _webHostMock.Object, _workContextMock.Object
+            _service = new PictureService(_repoMock.Object, _logerMock.Object, _mediatorMock.Object, _workContextMock.Object
                 , _cacheMock.Object, _mediaFileStoreMock.Object, _settings, _storagesettings);
         }
 

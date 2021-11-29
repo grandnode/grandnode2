@@ -50,22 +50,22 @@ namespace Grand.Web.Admin.Services
             if (!string.IsNullOrEmpty(_mediaSettings.FileManagerDisabledUICommands))
                 _connector.Options.DisabledUICommands = _mediaSettings.FileManagerDisabledUICommands.Split(',').Select(x => x.Trim()).ToList();
 
-            var uploaded = _mediaFileStore.GetDirectoryInfo(Path.Combine("assets", "images", "uploaded"));
+            var uploaded = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageUploadedPath);
             if (uploaded == null)
             {
-                _mediaFileStore.TryCreateDirectory(Path.Combine("assets", "images", "uploaded"));
-                uploaded = _mediaFileStore.GetDirectoryInfo(Path.Combine("assets", "images", "uploaded"));
+                _mediaFileStore.TryCreateDirectory(CommonPath.ImageUploadedPath);
+                uploaded = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageUploadedPath);
             }
             _fullPathToUpload = uploaded.PhysicalPath;
 
             _urlpathUploded = (string.IsNullOrEmpty(CommonPath.Param) ? $"/": $"/{CommonPath.Param}/")
                                 + uploaded.Path.Replace("\\", "/") + "/";
 
-            var thumbs = _mediaFileStore.GetDirectoryInfo(Path.Combine("assets", "images", "thumbs"));
+            var thumbs = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageThumbPath);
             if (thumbs == null)
             {
-                _mediaFileStore.TryCreateDirectory(Path.Combine("assets", "images", "thumbs"));
-                thumbs = _mediaFileStore.GetDirectoryInfo(Path.Combine("assets", "images", "thumbs"));
+                _mediaFileStore.TryCreateDirectory(CommonPath.ImageThumbPath);
+                thumbs = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageThumbPath);
             }
             _fullPathToThumbs = thumbs.PhysicalPath;
 

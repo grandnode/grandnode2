@@ -70,6 +70,37 @@ namespace Grand.SharedKernel.Extensions
         }
 
         /// <summary>
+        /// Maps a image path.
+        /// </summary>
+        /// <returns>The path.</returns>
+        public static string ImagePath {
+            get {
+                return Path.Combine("assets", "images");
+            }
+        }
+
+        /// <summary>
+        /// Maps a image thumb path.
+        /// </summary>
+        /// <returns>The path.</returns>
+        public static string ImageThumbPath {
+            get {
+                return Path.Combine("assets", "images", "thumbs");
+            }
+        }
+
+        /// <summary>
+        /// Maps a image upload path.
+        /// </summary>
+        /// <returns>The path.</returns>
+        public static string ImageUploadedPath {
+            get {
+                return Path.Combine("assets", "images", "uploaded");
+            }
+        }
+
+
+        /// <summary>
         /// Maps a installled plugins path to a physical disk path.
         /// </summary>
         /// <returns>The physical path.</returns>
