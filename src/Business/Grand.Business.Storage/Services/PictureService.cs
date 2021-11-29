@@ -303,7 +303,8 @@ namespace Grand.Business.Storage.Services
                     using (var image = SKBitmap.Decode(filePath))
                     {
                         var pictureBinary = ApplyResize(image, EncodedImageFormat(fileExtension), targetSize);
-                        await SaveThumb(thumbFileName, pictureBinary);
+                        if (pictureBinary != null)
+                            await SaveThumb(thumbFileName, pictureBinary);
                     }
                     mutex.ReleaseMutex();
                 }
@@ -408,7 +409,9 @@ namespace Grand.Business.Storage.Services
                         try
                         {
                             using var image = SKBitmap.Decode(pictureBinary);
-                            pictureBinary = ApplyResize(image, EncodedImageFormat(picture.MimeType), targetSize);
+                            var resizedbinary = ApplyResize(image, EncodedImageFormat(picture.MimeType), targetSize);
+                            if (resizedbinary != null)
+                                pictureBinary = resizedbinary;
                         }
                         catch { }
                     }
@@ -767,13 +770,22 @@ namespace Grand.Business.Storage.Services
                         {
                             //horizontal rectangle or square
                             if (image.Width > _mediaSettings.MaximumImageSize && image.Height > _mediaSettings.MaximumImageSize)
-                                byteArray = ApplyResize(image, format, _mediaSettings.MaximumImageSize);
+                            {
+                                var resizedPicture = ApplyResize(image, format, _mediaSettings.MaximumImageSize);
+                                if (resizedPicture != null)
+                                    byteArray = resizedPicture;
+                            }
                         }
                         else if (image.Width < image.Height)
                         {
                             //vertical rectangle
                             if (image.Width > _mediaSettings.MaximumImageSize)
-                                byteArray = ApplyResize(image, format, _mediaSettings.MaximumImageSize);
+                            {
+                                var resizedPicture = ApplyResize(image, format, _mediaSettings.MaximumImageSize);
+                                if (resizedPicture != null)
+                                    byteArray = resizedPicture;
+                            }
+
                         }
                         return byteArray;
                     }
@@ -852,13 +864,15 @@ namespace Grand.Business.Storage.Services
                 {
                     using (var resimage = SKImage.FromBitmap(resized))
                     {
-                        return resimage.Encode(format, _mediaSettings.ImageQuality).ToArray();
+                        var skdata = resimage.Encode(format, _mediaSettings.ImageQuality);
+                        return skdata?.ToArray();
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                return image.Bytes;
+                _logger.Error($"ApplyResize - format {format}", ex);
+                return null;
             }
 
 
