@@ -33,6 +33,7 @@ namespace Grand.Business.Storage.Tests.Services
         [TestInitialize]
         public void Init()
         {
+            _webHostMock = new Mock<IWebHostEnvironment>();
             _repoMock = new Mock<IRepository<Picture>>();
             _logerMock = new Mock<ILogger>();
             _mediatorMock = new Mock<IMediator>();
