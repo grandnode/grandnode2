@@ -64,7 +64,7 @@
         <validation-provider tag="div" rules="required|email" :name="'@prefix'  + '.Email'" v-slot="{ errors, classes }">
             <label asp-for="Email" class="col-form-label">@Loc["Address.Fields.Email"]:</label>
             <span class="required">*</span>
-            <input asp-for="Email" v-model="createorupdateaddress@{@prefix}.Email" v-bind:class="[classes , 'form-control']" asp-readonly=@(Model.DisallowUsersToChangeEmail)/>
+            <input asp-for="Email" v-model="createorupdateaddress@{@prefix}.Email" v-bind:class="[classes , 'form-control']" asp-readonly=@(Model.DisallowUsersToChangeEmail) />
             <span class="field-validation-error">{{ errors[0] }}</span>
             <span asp-validation-for="Email"></span>
         </validation-provider>
@@ -306,10 +306,52 @@
                         prefix: '@prefix',
                         @foreach (var item in Model.CustomAddressAttributes)
                         {
-                            <text>address_attribute_</text> @item.Id <text>: '',</text>
+                            @switch (item.AttributeControlType)
+                            {
+                                case AttributeControlType.DropdownList:
+                                {
+                                    @foreach (var itemValue in item.Values)
+                                    {
+                                        if (itemValue.IsPreSelected)
+                                        {
+                                            <text>address_attribute_</text> @item.Id <text>: '@itemValue.Id',</text>
+                                        }
+                                    }
+                                }
+                                break;
+                                case AttributeControlType.Checkboxes:
+                                case AttributeControlType.RadioList:
+                                case AttributeControlType.ReadonlyCheckboxes:
+                                {
+                                    <text>address_attribute_</text> @item.Id <text>: [
+                                        @foreach (var itemValue in item.Values)
+                                        {
+                                            if (itemValue.IsPreSelected)
+                                            {
+                                                <text>'@itemValue.Id',</text>
+                                            }
+                                        }
+                                    ],</text>
+                                }
+                                break;
+                                case AttributeControlType.TextBox:
+                                case AttributeControlType.MultilineTextbox:
+                                {
+                                    <text>address_attribute_</text> @item.Id <text>: @if (item.DefaultValue != null) { <text>'@item.DefaultValue'</text> } else { <text>''</text> },</text>
+                                }
+                                break;
+                            }
+
                         }
                     </text>
                 }
-            })
+        }),
+        created() {
+            document.addEventListener("DOMContentLoaded", function () {
+                document.querySelectorAll("[data-checked='true']").forEach(function (element) {
+                    element.checked = true;
+                })
+            });
+        }
     });
 </script>

@@ -533,10 +533,52 @@
                         AcceptPrivacyPolicy: false,
                         @foreach (var item in Model.CustomerAttributes)
                         {
-                            <text>customer_attribute_</text> @item.Id <text>: '',</text>
+                            @switch (item.AttributeControlType)
+                            {
+                                case AttributeControlType.DropdownList:
+                                {
+                                    @foreach (var itemValue in item.Values)
+                                    {
+                                        if (itemValue.IsPreSelected)
+                                        {
+                                            <text>customer_attribute_</text> @item.Id <text>: '@itemValue.Id',</text>
+                                        }
+                                    }
+                                }
+                                break;
+                                case AttributeControlType.Checkboxes:
+                                case AttributeControlType.RadioList:
+                                case AttributeControlType.ReadonlyCheckboxes:
+                                {
+                                    <text>customer_attribute_</text> @item.Id <text>: [
+                                        @foreach (var itemValue in item.Values)
+                                        {
+                                            if (itemValue.IsPreSelected)
+                                            {
+                                                <text>'@itemValue.Id',</text>
+                                            }
+                                        }
+                                    ],</text>
+                                }
+                                break;
+                                case AttributeControlType.TextBox:
+                                case AttributeControlType.MultilineTextbox:
+                                {
+                                    <text>customer_attribute_</text> @item.Id <text>: @if (item.DefaultValue != null) { <text>'@item.DefaultValue'</text> } else { <text>''</text> },</text>
+                                }
+                                break;
+                            }
+
                         }
-                    </text>
-                }
-            })
-        });
+                </text>
+            }
+        }),
+        created() {
+            document.addEventListener("DOMContentLoaded", function () {
+                document.querySelectorAll("[data-checked='true']").forEach(function (element) {
+                    element.checked = true;
+                })
+            });
+        }
+    });
 </script>
