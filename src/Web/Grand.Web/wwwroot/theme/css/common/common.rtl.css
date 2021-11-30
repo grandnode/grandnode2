@@ -1036,9 +1036,9 @@ input:checked ~ .color-container .color::before {
     padding: 0 0 10px 0;
     border-bottom: 1px solid #ddd;
 }
-    .advanced-search-results .products .list .item .media .media-aside {
-        margin: 0 0 0 1rem;
-    }
+.advanced-search-results .products .list .item .media .media-aside {
+    margin: 0 0 0 1rem;
+}
 .advanced-search-results .products .list .media img {
     background-color: #F8F9FB;
 }
