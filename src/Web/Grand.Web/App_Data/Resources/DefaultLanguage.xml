@@ -12063,6 +12063,9 @@
   <Resource Name="Admin.Settings.Vendor.VendorReviewPossibleOnlyAfterPurchasing">
     <Value>Vendor review possible only after purchasing product from vendor</Value>
   </Resource>
+  <Resource Name="Admin.Settings.Vendor.VendorReviewPossibleOnlyOnce">
+    <Value>Vendor review possible only once by customer</Value>
+  </Resource>
   <Resource Name="Admin.Settings.Vendor.VendorReviews">
     <Value>Vendor reviews</Value>
   </Resource>
@@ -16601,6 +16604,9 @@
   </Resource>
   <Resource Name="VendorReviews.VendorReviewPossibleOnlyAfterPurchasing">
     <Value>Vendor can be reviewed only after purchasing a product from this vendor.</Value>
+  </Resource>
+  <Resource Name="VendorReviews.VendorReviewPossibleOnlyOnce">
+    <Value>Vendor can be reviewed only once by customer</Value>
   </Resource>
   <Resource Name="Vendors">
     <Value>Vendors</Value>

@@ -383,6 +383,16 @@ namespace Grand.Web.Controllers
                     })).Any())
                 ModelState.AddModelError(string.Empty, _translationService.GetResource("VendorReviews.VendorReviewPossibleOnlyAfterPurchasing"));
 
+            if(ModelState.IsValid && _vendorSettings.VendorReviewPossibleOnlyOnce)
+            {
+                if((await _vendorService.GetAllVendorReviews(
+                    customerId: _workContext.CurrentCustomer.Id,
+                    approved: null,
+                    vendorId: vendor.Id,
+                    pageSize: 1)).Any())
+                    ModelState.AddModelError(string.Empty, _translationService.GetResource("VendorReviews.VendorReviewPossibleOnlyOnce"));
+            }
+
             if (ModelState.IsValid)
             {
                 var vendorReview = await _mediator.Send(new InsertVendorReviewCommand() { Vendor = vendor, Store = _workContext.CurrentStore, Model = model });

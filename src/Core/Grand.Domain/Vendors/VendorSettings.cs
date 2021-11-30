@@ -82,6 +82,11 @@ namespace Grand.Domain.Vendors
         public bool DefaultAllowCustomerReview { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether vendor can be reviewed only once by customer 
+        /// </summary>
+        public bool VendorReviewPossibleOnlyOnce { get; set; }
+
+        /// <summary>
         /// Gets or sets a number of review on vendor page
         /// </summary>
         public int NumberOfReview { get; set; } = 10;

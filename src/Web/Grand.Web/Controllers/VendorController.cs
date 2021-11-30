@@ -7,14 +7,12 @@ using Grand.Business.Messages.Interfaces;
 using Grand.Business.Storage.Extensions;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Common;
-using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Seo;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Vendors;
-using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Extensions;
@@ -123,8 +121,7 @@ namespace Grand.Web.Controllers
             model.TermsOfServiceEnabled = _vendorSettings.TermsOfServiceEnabled;
             model.TermsOfServicePopup = _commonSettings.PopupForTermsOfServiceLinks;
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            model.Address = await _mediator.Send(new GetVendorAddress()
-            {
+            model.Address = await _mediator.Send(new GetVendorAddress() {
                 Language = _workContext.WorkingLanguage,
                 Address = null,
                 ExcludeProperties = false,
@@ -182,8 +179,7 @@ namespace Grand.Web.Controllers
                 var description = FormatText.ConvertText(model.Description);
                 var address = new Address();
                 //disabled by default
-                var vendor = new Vendor
-                {
+                var vendor = new Vendor {
                     Name = model.Name,
                     Email = model.Email,
                     Description = description,
@@ -231,8 +227,7 @@ namespace Grand.Web.Controllers
             model.TermsOfServicePopup = _commonSettings.PopupForTermsOfServiceLinks;
 
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            model.Address = await _mediator.Send(new GetVendorAddress()
-            {
+            model.Address = await _mediator.Send(new GetVendorAddress() {
                 Language = _workContext.WorkingLanguage,
                 Address = null,
                 Model = model.Address,
@@ -260,8 +255,7 @@ namespace Grand.Web.Controllers
             model.UserFields = vendor.UserFields;
             model.PictureUrl = await _pictureService.GetPictureUrl(vendor.PictureId);
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            model.Address = await _mediator.Send(new GetVendorAddress()
-            {
+            model.Address = await _mediator.Send(new GetVendorAddress() {
                 Language = _workContext.WorkingLanguage,
                 Address = vendor.Address,
                 ExcludeProperties = false,
@@ -339,8 +333,7 @@ namespace Grand.Web.Controllers
                 return RedirectToAction("Info");
             }
             var countries = await _countryService.GetAllCountries(_workContext.WorkingLanguage.Id, _workContext.CurrentStore.Id);
-            model.Address = await _mediator.Send(new GetVendorAddress()
-            {
+            model.Address = await _mediator.Send(new GetVendorAddress() {
                 Language = _workContext.WorkingLanguage,
                 Model = model.Address,
                 Address = vendor.Address,
