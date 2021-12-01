@@ -542,6 +542,9 @@
                                         if (itemValue.IsPreSelected)
                                         {
                                             <text>customer_attribute_</text> @item.Id <text>: '@itemValue.Id',</text>
+                                            break;
+                                        } else {
+                                            <text>customer_attribute_</text> @item.Id <text>: '',</text>
                                         }
                                     }
                                 }

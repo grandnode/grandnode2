@@ -315,6 +315,9 @@
                                         if (itemValue.IsPreSelected)
                                         {
                                             <text>address_attribute_</text> @item.Id <text>: '@itemValue.Id',</text>
+                                            break;
+                                        } else {
+                                            <text>address_attribute_</text> @item.Id <text>: '',</text>
                                         }
                                     }
                                 }
@@ -329,6 +332,8 @@
                                             if (itemValue.IsPreSelected)
                                             {
                                                 <text>'@itemValue.Id',</text>
+                                            } else {
+                                                 <text>'',</text>
                                             }
                                         }
                                     ],</text>
