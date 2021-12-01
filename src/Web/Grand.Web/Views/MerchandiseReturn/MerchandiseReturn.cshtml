@@ -150,7 +150,7 @@
                                         <label for="pickup-address-select">@Loc["MerchandiseReturns.SelectPickupAddressOrEnterNewOne"]</label>
                                         <div>
                                             <select name="pickup_address_id" id="pickup-address-select" class="custom-select address-select"
-                                                    title="" @@change="merchandisereturns.newAddress = !merchandisereturns.newAddress">
+                                                    title="" @@change="merchandisereturns.isNewAddress()">
                                                 @foreach (var address in Model.ExistingAddresses)
                                                 {
                                                     var addressLine = "";
@@ -249,15 +249,22 @@
                 } else {
                     vm.$refs[element].setAttribute("disabled", "disabled");
                 }
+            },
+            isNewAddress() {
+                if (document.getElementById('pickup-address-select') !== null) {
+                    const value = document.getElementById('pickup-address-select').value;
+                    if (value === '') {
+                        this.newAddress = true;
+                    } else {
+                        this.newAddress = false;
+                    }
+                } else {
+                    this.newAddress = true;
+                }
             }
         },
         created() {
-            @if (Model.ShowPickupAddress && (!Model.ExistingAddresses.Any() || Model.NewAddressPreselected))
-            {
-                <text>
-                    this.newAddress = true;
-                </text>
-            }
+            this.isNewAddress();
         }
     });
 </script>
