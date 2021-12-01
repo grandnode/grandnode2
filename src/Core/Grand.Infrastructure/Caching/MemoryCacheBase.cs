@@ -51,12 +51,12 @@ namespace Grand.Infrastructure.Caching
             });
         }
 
-        public T Get<T>(string key, Func<T> acquire)
+        public virtual T Get<T>(string key, Func<T> acquire)
         {
             return Get<T>(key, acquire, CommonHelper.CacheTimeMinutes);
         }
 
-        public T Get<T>(string key, Func<T> acquire, int cacheTime)
+        public virtual T Get<T>(string key, Func<T> acquire, int cacheTime)
         {
             return _cache.GetOrCreate(key, entry =>
             {
