@@ -18,7 +18,7 @@
 
     var shoppingCartItems =
         workContext.CurrentCustomer.ShoppingCartItems.Any() ?
-        (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions))
+        (await shoppingCartService.GetShoppingCart(workContext.CurrentStore.Id, shoppingCartTypes.ToArray()))
         .Sum(x => x.Quantity) : 0;
 
 
