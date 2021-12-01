@@ -189,7 +189,10 @@ body:not(.modal-open) {
 }
 select option:disabled {
     color: #aaa;
-} 
+}
+.custom-select:disabled {
+    opacity: 0.5;
+}
 
 /* sidebar common */
 

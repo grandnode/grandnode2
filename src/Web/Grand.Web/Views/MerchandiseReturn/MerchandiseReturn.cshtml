@@ -28,7 +28,7 @@
                 <div class="mt-2">
                     <h2 class="h5 mt-3"><strong>@Loc["MerchandiseReturns.SelectProduct(s)"]</strong></h2>
                     <div class="table-responsive">
-                        <table class="table table-hover data-table">
+                        <table class="table table-hover merchandise-table data-table">
                             <colgroup>
                                 <col />
                                 <col width="200" />
@@ -54,58 +54,83 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var item in Model.Items)
-                                {
-                                    <tr>
-                                        <td class="product">
-                                            <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
-                                            @if (!String.IsNullOrEmpty(item.AttributeInfo))
-                                            {
-                                                <div class="attributes p-2">
-                                                    @Html.Raw(item.AttributeInfo)
-                                                </div>
-                                            }
-                                            @if (!String.IsNullOrEmpty(item.VendorName))
-                                            {
-                                                <div class="vendor">
-                                                    @item.VendorName
-                                                </div>
-                                            }
-                                        </td>
-                                        <td class="unit-price">
-                                            @item.UnitPrice
-                                        </td>
-                                        <td class="quantity">
-                                            <select class="custom-select form-control" name="quantity@(item.Id)">
-                                                @for (int i = 0; i <= item.Quantity; i++)
-                                                {
-                                                    <option value="@(i)">@(i)</option>
-                                                }
-                                            </select>
-                                        </td>
-                                        <td>
-                                            @{
-                                                var reasonsSelectList = Model.AvailableReturnReasons.Select(x => new SelectListItem
-                                                {
-                                                    Text = x.Name,
-                                                    Value = x.Id.ToString()
-                                                }).ToList();
-                                            }
-                                            <select asp-for="@item.MerchandiseReturnReasonId" asp-items="@reasonsSelectList" name="reason@(item.Id)" class="form-control custom-select return-reasons"></select>
-                                        </td>
-                                        <td>
-                                            @{
-                                                var actionsSelectList = Model.AvailableReturnActions.Select(x => new SelectListItem
-                                                {
-                                                    Text = x.Name,
-                                                    Value = x.Id.ToString()
-                                                }).ToList();
-                                            }
-                                            <select asp-for="@item.MerchandiseReturnReasonId" asp-items="@actionsSelectList" name="action@(item.Id)" class="form-control custom-select return-actions"></select>
-                                        </td>
-                                    </tr>
+                                @{
+                                    int index = 0;
                                 }
-                            </tbody>
+                                <tr>
+                                    <td>
+                                        <validation-provider tag="div" rules="required|exact_length:1,@Loc["merchandisereturns.noitemssubmitted"]" v-slot="{ errors, classes }">
+                                            @foreach (var item in Model.Items)
+                                            {
+                                                index++;
+                                                <div>
+                                                    <label class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input" v-model="merchandisereturns.checkboxes" value="@index" @@change="merchandisereturns.allowed($event.target ,'quantity@(item.Id)')" name="checkbox_@(item.Id)" id="check_@(item.Id)">
+                                                        <span class="custom-control-label"></span>
+                                                        <span class="custom-control-description"></span>
+                                                    </label>
+                                                </div>
+                                            }
+                                            <span class="field-validation-error" v-if="errors[0]">{{ errors[0] }}</span>
+                                        </validation-provider>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    @foreach (var item in Model.Items)
+                                    {
+                                        index++;
+                                            <td>
+                                                <div class="product">
+                                                    <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
+                                                    @if (!String.IsNullOrEmpty(item.AttributeInfo))
+                                                    {
+                                                        <a id="attributes-btn" class="btn btn-sm btn-outline-info" v-b-tooltip.html.right.hover title="@Html.Raw(item.AttributeInfo)">Attributes</a>
+                                                    }
+                                                    @if (!String.IsNullOrEmpty(item.VendorName))
+                                                    {
+                                                        <div class="vendor">
+                                                            @item.VendorName
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="unit-price">
+                                                    @item.UnitPrice
+                                                </div>
+                                                <div class="quantity">
+                                                    <validation-provider tag="div" rules="required" v-slot="{ errors, classes }">
+                                                        <select data-val-required="@(string.Format(Loc["Fields.IsRequired"], Loc["MerchandiseReturns.Products.Quantity"]))" v-bind:class="[classes , 'custom-select form-control']" disabled="disabled" v-model="merchandisereturns.quantity_@(item.Id)" ref="quantity@(item.Id)" name="quantity@(item.Id)">
+                                                            @for (int i = 0; i <= item.Quantity; i++)
+                                                            {
+                                                                <option value="@(i)">@(i)</option>
+                                                            }
+                                                        </select>
+                                                        <span class="field-validation-error">{{ errors[0] }}</span>
+                                                    </validation-provider>
+                                                </div>
+                                                <div>
+                                                    @{
+                                                        var reasonsSelectList = Model.AvailableReturnReasons.Select(x => new SelectListItem
+                                                        {
+                                                            Text = x.Name,
+                                                            Value = x.Id.ToString()
+                                                        }).ToList();
+                                                    }
+                                                    <select asp-for="@item.MerchandiseReturnReasonId" asp-items="@reasonsSelectList" name="reason@(item.Id)" class="form-control custom-select return-reasons"></select>
+                                                </div>
+                                                <div>
+                                                    @{
+                                                        var actionsSelectList = Model.AvailableReturnActions.Select(x => new SelectListItem
+                                                        {
+                                                            Text = x.Name,
+                                                            Value = x.Id.ToString()
+                                                        }).ToList();
+                                                    }
+                                                    <select asp-for="@item.MerchandiseReturnReasonId" asp-items="@actionsSelectList" name="action@(item.Id)" class="form-control custom-select return-actions"></select>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -211,7 +236,21 @@
                 </text>
             }
             newAddress: false,
+            @foreach (var item in Model.Items)
+            {
+                <text>quantity_</text> @item.Id <text>: '0',</text>
+            }
+            checkboxes: []
         }),
+        methods: {
+            allowed(checkbox,element) {
+                if (checkbox.checked) {
+                    vm.$refs[element].removeAttribute("disabled");
+                } else {
+                    vm.$refs[element].setAttribute("disabled", "disabled");
+                }
+            }
+        },
         created() {
             @if (Model.ShowPickupAddress && (!Model.ExistingAddresses.Any() || Model.NewAddressPreselected))
             {
