@@ -179,6 +179,9 @@ var AxiosCart = {
             vm.flycartindicator = newfly.TotalProducts;
 
         }
+        if (response.data.updatetopcartsectionhtml !== 'undefiend') {
+            vm.flycartindicator = response.data.updatetopcartsectionhtml;
+        }
         if (response.data.product) {
             if (response.data.success == true) {
 

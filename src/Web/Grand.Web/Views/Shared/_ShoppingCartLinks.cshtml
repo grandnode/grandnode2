@@ -57,7 +57,14 @@
             <li class="nav-item">
                 <a href="@Url.RouteUrl("ShoppingCart")" class="nav-link">
                     <b-icon icon="cart" :variant="[darkMode ? 'white' : 'dark']"></b-icon>
-                    <div class="qty-indicator cart-qty">@Loc["ShoppingCart.HeaderQuantity", shoppingCartItems]</div>
+                    <span class="qty-indicator cart-qty">
+                        <template v-if="flycartindicator == null">
+                            @Loc["ShoppingCart.HeaderQuantity", shoppingCartItems]
+                        </template>
+                        <template v-else>
+                            {{flycartindicator}}
+                        </template>
+                    </span>
                 </a>
             </li>
         }
