@@ -40,7 +40,7 @@ namespace Grand.Business.Storage.Startup
                 services.AddScoped<IPictureService, PictureService>();
             }
 
-            services.AddSingleton<IMediaFileStore>(serviceProvider =>
+            services.AddScoped<IMediaFileStore>(serviceProvider =>
             {
                 var fileStore = new FileSystemStore(CommonPath.WebRootPath);
                 return new DefaultMediaFileStore(fileStore);
