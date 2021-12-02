@@ -7,10 +7,10 @@
     <br />
     OPEN-SOURCE E-COMMERCE PLATFORM</h1>
      <p align="center">
-    GrandNode is an e-Commerce platform that enables the flexible development of online stores. <br />
+    GrandNode is an intuitive e-Commerce platform that enables the flexible development of online stores. <br />
 Based on the modern MongoDB database, a fully free and open-source system allows you to support various business models: <br />
   B2B, B2C, Multi-Store, Multi-Vendor, Multi-Tenant, Multi-Language, Multi-Currency. <br />
-Advanced personalization, scalability, speed, and high efficiency - these features that effectively support your e-business management.
+Advanced personalization, scalability, speed, and high efficiency - these are features that effectively support your e-business management.
   </p>
   <p align="center">
     <a href="https://grandnode.com/?utm_source=github&utm_medium=link&utm_campaign=readme"><strong>Explore the project »</strong></a>
