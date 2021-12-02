@@ -1,5 +1,6 @@
 ﻿using Grand.Domain.Data;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,15 +11,19 @@ namespace Grand.Web.Common.Startup
 {
     public class DbCheckStartup : IStartupApplication
     {
-        public int Priority => -1000;
-        public bool BeforeConfigure => true;
+        public int Priority => 0;
+        public bool BeforeConfigure => false;
 
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
             if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
-            application.UseMiddleware<DbVersionCheckMiddleware>();
+            var serviceProvider = application.ApplicationServices;
+            var appConfig = serviceProvider.GetRequiredService<AppConfig>();
+
+            if(!appConfig.IgnoreDbVersionCheckMiddleware)
+                application.UseMiddleware<DbVersionCheckMiddleware>();
         }
 
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
