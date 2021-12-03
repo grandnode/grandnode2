@@ -23,6 +23,11 @@ namespace Grand.Infrastructure.Configuration
         public bool IgnoreStartupTasks { get; set; }
 
         /// <summary>
+        /// Indicates whether we should Disable HostedService - BackgroundServiceTask
+        /// </summary>
+        public bool DisableHostedService { get; set; }
+
+        /// <summary>
         /// A value indicating whether to ignore ACL rules (side-wide). It can significantly improve performance when enabled.
         /// </summary>
         public bool IgnoreAcl { get; set; }
