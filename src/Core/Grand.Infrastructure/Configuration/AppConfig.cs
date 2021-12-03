@@ -16,12 +16,7 @@ namespace Grand.Infrastructure.Configuration
         /// Indicates whether we disabled upload plugins/themes
         /// </summary>
         public bool DisableUploadExtensions { get; set; }
-
-        /// <summary>
-        /// Indicates whether we should ignore startup tasks
-        /// </summary>
-        public bool IgnoreStartupTasks { get; set; }
-
+       
         /// <summary>
         /// Indicates whether we should Disable HostedService - BackgroundServiceTask
         /// </summary>

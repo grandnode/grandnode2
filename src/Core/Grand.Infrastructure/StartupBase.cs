@@ -31,25 +31,6 @@ namespace Grand.Infrastructure
         #region Utilities
 
         /// <summary>
-        /// Run startup tasks
-        /// </summary>
-        /// <param name="typeSearcher">Type finder</param>
-        private static void ExecuteStartupTasks(ITypeSearcher typeSearcher)
-        {
-            //find startup tasks provided by other assemblies
-            var startupTasks = typeSearcher.ClassesOfType<IStartupTask>();
-
-            //create and sort instances of startup tasks
-            var instances = startupTasks
-                .Select(startupTask => (IStartupTask)Activator.CreateInstance(startupTask))
-                .OrderBy(startupTask => startupTask.Order);
-
-            //execute tasks
-            foreach (var task in instances)
-                task.Execute();
-        }
-
-        /// <summary>
         /// Register and init AutoMapper
         /// </summary>
         /// <param name="typeSearcher">Type finder</param>
@@ -286,10 +267,6 @@ namespace Grand.Infrastructure
 
             var config = new AppConfig();
             configuration.GetSection("Application").Bind(config);
-
-            //run startup tasks
-            if (!config.IgnoreStartupTasks)
-                ExecuteStartupTasks(typeSearcher);
 
             //add mediator
             AddMediator(services, typeSearcher);
