@@ -37,8 +37,16 @@
                 let urlPagenumber = new URL(window.location.href);
                 urlPagenumber.searchParams.set('pagenumber', page);
                 catalog.loadProducts(urlPagenumber.href);
+                this.scrollToSection();
             },
-
+            scrollToSection() {
+                var container = document.getElementById("catalog-products");
+                window.scrollTo({
+                    top: container.offsetTop,
+                    left: 0,
+                    behavior: 'smooth'
+                });
+            }
         },
         created() {
             this.Model = @Model;
