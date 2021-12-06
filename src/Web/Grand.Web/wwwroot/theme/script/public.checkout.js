@@ -173,7 +173,6 @@ var vmorder = new Vue({
                 },
 
                 setStepResponse: function (response) {
-
                     if (response.data.update_section.name) {
                         if (response.data.goto_section == "shipping") {
                             var model = response.data.update_section.model;
@@ -280,6 +279,8 @@ var vmorder = new Vue({
                             document.querySelector('#button-' + e).classList.add('allow');
                         });
                     }
+
+                    vmorder.scrollToSection();
 
                     if (response.data.update_section) {
                         vmorder.Checkout.gotoSection(response.data.update_section.name);
@@ -829,6 +830,14 @@ var vmorder = new Vue({
                 if (document.querySelector('.script-tag')) {
                     runScripts(document.querySelector('.script-tag'))
                 }
+            });
+        },
+        scrollToSection() {
+            var container = document.getElementById("checkout-steps");
+            window.scrollTo({
+                top: container.offsetTop,
+                left: 0,
+                behavior: 'smooth'
             });
         }
     },
