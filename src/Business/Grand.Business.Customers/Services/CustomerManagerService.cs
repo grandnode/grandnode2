@@ -166,7 +166,7 @@ namespace Grand.Business.Customers.Services
                 result.AddError("Current customer is already registered");
                 return result;
             }
-            if (String.IsNullOrEmpty(request.Email))
+            if (string.IsNullOrEmpty(request.Email))
             {
                 result.AddError(_translationService.GetResource("Account.Register.Errors.EmailIsNotProvided"));
                 return result;
@@ -176,14 +176,14 @@ namespace Grand.Business.Customers.Services
                 result.AddError(_translationService.GetResource("Common.WrongEmail"));
                 return result;
             }
-            if (String.IsNullOrWhiteSpace(request.Password))
+            if (string.IsNullOrWhiteSpace(request.Password))
             {
                 result.AddError(_translationService.GetResource("Account.Register.Errors.PasswordIsNotProvided"));
                 return result;
             }
             if (_customerSettings.UsernamesEnabled)
             {
-                if (String.IsNullOrEmpty(request.Username))
+                if (string.IsNullOrEmpty(request.Username))
                 {
                     result.AddError(_translationService.GetResource("Account.Register.Errors.UsernameIsNotProvided"));
                     return result;

@@ -8,6 +8,7 @@ namespace Grand.Domain.Customers
     public static class CustomerExtensions
     {
         #region Customer
+
         /// <summary>
         /// Gets a value indicating whether customer a anonymous
         /// </summary>
@@ -18,7 +19,7 @@ namespace Grand.Domain.Customers
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
 
-            return customer.IsSystemAccount;
+            return customer.IsSystemAccount && !string.IsNullOrEmpty(customer.SystemName);
         }
 
       
