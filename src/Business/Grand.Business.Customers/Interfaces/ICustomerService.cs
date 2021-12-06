@@ -159,13 +159,7 @@ namespace Grand.Business.Customers.Interfaces
         /// <param name="customerId">Customer ident</param>
         Task UpdateCustomerField<T>(string customerId,
             Expression<Func<Customer, T>> expression, T value);
-
-        /// <summary>
-        /// Updates the customer
-        /// </summary>
-        /// <param name="customer">Customer</param>
-        Task UpdateCustomerPassword(Customer customer);
-
+      
         /// <summary>
         /// Updates the customer
         /// </summary>

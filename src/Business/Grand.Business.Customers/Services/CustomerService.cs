@@ -341,7 +341,7 @@ namespace Grand.Business.Customers.Services
             Expression<Func<Customer, T>> expression, T value)
         {
             if (string.IsNullOrEmpty(customerId))
-                throw new ArgumentNullException("customerId");
+                throw new ArgumentNullException(nameof(customerId));
 
             await _customerRepository.UpdateField<T>(customerId, expression, value);
 
@@ -354,6 +354,9 @@ namespace Grand.Business.Customers.Services
         {
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
+
+            if (customer.IsSystemAccount)
+                throw new GrandException(string.Format("System customer account ({0}) could not be updated", customer.SystemName));
 
             var update = UpdateBuilder<Customer>.Create()
                 .Set(x => x.Email, string.IsNullOrEmpty(customer.Email) ? "" : customer.Email.ToLowerInvariant())
@@ -431,32 +434,18 @@ namespace Grand.Business.Customers.Services
 
         }
 
-        /// <summary>
-        /// Updates the customer - password
-        /// </summary>
-        /// <param name="customer">Customer</param>
-        public virtual async Task UpdateCustomerPassword(Customer customer)
-        {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
-
-            await UpdateCustomerField(customer.Id, x => x.Password, customer.Password);
-
-            //event notification
-            await _mediator.EntityUpdated(customer);
-
-        }
-
         public virtual async Task UpdateCustomerinAdminPanel(Customer customer)
         {
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
 
+            if (customer.IsSystemAccount)
+                throw new GrandException(string.Format("System customer account ({0}) could not be updated", customer.SystemName));
+
             var update = UpdateBuilder<Customer>.Create()
                 .Set(x => x.Active, customer.Active)
                 .Set(x => x.AdminComment, customer.AdminComment)
                 .Set(x => x.AffiliateId, customer.AffiliateId)
-                .Set(x => x.IsSystemAccount, customer.IsSystemAccount)
                 .Set(x => x.Active, customer.Active)
                 .Set(x => x.Email, string.IsNullOrEmpty(customer.Email) ? "" : customer.Email.ToLowerInvariant())
                 .Set(x => x.IsTaxExempt, customer.IsTaxExempt)
