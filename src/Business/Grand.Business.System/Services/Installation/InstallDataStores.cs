@@ -18,7 +18,7 @@ namespace Grand.Business.System.Services.Installation
                     Shortcut = "Store",
                     Url = $"http://{host}/",
                     SecureUrl = $"https://{host}/",
-                    SslEnabled = httpscheme.ToLowerInvariant() == "https" ? true : false,
+                    SslEnabled = httpscheme.ToLowerInvariant() == "https",
                     DisplayOrder = 1,
                     CompanyName = companyName,
                     CompanyAddress = companyAddress,
@@ -27,7 +27,7 @@ namespace Grand.Business.System.Services.Installation
                     CompanyVat = null,
                     CompanyEmail = companyEmail,
                     CompanyHours = "Monday - Sunday / 8:00AM - 6:00PM",
-                    Domains = new List<DomainHost>() { new DomainHost() { HostName = host.Value, Url = $"{httpscheme}://{host}", Primary = true } }
+                    Domains = new List<DomainHost>() { new DomainHost() { HostName = host.Value, Url = $"{httpscheme}://{host}/", Primary = true } }
                 };
 
             store = await _storeRepository.InsertAsync(store);
