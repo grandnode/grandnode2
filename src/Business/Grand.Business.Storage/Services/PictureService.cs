@@ -274,7 +274,7 @@ namespace Grand.Business.Storage.Services
             var filePath = await GetPicturePhysicalPath(_mediaSettings.DefaultImageName);
             if (string.IsNullOrEmpty(filePath))
             {
-                return _mediaFileStore.Combine(CommonPath.ImagePath, "no-image.png");
+                return _mediaFileStore.Combine(_mediaSettings.StoreLocation, CommonPath.ImagePath, "no-image.png");
             }
             if (targetSize == 0)
             {

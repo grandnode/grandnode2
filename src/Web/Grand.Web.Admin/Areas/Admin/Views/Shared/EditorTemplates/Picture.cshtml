@@ -76,7 +76,7 @@ else
             }
         }).on("complete", function(event, id, name, responseJSON, xhr) {
             if (responseJSON.success) {
-                $("#@(clientId + "image")").html("<img src='" + responseJSON.imageUrl + "'/>");
+                $("#@(clientId + "image")").html("<img src='" + responseJSON.imageUrl + " width='100' >");
                 $("#@(clientId + "value") input").val(responseJSON.pictureId);
                 $("#@(clientId + "remove")").show();
             }
@@ -86,7 +86,7 @@ else
         });
 
         $("#@(clientId + "remove")").click(function(e) {
-            $("#@(clientId + "image")").html("<img src='@await pictureService.GetDefaultPictureUrl(targetPictureSize)'/>");
+            $("#@(clientId + "image")").html("<img src='@await pictureService.GetDefaultPictureUrl(targetPictureSize)' width='100' >");
             $("#@(clientId + "value") input").val('');
             $(".qq-upload-list").empty();
             $(this).hide();
