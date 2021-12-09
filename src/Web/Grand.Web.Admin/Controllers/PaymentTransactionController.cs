@@ -93,12 +93,23 @@ namespace Grand.Web.Admin.Controllers
             DateTime? endDateValue = (model.EndDate == null) ? null
                 : (DateTime?)_dateTimeService.ConvertToUtcTime(model.EndDate.Value, _dateTimeService.CurrentTimeZone);
 
+            Guid? orderGuid = null;
+            if (!string.IsNullOrEmpty(model.OrderNumber))
+            {
+                if (int.TryParse(model.OrderNumber, out var ordernumber))
+                {
+                    var order = await _orderService.GetOrderByNumber(ordernumber);
+                    if (order != null)
+                        orderGuid = order.OrderGuid;
+                }
+            }
             var paymentTransactions = await _paymentTransactionService.SearchPaymentTransactions(
                 customerEmail: model.SearchCustomerEmail,
                 ts: model.SearchTransactionStatus >= 0 ? (TransactionStatus)model.SearchTransactionStatus : null,
                 createdFromUtc: startDateValue,
                 createdToUtc: endDateValue,
                 storeId: model.StoreId,
+                orderguid: orderGuid,
                 pageIndex: command.Page - 1,
                 pageSize: command.PageSize);
 
