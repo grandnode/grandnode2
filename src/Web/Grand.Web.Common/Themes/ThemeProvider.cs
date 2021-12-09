@@ -3,7 +3,6 @@ using Grand.SharedKernel.Extensions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace Grand.Web.Common.Themes
@@ -12,50 +11,15 @@ namespace Grand.Web.Common.Themes
     {
         #region Fields
 
-        private readonly IList<ThemeConfiguration> _themeConfigurations = new List<ThemeConfiguration>();
-        private readonly string _basePath = string.Empty;
+        private readonly IThemeList _themeList;
 
         #endregion
 
         #region Constructors
 
-        public ThemeProvider()
+        public ThemeProvider(IThemeList themeList)
         {
-            _basePath = CommonPath.ThemePath;
-            LoadConfigurations();
-        }
-
-        #endregion
-
-        #region Utility
-
-        private void LoadConfigurations()
-        {
-            foreach (string themeName in Directory.GetDirectories(_basePath))
-            {
-                var configuration = CreateThemeConfiguration(themeName);
-                if (configuration != null)
-                {
-                    _themeConfigurations.Add(configuration);
-                }
-            }
-        }
-
-        private ThemeConfiguration CreateThemeConfiguration(string themePath)
-        {
-            var themeDirectory = new DirectoryInfo(themePath);
-            var themeConfigFile = new FileInfo(Path.Combine(themeDirectory.FullName, "theme.cfg"));
-
-            if (themeConfigFile.Exists)
-            {
-                var themeConfiguration = JsonConvert.DeserializeObject<ThemeConfiguration>(File.ReadAllText(themeConfigFile.FullName));
-                if (themeConfiguration != null)
-                {
-                    themeConfiguration.Name = themeDirectory.Name;
-                    return themeConfiguration;
-                }
-            }
-            return null;
+            _themeList = themeList;
         }
 
         #endregion
@@ -67,14 +31,12 @@ namespace Grand.Web.Common.Themes
             return GetConfigurations().Any(configuration => configuration.Name.Equals(themeName, StringComparison.OrdinalIgnoreCase));
         }
 
-        public ThemeConfiguration GetConfiguration(string themeName)
-        {
-            return _themeConfigurations.SingleOrDefault(x => x.Name.Equals(themeName, StringComparison.OrdinalIgnoreCase));
-        }
-
         public IList<ThemeConfiguration> GetConfigurations()
         {
-            return _themeConfigurations;
+            if(string.IsNullOrEmpty(CommonPath.Param))
+                return _themeList.ThemeConfigurations;
+
+            return _themeList.ThemeConfigurations.Where(x => string.IsNullOrEmpty(x.Directory) || x.Directory == CommonPath.Param).ToList();
         }
 
         public ThemeInfo GetThemeDescriptorFromText(string text)

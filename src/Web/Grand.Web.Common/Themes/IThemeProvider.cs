@@ -7,8 +7,6 @@ namespace Grand.Web.Common.Themes
     {
         bool ThemeConfigurationExists(string themeName);
 
-        ThemeConfiguration GetConfiguration(string themeName);
-
         IList<ThemeConfiguration> GetConfigurations();
 
         ThemeInfo GetThemeDescriptorFromText(string text);
