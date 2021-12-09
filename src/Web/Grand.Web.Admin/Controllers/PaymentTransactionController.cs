@@ -177,7 +177,7 @@ namespace Grand.Web.Admin.Controllers
             var model = new PaymentTransactionModel();
             model.Id = paymentTransaction.Id;
             model.OrderCode = paymentTransaction.OrderCode;
-            model.CustomerEmail = paymentTransaction.CustomerEmail;
+            model.CustomerEmail = string.IsNullOrEmpty(paymentTransaction.CustomerEmail) ? "(null)" : paymentTransaction.CustomerEmail;
             model.CustomerId = paymentTransaction.CustomerId;
             model.CurrencyCode = paymentTransaction.CurrencyCode;
             model.TransactionAmount = paymentTransaction.TransactionAmount;
