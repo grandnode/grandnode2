@@ -1,12 +1,17 @@
 ﻿@model VendorReviewsModel
 
-<div class="mb-3">
-    <a class="btn btn-info" @@click="vendorreviews.addVendorReview()">@Loc["Reviews.Overview.AddNew"]</a>
-</div>
 
 @if (Model.AddVendorReview.NotAllowAnonymousUsersToReviewVendor)
 {
-    <text>@Loc["VendorReviews.OnlyRegisteredUsersCanWriteReviews"]</text>
+    <div class="alert alert-danger">
+        @Loc["VendorReviews.OnlyRegisteredUsersCanWriteReviews"]
+    </div>
+}
+else
+{
+    <div class="mb-3">
+        <a class="btn btn-info" @@click="vendorreviews.addVendorReview()">@Loc["Reviews.Overview.AddNew"]</a>
+    </div>
 }
 <partial name="_VendorReview.Modal.cshtml" model="Model" />
 
