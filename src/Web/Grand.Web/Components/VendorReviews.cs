@@ -55,7 +55,7 @@ namespace Grand.Web.Components
 
             //only registered users can leave reviews
             if (await _groupService.IsGuest(_workContext.CurrentCustomer) && !_vendorSettings.AllowAnonymousUsersToReviewVendor)
-                ModelState.AddModelError("", _translationService.GetResource("VendorReviews.OnlyRegisteredUsersCanWriteReviews"));
+                model.AddVendorReview.NotAllowAnonymousUsersToReviewVendor = true;
 
             //default value
             model.AddVendorReview.Rating = _vendorSettings.DefaultVendorRatingValue;

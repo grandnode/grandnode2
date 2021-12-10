@@ -29,7 +29,7 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
                 query = query.Where(rr => request.CustomerEmail == rr.CustomerEmail.ToLowerInvariant());
 
             if (request.OrderGuid.HasValue)
-                query = query.Where(rr => request.OrderGuid == request.OrderGuid.Value);
+                query = query.Where(rr => rr.OrderGuid == request.OrderGuid.Value);
 
             if (request.Ts.HasValue)
                 query = query.Where(rr => rr.TransactionStatus == request.Ts.Value);

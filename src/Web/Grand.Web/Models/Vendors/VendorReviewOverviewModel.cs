@@ -76,5 +76,6 @@ namespace Grand.Web.Models.Vendors
         public bool CanCurrentCustomerLeaveReview { get; set; }
         public bool SuccessfullyAdded { get; set; }
         public string Result { get; set; }
+        public bool NotAllowAnonymousUsersToReviewVendor { get; set; }
     }
 }

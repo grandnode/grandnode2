@@ -1,8 +1,15 @@
 ﻿@model ProductReviewsModel
 
-<div class="mb-3">
-    <a class="btn btn-info" @@click="productreviews.addProductReview()">@Loc["Reviews.Overview.AddNew"]</a>
-</div>
+<template v-if="productreviews.Model.AddProductReview.CanCurrentCustomerLeaveReview">
+    <div class="mb-3">
+        <a class="btn btn-info" @@click="productreviews.addProductReview()">@Loc["Reviews.Overview.AddNew"]</a>
+    </div>
+</template>
+<template v-else>
+    <div class="alert alert-danger">
+        @Loc["reviews.onlyregistereduserscanwritereviews"]
+    </div>
+</template>
 <partial name="_ProductReview.Modal.cshtml" model="Model" />
 
 <template id="product-review-list" v-if="productreviews.Model !== null">

@@ -8,6 +8,7 @@
         public string PreviewText { get; set; }
         public bool SupportRtl { get; set; }
         public string Version { get; set; }
+        public string Directory { get; set; }
 
     }
 }

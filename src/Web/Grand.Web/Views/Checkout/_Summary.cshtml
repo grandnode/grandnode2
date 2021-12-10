@@ -60,12 +60,12 @@
                                                 <span v-if="vmorder.cart.ShowSku" class="sku-number">
                                                     {{item.Sku}}
                                                 </span>
-                                                <div v-if="item.AttributeInfo != ''" v-html="item.AttributeInfo" class="attributes small"></div>
-                                                <div v-if="item.WarehouseName != null" v-html="item.WarehouseName" class="attributes small"></div>
-                                                <div v-if="item.VendorName != null" v-html="item.VendorName" class="attributes small"></div>
-                                                <div v-if="item.AuctionInfo != ''" v-html="item.AuctionInfo" class="attributes small"></div>
-                                                <div v-if="item.RecurringInfo != null" v-html="item.RecurringInfo" class="recurring-info"></div>
-                                                <div v-if="item.ReservationInfo != null" v-html="item.ReservationInfo" class="rental-info attributes small"></div>
+                                                <div v-if="item.AttributeInfo !== ''" v-html="item.AttributeInfo" class="attributes small"></div>
+                                                <div v-if="item.WarehouseName !== null" v-html="item.WarehouseName" class="attributes small"></div>
+                                                <div v-if="item.VendorName !== null" v-html="item.VendorName" class="attributes small"></div>
+                                                <div v-if="item.AuctionInfo !== null" v-html="item.AuctionInfo" class="attributes small"></div>
+                                                <div v-if="item.RecurringInfo !== null" v-html="item.RecurringInfo" class="recurring-info"></div>
+                                                <div v-if="item.ReservationInfo !== null" v-html="item.ReservationInfo" class="rental-info attributes small"></div>
                                                 <div v-if="vmorder.cart.IsEditable && item.AllowItemEditing" class="edit-item mb-1 mt-1">
                                                     <a class="btn btn-sm btn-secondary" :href="'/' + item.ProductSeName + '?updatecartitemid=' + item.Id">@Loc["Common.Edit"]</a>
                                                 </div>

@@ -77,7 +77,10 @@ namespace Grand.Web.Controllers
             if (customer == null)
                 return RedirectToRoute("HomePage");
 
-            var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist);
+            var cart = customer.ShoppingCartItems.Where(sci => sci.ShoppingCartTypeId == ShoppingCartType.Wishlist);
+
+            if (!string.IsNullOrEmpty(_workContext.CurrentStore.Id))
+                cart = cart.LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _workContext.CurrentStore.Id);
 
             var model = await _mediator.Send(new GetWishlist() {
                 Cart = cart.ToList(),

@@ -46,14 +46,13 @@ namespace Grand.Business.Common.Services.Pdf
             if (orders == null)
                 throw new ArgumentNullException(nameof(orders));
 
-            _generatePdf.SetConvertOptions(new ConvertOptions()
-            {
+            _generatePdf.SetConvertOptions(new ConvertOptions() {
                 PageSize = Wkhtmltopdf.NetCore.Options.Size.A4,
                 PageMargins = new Wkhtmltopdf.NetCore.Options.Margins() { Bottom = 10, Left = 10, Right = 10, Top = 10 },
                 FooterHtml = CommonPath.WebHostMapPath(_paginationFooter)
             });
 
-            var html = await _viewRenderService.RenderToStringAsync<(IList<Order>,string)>(_orderTemaplate, new (orders, vendorId));
+            var html = await _viewRenderService.RenderToStringAsync<(IList<Order>, string)>(_orderTemaplate, new(orders, vendorId));
             var pdfBytes = _generatePdf.GetPDF(html);
             stream.Write(pdfBytes);
         }
@@ -64,7 +63,14 @@ namespace Grand.Business.Common.Services.Pdf
                 throw new ArgumentNullException(nameof(order));
 
             var fileName = string.Format("order_{0}_{1}.pdf", order.OrderGuid, CommonHelper.GenerateRandomDigitCode(4));
-            var filePath = Path.Combine(CommonPath.WebMapPath("assets/files/exportimport"), fileName);
+
+            var dir = CommonPath.WebMapPath("assets/files/exportimport");
+            if (!System.IO.Directory.Exists(dir))
+            {
+                System.IO.Directory.CreateDirectory(dir);
+            }
+
+            var filePath = Path.Combine(dir, fileName);
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
                 var orders = new List<Order>
@@ -88,8 +94,7 @@ namespace Grand.Business.Common.Services.Pdf
             if (lang == null)
                 throw new ArgumentException(string.Format("Cannot load language. ID={0}", languageId));
 
-            _generatePdf.SetConvertOptions(new ConvertOptions()
-            {
+            _generatePdf.SetConvertOptions(new ConvertOptions() {
                 PageSize = Wkhtmltopdf.NetCore.Options.Size.A4,
                 PageMargins = new Wkhtmltopdf.NetCore.Options.Margins() { Bottom = 10, Left = 10, Right = 10, Top = 10 },
                 FooterHtml = CommonPath.WebHostMapPath(_paginationFooter)
@@ -115,8 +120,7 @@ namespace Grand.Business.Common.Services.Pdf
                     order
                 };
                 await PrintOrdersToPdf(ms, orders, languageId, vendorId);
-                var download = new Download
-                {
+                var download = new Download {
                     Filename = fileName,
                     Extension = ".pdf",
                     ContentType = "application/pdf",

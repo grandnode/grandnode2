@@ -182,7 +182,7 @@ extend('confirmed', {
         return value === target;
     },
     message: (fieldName) => {
-        const text = vee_getMessage(fieldName, 'confirmed');
+        const text = vee_getMessage(fieldName, 'equalto');
         if (text) {
             return text;
         }
