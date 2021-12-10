@@ -15544,7 +15544,7 @@
     <Value>This product has a minimum quantity of {0}</Value>
   </Resource>
   <Resource Name="Products.Mpn">
-    <Value>Collection part number</Value>
+    <Value>Manufacturer part number</Value>
   </Resource>
   <Resource Name="Products.NewProducts">
     <Value>New products</Value>
