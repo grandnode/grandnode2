@@ -8,7 +8,7 @@ namespace Grand.Api.DTOs.Catalog
         public bool AllowOutOfStockOrders { get; set; }
         public string Text { get; set; }
         public string Sku { get; set; }
-        public string CollectionPartNumber { get; set; }
+        public string Mpn { get; set; }
         public string Gtin { get; set; }
         public double? OverriddenPrice { get; set; }
         public int NotifyAdminForQuantityBelow { get; set; }
