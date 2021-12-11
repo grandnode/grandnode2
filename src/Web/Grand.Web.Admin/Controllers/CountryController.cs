@@ -1,24 +1,21 @@
 ﻿using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.System.Interfaces.ExportImport;
-using Grand.Web.Common.DataSource;
-using Grand.Web.Common.Filters;
-using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Country;
 using Grand.Web.Admin.Models.Directory;
+using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Text;
-using Grand.SharedKernel.Extensions;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -31,7 +28,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly ICountryViewModelService _countryViewModelService;
         private readonly ITranslationService _translationService;
         private readonly ILanguageService _languageService;
-        private readonly IStoreService _storeService;
         private readonly IExportManager _exportManager;
         private readonly IImportManager _importManager;
 
@@ -43,7 +39,6 @@ namespace Grand.Web.Admin.Controllers
             ICountryViewModelService countryViewModelService,
             ITranslationService translationService,
             ILanguageService languageService,
-            IStoreService storeService,
             IExportManager exportManager,
             IImportManager importManager)
         {
@@ -51,7 +46,6 @@ namespace Grand.Web.Admin.Controllers
             _countryViewModelService = countryViewModelService;
             _translationService = translationService;
             _languageService = languageService;
-            _storeService = storeService;
             _exportManager = exportManager;
             _importManager = importManager;
         }
@@ -82,8 +76,7 @@ namespace Grand.Web.Admin.Controllers
                     ).ToList();
             }
 
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = countries.Select(x => x.ToModel()),
                 Total = countries.Count
             };
@@ -235,8 +228,7 @@ namespace Grand.Web.Admin.Controllers
 
             var states = country.StateProvinces.ToList();
 
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = states.Select(x => new { Id = x.Id, Name = x.Name, Abbreviation = x.Abbreviation, Published = x.Published, DisplayOrder = x.DisplayOrder }),
                 Total = states.Count
             };

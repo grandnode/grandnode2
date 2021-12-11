@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Grand.Infrastructure.Mapper;
+using System.Linq;
 using Widgets.Slider.Domain;
 using Widgets.Slider.Models;
 
@@ -50,6 +51,7 @@ namespace Widgets.Slider.Infrastructure.Mapper
         {
             CreateMap<SlideModel, PictureSlider>()
                 .ForMember(dest => dest.ObjectEntry, mo => mo.MapFrom(x => SetObjectEntry(x)))
+                .ForMember(dest => dest.LimitedToStores, mo => mo.MapFrom(x => x.Stores != null && x.Stores.Any()))
                 .ForMember(dest => dest.Locales, mo => mo.Ignore());
 
             CreateMap<PictureSlider, SlideModel>()

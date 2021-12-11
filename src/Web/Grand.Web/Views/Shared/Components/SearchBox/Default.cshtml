@@ -12,7 +12,9 @@
                 <input type="hidden" asp-for="Box" value="true" />
                 <label for="small-searchterms" class="sr-only">@Loc["Search.SearchBox.Tooltip"]</label>
                 <div class="input-group flex-row">
-                    <input minlength="@(Model.SearchTermMinimumLength)"  maxlength="20" data-val-min="@string.Format(Loc["search.searchtermminimumlengthisncharacters"], Model.SearchTermMinimumLength)"  @if (Model.AutoCompleteEnabled) { <text> @@input="searchbox.autocompleteVue()" </text> } v-model="searchbox.text" type="search" name="q" ref="searchBoxInput" class="form-control search-box-text" id="small-searchterms" :placeholder="searchbox.placeholder">
+                    <input minlength="@(Model.SearchTermMinimumLength)"  maxlength="20" 
+                           data-val-required="@string.Format(Loc["search.searchtermminimumlengthisncharacters"], Model.SearchTermMinimumLength)"
+                           data-val-min="@string.Format(Loc["search.searchtermminimumlengthisncharacters"], Model.SearchTermMinimumLength)"  @if (Model.AutoCompleteEnabled) { <text> @@input="searchbox.autocompleteVue()" </text> } v-model="searchbox.text" type="search" name="q" ref="searchBoxInput" class="form-control search-box-text" id="small-searchterms" :placeholder="searchbox.placeholder">
                     <span class="field-validation-error">{{ errors[0] }}</span>
                     @if (Model.AvailableCategories.Any())
                     {
