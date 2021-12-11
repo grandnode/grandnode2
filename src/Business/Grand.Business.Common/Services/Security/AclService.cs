@@ -77,9 +77,7 @@ namespace Grand.Business.Common.Services.Security
             if (CommonHelper.IgnoreStoreLimitations)
                 return true;
 
-            //LimitedToStores flag will be false by default even after setting Limited To store value, so validate if entity consists of stores value for safer side
-
-            if (!entity.LimitedToStores & entity.Stores.Count <= 0)
+            if (!entity.LimitedToStores)
                 return true;
 
             foreach (var storeIdWithAccess in entity.Stores)
