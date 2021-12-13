@@ -273,7 +273,7 @@ namespace Grand.Business.Common.Extensions
                 throw new ArgumentNullException(nameof(translationService));
             if (languageService == null)
                 throw new ArgumentNullException(nameof(languageService));
-            if (string.IsNullOrEmpty(name))
+            if (!string.IsNullOrEmpty(name))
                 name = name.ToLowerInvariant();
             foreach (var lang in await languageService.GetAllLanguages(true))
             {
