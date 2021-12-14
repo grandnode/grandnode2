@@ -565,6 +565,113 @@ namespace Grand.Business.System.Services.Installation
             });
             await _countryRepository.InsertAsync(cCanada);
 
+            var cPoland = new Country {
+                Name = "Poland",
+                AllowsBilling = true,
+                AllowsShipping = true,
+                TwoLetterIsoCode = "PL",
+                ThreeLetterIsoCode = "POL",
+                NumericIsoCode = 616,
+                SubjectToVat = true,
+                DisplayOrder = 100,
+                Published = true,
+            };
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 0,
+                Name = "dolnośląskie",
+                Published = true,
+                Abbreviation = "DŚ"
+            });
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 1,
+                Name = "kujawsko-pomorskie",
+                Published = true,
+                Abbreviation = "KP"
+            });
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 2,
+                Name = "lubelskie",
+                Published = true,
+                Abbreviation = "LB"
+            });
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 3,
+                Name = "lubuskie",
+                Published = true,
+                Abbreviation = "LS"
+            });
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 4,
+                Name = "łódzkie",
+                Published = true,
+                Abbreviation = "ŁD"
+            });
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 5,
+                Name = "małopolskie",
+                Published = true,
+                Abbreviation = "MP"
+            });
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 6,
+                Name = "mazowieckie",
+                Published = true,
+                Abbreviation = "MZ"
+            });
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 7,
+                Name = "opolskie",
+                Published = true,
+                Abbreviation = "OP"
+            });
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 8,
+                Name = "podkarpackie",
+                Published = true,
+                Abbreviation = "PK"
+            });
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 9,
+                Name = "podlaskie",
+                Published = true,
+                Abbreviation = "PL"
+            });
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 10,
+                Name = "pomorskie",
+                Published = true,
+                Abbreviation = "PM"
+            });
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 11,
+                Name = "śląskie",
+                Published = true,
+                Abbreviation = "ŚL"
+            });
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 12,
+                Name = "świętokrzyskie",
+                Published = true,
+                Abbreviation = "ŚK"
+            }); 
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 13,
+                Name = "warmińsko-mazurskie",
+                Published = true,
+                Abbreviation = "WM"
+            }); 
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 14,
+                Name = "wielkopolskie",
+                Published = true,
+                Abbreviation = "WP"
+            }); 
+            cPoland.StateProvinces.Add(new StateProvince() {
+                DisplayOrder = 15,
+                Name = "zachodniopomorskie",
+                Published = true,
+                Abbreviation = "ZP"
+            });
 
             var countries = new List<Country>
                                 {
@@ -1264,18 +1371,7 @@ namespace Grand.Business.System.Services.Installation
                                         DisplayOrder = 100,
                                         Published = true
                                     },
-                                    new Country
-                                    {
-                                        Name = "Poland",
-                                        AllowsBilling = true,
-                                        AllowsShipping = true,
-                                        TwoLetterIsoCode = "PL",
-                                        ThreeLetterIsoCode = "POL",
-                                        NumericIsoCode = 616,
-                                        SubjectToVat = true,
-                                        DisplayOrder = 100,
-                                        Published = true
-                                    },
+                                    cPoland,
                                     new Country
                                     {
                                         Name = "Portugal",
