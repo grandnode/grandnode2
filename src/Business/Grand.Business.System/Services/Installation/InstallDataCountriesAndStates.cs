@@ -935,7 +935,7 @@ namespace Grand.Business.System.Services.Installation
                                         TwoLetterIsoCode = "HR",
                                         ThreeLetterIsoCode = "HRV",
                                         NumericIsoCode = 191,
-                                        SubjectToVat = false,
+                                        SubjectToVat = true,
                                         DisplayOrder = 100,
                                         Published = true
                                     },
