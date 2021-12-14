@@ -104,7 +104,9 @@ namespace Grand.Business.Checkout.Services.GiftVouchers
         {
             if (giftVoucher == null)
                 throw new ArgumentNullException(nameof(giftVoucher));
+
             giftVoucher.Code = giftVoucher.Code.ToLowerInvariant();
+
             await _giftVoucherRepository.InsertAsync(giftVoucher);
 
             //event notification
@@ -121,6 +123,7 @@ namespace Grand.Business.Checkout.Services.GiftVouchers
                 throw new ArgumentNullException(nameof(giftVoucher));
 
             giftVoucher.Code = giftVoucher.Code.ToLowerInvariant();
+
             await _giftVoucherRepository.UpdateAsync(giftVoucher);
 
             //event notification
