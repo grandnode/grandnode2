@@ -1,15 +1,14 @@
-﻿using Grand.Infrastructure;
+﻿using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Common;
-using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
-using Grand.Business.Storage.Interfaces;
 using System.Threading.Tasks;
 
 namespace Grand.Web.Controllers
 {
     [AllowAnonymous]
+    public partial class LetsEncryptController : Controller
     public partial class LetsEncryptController : Controller
     {
         private readonly CommonSettings _commonSettings;
