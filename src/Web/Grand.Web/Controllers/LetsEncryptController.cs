@@ -9,7 +9,6 @@ namespace Grand.Web.Controllers
 {
     [AllowAnonymous]
     public partial class LetsEncryptController : Controller
-    public partial class LetsEncryptController : Controller
     {
         private readonly CommonSettings _commonSettings;
         private readonly IMediaFileStore _mediaFileStore;
