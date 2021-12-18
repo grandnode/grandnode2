@@ -5,7 +5,7 @@
 }
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />
-<vc:admin-widget widget-zone="customer_role_details_top" additional-data="Model" />
+<vc:admin-widget widget-zone="customer_group_details_top" additional-data="Model" />
 <admin-tabstrip name="customergroup-edit">
     <items>
         <tabstrip-item text="@Loc["Admin.Customers.CustomerGroups.Info"]" tab-index="0">
@@ -39,7 +39,7 @@
                 </div>
             </content>
         </tabstrip-item>
-        <vc:admin-widget widget-zone="customergroup_details_tabs" additional-data="Model" />
+        <vc:admin-widget widget-zone="customer_group_details_tabs" additional-data="Model" />
     </items>
 </admin-tabstrip>
-<vc:admin-widget widget-zone="customer_role_details_bottom" additional-data="Model" />
+<vc:admin-widget widget-zone="customer_group_details_bottom" additional-data="Model" />

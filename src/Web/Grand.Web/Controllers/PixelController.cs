@@ -19,10 +19,10 @@ namespace Grand.Web.Controllers
         {
             if (!string.IsNullOrEmpty(emailId))
             {
-                if (!Request.Headers[HeaderNames.Referer].ToString().ToLowerInvariant().Contains("Admin/QueuedEmail/Edit".ToLowerInvariant()))
+                if (!Request.Headers[HeaderNames.Referer].ToString().ToLowerInvariant().Contains("admin/queuedemail/edit/".ToLowerInvariant()))
                 {
                     var eueuedEmail = await queuedEmailService.GetQueuedEmailById(emailId);
-                    if (!eueuedEmail.ReadOnUtc.HasValue)
+                    if (eueuedEmail != null && !eueuedEmail.ReadOnUtc.HasValue)
                     {
                         eueuedEmail.ReadOnUtc = DateTime.UtcNow;
                         await queuedEmailService.UpdateQueuedEmail(eueuedEmail);

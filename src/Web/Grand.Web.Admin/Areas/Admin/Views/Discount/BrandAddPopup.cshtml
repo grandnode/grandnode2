@@ -1,7 +1,7 @@
 ﻿@model DiscountModel.AddBrandToDiscountModel
 @inject AdminAreaSettings adminAreaSettings
 @{
-    Layout = Grand.Web.Admin.Extensions.Constants.Layout_AdminPopup;
+    Layout = "";
     //page title
     ViewBag.Title = Loc["admin.marketing.Discounts.AppliedToBrands.AddNew"];
 }
@@ -24,19 +24,21 @@
                 <div class="x_content form">
                     <div class="form-horizontal">
                         <div class="form-body">
-                            <div class="form-group">
-                                <admin-label asp-for="SearchBrandName" class="col-sm-3 control-label" />
-                                <div class="col-md-9 col-sm-9">
-                                    <admin-input asp-for="SearchBrandName" />
-                                </div>
-                            </div>
-                            <div class="form-actions">
-                                <div class="row">
-                                    <div class="offset-md-1 col-md-11 col-sm-11 btn-group btn-group-devided">
-                                        <button class="btn btn-success filter-submit" id="search-brands">
-                                            <i class="fa fa-search"></i> @Loc["Admin.Common.Search"]
-                                        </button>
-                                        <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                            <div class="main-header col-12 px-0 mb-3">
+                                <div class="row align-items-end">
+                                    <div class="col-md-8 col-sm-12 col-12">
+                                        <div class="form-group mb-0">
+                                            <admin-label asp-for="SearchBrandName" class="control-label" />
+                                            <admin-input asp-for="SearchBrandName" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-sm-12 col-12">
+                                        <div class="form-actions">
+                                            <div class="btn-group btn-group-devided">
+                                                <button class="btn btn-success filter-submit" id="search-brands"><i class="fa fa-search"></i> @Loc["Admin.Common.Search"]</button>
+                                                <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

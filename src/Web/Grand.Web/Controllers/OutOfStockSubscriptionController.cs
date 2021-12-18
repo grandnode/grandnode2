@@ -1,21 +1,19 @@
-﻿using Grand.Business.Catalog.Extensions;
-using Grand.Business.Catalog.Interfaces.Products;
+﻿using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Common.Extensions;
+using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
-using Grand.Infrastructure;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
+using Grand.Infrastructure;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Catalog;
-using Grand.Web.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Grand.Business.Common.Interfaces.Directory;
 
 namespace Grand.Web.Controllers
 {
@@ -139,8 +137,7 @@ namespace Grand.Web.Controllers
 
                 //subscription does not exist
                 //subscribe
-                subscription = new OutOfStockSubscription
-                {
+                subscription = new OutOfStockSubscription {
                     CustomerId = customer.Id,
                     ProductId = product.Id,
                     StoreId = _workContext.CurrentStore.Id,
@@ -179,9 +176,8 @@ namespace Grand.Web.Controllers
 
                 //subscription does not exist
                 //subscribe
-                
-                subscription = new OutOfStockSubscription
-                {
+
+                subscription = new OutOfStockSubscription {
                     CustomerId = customer.Id,
                     ProductId = product.Id,
                     Attributes = attributes,
@@ -235,8 +231,7 @@ namespace Grand.Web.Controllers
                 var product = await _productService.GetProductById(subscription.ProductId);
                 if (product != null)
                 {
-                    var subscriptionModel = new CustomerOutOfStockSubscriptionsModel.OutOfStockSubscriptionModel
-                    {
+                    var subscriptionModel = new CustomerOutOfStockSubscriptionsModel.OutOfStockSubscriptionModel {
                         Id = subscription.Id,
                         ProductId = product.Id,
                         ProductName = product.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
