@@ -356,7 +356,7 @@ namespace Grand.Business.Customers.Services
                 throw new ArgumentNullException(nameof(customer));
 
             if (customer.IsSystemAccount)
-                throw new GrandException(string.Format("System customer account ({0}) could not be updated", customer.SystemName));
+                throw new GrandException($"System customer account ({(string.IsNullOrEmpty(customer.SystemName) ? customer.Email : customer.SystemName)}) could not be updated");
 
             var update = UpdateBuilder<Customer>.Create()
                 .Set(x => x.Email, string.IsNullOrEmpty(customer.Email) ? "" : customer.Email.ToLowerInvariant())
@@ -387,7 +387,7 @@ namespace Grand.Business.Customers.Services
                 throw new ArgumentNullException(nameof(customer));
 
             if (customer.IsSystemAccount)
-                throw new GrandException(string.Format("System customer account ({0}) could not be deleted", customer.SystemName));
+                throw new GrandException($"System customer account ({(string.IsNullOrEmpty(customer.SystemName) ? customer.Email : customer.SystemName)}) could not be deleted");
 
             customer.Deleted = true;
             customer.Email = $"DELETED_@{DateTime.UtcNow.Ticks}.COM";
@@ -440,7 +440,7 @@ namespace Grand.Business.Customers.Services
                 throw new ArgumentNullException(nameof(customer));
 
             if (customer.IsSystemAccount)
-                throw new GrandException(string.Format("System customer account ({0}) could not be updated", customer.SystemName));
+                throw new GrandException($"System customer account ({(string.IsNullOrEmpty(customer.SystemName) ? customer.Email : customer.SystemName)}) could not be updated");
 
             var update = UpdateBuilder<Customer>.Create()
                 .Set(x => x.Active, customer.Active)
