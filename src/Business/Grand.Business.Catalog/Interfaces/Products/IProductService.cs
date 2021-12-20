@@ -130,6 +130,7 @@ namespace Grand.Business.Catalog.Interfaces.Products
         /// <param name="searchProductTags">A value indicating whether to search by a specified "keyword" in product tags</param>
         /// <param name="languageId">Language identifier (search for text searching)</param>
         /// <param name="filteredSpecs">Filtered product specification identifiers</param>
+        /// <param name="specificationOptions">Specification options identifiers</param>
         /// <param name="orderBy">Order by</param>
         /// <param name="showHidden">A value indicating whether to show hidden records</param>
         /// <param name="overridePublished">
@@ -162,6 +163,7 @@ namespace Grand.Business.Catalog.Interfaces.Products
             bool searchProductTags = false,
             string languageId = "",
             IList<string> filteredSpecs = null,
+            IList<string> specificationOptions = null,
             ProductSortingEnum orderBy = ProductSortingEnum.Position,
             bool showHidden = false,
             bool? overridePublished = null);

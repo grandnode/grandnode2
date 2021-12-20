@@ -1,9 +1,8 @@
-﻿using Grand.Web.Common.Localization;
-using Grand.Infrastructure.ModelBinding;
+﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
-using System.Collections.Generic;
-using Grand.Web.Common.Models;
 using Grand.Web.Common.Link;
+using Grand.Web.Common.Models;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Catalog
@@ -31,6 +30,15 @@ namespace Grand.Web.Admin.Models.Catalog
 
         public IList<SpecificationAttributeLocalizedModel> Locales { get; set; }
 
+        public partial class UsedByProductModel : BaseEntityModel
+        {
+            [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts.Product")]
+            public string ProductName { get; set; }
+            [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts.OptionName")]
+            public string OptionName { get; set; }
+            [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts.Published")]
+            public bool Published { get; set; }
+        }
     }
 
     public partial class SpecificationAttributeLocalizedModel : ILocalizedModelLocal
@@ -40,4 +48,6 @@ namespace Grand.Web.Admin.Models.Catalog
         [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Fields.Name")]
         public string Name { get; set; }
     }
+
+
 }
