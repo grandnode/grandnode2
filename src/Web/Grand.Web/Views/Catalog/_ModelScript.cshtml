@@ -4,15 +4,18 @@
         data: function () {
             return {
                 Model: [],
-                pager: []
+                pager: [],
+                Count: []
             }
         },
         methods: {
             loadProducts(url) {
-                catalog.getResponse(url);
                 //set state
                 var stateurl = new URL(url);
                 stateurl.searchParams.delete('timestamp');
+                stateurl.searchParams.delete('pagenumber');
+                catalog.getResponse(url);
+
                 window.history.replaceState({ path: stateurl.href }, '', stateurl.href);
             },
             getResponse(url) {
@@ -27,7 +30,18 @@
                 };
                 axios.get(url, options)
                     .then(response => {
-                        catalog.Model = response.data;
+                        let currentPageNumber = response.data.PagingFilteringContext.PageNumber;
+
+                        if (currentPageNumber > 1 && response.data.PagingFilteringContext.PageNumber !== catalog.Model.PagingFilteringContext.PageNumber) {
+                            const oldProducts = catalog.Model.Products;
+                            catalog.Model = response.data;
+                            const products = oldProducts.concat(response.data.Products);
+                            catalog.Model.Products = products;
+                        } else {
+                            catalog.Model = response.data;
+                        }
+
+                        scrollpagination.stop = false;
                     })
                     .catch(err => {
                         console.log(`${err} whilst contacting the catalog page.`)
@@ -35,17 +49,40 @@
             },
             goToPage(page) {
                 let urlPagenumber = new URL(window.location.href);
-                urlPagenumber.searchParams.set('pagenumber', page);
                 catalog.loadProducts(urlPagenumber.href);
-                this.scrollToSection();
             },
-            scrollToSection() {
-                var container = document.getElementById("catalog-products");
-                window.scrollTo({
-                    top: container.offsetTop,
-                    left: 0,
-                    behavior: 'smooth'
-                });
+            setCount(pageSize) {
+                if (pageSize > 0) {
+                    var p_size = pageSize;
+                } else {
+                    var p_size = 1;
+                }
+                var p_count = catalog.Model.Products.length;
+                totalPage = Math.ceil(p_count / p_size);
+                var p_numbers = Array.from(Array(totalPage).keys());
+
+                const originalObj = this.Count;
+                let newModel = { ...originalObj, p_numbers }
+                this.Count = newModel;
+            },
+            next() {
+                var currentPage = catalog.Model.PagingFilteringContext.PageNumber - 1;
+                var my_array = catalog.Model.Count;
+                var last_element = my_array[my_array.length - 1];
+                if (last_element > currentPage) {
+                    document.getElementById("PageNumber").value = currentPage + 1;
+                    AjaxFilter.setFilter('pagenumber');
+                }
+            },
+            pageScroll() {
+                const catalogProdH = document.getElementById("catalog-products").scrollHeight;
+                const TotalPages = catalog.Model.PagingFilteringContext.TotalPages;
+                let PageNumber = catalog.Model.PagingFilteringContext.PageNumber;
+
+                if (window.pageYOffset >= catalogProdH && PageNumber < TotalPages && !this.stop) {
+                    this.stop = true;
+                    this.next();
+                }
             }
         },
         created() {
@@ -90,6 +127,9 @@
 
                     catalog.Model.PagingFilteringContext.SpecificationFilter.NotFilteredItems = groupBy(notFilteredList, filterName);
                     catalog.Model.PagingFilteringContext.SpecificationFilter.AlreadyFilteredItems = groupBy(filteredList, filterName);
+
+                    var pageSize = 0;
+                    this.setCount(pageSize);
                 }
             }
         }

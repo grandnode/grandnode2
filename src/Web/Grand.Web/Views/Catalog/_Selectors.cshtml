@@ -20,15 +20,10 @@
                 <div class="items-per-page d-lg-inline-flex">
                     <span>@Loc["catalog.selectors.items"]</span>
                     <span class="number">
-                        <template v-if="catalog.Model.PagingFilteringContext.TotalPages == catalog.Model.PagingFilteringContext.PageNumber">
-                            <span v-html="(catalog.Model.PagingFilteringContext.PageSize * catalog.Model.PagingFilteringContext.PageNumber) - catalog.Model.PagingFilteringContext.PageSize + 1"></span>
+                        <template v-if="catalog.Model.Products.length > 0">
+                            <span>1</span>
                             <span> - </span>
-                            <span v-html="catalog.Model.PagingFilteringContext.TotalItems"></span>
-                        </template>
-                        <template v-else>
-                            <span v-html="(catalog.Model.PagingFilteringContext.PageSize * catalog.Model.PagingFilteringContext.PageNumber) - catalog.Model.PagingFilteringContext.PageSize + 1"></span>
-                            <span> - </span>
-                            <span v-html="catalog.Model.PagingFilteringContext.PageSize * catalog.Model.PagingFilteringContext.PageNumber"></span>
+                            <span v-html="catalog.Model.Products.length"></span>
                         </template>
                     </span>
                 </div>
