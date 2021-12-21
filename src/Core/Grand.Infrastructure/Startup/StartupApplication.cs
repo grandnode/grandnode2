@@ -37,8 +37,9 @@ namespace Grand.Infrastructure.Startup
                 var connectionString = dataProviderSettings.ConnectionString;
                 var mongourl = new MongoUrl(connectionString);
                 var databaseName = mongourl.DatabaseName;
-                serviceCollection.AddScoped(c => new MongoClient(mongourl).GetDatabase(databaseName));
-
+                var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
+                clientSettings.LinqProvider = MongoDB.Driver.Linq.LinqProvider.V3;
+                serviceCollection.AddScoped(c => new MongoClient(clientSettings).GetDatabase(databaseName));
             }
 
             //database context
