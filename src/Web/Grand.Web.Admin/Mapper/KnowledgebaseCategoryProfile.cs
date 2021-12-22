@@ -2,7 +2,6 @@
 using Grand.Domain.Knowledgebase;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Knowledgebase;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Grand.Web.Admin.Mapper

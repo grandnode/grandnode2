@@ -1,5 +1,4 @@
 ﻿using Grand.Infrastructure.Models;
-using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Customer
 {

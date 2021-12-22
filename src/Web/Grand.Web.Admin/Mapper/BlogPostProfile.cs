@@ -3,7 +3,6 @@ using Grand.Business.Common.Extensions;
 using Grand.Infrastructure.Mapper;
 using Grand.Domain.Blogs;
 using Grand.Web.Admin.Models.Blogs;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Grand.Web.Admin.Mapper

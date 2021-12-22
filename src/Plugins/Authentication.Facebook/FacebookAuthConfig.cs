@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Authentication.Facebook
+﻿namespace Authentication.Facebook
 {
     class FacebookAuthConfig
     {

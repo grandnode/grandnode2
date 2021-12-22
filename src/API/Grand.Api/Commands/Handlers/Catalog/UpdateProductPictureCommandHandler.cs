@@ -1,7 +1,5 @@
 ﻿using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Storage.Interfaces;
 using MediatR;
-using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;

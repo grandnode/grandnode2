@@ -1,7 +1,6 @@
 ﻿using DiscountRules.HasOneProduct.Models;
 using DiscountRules.Standard.Models;
 using Grand.Business.Catalog.Interfaces.Discounts;
-using Grand.Business.Catalog.Interfaces.Collections;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Localization;

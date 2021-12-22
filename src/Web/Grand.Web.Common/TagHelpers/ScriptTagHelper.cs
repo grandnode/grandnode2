@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Grand.Web.Common.TagHelpers
 {
-    
+
     [HtmlTargetElement("script", Attributes = LocationAttributeName)]
     [HtmlTargetElement("script", Attributes = SrcAttributeName)]
     [HtmlTargetElement("script", Attributes = OrderAttributeName)]

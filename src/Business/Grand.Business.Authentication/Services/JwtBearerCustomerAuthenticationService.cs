@@ -4,12 +4,9 @@ using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Customers;
-using Grand.Domain.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Grand.Business.Authentication.Services

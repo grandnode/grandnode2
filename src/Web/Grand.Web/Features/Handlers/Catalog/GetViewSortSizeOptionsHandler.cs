@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Grand.Infrastructure;
 using Grand.Domain.Catalog;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Features.Models.Catalog;

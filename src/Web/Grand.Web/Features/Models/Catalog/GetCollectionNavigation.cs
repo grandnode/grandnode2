@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Grand.Domain.Customers;
+﻿using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Web.Models.Catalog;

@@ -1,5 +1,4 @@
-﻿using Grand.Domain.Orders;
-using Grand.Domain.Payments;
+﻿using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Web.Common.Components;
 using Grand.Web.Common.Extensions;

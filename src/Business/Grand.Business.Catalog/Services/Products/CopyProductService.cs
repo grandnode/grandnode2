@@ -1,6 +1,5 @@
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Seo;
 using Grand.Business.Storage.Interfaces;

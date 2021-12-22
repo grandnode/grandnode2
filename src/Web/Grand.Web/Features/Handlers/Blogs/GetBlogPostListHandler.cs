@@ -6,7 +6,6 @@ using Grand.Business.Cms.Interfaces;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Storage.Interfaces;
-using Grand.Business.Common.Interfaces.Seo;
 using Grand.Web.Features.Models.Blogs;
 using Grand.Web.Models.Blogs;
 using Grand.Web.Models.Media;

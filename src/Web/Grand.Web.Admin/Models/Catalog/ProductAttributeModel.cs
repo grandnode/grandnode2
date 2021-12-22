@@ -1,5 +1,4 @@
-﻿using Grand.Web.Common.Localization;
-using Grand.Infrastructure.ModelBinding;
+﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using System.Collections.Generic;
 using Grand.Web.Common.Link;

@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Catalog;
-using Grand.Domain.Media;
 using Grand.Web.Admin.Models.Catalog;
 using System.Collections.Generic;
 using System.Threading.Tasks;

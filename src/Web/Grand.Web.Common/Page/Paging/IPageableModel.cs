@@ -2,10 +2,10 @@
 
 namespace Grand.Web.Common.Page.Paging
 {
-	/// <summary>
-	/// A collection of objects that has been split into pages.
-	/// </summary>
-	public interface IPageableModel
+    /// <summary>
+    /// A collection of objects that has been split into pages.
+    /// </summary>
+    public interface IPageableModel
     {
         /// <summary>
         /// The current page index (starts from 0)

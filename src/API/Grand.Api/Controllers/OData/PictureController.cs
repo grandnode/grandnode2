@@ -7,7 +7,6 @@ using Grand.Business.Common.Services.Security;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Grand.Api.Controllers.OData

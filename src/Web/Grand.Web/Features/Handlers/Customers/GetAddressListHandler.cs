@@ -1,6 +1,5 @@
 ﻿using Grand.Domain.Common;
 using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Stores;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;

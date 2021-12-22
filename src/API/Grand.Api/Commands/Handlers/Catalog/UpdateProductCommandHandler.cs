@@ -1,7 +1,6 @@
 ﻿using Grand.Api.DTOs.Catalog;
 using Grand.Api.Extensions;
 using Grand.Business.Catalog.Events.Models;
-using Grand.Business.Catalog.Extensions;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Localization;

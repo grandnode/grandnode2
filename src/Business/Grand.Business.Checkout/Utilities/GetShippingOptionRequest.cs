@@ -2,7 +2,6 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
-using Grand.Domain.Shipping;
 using System.Collections.Generic;
 
 namespace Grand.Business.Checkout.Utilities

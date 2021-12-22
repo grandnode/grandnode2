@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Checkout.Commands.Models.Orders;
-using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using MediatR;
 using System;

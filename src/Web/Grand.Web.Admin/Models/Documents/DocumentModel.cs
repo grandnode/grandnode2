@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Grand.Web.Common.Models;
 
 namespace Grand.Web.Admin.Models.Documents
 {

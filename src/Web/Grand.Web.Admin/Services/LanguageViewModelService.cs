@@ -1,5 +1,4 @@
-﻿using Grand.Infrastructure;
-using Grand.Domain.Localization;
+﻿using Grand.Domain.Localization;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Admin.Extensions;

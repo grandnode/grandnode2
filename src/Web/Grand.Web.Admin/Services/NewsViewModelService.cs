@@ -5,7 +5,6 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Seo;
 using Grand.Business.Customers.Interfaces;
 using Grand.Business.Storage.Interfaces;
-using Grand.Domain.Customers;
 using Grand.Domain.News;
 using Grand.Domain.Seo;
 using Grand.Web.Common.Extensions;

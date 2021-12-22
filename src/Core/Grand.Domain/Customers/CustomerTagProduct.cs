@@ -1,6 +1,6 @@
 namespace Grand.Domain.Customers
 {
-   
+
     /// <summary>
     /// Represents a customer tag product
     /// </summary>

@@ -4,7 +4,6 @@ using Grand.Business.Checkout.Queries.Models.Orders;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
-using Grand.Domain.Customers;
 using Grand.Domain.Tax;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
