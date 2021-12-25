@@ -1,5 +1,4 @@
 using Grand.Business.Checkout.Services.Orders;
-using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;

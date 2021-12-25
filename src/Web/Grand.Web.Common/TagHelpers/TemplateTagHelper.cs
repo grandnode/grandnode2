@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace Grand.Web.Common.TagHelpers
 {
-    
+
     [HtmlTargetElement("template", Attributes = AttributeNameHeader)]
     [HtmlTargetElement("template", Attributes = AttributeNameFooter)]
     public class TemplateTagHelper : TagHelper

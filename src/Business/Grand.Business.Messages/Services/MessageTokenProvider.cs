@@ -1,20 +1,6 @@
 ﻿using Grand.Business.Messages.Interfaces;
-using Grand.Domain.Blogs;
-using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
-using Grand.Domain.Knowledgebase;
-using Grand.Domain.Localization;
-using Grand.Domain.Messages;
-using Grand.Domain.News;
-using Grand.Domain.Orders;
-using Grand.Domain.Shipping;
-using Grand.Domain.Stores;
-using Grand.Domain.Vendors;
 using Grand.Business.Messages.DotLiquidDrops;
-using MediatR;
-using System.Threading.Tasks;
-using Grand.Business.Messages.Commands.Models;
-using Grand.Business.Messages.Extensions;
 
 namespace Grand.Business.Messages.Services
 {

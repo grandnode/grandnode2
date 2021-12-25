@@ -46,9 +46,6 @@ namespace Grand.Api.Validators.Common
                 }
                 return false;
             }).WithMessage("Customer not exist");
-            EncryptionService = encryptionService;
         }
-
-        public IEncryptionService EncryptionService { get; }
     }
 }

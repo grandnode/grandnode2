@@ -1,11 +1,7 @@
 ﻿using Grand.Business.Checkout.Queries.Models.Orders;
-using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using MediatR;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 

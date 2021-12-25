@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Catalog.Interfaces.Collections;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Cms.Interfaces;
 using Grand.Business.Common.Extensions;

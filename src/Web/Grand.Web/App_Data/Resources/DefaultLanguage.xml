@@ -1956,6 +1956,18 @@
   <Resource Name="Admin.Catalog.Attributes.SpecificationAttributes.Updated">
     <Value>The attribute has been updated successfully.</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts">
+    <Value>Used by products</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts.OptionName">
+    <Value>Name</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts.Product">
+    <Value>Product</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts.Published">
+    <Value>Published</Value>
+  </Resource>
   <Resource Name="Admin.Catalog.Brand.Imported">
     <Value>Brands have been imported successfully.</Value>
   </Resource>

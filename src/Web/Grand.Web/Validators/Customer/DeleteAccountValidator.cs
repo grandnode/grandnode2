@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Grand.Domain.Customers;
 using Grand.Infrastructure.Validators;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Models.Customer;

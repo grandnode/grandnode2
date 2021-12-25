@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Grand.Infrastructure;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Validators;
 using Grand.Business.Common.Interfaces.Directory;

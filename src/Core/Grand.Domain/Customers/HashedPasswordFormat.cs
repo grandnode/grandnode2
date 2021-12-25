@@ -1,5 +1,5 @@
-﻿namespace Grand.Domain.Customers 
-{ 
+﻿namespace Grand.Domain.Customers
+{
     public enum HashedPasswordFormat
     {
         SHA1,

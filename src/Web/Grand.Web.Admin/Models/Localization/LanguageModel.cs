@@ -3,7 +3,6 @@ using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
-using Grand.Web.Common.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Localization

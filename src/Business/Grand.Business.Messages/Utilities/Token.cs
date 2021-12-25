@@ -1,5 +1,5 @@
 ﻿namespace Grand.Business.Messages.Utilities
-{ 
+{
     public sealed class Token
     {
         private readonly string _key;

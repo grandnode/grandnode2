@@ -2,7 +2,7 @@
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />
-<admin-tabstrip name="specificationattribute-edit">
+<admin-tabstrip name="specificationattribute-edit" BindGrid="true">
     <items>
         <tabstrip-item text="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.Info"]" tab-index="0">
             <content>
@@ -18,6 +18,16 @@
                 </div>
             </content>
         </tabstrip-item>
+        @if (!string.IsNullOrEmpty(Model.Id))
+        {
+            <tabstrip-item text="@Loc["Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts"]" tab-index="1">
+                <content>
+                    <div>
+                        <partial name="_CreateOrUpdate.TabUsedByProducts" model="Model" />
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
         <tabstrip-item text="@Loc["Admin.Common.UserFields.Tab"]" tab-index="2">
             <content>
                 <div>

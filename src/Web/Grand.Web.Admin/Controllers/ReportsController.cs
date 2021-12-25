@@ -1,5 +1,4 @@
-﻿using Grand.Business.Catalog.Extensions;
-using Grand.Business.Catalog.Interfaces.Prices;
+﻿using Grand.Business.Catalog.Interfaces.Prices;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Common.Extensions;

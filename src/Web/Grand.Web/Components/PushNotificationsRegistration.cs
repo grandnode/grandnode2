@@ -1,5 +1,4 @@
 ﻿using Grand.Infrastructure;
-using Grand.Domain.Customers;
 using Grand.Domain.PushNotifications;
 using Grand.Web.Common.Components;
 using Grand.Web.Models.PushNotifications;

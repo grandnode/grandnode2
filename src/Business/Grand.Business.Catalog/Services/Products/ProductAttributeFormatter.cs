@@ -9,7 +9,6 @@ using Grand.Infrastructure;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
-using Grand.Domain.Orders;
 using Grand.SharedKernel.Extensions;
 using System;
 using System.Collections.Generic;

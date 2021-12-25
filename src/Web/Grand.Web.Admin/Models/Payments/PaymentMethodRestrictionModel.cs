@@ -1,5 +1,4 @@
 ﻿using Grand.Infrastructure.Models;
-using Grand.Web.Common.Models;
 using Grand.Web.Admin.Models.Directory;
 using Grand.Web.Admin.Models.Shipping;
 using System.Collections.Generic;

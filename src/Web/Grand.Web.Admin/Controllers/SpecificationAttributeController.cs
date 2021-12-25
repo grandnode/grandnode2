@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -25,6 +26,7 @@ namespace Grand.Web.Admin.Controllers
         #region Fields
 
         private readonly ISpecificationAttributeService _specificationAttributeService;
+        private readonly IProductService _productService;
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
         private readonly ICustomerActivityService _customerActivityService;
@@ -44,6 +46,7 @@ namespace Grand.Web.Admin.Controllers
             IStoreService storeService,
             IWorkContext workContext,
             IGroupService groupService,
+            IProductService productService,
             SeoSettings seoSettings)
         {
             _specificationAttributeService = specificationAttributeService;
@@ -53,6 +56,7 @@ namespace Grand.Web.Admin.Controllers
             _storeService = storeService;
             _workContext = workContext;
             _groupService = groupService;
+            _productService = productService;
             _seoSettings = seoSettings;
         }
 
@@ -71,8 +75,7 @@ namespace Grand.Web.Admin.Controllers
         {
             var specificationAttributes = await _specificationAttributeService
                 .GetSpecificationAttributes(command.Page - 1, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = specificationAttributes.Select(x => x.ToModel()),
                 Total = specificationAttributes.TotalCount
             };
@@ -214,8 +217,7 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> OptionList(string specificationAttributeId, DataSourceRequest command)
         {
             var options = (await _specificationAttributeService.GetSpecificationAttributeById(specificationAttributeId)).SpecificationAttributeOptions.OrderBy(x => x.DisplayOrder);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = options.Select(x =>
                     {
                         var model = x.ToModel();
@@ -234,8 +236,7 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         public async Task<IActionResult> OptionCreatePopup(string specificationAttributeId)
         {
-            var model = new SpecificationAttributeOptionModel
-            {
+            var model = new SpecificationAttributeOptionModel {
                 SpecificationAttributeId = specificationAttributeId
             };
             //locales
@@ -334,6 +335,67 @@ namespace Grand.Web.Admin.Controllers
             }
             return ErrorForKendoGridJson(ModelState);
         }
+        #endregion
+
+        #region Used by products
+
+        //used by products
+        [PermissionAuthorizeAction(PermissionActionName.Preview)]
+        [HttpPost]
+        public async Task<IActionResult> UsedByProducts(DataSourceRequest command, string specificationAttributeId)
+        {
+            var specyfication = await _specificationAttributeService.GetSpecificationAttributeById(specificationAttributeId);
+            if (specyfication == null)
+                throw new ArgumentException("No specification found with the specified id");
+
+            var searchStoreId = string.Empty;
+
+            //limit for store manager
+            if (!string.IsNullOrEmpty(_workContext.CurrentCustomer.StaffStoreId))
+                searchStoreId = _workContext.CurrentCustomer.StaffStoreId;
+
+            var searchVendorId = string.Empty;
+            //a vendor should have access only to his products
+            if (_workContext.CurrentVendor != null)
+            {
+                searchVendorId = _workContext.CurrentVendor.Id;
+            }
+
+            var specificationProducts = new List<SpecificationAttributeModel.UsedByProductModel>();
+            var total = 0;
+
+            var searchspecificationOptions = specyfication.SpecificationAttributeOptions.Select(x => x.Id).ToList();
+            if (searchspecificationOptions.Any())
+            {
+                var products = (await _productService.SearchProducts(
+                    storeId: searchStoreId,
+                    vendorId: searchVendorId,
+                    specificationOptions: searchspecificationOptions,
+                    pageIndex: command.Page - 1,
+                    pageSize: command.PageSize,
+                    showHidden: true
+                )).products;
+
+                total = products.TotalCount;
+
+                foreach (var item in products)
+                {
+                    var specOption = item.ProductSpecificationAttributes.FirstOrDefault(x => x.SpecificationAttributeId == specificationAttributeId);
+                    specificationProducts.Add(new SpecificationAttributeModel.UsedByProductModel {
+                        Id = item.Id,
+                        ProductName = item.Name,
+                        OptionName = specyfication.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == specOption?.SpecificationAttributeOptionId)?.Name,
+                        Published = item.Published
+                    });
+                }
+            }
+            var gridModel = new DataSourceResult {
+                Data = specificationProducts,
+                Total = total
+            };
+            return Json(gridModel);
+        }
+
         #endregion
     }
 }

@@ -2,7 +2,6 @@
 using Grand.Domain.Discounts;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Discounts;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Grand.Web.Admin.Mapper

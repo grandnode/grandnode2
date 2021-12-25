@@ -1,6 +1,4 @@
 ﻿using Grand.Domain.Catalog;
-using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using MediatR;

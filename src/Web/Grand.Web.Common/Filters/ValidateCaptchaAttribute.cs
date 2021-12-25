@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Primitives;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Grand.Web.Common.Filters

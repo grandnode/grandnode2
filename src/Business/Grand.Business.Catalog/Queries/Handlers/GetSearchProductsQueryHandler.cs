@@ -235,6 +235,11 @@ namespace Grand.Business.Catalog.Queries.Handlers
                 }
             }
 
+            if (request.SpecificationOptions != null && request.SpecificationOptions.Any())
+            {
+                query = query.Where(x => x.ProductSpecificationAttributes.Any(y => request.SpecificationOptions.Contains(y.SpecificationAttributeOptionId)));
+            }
+
             if (request.OrderBy == ProductSortingEnum.Position && request.CategoryIds != null && request.CategoryIds.Any())
             {
                 //category position
@@ -331,13 +336,13 @@ namespace Grand.Business.Catalog.Queries.Handlers
             if (request.LoadFilterableSpecificationAttributeOptionIds && !_catalogSettings.IgnoreFilterableSpecAttributeOption)
             {
                 IList<string> specyfication = new List<string>();
-                var filterSpecExists = querySpecification.Where(x => x.ProductSpecificationAttributes.Any(x=>x.AllowFiltering));
+                var filterSpecExists = querySpecification.Where(x => x.ProductSpecificationAttributes.Any(x => x.AllowFiltering));
 
                 var qspec = from p in filterSpecExists
                             from item in p.ProductSpecificationAttributes
                             select item;
 
-                var groupQuerySpec = qspec.Where(x=>x.AllowFiltering).GroupBy(x => new { SpecificationAttributeOptionId = x.SpecificationAttributeOptionId }).ToList();
+                var groupQuerySpec = qspec.Where(x => x.AllowFiltering).GroupBy(x => new { SpecificationAttributeOptionId = x.SpecificationAttributeOptionId }).ToList();
                 foreach (var item in groupQuerySpec)
                 {
                     specyfication.Add(item.Key.SpecificationAttributeOptionId);

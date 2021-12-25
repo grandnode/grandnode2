@@ -1,6 +1,4 @@
 using Grand.Domain;
-using Grand.Domain.Catalog;
-using Grand.Domain.Common;
 using Grand.Domain.Shipping;
 using System;
 using System.Collections.Generic;

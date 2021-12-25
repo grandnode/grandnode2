@@ -580,7 +580,8 @@ namespace Grand.Web.Controllers
                 {
                     //shipping is not required
                     _workContext.CurrentCustomer.ShippingAddress = null;
-                    await _customerService.RemoveShippingAddress(_workContext.CurrentCustomer.Id);
+                    await _customerService.UpdateCustomerField(_workContext.CurrentCustomer, x => x.ShippingAddress, null);
+
                     await _userFieldService.SaveField<ShippingOption>(_workContext.CurrentCustomer, SystemCustomerFieldNames.SelectedShippingOption, null, _workContext.CurrentStore.Id);
                     //load next step
                     return await LoadStepAfterShippingMethod(cart);
@@ -615,7 +616,7 @@ namespace Grand.Web.Controllers
                         //customer decided to pick up in store
                         //no shipping address selected
                         _workContext.CurrentCustomer.ShippingAddress = null;
-                        await _customerService.RemoveShippingAddress(_workContext.CurrentCustomer.Id);
+                        await _customerService.UpdateCustomerField(_workContext.CurrentCustomer, x => x.ShippingAddress, null);
 
                         //clear shipping option XML/Description
                         await _userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.ShippingOptionAttribute, "", _workContext.CurrentStore.Id);

@@ -6,6 +6,7 @@ using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using MediatR;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
@@ -21,29 +22,29 @@ namespace Grand.Api.Controllers
     public class TokenWebController : Controller
     {
         private readonly ICustomerService _customerService;
-        private readonly ICustomerManagerService _customerManagerService;
         private readonly IMediator _mediator;
         private readonly IStoreHelper _storeHelper;
         private readonly IRefreshTokenService _refreshTokenService;
         private readonly IUserFieldService _userFieldService;
         private readonly IAntiforgery _antiforgery;
+        private readonly GrandWebApiConfig _apiConfig;
 
         public TokenWebController(
             ICustomerService customerService,
-            ICustomerManagerService customerManagerService,
             IMediator mediator,
             IStoreHelper storeHelper,
             IRefreshTokenService refreshTokenService,
             IUserFieldService userFieldService,
-            IAntiforgery antiforgery)
+            IAntiforgery antiforgery,
+            GrandWebApiConfig apiConfig)
         {
             _customerService = customerService;
-            _customerManagerService = customerManagerService;
             _mediator = mediator;
             _storeHelper = storeHelper;
             _refreshTokenService = refreshTokenService;
             _userFieldService = userFieldService;
             _antiforgery = antiforgery;
+            _apiConfig = apiConfig;
         }
 
         [AllowAnonymous]
@@ -51,6 +52,9 @@ namespace Grand.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Guest()
         {
+            if (!_apiConfig.Enabled)
+                return BadRequest("API is disabled");
+
             var customer = await _customerService.InsertGuestCustomer(_storeHelper.StoreHost);
             var claims = new Dictionary<string, string> {
                 { "Guid", customer.CustomerGuid.ToString()}
@@ -65,27 +69,15 @@ namespace Grand.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
-                var base64EncodedBytes = Convert.FromBase64String(model.Password);
-                var password = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
-
-                var result = await _customerManagerService.LoginCustomer(model.Email, password);
-                if (!result.Equals(CustomerLoginResults.Successful))
-                {
-                    return BadRequest(result.ToString());
-                }
-
                 var customer = await _customerService.GetCustomerByEmail(model.Email);
-
                 var claims = new Dictionary<string, string> {
-                {
-                    "Email", model.Email
-                },
-                {
-                    "Token",
-                    await _userFieldService.GetFieldsForEntity<string>(customer, SystemCustomerFieldNames.PasswordToken)
-                }
+                    { "Email", model.Email },
+                    { "Token", await _userFieldService.GetFieldsForEntity<string>(customer, SystemCustomerFieldNames.PasswordToken) }
                 };
                 var tokenDto = await GetToken(claims, customer);
                 return Ok(tokenDto);
@@ -101,6 +93,9 @@ namespace Grand.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Refresh([FromBody] TokenDto tokenDto)
         {
+            if (!_apiConfig.Enabled)
+                return BadRequest("API is disabled");
+
             string email = null, guid = null;
             Customer customer = null;
             var claims = new Dictionary<string, string>();
@@ -145,7 +140,10 @@ namespace Grand.Api.Controllers
         [AllowAnonymous]
         public IActionResult Antiforgery()
         {
-            var token = _antiforgery.GetAndStoreTokens(this.HttpContext).RequestToken;
+            if (_apiConfig.Enabled)
+                return BadRequest("API is disabled");
+
+            var token = _antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
             return Ok(token);
         }
 

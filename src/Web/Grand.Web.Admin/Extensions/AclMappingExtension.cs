@@ -1,12 +1,6 @@
-﻿using Grand.Business.Common.Interfaces.Directory;
-using Grand.Domain;
-using Grand.Domain.Permissions;
+﻿using Grand.Domain;
 using Grand.Domain.Stores;
-using Grand.Infrastructure.Models;
-using Grand.Web.Common.Link;
-using Grand.Web.Common.Models;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Extensions
 {

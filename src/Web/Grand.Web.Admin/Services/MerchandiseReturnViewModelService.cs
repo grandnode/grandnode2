@@ -10,7 +10,6 @@ using Grand.Business.Messages.Interfaces;
 using Grand.Business.Storage.Interfaces;
 using Grand.Web.Common.Extensions;
 using Grand.Domain.Common;
-using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;

@@ -1,16 +1,9 @@
-﻿using Grand.Business.Common.Interfaces.Stores;
-using Grand.Web.Common.Localization;
-using Grand.Web.Common.Link;
-using Grand.Web.Common.Models;
+﻿using Grand.Web.Common.Models;
 using Grand.Domain.Localization;
-using Grand.Domain.Stores;
 using Grand.Infrastructure.Mapper;
-using Grand.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Widgets.Slider.Domain;
 using Widgets.Slider.Models;
 

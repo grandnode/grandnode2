@@ -1,5 +1,4 @@
-﻿using Grand.Infrastructure.Models;
-using Grand.Web.Admin.Models.Common;
+﻿using Grand.Web.Admin.Models.Common;
 
 namespace Grand.Web.Admin.Models.Customers
 {

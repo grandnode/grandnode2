@@ -1,9 +1,7 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using MediatR;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Grand.Business.Checkout.Commands.Models.Orders
 {

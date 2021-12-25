@@ -6,7 +6,6 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Catalog;
-using Grand.Domain.Customers;
 using Grand.Web.Common.Extensions;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;

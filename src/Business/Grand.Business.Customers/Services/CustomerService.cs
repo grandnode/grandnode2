@@ -46,8 +46,6 @@ namespace Grand.Business.Customers.Services
 
         #endregion
 
-        #region Methods
-
         #region Customers
 
         /// <summary>
@@ -108,22 +106,7 @@ namespace Grand.Business.Customers.Services
             };
             var query = await _mediator.Send(querymodel);
             return await PagedList<Customer>.Create(query, pageIndex, pageSize);
-        }
-
-        /// <summary>
-        /// Gets all customers by customer format (including deleted ones)
-        /// </summary>
-        /// <param name="passwordFormat">Password format</param>
-        /// <returns>Customers</returns>
-        public virtual async Task<IList<Customer>> GetAllCustomersByPasswordFormat(PasswordFormat passwordFormat)
-        {
-            var query = from p in _customerRepository.Table
-                        select p;
-
-            query = query.Where(c => c.PasswordFormatId == passwordFormat);
-            query = query.OrderByDescending(c => c.CreatedOnUtc);
-            return await Task.FromResult(query.ToList());
-        }
+        }       
 
         /// <summary>
         /// Gets online customers
@@ -356,7 +339,7 @@ namespace Grand.Business.Customers.Services
                 throw new ArgumentNullException(nameof(customer));
 
             if (customer.IsSystemAccount)
-                throw new GrandException(string.Format("System customer account ({0}) could not be updated", customer.SystemName));
+                throw new GrandException($"System customer account ({(string.IsNullOrEmpty(customer.SystemName) ? customer.Email : customer.SystemName)}) could not be updated");
 
             var update = UpdateBuilder<Customer>.Create()
                 .Set(x => x.Email, string.IsNullOrEmpty(customer.Email) ? "" : customer.Email.ToLowerInvariant())
@@ -387,7 +370,7 @@ namespace Grand.Business.Customers.Services
                 throw new ArgumentNullException(nameof(customer));
 
             if (customer.IsSystemAccount)
-                throw new GrandException(string.Format("System customer account ({0}) could not be deleted", customer.SystemName));
+                throw new GrandException($"System customer account ({(string.IsNullOrEmpty(customer.SystemName) ? customer.Email : customer.SystemName)}) could not be deleted");
 
             customer.Deleted = true;
             customer.Email = $"DELETED_@{DateTime.UtcNow.Ticks}.COM";
@@ -440,7 +423,7 @@ namespace Grand.Business.Customers.Services
                 throw new ArgumentNullException(nameof(customer));
 
             if (customer.IsSystemAccount)
-                throw new GrandException(string.Format("System customer account ({0}) could not be updated", customer.SystemName));
+                throw new GrandException($"System customer account ({(string.IsNullOrEmpty(customer.SystemName) ? customer.Email : customer.SystemName)}) could not be updated");
 
             var update = UpdateBuilder<Customer>.Create()
                 .Set(x => x.Active, customer.Active)
@@ -683,11 +666,6 @@ namespace Grand.Business.Customers.Services
             await _customerRepository.UpdateField(customerId, x => x.ShippingAddress, address);
         }
 
-        public virtual async Task RemoveShippingAddress(string customerId)
-        {
-            await _customerRepository.UpdateField(customerId, x => x.ShippingAddress, null);
-        }
-
         #endregion
 
         #region Customer Shopping Cart Item
@@ -745,9 +723,6 @@ namespace Grand.Business.Customers.Services
                 await UpdateCustomerField(customerId, x => x.LastUpdateWishListDateUtc, DateTime.UtcNow);
 
         }
-
-        #endregion
-
         #endregion
     }
 }

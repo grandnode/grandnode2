@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Page.Paging;
-using Grand.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;

@@ -1,4 +1,3 @@
-using Grand.Business.Catalog.Utilities;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using System.Collections.Generic;

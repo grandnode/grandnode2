@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Common;
-using Grand.Domain.Seo;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Settings;
 
