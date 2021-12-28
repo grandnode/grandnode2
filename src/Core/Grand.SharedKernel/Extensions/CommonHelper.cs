@@ -73,10 +73,10 @@ namespace Grand.SharedKernel.Extensions
         /// <returns>Result string</returns>
         public static string GenerateRandomDigitCode(int length)
         {
-            string str = string.Empty;
-            RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
+            var str = string.Empty;
+            using var rng = RandomNumberGenerator.Create();
             var byteArray = new byte[length];
-            provider.GetBytes(byteArray);
+            rng.GetBytes(byteArray);
             for (var i = 0; i < length; i++)
                 str = string.Concat(str, byteArray[i].ToString());
 
