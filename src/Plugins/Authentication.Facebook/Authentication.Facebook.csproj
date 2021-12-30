@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
     <Authors>UNIT-SOFT Sp. z o.o.</Authors>
     <Company>UNIT-SOFT Sp. z o.o.</Company>
@@ -25,12 +25,12 @@
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="6.0.1" />
   </ItemGroup>
   
   <Target Name="CopyFile" AfterTargets="AfterBuild">
     <ItemGroup>
-      <CopyFiles Include="$(NuGetPackageRoot)\microsoft.aspnetcore.authentication.facebook\5.0.11\lib\net5.0\*.dll" />
+      <CopyFiles Include="$(NuGetPackageRoot)\microsoft.aspnetcore.authentication.facebook\6.0.1\lib\net6.0\*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(CopyFiles)" DestinationFolder="..\..\Web\Grand.Web\Plugins\Authentication.Facebook\" />
   </Target>

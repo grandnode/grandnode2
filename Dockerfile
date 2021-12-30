@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
 LABEL stage=build-env
 WORKDIR /app
 
@@ -26,7 +26,7 @@ RUN dotnet build /app/Plugins/Widgets.Slider -c Release
 RUN dotnet publish /app/Web/Grand.Web -c Release -o ./build/release
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:5.0
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
 EXPOSE 80
 ENV ASPNETCORE_URLS http://+:80
 WORKDIR /app
