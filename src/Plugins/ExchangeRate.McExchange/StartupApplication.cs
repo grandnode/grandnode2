@@ -1,12 +1,11 @@
 using Grand.Business.Common.Interfaces.Providers;
 using Grand.Infrastructure;
-using Grand.Plugin.ExchangeRate.McExchange;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ExchangeRate.EcbExchange
+namespace ExchangeRate.McExchange
 {
     public class StartupApplication : IStartupApplication
     {
