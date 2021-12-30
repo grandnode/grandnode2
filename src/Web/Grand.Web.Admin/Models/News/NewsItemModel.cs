@@ -74,7 +74,7 @@ namespace Grand.Web.Admin.Models.News
 
     }
 
-    public partial class NewsLocalizedModel : ILocalizedModelLocal
+    public partial class NewsLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     {
         public string LanguageId { get; set; }
 
