@@ -19,7 +19,6 @@ namespace Grand.Business.Checkout.Tests.Services.Shipping
     [TestClass]
     public class ShippingServiceTests
     {
-        private Mock<IWarehouseService> _warehouseMock;
         private Mock<ILogger> _loggerMock;
         private Mock<ITranslationService> _translationServiceMock;
         private Mock<ICountryService> _countryServiceMokc;
@@ -31,14 +30,13 @@ namespace Grand.Business.Checkout.Tests.Services.Shipping
         [TestInitialize]
         public void Init()
         {
-            _warehouseMock = new Mock<IWarehouseService>();
             _loggerMock = new Mock<ILogger>();
             _translationServiceMock = new Mock<ITranslationService>();
             _countryServiceMokc = new Mock<ICountryService>();
             _shippingProviderSettings = new ShippingProviderSettings();
             _shippingSettings = new ShippingSettings();
             _rateProviderMock = new Mock<IShippingRateCalculationProvider>();
-            _service = new ShippingService(_warehouseMock.Object, _loggerMock.Object, _translationServiceMock.Object, _countryServiceMokc.Object,
+            _service = new ShippingService(_loggerMock.Object, _translationServiceMock.Object, _countryServiceMokc.Object,
                 new List<IShippingRateCalculationProvider>() { _rateProviderMock.Object }, _shippingProviderSettings, _shippingSettings);
         }
 
@@ -92,8 +90,7 @@ namespace Grand.Business.Checkout.Tests.Services.Shipping
             var warehouse = new Warehouse() {
                 Address = null
             };
-            _warehouseMock.Setup(c => c.GetWarehouseById(It.IsAny<string>())).ReturnsAsync(warehouse);
-
+            
             var result = await _service.CreateShippingOptionRequests(customer, cart, shippingAddress, store);
 
             Assert.AreEqual(result.ShippingAddress, shippingAddress);
@@ -119,7 +116,6 @@ namespace Grand.Business.Checkout.Tests.Services.Shipping
             var warehouse = new Warehouse() {
                 Address = null
             };
-            _warehouseMock.Setup(c => c.GetWarehouseById(It.IsAny<string>())).ReturnsAsync(warehouse);
 
             var result = await _service.CreateShippingOptionRequests(customer, cart, shippingAddress, store);
             Assert.IsTrue(result != null);

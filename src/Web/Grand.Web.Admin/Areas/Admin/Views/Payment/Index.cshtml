@@ -12,6 +12,13 @@
                     @Loc["Admin.Configuration.Payment.Methods"]
                 </div>
             </div>
+            <div class="x_content">
+                <div class="form-horizontal">
+                    <div class="form-body">
+                        @await Component.InvokeAsync("StoreScope")
+                    </div>
+                </div>
+            </div>
             <div class="x_content form">
                 <vc:admin-widget widget-zone="payment_method_list_top" additional-data="Model" />
                 <div id="paymentmethods-grid"></div>

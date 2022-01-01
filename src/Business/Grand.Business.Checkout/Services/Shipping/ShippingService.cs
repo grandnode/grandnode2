@@ -25,7 +25,6 @@ namespace Grand.Business.Checkout.Services.Shipping
     {
         #region Fields
 
-        private readonly IWarehouseService _warehouseService;
         private readonly ILogger _logger;
         private readonly ITranslationService _translationService;
         private readonly ICountryService _countryService;
@@ -41,7 +40,6 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// Ctor
         /// </summary>
         public ShippingService(
-            IWarehouseService warehouseService,
             ILogger logger,
             ITranslationService translationService,
             ICountryService countryService,
@@ -49,7 +47,6 @@ namespace Grand.Business.Checkout.Services.Shipping
             ShippingProviderSettings shippingProviderSettings,
             ShippingSettings shippingSettings)
         {
-            _warehouseService = warehouseService;
             _logger = logger;
             _translationService = translationService;
             _countryService = countryService;

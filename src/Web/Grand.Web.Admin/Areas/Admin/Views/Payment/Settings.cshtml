@@ -22,6 +22,13 @@
                     </div>
                     <vc:admin-widget widget-zone="payment_settings_buttons" additional-data="null" />
                 </div>
+                <div class="x_content">
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            @await Component.InvokeAsync("StoreScope")
+                        </div>
+                    </div>
+                </div>
                 <div class="x_content form">
                     <vc:admin-widget widget-zone="payment_settings_top" additional-data="null" />
                     <div class="form-horizontal">

@@ -148,9 +148,11 @@ namespace Grand.Web.Admin.Controllers
         public IActionResult Providers() => View();
 
         [HttpPost]
-        public IActionResult Providers(DataSourceRequest command)
+        public async Task<IActionResult> Providers(DataSourceRequest command)
         {
-            var _shippingProviderSettings = _settingService.LoadSetting<ShippingProviderSettings>();
+            var storeScope = await GetActiveStore();
+
+            var _shippingProviderSettings = _settingService.LoadSetting<ShippingProviderSettings>(storeScope);
             var shippingProvidersModel = new List<ShippingRateComputationMethodModel>();
             var shippingProviders = _shippingService.LoadAllShippingRateCalculationProviders();
             foreach (var shippingProvider in shippingProviders)
@@ -172,7 +174,9 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ProviderUpdate(ShippingRateComputationMethodModel model)
         {
-            var _shippingProviderSettings = _settingService.LoadSetting<ShippingProviderSettings>();
+            var storeScope = await GetActiveStore();
+
+            var _shippingProviderSettings = _settingService.LoadSetting<ShippingProviderSettings>(storeScope);
 
             var srcm = _shippingService.LoadShippingRateCalculationProviderBySystemName(model.SystemName);
             if (srcm.IsShippingRateMethodActive(_shippingProviderSettings))
@@ -181,7 +185,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     //mark as disabled
                     _shippingProviderSettings.ActiveSystemNames.Remove(srcm.SystemName);
-                    await _settingService.SaveSetting(_shippingProviderSettings);
+                    await _settingService.SaveSetting(_shippingProviderSettings, storeScope);
                 }
             }
             else
@@ -190,7 +194,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     //mark as active
                     _shippingProviderSettings.ActiveSystemNames.Add(srcm.SystemName);
-                    await _settingService.SaveSetting(_shippingProviderSettings);
+                    await _settingService.SaveSetting(_shippingProviderSettings, storeScope);
                 }
             }
             return new JsonResult("");
