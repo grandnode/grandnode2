@@ -12,7 +12,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.202
+        dotnet-version: 6.0.x
     - name: Restore
       run: dotnet restore ./GrandNode.sln
     - name: Build with dotnet
