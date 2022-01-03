@@ -140,7 +140,7 @@ namespace Grand.Api.Controllers
         [AllowAnonymous]
         public IActionResult Antiforgery()
         {
-            if (_apiConfig.Enabled)
+            if (!_apiConfig.Enabled)
                 return BadRequest("API is disabled");
 
             var token = _antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
