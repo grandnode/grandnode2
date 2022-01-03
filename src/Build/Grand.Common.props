@@ -1,0 +1,17 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
+		<Company>UNIT-SOFT Sp. z o.o.</Company>
+		<Authors>UNIT-SOFT Sp. z o.o.</Authors>
+		<Product>grandnode</Product>
+		<PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>   
+		<RepositoryUrl>https://github.com/grandnode/grandnode2</RepositoryUrl>
+		<RepositoryType>Git</RepositoryType>
+	</PropertyGroup>
+
+</Project>

@@ -1,15 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
-    <Company>UNIT-SOFT Sp. z o.o.</Company>
-    <Authors>UNIT-SOFT Sp. z o.o.</Authors>
-    <Product>grandnode</Product>
-    <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
-  </PropertyGroup>
+  <Import Project="..\..\Build\Grand.Common.props" />
   <ItemGroup>
     <PackageReference Include="GoogleAuthenticator" Version="2.4.0" />
-
     <PackageReference Include="MassTransit.AspNetCore" Version="7.3.0" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="7.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.1" />

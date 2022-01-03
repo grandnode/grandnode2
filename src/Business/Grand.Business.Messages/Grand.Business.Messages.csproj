@@ -1,14 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
-    <Company>UNIT-SOFT Sp. z o.o.</Company>
-    <Authors>UNIT-SOFT Sp. z o.o.</Authors>
-    <Product>grandnode</Product>
-    <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
-  </PropertyGroup>
-
+  <Import Project="..\..\Build\Grand.Common.props" />
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />
     <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />

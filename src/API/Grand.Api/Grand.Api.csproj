@@ -1,14 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
-    <Company>UNIT-SOFT Sp. z o.o.</Company>
-    <Authors>UNIT-SOFT Sp. z o.o.</Authors>
-    <Product>grandnode</Product>
-    <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
-    <TieredCompilation>true</TieredCompilation>
-  </PropertyGroup>
+  <Import Project="..\..\Build\Grand.Common.props" />
   <ItemGroup>
     <ProjectReference Include="..\..\Business\Grand.Business.Authentication\Grand.Business.Authentication.csproj" />
     <ProjectReference Include="..\..\Business\Grand.Business.Cms\Grand.Business.Cms.csproj" />

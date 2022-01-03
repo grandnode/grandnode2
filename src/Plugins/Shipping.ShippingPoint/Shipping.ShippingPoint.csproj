@@ -1,12 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-
+  <Import Project="..\..\Build\Grand.Common.props" />
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
-    <Company>UNIT-SOFT Sp. z o.o.</Company>
-    <Authors>UNIT-SOFT Sp. z o.o.</Authors>
-    <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
-    <TieredCompilation>true</TieredCompilation>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
 

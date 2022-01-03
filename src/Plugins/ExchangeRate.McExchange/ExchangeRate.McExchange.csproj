@@ -1,14 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Authors>UNIT-SOFT Sp. z o.o.</Authors>
-    <Company>UNIT-SOFT Sp. z o.o.</Company>
-    <Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
-    <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
-    <TieredCompilation>true</TieredCompilation>
-  </PropertyGroup>
-
+  <Import Project="..\..\Build\Grand.Common.props" />
+	
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>..\..\Web\Grand.Web\Plugins\ExchangeRate.McExchange\</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
