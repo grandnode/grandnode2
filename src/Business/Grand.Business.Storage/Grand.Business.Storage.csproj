@@ -1,14 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
-    <Company>UNIT-SOFT Sp. z o.o.</Company>
-    <Authors>UNIT-SOFT Sp. z o.o.</Authors>
-    <Product>grandnode</Product>
-    <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
-  </PropertyGroup>
-
+  <Import Project="..\..\Build\Grand.Common.props" />
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />
     <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
@@ -16,8 +7,8 @@
     <ProjectReference Include="..\Grand.Business.Common\Grand.Business.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="3.7.5.5" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.7.2" />
+    <PackageReference Include="AWSSDK.Core" Version="3.7.5.8" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.7.5" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
     <PackageReference Include="SkiaSharp" Version="2.80.3" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.80.3" />

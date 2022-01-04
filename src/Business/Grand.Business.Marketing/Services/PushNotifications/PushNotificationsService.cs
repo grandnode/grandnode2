@@ -2,17 +2,16 @@
 using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Marketing.Interfaces.PushNotifications;
 using Grand.Business.Marketing.Utilities;
-using Grand.Infrastructure.Extensions;
 using Grand.Domain;
 using Grand.Domain.Data;
 using Grand.Domain.PushNotifications;
+using Grand.Infrastructure.Extensions;
 using MediatR;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,9 +25,18 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         private readonly PushNotificationsSettings _pushNotificationsSettings;
         private readonly ITranslationService _translationService;
         private readonly ILogger _logger;
+        private readonly HttpClient _httpClient;
 
-        public PushNotificationsService(IRepository<PushRegistration> pushRegistratiosnRepository, IRepository<PushMessage> pushMessagesRepository,
-            IMediator mediator, PushNotificationsSettings pushNotificationsSettings, ITranslationService translationService, ILogger logger)
+        private readonly string fcmUrl = "https://fcm.googleapis.com/fcm/send";
+
+        public PushNotificationsService(
+            IRepository<PushRegistration> pushRegistratiosnRepository,
+            IRepository<PushMessage> pushMessagesRepository,
+            IMediator mediator,
+            PushNotificationsSettings pushNotificationsSettings,
+            ITranslationService translationService,
+            ILogger logger,
+            HttpClient httpClient)
         {
             _pushRegistratiosnRepository = pushRegistratiosnRepository;
             _pushMessagesRepository = pushMessagesRepository;
@@ -36,6 +44,7 @@ namespace Grand.Business.Marketing.Services.PushNotifications
             _pushNotificationsSettings = pushNotificationsSettings;
             _translationService = translationService;
             _logger = logger;
+            _httpClient = httpClient;
         }
 
         /// <summary>
@@ -141,10 +150,6 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         /// <returns>Bool indicating whether message was sent successfully and string result to display</returns>
         public virtual async Task<(bool, string)> SendPushNotification(string title, string text, string pictureUrl, string clickUrl, List<string> registrationIds = null)
         {
-            WebRequest tRequest = WebRequest.Create("https://fcm.googleapis.com/fcm/send");
-            tRequest.Method = "post";
-            tRequest.ContentType = "application/json";
-
             var ids = new List<string>();
 
             if (registrationIds != null && registrationIds.Any())
@@ -184,40 +189,38 @@ namespace Grand.Business.Marketing.Services.PushNotifications
             };
 
             var json = JsonConvert.SerializeObject(data);
-            Byte[] byteArray = Encoding.UTF8.GetBytes(json);
-            tRequest.Headers.Add(string.Format("Authorization: key={0}", _pushNotificationsSettings.PrivateApiKey));
-            tRequest.Headers.Add(string.Format("Sender: id={0}", _pushNotificationsSettings.SenderId));
-            tRequest.ContentLength = byteArray.Length;
+
             try
             {
-                using (Stream dataStream = tRequest.GetRequestStream())
+                using (var httpRequest = new HttpRequestMessage(HttpMethod.Post, fcmUrl))
                 {
-                    dataStream.Write(byteArray, 0, byteArray.Length);
-                    using (WebResponse tResponse = tRequest.GetResponse())
+                    httpRequest.Headers.Add("Authorization", $"key = {_pushNotificationsSettings.PrivateApiKey}");
+                    httpRequest.Headers.Add("Sender", $"id = {_pushNotificationsSettings.SenderId}");
+
+                    httpRequest.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    using (var response = await _httpClient.SendAsync(httpRequest))
                     {
-                        using (Stream dataStreamResponse = tResponse.GetResponseStream())
+                        var responseString = await response.Content.ReadAsStringAsync();
+                        if (!response.IsSuccessStatusCode)
                         {
-                            using (StreamReader tReader = new StreamReader(dataStreamResponse))
-                            {
-                                String sResponseFromServer = tReader.ReadToEnd();
-                                var response = JsonConvert.DeserializeObject<JsonResponse>(sResponseFromServer);
-
-                                if (response.failure > 0)
-                                {
-                                    await _logger.InsertLog(Domain.Logging.LogLevel.Error, "Error occured while sending push notification.", sResponseFromServer);
-                                }
-
-                                await InsertPushMessage(new PushMessage
-                                {
-                                    NumberOfReceivers = response.success,
-                                    SentOn = DateTime.UtcNow,
-                                    Text = text,
-                                    Title = title
-                                });
-
-                                return (true, string.Format(_translationService.GetResource("Admin.PushNotifications.MessageSent"), response.success, response.failure));
-                            }
+                            await _logger.InsertLog(Domain.Logging.LogLevel.Error, "Error occured while sending push notification.", responseString);
+                            return (false, responseString);
                         }
+                        else
+                        {
+                            var responseMessage = JsonConvert.DeserializeObject<JsonResponse>(responseString);
+
+                            await InsertPushMessage(new PushMessage {
+                                NumberOfReceivers = responseMessage.success,
+                                SentOn = DateTime.UtcNow,
+                                Text = text,
+                                Title = title
+                            });
+
+                            return (true, string.Format(_translationService.GetResource("Admin.PushNotifications.MessageSent"), responseMessage.success, responseMessage.failure));
+                        }
+
                     }
                 }
             }

@@ -55,13 +55,15 @@ namespace Grand.Business.Marketing.Startup
             serviceCollection.AddScoped<IBannerService, BannerService>();
             serviceCollection.AddScoped<IPopupService, PopupService>();
             serviceCollection.AddScoped<IInteractiveFormService, InteractiveFormService>();
-            serviceCollection.AddScoped<IPushNotificationsService, PushNotificationsService>();
             serviceCollection.AddScoped<IContactAttributeParser, ContactAttributeParser>();
             serviceCollection.AddScoped<IContactAttributeService, ContactAttributeService>();
             serviceCollection.AddScoped<IContactUsService, ContactUsService>();
             serviceCollection.AddScoped<INewsLetterSubscriptionService, NewsLetterSubscriptionService>();
             serviceCollection.AddScoped<INewsletterCategoryService, NewsletterCategoryService>();
             serviceCollection.AddScoped<ICampaignService, CampaignService>();
+
+            serviceCollection.AddHttpClient<IPushNotificationsService, PushNotificationsService>();
+
         }
         private void RegisterCoursesService(IServiceCollection serviceCollection)
         {

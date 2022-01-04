@@ -2,21 +2,25 @@
 using Grand.SharedKernel;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Grand.Plugin.ExchangeRate.McExchange
+namespace ExchangeRate.McExchange
 {
     public class McExchangeRateProvider : IExchangeRateProvider
     {
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        private readonly IDictionary<string, IRateProvider> _providers = new Dictionary<string, IRateProvider> {
-            {"eur", new EcbExchange()},
-            {"pln", new NbpExchange()},
-        };
+        private readonly IDictionary<string, IRateProvider> _providers;
 
-        public McExchangeRateProvider()
+        public McExchangeRateProvider(IHttpClientFactory httpClientFactory)
         {
+            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 
+            _providers = new Dictionary<string, IRateProvider> {
+                {"eur", new EcbExchange(_httpClientFactory)},
+                {"pln", new NbpExchange(_httpClientFactory)}
+            };
         }
 
         public string ConfigurationUrl => "";
@@ -36,7 +40,7 @@ namespace Grand.Plugin.ExchangeRate.McExchange
         /// </summary>
         /// <param name="exchangeRateCurrencyCode">Exchange rate currency code</param>
         /// <returns>Exchange rates</returns>
-        public Task<IList<Domain.Directory.ExchangeRate>> GetCurrencyLiveRates(string exchangeRateCurrencyCode)
+        public Task<IList<Grand.Domain.Directory.ExchangeRate>> GetCurrencyLiveRates(string exchangeRateCurrencyCode)
         {
             if (string.IsNullOrEmpty(exchangeRateCurrencyCode))
                 throw new ArgumentNullException(nameof(exchangeRateCurrencyCode));

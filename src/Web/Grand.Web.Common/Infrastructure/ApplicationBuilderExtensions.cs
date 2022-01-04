@@ -24,7 +24,7 @@ using Microsoft.Net.Http.Headers;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using WebMarkupMin.AspNetCore5;
+using WebMarkupMin.AspNetCore6;
 
 namespace Grand.Web.Common.Infrastructure
 {

@@ -34,7 +34,7 @@ using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using WebMarkupMin.AspNet.Common.Compressors;
 using WebMarkupMin.AspNet.Common.UrlMatchers;
-using WebMarkupMin.AspNetCore5;
+using WebMarkupMin.AspNetCore6;
 using WebMarkupMin.NUglify;
 
 using IWmmLogger = WebMarkupMin.Core.Loggers.ILogger;

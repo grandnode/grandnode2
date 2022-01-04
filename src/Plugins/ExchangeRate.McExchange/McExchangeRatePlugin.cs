@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("Grand.Plugin.Tests")]
 
-namespace Grand.Plugin.ExchangeRate.McExchange
+namespace ExchangeRate.McExchange
 {
     public class McExchangeRatePlugin : BasePlugin
     {

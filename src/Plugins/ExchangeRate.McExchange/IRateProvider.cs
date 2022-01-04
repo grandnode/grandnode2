@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Grand.Plugin.ExchangeRate.McExchange
+namespace ExchangeRate.McExchange
 {
     internal interface IRateProvider
     {
-        Task<IList<Domain.Directory.ExchangeRate>> GetCurrencyLiveRates();
+        Task<IList<Grand.Domain.Directory.ExchangeRate>> GetCurrencyLiveRates();
     }
 }
