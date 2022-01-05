@@ -166,12 +166,6 @@ namespace Grand.Infrastructure.Configuration
         public bool LoadAllUrlEntitiesOnStartup { get; set; }
 
         /// <summary>
-        /// Enable minimal Progressive Web App.
-        /// </summary>
-        public bool EnableProgressiveWebApp { get; set; }
-        public int ServiceWorkerStrategy { get; set; }
-
-        /// <summary>
         /// Gets or sets a value of "Cache-Control" header value for static content
         /// </summary>
         public string StaticFilesCacheControl { get; set; }

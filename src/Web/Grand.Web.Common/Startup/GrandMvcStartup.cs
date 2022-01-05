@@ -31,9 +31,6 @@ namespace Grand.Web.Common.Startup
             //add and configure MVC feature
             services.AddGrandMvc(configuration);
 
-            //add pwa
-            services.AddPWA(configuration);
-            
         }
 
         /// <summary>

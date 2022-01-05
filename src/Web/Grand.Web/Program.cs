@@ -15,7 +15,6 @@ builder.Host.UseDefaultServiceProvider((context, options) =>
     options.ValidateOnBuild = false;
 });
 
-
 //use serilog
 builder.Host.UseSerilog();
 
@@ -46,7 +45,7 @@ Grand.Infrastructure.StartupBase.ConfigureServices(builder.Services, builder.Con
 //Allow non ASCII chars in headers
 var config = new HostingConfig();
 builder.Configuration.GetSection("Application").Bind(config);
-if(config.AllowNonAsciiCharInHeaders)
+if (config.AllowNonAsciiCharInHeaders)
 {
     builder.WebHost.ConfigureKestrel(options =>
     {

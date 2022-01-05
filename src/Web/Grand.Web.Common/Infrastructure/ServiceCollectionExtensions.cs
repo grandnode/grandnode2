@@ -180,11 +180,7 @@ namespace Grand.Web.Common.Infrastructure
         public static IMvcBuilder AddGrandMvc(this IServiceCollection services, IConfiguration configuration)
         {
             //add basic MVC feature
-            var mvcBuilder = services.AddMvc(options =>
-            {
-                //for API - ignore for PWA
-                options.Conventions.Add(new ApiExplorerIgnores());
-            });
+            var mvcBuilder = services.AddMvc();
 
             //add view localization
             mvcBuilder.AddViewLocalization();
@@ -364,28 +360,6 @@ namespace Grand.Web.Common.Infrastructure
         public static void AddDetectionDevice(this IServiceCollection services)
         {
             services.AddDetection();
-        }
-
-
-        /// <summary>
-        /// Add Progressive Web App
-        /// </summary>
-        /// <param name="services">Collection of service descriptors</param>
-        public static void AddPWA(this IServiceCollection services, IConfiguration configuration)
-        {
-            if (!DataSettingsManager.DatabaseIsInstalled())
-                return;
-
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
-            if (config.EnableProgressiveWebApp)
-            {
-                var options = new WebEssentials.AspNetCore.Pwa.PwaOptions {
-                    Strategy = (WebEssentials.AspNetCore.Pwa.ServiceWorkerStrategy)config.ServiceWorkerStrategy,
-                    RoutesToIgnore = "/admin/*"
-                };
-                services.AddProgressiveWebApp(options);
-            }
         }
     }
 }
