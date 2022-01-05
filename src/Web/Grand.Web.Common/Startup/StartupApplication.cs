@@ -12,6 +12,7 @@ using Grand.Web.Common.Localization;
 using Grand.Web.Common.Middleware;
 using Grand.Web.Common.Page;
 using Grand.Web.Common.Routing;
+using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.TagHelpers;
 using Grand.Web.Common.Themes;
 using Microsoft.AspNetCore.Builder;
@@ -138,6 +139,9 @@ namespace Grand.Web.Common.Startup
 
             //powered by
             serviceCollection.AddSingleton<IPoweredByMiddlewareOptions, PoweredByMiddlewareOptions>();
+
+            //request reCAPTCHA service
+            serviceCollection.AddHttpClient<GoogleReCaptchaValidator>();
         }
 
     }

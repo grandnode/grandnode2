@@ -1,11 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-
+  <Import Project="..\..\Build\Grand.Common.props" />
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
-    <Authors>UNIT-SOFT Sp. z o.o.</Authors>
-    <Company>UNIT-SOFT Sp. z o.o.</Company>
-    <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -24,12 +19,12 @@
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.1" />
   </ItemGroup>
 
   <Target Name="CopyFile" AfterTargets="AfterBuild">
     <ItemGroup>
-      <CopyFiles Include="$(NuGetPackageRoot)\microsoft.aspnetcore.authentication.google\5.0.11\lib\net5.0\*.dll" />
+      <CopyFiles Include="$(NuGetPackageRoot)\microsoft.aspnetcore.authentication.google\6.0.1\lib\net6.0\*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(CopyFiles)" DestinationFolder="..\..\Web\Grand.Web\Plugins\Authentication.Google\" />
   </Target>

@@ -1,24 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
-    <Company>UNIT-SOFT Sp. z o.o.</Company>
-    <Authors>UNIT-SOFT Sp. z o.o.</Authors>
-    <Product>grandnode</Product>
-    <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
-  </PropertyGroup>
-
+  <Import Project="..\..\Build\Grand.Common.props" />
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="5.0.11" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.11" />
-    <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="5.0.1" />
+    <PackageReference Include="Flurl.Http" Version="3.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="6.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="6.0.1" />
     <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.2.22" />
     <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" Version="0.16.1" />
     <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
     <PackageReference Include="Wangkanai.Detection" Version="4.0.0" />
     <PackageReference Include="WebEssentials.AspNetCore.PWA" Version="1.0.65" />
-    <PackageReference Include="WebMarkupMin.AspNetCore5" Version="2.11.0" />
+    <PackageReference Include="WebMarkupMin.AspNetCore6" Version="2.11.0" />
     <PackageReference Include="WebMarkupMin.Core" Version="2.9.0" />
     <PackageReference Include="WebMarkupMin.NUglify" Version="2.11.0" />
   </ItemGroup>

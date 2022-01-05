@@ -201,8 +201,7 @@ namespace Grand.Web.Controllers
                 url = Url.RouteUrl("HomePage");
                 permanentRedirect = false;
             }
-
-            url = Uri.EscapeUriString(WebUtility.UrlDecode(url));
+            url = Uri.UnescapeDataString(WebUtility.UrlDecode(url));
 
             if (permanentRedirect)
                 return RedirectPermanent(url);

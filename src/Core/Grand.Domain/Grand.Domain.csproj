@@ -1,16 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <Copyright>Copyright © UNIT-SOFT Sp. z o.o.</Copyright>
-    <Company>UNIT-SOFT Sp. z o.o.</Company>
-    <Authors>UNIT-SOFT Sp. z o.o.</Authors>
-    <Product>grandnode</Product>
-    <PackageProjectUrl>https://grandnode.com/</PackageProjectUrl>
-    <TieredCompilation>true</TieredCompilation>
-  </PropertyGroup>
-
-<ItemGroup>
+  <Import Project="..\..\Build\Grand.Common.props" />
+  <ItemGroup>
     <PackageReference Include="MongoDB.Bson" Version="2.14.1" />
     <PackageReference Include="MongoDB.Driver" Version="2.14.1" />
     <PackageReference Include="MongoDB.Driver.Core" Version="2.14.1" />
@@ -18,8 +8,8 @@
     <PackageReference Include="DotLiquid" Version="2.2.585" />
   </ItemGroup>
 
-<ItemGroup>
-  <ProjectReference Include="..\Grand.SharedKernel\Grand.SharedKernel.csproj" />
-</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Grand.SharedKernel\Grand.SharedKernel.csproj" />
+  </ItemGroup>
 
 </Project>
