@@ -33,10 +33,7 @@ namespace Grand.Web.Common.Startup
 
             //add pwa
             services.AddPWA(configuration);
-
-            //add custom redirect result executor
-            services.AddGrandRedirectResultExecutor();
-
+            
         }
 
         /// <summary>

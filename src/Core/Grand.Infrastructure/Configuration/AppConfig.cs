@@ -154,7 +154,6 @@ namespace Grand.Infrastructure.Configuration
         /// </summary>
         public bool DisplayMiniProfilerInPublicStore { get; set; }
 
-        public bool AllowNonAsciiCharInHeaders { get; set; }
         /// <summary>
         /// A value indicating whether SEO friendly URLs with multiple languages are enabled
         /// </summary>

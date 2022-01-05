@@ -11,5 +11,11 @@
         /// Gets or sets a value for allowedHosts, is used for host filtering to bind your app to specific hostnames
         /// </summary>
         public string AllowedHosts { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value custom response header encoding may be needed in some cases
+        /// </summary>
+        public bool AllowNonAsciiCharInHeaders { get; set; }
+
     }
 }

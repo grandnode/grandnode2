@@ -97,23 +97,19 @@ namespace Grand.Web.Controllers
 
             return language != null ? language.Published : false;
         }
-        private string AddLanguageSeo(string url, PathString pathBase, Language language)
+
+        private string AddLanguageSeo(string url, Language language)
         {
             if (language == null)
                 throw new ArgumentNullException(nameof(language));
 
-            //remove application path from raw URL
             if (!string.IsNullOrEmpty(url))
             {
-                var _ = new PathString(url).StartsWithSegments(pathBase, out PathString result);
-                url = WebUtility.UrlDecode(result);
+                url = Flurl.Url.EncodeIllegalCharacters(url);
             }
 
             //add language code
-            url = $"/{language.UniqueSeoCode}{url}";
-            url = pathBase + url;
-
-            return url;
+            return $"/{language.UniqueSeoCode}/{url.TrimStart('/')}";
         }
 
         #endregion
@@ -163,10 +159,10 @@ namespace Grand.Web.Controllers
             //language part in URL
             if (config.SeoFriendlyUrlsForLanguagesEnabled)
             {
-                if (await IsLocalized(returnUrl, this.Request.PathBase))
-                    returnUrl = RemoveLanguageSeoCode(returnUrl, this.Request.PathBase);
+                if (await IsLocalized(returnUrl, Request.PathBase))
+                    returnUrl = RemoveLanguageSeoCode(returnUrl, Request.PathBase);
 
-                returnUrl = AddLanguageSeo(returnUrl, this.Request.PathBase, language);
+                returnUrl = AddLanguageSeo(returnUrl, language);
             }
 
             await _workContext.SetWorkingLanguage(language);
@@ -177,7 +173,7 @@ namespace Grand.Web.Controllers
             return Redirect(returnUrl);
         }
 
-        //helper method to redirect users.
+        //helper method to redirect (use in SlugRouteTransformer).
         public virtual IActionResult InternalRedirect(string url, bool permanentRedirect)
         {
             //ensure it's invoked from our GenericPathRoute class
@@ -201,10 +197,12 @@ namespace Grand.Web.Controllers
                 url = Url.RouteUrl("HomePage");
                 permanentRedirect = false;
             }
-            url = Uri.UnescapeDataString(WebUtility.UrlDecode(url));
+
+            url = Flurl.Url.EncodeIllegalCharacters(url);
 
             if (permanentRedirect)
                 return RedirectPermanent(url);
+
             return Redirect(url);
         }
 

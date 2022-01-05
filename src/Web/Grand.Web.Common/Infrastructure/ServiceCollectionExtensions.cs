@@ -11,13 +11,10 @@ using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearchers;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Extensions;
-using Grand.Web.Common.Routing;
 using Grand.Web.Common.Themes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -251,16 +248,6 @@ namespace Grand.Web.Common.Infrastructure
                     !request.HttpContext.RequestServices.GetRequiredService<AppConfig>().DisplayMiniProfilerInPublicStore ||
                     request.HttpContext.RequestServices.GetRequiredService<IPermissionService>().Authorize(StandardPermission.AccessAdminPanel).Result;
             });
-        }
-
-        /// <summary>
-        /// Register custom RedirectResultExecutor
-        /// </summary>
-        /// <param name="services">Collection of service descriptors</param>
-        public static void AddGrandRedirectResultExecutor(this IServiceCollection services)
-        {
-            //we use custom redirect executor as a workaround to allow using non-ASCII characters in redirect URLs
-            services.AddSingleton<IActionResultExecutor<RedirectResult>, GrandRedirectResultExecutor>();
         }
 
         public static void AddSettings(this IServiceCollection services)
