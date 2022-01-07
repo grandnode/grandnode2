@@ -8,5 +8,5 @@ using Payments.PayPalStandard;
     SystemName = PayPalStandardPaymentDefaults.ProviderSystemName,
     SupportedVersion = GrandVersion.SupportedPluginVersion,
     Author = "grandnode team",
-    Version = "1.00"
+    Version = "1.01"
 )]
