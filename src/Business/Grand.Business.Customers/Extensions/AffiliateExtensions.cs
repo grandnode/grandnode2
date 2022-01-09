@@ -1,12 +1,11 @@
 ﻿using Grand.Business.Common.Extensions;
 using Grand.Business.Customers.Interfaces;
-using Grand.Infrastructure;
 using Grand.Domain.Affiliates;
 using Grand.Domain.Seo;
+using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using System;
 using System.Threading.Tasks;
-using Grand.Infrastructure.Extensions;
 
 namespace Grand.Business.Customers.Extensions
 {
@@ -44,19 +43,19 @@ namespace Grand.Business.Customers.Extensions
         /// Generate affilaite URL
         /// </summary>
         /// <param name="affiliate">Affiliate</param>
-        /// <param name="workContext">WorkContext</param>
+        /// <param name="host">Host</param>
         /// <returns>Generated affilaite URL</returns>
-        public static string GenerateUrl(this Affiliate affiliate, IWorkContext workContext)
+        public static string GenerateUrl(this Affiliate affiliate, string host)
         {
             if (affiliate == null)
                 throw new ArgumentNullException(nameof(affiliate));
 
-            if (workContext == null)
-                throw new ArgumentNullException(nameof(workContext));
+            if (string.IsNullOrEmpty(host))
+                throw new ArgumentNullException(nameof(host));
 
-            var storeUrl = workContext.CurrentHost == null ? workContext.CurrentStore.Url : workContext.CurrentHost.Url.TrimEnd('/');
-            var url = !string.IsNullOrEmpty(affiliate.FriendlyUrlName) ? 
-                CommonExtensions.ModifyQueryString(storeUrl, "affiliate", affiliate.FriendlyUrlName) : CommonExtensions.ModifyQueryString(storeUrl, "affiliateid", affiliate.Id);
+            var url = !string.IsNullOrEmpty(affiliate.FriendlyUrlName) ?
+                CommonExtensions.ModifyQueryString(host, "affiliate", affiliate.FriendlyUrlName)
+                : CommonExtensions.ModifyQueryString(host, "affiliateid", affiliate.Id);
 
             return url;
         }

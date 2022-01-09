@@ -63,7 +63,9 @@ namespace Grand.Web.Admin.Services
             {
                 model.Id = affiliate.Id;
                 model.Name = affiliate.Name;
-                model.Url = affiliate.GenerateUrl(_workContext);
+
+                var host = _workContext.CurrentHost == null ? _workContext.CurrentStore.Url.TrimEnd('/') : _workContext.CurrentHost.Url.TrimEnd('/');
+                model.Url = affiliate.GenerateUrl(host);
                 if (!excludeProperties)
                 {
                     model.AdminComment = affiliate.AdminComment;
