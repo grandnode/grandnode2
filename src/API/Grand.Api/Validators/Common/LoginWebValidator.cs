@@ -8,10 +8,10 @@ using System.Collections.Generic;
 
 namespace Grand.Api.Validators.Common
 {
-    public class LoginWebValidator : BaseGrandValidator<LoginModel>
+    public class LoginWebValidator : BaseGrandValidator<LoginWebModel>
     {
         public LoginWebValidator(
-            IEnumerable<IValidatorConsumer<LoginModel>> validators,
+            IEnumerable<IValidatorConsumer<LoginWebModel>> validators,
             GrandWebApiConfig apiConfig,
             ICustomerService customerService,
             ICustomerManagerService customerManagerService)
