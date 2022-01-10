@@ -54,6 +54,16 @@
 
 <div class="form-horizontal">
     <div class="form-body">
+        @if (Model.NameEnabled)
+        {
+            <div class="form-group">
+                <admin-label asp-for="Name" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="Name" />
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+        }
         @if (Model.FirstNameEnabled)
         {
             <div class="form-group">

@@ -15,8 +15,14 @@ namespace Grand.Web.Models.Common
             CustomAddressAttributes = new List<AddressAttributeModel>();
         }
 
+        public bool NameEnabled { get; set; }
+
+        [GrandResourceDisplayName("Address.Fields.AddressName")]
+        public string Name { get; set; }
+
         [GrandResourceDisplayName("Address.Fields.FirstName")]
         public string FirstName { get; set; }
+
         [GrandResourceDisplayName("Address.Fields.LastName")]
         public string LastName { get; set; }
         [DataType(DataType.EmailAddress)]

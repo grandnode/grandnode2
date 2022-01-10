@@ -1275,6 +1275,9 @@
   <Resource Name="Address.Fields.Address2.Required">
     <Value>Address 2 is required.</Value>
   </Resource>
+  <Resource Name="Address.Fields.AddressName">
+	<Value>Address name</Value>
+  </Resource>
   <Resource Name="Address.Fields.Addresstype">
     <Value>Address type</Value>
   </Resource>
@@ -1502,6 +1505,9 @@
   </Resource>
   <Resource Name="Admin.Address.Fields.Address2.Required">
     <Value>Address 2 is required.</Value>
+  </Resource>
+  <Resource Name="Admin.Address.Fields.AddressName">
+	<Value>Address name</Value>
   </Resource>
   <Resource Name="Admin.Address.Fields.City">
     <Value>City</Value>
@@ -10923,6 +10929,9 @@
   </Resource>
   <Resource Name="Admin.Settings.Customer.AddressFormFields.FaxRequired">
     <Value>'Fax number' required</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.Customer.AddressFormFields.NameEnabled">
+	<Value>'Address name' enabled</Value>
   </Resource>
   <Resource Name="Admin.Settings.Customer.AddressFormFields.NoteEnabled">
     <Value>'Note' enabled</Value>

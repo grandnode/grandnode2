@@ -168,6 +168,9 @@ namespace Grand.Web.Extensions
 
             if (trimFields)
             {
+
+                if (model.Name != null)
+                    model.Name = model.Name.Trim();
                 if (model.FirstName != null)
                     model.FirstName = model.FirstName.Trim();
                 if (model.LastName != null)
@@ -191,6 +194,7 @@ namespace Grand.Web.Extensions
                 if (model.FaxNumber != null)
                     model.FaxNumber = model.FaxNumber.Trim();
             }
+            destination.Name = model.Name;
             destination.FirstName = model.FirstName;
             destination.LastName = model.LastName;
             destination.Email = model.Email;

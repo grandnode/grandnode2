@@ -66,6 +66,10 @@ namespace Grand.Business.Messages.DotLiquidDrops
             get { return _order.BillingAddress.Email; }
         }
 
+        public string BillingAddressName {
+            get { return _order.BillingAddress.Name; }
+        }
+
         public string BillingFirstName
         {
             get { return _order.BillingAddress.FirstName; }
@@ -135,6 +139,10 @@ namespace Grand.Business.Messages.DotLiquidDrops
         public string ShippingAdditionDescription
         {
             get { return _order.ShippingOptionAttributeDescription; }
+        }
+
+        public string ShippingAddressName {
+            get { return _order.ShippingAddress != null ? _order.ShippingAddress.Name : ""; }
         }
 
         public string ShippingFirstName
