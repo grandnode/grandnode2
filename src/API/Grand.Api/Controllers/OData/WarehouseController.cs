@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Grand.Api.Controllers.OData
@@ -24,6 +25,9 @@ namespace Grand.Api.Controllers.OData
 
         [SwaggerOperation(summary: "Get entity from Warehouse by key", OperationId = "GetWarehouseById")]
         [HttpGet("{key}")]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string key)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings))
@@ -39,6 +43,8 @@ namespace Grand.Api.Controllers.OData
         [SwaggerOperation(summary: "Get entities from Warehouse", OperationId = "GetWarehouses")]
         [HttpGet]
         [EnableQuery(HandleNullPropagation = HandleNullPropagationOption.False)]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
             if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings))

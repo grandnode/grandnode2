@@ -11,6 +11,11 @@ namespace Grand.Domain.Common
         }
 
         /// <summary>
+        /// Gets or sets the name of address
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
         /// Gets or sets the first name
         /// </summary>
         public string FirstName { get; set; }

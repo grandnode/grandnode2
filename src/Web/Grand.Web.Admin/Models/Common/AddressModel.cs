@@ -16,16 +16,16 @@ namespace Grand.Web.Admin.Models.Common
             CustomAddressAttributes = new List<AddressAttributeModel>();
         }
 
-        [GrandResourceDisplayName("Admin.Address.Fields.FirstName")]
+        [GrandResourceDisplayName("Admin.Address.Fields.AddressName")]
+        public string Name { get; set; }
 
+        [GrandResourceDisplayName("Admin.Address.Fields.FirstName")]
         public string FirstName { get; set; }
 
         [GrandResourceDisplayName("Admin.Address.Fields.LastName")]
-
         public string LastName { get; set; }
 
         [GrandResourceDisplayName("Admin.Address.Fields.Email")]
-
         public string Email { get; set; }
 
         [GrandResourceDisplayName("Admin.Address.Fields.Company")]
@@ -39,34 +39,27 @@ namespace Grand.Web.Admin.Models.Common
         public string CountryId { get; set; }
 
         [GrandResourceDisplayName("Admin.Address.Fields.Country")]
-
         public string CountryName { get; set; }
 
         [GrandResourceDisplayName("Admin.Address.Fields.StateProvince")]
         public string StateProvinceId { get; set; }
 
         [GrandResourceDisplayName("Admin.Address.Fields.StateProvince")]
-
         public string StateProvinceName { get; set; }
 
         [GrandResourceDisplayName("Admin.Address.Fields.City")]
-
         public string City { get; set; }
 
         [GrandResourceDisplayName("Admin.Address.Fields.Address1")]
-
         public string Address1 { get; set; }
 
         [GrandResourceDisplayName("Admin.Address.Fields.Address2")]
-
         public string Address2 { get; set; }
 
         [GrandResourceDisplayName("Admin.Address.Fields.ZipPostalCode")]
-
         public string ZipPostalCode { get; set; }
 
         [GrandResourceDisplayName("Admin.Address.Fields.PhoneNumber")]
-
         public string PhoneNumber { get; set; }
 
         [GrandResourceDisplayName("Admin.Address.Fields.FaxNumber")]
@@ -88,7 +81,7 @@ namespace Grand.Web.Admin.Models.Common
         public IList<SelectListItem> AvailableStates { get; set; }
 
 
-
+        public bool NameEnabled { get; set; }
         public bool FirstNameEnabled { get; set; }
         public bool FirstNameRequired { get; set; }
         public bool LastNameEnabled { get; set; }

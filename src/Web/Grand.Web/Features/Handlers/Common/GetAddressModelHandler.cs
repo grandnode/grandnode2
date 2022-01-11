@@ -75,6 +75,7 @@ namespace Grand.Web.Features.Handlers.Common
             if (!excludeProperties && address != null)
             {
                 model.Id = address.Id;
+                model.Name = address.Name;
                 model.FirstName = address.FirstName;
                 model.LastName = address.LastName;
                 model.Email = address.Email;
@@ -154,6 +155,7 @@ namespace Grand.Web.Features.Handlers.Common
             }
 
             //form fields
+            model.NameEnabled = _addressSettings.NameEnabled;
             model.CompanyEnabled = _addressSettings.CompanyEnabled;
             model.CompanyRequired = _addressSettings.CompanyRequired;
             model.VatNumberEnabled = _addressSettings.VatNumberEnabled;

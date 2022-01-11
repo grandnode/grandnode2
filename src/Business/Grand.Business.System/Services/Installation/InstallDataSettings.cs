@@ -313,6 +313,7 @@ namespace Grand.Business.System.Services.Installation
             });
 
             await _settingService.SaveSetting(new AddressSettings {
+                NameEnabled = false,
                 CompanyEnabled = true,
                 StreetAddressEnabled = true,
                 StreetAddressRequired = true,

@@ -4,6 +4,7 @@ using Grand.Domain.Data;
 using MediatR;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -88,9 +89,40 @@ namespace Grand.Business.Customers.Queries.Handlers
             if (request.OrderBySelector == null)
                 query = query.OrderByDescending(c => c.CreatedOnUtc);
             else
-                query = query.OrderByDescending(request.OrderBySelector);
+            {
+                var propName = GetName(request.OrderBySelector);
+                query = OrderingHelper(query, propName);
+            }
 
             return Task.FromResult(query);
         }
+
+        private string GetName(Expression<Func<Customer, object>> exp)
+        {
+            var body = exp.Body as MemberExpression;
+            if (body == null)
+            {
+                var ubody = (UnaryExpression)exp.Body;
+                body = ubody.Operand as MemberExpression;
+            }
+            return body.Member.Name;
+        }
+
+        private IOrderedQueryable<T> OrderingHelper<T>(IQueryable<T> source, string propertyName)
+        {
+            ParameterExpression param = Expression.Parameter(typeof(T), propertyName);
+            MemberExpression property = Expression.PropertyOrField(param, propertyName);
+            LambdaExpression sort = Expression.Lambda(property, param);
+
+            MethodCallExpression call = Expression.Call(
+                typeof(Queryable),
+                "OrderByDescending",
+                new[] { typeof(T), property.Type },
+                source.Expression,
+                Expression.Quote(sort));
+
+            return (IOrderedQueryable<T>)source.Provider.CreateQuery<T>(call);
+        }
+
     }
 }

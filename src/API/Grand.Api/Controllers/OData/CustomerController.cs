@@ -10,6 +10,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Grand.Api.Controllers.OData
@@ -36,6 +37,9 @@ namespace Grand.Api.Controllers.OData
 
         [SwaggerOperation(summary: "Get entity from Customer by key", OperationId = "GetCustomerByEmail")]
         [HttpGet("{key}")]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string key)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers))
@@ -50,6 +54,9 @@ namespace Grand.Api.Controllers.OData
 
         [SwaggerOperation(summary: "Add new entity to Customer", OperationId = "InsertCustomer")]
         [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Post([FromBody] CustomerDto model)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers))
@@ -65,6 +72,9 @@ namespace Grand.Api.Controllers.OData
 
         [SwaggerOperation(summary: "Update entity in Customer", OperationId = "UpdateCustomer")]
         [HttpPut]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Put([FromBody] CustomerDto model)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers))
@@ -80,6 +90,9 @@ namespace Grand.Api.Controllers.OData
 
         [SwaggerOperation(summary: "Delete entity from Customer", OperationId = "DeleteCustomer")]
         [HttpDelete]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Delete(string key)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers))
@@ -101,6 +114,10 @@ namespace Grand.Api.Controllers.OData
         [SwaggerOperation(summary: "Invoke action AddAddress", OperationId = "AddAddress")]
         [Route("({key})/[action]")]
         [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> AddAddress(string key, [FromBody] AddressDto address)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers))
@@ -121,6 +138,10 @@ namespace Grand.Api.Controllers.OData
         [SwaggerOperation(summary: "Invoke action UpdateAddress", OperationId = "UpdateAddress")]
         [Route("({key})/[action]")]
         [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UpdateAddress(string key, [FromBody] AddressDto address)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers))
@@ -143,6 +164,9 @@ namespace Grand.Api.Controllers.OData
         [SwaggerOperation(summary: "Invoke action DeleteAddress", OperationId = "DeleteAddress")]
         [Route("({key})/[action]")]
         [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteAddress(string key, [FromBody] DeleteAddressDto model)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers))
@@ -170,6 +194,10 @@ namespace Grand.Api.Controllers.OData
         [SwaggerOperation(summary: "Invoke action SetPassword", OperationId = "SetPassword")]
         [Route("({key})/[action]")]
         [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.Forbidden)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> SetPassword(string key, [FromBody] PasswordDto model)
         {
             if (!await _permissionService.Authorize(PermissionSystemName.Customers))

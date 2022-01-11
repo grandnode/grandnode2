@@ -5,6 +5,11 @@ namespace Grand.Domain.Common
     public class AddressSettings : ISettings
     {
         /// <summary>
+        /// Gets or sets a value indicating whether 'Name' is enabled
+        /// </summary>
+        public bool NameEnabled { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether 'Company' is enabled
         /// </summary>
         public bool CompanyEnabled { get; set; }

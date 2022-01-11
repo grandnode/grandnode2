@@ -42,6 +42,13 @@
 }
 <input asp-for="Id" type="hidden" />
 <div class="edit-address row">
+    @if (Model.NameEnabled)
+    {
+        <div class="form-group col-sm-12 col-md-12">
+            <label asp-for="Name" class="col-form-label">@Loc["Address.Fields.Name"]:</label>
+            <input asp-for="Name" v-model="createorupdateaddress@{@prefix}.Name" v-bind:class="['form-control']" />
+        </div>
+    }
     <div class="form-group col-sm-12 col-md-6">
         <validation-provider tag="div" rules="required" :name="'@prefix' + '.FirstName'" v-slot="{ errors, classes }">
             <label asp-for="FirstName" class="col-form-label">@Loc["Address.Fields.FirstName"]:</label>
@@ -290,6 +297,7 @@
             data: () => ({
                 @{
                     <text>
+                        Name: '@Html.Raw(Model.Name)',
                         FirstName: '@Html.Raw(Model.FirstName)',
                         LastName: '@Html.Raw(Model.LastName)',
                         Company: '@Html.Raw(Model.Company)',

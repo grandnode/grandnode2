@@ -1177,6 +1177,7 @@ namespace Grand.Web.Admin.Services
             if (model.Address == null)
                 model.Address = new AddressModel();
 
+            model.Address.NameEnabled = true;
             model.Address.FirstNameEnabled = true;
             model.Address.FirstNameRequired = true;
             model.Address.LastNameEnabled = true;

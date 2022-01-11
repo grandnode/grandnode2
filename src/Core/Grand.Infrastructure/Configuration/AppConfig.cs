@@ -154,7 +154,6 @@ namespace Grand.Infrastructure.Configuration
         /// </summary>
         public bool DisplayMiniProfilerInPublicStore { get; set; }
 
-        public bool AllowNonAsciiCharInHeaders { get; set; }
         /// <summary>
         /// A value indicating whether SEO friendly URLs with multiple languages are enabled
         /// </summary>
@@ -165,12 +164,6 @@ namespace Grand.Infrastructure.Configuration
         /// A value indicating whether to load all search engine friendly names (slugs) on application startup
         /// </summary>
         public bool LoadAllUrlEntitiesOnStartup { get; set; }
-
-        /// <summary>
-        /// Enable minimal Progressive Web App.
-        /// </summary>
-        public bool EnableProgressiveWebApp { get; set; }
-        public int ServiceWorkerStrategy { get; set; }
 
         /// <summary>
         /// Gets or sets a value of "Cache-Control" header value for static content

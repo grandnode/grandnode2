@@ -103,7 +103,7 @@ namespace Grand.Web.Common.Filters
                     return;
                 }
 
-                pageUrl = AddLanguageSeo(pageUrl, context.HttpContext.Request.PathBase, _workContext.WorkingLanguage);
+                pageUrl = AddLanguageSeo(pageUrl,  _workContext.WorkingLanguage);
                 context.Result = new RedirectResult(pageUrl, false);
             }
 
@@ -123,7 +123,7 @@ namespace Grand.Web.Common.Filters
                 return language != null ? language.Published : false;
             }
 
-            private string AddLanguageSeo(string url, PathString pathBase, Language language)
+            private string AddLanguageSeo(string url, Language language)
             {
                 if (language == null)
                     throw new ArgumentNullException(nameof(language));
@@ -131,13 +131,11 @@ namespace Grand.Web.Common.Filters
                 //remove application path from raw URL
                 if (!string.IsNullOrEmpty(url))
                 {
-                    var _ = new PathString(url).StartsWithSegments(pathBase, out PathString result);
-                    url = WebUtility.UrlDecode(result);
+                    url = Flurl.Url.EncodeIllegalCharacters(url);
                 }
 
                 //add language code
-                url = $"/{language.UniqueSeoCode}{url}";
-                url = pathBase + url;
+                url = $"/{language.UniqueSeoCode}/{url.TrimStart('/')}";
 
                 return url;
             }
