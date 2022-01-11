@@ -68,7 +68,8 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Methods()
         {
-            var _paymentSettings = _settingService.LoadSetting<PaymentSettings>();
+            var storeScope = await GetActiveStore();
+            var _paymentSettings = _settingService.LoadSetting<PaymentSettings>(storeScope);
 
             var paymentMethodsModel = new List<PaymentMethodModel>();
             var paymentMethods = _paymentService.LoadAllPaymentMethods();
@@ -100,7 +101,8 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> MethodUpdate(PaymentMethodModel model)
         {
-            var _paymentSettings = _settingService.LoadSetting<PaymentSettings>();
+            var storeScope = await GetActiveStore();
+            var _paymentSettings = _settingService.LoadSetting<PaymentSettings>(storeScope);
 
             var pm = _paymentService.LoadPaymentMethodBySystemName(model.SystemName);
             if (pm.IsPaymentMethodActive(_paymentSettings))
@@ -109,7 +111,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     //mark as disabled
                     _paymentSettings.ActivePaymentProviderSystemNames.Remove(pm.SystemName);
-                    await _settingService.SaveSetting(_paymentSettings);
+                    await _settingService.SaveSetting(_paymentSettings, storeScope);
                 }
             }
             else
@@ -118,7 +120,7 @@ namespace Grand.Web.Admin.Controllers
                 {
                     //mark as active
                     _paymentSettings.ActivePaymentProviderSystemNames.Add(pm.SystemName);
-                    await _settingService.SaveSetting(_paymentSettings);
+                    await _settingService.SaveSetting(_paymentSettings, storeScope);
                 }
             }
 
@@ -234,11 +236,12 @@ namespace Grand.Web.Admin.Controllers
             return RedirectToAction("MethodRestrictions");
         }
 
-        #region Shipping Settings
+        #region Payment Settings
 
-        public IActionResult Settings()
+        public async Task<IActionResult> Settings()
         {
-            var paymentSettings = _settingService.LoadSetting<PaymentSettings>();
+            var storeScope = await GetActiveStore();
+            var paymentSettings = _settingService.LoadSetting<PaymentSettings>(storeScope);
             var model = paymentSettings.ToModel();
 
             return View(model);
@@ -247,10 +250,12 @@ namespace Grand.Web.Admin.Controllers
         public async Task<IActionResult> Settings(PaymentSettingsModel model,
             [FromServices] ICustomerActivityService customerActivityService)
         {
-            var paymentSettings = _settingService.LoadSetting<PaymentSettings>();
+            var storeScope = await GetActiveStore();
+            var paymentSettings = _settingService.LoadSetting<PaymentSettings>(storeScope);
+
             paymentSettings = model.ToEntity(paymentSettings);
 
-            await _settingService.SaveSetting(paymentSettings);
+            await _settingService.SaveSetting(paymentSettings, storeScope);
 
             //activity log
             _ = customerActivityService.InsertActivity("EditSettings", "",
