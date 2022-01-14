@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Grand.Business.Common.Interfaces.Stores;
 
 namespace Grand.Web.Admin.Services
 {
@@ -36,6 +37,7 @@ namespace Grand.Web.Admin.Services
         private readonly ICustomerActivityService _customerActivityService;
         private readonly IWorkContext _workContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IStoreService _storeService;
 
         #endregion
 
@@ -49,7 +51,8 @@ namespace Grand.Web.Admin.Services
             LanguageSettings languageSettings,
             ITranslationService translationService, ILanguageService languageService,
             ICustomerActivityService customerActivityService, IWorkContext workContext,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IStoreService storeService)
         {
             _giftVoucherService = giftVoucherService;
             _orderService = orderService;
@@ -63,21 +66,21 @@ namespace Grand.Web.Admin.Services
             _customerActivityService = customerActivityService;
             _workContext = workContext;
             _httpContextAccessor = httpContextAccessor;
+            _storeService = storeService;
         }
 
         #endregion
 
-        public virtual async Task<GiftVoucherModel> PrepareGiftVoucherModel()
+        public virtual async Task<GiftVoucherModel> PrepareGiftVoucherModel(GiftVoucherModel model = null)
         {
-            var model = new GiftVoucherModel();
+            model ??= new GiftVoucherModel();
+
             foreach (var currency in await _currencyService.GetAllCurrencies())
                 model.AvailableCurrencies.Add(new SelectListItem { Text = currency.Name, Value = currency.CurrencyCode });
-            return model;
-        }
-        public virtual async Task<GiftVoucherModel> PrepareGiftVoucherModel(GiftVoucherModel model)
-        {
-            foreach (var currency in await _currencyService.GetAllCurrencies())
-                model.AvailableCurrencies.Add(new SelectListItem { Text = currency.Name, Value = currency.CurrencyCode });
+
+            model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
+            foreach (var s in (await _storeService.GetAllStores()))
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
 
             return model;
         }
@@ -209,6 +212,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task<GiftVoucherModel> PrepareGiftVoucherModel(GiftVoucher giftVoucher)
         {
             var model = giftVoucher.ToModel(_dateTimeService);
+            model = await PrepareGiftVoucherModel(model);
             Order order = null;
             if (giftVoucher.PurchasedWithOrderItem != null)
                 order = await _orderService.GetOrderByOrderItemId(giftVoucher.PurchasedWithOrderItem.Id);

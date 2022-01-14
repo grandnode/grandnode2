@@ -8,8 +8,7 @@ namespace Grand.Web.Admin.Interfaces
     public interface IGiftVoucherViewModelService
     {
         GiftVoucherListModel PrepareGiftVoucherListModel();
-        Task<GiftVoucherModel> PrepareGiftVoucherModel();
-        Task<GiftVoucherModel> PrepareGiftVoucherModel(GiftVoucherModel model);
+        Task<GiftVoucherModel> PrepareGiftVoucherModel(GiftVoucherModel model = null);
         Task<(IEnumerable<GiftVoucherModel> giftVoucherModels, int totalCount)> PrepareGiftVoucherModel(GiftVoucherListModel model, int pageIndex, int pageSize);
         Task<Order> FillGiftVoucherModel(GiftVoucher giftVoucher, GiftVoucherModel model);
         Task NotifyRecipient(GiftVoucher giftVoucher, GiftVoucherModel model);

@@ -99,6 +99,12 @@ namespace Grand.Domain.Orders
         /// Gets or sets a value indicating whether to deactivate related gift vouchers after deleting the order
         /// </summary>
         public bool DeactivateGiftVouchersAfterDeletingOrder { get; set; }
+
+        /// <summary>
+        ///  Gift vouchers are assigned to the current store
+        /// </summary>
+        public bool GiftVouchers_Assign_StoreId { get; set; }
+
         /// <summary>
         /// Gets or sets an order placement interval in seconds (prevent 2 orders being placed within an X seconds time frame).
         /// </summary>

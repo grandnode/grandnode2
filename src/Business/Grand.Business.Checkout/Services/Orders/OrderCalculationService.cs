@@ -19,6 +19,7 @@ using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
+using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.SharedKernel;
@@ -257,7 +258,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// </summary>
         /// <param name="customer">Customer</param>
         /// <returns>Active gift vouchers</returns>
-        private async Task<IList<GiftVoucher>> GetActiveGiftVouchers(Customer customer, Currency currency)
+        private async Task<IList<GiftVoucher>> GetActiveGiftVouchers(Customer customer, Currency currency, Store store)
         {
             var result = new List<GiftVoucher>();
             if (customer == null)
@@ -269,7 +270,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 var giftVouchers = await _giftVoucherService.GetAllGiftVouchers(isGiftVoucherActivated: true, giftVoucherCouponCode: couponCode);
                 foreach (var gc in giftVouchers)
                 {
-                    if (gc.IsGiftVoucherValid(currency))
+                    if (gc.IsGiftVoucherValid(currency, store))
                         result.Add(gc);
                 }
             }
@@ -885,7 +886,7 @@ namespace Grand.Business.Checkout.Services.Orders
 
             var appliedGiftVouchers = new List<AppliedGiftVoucher>();
             //we don't apply gift vouchers for recurring products
-            var giftVouchers = await GetActiveGiftVouchers(customer, _workContext.WorkingCurrency);
+            var giftVouchers = await GetActiveGiftVouchers(customer, _workContext.WorkingCurrency, _workContext.CurrentStore);
             if (giftVouchers != null)
                 foreach (var gc in giftVouchers)
                     if (resultTemp > 0)
