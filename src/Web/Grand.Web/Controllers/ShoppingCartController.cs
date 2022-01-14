@@ -631,7 +631,9 @@ namespace Grand.Web.Controllers
             if (!string.IsNullOrWhiteSpace(giftvouchercouponcode))
             {
                 var giftVoucher = (await _mediator.Send(new GetGiftVoucherQuery() { Code = giftvouchercouponcode, IsGiftVoucherActivated = true })).FirstOrDefault();
-                bool isGiftVoucherValid = giftVoucher != null && giftVoucher.IsGiftVoucherValid(_workContext.WorkingCurrency);
+                var isGiftVoucherValid = giftVoucher != null 
+                    && giftVoucher.IsGiftVoucherValid(_workContext.WorkingCurrency, _workContext.CurrentStore);
+
                 if (isGiftVoucherValid)
                 {
                     var result = _workContext.CurrentCustomer.ApplyCouponCode(SystemCustomerFieldNames.GiftVoucherCoupons, giftvouchercouponcode.Trim().ToLower());

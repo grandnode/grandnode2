@@ -1,4 +1,5 @@
 using Grand.Domain.Directory;
+using Grand.Domain.Stores;
 
 namespace Grand.Domain.Orders
 {
@@ -28,8 +29,10 @@ namespace Grand.Domain.Orders
         /// Is gift voucher valid
         /// </summary>
         /// <param name="giftVoucher">Gift voucher</param>
+        /// <param name="currency">Currency</param>
+        /// <param name="store">Store</param>
         /// <returns>Result</returns>
-        public static bool IsGiftVoucherValid(this GiftVoucher giftVoucher, Currency currency)
+        public static bool IsGiftVoucherValid(this GiftVoucher giftVoucher, Currency currency, Store store)
         {
             if (!giftVoucher.IsGiftVoucherActivated)
                 return false;
@@ -38,6 +41,9 @@ namespace Grand.Domain.Orders
                 return false;
 
             if(giftVoucher.ValidTo.HasValue && giftVoucher.ValidTo.Value <= System.DateTime.UtcNow)
+                return false;
+
+            if(!string.IsNullOrEmpty(giftVoucher.StoreId) && giftVoucher.StoreId!=store.Id)
                 return false;
 
             double remainingAmount = giftVoucher.GetGiftVoucherRemainingAmount();

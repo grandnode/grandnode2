@@ -14,6 +14,7 @@ namespace Grand.Web.Admin.Mapper
                 .ForMember(dest => dest.AmountStr, mo => mo.Ignore())
                 .ForMember(dest => dest.RemainingAmountStr, mo => mo.Ignore())
                 .ForMember(dest => dest.AvailableCurrencies, mo => mo.Ignore())
+                .ForMember(dest => dest.AvailableStores, mo => mo.Ignore())
                 .ForMember(dest => dest.CreatedOn, mo => mo.Ignore());
             CreateMap<GiftVoucherModel, GiftVoucher>()
                 .ForMember(dest => dest.Id, mo => mo.Ignore())

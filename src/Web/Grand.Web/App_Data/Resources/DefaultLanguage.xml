@@ -8020,6 +8020,9 @@
   <Resource Name="Admin.GiftVouchers.Fields.SenderEmail">
     <Value>Sender's Email</Value>
   </Resource>
+  <Resource Name="Admin.GiftVouchers.Fields.StoreId">
+	<Value>Store</Value>
+  </Resource>	
   <Resource Name="Admin.GiftVouchers.Fields.SenderName">
     <Value>Sender's Name</Value>
   </Resource>
@@ -11697,6 +11700,9 @@
   <Resource Name="Admin.Settings.Order.GiftVouchers_Activated.Pending">
     <Value>Order status could not be set to Pending</Value>
   </Resource>
+  <Resource Name="Admin.Settings.Order.GiftVouchers_Assign_StoreId">
+	<Value>Gift voucher assign to the current store</Value>
+  </Resource>	
   <Resource Name="Admin.Settings.Order.IsReOrderAllowed">
     <Value>Is re-order allowed</Value>
   </Resource>

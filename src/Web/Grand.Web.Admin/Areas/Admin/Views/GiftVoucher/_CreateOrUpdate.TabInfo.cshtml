@@ -69,6 +69,13 @@
             </div>
         }
         <div class="form-group">
+            <admin-label asp-for="StoreId" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <admin-select asp-for="StoreId" asp-items="Model.AvailableStores" />
+                <span asp-validation-for="StoreId"></span>
+            </div>
+        </div>
+        <div class="form-group">
             <admin-label asp-for="IsGiftVoucherActivated" />
             <div class="col-md-9 col-sm-9">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
