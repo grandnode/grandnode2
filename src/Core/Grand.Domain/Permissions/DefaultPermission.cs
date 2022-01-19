@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Grand.Domain.Permissions
+﻿namespace Grand.Domain.Permissions
 {
     /// <summary>
     /// Represents a default permission

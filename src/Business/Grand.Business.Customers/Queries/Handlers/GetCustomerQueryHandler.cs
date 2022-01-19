@@ -2,11 +2,7 @@
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
-using System;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Customers.Queries.Handlers
 {

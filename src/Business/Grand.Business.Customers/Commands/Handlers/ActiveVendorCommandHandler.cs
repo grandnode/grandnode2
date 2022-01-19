@@ -3,8 +3,6 @@ using Grand.Business.Customers.Interfaces;
 using Grand.Business.Customers.Events;
 using Grand.Domain.Customers;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 using Grand.Business.Common.Interfaces.Directory;
 
 namespace Grand.Business.Customers.Commands.Handlers

@@ -2,8 +2,6 @@
 using Grand.Domain.Data;
 using Grand.Domain.Logging;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Commands.Handlers.Common
 {

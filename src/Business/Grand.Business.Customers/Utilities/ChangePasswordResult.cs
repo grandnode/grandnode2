@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Grand.Business.Customers.Utilities
+﻿namespace Grand.Business.Customers.Utilities
 {
     /// <summary>
     /// Change password result

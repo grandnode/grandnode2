@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-//code from Telerik MVC Extensions
+﻿//code from Telerik MVC Extensions
 namespace Grand.Web.Common.Menu
 {
     public class SiteMapNode

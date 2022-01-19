@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Html;
-using System.Collections.Generic;
 
 namespace Grand.Web.Common.Events
 {

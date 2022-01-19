@@ -1,7 +1,6 @@
 //Contributor : MVCContrib
 
 using Grand.Domain;
-using System;
 
 namespace Grand.Web.Common.Page.Paging
 {

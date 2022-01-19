@@ -1,7 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Models;
-using System.Collections.Generic;
 
 namespace Grand.Web.Admin.Models.Common
 {

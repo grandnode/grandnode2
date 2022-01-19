@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Grand.Domain.Blogs
+﻿namespace Grand.Domain.Blogs
 {
     public static class BlogExtensions
     {

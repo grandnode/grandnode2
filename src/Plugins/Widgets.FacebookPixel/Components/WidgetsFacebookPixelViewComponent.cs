@@ -4,7 +4,6 @@ using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Globalization;
-using System.Threading.Tasks;
 using Widgets.FacebookPixel.Models;
 
 namespace Widgets.FacebookPixel.Components

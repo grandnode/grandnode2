@@ -1,6 +1,4 @@
 ﻿using Widgets.Slider.Domain;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Widgets.Slider.Services
 {

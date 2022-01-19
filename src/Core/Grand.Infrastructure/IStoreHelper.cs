@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Stores;
-using System.Threading.Tasks;
 
 namespace Grand.Infrastructure
 {

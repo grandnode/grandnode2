@@ -4,9 +4,6 @@ using Grand.Domain.Customers;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
 using MediatR;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Common
 {

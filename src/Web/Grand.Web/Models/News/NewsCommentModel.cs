@@ -1,5 +1,4 @@
 ﻿using Grand.Infrastructure.Models;
-using System;
 
 namespace Grand.Web.Models.News
 {

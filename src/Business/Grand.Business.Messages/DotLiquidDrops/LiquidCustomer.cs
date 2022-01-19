@@ -4,7 +4,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.SharedKernel.Extensions;
-using System.Collections.Generic;
 using System.Net;
 
 namespace Grand.Business.Messages.DotLiquidDrops

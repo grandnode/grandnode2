@@ -4,11 +4,6 @@ using Grand.Domain.Messages;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Messages.Services
 {

@@ -1,7 +1,5 @@
 ﻿using Grand.Domain;
 using Grand.Domain.PushNotifications;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Interfaces.PushNotifications
 {

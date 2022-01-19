@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Grand.Infrastructure.Plugins
+﻿namespace Grand.Infrastructure.Plugins
 {
     public interface IProvider
     {

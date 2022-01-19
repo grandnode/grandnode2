@@ -10,10 +10,6 @@ using Grand.Domain.Tax;
 using Grand.Web.Commands.Models.Customers;
 using Grand.Web.Events;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Commands.Handler.Customers
 {

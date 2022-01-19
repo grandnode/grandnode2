@@ -5,9 +5,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Commands.Handlers
 {

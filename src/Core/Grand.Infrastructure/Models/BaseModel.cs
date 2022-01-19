@@ -1,6 +1,5 @@
 ﻿using Grand.Domain.Common;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.Collections.Generic;
 
 namespace Grand.Infrastructure.Models
 {

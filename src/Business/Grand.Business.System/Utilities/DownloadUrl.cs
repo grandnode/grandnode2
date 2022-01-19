@@ -1,5 +1,4 @@
 ﻿using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Utilities
 {

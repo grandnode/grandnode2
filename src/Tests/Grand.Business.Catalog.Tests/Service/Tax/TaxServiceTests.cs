@@ -8,9 +8,6 @@ using Grand.Business.Common.Interfaces.Logging;
 using Grand.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Grand.Domain.Catalog;
 using Grand.SharedKernel.Extensions;
 

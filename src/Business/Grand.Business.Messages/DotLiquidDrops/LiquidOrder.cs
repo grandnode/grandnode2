@@ -7,8 +7,6 @@ using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.SharedKernel.Extensions;
-using System;
-using System.Collections.Generic;
 
 namespace Grand.Business.Messages.DotLiquidDrops
 {

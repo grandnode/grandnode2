@@ -8,9 +8,6 @@ using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Services.Newsteletters
 {

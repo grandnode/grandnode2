@@ -6,9 +6,6 @@ using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Seo;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Services.Products
 {

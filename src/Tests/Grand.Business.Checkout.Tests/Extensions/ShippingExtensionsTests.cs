@@ -3,7 +3,6 @@ using Grand.Business.Checkout.Interfaces.Shipping;
 using Grand.Domain.Shipping;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
 
 namespace Grand.Business.Checkout.Tests.Extensions
 {

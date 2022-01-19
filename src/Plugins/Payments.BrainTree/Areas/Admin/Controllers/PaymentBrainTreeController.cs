@@ -6,7 +6,6 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payments.BrainTree.Models;
-using System.Threading.Tasks;
 
 namespace Payments.BrainTree.Controllers
 {

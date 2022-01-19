@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Storage.Interfaces;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Extensions
 {

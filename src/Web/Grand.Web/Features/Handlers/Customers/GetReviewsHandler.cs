@@ -5,9 +5,6 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Customers
 {

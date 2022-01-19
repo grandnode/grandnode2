@@ -5,7 +5,6 @@ using Grand.Infrastructure;
 using Grand.Web.Features.Models.Pages;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Controllers
 {

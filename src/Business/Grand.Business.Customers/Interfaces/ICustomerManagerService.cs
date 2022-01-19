@@ -1,6 +1,5 @@
 using Grand.Business.Customers.Utilities;
 using Grand.Domain.Customers;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Customers.Interfaces
 {

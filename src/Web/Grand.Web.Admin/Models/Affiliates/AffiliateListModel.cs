@@ -1,6 +1,5 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Affiliates

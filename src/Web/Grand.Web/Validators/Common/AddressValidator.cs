@@ -4,9 +4,6 @@ using Grand.Infrastructure.Validators;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Models.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Grand.Web.Validators.Common
 {

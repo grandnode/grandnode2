@@ -1,7 +1,5 @@
 ﻿using Grand.Business.Storage.Interfaces;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Api.Commands.Models.Catalog
 {

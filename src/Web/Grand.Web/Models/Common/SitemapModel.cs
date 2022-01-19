@@ -3,7 +3,6 @@ using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Pages;
 using Grand.Web.Models.Blogs;
 using Grand.Web.Models.Knowledgebase;
-using System.Collections.Generic;
 
 namespace Grand.Web.Models.Common
 {

@@ -6,9 +6,6 @@ using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
-using System;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace Grand.Business.Marketing.Services.Customers
 {

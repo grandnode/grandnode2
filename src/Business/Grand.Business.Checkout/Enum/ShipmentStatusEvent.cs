@@ -1,4 +1,3 @@
-using System;
 namespace Grand.Business.Checkout.Enum
 {
     /// <summary>

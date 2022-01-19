@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace Grand.Domain.Stores
+﻿namespace Grand.Domain.Stores
 {
     public static class StoreExtensions
     {

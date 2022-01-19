@@ -3,7 +3,6 @@ using Grand.Business.Common.Interfaces.Directory;
 using Microsoft.AspNetCore.Mvc;
 using Shipping.ShippingPoint.Models;
 using Shipping.ShippingPoint.Services;
-using System.Threading.Tasks;
 
 namespace Shipping.ShippingPoint.Controllers
 {

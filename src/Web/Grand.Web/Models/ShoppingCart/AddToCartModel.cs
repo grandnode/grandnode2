@@ -1,7 +1,6 @@
 ﻿using Grand.Domain.Orders;
 using Grand.Infrastructure.Models;
 using Grand.Web.Models.Media;
-using System;
 
 namespace Grand.Web.Models.ShoppingCart
 {

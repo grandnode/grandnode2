@@ -1,6 +1,4 @@
 ﻿using Grand.SharedKernel.Extensions;
-using System;
-using System.Linq;
 
 namespace Grand.Domain.Common
 {

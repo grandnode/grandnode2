@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
 using StackExchange.Redis;
-using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Grand.Infrastructure.Caching.Message;
 using Grand.Infrastructure.Configuration;

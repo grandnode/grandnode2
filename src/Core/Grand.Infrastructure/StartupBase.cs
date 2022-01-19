@@ -17,8 +17,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Linq;
 using Wkhtmltopdf.NetCore;
 
 namespace Grand.Infrastructure

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Domain.Logging
+﻿namespace Grand.Domain.Logging
 {
     /// <summary>
     /// Represents an activity log

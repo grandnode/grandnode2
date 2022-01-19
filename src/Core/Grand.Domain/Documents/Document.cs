@@ -1,8 +1,6 @@
 ﻿using Grand.Domain.Common;
 using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
-using System;
-using System.Collections.Generic;
 
 namespace Grand.Domain.Documents
 {

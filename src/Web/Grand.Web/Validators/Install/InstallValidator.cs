@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Install;
-using System.Collections.Generic;
 
 namespace Grand.Web.Validators.Install
 {

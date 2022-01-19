@@ -1,6 +1,5 @@
 ﻿using Grand.Api.DTOs.Common;
 using MediatR;
-using System.Linq;
 
 namespace Grand.Api.Queries.Models.Common
 {

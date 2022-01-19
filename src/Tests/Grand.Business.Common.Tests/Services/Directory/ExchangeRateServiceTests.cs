@@ -3,8 +3,6 @@ using Grand.Business.Common.Services.Directory;
 using Grand.Domain.Directory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Services.Directory
 {

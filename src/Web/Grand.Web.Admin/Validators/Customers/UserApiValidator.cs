@@ -3,7 +3,6 @@ using Grand.Infrastructure.Validators;
 using Grand.Business.Customers.Interfaces;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Admin.Models.Customers;
-using System.Collections.Generic;
 
 namespace Grand.Web.Admin.Validators.Customers
 {

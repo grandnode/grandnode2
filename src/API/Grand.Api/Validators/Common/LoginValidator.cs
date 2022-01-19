@@ -5,7 +5,6 @@ using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
-using System.Collections.Generic;
 
 namespace Grand.Api.Validators.Common
 {

@@ -2,8 +2,6 @@
 using Grand.Business.Marketing.Interfaces.Courses;
 using Grand.Web.Commands.Models.Courses;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Commands.Handler.Courses
 {

@@ -1,8 +1,6 @@
 ﻿using Grand.Domain;
 using Grand.Domain.Courses;
 using Grand.Domain.Customers;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Interfaces.Courses
 {

@@ -6,7 +6,6 @@ using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearchers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Linq;
 
 namespace Grand.Web.Common.Startup
 {

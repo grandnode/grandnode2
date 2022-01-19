@@ -11,8 +11,6 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payments.PayPalStandard.Models;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Payments.PayPalStandard.Controllers
 {

@@ -4,8 +4,6 @@ using Grand.Infrastructure;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Services.Customers
 {

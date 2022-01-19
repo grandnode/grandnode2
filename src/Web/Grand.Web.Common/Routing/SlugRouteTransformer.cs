@@ -4,9 +4,6 @@ using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Common.Routing
 {

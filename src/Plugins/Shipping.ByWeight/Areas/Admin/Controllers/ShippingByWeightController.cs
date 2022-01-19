@@ -14,11 +14,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Shipping.ByWeight.Domain;
 using Shipping.ByWeight.Models;
 using Shipping.ByWeight.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Shipping.ByWeight.Controllers
 {

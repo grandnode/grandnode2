@@ -1,8 +1,6 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Web.Admin.Models.Common;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Orders

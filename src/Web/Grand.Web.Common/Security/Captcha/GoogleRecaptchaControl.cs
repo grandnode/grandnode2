@@ -1,8 +1,5 @@
 ﻿using Grand.Web.Common.Extensions;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
-using System.Linq;
-using System.Text;
 
 namespace Grand.Web.Common.Security.Captcha
 {

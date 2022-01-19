@@ -6,8 +6,6 @@ using Grand.Business.Customers.Interfaces;
 using Grand.Business.Messages.Interfaces;
 using Grand.Business.System.Interfaces.ScheduleTasks;
 using Grand.Domain.Localization;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
 {

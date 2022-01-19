@@ -21,8 +21,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using StackExchange.Redis;
-using System;
-using System.Linq;
 using System.Reflection;
 
 namespace Grand.Web.Common.Startup

@@ -7,10 +7,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {

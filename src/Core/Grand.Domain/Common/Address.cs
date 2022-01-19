@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Grand.Domain.Common
+﻿namespace Grand.Domain.Common
 {
     public partial class Address : BaseEntity
     {

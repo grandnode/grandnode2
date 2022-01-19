@@ -12,8 +12,6 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Net.Http.Headers;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Common.Filters
 {

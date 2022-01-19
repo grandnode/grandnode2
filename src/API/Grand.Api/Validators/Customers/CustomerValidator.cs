@@ -6,8 +6,6 @@ using Grand.Business.Common.Interfaces.Stores;
 using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Validators;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Grand.Api.Validators.Customers
 {

@@ -6,9 +6,6 @@ using Grand.Domain.Localization;
 using Grand.Domain.News;
 using Grand.Web.Commands.Models.News;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Commands.Handler.News
 {

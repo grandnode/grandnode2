@@ -2,7 +2,6 @@
 using Grand.Domain.Stores;
 using Grand.Web.Models.Common;
 using MediatR;
-using System.Collections.Generic;
 
 namespace Grand.Web.Features.Models.Common
 {

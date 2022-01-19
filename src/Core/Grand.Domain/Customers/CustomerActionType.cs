@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Grand.Domain.Customers
+﻿namespace Grand.Domain.Customers
 {
     /// <summary>
     /// Represents a Customer ActionType

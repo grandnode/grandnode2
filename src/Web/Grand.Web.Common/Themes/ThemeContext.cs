@@ -4,9 +4,6 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Common.Themes
 {

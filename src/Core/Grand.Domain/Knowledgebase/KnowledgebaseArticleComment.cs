@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Domain.Knowledgebase
+﻿namespace Grand.Domain.Knowledgebase
 {
     public partial class KnowledgebaseArticleComment : BaseEntity
     {

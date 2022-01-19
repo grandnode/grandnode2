@@ -5,8 +5,6 @@ using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
-using System;
-using System.Collections.Generic;
 using System.Net;
 
 namespace Grand.Business.Messages.DotLiquidDrops

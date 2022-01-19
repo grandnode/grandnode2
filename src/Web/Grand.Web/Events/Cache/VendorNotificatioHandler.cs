@@ -2,8 +2,6 @@
 using Grand.Domain.Vendors;
 using Grand.Infrastructure.Events;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Events.Cache
 {

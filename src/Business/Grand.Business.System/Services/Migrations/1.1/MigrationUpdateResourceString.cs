@@ -5,9 +5,6 @@ using Grand.Domain.Localization;
 using Grand.Infrastructure.Migrations;
 using Grand.SharedKernel.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.IO;
-using System.Linq;
 
 namespace Grand.Business.System.Services.Migrations._1._1
 {

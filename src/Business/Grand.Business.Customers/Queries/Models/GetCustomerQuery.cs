@@ -1,8 +1,6 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using MediatR;
-using System;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace Grand.Business.Customers.Queries.Models

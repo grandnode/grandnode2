@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Grand.Business.Common.Interfaces.Logging
+﻿namespace Grand.Business.Common.Interfaces.Logging
 {
     public partial interface IActivityKeywordsProvider
     {

@@ -4,8 +4,6 @@ using Grand.Infrastructure.Models;
 using Grand.Web.Admin.Models.Common;
 using Grand.Web.Admin.Models.Discounts;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Vendors

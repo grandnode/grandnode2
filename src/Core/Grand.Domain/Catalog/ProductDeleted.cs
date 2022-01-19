@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Domain.Catalog
+﻿namespace Grand.Domain.Catalog
 {
     public partial class ProductDeleted: Product
     {

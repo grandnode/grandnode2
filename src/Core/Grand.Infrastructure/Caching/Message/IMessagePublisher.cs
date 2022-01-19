@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Grand.Infrastructure.Caching.Message
+﻿namespace Grand.Infrastructure.Caching.Message
 {
     public interface IMessagePublisher
     {

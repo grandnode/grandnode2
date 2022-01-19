@@ -1,5 +1,4 @@
 ﻿using Grand.Infrastructure.Plugins;
-using System.Collections.Generic;
 
 namespace Grand.Web.Common.Themes
 {

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
-using System;
 
 namespace Grand.Web.Common.TagHelpers
 {

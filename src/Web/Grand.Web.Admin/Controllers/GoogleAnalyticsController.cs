@@ -1,7 +1,5 @@
 ﻿using Grand.Business.Common.Interfaces.Directory;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 
 
 namespace Grand.Web.Admin.Controllers

@@ -4,8 +4,6 @@ using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Controllers
 {

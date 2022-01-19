@@ -7,9 +7,6 @@ using Grand.SharedKernel;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Messages.Tests.Services
 {

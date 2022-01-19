@@ -8,7 +8,6 @@ using Grand.Web.Common.Components;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Models.Common;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Components
 {

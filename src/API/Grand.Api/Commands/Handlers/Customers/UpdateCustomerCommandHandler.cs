@@ -8,9 +8,6 @@ using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using MediatR;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Api.Commands.Handlers.Customers
 {

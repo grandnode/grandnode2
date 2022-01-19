@@ -5,10 +5,6 @@ using Grand.Business.Common.Interfaces.Directory;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using MediatR;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Customers
 {

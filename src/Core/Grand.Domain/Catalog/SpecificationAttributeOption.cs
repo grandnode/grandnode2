@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Localization;
-using System.Collections.Generic;
 
 namespace Grand.Domain.Catalog
 {

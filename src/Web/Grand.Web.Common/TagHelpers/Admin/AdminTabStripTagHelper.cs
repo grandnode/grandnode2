@@ -3,10 +3,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 using Wangkanai.Detection.Models;
 using Wangkanai.Detection.Services;
 

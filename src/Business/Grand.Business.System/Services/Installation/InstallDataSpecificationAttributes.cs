@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Common.Extensions;
 using Grand.Business.System.Interfaces.Installation;
 using Grand.Domain.Catalog;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Services.Installation
 {

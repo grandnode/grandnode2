@@ -12,8 +12,6 @@ using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Grand.Business.Checkout.Tests.Services.CheckoutAttributes
 {

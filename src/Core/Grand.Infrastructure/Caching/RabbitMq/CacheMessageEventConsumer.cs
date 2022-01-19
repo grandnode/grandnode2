@@ -1,6 +1,5 @@
 ﻿using Grand.Infrastructure.Caching.Message;
 using MassTransit;
-using System.Threading.Tasks;
 
 namespace Grand.Infrastructure.Caching.RabbitMq
 {

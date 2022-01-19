@@ -6,8 +6,6 @@ using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Events.Cache;
 using Grand.Web.Models.Catalog;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {

@@ -1,9 +1,6 @@
 ﻿using Grand.Business.Common.Interfaces.Directory;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Services.Directory
 {

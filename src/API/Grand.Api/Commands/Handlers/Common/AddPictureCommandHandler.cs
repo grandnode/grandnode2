@@ -3,8 +3,6 @@ using Grand.Api.DTOs.Common;
 using Grand.Api.Extensions;
 using Grand.Business.Storage.Interfaces;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Api.Commands.Handlers.Common
 {

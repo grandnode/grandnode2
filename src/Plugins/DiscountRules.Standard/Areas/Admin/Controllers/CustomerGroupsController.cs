@@ -10,9 +10,6 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DiscountRules.CustomerGroups.Controllers
 {

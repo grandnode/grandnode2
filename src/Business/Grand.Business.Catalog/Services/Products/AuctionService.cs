@@ -10,10 +10,6 @@ using Grand.Domain.Data;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Services.Products
 {

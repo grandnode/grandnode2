@@ -2,8 +2,6 @@
 using Grand.Business.Customers.Events;
 using Grand.Infrastructure;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Events.ShoppingCart
 {

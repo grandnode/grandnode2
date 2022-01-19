@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-
-namespace Grand.Domain.Data
+﻿namespace Grand.Domain.Data
 {
     public interface IDatabaseContext
     {

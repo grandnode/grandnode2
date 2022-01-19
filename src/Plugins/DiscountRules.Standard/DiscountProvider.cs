@@ -1,6 +1,5 @@
 ﻿using DiscountRules.Provider;
 using Grand.Business.Catalog.Interfaces.Discounts;
-using System.Collections.Generic;
 
 namespace DiscountRules.Standard
 {

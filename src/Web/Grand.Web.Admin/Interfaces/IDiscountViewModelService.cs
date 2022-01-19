@@ -4,8 +4,6 @@ using Grand.Domain.Discounts;
 using Grand.Domain.Vendors;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Discounts;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Interfaces
 {

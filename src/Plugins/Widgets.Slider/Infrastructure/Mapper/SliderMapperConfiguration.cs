@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Grand.Infrastructure.Mapper;
-using System.Linq;
 using Widgets.Slider.Domain;
 using Widgets.Slider.Models;
 

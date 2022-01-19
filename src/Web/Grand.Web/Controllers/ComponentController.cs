@@ -1,7 +1,6 @@
 ﻿using Grand.Web.Common.Components;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace Grand.Web.Controllers

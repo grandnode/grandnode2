@@ -1,6 +1,5 @@
 ﻿//Contribution: Orchard project (https://github.com/OrchardCMS/OrchardCore)
 using Microsoft.AspNetCore.Html;
-using System.Collections.Generic;
 
 namespace Grand.Web.Common.TagHelpers
 {

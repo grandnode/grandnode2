@@ -1,7 +1,6 @@
 ﻿using Grand.Infrastructure.Models;
 using Grand.Web.Common.Models;
 using Grand.Web.Admin.Models.Directory;
-using System.Collections.Generic;
 
 namespace Grand.Web.Admin.Models.Shipping
 {

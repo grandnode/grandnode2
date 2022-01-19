@@ -8,9 +8,6 @@ using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DiscountRules.Provider
 {

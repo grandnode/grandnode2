@@ -2,9 +2,6 @@
 using Grand.Domain.Vendors;
 using Grand.Web.Commands.Models.Vendors;
 using MediatR;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Commands.Handler.Vendors
 {

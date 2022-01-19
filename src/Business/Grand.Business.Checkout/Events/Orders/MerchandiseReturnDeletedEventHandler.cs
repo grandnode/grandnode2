@@ -2,9 +2,6 @@
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Events;
 using MediatR;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Events.Orders
 {

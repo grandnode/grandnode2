@@ -1,6 +1,5 @@
 ﻿using Grand.Domain.Directory;
 using Grand.Web.Admin.Models.Directory;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Interfaces
 {

@@ -3,10 +3,6 @@ using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.Marketing.Interfaces.Knowledgebase;
 using Grand.Domain.Knowledgebase;
 using Grand.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Extensions
 {

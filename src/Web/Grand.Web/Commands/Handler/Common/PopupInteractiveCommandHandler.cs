@@ -8,12 +8,7 @@ using Grand.Domain.Messages;
 using Grand.Web.Commands.Models.Common;
 using Grand.Web.Events;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Commands.Handler.Common
 {

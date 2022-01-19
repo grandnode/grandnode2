@@ -1,8 +1,6 @@
 ﻿using Grand.Infrastructure;
 using Microsoft.AspNetCore.Http;
-using System;
 using System.Globalization;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Common.Middleware
 {

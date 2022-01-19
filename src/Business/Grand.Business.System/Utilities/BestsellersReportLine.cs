@@ -1,5 +1,3 @@
-using System;
-
 namespace Grand.Business.System.Utilities
 {
     /// <summary>

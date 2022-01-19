@@ -1,7 +1,6 @@
 using Grand.Domain.Common;
 using Grand.Domain.Localization;
 using Grand.Domain.Seo;
-using System.Collections.Generic;
 
 namespace Grand.Domain.Vendors
 {

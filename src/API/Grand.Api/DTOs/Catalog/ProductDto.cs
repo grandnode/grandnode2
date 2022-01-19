@@ -1,7 +1,5 @@
 ﻿using Grand.Api.Models;
 using Grand.Domain.Catalog;
-using System;
-using System.Collections.Generic;
 
 namespace Grand.Api.DTOs.Catalog
 {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Domain.Messages
+﻿namespace Grand.Domain.Messages
 {
     public enum MessageDelayPeriod
     {

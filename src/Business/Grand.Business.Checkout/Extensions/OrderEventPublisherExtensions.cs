@@ -2,7 +2,6 @@
 using Grand.Business.Checkout.Utilities;
 using Grand.Domain.Payments;
 using MediatR;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Extensions
 {

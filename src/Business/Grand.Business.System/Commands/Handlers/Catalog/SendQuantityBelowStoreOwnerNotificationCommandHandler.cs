@@ -2,8 +2,6 @@
 using Grand.Business.Messages.Interfaces;
 using Grand.Domain.Localization;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Commands.Handlers.Catalog
 {

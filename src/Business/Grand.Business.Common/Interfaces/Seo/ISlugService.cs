@@ -1,6 +1,5 @@
 using Grand.Domain;
 using Grand.Domain.Seo;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Interfaces.Seo
 {

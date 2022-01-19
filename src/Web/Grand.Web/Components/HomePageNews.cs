@@ -3,8 +3,6 @@ using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.News;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Web.ViewComponents
 {

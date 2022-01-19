@@ -8,10 +8,6 @@ using Grand.Business.Messages.Interfaces;
 using Grand.Domain.Localization;
 using Grand.Domain.Logging;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {

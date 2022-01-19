@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Domain.Tasks
+﻿namespace Grand.Domain.Tasks
 {
     public partial class ScheduleTask : BaseEntity
     {

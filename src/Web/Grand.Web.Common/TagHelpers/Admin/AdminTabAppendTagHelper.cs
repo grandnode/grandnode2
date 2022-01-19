@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
-using System.Text;
 
 namespace Grand.Web.Common.TagHelpers.Admin
 {

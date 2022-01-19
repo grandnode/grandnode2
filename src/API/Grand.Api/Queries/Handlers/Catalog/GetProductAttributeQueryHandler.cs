@@ -2,9 +2,6 @@
 using Grand.Api.Queries.Models.Common;
 using Grand.Domain.Data;
 using MediatR;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Api.Queries.Handlers.Common
 {

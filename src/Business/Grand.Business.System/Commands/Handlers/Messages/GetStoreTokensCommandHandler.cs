@@ -2,8 +2,6 @@
 using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Domain.Stores;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Commands.Handlers.Messages
 {

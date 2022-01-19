@@ -1,9 +1,6 @@
 ﻿using Grand.Business.Common.Interfaces.Providers;
 using Grand.SharedKernel;
-using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace ExchangeRate.McExchange
 {

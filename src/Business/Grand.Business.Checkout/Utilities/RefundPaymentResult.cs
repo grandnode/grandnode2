@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Payments;
-using System.Collections.Generic;
 
 namespace Grand.Business.Checkout.Utilities
 {

@@ -15,10 +15,6 @@ using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
 using Grand.Domain.Orders;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Grand.Business.Catalog.Interfaces.Brands;
 
 namespace Grand.Business.Catalog.Services.Prices

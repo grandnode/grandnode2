@@ -2,7 +2,6 @@
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Admin.Models.Orders;
-using System.Collections.Generic;
 
 namespace Grand.Web.Admin.Validators.Orders
 {

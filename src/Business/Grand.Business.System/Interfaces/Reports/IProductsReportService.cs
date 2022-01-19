@@ -1,7 +1,5 @@
 ﻿using Grand.Business.System.Utilities;
 using Grand.Domain.Catalog;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Interfaces.Reports
 {

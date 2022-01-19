@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-
-namespace Grand.Business.System.Interfaces.ExportImport
+﻿namespace Grand.Business.System.Interfaces.ExportImport
 {
     /// <summary>
     /// Import manager interface

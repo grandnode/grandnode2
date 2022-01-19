@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Grand.Business.System.Utilities
+﻿namespace Grand.Business.System.Utilities
 {
     /// <summary>
     /// Language class for installation process

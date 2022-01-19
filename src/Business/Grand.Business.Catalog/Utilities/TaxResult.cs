@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Grand.Business.Catalog.Utilities
 {
     /// <summary>

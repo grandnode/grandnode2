@@ -10,8 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
-using System;
-using System.Linq;
 
 namespace Grand.Api.Infrastructure
 {

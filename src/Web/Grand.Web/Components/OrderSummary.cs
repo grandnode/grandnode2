@@ -6,7 +6,6 @@ using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Grand.Web.ViewComponents
 {

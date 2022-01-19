@@ -14,10 +14,6 @@ using Grand.Web.Events.Cache;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Grand.Business.Common.Extensions;
 
 namespace Grand.Web.Features.Handlers.Catalog

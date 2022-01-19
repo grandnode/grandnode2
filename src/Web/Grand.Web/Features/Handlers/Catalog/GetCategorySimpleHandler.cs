@@ -10,10 +10,6 @@ using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Events.Cache;
 using Grand.Web.Models.Catalog;
 using MediatR;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Grand.SharedKernel.Extensions;
 
 namespace Grand.Web.Features.Handlers.Catalog

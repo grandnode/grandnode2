@@ -15,8 +15,6 @@ using Grand.Web.Features.Models.News;
 using Grand.Web.Models.News;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Controllers
 {

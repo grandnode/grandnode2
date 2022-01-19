@@ -8,9 +8,6 @@ using Grand.Domain.Blogs;
 using Grand.Domain.Localization;
 using Grand.Web.Commands.Models.Blogs;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Commands.Handler.Blogs
 {

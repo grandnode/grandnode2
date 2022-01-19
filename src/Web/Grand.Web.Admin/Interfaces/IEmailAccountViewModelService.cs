@@ -1,6 +1,5 @@
 ﻿using Grand.Domain.Messages;
 using Grand.Web.Admin.Models.Messages;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Interfaces
 {

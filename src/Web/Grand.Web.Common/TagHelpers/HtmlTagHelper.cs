@@ -1,7 +1,6 @@
 ﻿using Grand.Infrastructure;
 using Grand.Web.Common.Page;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Common.TagHelpers
 {

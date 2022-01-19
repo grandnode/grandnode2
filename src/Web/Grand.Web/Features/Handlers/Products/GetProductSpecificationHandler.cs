@@ -2,12 +2,7 @@
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Common.Extensions;
 

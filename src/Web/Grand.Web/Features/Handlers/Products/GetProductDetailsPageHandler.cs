@@ -32,12 +32,7 @@ using Grand.Web.Models.Media;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Grand.Business.Catalog.Interfaces.Brands;
 
 namespace Grand.Web.Features.Handlers.Products

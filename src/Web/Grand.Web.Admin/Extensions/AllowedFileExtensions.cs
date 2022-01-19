@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Grand.Web.Admin.Extensions
+﻿namespace Grand.Web.Admin.Extensions
 {
     public static class FileExtensions
     {

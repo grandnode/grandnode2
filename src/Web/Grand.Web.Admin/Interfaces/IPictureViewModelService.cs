@@ -1,5 +1,4 @@
 ﻿using Grand.Web.Admin.Models.Common;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Interfaces
 {

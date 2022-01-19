@@ -7,8 +7,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Authentication.Services
 {

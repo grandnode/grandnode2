@@ -4,7 +4,6 @@ using Grand.Infrastructure.Models;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Orders

@@ -2,9 +2,6 @@
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;
 using Shipping.ShippingPoint.Domain;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Shipping.ShippingPoint.Services
 {

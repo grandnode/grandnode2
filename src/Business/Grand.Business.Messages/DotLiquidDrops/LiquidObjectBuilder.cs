@@ -12,9 +12,6 @@ using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Messages.DotLiquidDrops
 {

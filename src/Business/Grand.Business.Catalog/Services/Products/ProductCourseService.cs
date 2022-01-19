@@ -2,9 +2,6 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Courses;
 using Grand.Domain.Data;
-using System;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace Grand.Business.Catalog.Services.Products
 {

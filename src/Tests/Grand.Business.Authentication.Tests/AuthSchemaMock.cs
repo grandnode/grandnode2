@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Authentication.Tests
 {

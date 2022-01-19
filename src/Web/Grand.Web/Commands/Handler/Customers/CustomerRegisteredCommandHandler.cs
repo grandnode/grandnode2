@@ -12,11 +12,6 @@ using Grand.Domain.Messages;
 using Grand.Domain.Tax;
 using Grand.Web.Commands.Models.Customers;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Commands.Handler.Customers
 {

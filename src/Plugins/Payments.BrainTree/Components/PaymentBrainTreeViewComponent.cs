@@ -8,10 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Payments.BrainTree.Models;
 using Payments.BrainTree.Validators;
-using System;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace Payments.BrainTree.Components
 {

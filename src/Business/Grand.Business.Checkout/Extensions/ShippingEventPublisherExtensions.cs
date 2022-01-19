@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Checkout.Events.Shipping;
 using Grand.Domain.Shipping;
 using MediatR;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Extensions
 {

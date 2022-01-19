@@ -1,8 +1,6 @@
 ﻿using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.System.Interfaces.ScheduleTasks;
 using Grand.Domain.Common;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
 {

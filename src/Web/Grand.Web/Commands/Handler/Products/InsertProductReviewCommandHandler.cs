@@ -8,10 +8,6 @@ using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Web.Commands.Models.Products;
 using MediatR;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Commands.Handler.Products
 {

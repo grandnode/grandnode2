@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Domain.PushNotifications
+﻿namespace Grand.Domain.PushNotifications
 {
     public class PushRegistration : BaseEntity
     {

@@ -2,10 +2,6 @@
 using Grand.Domain.Orders;
 using Grand.Web.Features.Models.Checkout;
 using MediatR;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Checkout
 {

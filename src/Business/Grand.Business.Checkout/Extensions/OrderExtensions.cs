@@ -1,8 +1,6 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
-using System;
-using System.Linq;
 
 namespace Grand.Business.Checkout.Extensions
 {

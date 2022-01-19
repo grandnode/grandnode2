@@ -2,7 +2,6 @@
 using Grand.Business.Checkout.Commands.Models.Orders;
 using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Tests.Commands.Orders
 {

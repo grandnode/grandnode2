@@ -1,9 +1,6 @@
 ﻿using Grand.Api.Commands.Models.Customers;
 using Grand.Business.Customers.Interfaces;
 using MediatR;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Api.Commands.Handlers.Customers
 {

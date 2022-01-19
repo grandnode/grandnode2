@@ -8,9 +8,6 @@ using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Products
 {

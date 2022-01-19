@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Data;
-using System;
 
 namespace Grand.Infrastructure.Migrations
 {

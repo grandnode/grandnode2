@@ -1,10 +1,6 @@
 using Grand.Business.System.Interfaces.ScheduleTasks;
 using Grand.Domain.Data;
 using Grand.Domain.Tasks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
 {

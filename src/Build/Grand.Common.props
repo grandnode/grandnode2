@@ -13,5 +13,14 @@
 		<RepositoryUrl>https://github.com/grandnode/grandnode2</RepositoryUrl>
 		<RepositoryType>Git</RepositoryType>
 	</PropertyGroup>
-
+	
+	<ItemGroup>
+		<Using Include="System"/>
+		<Using Include="System.Collections.Generic"/>
+		<Using Include="System.IO"/>
+		<Using Include="System.Text"/>
+		<Using Include="System.Linq"/>
+		<Using Include="System.Threading"/>
+		<Using Include="System.Threading.Tasks"/>
+	</ItemGroup>
 </Project>

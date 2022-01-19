@@ -1,7 +1,6 @@
 ﻿using Grand.Infrastructure.TypeConverters.Converter;
 using Grand.Domain.Common;
 using Grand.Domain.Shipping;
-using System.Collections.Generic;
 using System.ComponentModel;
 using Grand.Domain.Security;
 

@@ -5,9 +5,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Services.Directory
 {

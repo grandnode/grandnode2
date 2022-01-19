@@ -3,10 +3,6 @@ using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Infrastructure.Caching
 {

@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Admin.Models.Tasks;
-using System.Collections.Generic;
 
 namespace Grand.Web.Admin.Validators.Tasks
 {

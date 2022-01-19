@@ -5,11 +5,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Seo;
 using MediatR;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
-using System;
 
 namespace Grand.Business.Catalog.Events.Handlers
 {

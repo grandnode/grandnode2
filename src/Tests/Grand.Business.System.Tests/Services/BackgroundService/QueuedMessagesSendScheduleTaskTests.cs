@@ -7,9 +7,6 @@ using Grand.Domain.Logging;
 using Grand.Domain.Messages;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Tests.Services.BackgroundService
 {

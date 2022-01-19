@@ -10,8 +10,6 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payments.CashOnDelivery.Models;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Payments.CashOnDelivery.Controllers
 {

@@ -1,8 +1,6 @@
 ﻿using Grand.Api.Commands.Models.Common;
 using Grand.Business.Storage.Interfaces;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Api.Commands.Handlers.Common
 {

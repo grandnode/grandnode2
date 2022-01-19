@@ -1,6 +1,5 @@
 using Grand.Business.Authentication.Interfaces;
 using Grand.Domain.Customers;
-using System;
 
 namespace Grand.Business.Authentication.Extensions
 {

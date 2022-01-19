@@ -4,7 +4,6 @@ using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Models.Checkout;
 using Grand.Web.Validators.Common;
-using System.Collections.Generic;
 
 namespace Grand.Web.Validators.Customer
 {

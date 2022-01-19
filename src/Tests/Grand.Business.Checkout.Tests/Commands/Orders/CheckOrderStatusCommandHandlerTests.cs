@@ -6,7 +6,6 @@ using Grand.Domain.Payments;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Tests.Commands.Orders
 {

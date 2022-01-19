@@ -4,8 +4,6 @@ using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Customers.Interfaces;
 using Grand.Infrastructure;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Api.Commands.Handlers.Customers
 {

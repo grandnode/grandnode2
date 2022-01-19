@@ -1,6 +1,5 @@
 ﻿using Grand.Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Collections.Generic;
 
 namespace Grand.Web.Common.Models
 {

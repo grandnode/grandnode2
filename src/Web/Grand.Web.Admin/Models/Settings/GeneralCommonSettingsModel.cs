@@ -2,7 +2,6 @@
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Security.Captcha;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Settings

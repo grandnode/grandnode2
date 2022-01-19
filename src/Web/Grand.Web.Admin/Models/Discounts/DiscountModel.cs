@@ -2,8 +2,6 @@
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Link;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Discounts

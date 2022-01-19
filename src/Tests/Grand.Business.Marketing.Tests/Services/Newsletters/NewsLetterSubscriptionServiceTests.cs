@@ -10,8 +10,6 @@ using Grand.SharedKernel;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Tests.Services.Newsletters
 {

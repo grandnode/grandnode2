@@ -7,9 +7,6 @@ using Grand.Infrastructure.Migrations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
 
 namespace Grand.Business.System.Services.Migrations._1._1

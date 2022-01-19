@@ -7,10 +7,6 @@ using Grand.Business.Messages.Interfaces;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using MediatR;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Shipping
 {

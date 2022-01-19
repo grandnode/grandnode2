@@ -1,5 +1,4 @@
-﻿using System;
-using Grand.Web.Admin.Models.Common;
+﻿using Grand.Web.Admin.Models.Common;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.ModelBinding;
 

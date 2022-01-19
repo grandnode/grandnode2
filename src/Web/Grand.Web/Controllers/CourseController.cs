@@ -15,7 +15,6 @@ using MediatR;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Controllers
 {

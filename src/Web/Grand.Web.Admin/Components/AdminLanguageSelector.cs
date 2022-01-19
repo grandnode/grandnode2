@@ -4,8 +4,6 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Common;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Components
 {

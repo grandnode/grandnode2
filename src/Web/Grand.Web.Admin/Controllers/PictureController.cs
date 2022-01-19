@@ -8,10 +8,6 @@ using Grand.Web.Admin.Extensions;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Controllers
 {

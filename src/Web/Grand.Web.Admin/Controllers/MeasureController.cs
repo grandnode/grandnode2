@@ -10,9 +10,6 @@ using Grand.Infrastructure.Caching;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Directory;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Controllers
 {

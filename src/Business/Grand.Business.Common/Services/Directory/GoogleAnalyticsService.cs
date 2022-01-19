@@ -7,9 +7,6 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Common.Utilities;
 using Grand.Domain.Seo;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Services.Directory
 {

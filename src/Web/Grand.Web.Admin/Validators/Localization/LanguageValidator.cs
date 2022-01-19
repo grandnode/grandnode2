@@ -2,7 +2,6 @@
 using Grand.Infrastructure.Validators;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Admin.Models.Localization;
-using System.Collections.Generic;
 using System.Globalization;
 
 namespace Grand.Web.Admin.Validators.Localization

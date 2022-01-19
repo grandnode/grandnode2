@@ -4,8 +4,6 @@ using Grand.Domain.Data;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Linq;
 using System.Text.Json;
 
 namespace Grand.Business.System.Services.Migrations._1._1

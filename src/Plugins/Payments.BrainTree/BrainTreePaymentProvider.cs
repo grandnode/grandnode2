@@ -14,9 +14,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Payments.BrainTree.Models;
 using Payments.BrainTree.Validators;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Payments.BrainTree
 {

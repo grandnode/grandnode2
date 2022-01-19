@@ -1,6 +1,4 @@
 ﻿using Grand.Infrastructure.Models;
-using System;
-using System.Collections.Generic;
 
 namespace Grand.Web.Models.Catalog
 {

@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Permissions;
-using System.Collections.Generic;
 
 namespace Grand.Business.Common.Services.Security
 {

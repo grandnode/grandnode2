@@ -1,9 +1,7 @@
 ﻿using Grand.Business.Catalog.Interfaces.Tax;
 using Grand.Business.Catalog.Utilities;
 using Grand.Domain.Tax;
-using System;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Services.Tax
 {

@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Customers.Events;
 using Grand.Business.Customers.Utilities;
 using MediatR;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Customers.Extensions
 {

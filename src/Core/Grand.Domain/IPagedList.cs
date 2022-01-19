@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Grand.Domain
+﻿namespace Grand.Domain
 {
     /// <summary>
     /// Paged list interface

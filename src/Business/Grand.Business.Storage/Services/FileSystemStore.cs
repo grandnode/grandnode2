@@ -2,12 +2,6 @@
 
 using Grand.Business.Storage.Interfaces;
 using Microsoft.Extensions.FileProviders.Physical;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Storage.Services
 {

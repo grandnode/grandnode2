@@ -2,10 +2,6 @@ using Grand.Business.Cms.Interfaces;
 using Grand.Domain.Cms;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Cms.Services
 {

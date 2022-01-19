@@ -4,8 +4,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Linq;
 
 namespace Grand.Business.Common.Tests.Extensions
 {

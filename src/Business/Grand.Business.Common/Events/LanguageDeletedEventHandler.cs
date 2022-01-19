@@ -3,8 +3,6 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Infrastructure.Events;
 using Grand.Domain.Localization;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Events
 {

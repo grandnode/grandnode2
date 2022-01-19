@@ -1,8 +1,6 @@
 ﻿using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Web.Features.Models.Courses;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Courses
 {

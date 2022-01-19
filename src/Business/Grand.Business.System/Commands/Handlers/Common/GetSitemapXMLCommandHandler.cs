@@ -17,14 +17,7 @@ using Grand.Infrastructure.Configuration;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace Grand.Business.System.Commands.Handlers.Common

@@ -3,8 +3,6 @@ using Grand.Api.DTOs.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Mapper;
-using System;
-using System.Linq;
 
 namespace Grand.Api.Infrastructure.Mapper
 {

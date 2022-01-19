@@ -8,9 +8,6 @@ using Grand.Domain.Localization;
 using Grand.Domain.Payments;
 using Grand.SharedKernel;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {

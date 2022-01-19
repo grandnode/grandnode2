@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using System.Linq;
 
 namespace Grand.Api.Queries.Models.Common
 {

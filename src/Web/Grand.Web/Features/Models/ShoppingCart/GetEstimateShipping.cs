@@ -5,7 +5,6 @@ using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
-using System.Collections.Generic;
 
 namespace Grand.Web.Features.Models.ShoppingCart
 {

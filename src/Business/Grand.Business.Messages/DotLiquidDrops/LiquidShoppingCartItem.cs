@@ -3,7 +3,6 @@ using Grand.Business.Common.Extensions;
 using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
-using System.Collections.Generic;
 using System.Net;
 
 namespace Grand.Business.Messages.DotLiquidDrops

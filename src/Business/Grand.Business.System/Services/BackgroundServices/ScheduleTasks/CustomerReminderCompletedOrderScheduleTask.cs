@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Marketing.Interfaces.Customers;
 using Grand.Business.System.Interfaces.ScheduleTasks;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
 {

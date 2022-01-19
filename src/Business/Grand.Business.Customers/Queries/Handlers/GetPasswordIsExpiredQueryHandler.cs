@@ -2,10 +2,6 @@
 using Grand.Business.Customers.Queries.Models;
 using Grand.Domain.Customers;
 using MediatR;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Customers.Queries.Handlers
 {

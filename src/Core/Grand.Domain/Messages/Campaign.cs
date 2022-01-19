@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Grand.Domain.Messages
+﻿namespace Grand.Domain.Messages
 {
     /// <summary>
     /// Represents a campaign

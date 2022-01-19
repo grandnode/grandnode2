@@ -2,7 +2,6 @@
 using Grand.Web.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
 
 namespace Grand.Web.Commands.Models.Common
 {

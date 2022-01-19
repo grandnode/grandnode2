@@ -1,7 +1,6 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Interfaces.Prices
 {

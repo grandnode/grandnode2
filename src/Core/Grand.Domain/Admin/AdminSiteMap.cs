@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Grand.Domain.Admin
+﻿namespace Grand.Domain.Admin
 {
     /// <summary>
     /// Represents an admin menu

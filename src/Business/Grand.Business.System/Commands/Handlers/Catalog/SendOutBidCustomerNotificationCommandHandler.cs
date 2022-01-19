@@ -1,8 +1,6 @@
 ﻿using Grand.Business.Catalog.Commands.Models;
 using Grand.Business.Messages.Interfaces;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Commands.Handlers.Catalog
 {

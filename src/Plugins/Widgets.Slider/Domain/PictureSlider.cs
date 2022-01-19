@@ -1,7 +1,6 @@
 ﻿using Grand.Domain;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
-using System.Collections.Generic;
 
 namespace Widgets.Slider.Domain
 {

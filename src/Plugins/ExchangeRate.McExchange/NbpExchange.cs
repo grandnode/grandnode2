@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Mime;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace ExchangeRate.McExchange

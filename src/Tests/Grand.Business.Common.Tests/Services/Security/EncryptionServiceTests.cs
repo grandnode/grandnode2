@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Common.Services.Security;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 
 namespace Grand.Business.Common.Tests.Services.Security
 {

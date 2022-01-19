@@ -5,8 +5,6 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;
 using Grand.Infrastructure;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Api.Commands.Models.Customers
 {

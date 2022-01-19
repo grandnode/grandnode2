@@ -6,9 +6,6 @@ using Grand.Web.Admin.Models.Logging;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Controllers
 {

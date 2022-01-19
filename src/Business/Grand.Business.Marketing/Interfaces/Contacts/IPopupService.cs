@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Messages;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Interfaces.Contacts
 {

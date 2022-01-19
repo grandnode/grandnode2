@@ -3,10 +3,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace Grand.Business.Customers.Services
 {

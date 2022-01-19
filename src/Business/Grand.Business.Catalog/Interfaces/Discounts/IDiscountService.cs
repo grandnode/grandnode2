@@ -4,8 +4,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Interfaces.Discounts
 {

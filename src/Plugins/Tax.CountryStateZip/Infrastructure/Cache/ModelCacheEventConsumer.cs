@@ -2,9 +2,6 @@
 using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Tax.CountryStateZip.Domain;
 
 namespace Tax.CountryStateZip.Infrastructure.Cache

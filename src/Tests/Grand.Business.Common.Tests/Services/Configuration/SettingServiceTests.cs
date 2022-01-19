@@ -4,8 +4,6 @@ using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Services.Configuration
 {

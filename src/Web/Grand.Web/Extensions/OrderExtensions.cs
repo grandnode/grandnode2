@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Common.Interfaces.Directory;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Extensions
 {

@@ -12,8 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Shipping.ShippingPoint.Models;
 using Shipping.ShippingPoint.Services;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Shipping.ShippingPoint.Controllers
 {

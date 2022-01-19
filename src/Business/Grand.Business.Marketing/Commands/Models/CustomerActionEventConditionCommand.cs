@@ -1,7 +1,6 @@
 ﻿using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using MediatR;
-using System.Collections.Generic;
 
 namespace Grand.Business.Marketing.Commands.Models
 {

@@ -25,12 +25,7 @@ using Grand.Web.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using Grand.Web.Common.Controllers;
 
 namespace Grand.Web.Controllers

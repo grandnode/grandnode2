@@ -1,5 +1,4 @@
 ﻿using Grand.Infrastructure.Models;
-using System.Collections.Generic;
 
 namespace Grand.Web.Models.ShoppingCart
 {

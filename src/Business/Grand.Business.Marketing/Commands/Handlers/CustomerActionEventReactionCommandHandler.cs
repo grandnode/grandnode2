@@ -11,11 +11,6 @@ using Grand.Domain.Messages;
 using Grand.Domain.Orders;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Grand.Business.Common.Interfaces.Directory;
 
 namespace Grand.Business.Marketing.Commands.Handlers

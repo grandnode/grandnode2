@@ -15,7 +15,6 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Controllers
 {

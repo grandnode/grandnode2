@@ -10,9 +10,6 @@ using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Shipping.FixedRateShipping.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Shipping.FixedRateShipping
 {

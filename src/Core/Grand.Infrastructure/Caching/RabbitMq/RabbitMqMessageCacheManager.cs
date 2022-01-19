@@ -2,9 +2,6 @@
 using MassTransit;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Infrastructure.Caching.RabbitMq
 {

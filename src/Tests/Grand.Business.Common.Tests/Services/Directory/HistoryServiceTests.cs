@@ -5,8 +5,6 @@ using Grand.Domain.Data;
 using Grand.Domain.History;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Services.Directory
 {

@@ -1,8 +1,6 @@
 ﻿using Grand.Domain.Blogs;
 using Grand.Web.Admin.Models.Blogs;
 using Grand.Web.Admin.Models.Catalog;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Interfaces
 {

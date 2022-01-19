@@ -3,7 +3,6 @@ using Grand.Api.DTOs.Catalog;
 using Grand.Business.Catalog.Interfaces.Collections;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Infrastructure.Validators;
-using System.Collections.Generic;
 
 namespace Grand.Api.Validators.Catalog
 {

@@ -2,9 +2,6 @@
 using Grand.Domain.Catalog;
 using Grand.Web.Features.Models.Catalog;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {

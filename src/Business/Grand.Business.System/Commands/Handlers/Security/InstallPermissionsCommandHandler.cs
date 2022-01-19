@@ -6,9 +6,6 @@ using Grand.Business.System.Commands.Models.Security;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using MediatR;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Commands.Handlers.Security
 {

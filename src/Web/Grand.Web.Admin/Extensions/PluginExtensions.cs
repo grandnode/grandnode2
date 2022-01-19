@@ -1,7 +1,5 @@
 ﻿using Grand.Infrastructure;
 using Grand.Infrastructure.Plugins;
-using System;
-using System.IO;
 
 namespace Grand.Web.Admin.Extensions
 {

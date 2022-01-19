@@ -1,6 +1,5 @@
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
-using System.Collections.Generic;
 
 namespace Grand.Domain.Directory
 {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Domain.Catalog
+﻿namespace Grand.Domain.Catalog
 {
     /// <summary>
     /// Represents a product reservation

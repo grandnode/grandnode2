@@ -2,8 +2,6 @@
 using Grand.Domain.Data;
 using Grand.Infrastructure.Events;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Events.Handlers
 {

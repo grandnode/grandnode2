@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Grand.Infrastructure.Extensions
 {

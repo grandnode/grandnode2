@@ -2,8 +2,6 @@
 using Grand.Domain.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Controllers
 {

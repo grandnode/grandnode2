@@ -1,8 +1,6 @@
 ﻿using Grand.Domain.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Common.Middleware
 {

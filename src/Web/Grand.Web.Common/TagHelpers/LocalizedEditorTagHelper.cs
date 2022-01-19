@@ -7,11 +7,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Common.TagHelpers
 {

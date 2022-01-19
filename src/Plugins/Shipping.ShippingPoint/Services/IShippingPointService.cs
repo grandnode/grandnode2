@@ -1,6 +1,5 @@
 ﻿using Grand.Domain;
 using Shipping.ShippingPoint.Domain;
-using System.Threading.Tasks;
 
 namespace Shipping.ShippingPoint.Services
 {

@@ -1,6 +1,4 @@
 ﻿using Grand.Domain.Common;
-using System;
-using System.Collections.Generic;
 
 namespace Grand.Domain.Messages
 {

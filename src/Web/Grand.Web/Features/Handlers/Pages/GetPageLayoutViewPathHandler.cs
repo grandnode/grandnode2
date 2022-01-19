@@ -1,10 +1,6 @@
 ﻿using Grand.Business.Cms.Interfaces;
 using Grand.Web.Features.Models.Pages;
 using MediatR;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Pages
 {

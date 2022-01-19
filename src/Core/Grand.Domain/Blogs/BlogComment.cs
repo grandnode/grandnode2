@@ -1,5 +1,3 @@
-using System;
-
 namespace Grand.Domain.Blogs
 {
     /// <summary>

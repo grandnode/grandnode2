@@ -2,7 +2,6 @@
 using Grand.Api.DTOs.Common;
 using Grand.Infrastructure.Validators;
 using Grand.Business.Common.Interfaces.Localization;
-using System.Collections.Generic;
 
 namespace Grand.Api.Validators.Common
 {

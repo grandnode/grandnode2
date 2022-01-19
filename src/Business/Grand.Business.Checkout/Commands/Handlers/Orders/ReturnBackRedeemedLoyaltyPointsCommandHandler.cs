@@ -2,9 +2,6 @@
 using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Common.Interfaces.Localization;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {

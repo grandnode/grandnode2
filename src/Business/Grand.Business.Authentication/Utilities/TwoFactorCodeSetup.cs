@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Grand.Business.Authentication.Utilities
+﻿namespace Grand.Business.Authentication.Utilities
 {
     public partial class TwoFactorCodeSetup
     {

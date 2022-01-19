@@ -2,8 +2,6 @@
 using Grand.Domain.PushNotifications;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Controllers
 {

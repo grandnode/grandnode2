@@ -7,8 +7,6 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Events.Cache;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Components
 {

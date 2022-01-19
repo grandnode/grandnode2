@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Business.System.Utilities
+﻿namespace Grand.Business.System.Utilities
 {
     public partial class ReportPeriodOrder
     {

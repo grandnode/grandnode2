@@ -1,5 +1,4 @@
 ﻿using Grand.Api.Models;
-using System.Collections.Generic;
 
 namespace Grand.Api.DTOs.Catalog
 {

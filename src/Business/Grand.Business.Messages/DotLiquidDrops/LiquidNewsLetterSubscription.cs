@@ -1,8 +1,6 @@
 ﻿using DotLiquid;
 using Grand.Domain.Messages;
 using Grand.Domain.Stores;
-using System;
-using System.Collections.Generic;
 
 namespace Grand.Business.Messages.DotLiquidDrops
 {

@@ -4,9 +4,6 @@ using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Widgets.Slider.Domain;
 
 namespace Widgets.Slider
