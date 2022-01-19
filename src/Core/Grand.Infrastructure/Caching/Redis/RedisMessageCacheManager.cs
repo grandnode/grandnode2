@@ -37,7 +37,7 @@ namespace Grand.Infrastructure.Caching.Redis
         /// <param name="publisher">publisher</param>
         public override Task RemoveByPrefix(string prefix, bool publisher = true)
         {
-            var keysToRemove = _cache.GetKeys<string>().Where(x => x.ToString().StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+            var keysToRemove = _cacheEntries.Where(x => x.ToString().StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
             foreach (var key in keysToRemove)
             {
                 _cache.Remove(key);
