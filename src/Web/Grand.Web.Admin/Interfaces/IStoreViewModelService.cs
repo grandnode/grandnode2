@@ -1,6 +1,5 @@
 ﻿using Grand.Domain.Stores;
 using Grand.Web.Admin.Models.Stores;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Interfaces
 {

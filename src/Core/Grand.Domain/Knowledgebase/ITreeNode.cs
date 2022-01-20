@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Grand.Domain.Knowledgebase
+﻿namespace Grand.Domain.Knowledgebase
 {
     public interface ITreeNode
     {

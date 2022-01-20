@@ -3,8 +3,6 @@ using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
 using Grand.Domain.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Tests.Services.BackgroundService
 {

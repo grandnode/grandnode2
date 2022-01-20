@@ -12,10 +12,6 @@ using Grand.Web.Events.Cache;
 using Grand.Web.Models.Blogs;
 using Grand.Web.Models.Media;
 using MediatR;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Blogs
 {

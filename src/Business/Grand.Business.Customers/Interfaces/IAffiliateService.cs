@@ -1,7 +1,5 @@
 using Grand.Domain;
 using Grand.Domain.Affiliates;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Customers.Interfaces
 {

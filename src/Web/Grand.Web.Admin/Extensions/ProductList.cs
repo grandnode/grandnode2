@@ -1,9 +1,6 @@
 ﻿using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Domain;
 using Grand.Domain.Catalog;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Extensions
 {

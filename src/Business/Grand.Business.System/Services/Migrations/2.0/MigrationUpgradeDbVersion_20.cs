@@ -3,8 +3,6 @@ using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Migrations;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Linq;
 
 namespace Grand.Business.System.Services.Migrations._2._2
 {

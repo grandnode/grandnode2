@@ -5,7 +5,6 @@ using Grand.Business.Catalog.Interfaces.Categories;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Catalog;
-using System.Collections.Generic;
 
 namespace Grand.Web.Admin.Validators.Catalog
 {

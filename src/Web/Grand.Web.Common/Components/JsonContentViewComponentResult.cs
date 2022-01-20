@@ -4,8 +4,6 @@
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Common.Components
 {

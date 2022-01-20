@@ -6,9 +6,6 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Domain.Discounts;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using DiscountRules.Standard.HadSpentAmount.Models;
 using DiscountRules.Standard.Models;
 

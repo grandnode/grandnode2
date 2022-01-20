@@ -1,7 +1,6 @@
 ﻿using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Settings;
 using Grand.Web.Common.Themes;
-using System;
 
 namespace Grand.Web.Admin.Extensions
 {

@@ -8,9 +8,6 @@ using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Tests.Handlers
 {

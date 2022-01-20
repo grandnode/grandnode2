@@ -1,5 +1,4 @@
 using Grand.Infrastructure.Plugins;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Authentication.Interfaces
 {

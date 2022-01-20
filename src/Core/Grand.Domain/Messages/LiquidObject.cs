@@ -1,5 +1,4 @@
 ﻿using DotLiquid;
-using System.Collections.Generic;
 
 namespace Grand.Domain.Messages
 {

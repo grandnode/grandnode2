@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Marketing.Events;
 using MediatR;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Extensions
 {

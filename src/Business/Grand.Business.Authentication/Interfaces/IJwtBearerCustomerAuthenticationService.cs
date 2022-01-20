@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Authentication.Interfaces
 {

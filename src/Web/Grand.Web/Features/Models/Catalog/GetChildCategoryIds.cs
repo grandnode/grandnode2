@@ -1,7 +1,6 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using MediatR;
-using System.Collections.Generic;
 
 namespace Grand.Web.Features.Models.Catalog
 {

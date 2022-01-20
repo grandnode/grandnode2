@@ -2,9 +2,6 @@
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Grand.Business.Catalog.Services.Products
 {

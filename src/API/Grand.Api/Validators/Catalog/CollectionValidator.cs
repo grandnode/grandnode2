@@ -4,7 +4,6 @@ using Grand.Business.Catalog.Interfaces.Collections;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Storage.Interfaces;
 using Grand.Infrastructure.Validators;
-using System.Collections.Generic;
 
 namespace Grand.Api.Validators.Catalog
 {

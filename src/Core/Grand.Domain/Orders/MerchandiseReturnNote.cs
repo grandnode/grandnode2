@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Domain.Orders
+﻿namespace Grand.Domain.Orders
 {
     /// <summary>
     /// Represents a merchandise return note

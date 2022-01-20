@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Business.Catalog.Utilities
+﻿namespace Grand.Business.Catalog.Utilities
 {
     public class VatResponse
     {

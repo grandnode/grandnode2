@@ -1,8 +1,6 @@
 using Grand.Domain.Customers;
 using Grand.Domain.Logging;
-using System;
 using Grand.Business.Common.Interfaces.Logging;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Extensions
 {

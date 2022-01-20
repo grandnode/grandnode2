@@ -1,7 +1,5 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Shipping;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Interfaces.Shipping
 {

@@ -1,6 +1,5 @@
 ﻿using Grand.Infrastructure.Plugins;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("Grand.Plugin.Tests")]
 

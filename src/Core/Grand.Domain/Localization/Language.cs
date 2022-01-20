@@ -1,5 +1,4 @@
 using Grand.Domain.Stores;
-using System.Collections.Generic;
 
 namespace Grand.Domain.Localization
 {

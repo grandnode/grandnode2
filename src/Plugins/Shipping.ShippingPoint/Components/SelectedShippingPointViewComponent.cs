@@ -3,9 +3,6 @@ using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Shipping.ShippingPoint.Services;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Shipping.ShippingPoint.Components
 {

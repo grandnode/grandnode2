@@ -9,8 +9,6 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using System.Threading.Tasks;
 using Widgets.FacebookPixel.Models;
 
 namespace Widgets.FacebookPixel.Controllers

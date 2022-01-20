@@ -1,6 +1,5 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Domain.Common;
-using System.Collections.Generic;
 
 namespace Grand.Business.Catalog.Interfaces.Products
 {

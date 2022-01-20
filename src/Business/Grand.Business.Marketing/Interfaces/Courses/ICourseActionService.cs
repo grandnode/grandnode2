@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Courses;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Interfaces.Courses
 {

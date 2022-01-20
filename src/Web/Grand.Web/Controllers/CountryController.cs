@@ -4,8 +4,6 @@ using Grand.Web.Models.Common;
 using Grand.Web.Features.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Controllers
 {

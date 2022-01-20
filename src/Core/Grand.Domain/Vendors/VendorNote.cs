@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Domain.Vendors
+﻿namespace Grand.Domain.Vendors
 {
     /// <summary>
     /// Represents a vendor note

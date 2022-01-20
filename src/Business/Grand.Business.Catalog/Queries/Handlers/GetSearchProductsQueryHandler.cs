@@ -5,11 +5,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Queries.Handlers
 {

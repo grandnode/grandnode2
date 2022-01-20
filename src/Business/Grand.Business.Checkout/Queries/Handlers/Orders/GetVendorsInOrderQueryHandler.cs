@@ -3,10 +3,6 @@ using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Orders;
 using Grand.Domain.Vendors;
 using MediatR;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders
 {

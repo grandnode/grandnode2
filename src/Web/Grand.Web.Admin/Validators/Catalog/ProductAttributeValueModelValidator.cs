@@ -6,7 +6,6 @@ using Grand.Infrastructure.Validators;
 using Grand.Domain.Catalog;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Catalog;
-using System.Collections.Generic;
 
 namespace Grand.Web.Admin.Validators.Catalog
 {

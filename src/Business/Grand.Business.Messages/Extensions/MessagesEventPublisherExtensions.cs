@@ -3,7 +3,6 @@ using Grand.Business.Messages.Events;
 using Grand.Domain;
 using Grand.Domain.Messages;
 using MediatR;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Messages.Extensions
 {

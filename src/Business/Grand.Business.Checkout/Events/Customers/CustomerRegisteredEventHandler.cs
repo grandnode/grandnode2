@@ -3,8 +3,6 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Customers.Events;
 using Grand.Domain.Orders;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Events.Customers
 {

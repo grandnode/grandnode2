@@ -1,8 +1,6 @@
 ﻿using Grand.Business.Checkout.Extensions;
 using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Grand.Business.Checkout.Tests.Extensions
 {

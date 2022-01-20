@@ -6,8 +6,6 @@ using Grand.Api.Infrastructure.DependencyManagement;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Configuration;
 using Microsoft.OData.ModelBuilder;
-using System;
-using System.Collections.Generic;
 
 namespace Grand.Api.Infrastructure
 {

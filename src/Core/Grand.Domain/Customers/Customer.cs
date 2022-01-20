@@ -1,7 +1,5 @@
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
-using System;
-using System.Collections.Generic;
 
 namespace Grand.Domain.Customers
 {

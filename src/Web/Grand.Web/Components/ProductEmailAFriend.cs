@@ -6,7 +6,6 @@ using Grand.Web.Common.Components;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Models.Catalog;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Components
 {

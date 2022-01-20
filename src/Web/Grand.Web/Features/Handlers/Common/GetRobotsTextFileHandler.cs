@@ -1,8 +1,6 @@
 ﻿using Grand.Business.Common.Interfaces.Directory;
 using Grand.Web.Features.Models.Common;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Common
 {

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
-using System.Linq;
 
 namespace Grand.Web.Common.Filters
 {

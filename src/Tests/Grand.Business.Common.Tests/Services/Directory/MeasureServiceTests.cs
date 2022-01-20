@@ -6,7 +6,6 @@ using Grand.Infrastructure.Events;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Services.Directory
 {

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 

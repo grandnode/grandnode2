@@ -1,6 +1,5 @@
 ﻿using DotLiquid;
 using Grand.Domain.Vendors;
-using System.Collections.Generic;
 
 namespace Grand.Business.Messages.DotLiquidDrops
 {

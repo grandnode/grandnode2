@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Domain.Data
+﻿namespace Grand.Domain.Data
 {
     public class MigrationDb : BaseEntity
     {

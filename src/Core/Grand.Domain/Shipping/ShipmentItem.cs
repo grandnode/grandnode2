@@ -1,5 +1,4 @@
 using Grand.Domain.Common;
-using System.Collections.Generic;
 
 namespace Grand.Domain.Shipping
 {

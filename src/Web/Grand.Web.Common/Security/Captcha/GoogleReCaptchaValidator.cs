@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Linq;
 using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Common.Security.Captcha
 {

@@ -1,7 +1,6 @@
 ﻿using Grand.Web.Common.Models;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Admin.Models.Messages

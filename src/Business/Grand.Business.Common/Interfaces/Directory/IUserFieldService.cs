@@ -1,5 +1,4 @@
 using Grand.Domain;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Interfaces.Directory
 {

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Html;
-using System.IO;
 using System.Text.Encodings.Web;
 
 namespace Grand.Web.Common.Extensions

@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Common.Interfaces.Security;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
-using System.Collections.Generic;
 
 namespace Grand.Business.Common.Services.Security
 {

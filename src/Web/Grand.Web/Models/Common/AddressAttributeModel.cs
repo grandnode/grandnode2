@@ -1,6 +1,5 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Infrastructure.Models;
-using System.Collections.Generic;
 
 namespace Grand.Web.Models.Common
 {

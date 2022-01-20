@@ -4,7 +4,6 @@ using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
-using System.Threading.Tasks;
 
 namespace Grand.Infrastructure
 {

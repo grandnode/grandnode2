@@ -2,8 +2,6 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Grand.Business.Catalog.Tests.Service.Products
 {

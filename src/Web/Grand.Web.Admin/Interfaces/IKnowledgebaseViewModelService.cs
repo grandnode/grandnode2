@@ -1,7 +1,5 @@
 ﻿using Grand.Domain.Knowledgebase;
 using Grand.Web.Admin.Models.Knowledgebase;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Interfaces
 {

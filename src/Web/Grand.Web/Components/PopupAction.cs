@@ -5,7 +5,6 @@ using Grand.Web.Events;
 using Grand.Web.Models.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Grand.Web.ViewComponents
 {

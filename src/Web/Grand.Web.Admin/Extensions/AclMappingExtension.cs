@@ -1,6 +1,5 @@
 ﻿using Grand.Domain;
 using Grand.Domain.Stores;
-using System.Linq;
 
 namespace Grand.Web.Admin.Extensions
 {

@@ -14,9 +14,6 @@ using Grand.Domain.Vendors;
 using Grand.Web.Common.Components;
 using Grand.Web.Models.Common;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Web.ViewComponents
 {

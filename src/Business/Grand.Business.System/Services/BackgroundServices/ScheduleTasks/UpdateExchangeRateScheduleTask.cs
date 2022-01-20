@@ -2,8 +2,6 @@
 using Grand.Business.System.Interfaces.ScheduleTasks;
 using Grand.Domain.Directory;
 using Grand.Domain.Tasks;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
 {

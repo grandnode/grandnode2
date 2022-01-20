@@ -5,10 +5,6 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Permissions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Grand.Business.Common.Interfaces.Directory;
 
 namespace Grand.Business.Common.Services.Security

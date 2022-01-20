@@ -1,6 +1,4 @@
 ﻿using Grand.Web.Admin.Models.Customers;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Interfaces
 {

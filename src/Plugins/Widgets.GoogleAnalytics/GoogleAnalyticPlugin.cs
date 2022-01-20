@@ -2,8 +2,6 @@ using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Infrastructure.Plugins;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Widgets.GoogleAnalytics
 {

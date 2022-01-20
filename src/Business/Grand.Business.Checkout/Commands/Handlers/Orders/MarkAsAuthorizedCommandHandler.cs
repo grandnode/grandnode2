@@ -4,9 +4,6 @@ using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Checkout.Interfaces.Payments;
 using Grand.Domain.Payments;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {

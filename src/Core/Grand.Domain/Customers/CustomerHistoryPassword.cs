@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Domain.Customers
+﻿namespace Grand.Domain.Customers
 {
     /// <summary>
     /// Represents a Customer History Password

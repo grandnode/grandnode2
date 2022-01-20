@@ -5,7 +5,6 @@ using Grand.Domain.Seo;
 using Grand.Infrastructure.Events;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Cms.Tests.Events
 {

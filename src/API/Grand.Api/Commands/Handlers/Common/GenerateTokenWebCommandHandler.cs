@@ -3,8 +3,6 @@ using Grand.Api.Infrastructure.Extensions;
 using Grand.Api.Jwt;
 using Grand.Infrastructure.Configuration;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Api.Commands.Handlers.Common
 {

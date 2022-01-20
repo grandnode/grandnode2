@@ -8,12 +8,7 @@ using Grand.Domain.PushNotifications;
 using Grand.Infrastructure.Extensions;
 using MediatR;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Services.PushNotifications
 {

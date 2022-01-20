@@ -15,13 +15,8 @@ using Grand.Web.Common.Themes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Controllers
 {

@@ -1,6 +1,5 @@
 ﻿//Contribution: Orchard project (http://www.orchardproject.net/)
 using Grand.Business.System.Interfaces.MachineNameProvider;
-using System;
 
 namespace Grand.Business.System.Services.MachineNameProvider
 {

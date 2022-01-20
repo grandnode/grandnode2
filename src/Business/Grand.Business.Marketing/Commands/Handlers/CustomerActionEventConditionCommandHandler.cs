@@ -10,11 +10,6 @@ using Grand.Domain.Logging;
 using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Commands.Handlers
 {

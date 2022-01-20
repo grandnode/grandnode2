@@ -5,7 +5,6 @@ using Grand.Web.Common.Components;
 using Grand.Web.Features.Models.Products;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Components
 {

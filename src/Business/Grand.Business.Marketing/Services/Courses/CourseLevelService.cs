@@ -3,10 +3,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Courses;
 using Grand.Domain.Data;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace Grand.Business.Marketing.Services.Courses
 {

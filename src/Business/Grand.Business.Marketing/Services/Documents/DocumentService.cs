@@ -4,9 +4,6 @@ using Grand.Domain;
 using Grand.Domain.Data;
 using Grand.Domain.Documents;
 using MediatR;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Grand.Domain.Common;
 
 namespace Grand.Business.Marketing.Services.Documents

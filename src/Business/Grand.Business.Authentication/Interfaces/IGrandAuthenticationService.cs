@@ -1,6 +1,4 @@
 using Grand.Domain.Customers;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Authentication.Interfaces
 {

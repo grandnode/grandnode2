@@ -6,10 +6,6 @@ using Grand.Domain.Data;
 using Grand.Domain.Directory;
 using Grand.SharedKernel;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Services.Directory
 {

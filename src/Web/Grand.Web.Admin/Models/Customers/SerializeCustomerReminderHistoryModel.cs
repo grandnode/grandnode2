@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Web.Admin.Models.Customers
+﻿namespace Grand.Web.Admin.Models.Customers
 {
     public class SerializeCustomerReminderHistoryModel
     {

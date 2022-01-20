@@ -2,9 +2,6 @@
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Messages.Commands.Handlers
 {

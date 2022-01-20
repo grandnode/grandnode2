@@ -10,9 +10,6 @@ using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Payments.CashOnDelivery
 {

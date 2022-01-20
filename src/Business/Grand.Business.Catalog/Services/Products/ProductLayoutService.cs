@@ -3,10 +3,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 

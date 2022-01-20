@@ -1,7 +1,5 @@
 ﻿using Grand.Business.Cms.Interfaces;
 using Grand.Business.Common.Interfaces.Localization;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Widgets.Slider
 {

@@ -3,9 +3,6 @@ using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Events;
 using MediatR;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Events.Shipping
 {

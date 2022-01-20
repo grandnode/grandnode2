@@ -3,7 +3,6 @@ using Grand.Api.DTOs.Customers;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Validators;
-using System.Collections.Generic;
 
 namespace Grand.Api.Validators.Customers
 {

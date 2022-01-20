@@ -2,7 +2,6 @@
 using Grand.Domain.Customers;
 using Grand.Domain.Discounts;
 using Grand.Infrastructure.Plugins;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Interfaces.Discounts
 {

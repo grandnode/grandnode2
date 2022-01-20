@@ -3,7 +3,6 @@ using Grand.Infrastructure.Models;
 using Grand.Web.Models.Common;
 using Grand.Web.Models.Media;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Collections.Generic;
 
 namespace Grand.Web.Models.ShoppingCart
 {

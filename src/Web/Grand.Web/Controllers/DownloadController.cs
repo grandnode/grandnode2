@@ -10,12 +10,8 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Controllers
 {

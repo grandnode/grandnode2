@@ -2,9 +2,6 @@ using DiscountRules.Standard.Models;
 using Grand.Business.Catalog.Interfaces.Discounts;
 using Grand.Business.Catalog.Utilities;
 using Grand.Business.Common.Interfaces.Configuration;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DiscountRules.Provider
 {

@@ -9,9 +9,6 @@ using Grand.Domain.Customers;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Customers.Services
 {

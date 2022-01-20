@@ -1,5 +1,4 @@
 ﻿using Grand.Business.System.Utilities;
-using System.Collections.Generic;
 
 namespace Grand.Business.System.Interfaces.Installation
 {

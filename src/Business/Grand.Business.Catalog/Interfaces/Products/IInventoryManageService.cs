@@ -1,8 +1,6 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Shipping;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Interfaces.Products
 {

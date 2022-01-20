@@ -1,7 +1,5 @@
 ﻿//Contribution https://github.com/smartstore/SmartStoreNET/blob/2.0.x/src/Presentation/SmartStore.Web.Framework/Themes/IThemeContext.cs
 
-using System.Threading.Tasks;
-
 namespace Grand.Web.Common.Themes
 {
     /// <summary>

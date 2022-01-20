@@ -4,9 +4,6 @@ using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Domain.Common;
 using Grand.Infrastructure.Validators;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Grand.Api.Validators.Customers
 {

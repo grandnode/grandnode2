@@ -8,7 +8,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace Grand.Api.Controllers.OData
 {

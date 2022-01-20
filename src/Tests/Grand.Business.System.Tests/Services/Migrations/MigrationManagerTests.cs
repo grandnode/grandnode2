@@ -1,6 +1,5 @@
 ﻿using Grand.Infrastructure.Migrations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 
 namespace Grand.Business.System.Tests.Services.Migrations
 {

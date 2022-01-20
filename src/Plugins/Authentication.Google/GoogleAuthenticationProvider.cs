@@ -1,6 +1,4 @@
 ﻿using Grand.Business.Authentication.Interfaces;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Authentication.Google
 {

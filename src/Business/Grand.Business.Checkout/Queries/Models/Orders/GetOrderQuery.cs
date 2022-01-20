@@ -2,8 +2,6 @@
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using MediatR;
-using System;
-using System.Linq;
 
 namespace Grand.Business.Checkout.Queries.Models.Orders
 {

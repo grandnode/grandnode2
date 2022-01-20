@@ -1,7 +1,5 @@
 ﻿using Grand.Domain;
 using Grand.Domain.Messages;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Interfaces.Contacts
 {

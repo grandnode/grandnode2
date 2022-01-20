@@ -1,7 +1,5 @@
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Domain;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Extensions
 {

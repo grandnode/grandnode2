@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Configuration;
-using System.Collections.Generic;
 
 namespace Widgets.Slider
 {

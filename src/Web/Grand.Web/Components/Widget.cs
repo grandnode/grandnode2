@@ -6,9 +6,6 @@ using Grand.Web.Common.Components;
 using Grand.Web.Events.Cache;
 using Grand.Web.Models.Cms;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Web.ViewComponents
 {

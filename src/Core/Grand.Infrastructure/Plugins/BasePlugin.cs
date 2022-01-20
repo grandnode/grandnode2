@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Grand.Infrastructure.Plugins
+﻿namespace Grand.Infrastructure.Plugins
 {
     public abstract class BasePlugin : IPlugin
     {

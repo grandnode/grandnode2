@@ -8,8 +8,6 @@ using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
-using System;
-using System.Collections.Generic;
 
 namespace Grand.Web.Features.Models.ShoppingCart
 {

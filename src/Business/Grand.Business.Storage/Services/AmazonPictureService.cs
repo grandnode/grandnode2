@@ -10,10 +10,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using MediatR;
-using System;
-using System.IO;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Storage.Services
 {

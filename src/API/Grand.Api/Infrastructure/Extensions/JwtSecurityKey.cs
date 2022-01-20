@@ -1,5 +1,4 @@
 ﻿using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 namespace Grand.Api.Infrastructure.Extensions
 {

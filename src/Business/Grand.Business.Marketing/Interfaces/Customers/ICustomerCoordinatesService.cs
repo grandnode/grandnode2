@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Customers;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Interfaces.Customers
 {

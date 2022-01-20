@@ -4,7 +4,6 @@ using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
 
 namespace Grand.Web.Commands.Models.ShoppingCart
 {

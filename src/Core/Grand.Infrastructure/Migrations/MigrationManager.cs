@@ -1,8 +1,5 @@
 ﻿using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearchers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Grand.Infrastructure.Migrations
 {

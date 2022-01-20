@@ -4,9 +4,6 @@ using Grand.Domain;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using MediatR;
-using System;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace Grand.Business.Marketing.Services.Contacts
 {

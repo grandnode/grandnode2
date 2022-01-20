@@ -4,8 +4,6 @@ using Grand.Domain.Affiliates;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Customers.Extensions
 {

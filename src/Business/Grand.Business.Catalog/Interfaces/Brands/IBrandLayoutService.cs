@@ -1,6 +1,4 @@
 using Grand.Domain.Catalog;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Interfaces.Brands
 {

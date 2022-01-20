@@ -1,8 +1,6 @@
 ﻿using Grand.Domain.Courses;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Courses;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Interfaces
 {

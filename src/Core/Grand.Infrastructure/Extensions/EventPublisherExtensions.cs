@@ -1,7 +1,6 @@
 ﻿using Grand.Infrastructure.Events;
 using Grand.Domain;
 using MediatR;
-using System.Threading.Tasks;
 
 namespace Grand.Infrastructure.Extensions
 {

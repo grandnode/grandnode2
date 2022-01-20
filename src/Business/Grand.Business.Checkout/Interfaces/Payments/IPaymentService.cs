@@ -3,8 +3,6 @@ using Grand.Business.Checkout.Utilities;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Interfaces.Payments
 {

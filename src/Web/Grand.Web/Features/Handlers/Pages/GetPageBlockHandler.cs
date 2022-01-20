@@ -6,9 +6,6 @@ using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Pages;
 using Grand.Web.Models.Pages;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Pages
 {

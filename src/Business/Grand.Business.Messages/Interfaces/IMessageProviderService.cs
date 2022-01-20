@@ -9,8 +9,6 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Messages.Interfaces
 {

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace DiscountRules.Standard.Models
+﻿namespace DiscountRules.Standard.Models
 {
     public class RequirementProducts
     {

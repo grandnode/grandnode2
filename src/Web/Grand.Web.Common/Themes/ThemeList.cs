@@ -1,7 +1,5 @@
 ﻿using Grand.SharedKernel.Extensions;
 using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.IO;
 
 namespace Grand.Web.Common.Themes
 {

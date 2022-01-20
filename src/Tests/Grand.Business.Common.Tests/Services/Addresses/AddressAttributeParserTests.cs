@@ -4,9 +4,6 @@ using Grand.Business.Common.Services.Addresses;
 using Grand.Domain.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Tests.Services.Addresses
 {

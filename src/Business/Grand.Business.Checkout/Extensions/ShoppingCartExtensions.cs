@@ -1,6 +1,4 @@
 using Grand.Domain.Orders;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Grand.Business.Checkout.Extensions
 {

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Grand.Business.Common.Utilities
+﻿namespace Grand.Business.Common.Utilities
 {
     public partial class GoogleAnalyticsResult
     {

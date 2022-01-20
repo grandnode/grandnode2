@@ -4,7 +4,6 @@ using Grand.Business.Storage.Interfaces;
 using Grand.Business.System.Commands.Models.Common;
 using Grand.Business.System.Interfaces.ScheduleTasks;
 using MediatR;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
 {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Domain.Security
+﻿namespace Grand.Domain.Security
 {
     public class RefreshToken
     {

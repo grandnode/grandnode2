@@ -9,11 +9,7 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Widgets.GoogleAnalytics.Components
 {

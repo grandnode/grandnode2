@@ -15,11 +15,7 @@ using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using MediatR;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Commands.Handlers.Messages
 {

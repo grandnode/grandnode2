@@ -7,9 +7,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.SharedKernel;
-using System;
 using System.Globalization;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Services.Prices
 {

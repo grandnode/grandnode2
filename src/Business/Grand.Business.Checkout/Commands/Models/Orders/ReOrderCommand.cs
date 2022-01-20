@@ -1,6 +1,5 @@
 ﻿using Grand.Domain.Orders;
 using MediatR;
-using System.Collections.Generic;
 
 namespace Grand.Business.Checkout.Commands.Models.Orders
 {

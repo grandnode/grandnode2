@@ -1,6 +1,4 @@
 using Grand.Domain.Orders;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Interfaces.CheckoutAttributes
 {

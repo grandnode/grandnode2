@@ -1,6 +1,5 @@
 ﻿using Grand.Domain.Common;
 using Grand.Domain.Configuration;
-using System;
 
 namespace Grand.Domain.Tax
 {

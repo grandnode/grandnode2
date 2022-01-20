@@ -4,10 +4,6 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Messages.Interfaces;
 using Grand.Domain.Catalog;
 using MediatR;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {

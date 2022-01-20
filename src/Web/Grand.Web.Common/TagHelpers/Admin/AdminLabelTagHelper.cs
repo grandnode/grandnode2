@@ -3,7 +3,6 @@ using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Common.TagHelpers.Admin
 {

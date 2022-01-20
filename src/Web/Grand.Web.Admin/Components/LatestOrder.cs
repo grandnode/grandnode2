@@ -3,7 +3,6 @@ using Grand.Business.Common.Services.Security;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Components
 {

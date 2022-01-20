@@ -2,7 +2,6 @@
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using MediatR;
-using System.Collections.Generic;
 
 namespace Grand.Business.Checkout.Events.ShoppingCart
 {

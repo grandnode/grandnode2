@@ -1,8 +1,6 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Messages.Queries.Models.Handlers
 {

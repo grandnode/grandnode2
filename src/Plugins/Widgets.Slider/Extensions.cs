@@ -1,8 +1,6 @@
 ﻿using Grand.Web.Common.Models;
 using Grand.Domain.Localization;
 using Grand.Infrastructure.Mapper;
-using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Widgets.Slider.Domain;
 using Widgets.Slider.Models;

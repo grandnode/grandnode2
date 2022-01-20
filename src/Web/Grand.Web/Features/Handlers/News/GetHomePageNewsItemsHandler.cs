@@ -12,9 +12,6 @@ using Grand.Web.Events.Cache;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.News;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.News
 {

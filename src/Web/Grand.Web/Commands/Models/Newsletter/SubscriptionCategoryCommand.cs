@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using System.Collections.Generic;
 
 namespace Grand.Web.Commands.Models.Newsletter
 {

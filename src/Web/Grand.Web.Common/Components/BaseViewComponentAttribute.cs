@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Web.Common.Components
+﻿namespace Grand.Web.Common.Components
 {
     public class BaseViewComponentAttribute : Attribute
     {

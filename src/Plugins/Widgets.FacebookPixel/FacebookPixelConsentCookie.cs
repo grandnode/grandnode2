@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Common.Interfaces.Directory;
-using System.Threading.Tasks;
 
 namespace Widgets.FacebookPixel
 {

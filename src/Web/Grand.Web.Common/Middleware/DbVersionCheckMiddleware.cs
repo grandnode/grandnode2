@@ -4,8 +4,6 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace Grand.Web.Common.Middleware
 {

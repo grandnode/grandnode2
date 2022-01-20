@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Domain.History
+﻿namespace Grand.Domain.History
 {
     public class HistoryObject: BaseEntity
     {

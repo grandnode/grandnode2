@@ -2,8 +2,6 @@
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.SharedKernel.Extensions;
-using System;
-using System.Collections.Generic;
 
 namespace Grand.Business.Messages.DotLiquidDrops
 {

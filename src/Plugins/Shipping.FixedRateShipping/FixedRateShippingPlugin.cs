@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Infrastructure.Plugins;
-using System.Threading.Tasks;
 
 namespace Shipping.FixedRateShipping
 {

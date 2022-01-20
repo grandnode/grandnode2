@@ -7,7 +7,6 @@ using Grand.Business.Customers.Interfaces;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Infrastructure.Validators;
-using System.Collections.Generic;
 
 namespace Grand.Api.Validators.Catalog
 {

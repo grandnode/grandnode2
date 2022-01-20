@@ -7,9 +7,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Authentication.Services
 {

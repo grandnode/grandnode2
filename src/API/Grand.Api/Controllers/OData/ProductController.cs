@@ -9,9 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace Grand.Api.Controllers.OData
 {

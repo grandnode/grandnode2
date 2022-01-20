@@ -3,7 +3,6 @@ using Grand.Business.Common.Extensions;
 using Grand.Domain.Blogs;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
-using System.Collections.Generic;
 
 namespace Grand.Business.Messages.DotLiquidDrops
 {

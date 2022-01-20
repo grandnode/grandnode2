@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Grand.Domain.Customers;
+﻿using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;

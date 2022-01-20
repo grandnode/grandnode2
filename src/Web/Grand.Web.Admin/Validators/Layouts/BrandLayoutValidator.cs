@@ -2,7 +2,6 @@
 using Grand.Infrastructure.Validators;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Admin.Models.Layouts;
-using System.Collections.Generic;
 
 namespace Grand.Web.Admin.Validators.Layouts
 {

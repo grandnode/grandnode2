@@ -1,6 +1,5 @@
 ﻿using Grand.Infrastructure.Models;
 using Grand.Web.Admin.Models.Localization;
-using System.Collections.Generic;
 
 namespace Grand.Web.Admin.Models.Common
 {

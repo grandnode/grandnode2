@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace Grand.Business.Authentication.Utilities

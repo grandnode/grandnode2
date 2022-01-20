@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Infrastructure.Validators;
 using Grand.Business.Common.Interfaces.Localization;
-using System.Collections.Generic;
 using Grand.Web.Admin.Models.Affiliates;
 
 namespace Grand.Web.Admin.Validators.Blogs

@@ -1,6 +1,4 @@
 using Grand.Domain.Tasks;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Interfaces.ScheduleTasks
 {

@@ -2,8 +2,6 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
-using System;
-using System.Linq;
 
 namespace Grand.Web.Admin.Extensions
 {

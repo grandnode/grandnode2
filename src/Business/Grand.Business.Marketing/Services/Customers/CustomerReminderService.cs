@@ -17,10 +17,6 @@ using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Services.Customers
 {

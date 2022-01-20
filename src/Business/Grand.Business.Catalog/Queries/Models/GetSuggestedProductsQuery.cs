@@ -1,6 +1,5 @@
 ﻿using Grand.Domain.Catalog;
 using MediatR;
-using System.Collections.Generic;
 
 namespace Grand.Business.Catalog.Queries.Models
 {

@@ -3,8 +3,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.Events;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Events.Handlers
 {

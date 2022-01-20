@@ -16,10 +16,6 @@ using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Home;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Controllers
 {

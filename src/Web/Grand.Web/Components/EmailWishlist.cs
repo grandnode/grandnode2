@@ -7,8 +7,6 @@ using Grand.Web.Common.Components;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Models.ShoppingCart;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Web.ViewComponents
 {

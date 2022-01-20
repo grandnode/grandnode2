@@ -1,6 +1,5 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Domain.Courses;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Interfaces.Products
 {

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Grand.Domain.Payments
+﻿namespace Grand.Domain.Payments
 {
     public class PaymentTransaction : BaseEntity
     {

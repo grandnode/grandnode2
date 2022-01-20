@@ -1,6 +1,5 @@
 ﻿using Grand.Domain;
 using Shipping.ByWeight.Domain;
-using System.Threading.Tasks;
 
 namespace Shipping.ByWeight.Services
 {

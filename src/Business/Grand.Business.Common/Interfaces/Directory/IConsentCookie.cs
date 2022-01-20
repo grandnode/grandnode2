@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Grand.Business.Common.Interfaces.Directory
+﻿namespace Grand.Business.Common.Interfaces.Directory
 {
     public interface IConsentCookie
     {

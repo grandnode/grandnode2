@@ -7,8 +7,6 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Shipping.FixedRateShipping.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Shipping.FixedRateShipping.Controllers
 {

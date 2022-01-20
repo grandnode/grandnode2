@@ -1,8 +1,6 @@
 using Grand.Domain.Localization;
 using Grand.Domain.Seo;
 using Grand.Domain.Stores;
-using System;
-using System.Collections.Generic;
 
 namespace Grand.Domain.Blogs
 {

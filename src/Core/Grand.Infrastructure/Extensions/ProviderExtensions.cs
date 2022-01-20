@@ -2,8 +2,6 @@
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Plugins;
 using Grand.SharedKernel.Extensions;
-using System;
-using System.Linq;
 
 namespace Grand.Infrastructure.Extensions
 {

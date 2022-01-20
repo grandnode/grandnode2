@@ -1,5 +1,4 @@
 using Grand.Domain.Directory;
-using System;
 
 namespace Grand.Business.Catalog.Extensions
 {

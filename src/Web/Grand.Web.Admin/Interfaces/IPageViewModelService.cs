@@ -1,6 +1,5 @@
 ﻿using Grand.Domain.Pages;
 using Grand.Web.Admin.Models.Pages;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Interfaces
 {

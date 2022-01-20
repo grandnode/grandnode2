@@ -6,9 +6,6 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using MediatR;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Catalog.Services.Products
 {

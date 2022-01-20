@@ -3,8 +3,6 @@ using Grand.Domain.Common;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
-using System;
-using System.Collections.Generic;
 
 namespace Grand.Domain.Orders
 {

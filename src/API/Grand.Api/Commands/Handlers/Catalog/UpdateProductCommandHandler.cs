@@ -10,9 +10,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
 using Grand.Infrastructure;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Api.Commands.Models.Catalog
 {

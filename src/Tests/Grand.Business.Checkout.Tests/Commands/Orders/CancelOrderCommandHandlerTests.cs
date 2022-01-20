@@ -11,9 +11,6 @@ using Grand.Domain.Shipping;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Tests.Commands.Orders
 {

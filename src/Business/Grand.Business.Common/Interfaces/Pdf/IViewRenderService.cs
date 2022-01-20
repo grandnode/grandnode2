@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Grand.Business.Common.Interfaces.Pdf
+﻿namespace Grand.Business.Common.Interfaces.Pdf
 {
     /// <summary>
     /// Allow render rezor view as string

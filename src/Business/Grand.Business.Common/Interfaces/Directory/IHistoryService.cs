@@ -1,7 +1,5 @@
 using Grand.Domain;
 using Grand.Domain.History;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Interfaces.Directory
 {

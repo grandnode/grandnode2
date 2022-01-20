@@ -3,8 +3,6 @@ using Grand.Business.Common.Interfaces.Logging;
 using Grand.Business.Customers.Events;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Events
 {

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Grand.Web.Common.Security.Captcha
+﻿namespace Grand.Web.Common.Security.Captcha
 {
     public class GoogleReCaptchaResponse
     {

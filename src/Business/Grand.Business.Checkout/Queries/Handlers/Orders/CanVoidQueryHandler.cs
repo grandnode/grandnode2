@@ -2,9 +2,6 @@
 using Grand.Business.Checkout.Queries.Models.Orders;
 using Grand.Domain.Payments;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders
 {

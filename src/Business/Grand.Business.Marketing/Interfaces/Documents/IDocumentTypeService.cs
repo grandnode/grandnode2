@@ -1,6 +1,4 @@
 ﻿using Grand.Domain.Documents;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Interfaces.Documents
 {

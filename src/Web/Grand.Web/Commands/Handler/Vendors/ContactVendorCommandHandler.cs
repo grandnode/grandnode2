@@ -6,8 +6,6 @@ using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Vendors;
 using Grand.Web.Models.Common;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Commands.Handler.Vendors
 {

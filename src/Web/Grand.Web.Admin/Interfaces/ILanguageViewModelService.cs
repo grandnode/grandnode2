@@ -1,7 +1,5 @@
 ﻿using Grand.Domain.Localization;
 using Grand.Web.Admin.Models.Localization;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Interfaces
 {

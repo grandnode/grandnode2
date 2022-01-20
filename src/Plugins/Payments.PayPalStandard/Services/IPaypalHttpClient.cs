@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Payments.PayPalStandard.Services
+﻿namespace Payments.PayPalStandard.Services
 {
     public interface IPaypalHttpClient
     {

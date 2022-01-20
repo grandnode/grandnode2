@@ -1,7 +1,6 @@
 ﻿using Grand.Domain.Orders;
 using Grand.Domain.Vendors;
 using MediatR;
-using System.Collections.Generic;
 
 namespace Grand.Business.Checkout.Queries.Models.Orders
 {

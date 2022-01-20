@@ -4,7 +4,6 @@ using Grand.Business.System.Commands.Handlers.Catalog;
 using Grand.Domain.Catalog;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Tests.Commands
 {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Infrastructure.Plugins
+﻿namespace Grand.Infrastructure.Plugins
 {
     [AttributeUsage(AttributeTargets.Assembly)]
     public class PluginInfoAttribute : Attribute

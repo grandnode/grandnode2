@@ -5,8 +5,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Web.Models.Media;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
-using System.Collections.Generic;
 
 namespace Grand.Web.Models.Catalog
 {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Grand.Domain.Catalog
+﻿namespace Grand.Domain.Catalog
 {
     /// <summary>
     /// Product extensions

@@ -1,7 +1,5 @@
 ﻿using Grand.Domain.Payments;
 using MediatR;
-using System;
-using System.Linq;
 
 namespace Grand.Business.Checkout.Queries.Models.Orders
 {

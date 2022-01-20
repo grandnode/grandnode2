@@ -1,9 +1,6 @@
 ﻿using Grand.Business.Marketing.Interfaces.Customers;
 using Grand.Web.Commands.Models.Customers;
 using MediatR;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Commands.Handler.Customers
 {

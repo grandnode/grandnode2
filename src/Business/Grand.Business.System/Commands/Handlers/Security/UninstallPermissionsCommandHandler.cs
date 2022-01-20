@@ -3,8 +3,6 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.System.Commands.Models.Security;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Commands.Handlers.Security
 {

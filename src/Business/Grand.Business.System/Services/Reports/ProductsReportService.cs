@@ -2,9 +2,6 @@
 using Grand.Business.System.Utilities;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace Grand.Business.System.Services.Reports
 {

@@ -4,12 +4,9 @@ using Grand.Domain.Customers;
 using Grand.Domain.Security;
 using Grand.Infrastructure.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Authentication.Services
 {

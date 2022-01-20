@@ -1,7 +1,6 @@
 ﻿using Grand.Infrastructure.Models;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.Vendors;
-using System.Collections.Generic;
 
 namespace Grand.Web.Models.Catalog
 {

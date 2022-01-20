@@ -2,8 +2,6 @@ using Grand.Business.Common.Interfaces.Seo;
 using Grand.Infrastructure.Events;
 using Grand.Domain.Blogs;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Cms.Interfaces.Events
 {

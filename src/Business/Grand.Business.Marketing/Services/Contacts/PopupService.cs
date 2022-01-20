@@ -3,9 +3,6 @@ using Grand.Infrastructure.Extensions;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using MediatR;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Marketing.Services.Contacts
 {

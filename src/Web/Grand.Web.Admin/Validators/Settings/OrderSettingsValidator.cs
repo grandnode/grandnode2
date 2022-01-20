@@ -3,7 +3,6 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure.Validators;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Admin.Models.Settings;
-using System.Collections.Generic;
 
 namespace Grand.Web.Admin.Validators.Settings
 {

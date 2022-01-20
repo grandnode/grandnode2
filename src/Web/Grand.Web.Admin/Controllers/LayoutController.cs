@@ -11,9 +11,6 @@ using Grand.Domain.Pages;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Layouts;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Grand.Business.Catalog.Interfaces.Brands;
 
 namespace Grand.Web.Admin.Controllers

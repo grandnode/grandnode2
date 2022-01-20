@@ -5,7 +5,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Tests.Commands
 {

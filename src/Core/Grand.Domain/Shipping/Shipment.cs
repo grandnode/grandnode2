@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Grand.Domain.Shipping
 {
     /// <summary>

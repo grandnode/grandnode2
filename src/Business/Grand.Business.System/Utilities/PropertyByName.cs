@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Business.System.Utilities
+﻿namespace Grand.Business.System.Utilities
 {
     /// <summary>
     /// A helper class to access the property by name

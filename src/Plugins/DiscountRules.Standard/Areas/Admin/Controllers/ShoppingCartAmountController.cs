@@ -8,9 +8,6 @@ using Grand.Web.Common.Filters;
 using Grand.Domain.Discounts;
 using Grand.Plugin.DiscountRules.ShoppingCart.Models;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DiscountRules.Standard.Controllers
 {

@@ -18,9 +18,6 @@ using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events.Cache;
 using Grand.Web.Models.Knowledgebase;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Controllers
 {

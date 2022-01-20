@@ -1,6 +1,5 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
-using System.Collections.Generic;
 
 namespace Grand.Domain.Common
 {

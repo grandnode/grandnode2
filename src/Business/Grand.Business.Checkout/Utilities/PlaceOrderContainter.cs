@@ -7,7 +7,6 @@ using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
-using System.Collections.Generic;
 
 namespace Grand.Business.Checkout.Utilities
 {

@@ -5,9 +5,6 @@ using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Domain.Orders;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DiscountRules.Provider
 {

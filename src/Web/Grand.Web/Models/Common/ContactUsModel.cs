@@ -1,7 +1,6 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
-using System.Collections.Generic;
 using Grand.Domain.Common;
 
 namespace Grand.Web.Models.Common

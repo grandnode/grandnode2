@@ -2,8 +2,6 @@
 using Grand.Infrastructure.Validators;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Admin.Models.Directory;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 
 namespace Grand.Web.Admin.Validators.Directory

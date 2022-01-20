@@ -1,6 +1,4 @@
 using Grand.Domain.Media;
-using System;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Storage.Interfaces
 {

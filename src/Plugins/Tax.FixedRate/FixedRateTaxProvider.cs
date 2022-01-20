@@ -2,8 +2,6 @@
 using Grand.Business.Catalog.Utilities;
 using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Localization;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Tax.FixedRate.Models;
 
 namespace Tax.FixedRate

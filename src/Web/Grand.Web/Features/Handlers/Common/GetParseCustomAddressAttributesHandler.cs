@@ -3,11 +3,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Web.Features.Models.Common;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Common
 {

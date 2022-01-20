@@ -4,9 +4,6 @@ using Grand.Infrastructure.Caching;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Events.Cache;
 using MediatR;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {

@@ -1,6 +1,4 @@
 ﻿using Grand.Web.Admin.Models.Logging;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Admin.Interfaces
 {

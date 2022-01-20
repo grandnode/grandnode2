@@ -10,9 +10,6 @@ using Grand.Web.Models.Customer;
 using Grand.Web.Models.Newsletter;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Customers
 {

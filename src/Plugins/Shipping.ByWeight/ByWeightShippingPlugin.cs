@@ -3,8 +3,6 @@ using Grand.Business.Common.Interfaces.Configuration;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Plugins;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Shipping.ByWeight
 {

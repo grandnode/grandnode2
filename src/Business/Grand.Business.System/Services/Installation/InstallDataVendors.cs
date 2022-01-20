@@ -2,8 +2,6 @@
 using Grand.Business.System.Interfaces.Installation;
 using Grand.Domain.Seo;
 using Grand.Domain.Vendors;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Services.Installation
 {

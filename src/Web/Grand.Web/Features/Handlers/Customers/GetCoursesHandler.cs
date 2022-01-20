@@ -4,9 +4,6 @@ using Grand.Business.Marketing.Interfaces.Courses;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using MediatR;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Customers
 {

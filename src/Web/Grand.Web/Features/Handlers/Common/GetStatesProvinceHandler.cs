@@ -4,10 +4,6 @@ using Grand.Business.Common.Interfaces.Localization;
 using Grand.Web.Models.Common;
 using Grand.Web.Features.Models.Common;
 using MediatR;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Grand.Business.Common.Extensions;
 
 namespace Grand.Web.Features.Handlers.Common

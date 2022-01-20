@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Grand.Infrastructure.Migrations
+﻿namespace Grand.Infrastructure.Migrations
 {
     public class DbVersion: IComparable<DbVersion>
     {

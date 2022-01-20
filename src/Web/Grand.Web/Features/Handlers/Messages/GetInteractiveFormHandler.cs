@@ -5,9 +5,6 @@ using Grand.Domain.Messages;
 using Grand.Web.Features.Models.Messages;
 using Grand.Web.Models.Messages;
 using MediatR;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Web.Features.Handlers.Messages
 {

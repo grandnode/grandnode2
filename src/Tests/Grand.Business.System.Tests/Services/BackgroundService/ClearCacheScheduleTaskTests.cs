@@ -2,7 +2,6 @@
 using Grand.Infrastructure.Caching;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.System.Tests.Services.BackgroundService
 {

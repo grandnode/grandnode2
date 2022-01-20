@@ -1,8 +1,5 @@
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Common.Interfaces.Pdf
 {

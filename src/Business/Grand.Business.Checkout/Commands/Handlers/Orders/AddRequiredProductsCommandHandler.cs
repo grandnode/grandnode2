@@ -6,10 +6,6 @@ using Grand.Business.Checkout.Services.Orders;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using MediatR;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {

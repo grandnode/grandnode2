@@ -1,8 +1,6 @@
 ﻿using Grand.Business.Authentication.Interfaces;
 using Grand.Business.Customers.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Grand.Business.Authentication.Services
 {
