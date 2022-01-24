@@ -20,7 +20,7 @@ namespace Grand.Infrastructure.Caching
         private bool _disposed;
         private static CancellationTokenSource _resetCacheToken = new();
 
-        protected readonly ConcurrentDictionary<object, ICacheEntry> _cacheEntries = new();
+        protected readonly ConcurrentDictionary<string, ICacheEntry> _cacheEntries = new();
 
         #endregion
 
@@ -78,10 +78,10 @@ namespace Grand.Infrastructure.Caching
 
         public virtual Task RemoveByPrefix(string prefix, bool publisher = true)
         {
-            var keysToRemove = _cacheEntries.Where(x => x.ToString().StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-            foreach (var key in keysToRemove)
+            var entriesToRemove = _cacheEntries.Where(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+            foreach (var cacheEntrie in entriesToRemove)
             {
-                _cache.Remove(key);
+                _cache.Remove(cacheEntrie.Key);
             }
 
             if (publisher)
@@ -145,7 +145,7 @@ namespace Grand.Infrastructure.Caching
         private void PostEvictionCallback(object key, object value, EvictionReason reason, object state)
         {
             if (reason != EvictionReason.Replaced)
-                _cacheEntries.TryRemove(key, out var _);
+                _cacheEntries.TryRemove(key.ToString(), out var _);
 
             if (reason == EvictionReason.Replaced)
                 return;
