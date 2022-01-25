@@ -146,12 +146,7 @@ namespace Grand.Infrastructure.Caching
         {
             if (reason != EvictionReason.Replaced)
                 _cacheEntries.TryRemove(key.ToString(), out var _);
-
-            if (reason == EvictionReason.Replaced)
-                return;
-
-            if (reason == EvictionReason.TokenExpired)
-                return;
+            
         }
 
         #endregion
