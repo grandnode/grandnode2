@@ -3,6 +3,7 @@ using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
+using System.Collections.Concurrent;
 
 namespace Grand.Infrastructure.Caching
 {
@@ -17,7 +18,9 @@ namespace Grand.Infrastructure.Caching
         private readonly IMediator _mediator;
 
         private bool _disposed;
-        private static CancellationTokenSource _resetCacheToken = new CancellationTokenSource();
+        private static CancellationTokenSource _resetCacheToken = new();
+
+        protected readonly ConcurrentDictionary<string, ICacheEntry> _cacheEntries = new();
 
         #endregion
 
@@ -43,6 +46,7 @@ namespace Grand.Infrastructure.Caching
             return await _cache.GetOrCreateAsync(key, entry =>
             {
                 entry.SetOptions(GetMemoryCacheEntryOptions(cacheTime));
+                entry.SetKey(_cacheEntries);
                 return acquire();
             });
         }
@@ -57,21 +61,15 @@ namespace Grand.Infrastructure.Caching
             return _cache.GetOrCreate(key, entry =>
             {
                 entry.SetOptions(GetMemoryCacheEntryOptions(cacheTime));
+                entry.SetKey(_cacheEntries);
                 return acquire();
             });
-        }
-        public virtual Task SetAsync(string key, object data, int cacheTime)
-        {
-            if (data != null)
-            {
-                _cache.Set(key, data, GetMemoryCacheEntryOptions(cacheTime));
-            }
-            return Task.CompletedTask;
-        }
+        }        
 
         public virtual Task RemoveAsync(string key, bool publisher = true)
         {
             _cache.Remove(key);
+
             if (publisher)
                 _mediator.Publish(new EntityCacheEvent(key, CacheEvent.RemoveKey));
 
@@ -80,10 +78,10 @@ namespace Grand.Infrastructure.Caching
 
         public virtual Task RemoveByPrefix(string prefix, bool publisher = true)
         {
-            var keysToRemove = _cache.GetKeys<string>().Where(x => x.ToString().StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-            foreach (var key in keysToRemove)
+            var entriesToRemove = _cacheEntries.Where(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+            foreach (var cacheEntrie in entriesToRemove)
             {
-                _cache.Remove(key);
+                _cache.Remove(cacheEntrie.Key);
             }
 
             if (publisher)
@@ -94,6 +92,10 @@ namespace Grand.Infrastructure.Caching
 
         public virtual Task Clear(bool publisher = true)
         {
+            //clear keys
+            foreach (var cacheEntry in _cacheEntries.Keys.ToList())
+                _cache.Remove(cacheEntry);
+
             //cancel
             _resetCacheToken.Cancel();
             //dispose
@@ -142,11 +144,9 @@ namespace Grand.Infrastructure.Caching
 
         private void PostEvictionCallback(object key, object value, EvictionReason reason, object state)
         {
-            if (reason == EvictionReason.Replaced)
-                return;
-
-            if (reason == EvictionReason.TokenExpired)
-                return;
+            if (reason != EvictionReason.Replaced)
+                _cacheEntries.TryRemove(key.ToString(), out var _);
+            
         }
 
         #endregion
