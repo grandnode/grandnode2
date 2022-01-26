@@ -25,8 +25,9 @@ namespace Grand.Infrastructure.Caching.RabbitMq
         public override async Task RemoveAsync(string key, bool publisher = true)
         {
             _cache.Remove(key);
+
             if (publisher)
-                await _bus.Publish(new CacheMessageEvent() { ClientId= ClientId, Key = key, MessageType = (int)MessageEventType.RemoveKey });
+                await _bus.Publish(new CacheMessageEvent() { ClientId = ClientId, Key = key, MessageType = (int)MessageEventType.RemoveKey });
         }
 
         /// <summary>
@@ -36,11 +37,12 @@ namespace Grand.Infrastructure.Caching.RabbitMq
         /// <param name="publisher">publisher</param>
         public override async Task RemoveByPrefix(string prefix, bool publisher = true)
         {
-            var keysToRemove = _cache.GetKeys<string>().Where(x => x.ToString().StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-            foreach (var key in keysToRemove)
+            var entriesToRemove = _cacheEntries.Where(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+            foreach (var cacheEntrie in entriesToRemove)
             {
-                _cache.Remove(key);
+                _cache.Remove(cacheEntrie.Key);
             }
+
             if (publisher)
                 await _bus.Publish(new CacheMessageEvent() { ClientId = ClientId, Key = prefix, MessageType = (int)MessageEventType.RemoveByPrefix });
         }
