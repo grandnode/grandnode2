@@ -124,13 +124,11 @@
         </div>
     </template>
 </div>
-<script asp-location="Footer" asp-order="300">
+<script asp-location="Footer" asp-order="909">
     var specificationAttributes = new Vue({
         data: () => ({
             Model: @Json.Serialize(specificationAttributes),
         }),
-    })
-    document.addEventListener("DOMContentLoaded", function () {
-        vm.getCompareList('@Url.RouteUrl("CompareProducts")')
-    })
+    });
+    vm.compareproducts = @Json.Serialize(Model)
 </script>
