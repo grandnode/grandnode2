@@ -2544,6 +2544,12 @@
   <Resource Name="Admin.Catalog.Picture.Fields.AltAttribute">
     <Value>Picture alternate text</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.Picture.Fields.ExtraField">
+	<Value>Extra field</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Picture.Fields.Style">
+	<Value>Style</Value>
+  </Resource>
   <Resource Name="Admin.Catalog.Picture.Fields.TitleAttribute">
     <Value>Picture title</Value>
   </Resource>
@@ -3399,6 +3405,9 @@
   <Resource Name="Admin.Catalog.Products.Pictures.Fields.DisplayOrder">
     <Value>Display order</Value>
   </Resource>
+  <Resource Name="Admin.Catalog.Products.Pictures.Fields.ExtraField">
+	<Value>Extra field</Value>
+  </Resource>
   <Resource Name="Admin.Catalog.Products.Pictures.Fields.OverrideAltAttribute">
     <Value>Alt</Value>
   </Resource>
@@ -3407,6 +3416,12 @@
   </Resource>
   <Resource Name="Admin.Catalog.Products.Pictures.Fields.Picture">
     <Value>Picture</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.Pictures.Fields.Style">
+	<Value>Style</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.Pictures.Fields.ExtraField">
+	<Value>Extra field</Value>
   </Resource>
   <Resource Name="Admin.Catalog.Products.Pictures.SaveBeforeEdit">
     <Value>You need to save the product before you can upload pictures for this product page.</Value>

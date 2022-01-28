@@ -2697,7 +2697,9 @@ namespace Grand.Web.Admin.Services
                     PictureUrl = picture != null ? await _pictureService.GetPictureUrl(picture) : null,
                     AltAttribute = picture?.AltAttribute,
                     TitleAttribute = picture?.TitleAttribute,
-                    DisplayOrder = x.DisplayOrder
+                    DisplayOrder = x.DisplayOrder,
+                    Style = picture?.Style,
+                    ExtraField = picture?.ExtraField
                 };
                 items.Add(m);
             }
@@ -2715,6 +2717,8 @@ namespace Grand.Web.Admin.Services
                 AltAttribute = picture?.AltAttribute,
                 TitleAttribute = picture?.TitleAttribute,
                 DisplayOrder = productPicture.DisplayOrder,
+                Style = picture?.Style,
+                ExtraField = picture?.ExtraField
             };
 
             return (model, picture);
@@ -2763,6 +2767,8 @@ namespace Grand.Web.Admin.Services
             await _pictureService.UpdatePictureField(picture, x => x.AltAttribute, model.AltAttribute);
             await _pictureService.UpdatePictureField(picture, x => x.TitleAttribute, model.TitleAttribute);
             await _pictureService.UpdatePictureField(picture, x => x.Locales, model.Locales.ToTranslationProperty());
+            await _pictureService.UpdatePictureField(picture, x => x.Style, model.Style);
+            await _pictureService.UpdatePictureField(picture, x => x.ExtraField, model.ExtraField);
 
         }
         public virtual async Task DeleteProductPicture(ProductModel.ProductPictureModel model)

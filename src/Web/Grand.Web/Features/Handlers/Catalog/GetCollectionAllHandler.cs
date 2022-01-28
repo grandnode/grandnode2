@@ -59,6 +59,8 @@ namespace Grand.Web.Features.Handlers.Catalog
                     Id = collection.PictureId,
                     FullSizeImageUrl = await _pictureService.GetPictureUrl(collection.PictureId),
                     ImageUrl = await _pictureService.GetPictureUrl(collection.PictureId, _mediaSettings.CollectionThumbPictureSize),
+                    Style = picture?.Style,
+                    ExtraField = picture?.ExtraField
                 };
                 //"title" attribute
                 modelcollection.PictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id))) ?
