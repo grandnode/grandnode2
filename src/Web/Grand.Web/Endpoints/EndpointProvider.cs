@@ -277,6 +277,11 @@ namespace Grand.Web.Endpoints
                             pattern + "newproducts/",
                             new { controller = "Product", action = "NewProducts" });
 
+            //sidebar compare products
+            endpointRouteBuilder.MapControllerRoute("SidebarCompareProducts",
+                            pattern + "sidebarcompareproducts/",
+                            new { controller = "Product", action = "SidebarCompareProducts" });
+
             //compare products
             endpointRouteBuilder.MapControllerRoute("CompareProducts",
                             pattern + "compareproducts/",
