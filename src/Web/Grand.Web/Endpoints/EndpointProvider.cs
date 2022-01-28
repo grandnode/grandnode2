@@ -277,6 +277,11 @@ namespace Grand.Web.Endpoints
                             pattern + "newproducts/",
                             new { controller = "Product", action = "NewProducts" });
 
+            //sidebar compare products
+            endpointRouteBuilder.MapControllerRoute("SidebarCompareProducts",
+                            pattern + "sidebarcompareproducts/",
+                            new { controller = "Product", action = "SidebarCompareProducts" });
+
             //compare products
             endpointRouteBuilder.MapControllerRoute("CompareProducts",
                             pattern + "compareproducts/",
@@ -589,6 +594,11 @@ namespace Grand.Web.Endpoints
             endpointRouteBuilder.MapControllerRoute("GetItemCart",
                             pattern + "getitemcart/{shoppingcartId?}",
                             new { controller = "ActionCart", action = "GetItemCart" });
+
+            //side bar wishlist
+            endpointRouteBuilder.MapControllerRoute("SidebarWishlist",
+                            $"{pattern}sidebarwishlist/",
+                            new { controller = "Wishlist", action = "SidebarWishlist" });
 
             //wishlist
             endpointRouteBuilder.MapControllerRoute("Wishlist",

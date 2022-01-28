@@ -20,6 +20,7 @@ using Grand.Web.Commands.Models.Products;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events;
+using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using MediatR;
@@ -782,54 +783,26 @@ namespace Grand.Web.Controllers
 
         #region Comparing products
 
-        /// <summary>
-        /// Gets a "compare products" identifier list
-        /// </summary>
-        /// <returns>"compare products" identifier list</returns>
-        protected virtual List<string> GetComparedProductIds()
+        public virtual async Task<IActionResult> SidebarCompareProducts([FromServices] MediaSettings mediaSettings)
         {
-            //try to get cookie
-            if (!HttpContext.Request.Cookies.TryGetValue(CacheKey.PRODUCTS_COMPARE_COOKIE_NAME, out var productIdsCookie) || string.IsNullOrEmpty(productIdsCookie))
-                return new List<string>();
+            if (!_catalogSettings.CompareProductsEnabled)
+                return Content("");
 
-            //get array of string product identifiers from cookie
-            var productIds = productIdsCookie.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+            var model = await _mediator.Send(new GetCompareProducts() { PictureProductThumbSize = mediaSettings.MiniCartThumbPictureSize });
 
-            //return list of int product identifiers
-            return productIds.Select(productId => productId).Distinct().Take(10).ToList();
+            return View(model);
+
         }
 
-        public virtual async Task<IActionResult> CompareProducts()
+
+        public virtual async Task<IActionResult> CompareProducts([FromServices] MediaSettings mediaSettings)
         {
             if (!_catalogSettings.CompareProductsEnabled)
                 return RedirectToRoute("HomePage");
 
-            var model = new CompareProductsModel {
-                IncludeShortDescriptionInCompareProducts = _catalogSettings.IncludeShortDescriptionInCompareProducts,
-                IncludeFullDescriptionInCompareProducts = _catalogSettings.IncludeFullDescriptionInCompareProducts,
-            };
-
-            var products = new List<Product>();
-            var productIds = GetComparedProductIds();
-            foreach (var id in productIds)
-            {
-                var product = await _productService.GetProductById(id);
-                if (product != null && product.Published)
-                    products.Add(product);
-            }
-
-            //ACL and store acl
-            products = products.Where(p => _aclService.Authorize(p, _workContext.CurrentCustomer) && _aclService.Authorize(p, _workContext.CurrentStore.Id)).ToList();
-            //availability dates
-            products = products.Where(p => p.IsAvailable()).ToList();
-
-            (await _mediator.Send(new GetProductOverview() {
-                PrepareSpecificationAttributes = true,
-                Products = products,
-            })).ToList().ForEach(model.Products.Add);
+            var model = await _mediator.Send(new GetCompareProducts() { PictureProductThumbSize = mediaSettings.CartThumbPictureSize });
 
             return View(model);
-
         }
         #endregion
 

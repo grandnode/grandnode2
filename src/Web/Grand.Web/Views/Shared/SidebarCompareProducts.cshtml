@@ -6,7 +6,7 @@
     <ul class="px-0">
         <li class="nav-item">
             <a href="#" target="_self" class="nav-link">
-                <b-icon icon="shuffle" :variant="[darkMode ? 'white' : 'dark']" @@click="getCompareList('@Url.RouteUrl("CompareProducts")')" v-b-toggle.sidebar-compare></b-icon>
+                <b-icon icon="shuffle" :variant="[darkMode ? 'white' : 'dark']" @@click="getCompareList('@Url.RouteUrl("SidebarCompareProducts")')" v-b-toggle.sidebar-compare></b-icon>
                 <span class="qty-indicator">
                     {{compareProductsQty}}
                 </span>

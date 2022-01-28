@@ -250,8 +250,7 @@ var vm = new Vue({
                 data: null,
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-Response-View': 'Json'
+                    'Content-Type': 'application/json',                    
                 }
             }).then(response => (
                 this.loader = false,
