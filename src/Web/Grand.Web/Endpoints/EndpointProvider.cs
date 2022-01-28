@@ -590,6 +590,11 @@ namespace Grand.Web.Endpoints
                             pattern + "getitemcart/{shoppingcartId?}",
                             new { controller = "ActionCart", action = "GetItemCart" });
 
+            //side bar wishlist
+            endpointRouteBuilder.MapControllerRoute("SidebarWishlist",
+                            $"{pattern}sidebarwishlist/",
+                            new { controller = "Wishlist", action = "SidebarWishlist" });
+
             //wishlist
             endpointRouteBuilder.MapControllerRoute("Wishlist",
                             pattern + "wishlist/{customerGuid?}",
