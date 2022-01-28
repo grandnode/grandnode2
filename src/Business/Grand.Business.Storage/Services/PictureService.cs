@@ -349,14 +349,8 @@ namespace Grand.Business.Storage.Services
             {
                 await DeletePictureThumbs(picture);
 
-                picture = await UpdatePicture(picture.Id,
-                    null,
-                    picture.MimeType,
-                    picture.SeoFilename,
-                    picture.AltAttribute,
-                    picture.TitleAttribute,
-                    false,
-                    false);
+                picture.IsNew = false;
+                await _pictureRepository.UpdateField(picture.Id, x => x.IsNew, picture.IsNew);                
             }
 
             var seoFileName = picture.SeoFilename;
@@ -460,7 +454,9 @@ namespace Grand.Business.Storage.Services
                             TitleAttribute = p.TitleAttribute,
                             Reference = p.Reference,
                             ObjectId = p.ObjectId,
-                            Locales = p.Locales
+                            Locales = p.Locales,
+                            Style = p.Style,
+                            ExtraField = p.ExtraField
                         });
                 return await Task.FromResult(query.FirstOrDefault());
             });
@@ -600,11 +596,14 @@ namespace Grand.Business.Storage.Services
         /// <param name="seoFilename">The SEO filename</param>
         /// <param name="altAttribute">"alt" attribute for "img" HTML element</param>
         /// <param name="titleAttribute">"title" attribute for "img" HTML element</param>
+        /// <param name="style">style attribute for "img" HTML element</param>
+        /// <param name="extrafield">Extra field</param>
         /// <param name="isNew">A value indicating whether the picture is new</param>
         /// <param name="validateBinary">A value indicating whether to validated provided picture binary</param>
         /// <returns>Picture</returns>
         public virtual async Task<Picture> UpdatePicture(string pictureId, byte[] pictureBinary, string mimeType,
             string seoFilename, string altAttribute = null, string titleAttribute = null,
+            string style = null, string extrafield = null,
             bool isNew = true, bool validateBinary = true)
         {
             mimeType = CommonHelper.EnsureNotNull(mimeType);
@@ -640,6 +639,12 @@ namespace Grand.Business.Storage.Services
 
             picture.TitleAttribute = titleAttribute;
             await _pictureRepository.UpdateField(picture.Id, x => x.TitleAttribute, picture.TitleAttribute);
+
+            picture.Style = style;
+            await _pictureRepository.UpdateField(picture.Id, x => x.Style, picture.Style);
+
+            picture.ExtraField = extrafield;
+            await _pictureRepository.UpdateField(picture.Id, x => x.ExtraField, picture.ExtraField);
 
             picture.IsNew = isNew;
             await _pictureRepository.UpdateField(picture.Id, x => x.IsNew, picture.IsNew);

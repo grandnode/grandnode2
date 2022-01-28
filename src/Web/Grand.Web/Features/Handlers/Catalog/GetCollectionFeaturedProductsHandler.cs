@@ -66,8 +66,8 @@ namespace Grand.Web.Features.Handlers.Catalog
                         Id = x.PictureId,
                         FullSizeImageUrl = await _pictureService.GetPictureUrl(x.PictureId),
                         ImageUrl = await _pictureService.GetPictureUrl(x.PictureId, _mediaSettings.CategoryThumbPictureSize),
-                        //Title = string.Format(_translationService.GetResource("Media.Category.ImageLinkTitleFormat"), manModel.Name),
-                        //AlternateText = string.Format(_translationService.GetResource("Media.Category.ImageAlternateTextFormat"), manModel.Name)
+                        Style = picture?.Style,
+                        ExtraField = picture?.ExtraField
                     };
                     //"title" attribute
                     colModel.PictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, request.Language.Id))) ?

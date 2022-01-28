@@ -81,7 +81,9 @@ namespace Grand.Web.Features.Handlers.Blogs
                             FullSizeImageUrl = await _pictureService.GetPictureUrl(post.PictureId),
                             ImageUrl = await _pictureService.GetPictureUrl(post.PictureId, _mediaSettings.BlogThumbPictureSize),
                             Title = string.Format(_translationService.GetResource("Media.Blog.ImageLinkTitleFormat"), post.Title),
-                            AlternateText = string.Format(_translationService.GetResource("Media.Blog.ImageAlternateTextFormat"), post.Title)
+                            AlternateText = string.Format(_translationService.GetResource("Media.Blog.ImageAlternateTextFormat"), post.Title),
+                            Style = picture?.Style,
+                            ExtraField = picture?.ExtraField
                         };
                         //"title" attribute
                         pictureModel.Title = (picture != null && !string.IsNullOrEmpty(picture.GetTranslation(x => x.TitleAttribute, _workContext.WorkingLanguage.Id))) ?

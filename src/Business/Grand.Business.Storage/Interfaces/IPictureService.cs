@@ -141,11 +141,14 @@ namespace Grand.Business.Storage.Interfaces
         /// <param name="seoFilename">The SEO filename</param>
         /// <param name="altAttribute">"alt" attribute for "img" HTML element</param>
         /// <param name="titleAttribute">"title" attribute for "img" HTML element</param>
+        /// <param name="style">style attribute for "img" HTML element</param>
+        /// <param name="extrafield">Extra field</param>
         /// <param name="isNew">A value indicating whether the picture is new</param>
         /// <param name="validateBinary">A value indicating whether to validated provided picture binary</param>
         /// <returns>Picture</returns>
         Task<Picture> UpdatePicture(string pictureId, byte[] pictureBinary, string mimeType,
             string seoFilename, string altAttribute = null, string titleAttribute = null,
+            string style = null, string extrafield = null,
             bool isNew = true, bool validateBinary = true);
 
         /// <summary>

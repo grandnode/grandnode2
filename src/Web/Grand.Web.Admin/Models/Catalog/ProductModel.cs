@@ -517,6 +517,12 @@ namespace Grand.Web.Admin.Models.Catalog
             [GrandResourceDisplayName("Admin.Catalog.Products.Pictures.Fields.OverrideTitleAttribute")]
             public string TitleAttribute { get; set; }
 
+            [GrandResourceDisplayName("Admin.Catalog.Products.Pictures.Fields.Style")]
+            public string Style { get; set; }
+
+            [GrandResourceDisplayName("Admin.Catalog.Products.Pictures.Fields.ExtraField")]
+            public string ExtraField { get; set; }
+
             public IList<ProductPictureLocalizedModel> Locales { get; set; }
 
             public partial class ProductPictureLocalizedModel : ILocalizedModelLocal

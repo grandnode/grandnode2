@@ -21,6 +21,13 @@ namespace Grand.Web.Admin.Models.Common
         [GrandResourceDisplayName("Admin.Catalog.Picture.Fields.TitleAttribute")]
         public string TitleAttribute { get; set; }
 
+
+        [GrandResourceDisplayName("Admin.Catalog.Picture.Fields.Style")]
+        public string Style { get; set; }
+
+        [GrandResourceDisplayName("Admin.Catalog.Picture.Fields.ExtraField")]
+        public string ExtraField { get; set; }
+
         public IList<PictureLocalizedModel> Locales { get; set; }
 
         public partial class PictureLocalizedModel : ILocalizedModelLocal

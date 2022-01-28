@@ -127,6 +127,8 @@ namespace Grand.Web.Features.Handlers.Blogs
                     Id = blogPost.PictureId,
                     FullSizeImageUrl = await _pictureService.GetPictureUrl(blogPost.PictureId),
                     ImageUrl = await _pictureService.GetPictureUrl(blogPost.PictureId, _mediaSettings.BlogThumbPictureSize),
+                    Style = picture?.Style,
+                    ExtraField = picture?.ExtraField
                 };
 
                 //"title" attribute

@@ -12,6 +12,8 @@ namespace Grand.Api.DTOs.Common
         public string TitleAttribute { get; set; }
         public Reference Reference { get; set; }
         public string ObjectId { get; set; }
+        public string Style { get; set; }
+        public string ExtraField { get; set; }
         public bool IsNew { get; set; }
     }
 }
