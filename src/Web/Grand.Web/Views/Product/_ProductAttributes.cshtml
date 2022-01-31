@@ -198,7 +198,7 @@
                                             </template>
                                             <template v-else>
                                                 <input :id="'product_attribute_' + attribute.Id + '_' + attributeValue.Id" type="radio" :name="'product_attribute_' + attribute.Id" :value="attributeValue.Id" :checked="attributeValue.IsPreSelected" :data-disable="attributeValue.Id" @@change="standardProductAttributes.attrchange" />
-                                                <span class="color-container"> <span class="color" :style="'background: url(' + attributeValue.ImageSquaresPictureModel.ImageUrl + ') 50% 50% no-repeat;'"></span> </span>
+                                                <span :id="'imgSqr_' + attributeValue.Id" class="color-container"> <span class="color" :style="'background: url(' + attributeValue.ImageSquaresPictureModel.ImageUrl + ') 50% 50% no-repeat;'"></span> </span>
                                                 <b-tooltip :target="'imgSqr_' + attributeValue.Id" placement="bottom">
                                                     <div class="image-square-tooltip">
                                                         <img :src="attributeValue.ImageSquaresPictureModel.FullSizeImageUrl" :alt="attributeValue.Name + ' [' + attributeValue.PriceAdjustment + ']'" />
