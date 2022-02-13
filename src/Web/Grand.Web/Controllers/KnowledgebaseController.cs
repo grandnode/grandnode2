@@ -254,6 +254,7 @@ namespace Grand.Web.Controllers
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> ArticleCommentAdd(string articleId, KnowledgebaseArticleModel model, bool captchaValid,
                [FromServices] IWorkContext workContext,
                [FromServices] IGroupService groupService,

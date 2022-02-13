@@ -7,6 +7,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Orders;
+using Grand.Web.Common.Filters;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Orders;
@@ -19,6 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Controllers
 {
+    [DenySystemAccount]
     public partial class MerchandiseReturnController : BasePublicController
     {
         #region Fields

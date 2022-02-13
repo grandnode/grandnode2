@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
 {
+    [DenySystemAccount]
     public partial class AccountController : BasePublicController
     {
         #region Fields

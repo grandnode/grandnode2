@@ -133,6 +133,7 @@ namespace Grand.Web.Controllers
         [HttpPost, ActionName("ApplyVendor")]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> ApplyVendorSubmit(ApplyVendorModel model, bool captchaValid, IFormFile uploadedFile)
         {
             if (!_vendorSettings.AllowCustomersToApplyForVendorAccount)
@@ -370,6 +371,7 @@ namespace Grand.Web.Controllers
         [HttpPost, ActionName("ContactVendor")]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> ContactVendor(ContactVendorModel model, bool captchaValid)
         {
             if (!_vendorSettings.AllowCustomersToContactVendors)

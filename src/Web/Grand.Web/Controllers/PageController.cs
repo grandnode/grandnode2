@@ -2,6 +2,7 @@
 using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.Common.Services.Security;
 using Grand.Infrastructure;
+using Grand.Web.Common.Filters;
 using Grand.Web.Features.Models.Pages;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -75,6 +76,7 @@ namespace Grand.Web.Controllers
             return View(layoutViewPath, model);
         }
 
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> Authenticate(string id, string password)
         {

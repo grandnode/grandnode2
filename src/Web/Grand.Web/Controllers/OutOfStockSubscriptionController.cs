@@ -6,6 +6,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.Web.Common.Filters;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Catalog;
 using MediatR;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
 {
+    [DenySystemAccount]
     public partial class OutOfStockSubscriptionController : BasePublicController
     {
         #region Fields

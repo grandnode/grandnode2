@@ -350,6 +350,7 @@ namespace Grand.Web.Controllers
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> VendorReviews(
             VendorReviewsModel model, bool captchaValid,
             [FromServices] CaptchaSettings captchaSettings)
@@ -426,6 +427,7 @@ namespace Grand.Web.Controllers
             return Json(returnmodel);
         }
 
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> SetVendorReviewHelpfulness(string VendorReviewId, string vendorId, bool washelpful, [FromServices] ICustomerService customerService)
         {

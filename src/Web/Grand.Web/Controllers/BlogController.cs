@@ -124,6 +124,7 @@ namespace Grand.Web.Controllers
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> BlogCommentAdd(string blogPostId, BlogPostModel model, bool captchaValid)
         {
             if (!_blogSettings.Enabled)
