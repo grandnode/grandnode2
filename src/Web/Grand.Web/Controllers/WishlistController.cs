@@ -114,6 +114,7 @@ namespace Grand.Web.Controllers
         }
 
         [AutoValidateAntiforgeryToken]
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> UpdateQuantity(string shoppingcartId, int quantity)
         {
@@ -155,6 +156,7 @@ namespace Grand.Web.Controllers
 
         }
 
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> AddItemToCartFromWishlist(Guid? customerGuid, string shoppingcartId)
         {
@@ -193,6 +195,7 @@ namespace Grand.Web.Controllers
 
         }
 
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> DeleteItemFromWishlist(string shoppingcartId)
         {
@@ -217,6 +220,7 @@ namespace Grand.Web.Controllers
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> EmailWishlist(WishlistEmailAFriendModel model, bool captchaValid,
             [FromServices] IMessageProviderService messageProviderService,
             [FromServices] CaptchaSettings captchaSettings)

@@ -484,6 +484,7 @@ namespace Grand.Web.Controllers
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> ProductReviews(
             string productId, 
             ProductReviewsModel model, 
@@ -584,6 +585,7 @@ namespace Grand.Web.Controllers
         }
 
         [HttpPost]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> SetProductReviewHelpfulness(string productReviewId, string productId, bool washelpful,
             [FromServices] ICustomerService customerService,
             [FromServices] IGroupService groupService,
@@ -660,6 +662,7 @@ namespace Grand.Web.Controllers
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> ProductEmailAFriend(ProductEmailAFriendModel model, bool captchaValid,
             [FromServices] IGroupService groupService)
         {
@@ -718,6 +721,7 @@ namespace Grand.Web.Controllers
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> AskQuestionOnProduct(ProductAskQuestionSimpleModel model, bool captchaValid)
         {
             var product = await _productService.GetProductById(model.Id);

@@ -95,6 +95,7 @@ namespace Grand.Web.Controllers
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> NewsCommentAdd(string newsItemId,
             NewsItemModel model, bool captchaValid,
             [FromServices] IGroupService groupService

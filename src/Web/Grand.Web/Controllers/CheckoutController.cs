@@ -19,6 +19,7 @@ using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
+using Grand.Web.Common.Filters;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Checkout;
 using Grand.Web.Features.Models.Common;
@@ -30,6 +31,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Grand.Web.Controllers
 {
+    [DenySystemAccount]
     public partial class CheckoutController : BasePublicController
     {
         #region Fields

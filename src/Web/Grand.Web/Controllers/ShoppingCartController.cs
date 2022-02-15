@@ -18,6 +18,7 @@ using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.ShoppingCart;
+using Grand.Web.Common.Filters;
 using Grand.Web.Features.Models.ShoppingCart;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -114,6 +115,7 @@ namespace Grand.Web.Controllers
             return Json(model);
         }
 
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> CheckoutAttributeChange(IFormCollection form,
             [FromServices] ICheckoutAttributeParser checkoutAttributeParser,
@@ -163,6 +165,7 @@ namespace Grand.Web.Controllers
             });
         }
 
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> UploadFileCheckoutAttribute(string attributeId,
             [FromServices] IDownloadService downloadService)
@@ -281,6 +284,7 @@ namespace Grand.Web.Controllers
         }
 
         [AutoValidateAntiforgeryToken]
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> UpdateQuantity(string shoppingcartId, int quantity)
         {
@@ -336,6 +340,7 @@ namespace Grand.Web.Controllers
 
         }
 
+        [DenySystemAccount]
         public virtual async Task<IActionResult> ClearCart()
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
@@ -352,6 +357,7 @@ namespace Grand.Web.Controllers
 
         }
 
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> DeleteCartItem(string id, bool shoppingcartpage = false)
         {
@@ -409,6 +415,7 @@ namespace Grand.Web.Controllers
             }
         }
 
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> ChangeTypeCartItem(string id, bool status = false)
         {
@@ -473,6 +480,7 @@ namespace Grand.Web.Controllers
             }
         }
 
+        [DenySystemAccount]
         public virtual async Task<IActionResult> StartCheckout(IFormCollection form = null)
         {
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
@@ -512,6 +520,7 @@ namespace Grand.Web.Controllers
         }
 
         [AutoValidateAntiforgeryToken]
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> ApplyDiscountCoupon(string discountcouponcode)
         {
@@ -611,6 +620,7 @@ namespace Grand.Web.Controllers
         }
 
         [AutoValidateAntiforgeryToken]
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> ApplyGiftVoucher(string giftvouchercouponcode)
         {
@@ -690,6 +700,7 @@ namespace Grand.Web.Controllers
         }
 
         [AutoValidateAntiforgeryToken]
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> RemoveDiscountCoupon(string discountId)
         {
@@ -727,6 +738,7 @@ namespace Grand.Web.Controllers
         }
 
         [AutoValidateAntiforgeryToken]
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> RemoveGiftVoucherCode(string giftVoucherId, [FromServices] IGiftVoucherService giftVoucherService)
         {

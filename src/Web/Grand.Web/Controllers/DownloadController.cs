@@ -9,12 +9,14 @@ using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
 
 namespace Grand.Web.Controllers
 {
+    [DenySystemAccount]
     public partial class DownloadController : BasePublicController
     {
         private readonly IDownloadService _downloadService;

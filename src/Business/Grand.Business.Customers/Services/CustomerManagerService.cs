@@ -153,11 +153,7 @@ namespace Grand.Business.Customers.Services
                 throw new ArgumentException("Can't load current customer");
 
             var result = new RegistrationResult();
-            if (request.Customer.IsSystemAccount())
-            {
-                result.AddError("System account can't be registered");
-                return result;
-            }
+            
             if (await _groupService.IsRegistered(request.Customer))
             {
                 result.AddError("Current customer is already registered");

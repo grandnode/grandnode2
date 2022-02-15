@@ -9,6 +9,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Orders;
+using Grand.Web.Common.Filters;
 using Grand.Web.Events;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Orders;
@@ -18,6 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
 {
+    [DenySystemAccount]
     public partial class OrderController : BasePublicController
     {
         #region Fields

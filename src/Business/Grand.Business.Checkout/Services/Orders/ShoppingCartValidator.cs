@@ -842,12 +842,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 warnings.Add("Wishlist is disabled");
                 return warnings;
             }
-            if (customer.IsSystemAccount())
-            {
-                warnings.Add("System account can't add to cart");
-                return warnings;
-            }
-
+            
             if (quantity <= 0)
             {
                 warnings.Add(_translationService.GetResource("ShoppingCart.QuantityShouldPositive"));
