@@ -111,7 +111,8 @@ namespace Grand.Business.Catalog.Services.Prices
                         var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
                         if (validDiscount.IsValid &&
                             discount.DiscountTypeId == DiscountType.AssignedToSkus)
-                            allowedDiscounts.Add(new ApplyDiscount() {
+                            allowedDiscounts.Add(new ApplyDiscount()
+                            {
                                 CouponCode = validDiscount.CouponCode,
                                 DiscountId = discount.Id,
                                 IsCumulative = discount.IsCumulative
@@ -133,7 +134,8 @@ namespace Grand.Business.Catalog.Services.Prices
             {
                 var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
                 if (validDiscount.IsValid)
-                    allowedDiscounts.Add(new ApplyDiscount() {
+                    allowedDiscounts.Add(new ApplyDiscount()
+                    {
                         CouponCode = validDiscount.CouponCode,
                         DiscountId = discount.Id,
                         IsCumulative = discount.IsCumulative
@@ -168,7 +170,8 @@ namespace Grand.Business.Catalog.Services.Prices
                         {
                             var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
                             if (validDiscount.IsValid && discount.DiscountTypeId == DiscountType.AssignedToCategories)
-                                allowedDiscounts.Add(new ApplyDiscount() {
+                                allowedDiscounts.Add(new ApplyDiscount()
+                                {
                                     CouponCode = validDiscount.CouponCode,
                                     DiscountId = discount.Id,
                                     IsCumulative = discount.IsCumulative
@@ -207,7 +210,8 @@ namespace Grand.Business.Catalog.Services.Prices
                                 var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
                                 if (validDiscount.IsValid &&
                                          discount.DiscountTypeId == DiscountType.AssignedToBrands)
-                                    allowedDiscounts.Add(new ApplyDiscount() {
+                                    allowedDiscounts.Add(new ApplyDiscount()
+                                    {
                                         CouponCode = validDiscount.CouponCode,
                                         DiscountId = discount.Id,
                                         IsCumulative = discount.IsCumulative,
@@ -246,7 +250,8 @@ namespace Grand.Business.Catalog.Services.Prices
                             var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
                             if (validDiscount.IsValid &&
                                      discount.DiscountTypeId == DiscountType.AssignedToCollections)
-                                allowedDiscounts.Add(new ApplyDiscount() {
+                                allowedDiscounts.Add(new ApplyDiscount()
+                                {
                                     CouponCode = validDiscount.CouponCode,
                                     DiscountId = discount.Id,
                                     IsCumulative = discount.IsCumulative
@@ -286,7 +291,8 @@ namespace Grand.Business.Catalog.Services.Prices
                                 var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
                                 if (validDiscount.IsValid &&
                                          discount.DiscountTypeId == DiscountType.AssignedToVendors)
-                                    allowedDiscounts.Add(new ApplyDiscount() {
+                                    allowedDiscounts.Add(new ApplyDiscount()
+                                    {
                                         CouponCode = validDiscount.CouponCode,
                                         DiscountId = discount.Id,
                                         IsCumulative = discount.IsCumulative,
