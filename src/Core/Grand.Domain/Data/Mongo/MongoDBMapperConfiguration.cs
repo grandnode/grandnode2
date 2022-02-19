@@ -13,8 +13,6 @@ namespace Grand.Domain.Data.Mongo
         /// </summary>
         public static void RegisterMongoDBMappings()
         {
-            //BsonSerializer.RegisterSerializer(new DecimalSerializer(BsonType.Decimal128));
-            //BsonSerializer.RegisterSerializer(typeof(double?), new NullableSerializer<double>(new DecimalSerializer(BsonType.Decimal128)));
             BsonSerializer.RegisterSerializer(typeof(DateTime), new BsonUtcDateTimeSerializer());
 
             BsonSerializer.RegisterSerializer(typeof(Dictionary<int, int>),
