@@ -1,14 +1,14 @@
 ﻿using Grand.Domain.Data;
 using Grand.Infrastructure.Migrations;
 
-namespace Grand.Business.System.Services.Migrations._1._1
+namespace Grand.Business.System.Services.Migrations._2._2
 {
     public class MigrationUpdateResourceString : IMigration
     {
         public int Priority => 0;
-        public DbVersion Version => new(1, 1);
-        public Guid Identity => new("5FE5E3D4-2783-4925-8727-A8D8F202E4B8");
-        public string Name => "Update resource string for english language";
+        public DbVersion Version => new(2, 0);
+        public Guid Identity => new("DC357BA8-B998-429A-8E22-9FE07BCB287D");
+        public string Name => "Update resource string for english language 2.0";
 
         /// <summary>
         /// Upgrade process
@@ -18,7 +18,7 @@ namespace Grand.Business.System.Services.Migrations._1._1
         /// <returns></returns>
         public bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider)
         {
-            return serviceProvider.ImportLanguageResourcesFromXml("App_Data/Resources/Upgrade/en_110.xml");
+            return serviceProvider.ImportLanguageResourcesFromXml("App_Data/Resources/Upgrade/en_200.xml");
         }
     }
 }
