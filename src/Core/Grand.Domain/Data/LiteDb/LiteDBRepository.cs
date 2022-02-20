@@ -206,16 +206,10 @@ namespace Grand.Domain.Data.LiteDb
         /// <param name="value">value</param>
         public virtual Task UpdateField<U>(string id, Expression<Func<T, U>> expression, U value)
         {
+            var entity = _database.GetCollection(typeof(T).Name).FindById(new(id));
+            entity[GetName(expression)] = new BsonValue(value);
+            _database.GetCollection(typeof(T).Name).Update(entity);
 
-            //TODO
-            /*
-            var builder = Builders<T>.Filter;
-            var filter = builder.Eq(x => x.Id, id);
-            var update = Builders<T>.Update
-                .Set(expression, value);
-
-            await _collection.UpdateOneAsync(filter, update);
-            */
             return Task.CompletedTask;
         }
 
@@ -227,9 +221,8 @@ namespace Grand.Domain.Data.LiteDb
         /// <returns></returns>
         public virtual Task UpdateOneAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder)
         {
-            //TODO 
-            //var update = Builders<T>.Update.Combine(updateBuilder.Fields);
-            //await _collection.UpdateOneAsync(filterexpression, update);
+            var entity = _collection.FindOne(filterexpression);
+            Update(entity, updateBuilder);
             return Task.CompletedTask;
         }
 
@@ -241,9 +234,26 @@ namespace Grand.Domain.Data.LiteDb
         /// <returns></returns>
         public virtual Task UpdateManyAsync(Expression<Func<T, bool>> filterexpression, UpdateBuilder<T> updateBuilder)
         {
-            //TODO 
-            //var update = Builders<T>.Update.Combine(updateBuilder.Fields);
-            //await _collection.UpdateManyAsync(filterexpression, update);
+            var entities = _collection.Find(filterexpression);
+            foreach (var entity in entities)
+            {
+                Update(entity, updateBuilder);
+            }
+            return Task.CompletedTask;
+        }
+
+        private Task Update(T entity, UpdateBuilder<T> updateBuilder)
+        {
+            foreach (var item in updateBuilder.ExpressionFields)
+            {
+                var name = GetName(item.Expression);
+
+                var propertyInfo = entity?.GetType().GetProperty(name,
+                    BindingFlags.Public | BindingFlags.Instance);
+
+                propertyInfo.SetValue(entity, item.Value);
+            }
+            _collection.Update(entity);
             return Task.CompletedTask;
         }
 
@@ -510,6 +520,42 @@ namespace Grand.Domain.Data.LiteDb
         public virtual IQueryable<T> TableCollection(string collectionName)
         {
             return _database.GetCollection<T>(collectionName).Query().ToEnumerable().AsQueryable();
+        }
+
+        #endregion
+
+        #region Helpers
+        protected string GetName(LambdaExpression lambdaexpression)
+        {
+            var expression = (MemberExpression)lambdaexpression.Body;
+            return expression.Member.Name;
+        }
+        protected string GetName<TSource, TField>(Expression<Func<TSource, TField>> Field)
+        {
+            if (object.Equals(Field, null))
+            {
+                throw new NullReferenceException("Field is required");
+            }
+
+            MemberExpression expr = null;
+
+            if (Field.Body is MemberExpression)
+            {
+                expr = (MemberExpression)Field.Body;
+            }
+            else if (Field.Body is UnaryExpression)
+            {
+                expr = (MemberExpression)((UnaryExpression)Field.Body).Operand;
+            }
+            else
+            {
+                const string Format = "Expression '{0}' not supported.";
+                string message = string.Format(Format, Field);
+
+                throw new ArgumentException(message, "Field");
+            }
+
+            return expr.Member.Name;
         }
 
         #endregion
