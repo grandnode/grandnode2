@@ -267,12 +267,18 @@ namespace Grand.Domain.Data.LiteDb
         /// <returns></returns>
         public virtual Task AddToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, U value)
         {
-            //TODO 
-            //var builder = Builders<T>.Filter;
-            //var filter = builder.Eq(x => x.Id, id);
-            //var update = Builders<T>.Update.AddToSet(field, value);
+            var collection = _database.GetCollection(_collection.Name);
+            var entity = collection.FindById(new(id));
+            var fieldName = ((MemberExpression)field.Body).Member.Name;
 
-            //await _collection.UpdateOneAsync(filter, update);
+            if (entity[fieldName].IsArray)
+            {
+                var bsonValue = BsonMapper.Global.Serialize<U>(value);
+                var list = entity[fieldName].AsArray.ToList();
+                list.Add(bsonValue);
+                entity[fieldName] = new BsonArray(list);
+                collection.Update(entity);
+            }
             return Task.CompletedTask;
 
         }
@@ -289,16 +295,25 @@ namespace Grand.Domain.Data.LiteDb
         /// <param name="value">Subdocument - to update (all values)</param>
         public virtual Task UpdateToSet<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, U value)
         {
-            //TODO
+            var collection = _database.GetCollection(_collection.Name);
+            var entity = collection.FindById(new(id));
+            var fieldName = ((MemberExpression)field.Body).Member.Name;
+            var elementfieldName = ((MemberExpression)elemFieldMatch.Body).Member.Name;
 
-            //var filter = Builders<T>.Filter.Eq(x => x.Id, id)
-            //    & Builders<T>.Filter.ElemMatch(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
+            if (entity[fieldName].IsArray)
+            {
+                var bsonValue = BsonMapper.Global.Serialize<U>(value);
+                var list = entity[fieldName].AsArray.ToList();
+                var document = list.FirstOrDefault(x => x[elementfieldName] == new BsonValue(elemMatch));
 
-            //MemberExpression me = field.Body as MemberExpression;
-            //MemberInfo minfo = me.Member;
-            //var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
+                foreach (var key in bsonValue.AsDocument.Keys)
+                {
+                    document[key] = bsonValue[key];
+                }
+                entity[fieldName] = new BsonArray(list);
+                collection.Update(entity);
+            }
 
-            //await _collection.UpdateOneAsync(filter, update);
             return Task.CompletedTask;
 
         }
