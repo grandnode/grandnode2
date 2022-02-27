@@ -305,6 +305,7 @@ namespace Grand.Domain.Data.LiteDb
                 var bsonValue = BsonMapper.Global.Serialize<U>(value);
                 var list = entity[fieldName].AsArray.ToList();
                 var document = list.FirstOrDefault(x => x[elementfieldName] == new BsonValue(elemMatch));
+                if (document == null) return Task.CompletedTask;
 
                 foreach (var key in bsonValue.AsDocument.Keys)
                 {
@@ -329,24 +330,33 @@ namespace Grand.Domain.Data.LiteDb
         /// <param name="value">Subdocument - to update (all values)</param>
         public virtual Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch, U value, bool updateMany = false)
         {
-            //TODO
-            //var filter = string.IsNullOrEmpty(id) ? Builders<T>.Filter.Where(x => true) : Builders<T>.Filter.Eq(x => x.Id, id)
-            //    & Builders<T>.Filter.ElemMatch(field, elemFieldMatch);
+            var collection = _database.GetCollection(_collection.Name);
+            var entity = collection.FindById(new(id));
+            var fieldName = ((MemberExpression)field.Body).Member.Name;
+            if (entity == null) return Task.CompletedTask;
 
-            //MemberExpression me = field.Body as MemberExpression;
-            //MemberInfo minfo = me.Member;
-            //var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
+            var elements = entity.GetType().GetProperty(fieldName).GetValue(entity, null) as List<U>;
 
-            //if (updateMany)
-            //{
-            //    await _collection.UpdateManyAsync(filter, update);
-            //}
-            //else
-            //{
-            //    await _collection.UpdateOneAsync(filter, update);
-            //}
+            var position = elements.FirstOrDefault(elemFieldMatch.Compile());
+
+            if (position == null) return Task.CompletedTask;
+
+            foreach (var item in position.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                var propertyField = position.GetType().GetProperty(item.Name,
+                    BindingFlags.Public | BindingFlags.Instance);
+
+                propertyField.SetValue(position, item.GetValue(value));
+            }
+
+            var propertyInfo = entity?.GetType().GetProperty(fieldName,
+                    BindingFlags.Public | BindingFlags.Instance);
+
+            propertyInfo.SetValue(entity, elements);
+
+            collection.Update(entity);
+
             return Task.CompletedTask;
-
 
         }
         // <summary>
@@ -362,17 +372,7 @@ namespace Grand.Domain.Data.LiteDb
         /// <returns></returns>
         public virtual Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value, bool updateMany = false)
         {
-            //TODO
-            //MemberExpression me = field.Body as MemberExpression;
-            //MemberInfo minfo = me.Member;
-
-            //var filter = new BsonDocument
-            //{
-            //    new BsonElement(minfo.Name, elemFieldMatch.ToString())
-            //};
-
-            //var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
-            //await _collection.UpdateManyAsync(filter, update);
+            //TODO           
             return Task.CompletedTask;
 
         }
