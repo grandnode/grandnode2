@@ -403,17 +403,42 @@ namespace Grand.Domain.Data.LiteDb
         /// <returns></returns>
         public virtual Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, bool updateMany = false)
         {
-            //TODO
-            //var filter = string.IsNullOrEmpty(id) ? Builders<T>.Filter.Where(x => true) : Builders<T>.Filter.Eq(x => x.Id, id);
-            //var update = Builders<T>.Update.PullFilter(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
-            //if (updateMany)
-            //{
-            //    await _collection.UpdateManyAsync(filter, update);
-            //}
-            //else
-            //{
-            //    await _collection.UpdateOneAsync(filter, update);
-            //}
+            var collection = _database.GetCollection(_collection.Name);
+            var fieldName = ((MemberExpression)field.Body).Member.Name;
+            var elementfieldName = ((MemberExpression)elemFieldMatch.Body).Member.Name;
+
+            if (string.IsNullOrEmpty(id))
+            {
+                //update many
+                var entities = collection.FindAll();
+                foreach (var entity in entities)
+                {
+                    UpdateEntity(entity);
+                }
+            }
+            else
+            {
+                //update one
+                var entity = collection.FindById(new(id));
+                UpdateEntity(entity);
+            }
+
+            void UpdateEntity(BsonDocument entity)
+            {
+                if (entity != null && entity[fieldName].IsArray)
+                {
+                    var bsonValue = BsonMapper.Global.Serialize<Z>(elemMatch);
+                    var list = entity[fieldName].AsArray.ToList();
+                    var document = list.FirstOrDefault(x => x[elementfieldName] == new BsonValue(elemMatch));
+                    if (document != null)
+                    {
+                        list.Remove(document);
+                        entity[fieldName] = new BsonArray(list);
+                        collection.Update(entity);
+                    }
+                }
+            }
+
             return Task.CompletedTask;
 
         }
@@ -428,12 +453,27 @@ namespace Grand.Domain.Data.LiteDb
         /// <returns></returns>
         public virtual Task PullFilter<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch)
         {
-            //TODO
-            //var filter = Builders<T>.Filter.Eq(x => x.Id, id);
-            //var update = Builders<T>.Update.PullFilter(field, elemFieldMatch);
-            //await _collection.UpdateOneAsync(filter, update);
+            var collection = _database.GetCollection<T>(_collection.Name);
+            var entity = collection.FindById(new(id));
+            var fieldName = ((MemberExpression)field.Body).Member.Name;
+
+            var elements = entity.GetType().GetProperty(fieldName).GetValue(entity, null) as List<U>;
+
+            var position = elements.FirstOrDefault(elemFieldMatch.Compile());
+            if (position == null) return Task.CompletedTask;
+
+            elements.Remove(position);
+
+            var propertyInfo = entity?.GetType().GetProperty(fieldName,
+                    BindingFlags.Public | BindingFlags.Instance);
+
+            propertyInfo.SetValue(entity, elements);
+
+            collection.Update(entity);
+
             return Task.CompletedTask;
         }
+
         /// <summary>
         /// Delete subdocument
         /// </summary>
@@ -443,17 +483,34 @@ namespace Grand.Domain.Data.LiteDb
         /// <returns></returns>
         public virtual Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element, bool updateMany = false)
         {
-            //TODO
-            //var filter = string.IsNullOrEmpty(id) ? Builders<T>.Filter.Where(x => true) : Builders<T>.Filter.Eq(x => x.Id, id);
-            //var update = Builders<T>.Update.Pull(field, element);
-            //if (updateMany)
-            //{
-            //    await _collection.UpdateManyAsync(filter, update);
-            //}
-            //else
-            //{
-            //    await _collection.UpdateOneAsync(filter, update);
-            //}
+            var collection = _database.GetCollection(_collection.Name);
+            var fieldName = ((MemberExpression)field.Body).Member.Name;
+            if (string.IsNullOrEmpty(id))
+            {
+                var entities = collection.Find(Query.EQ($"{fieldName}[*] ANY", element.ToString())).ToList();
+                foreach (var entity in entities)
+                {
+                    UpdateEntity(entity);
+                }
+            }
+            else
+            {
+                //update one
+                var entity = collection.FindById(new(id));
+                UpdateEntity(entity);
+            }
+
+            void UpdateEntity(BsonDocument entity)
+            {
+                if (entity != null && entity[fieldName].IsArray)
+                {
+                    var list = entity[fieldName].AsArray.ToList();
+                    list.Remove(new BsonValue(element));
+                    entity[fieldName] = new BsonArray(list);
+                    collection.Update(entity);
+                }
+            }
+
             return Task.CompletedTask;
 
         }
