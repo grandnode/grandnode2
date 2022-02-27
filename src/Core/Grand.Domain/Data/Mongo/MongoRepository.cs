@@ -322,7 +322,7 @@ namespace Grand.Domain.Data.Mongo
         /// <param name="value">Subdocument - to update (all values)</param>
         /// <param name="updateMany">Update many records</param>
         /// <returns></returns>
-        public virtual async Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value, bool updateMany = false)
+        public virtual async Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value)
         {
             MemberExpression me = field.Body as MemberExpression;
             MemberInfo minfo = me.Member;

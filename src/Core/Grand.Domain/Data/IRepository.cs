@@ -162,7 +162,7 @@ namespace Grand.Domain.Data
         /// <param name="value">Subdocument - to update (all values)</param>
         /// <param name="updateMany">Update many records</param>
         /// <returns></returns>
-        Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value, bool updateMany = false);
+        Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value);
 
 
         /// <summary>

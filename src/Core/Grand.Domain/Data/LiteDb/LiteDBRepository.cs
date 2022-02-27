@@ -370,9 +370,24 @@ namespace Grand.Domain.Data.LiteDb
         /// <param name="value">Subdocument - to update (all values)</param>
         /// <param name="updateMany">Update many records</param>
         /// <returns></returns>
-        public virtual Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value, bool updateMany = false)
+        public virtual Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value)
         {
-            //TODO           
+            var collection = _database.GetCollection(_collection.Name);
+            var fieldName = ((MemberExpression)field.Body).Member.Name;
+            var records = collection.Find(Query.EQ($"{fieldName}[*] ANY", elemFieldMatch.ToString())).ToList();
+            foreach (var entity in records)
+            {
+                if (entity[fieldName].IsArray)
+                {
+                    var bsonValue = BsonMapper.Global.Serialize<U>(value);
+                    var oldbsonValue = BsonMapper.Global.Serialize<U>(elemFieldMatch);
+                    var list = entity[fieldName].AsArray.ToList();
+                    list.Add(bsonValue);
+                    list.Remove(oldbsonValue);
+                    entity[fieldName] = new BsonArray(list);
+                    collection.Update(entity);
+                }
+            }
             return Task.CompletedTask;
 
         }
