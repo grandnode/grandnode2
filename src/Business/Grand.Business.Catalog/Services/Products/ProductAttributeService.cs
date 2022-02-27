@@ -131,7 +131,7 @@ namespace Grand.Business.Catalog.Services.Products
                 throw new ArgumentNullException(nameof(productAttribute));
 
             //delete from all product collections
-            await _productRepository.PullFilter(string.Empty, x => x.ProductAttributeMappings, z => z.ProductAttributeId, productAttribute.Id, true);
+            await _productRepository.PullFilter(string.Empty, x => x.ProductAttributeMappings, z => z.ProductAttributeId, productAttribute.Id);
 
             //delete from productAttribute collection
             await _productAttributeRepository.DeleteAsync(productAttribute);

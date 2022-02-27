@@ -292,7 +292,7 @@ namespace Grand.Domain.Data.Mongo
         /// <param name="elemFieldMatch">Subdocument field to match</param>
         /// <param name="elemMatch">Subdocument ident value</param>
         /// <param name="value">Subdocument - to update (all values)</param>
-        public virtual async Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch, U value, bool updateMany = false)
+        public virtual async Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch, U value)
         {
             var filter = string.IsNullOrEmpty(id) ? Builders<T>.Filter.Where(x => true) : Builders<T>.Filter.Eq(x => x.Id, id)
                 & Builders<T>.Filter.ElemMatch(field, elemFieldMatch);
@@ -301,7 +301,7 @@ namespace Grand.Domain.Data.Mongo
             MemberInfo minfo = me.Member;
             var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
 
-            if (updateMany)
+            if (string.IsNullOrEmpty(id))
             {
                 await _collection.UpdateManyAsync(filter, update);
             }
@@ -346,11 +346,11 @@ namespace Grand.Domain.Data.Mongo
         /// <param name="elemFieldMatch"></param>
         /// <param name="elemMatch"></param>
         /// <returns></returns>
-        public virtual async Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, bool updateMany = false)
+        public virtual async Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch)
         {
             var filter = string.IsNullOrEmpty(id) ? Builders<T>.Filter.Where(x => true) : Builders<T>.Filter.Eq(x => x.Id, id);
             var update = Builders<T>.Update.PullFilter(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
-            if (updateMany)
+            if (string.IsNullOrEmpty(id))
             {
                 await _collection.UpdateManyAsync(filter, update);
             }
@@ -379,19 +379,18 @@ namespace Grand.Domain.Data.Mongo
         /// </summary>
         /// <param name="id"></param>
         /// <param name="field"></param>
-        /// <param name="elemMatch"></param>
+        /// <param name="element"></param>
         /// <returns></returns>
-        public virtual async Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element, bool updateMany = false)
+        public virtual async Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
         {
-            var filter = string.IsNullOrEmpty(id) ? Builders<T>.Filter.Where(x => true) : Builders<T>.Filter.Eq(x => x.Id, id);
             var update = Builders<T>.Update.Pull(field, element);
-            if (updateMany)
+            if (string.IsNullOrEmpty(id))
             {
-                await _collection.UpdateManyAsync(filter, update);
+                await _collection.UpdateManyAsync(Builders<T>.Filter.Where(x => true), update);
             }
             else
             {
-                await _collection.UpdateOneAsync(filter, update);
+                await _collection.UpdateOneAsync(Builders<T>.Filter.Eq(x => x.Id, id), update);
             }
         }
         /// <summary>

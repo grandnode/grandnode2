@@ -328,7 +328,7 @@ namespace Grand.Domain.Data.LiteDb
         /// <param name="elemFieldMatch">Subdocument field to match</param>
         /// <param name="elemMatch">Subdocument ident value</param>
         /// <param name="value">Subdocument - to update (all values)</param>
-        public virtual Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch, U value, bool updateMany = false)
+        public virtual Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch, U value)
         {
             var collection = _database.GetCollection(_collection.Name);
             var entity = collection.FindById(new(id));
@@ -401,7 +401,7 @@ namespace Grand.Domain.Data.LiteDb
         /// <param name="elemFieldMatch"></param>
         /// <param name="elemMatch"></param>
         /// <returns></returns>
-        public virtual Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, bool updateMany = false)
+        public virtual Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch)
         {
             var collection = _database.GetCollection(_collection.Name);
             var fieldName = ((MemberExpression)field.Body).Member.Name;
@@ -479,9 +479,9 @@ namespace Grand.Domain.Data.LiteDb
         /// </summary>
         /// <param name="id"></param>
         /// <param name="field"></param>
-        /// <param name="elemMatch"></param>
+        /// <param name="element"></param>
         /// <returns></returns>
-        public virtual Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element, bool updateMany = false)
+        public virtual Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element)
         {
             var collection = _database.GetCollection(_collection.Name);
             var fieldName = ((MemberExpression)field.Body).Member.Name;
