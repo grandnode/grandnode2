@@ -429,10 +429,13 @@ namespace Grand.Domain.Data.LiteDb
                 {
                     var bsonValue = BsonMapper.Global.Serialize<Z>(elemMatch);
                     var list = entity[fieldName].AsArray.ToList();
-                    var document = list.FirstOrDefault(x => x[elementfieldName] == new BsonValue(elemMatch));
-                    if (document != null)
+                    var documents = list.Where(x => x[elementfieldName] == new BsonValue(elemMatch)).ToList();
+                    if (documents != null)
                     {
-                        list.Remove(document);
+                        foreach (var document in documents)
+                        {
+                            list.Remove(document);
+                        }
                         entity[fieldName] = new BsonArray(list);
                         collection.Update(entity);
                     }
@@ -459,11 +462,12 @@ namespace Grand.Domain.Data.LiteDb
 
             var elements = entity.GetType().GetProperty(fieldName).GetValue(entity, null) as List<U>;
 
-            var position = elements.FirstOrDefault(elemFieldMatch.Compile());
-            if (position == null) return Task.CompletedTask;
-
-            elements.Remove(position);
-
+            var positions = elements.Where(elemFieldMatch.Compile());
+            if (positions == null) return Task.CompletedTask;
+            foreach (var position in positions.ToList())
+            {
+                elements.Remove(position);
+            }
             var propertyInfo = entity?.GetType().GetProperty(fieldName,
                     BindingFlags.Public | BindingFlags.Instance);
 
