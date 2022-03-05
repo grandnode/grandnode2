@@ -212,9 +212,6 @@ namespace Grand.Infrastructure
             CommonHelper.IgnoreAcl = config.IgnoreAcl;
             CommonHelper.IgnoreStoreLimitations = config.IgnoreStoreLimitations;
 
-            //Execute startupbase interface
-            ExecuteStartupBase();
-
             var mvcCoreBuilder = services.AddMvcCore();
 
             return mvcCoreBuilder;
@@ -284,6 +281,9 @@ namespace Grand.Infrastructure
             //configure services
             foreach (var instance in instancesAfter)
                 instance.ConfigureServices(services, configuration);
+
+            //Execute startupbase interface
+            ExecuteStartupBase(typeSearcher);
         }
 
         /// <summary>
@@ -308,9 +308,8 @@ namespace Grand.Infrastructure
                 instance.Configure(application, webHostEnvironment);
         }
 
-        private static void ExecuteStartupBase()
+        private static void ExecuteStartupBase(AppTypeSearcher typeSearcher)
         {
-            var typeSearcher = new AppTypeSearcher();
             var startupBaseConfigurations = typeSearcher.ClassesOfType<IStartupBase>();
 
             //create and sort instances of startup configurations
