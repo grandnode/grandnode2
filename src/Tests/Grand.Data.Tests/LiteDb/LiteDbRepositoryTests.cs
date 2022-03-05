@@ -442,5 +442,29 @@ namespace Grand.Data.Tests.LiteDb
 
             Assert.IsTrue(p.UserFields.FirstOrDefault(x=>x.Key=="key").Value == "update");
         }
+
+        [TestMethod()]
+        public async Task UpdateToSet_2_MongoRepository_Success()
+        {
+            var products = new List<SampleCollection>() {
+            new SampleCollection(){ Id = "1", Name = "Test",
+                UserFields = new List<Domain.Common.UserField>()
+                {
+                    new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
+                } },
+            new SampleCollection(){ Id = "2", Name = "Test" },
+            new SampleCollection(){ Id = "3", Name = "Test3" },
+
+            };
+            await _myRepository.InsertManyAsync(products);
+
+            await _myRepository.UpdateToSet("1", x => x.UserFields, z => z.Key == "key", new Domain.Common.UserField() { Key = "key", Value = "update", StoreId = "1" });
+
+            var p = _myRepository.GetById("1");
+
+            Assert.IsTrue(p.UserFields.FirstOrDefault(x => x.Key == "key").Value == "update");
+        }
     }
 }

@@ -207,7 +207,8 @@ namespace Grand.Domain.Data.LiteDb
         public virtual Task UpdateField<U>(string id, Expression<Func<T, U>> expression, U value)
         {
             var entity = _database.GetCollection(typeof(T).Name).FindById(new(id));
-            entity[GetName(expression)] = new BsonValue(value);
+            var bsonValue = BsonMapper.Global.Serialize<U>(value);
+            entity[GetName(expression)] = bsonValue;
             _database.GetCollection(typeof(T).Name).Update(entity);
 
             return Task.CompletedTask;
@@ -335,27 +336,25 @@ namespace Grand.Domain.Data.LiteDb
             var fieldName = ((MemberExpression)field.Body).Member.Name;
             if (entity == null) return Task.CompletedTask;
 
-            var elements = entity.GetType().GetProperty(fieldName).GetValue(entity, null) as List<U>;
-
-            var position = elements.FirstOrDefault(elemFieldMatch.Compile());
-
-            if (position == null) return Task.CompletedTask;
-
-            foreach (var item in position.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            if (entity[fieldName].IsArray)
             {
-                var propertyField = position.GetType().GetProperty(item.Name,
-                    BindingFlags.Public | BindingFlags.Instance);
+                var bsonValue = BsonMapper.Global.Serialize<U>(value);
+                var list = BsonMapper.Global.Deserialize<IList<U>>(entity[fieldName]).ToList();
+                var position = list.FirstOrDefault(elemFieldMatch.Compile());
+                if (position == null) return Task.CompletedTask;
 
-                propertyField.SetValue(position, item.GetValue(value));
+                foreach (var item in position.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+                {
+                    var propertyField = position.GetType().GetProperty(item.Name,
+                        BindingFlags.Public | BindingFlags.Instance);
+
+                    propertyField.SetValue(position, item.GetValue(value));
+                }
+
+                var updatelist = BsonMapper.Global.Serialize<IList<U>>(list);
+                entity[fieldName] = updatelist;
+                collection.Update(entity);
             }
-
-            var propertyInfo = entity?.GetType().GetProperty(fieldName,
-                    BindingFlags.Public | BindingFlags.Instance);
-
-            propertyInfo.SetValue(entity, elements);
-
-            collection.Update(entity);
-
             return Task.CompletedTask;
 
         }
@@ -456,25 +455,24 @@ namespace Grand.Domain.Data.LiteDb
         /// <returns></returns>
         public virtual Task PullFilter<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch)
         {
-            var collection = _database.GetCollection<T>(_collection.Name);
+
+            var collection = _database.GetCollection(_collection.Name);
             var entity = collection.FindById(new(id));
             var fieldName = ((MemberExpression)field.Body).Member.Name;
+            if (entity == null) return Task.CompletedTask;
 
-            var elements = entity.GetType().GetProperty(fieldName).GetValue(entity, null) as List<U>;
-
-            var positions = elements.Where(elemFieldMatch.Compile());
-            if (positions == null) return Task.CompletedTask;
-            foreach (var position in positions.ToList())
+            if (entity[fieldName].IsArray)
             {
-                elements.Remove(position);
+                var list = BsonMapper.Global.Deserialize<IList<U>>(entity[fieldName]).ToList();
+                var position = list.FirstOrDefault(elemFieldMatch.Compile());
+                if (position == null) return Task.CompletedTask;
+
+                list.Remove(position);
+
+                var updatelist = BsonMapper.Global.Serialize<IList<U>>(list);
+                entity[fieldName] = updatelist;
+                collection.Update(entity);
             }
-            var propertyInfo = entity?.GetType().GetProperty(fieldName,
-                    BindingFlags.Public | BindingFlags.Instance);
-
-            propertyInfo.SetValue(entity, elements);
-
-            collection.Update(entity);
-
             return Task.CompletedTask;
         }
 
@@ -616,6 +614,7 @@ namespace Grand.Domain.Data.LiteDb
         #endregion
 
         #region Helpers
+        
         protected string GetName(LambdaExpression lambdaexpression)
         {
             var expression = (MemberExpression)lambdaexpression.Body;
@@ -630,9 +629,9 @@ namespace Grand.Domain.Data.LiteDb
 
             MemberExpression expr = null;
 
-            if (Field.Body is MemberExpression)
+            if (Field.Body is MemberExpression expression)
             {
-                expr = (MemberExpression)Field.Body;
+                expr = expression;
             }
             else if (Field.Body is UnaryExpression)
             {
@@ -641,7 +640,7 @@ namespace Grand.Domain.Data.LiteDb
             else
             {
                 const string Format = "Expression '{0}' not supported.";
-                string message = string.Format(Format, Field);
+                var message = string.Format(Format, Field);
 
                 throw new ArgumentException(message, "Field");
             }

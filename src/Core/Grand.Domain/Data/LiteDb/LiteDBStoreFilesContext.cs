@@ -6,11 +6,9 @@ namespace Grand.Domain.Data.LiteDb
     {
         protected LiteDatabase _database;
 
-        public LiteDBStoreFilesContext()
+        public LiteDBStoreFilesContext(LiteDatabase database)
         {
-            var connectionString = DataSettingsManager.LoadSettings().ConnectionString;
-
-            _database = new LiteDatabase(connectionString);
+            _database = database;
         }
 
         public async Task<byte[]> BucketDownload(string id)

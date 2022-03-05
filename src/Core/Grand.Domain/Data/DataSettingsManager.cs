@@ -70,7 +70,7 @@ namespace Grand.Domain.Data
                 using FileStream fs = File.Create(filePath);
             }
             var data = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-            await File.WriteAllTextAsync(filePath, data);
+            await File.WriteAllTextAsync(filePath, data);            
         }
     }
 }

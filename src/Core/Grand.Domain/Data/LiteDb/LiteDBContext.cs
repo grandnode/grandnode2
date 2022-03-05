@@ -3,21 +3,12 @@
 namespace Grand.Domain.Data.LiteDb
 {
     public class LiteDBContext : IDatabaseContext
-    {
-        private string _connectionString;
+    {        
         protected LiteDatabase _database;
 
-        public LiteDBContext()
+        public LiteDBContext(LiteDatabase database)
         {
-            var connection = DataSettingsManager.LoadSettings();
-            if (!string.IsNullOrEmpty(connection.ConnectionString))
-                PrepareMongoDatabase(connection.ConnectionString);
-        }
-
-        private void PrepareMongoDatabase(string connectionString)
-        {
-            _connectionString = connectionString;
-            _database = new LiteDatabase(connectionString);
+            _database = database;
         }
 
         public void SetConnection(string connectionString)
@@ -25,10 +16,9 @@ namespace Grand.Domain.Data.LiteDb
             if (string.IsNullOrEmpty(connectionString))
                 throw new ArgumentNullException(nameof(connectionString));
 
-            PrepareMongoDatabase(connectionString);
         }
-
-        public bool InstallProcessCreateTable => true;
+        //Not supported by LiteDB
+        public bool InstallProcessCreateTable => false;
         public bool InstallProcessCreateIndex => true;
 
         public IQueryable<T> Table<T>(string collectionName)
@@ -41,10 +31,7 @@ namespace Grand.Domain.Data.LiteDb
 
         public async Task<bool> DatabaseExist()
         {
-            if (string.IsNullOrEmpty(_connectionString))
-                throw new ArgumentNullException(nameof(_connectionString));
-
-            return await Task.FromResult(_database.CollectionExists(nameof(Grand.Domain.Common.GrandNodeVersion)));
+            return await Task.FromResult(_database.CollectionExists(nameof(Common.GrandNodeVersion)));
         }
 
         public Task CreateTable(string name, string collation)
@@ -67,12 +54,13 @@ namespace Grand.Domain.Data.LiteDb
         {
             if (string.IsNullOrEmpty(indexName))
                 throw new ArgumentNullException(nameof(indexName));
-
             try
             {
-                foreach (var (selector, value, fieldName) in orderBuilder.Fields)
+                foreach (var (selector, value, fieldName) in orderBuilder?.Fields)
                 {
-                    _database.GetCollection<T>().EnsureIndex(selector, unique);
+                    var col = _database.GetCollection<T>();
+                    if (selector != null)
+                        col.EnsureIndex(selector, unique);
                 }
             }
             catch { }
