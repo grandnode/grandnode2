@@ -10,6 +10,7 @@ namespace Grand.Domain.Data.LiteDb
         public void Execute()
         {
             BsonMapper.Global.EmptyStringToNull = false;
+            BsonMapper.Global.RegisterType<DateTime>(x=>x.ToUniversalTime(), z=>z.AsDateTime.ToUniversalTime());
         }
     }
 }
