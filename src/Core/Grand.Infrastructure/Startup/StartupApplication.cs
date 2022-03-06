@@ -53,7 +53,11 @@ namespace Grand.Infrastructure.Startup
                 }
                 else
                 {
-                    serviceCollection.AddSingleton(c => new LiteDatabase(dataProviderSettings.ConnectionString) { UtcDate = true }); ;
+                    if(litedbConfig.Singleton)
+                        serviceCollection.AddSingleton(c => new LiteDatabase(dataProviderSettings.ConnectionString) { UtcDate = true });
+                    else
+                        serviceCollection.AddScoped(c => new LiteDatabase(dataProviderSettings.ConnectionString) { UtcDate = true });
+
                 }
             }
             if (!litedbConfig.UseLiteDb)
