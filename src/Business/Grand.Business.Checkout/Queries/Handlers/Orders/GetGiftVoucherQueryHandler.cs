@@ -32,11 +32,10 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             if (request.IsGiftVoucherActivated.HasValue)
                 query = query.Where(gc => gc.IsGiftVoucherActivated == request.IsGiftVoucherActivated.Value);
             if (!string.IsNullOrEmpty(request.Code))
-            {
-                query = query.Where(gc => gc.Code == request.Code.ToLowerInvariant());
-            }
+                query = query.Where(gc => gc.Code!=null && gc.Code == request.Code.ToLowerInvariant());
             if (!string.IsNullOrWhiteSpace(request.RecipientName))
-                query = query.Where(c => c.RecipientName.Contains(request.RecipientName));
+                query = query.Where(c => c.RecipientName!=null && c.RecipientName.Contains(request.RecipientName));
+
             query = query.OrderByDescending(gc => gc.CreatedOnUtc);
 
             return Task.FromResult(query);
