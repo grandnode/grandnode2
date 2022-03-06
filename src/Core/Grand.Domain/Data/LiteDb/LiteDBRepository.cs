@@ -300,6 +300,7 @@ namespace Grand.Domain.Data.LiteDb
             var entity = collection.FindById(new(id));
             var fieldName = ((MemberExpression)field.Body).Member.Name;
             var elementfieldName = ((MemberExpression)elemFieldMatch.Body).Member.Name;
+            if (elementfieldName == "Id") elementfieldName = "_id";
 
             if (entity[fieldName].IsArray)
             {
@@ -405,7 +406,7 @@ namespace Grand.Domain.Data.LiteDb
             var collection = _database.GetCollection(_collection.Name);
             var fieldName = ((MemberExpression)field.Body).Member.Name;
             var elementfieldName = ((MemberExpression)elemFieldMatch.Body).Member.Name;
-
+            if (elementfieldName == "Id") elementfieldName = "_id";
             if (string.IsNullOrEmpty(id))
             {
                 //update many
@@ -615,12 +616,14 @@ namespace Grand.Domain.Data.LiteDb
 
         #region Helpers
         
-        protected string GetName(LambdaExpression lambdaexpression)
+
+
+        private string GetName(LambdaExpression lambdaexpression)
         {
             var expression = (MemberExpression)lambdaexpression.Body;
             return expression.Member.Name;
         }
-        protected string GetName<TSource, TField>(Expression<Func<TSource, TField>> Field)
+        private string GetName<TSource, TField>(Expression<Func<TSource, TField>> Field)
         {
             if (object.Equals(Field, null))
             {
