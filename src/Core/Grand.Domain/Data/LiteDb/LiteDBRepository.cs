@@ -1,3 +1,4 @@
+using Grand.SharedKernel.Attributes;
 using LiteDB;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -289,9 +290,11 @@ namespace Grand.Domain.Data.LiteDb
             var collection = _database.GetCollection(_collection.Name);
             var entity = collection.FindById(new(id));
             var fieldName = ((MemberExpression)field.Body).Member.Name;
-            var elementfieldName = ((MemberExpression)elemFieldMatch.Body).Member.Name;
-            if (elementfieldName == "Id") elementfieldName = "_id";
 
+            var member = ((MemberExpression)elemFieldMatch.Body).Member;
+            var dBFieldName = member.GetCustomAttribute<DBFieldNameAttribute>();
+            var elementfieldName = dBFieldName?.Name ?? member.Name;
+            
             if (entity[fieldName].IsArray)
             {
                 var bsonValue = BsonMapper.Global.Serialize<U>(value);
@@ -372,10 +375,13 @@ namespace Grand.Domain.Data.LiteDb
                     var bsonValue = BsonMapper.Global.Serialize<U>(value);
                     var oldbsonValue = BsonMapper.Global.Serialize<U>(elemFieldMatch);
                     var list = entity[fieldName].AsArray.ToList();
-                    list.Add(bsonValue);
-                    list.Remove(oldbsonValue);
-                    entity[fieldName] = new BsonArray(list);
-                    collection.Update(entity);
+                    if (list!=null && list.Any())
+                    {
+                        list.Add(bsonValue);
+                        list.Remove(oldbsonValue);
+                        entity[fieldName] = new BsonArray(list);
+                        collection.Update(entity);
+                    }
                 }
             }
             return Task.CompletedTask;
@@ -395,8 +401,11 @@ namespace Grand.Domain.Data.LiteDb
         {
             var collection = _database.GetCollection(_collection.Name);
             var fieldName = ((MemberExpression)field.Body).Member.Name;
-            var elementfieldName = ((MemberExpression)elemFieldMatch.Body).Member.Name;
-            if (elementfieldName == "Id") elementfieldName = "_id";
+
+            var member = ((MemberExpression)elemFieldMatch.Body).Member;
+            var dBFieldName = member.GetCustomAttribute<DBFieldNameAttribute>();
+            var elementfieldName = dBFieldName?.Name ?? member.Name;
+
             if (string.IsNullOrEmpty(id))
             {
                 //update many
@@ -420,7 +429,7 @@ namespace Grand.Domain.Data.LiteDb
                     var bsonValue = BsonMapper.Global.Serialize<Z>(elemMatch);
                     var list = entity[fieldName].AsArray.ToList();
                     var documents = list.Where(x => x[elementfieldName] == new BsonValue(elemMatch)).ToList();
-                    if (documents != null)
+                    if (documents != null && documents.Any())
                     {
                         foreach (var document in documents)
                         {
@@ -498,9 +507,12 @@ namespace Grand.Domain.Data.LiteDb
                 if (entity != null && entity[fieldName].IsArray)
                 {
                     var list = entity[fieldName].AsArray.ToList();
-                    list.Remove(new BsonValue(element));
-                    entity[fieldName] = new BsonArray(list);
-                    collection.Update(entity);
+                    if (list!=null && list.Any())
+                    {
+                        list.Remove(new BsonValue(element));
+                        entity[fieldName] = new BsonArray(list);
+                        collection.Update(entity);
+                    }
                 }
             }
 
