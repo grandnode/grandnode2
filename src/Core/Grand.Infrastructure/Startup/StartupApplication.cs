@@ -52,8 +52,9 @@ namespace Grand.Infrastructure.Startup
                     serviceCollection.AddScoped(c => new MongoClient(clientSettings).GetDatabase(databaseName));
                 }
                 else
-                    serviceCollection.AddSingleton(c => new LiteDatabase(dataProviderSettings.ConnectionString));
-
+                {
+                    serviceCollection.AddSingleton(c => new LiteDatabase(dataProviderSettings.ConnectionString) { UtcDate = true }); ;
+                }
             }
             if (!litedbConfig.UseLiteDb)
             {
