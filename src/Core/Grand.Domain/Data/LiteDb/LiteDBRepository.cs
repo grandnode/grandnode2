@@ -102,17 +102,7 @@ namespace Grand.Domain.Data.LiteDb
         {
             return await Task.FromResult(_collection.Query().ToList());
         }
-
-        /// <summary>
-        /// get first item in query as async
-        /// </summary>
-        /// <param name="filter"></param>
-        /// <returns></returns>
-        public virtual async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> filter)
-        {
-            return await Task.FromResult(_collection.Find(filter).FirstOrDefault());
-        }
-
+       
         /// <summary>
         /// Insert entity
         /// </summary>

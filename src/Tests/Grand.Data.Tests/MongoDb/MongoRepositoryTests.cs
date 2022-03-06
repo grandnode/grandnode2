@@ -139,21 +139,6 @@ namespace Grand.Data.Tests.MongoDb
         }
 
         [TestMethod()]
-        public async Task FirstOrDefaultAsync_MongoRepository_Success()
-        {
-            var products = new List<SampleCollection>() {
-            new SampleCollection(){ Id = "1", Name = "Test" },
-            new SampleCollection(){ Id = "2", Name = "Test2" },
-            new SampleCollection(){ Id = "3", Name = "Test3" },
-
-            };
-            await _myRepository.InsertManyAsync(products);
-
-            var p = await _myRepository.FirstOrDefaultAsync(x => x.Id == "2");
-
-            Assert.IsTrue(p?.Name == "Test2");
-        }
-        [TestMethod()]
         public async Task GetAllAsync_MongoRepository_Success()
         {
             var products = new List<SampleCollection>() {

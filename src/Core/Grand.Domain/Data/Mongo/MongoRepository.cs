@@ -108,17 +108,7 @@ namespace Grand.Domain.Data.Mongo
         {
             return _collection.AsQueryable().ToListAsync();
         }
-
-        /// <summary>
-        /// get first item in query as async
-        /// </summary>
-        /// <param name="filter"></param>
-        /// <returns></returns>
-        public virtual Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> filter)
-        {
-            return _collection.Find(filter).FirstOrDefaultAsync();
-        }
-
+       
         /// <summary>
         /// Insert entity
         /// </summary>

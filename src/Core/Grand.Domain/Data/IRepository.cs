@@ -33,14 +33,7 @@ namespace Grand.Domain.Data
         /// </summary>
         /// <returns>collection of entities</returns>
         Task<List<T>> GetAllAsync();
-
-        /// <summary>
-        /// get first item in query as async
-        /// </summary>
-        /// <param name="filter"></param>
-        /// <returns></returns>
-        Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> filter);
-
+        
         /// <summary>
         /// Insert entity
         /// </summary>
