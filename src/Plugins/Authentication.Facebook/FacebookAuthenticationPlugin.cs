@@ -74,9 +74,7 @@ namespace Authentication.Facebook
             //locales
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Authentication.Facebook.Login");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Authentication.Facebook.ClientKeyIdentifier");
-            await this.DeletePluginTranslationResource(_translationService, _languageService, "Authentication.Facebook.ClientKeyIdentifier.Hint");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Authentication.Facebook.ClientSecret");
-            await this.DeletePluginTranslationResource(_translationService, _languageService, "Authentication.Facebook.ClientSecret.Hint");
 
             await base.Uninstall();
         }
