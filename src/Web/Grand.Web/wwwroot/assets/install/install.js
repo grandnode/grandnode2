@@ -4,6 +4,10 @@
         document.getElementById('DBSampleData').style.display = "none";
         var child = document.getElementById('collation');
         document.getElementById('DatabaseConnectionString').appendChild(child);
+        let dataProvider = document.getElementById('DataProvider');
+        if (dataProvider.value == 3) {
+            document.getElementById('DatabaseConnectionString').style.display = "none";
+        }
     } else {
         document.getElementById('DatabaseConnectionString').style.display = "none";
         document.getElementById('DBSampleData').style.display = "block";
@@ -13,7 +17,7 @@
         let dataProvider = document.getElementById('DataProvider');
         if (dataProvider.value != "0") {
             dataProvider.value = 0;
-        }
+        } 
     }
 }
 function DataProviderChange(provider) {
@@ -21,6 +25,12 @@ function DataProviderChange(provider) {
         var elm = document.getElementById('ConnectionInfo');
         if (!elm.checked) {
             elm.click();
+        }
+        if (provider == 3) {
+            document.getElementById('DatabaseConnectionString').style.display = "none";
+        }
+        else {
+            document.getElementById('DatabaseConnectionString').style.display = "flex";
         }
     }
     else {

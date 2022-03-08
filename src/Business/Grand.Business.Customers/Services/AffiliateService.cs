@@ -60,7 +60,7 @@ namespace Grand.Business.Customers.Services
         public virtual async Task<Affiliate> GetAffiliateByFriendlyUrlName(string friendlyUrlName)
         {
             var query = from a in _affiliateRepository.Table
-                        where a.FriendlyUrlName.Contains(friendlyUrlName.ToLowerInvariant())
+                        where a.FriendlyUrlName!=null && a.FriendlyUrlName.Contains(friendlyUrlName.ToLowerInvariant())
                         select a;
             var affiliate = await Task.FromResult(query.FirstOrDefault());
             return affiliate;

@@ -26,22 +26,11 @@ namespace Authentication.Google.Infrastructure
         {
             builder.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
             {
-                var connection = DataSettingsManager.LoadSettings();
+                var clientId = configuration["GoogleSettings:ClientId"];
+                var clientSecret = configuration["GoogleSettings:ClientSecret"];
 
-                var settings = new GoogleExternalAuthSettings();
-                try
-                {
-                    var gSettings = new MongoRepository<Setting>(connection.ConnectionString).Table.Where(x => x.Name.StartsWith("googleexternalauthsettings"));
-                    if (gSettings.Any())
-                    {
-                        var metadata = gSettings.FirstOrDefault().Metadata;
-                        settings = JsonSerializer.Deserialize<GoogleExternalAuthSettings>(metadata);
-                    }
-                }
-                catch (Exception ex) { Log.Error(ex, "AddGoogle"); };
-
-                options.ClientId = !string.IsNullOrWhiteSpace(settings.ClientKeyIdentifier) ? settings.ClientKeyIdentifier : "000";
-                options.ClientSecret = !string.IsNullOrWhiteSpace(settings.ClientSecret) ? settings.ClientSecret : "000";
+                options.ClientId = !string.IsNullOrWhiteSpace(clientId) ? clientId : "000";
+                options.ClientSecret = !string.IsNullOrWhiteSpace(clientSecret) ? clientSecret : "000";
                 options.SaveTokens = true;
 
                 //handles exception thrown by external auth provider

@@ -7,6 +7,7 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace Authentication.Google.Controllers
 {
@@ -21,6 +22,7 @@ namespace Authentication.Google.Controllers
         private readonly ITranslationService _translationService;
         private readonly IPermissionService _permissionService;
         private readonly ISettingService _settingService;
+        private readonly IConfiguration _configuration;
 
         #endregion
 
@@ -30,12 +32,14 @@ namespace Authentication.Google.Controllers
             GoogleExternalAuthSettings googleExternalAuthSettings,
             ITranslationService translationService,
             IPermissionService permissionService,
-            ISettingService settingService)
+            ISettingService settingService,
+            IConfiguration configuration)
         {
             _googleExternalAuthSettings = googleExternalAuthSettings;
             _translationService = translationService;
             _permissionService = permissionService;
             _settingService = settingService;
+            _configuration = configuration;
         }
 
         #endregion
@@ -49,8 +53,8 @@ namespace Authentication.Google.Controllers
                 return AccessDeniedView();
 
             var model = new ConfigurationModel {
-                ClientKeyIdentifier = _googleExternalAuthSettings.ClientKeyIdentifier,
-                ClientSecret = _googleExternalAuthSettings.ClientSecret,
+                ClientKeyIdentifier = _configuration["GoogleSettings:ClientId"],
+                ClientSecret = _configuration["GoogleSettings:ClientSecret"],
                 DisplayOrder = _googleExternalAuthSettings.DisplayOrder
             };
 
@@ -66,8 +70,6 @@ namespace Authentication.Google.Controllers
             if (!ModelState.IsValid)
                 return await Configure();
 
-            _googleExternalAuthSettings.ClientKeyIdentifier = model.ClientKeyIdentifier;
-            _googleExternalAuthSettings.ClientSecret = model.ClientSecret;
             _googleExternalAuthSettings.DisplayOrder = model.DisplayOrder;
 
             await _settingService.SaveSetting(_googleExternalAuthSettings);

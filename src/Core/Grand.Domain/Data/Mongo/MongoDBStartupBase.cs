@@ -1,20 +1,20 @@
-﻿using MongoDB.Bson.Serialization;
+﻿using Grand.SharedKernel;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 
 namespace Grand.Domain.Data.Mongo
 {
-    public static class MongoDBMapperConfiguration
+    public class MongoDBStartupBase : IStartupBase
     {
+        public int Priority => 0;
 
         /// <summary>
         /// Register MongoDB mappings
         /// </summary>
-        public static void RegisterMongoDBMappings()
+        public void Execute()
         {
-            //BsonSerializer.RegisterSerializer(new DecimalSerializer(BsonType.Decimal128));
-            //BsonSerializer.RegisterSerializer(typeof(double?), new NullableSerializer<double>(new DecimalSerializer(BsonType.Decimal128)));
             BsonSerializer.RegisterSerializer(typeof(DateTime), new BsonUtcDateTimeSerializer());
 
             BsonSerializer.RegisterSerializer(typeof(Dictionary<int, int>),
@@ -25,7 +25,6 @@ namespace Grand.Domain.Data.Mongo
                 new IgnoreExtraElementsConvention(true)
             };
             ConventionRegistry.Register("ApplicationConventions", cp, t => true);
-
 
             BsonClassMap.RegisterClassMap<Media.Download>(cm =>
             {

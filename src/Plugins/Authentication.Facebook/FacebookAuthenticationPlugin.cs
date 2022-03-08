@@ -54,9 +54,7 @@ namespace Authentication.Facebook
             //locales
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Authentication.Facebook.Login", "Login using Facebook account");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Authentication.Facebook.ClientKeyIdentifier", "App ID/API Key");
-            await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Authentication.Facebook.ClientKeyIdentifier.Hint", "Enter your app ID/API key here. You can find it on your FaceBook application page.");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Authentication.Facebook.ClientSecret", "App Secret");
-            await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Authentication.Facebook.ClientSecret.Hint", "Enter your app secret here. You can find it on your FaceBook application page.");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Authentication.Facebook.Failed", "Facebook - Login error");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Authentication.Facebook.Failed.ErrorCode", "Error code");
             await this.AddOrUpdatePluginTranslateResource(_translationService, _languageService, "Authentication.Facebook.Failed.ErrorMessage", "Error message");
@@ -76,9 +74,7 @@ namespace Authentication.Facebook
             //locales
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Authentication.Facebook.Login");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Authentication.Facebook.ClientKeyIdentifier");
-            await this.DeletePluginTranslationResource(_translationService, _languageService, "Authentication.Facebook.ClientKeyIdentifier.Hint");
             await this.DeletePluginTranslationResource(_translationService, _languageService, "Authentication.Facebook.ClientSecret");
-            await this.DeletePluginTranslationResource(_translationService, _languageService, "Authentication.Facebook.ClientSecret.Hint");
 
             await base.Uninstall();
         }
