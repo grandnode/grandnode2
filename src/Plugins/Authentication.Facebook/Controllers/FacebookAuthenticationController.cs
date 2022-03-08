@@ -15,7 +15,6 @@ namespace Authentication.Facebook.Controllers
     {
         #region Fields
 
-        private readonly FacebookExternalAuthSettings _facebookExternalAuthSettings;
         private readonly IExternalAuthenticationService _externalAuthenticationService;
         private readonly IConfiguration _configuration;
 
@@ -24,11 +23,9 @@ namespace Authentication.Facebook.Controllers
         #region Ctor
 
         public FacebookAuthenticationController(
-            FacebookExternalAuthSettings facebookExternalAuthSettings,
             IExternalAuthenticationService externalAuthenticationService,
             IConfiguration configuration)
         {
-            _facebookExternalAuthSettings = facebookExternalAuthSettings;
             _externalAuthenticationService = externalAuthenticationService;
             _configuration = configuration;
         }
