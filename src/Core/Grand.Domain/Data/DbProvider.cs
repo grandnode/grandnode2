@@ -5,5 +5,6 @@
          MongoDB,
          CosmosDB,
          DocumentDB,
+         LiteDB
     }
 }

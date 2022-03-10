@@ -90,7 +90,7 @@ namespace Widgets.Slider.Services
         /// <returns>Tax rate</returns>
         public virtual Task<PictureSlider> GetById(string slideId)
         {
-            return _reporistoryPictureSlider.FirstOrDefaultAsync(x => x.Id == slideId);
+            return _reporistoryPictureSlider.GetByIdAsync(slideId);
         }
 
         /// <summary>

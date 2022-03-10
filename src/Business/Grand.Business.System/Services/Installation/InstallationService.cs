@@ -757,7 +757,7 @@ namespace Grand.Business.System.Services.Installation
         {
             try
             {
-                var dataSettings = DataSettingsManager.LoadSettings();
+                var dataSettings = DataSettingsManager.LoadSettings(reloadSettings: true);
                 var dbContext = _serviceProvider.GetRequiredService<IDatabaseContext>();
                 dbContext.SetConnection(dataSettings.ConnectionString);
 

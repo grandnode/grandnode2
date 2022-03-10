@@ -7,6 +7,7 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace Authentication.Facebook.Controllers
 {
@@ -21,6 +22,7 @@ namespace Authentication.Facebook.Controllers
         private readonly ITranslationService _translationService;
         private readonly IPermissionService _permissionService;
         private readonly ISettingService _settingService;
+        private readonly IConfiguration _configuration;
 
         #endregion
 
@@ -29,12 +31,14 @@ namespace Authentication.Facebook.Controllers
         public FacebookAuthenticationSettingsController(FacebookExternalAuthSettings facebookExternalAuthSettings,
             ITranslationService translationService,
             IPermissionService permissionService,
-            ISettingService settingService)
+            ISettingService settingService,
+            IConfiguration configuration)
         {
             _facebookExternalAuthSettings = facebookExternalAuthSettings;
             _translationService = translationService;
             _permissionService = permissionService;
             _settingService = settingService;
+            _configuration = configuration;
         }
 
         #endregion
@@ -47,8 +51,8 @@ namespace Authentication.Facebook.Controllers
                 return AccessDeniedView();
 
             var model = new ConfigurationModel {
-                ClientId = _facebookExternalAuthSettings.ClientKeyIdentifier,
-                ClientSecret = _facebookExternalAuthSettings.ClientSecret,
+                ClientId = _configuration["FacebookSettings:AppId"],
+                ClientSecret = _configuration["FacebookSettings:AppSecret"],
                 DisplayOrder = _facebookExternalAuthSettings.DisplayOrder
             };
 
@@ -65,8 +69,6 @@ namespace Authentication.Facebook.Controllers
             if (!ModelState.IsValid)
                 return await Configure();
 
-            _facebookExternalAuthSettings.ClientKeyIdentifier = model.ClientId;
-            _facebookExternalAuthSettings.ClientSecret = model.ClientSecret;
             _facebookExternalAuthSettings.DisplayOrder = model.DisplayOrder;
 
             await _settingService.SaveSetting(_facebookExternalAuthSettings);

@@ -17,7 +17,7 @@ namespace Grand.Business.Common.Events
         public async Task Handle(EntityDeleted<CustomerGroup> notification, CancellationToken cancellationToken)
         {
             //delete from customers
-            await _customerRepository.Pull(string.Empty, x => x.Groups, notification.Entity.Id, true);
+            await _customerRepository.Pull(string.Empty, x => x.Groups, notification.Entity.Id);
         }
     }
 }

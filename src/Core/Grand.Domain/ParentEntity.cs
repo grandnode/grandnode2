@@ -1,4 +1,5 @@
 using Grand.Domain.Data;
+using Grand.SharedKernel.Attributes;
 
 namespace Grand.Domain
 {
@@ -9,6 +10,7 @@ namespace Grand.Domain
             _id = UniqueIdentifier.New;
         }
 
+        [DBFieldName("_id")]
         public string Id
         {
             get { return _id; }

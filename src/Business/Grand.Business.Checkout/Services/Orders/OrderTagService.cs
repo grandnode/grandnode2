@@ -143,7 +143,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 throw new ArgumentNullException(nameof(orderTag));
 
             //update orders
-            await _orderRepository.Pull(string.Empty, x => x.OrderTags, orderTag.Id, true);
+            await _orderRepository.Pull(string.Empty, x => x.OrderTags, orderTag.Id);
 
             //delete tag
             await _orderTagRepository.DeleteAsync(orderTag);

@@ -6,6 +6,7 @@ using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
 
 namespace Authentication.Google.Controllers
@@ -15,16 +16,17 @@ namespace Authentication.Google.Controllers
         #region Fields
 
         private readonly IExternalAuthenticationService _externalAuthenticationService;
-        private readonly GoogleExternalAuthSettings _googleExternalAuthSettings;
+        private readonly IConfiguration _configuration;
+
         #endregion
 
         #region Ctor
 
         public GoogleAuthenticationController(IExternalAuthenticationService externalAuthenticationService,
-            GoogleExternalAuthSettings googleExternalAuthSettings)
+            IConfiguration configuration)
         {
             _externalAuthenticationService = externalAuthenticationService;
-            _googleExternalAuthSettings = googleExternalAuthSettings;
+            _configuration = configuration;
         }
 
         #endregion
@@ -36,7 +38,7 @@ namespace Authentication.Google.Controllers
             if (!_externalAuthenticationService.AuthenticationProviderIsAvailable(GoogleAuthenticationDefaults.ProviderSystemName))
                 throw new GrandException("Google authentication module cannot be loaded");
 
-            if (string.IsNullOrEmpty(_googleExternalAuthSettings.ClientKeyIdentifier) || string.IsNullOrEmpty(_googleExternalAuthSettings.ClientSecret))
+            if (string.IsNullOrEmpty(_configuration["GoogleSettings:ClientId"]) || string.IsNullOrEmpty(_configuration["GoogleSettings:ClientSecret"]))
                 throw new GrandException("Google authentication module not configured");
 
             //configure login callback action

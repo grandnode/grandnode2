@@ -7,7 +7,7 @@ namespace Grand.Domain.Data.Mongo
     {
         public override DateTime Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            return new DateTime(base.Deserialize(context, args).Ticks, DateTimeKind.Unspecified);
+            return new DateTime(base.Deserialize(context, args).Ticks, DateTimeKind.Utc);
         }
 
         public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, DateTime value)

@@ -4,7 +4,7 @@ namespace Grand.SharedKernel.Extensions
 {
     public static class CommonPath
     {
-        private static string AppData => "App_Data";
+        public static string AppData => "App_Data";
         /// <summary>
         /// Extra parameter to path
         /// </summary>

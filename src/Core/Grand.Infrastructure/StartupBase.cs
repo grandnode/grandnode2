@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using FluentValidation.AspNetCore;
-using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure.Caching.RabbitMq;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
@@ -8,6 +7,7 @@ using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.Roslyn;
 using Grand.Infrastructure.TypeConverters;
 using Grand.Infrastructure.TypeSearchers;
+using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using MassTransit;
 using MediatR;
@@ -194,6 +194,8 @@ namespace Grand.Infrastructure
             services.StartupConfig<ApiConfig>(configuration.GetSection("Api"));
             //add grand.web api token config
             services.StartupConfig<GrandWebApiConfig>(configuration.GetSection("GrandWebApi"));
+            //add litedb configuration parameters
+            services.StartupConfig<LiteDbConfig>(configuration.GetSection("LiteDb"));
 
             //set base application path
             var provider = services.BuildServiceProvider();
@@ -209,9 +211,6 @@ namespace Grand.Infrastructure
 
             CommonHelper.IgnoreAcl = config.IgnoreAcl;
             CommonHelper.IgnoreStoreLimitations = config.IgnoreStoreLimitations;
-
-            //register mongo mappings
-            MongoDBMapperConfiguration.RegisterMongoDBMappings();
 
             var mvcCoreBuilder = services.AddMvcCore();
 
@@ -282,6 +281,9 @@ namespace Grand.Infrastructure
             //configure services
             foreach (var instance in instancesAfter)
                 instance.ConfigureServices(services, configuration);
+
+            //Execute startupbase interface
+            ExecuteStartupBase(typeSearcher);
         }
 
         /// <summary>
@@ -304,6 +306,20 @@ namespace Grand.Infrastructure
             //configure request pipeline
             foreach (var instance in instances)
                 instance.Configure(application, webHostEnvironment);
+        }
+
+        private static void ExecuteStartupBase(AppTypeSearcher typeSearcher)
+        {
+            var startupBaseConfigurations = typeSearcher.ClassesOfType<IStartupBase>();
+
+            //create and sort instances of startup configurations
+            var instances = startupBaseConfigurations
+                .Select(startup => (IStartupBase)Activator.CreateInstance(startup))
+                .OrderBy(startup => startup.Priority);
+
+            //execute
+            foreach (var instance in instances)
+                instance.Execute();
         }
 
         #endregion

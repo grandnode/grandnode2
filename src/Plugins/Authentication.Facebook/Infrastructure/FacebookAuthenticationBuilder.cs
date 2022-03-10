@@ -1,15 +1,10 @@
 ﻿using Grand.Business.Authentication.Interfaces;
-using Grand.Domain.Configuration;
-using Grand.Domain.Data;
-using Grand.Domain.Data.Mongo;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
 using System.Net;
-using System.Text.Json;
 
 namespace Authentication.Facebook.Infrastructure
 {
@@ -26,23 +21,12 @@ namespace Authentication.Facebook.Infrastructure
         {
             builder.AddFacebook(FacebookDefaults.AuthenticationScheme, options =>
             {
-                var connection = DataSettingsManager.LoadSettings();
-
-                var settings = new FacebookExternalAuthSettings();
-                try
-                {
-                    var fbSettings = new MongoRepository<Setting>(connection.ConnectionString).Table.Where(x => x.Name.StartsWith("facebookexternalauthsettings"));
-                    if (fbSettings.Any())
-                    {
-                        var metadata = fbSettings.FirstOrDefault().Metadata;
-                        settings = JsonSerializer.Deserialize<FacebookExternalAuthSettings>(metadata);
-                    }
-                }
-                catch (Exception ex) { Log.Error(ex, "AddFacebook"); };
+                var appId = configuration["FacebookSettings:AppId"];
+                var appSecret = configuration["FacebookSettings:AppSecret"];
 
                 //no empty values allowed. otherwise, an exception could be thrown on application startup
-                options.AppId = !string.IsNullOrWhiteSpace(settings.ClientKeyIdentifier) ? settings.ClientKeyIdentifier : "000";
-                options.AppSecret = !string.IsNullOrWhiteSpace(settings.ClientSecret) ? settings.ClientSecret : "000";
+                options.AppId = !string.IsNullOrWhiteSpace(appId) ? appId : "000";
+                options.AppSecret = !string.IsNullOrWhiteSpace(appSecret) ? appSecret : "000";
                 options.SaveTokens = true;
                 //handles exception thrown by external auth provider
                 options.Events = new OAuthEvents() {
