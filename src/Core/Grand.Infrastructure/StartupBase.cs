@@ -199,6 +199,7 @@ namespace Grand.Infrastructure
             services.StartupConfig<GrandWebApiConfig>(configuration.GetSection("GrandWebApi"));
             services.StartupConfig<LiteDbConfig>(configuration.GetSection("LiteDb"));
             services.StartupConfig<AmazonConfig>(configuration.GetSection("Amazon"));
+            services.StartupConfig<AzureConfig>(configuration.GetSection("Azure"));
 
             //set base application path
             var provider = services.BuildServiceProvider();
