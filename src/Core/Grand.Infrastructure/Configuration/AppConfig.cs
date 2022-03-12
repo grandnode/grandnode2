@@ -222,12 +222,5 @@ namespace Grand.Infrastructure.Configuration
         /// </summary>
         public bool UseSerilogRequestLogging { get; set; }
 
-        public bool RabbitEnabled { get; set; }
-        public bool RabbitCachePubSubEnabled { get; set; }
-        public string RabbitHostName { get; set; }
-        public string RabbitVirtualHost { get; set; }
-        public string RabbitUsername { get; set; }
-        public string RabbitPassword { get; set; }
-        public string RabbitCacheReceiveEndpoint { get; set; }
     }
 }

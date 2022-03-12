@@ -149,8 +149,8 @@ namespace Grand.Infrastructure
         /// <param name="services"></param>
         private static void AddMassTransitRabbitMq(IServiceCollection services, IConfiguration configuration, AppTypeSearcher typeSearcher)
         {
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
+            var config = new RabbitConfig();
+            configuration.GetSection("Rabbit").Bind(config);
 
             if (!config.RabbitEnabled) return;
             services.AddMassTransit(x =>
@@ -193,6 +193,7 @@ namespace Grand.Infrastructure
             var config = services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
             services.StartupConfig<HostingConfig>(configuration.GetSection("Hosting"));
             services.StartupConfig<RedisConfig>(configuration.GetSection("Redis"));
+            services.StartupConfig<RabbitConfig>(configuration.GetSection("Rabbit"));
             services.StartupConfig<ApiConfig>(configuration.GetSection("Api"));
             services.StartupConfig<GrandWebApiConfig>(configuration.GetSection("GrandWebApi"));
             services.StartupConfig<LiteDbConfig>(configuration.GetSection("LiteDb"));

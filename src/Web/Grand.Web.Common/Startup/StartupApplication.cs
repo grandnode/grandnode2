@@ -69,9 +69,9 @@ namespace Grand.Web.Common.Startup
                 serviceCollection.AddSingleton<ICacheBase, RedisMessageCacheManager>();
                 return;
             }
-            var application = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
-            if (application.RabbitCachePubSubEnabled && application.RabbitEnabled)
+            var rabbit = new RabbitConfig();
+            configuration.GetSection("Rabbit").Bind(rabbit);
+            if (rabbit.RabbitCachePubSubEnabled && rabbit.RabbitEnabled)
             {
                 serviceCollection.AddSingleton<ICacheBase, RabbitMqMessageCacheManager>();
             }
