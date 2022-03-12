@@ -99,9 +99,11 @@ namespace Grand.Web.Common.Infrastructure
         /// <summary>
         /// Adds data protection services
         /// </summary>
-        /// <param name="services">Collection of service descriptors</param>
-        public static void AddGrandDataProtection(this IServiceCollection services, AppConfig config)
+        public static void AddGrandDataProtection(this IServiceCollection services, IConfiguration configuration)
         {
+            var config = new RedisConfig();
+            configuration.GetSection("Redis").Bind(config);
+
             if (config.PersistKeysToRedis)
             {
                 services.AddDataProtection(opt => opt.ApplicationDiscriminator = "grandnode")

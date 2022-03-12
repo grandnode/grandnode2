@@ -61,7 +61,7 @@ namespace Grand.Web.Common.Startup
             });
 
             //add data protection
-            services.AddGrandDataProtection(config);
+            services.AddGrandDataProtection(configuration);
         }
 
         /// <summary>
