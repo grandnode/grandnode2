@@ -192,6 +192,7 @@ namespace Grand.Infrastructure
             //add AppConfig configuration parameters
             var config = services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
             services.StartupConfig<HostingConfig>(configuration.GetSection("Hosting"));
+            services.StartupConfig<UrlRewriteConfig>(configuration.GetSection("UrlRewrite"));
             services.StartupConfig<RedisConfig>(configuration.GetSection("Redis"));
             services.StartupConfig<RabbitConfig>(configuration.GetSection("Rabbit"));
             services.StartupConfig<ApiConfig>(configuration.GetSection("Api"));
