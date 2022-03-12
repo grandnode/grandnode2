@@ -78,6 +78,10 @@ namespace Grand.Web.Common.Security.Captcha
         /// </summary>
         public string ReCaptchaTheme { get; set; }
         /// <summary>
+        /// reCAPTCHA score
+        /// </summary>
+        public decimal ReCaptchaScore { get; set; }
+        /// <summary>
         /// reCAPTCHA version
         /// </summary>
         public GoogleReCaptchaVersion ReCaptchaVersion { get; set; }

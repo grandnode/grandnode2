@@ -49,7 +49,14 @@ namespace Grand.Web.Common.Security.Captcha
             var result = new GoogleReCaptchaResponse();
 
             var resultObject = JObject.Parse(responseString);
-            result.IsValid = resultObject.Value<bool>("success");
+            var success = resultObject.Value<bool>("success");
+            if(_captchaSettings.ReCaptchaVersion == GoogleReCaptchaVersion.V3)
+            {
+                decimal score = resultObject.Value<decimal>("score");
+                if (_captchaSettings.ReCaptchaScore > 0)
+                    success = success && score >= _captchaSettings.ReCaptchaScore;
+            }
+            result.IsValid = success;
 
             if (resultObject.Value<JToken>("error-codes") != null &&
                     resultObject.Value<JToken>("error-codes").Values<string>().Any())

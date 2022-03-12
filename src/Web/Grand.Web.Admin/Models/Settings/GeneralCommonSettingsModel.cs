@@ -266,12 +266,16 @@ namespace Grand.Web.Admin.Models.Settings
             public bool CaptchaShowOnVendorReviewPage { get; set; }
 
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.reCaptchaPublicKey")]
-
             public string ReCaptchaPublicKey { get; set; }
 
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.reCaptchaPrivateKey")]
-
             public string ReCaptchaPrivateKey { get; set; }
+
+            [GrandResourceDisplayName("Admin.Settings.GeneralCommon.ReCaptchaTheme")]
+            public string ReCaptchaTheme { get; set; }
+
+            [GrandResourceDisplayName("Admin.Settings.GeneralCommon.ReCaptchaScore")]
+            public decimal ReCaptchaScore { get; set; }
 
             [GrandResourceDisplayName("Admin.Settings.GeneralCommon.reCaptchaVersion")]
             public GoogleReCaptchaVersion ReCaptchaVersion { get; set; }
