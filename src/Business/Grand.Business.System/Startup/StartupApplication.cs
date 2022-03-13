@@ -26,11 +26,8 @@ namespace Grand.Business.System.Startup
     {
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
-
             RegisterReports(services);
-            RegisterMachineNameProvider(services, config);
+            RegisterMachineNameProvider(services, configuration);
             RegisterTask(services);
             RegisterExportImportService(services);
             RegisterInstallService(services);
@@ -72,8 +69,10 @@ namespace Grand.Business.System.Startup
             serviceCollection.AddScoped<IProductsReportService, ProductsReportService>();
         }
 
-        private void RegisterMachineNameProvider(IServiceCollection serviceCollection, AppConfig config)
+        private void RegisterMachineNameProvider(IServiceCollection serviceCollection, IConfiguration configuration)
         {
+            var config = new AzureConfig();
+            configuration.GetSection("Azure").Bind(config);
             if (config.RunOnAzureWebApps)
             {
                 serviceCollection.AddSingleton<IMachineNameProvider, AzureWebAppsMachineNameProvider>();

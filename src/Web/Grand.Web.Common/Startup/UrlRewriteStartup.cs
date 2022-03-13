@@ -30,10 +30,10 @@ namespace Grand.Web.Common.Startup
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
             var serviceProvider = application.ApplicationServices;
-            var appConfig = serviceProvider.GetRequiredService<AppConfig>();
+            var urlConfig = serviceProvider.GetRequiredService<UrlRewriteConfig>();
             var urlRewriteOptions = new RewriteOptions();
             var rewriteOptions = false;
-            if (appConfig.UseUrlRewrite)
+            if (urlConfig.UseUrlRewrite)
             {
                 if (File.Exists("App_Data/UrlRewrite.xml"))
                 {
@@ -44,12 +44,12 @@ namespace Grand.Web.Common.Startup
                     }
                 }
             }
-            if (appConfig.UrlRewriteHttpsOptions)
+            if (urlConfig.UrlRewriteHttpsOptions)
             {
                 rewriteOptions = true;
-                urlRewriteOptions.AddRedirectToHttps(appConfig.UrlRewriteHttpsOptionsStatusCode, appConfig.UrlRewriteHttpsOptionsPort);
+                urlRewriteOptions.AddRedirectToHttps(urlConfig.UrlRewriteHttpsOptionsStatusCode, urlConfig.UrlRewriteHttpsOptionsPort);
             }
-            if (appConfig.UrlRedirectToHttpsPermanent)
+            if (urlConfig.UrlRedirectToHttpsPermanent)
             {
                 rewriteOptions = true;
                 urlRewriteOptions.AddRedirectToHttpsPermanent();

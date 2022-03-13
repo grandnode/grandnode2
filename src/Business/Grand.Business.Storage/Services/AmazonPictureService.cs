@@ -21,7 +21,7 @@ namespace Grand.Business.Storage.Services
     {
         #region Fields
 
-        private readonly AppConfig _config;
+        private readonly AmazonConfig _config;
         private readonly string _bucketName;
         private readonly string _distributionDomainName;
         private bool _bucketExist = false;
@@ -39,7 +39,7 @@ namespace Grand.Business.Storage.Services
             IMediaFileStore mediaFileStore,
             MediaSettings mediaSettings,
             StorageSettings storageSettings,
-            AppConfig config)
+            AmazonConfig config)
             : base(pictureRepository,
                 logger,
                 mediator,

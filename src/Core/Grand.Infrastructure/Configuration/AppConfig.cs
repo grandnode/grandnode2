@@ -45,78 +45,8 @@ namespace Grand.Infrastructure.Configuration
         /// Gets or sets a value indicating whether copy dll plugin files to /Plugins/bin on application startup
         /// </summary>
         public bool PluginShadowCopy { get; set; }
-
-        /// <summary>
-        /// Enable the Publish/Subscribe messaging with redis to manage memory cache on every server
-        /// </summary>
-        public bool RedisPubSubEnabled { get; set; }
-
-        /// <summary>
-        /// Redis connection string. Used when Redis Publish/Subscribe is enabled
-        /// </summary>
-        public string RedisPubSubConnectionString { get; set; }
-
-        /// <summary>
-        /// Messages sent by other clients to these channels will be pushed by Redis to all the subscribed clients. It must me the same value on every server
-        /// </summary>
-        public string RedisPubSubChannel { get; set; }
-
-        /// <summary>
-        /// Indicates whether we should use Redis server for persist keys - required in farm scenario
-        /// </summary>
-        public bool PersistKeysToRedis { get; set; }
-
-        /// <summary>
-        /// Redis connection string. Used when PersistKeysToRedis is enabled
-        /// </summary>
-        public string PersistKeysToRedisUrl { get; set; }
-
-
-        /// <summary>
-        /// A value indicating whether the site is run on Windows Azure Web Apps
-        /// </summary>
-        public bool RunOnAzureWebApps { get; set; }
-
-        /// <summary>
-        /// Connection string for Azure BLOB storage
-        /// </summary>
-        public string AzureBlobStorageConnectionString { get; set; }
-
-        /// <summary>
-        /// Container name for Azure BLOB storage
-        /// </summary>
-        public string AzureBlobStorageContainerName { get; set; }
-        /// <summary>
-        /// End point for Azure BLOB storage
-        /// </summary>
-        public string AzureBlobStorageEndPoint { get; set; }
-
-        /// <summary>
-        /// Amazon Access Key
-        /// </summary>
-        public string AmazonAwsAccessKeyId { get; set; }
-
-        /// <summary>
-        /// Amazon Secret Access Key
-        /// </summary>
-        public string AmazonAwsSecretAccessKey { get; set; }
-
-        /// <summary>
-        /// Amazon Bucket Name using for identifying resources
-        /// </summary>
-        public string AmazonBucketName { get; set; }
-
-        /// <summary>
-        /// Amazon Domain name for cloudfront distribution
-        /// </summary>
-        public string AmazonDistributionDomainName { get; set; }
-
-        /// <summary>
-        /// Amazon Region 
-        /// http://docs.amazonwebservices.com/AmazonS3/latest/BucketConfiguration.html#LocationSelection
-        /// </summary>
-        public string AmazonRegion { get; set; }
-
+        
+        
         /// <summary>
         /// A list of plugins to be ignored during start application - pattern
         /// </summary>
@@ -195,14 +125,7 @@ namespace Grand.Infrastructure.Configuration
         public bool UseHtmlMinification { get; set; }
         public bool HtmlMinificationErrors { get; set; }
         public bool UseSessionStateTempDataProvider { get; set; }
-        /// <summary>
-        /// Gets or sets a value indicating whether we use url rewrite
-        /// </summary>
-        public bool UseUrlRewrite { get; set; }
-        public bool UrlRewriteHttpsOptions { get; set; }
-        public int UrlRewriteHttpsOptionsStatusCode { get; set; }
-        public int UrlRewriteHttpsOptionsPort { get; set; }
-        public bool UrlRedirectToHttpsPermanent { get; set; }
+        
 
         /// <summary>
         /// HTTP Strict Transport Security Protocol
@@ -245,12 +168,5 @@ namespace Grand.Infrastructure.Configuration
         /// </summary>
         public bool UseSerilogRequestLogging { get; set; }
 
-        public bool RabbitEnabled { get; set; }
-        public bool RabbitCachePubSubEnabled { get; set; }
-        public string RabbitHostName { get; set; }
-        public string RabbitVirtualHost { get; set; }
-        public string RabbitUsername { get; set; }
-        public string RabbitPassword { get; set; }
-        public string RabbitCacheReceiveEndpoint { get; set; }
     }
 }

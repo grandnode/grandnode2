@@ -24,6 +24,8 @@
             $('#ssReCaptchaPrivateKeypnl').show();
             $('#ssReCaptchaVersionpnl').show();
             $('#ssCaptchaShowOnVendorReviewPagepnl').show();
+            $('#ssReCaptchaScorepnl').show();
+            $('#ssReCaptchaThemepnl').show();
         }
         else {
             $('#ssCaptchaShowOnLoginPagepnl').hide();
@@ -42,6 +44,8 @@
             $('#ssReCaptchaPrivateKeypnl').hide();
             $('#ssReCaptchaVersionpnl').hide();
             $('#ssCaptchaShowOnVendorReviewPagepnl').hide();
+            $('#ssReCaptchaScorepnl').hide();
+            $('#ssReCaptchaThemepnl').hide();
         }
     }
 </script>
@@ -259,6 +263,24 @@
             <div class="col-4 col-md-8 col-sm-8">
                 <admin-input asp-for="SecuritySettings.ReCaptchaPrivateKey" />
                 <span asp-validation-for="SecuritySettings.ReCaptchaPrivateKey"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssReCaptchaScorepnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.ReCaptchaScore" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="SecuritySettings.ReCaptchaScore" />
+                <span asp-validation-for="SecuritySettings.ReCaptchaScore"></span>
+            </div>
+        </div>
+        <div class="form-group" id="ssReCaptchaThemepnl">
+            <div class="col-8 col-md-4 col-sm-4 text-right">
+                <admin-label asp-for="SecuritySettings.ReCaptchaTheme" class="control-label" />
+            </div>
+            <div class="col-4 col-md-8 col-sm-8">
+                <admin-input asp-for="SecuritySettings.ReCaptchaTheme" />
+                <span asp-validation-for="SecuritySettings.ReCaptchaTheme"></span>
             </div>
         </div>
     </div>

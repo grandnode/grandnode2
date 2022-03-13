@@ -45,4 +45,10 @@
 	<Resource Name="Products.Mpn">
 		<Value>Manufacturer part number</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.GeneralCommon.ReCaptchaTheme">
+		<Value>Theme for reCAPTCHA (e.g. blackglass, white) </Value>
+	</Resource>
+	<Resource Name="Admin.Settings.GeneralCommon.ReCaptchaScore">
+		<Value>reCAPTCHA v3 Score (1.0 is very likely a very good interaction, 0.0 is very likely a bot)</Value>
+	</Resource>
 </Language>

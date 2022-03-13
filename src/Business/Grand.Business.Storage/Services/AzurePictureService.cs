@@ -18,8 +18,8 @@ namespace Grand.Business.Storage.Services
         #region Fields
 
         private static BlobContainerClient container = null;
+        private readonly AzureConfig _config;
 
-        private readonly AppConfig _config;
         #endregion
 
         #region Ctor
@@ -32,7 +32,7 @@ namespace Grand.Business.Storage.Services
             IMediaFileStore mediaFileStore,
             MediaSettings mediaSettings,
             StorageSettings storageSettings,
-            AppConfig config)
+            AzureConfig config)
             : base(pictureRepository,
                 logger,
                 mediator,

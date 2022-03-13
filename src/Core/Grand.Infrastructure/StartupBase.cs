@@ -147,15 +147,18 @@ namespace Grand.Infrastructure
         /// Add Mass Transit rabitMq message broker
         /// </summary>
         /// <param name="services"></param>
-        private static void AddMassTransitRabbitMq(IServiceCollection services, AppConfig config, AppTypeSearcher typeSearcher)
+        private static void AddMassTransitRabbitMq(IServiceCollection services, IConfiguration configuration, AppTypeSearcher typeSearcher)
         {
+            var config = new RabbitConfig();
+            configuration.GetSection("Rabbit").Bind(config);
+
             if (!config.RabbitEnabled) return;
             services.AddMassTransit(x =>
             {
                 x.AddConsumers(q => !q.Equals(typeof(CacheMessageEventConsumer)), typeSearcher.GetAssemblies().ToArray());
 
                 // reddits have more priority
-                if (!config.RedisPubSubEnabled && config.RabbitCachePubSubEnabled)
+                if (config.RabbitCachePubSubEnabled)
                 {
                     x.AddConsumer<CacheMessageEventConsumer>().Endpoint(t => t.Name = config.RabbitCacheReceiveEndpoint);
                 }
@@ -188,14 +191,15 @@ namespace Grand.Infrastructure
 
             //add AppConfig configuration parameters
             var config = services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
-            //add hosting configuration parameters
             services.StartupConfig<HostingConfig>(configuration.GetSection("Hosting"));
-            //add api configuration parameters
+            services.StartupConfig<UrlRewriteConfig>(configuration.GetSection("UrlRewrite"));
+            services.StartupConfig<RedisConfig>(configuration.GetSection("Redis"));
+            services.StartupConfig<RabbitConfig>(configuration.GetSection("Rabbit"));
             services.StartupConfig<ApiConfig>(configuration.GetSection("Api"));
-            //add grand.web api token config
             services.StartupConfig<GrandWebApiConfig>(configuration.GetSection("GrandWebApi"));
-            //add litedb configuration parameters
             services.StartupConfig<LiteDbConfig>(configuration.GetSection("LiteDb"));
+            services.StartupConfig<AmazonConfig>(configuration.GetSection("Amazon"));
+            services.StartupConfig<AzureConfig>(configuration.GetSection("Azure"));
 
             //set base application path
             var provider = services.BuildServiceProvider();
@@ -262,14 +266,11 @@ namespace Grand.Infrastructure
             //Register custom type converters
             RegisterTypeConverter(typeSearcher);
 
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
-
             //add mediator
             AddMediator(services, typeSearcher);
 
             //Add MassTransit
-            AddMassTransitRabbitMq(services, config, typeSearcher);
+            AddMassTransitRabbitMq(services, configuration, typeSearcher);
 
             //Register startup
             var instancesAfter = startupConfigurations
