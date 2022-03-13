@@ -1,8 +1,12 @@
 ﻿using Grand.Api.Constants;
+using Grand.Api.DTOs.Common;
 using Grand.Api.Infrastructure.DependencyManagement;
+using Grand.Api.Queries.Handlers.Common;
+using Grand.Api.Queries.Models.Common;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.TypeSearchers;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.OData;
@@ -30,6 +34,9 @@ namespace Grand.Api.Infrastructure
             var apiConfig = services.BuildServiceProvider().GetService<ApiConfig>();
             if (apiConfig.Enabled)
             {
+                //register RequestHandler
+                RegisterRequestHandler(services);
+
                 //cors
                 services.AddCors(options =>
                 {
@@ -75,6 +82,16 @@ namespace Grand.Api.Infrastructure
             //register all provided dependencies
             foreach (var dependencyRegistrar in instances)
                 dependencyRegistrar.Register(builder, apiConfig);
+
+        }
+
+        private void RegisterRequestHandler(IServiceCollection services)
+        {
+
+            //Workaround - there is a problem with register generic type with IRequestHandler
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CountryDto, Domain.Directory.Country>,
+                IQueryable<CountryDto>>), typeof(GetGenericQueryHandler<CountryDto, Domain.Directory.Country>));
+
 
         }
     }
