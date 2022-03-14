@@ -89,8 +89,12 @@ namespace Grand.Api.Infrastructure
         {
 
             //Workaround - there is a problem with register generic type with IRequestHandler
+
             services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CountryDto, Domain.Directory.Country>,
                 IQueryable<CountryDto>>), typeof(GetGenericQueryHandler<CountryDto, Domain.Directory.Country>));
+
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CurrencyDto, Domain.Directory.Currency>,
+                IQueryable<CurrencyDto>>), typeof(GetGenericQueryHandler<CurrencyDto, Domain.Directory.Currency>));
 
 
         }
