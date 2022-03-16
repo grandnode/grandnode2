@@ -1,4 +1,5 @@
 ﻿using Grand.Api.Constants;
+using Grand.Api.DTOs.Catalog;
 using Grand.Api.DTOs.Common;
 using Grand.Api.Infrastructure.DependencyManagement;
 using Grand.Api.Queries.Handlers.Common;
@@ -96,6 +97,23 @@ namespace Grand.Api.Infrastructure
             services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CurrencyDto, Domain.Directory.Currency>,
                 IQueryable<CurrencyDto>>), typeof(GetGenericQueryHandler<CurrencyDto, Domain.Directory.Currency>));
 
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<BrandDto, Domain.Catalog.Brand>,
+                IQueryable<BrandDto>>), typeof(GetGenericQueryHandler<BrandDto, Domain.Catalog.Brand>));
+
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CategoryDto, Domain.Catalog.Category>,
+                IQueryable<CategoryDto>>), typeof(GetGenericQueryHandler<CategoryDto, Domain.Catalog.Category>));
+
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CollectionDto, Domain.Catalog.Collection>,
+                IQueryable<CollectionDto>>), typeof(GetGenericQueryHandler<CollectionDto, Domain.Catalog.Collection>));
+
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<ProductAttributeDto, Domain.Catalog.ProductAttribute>,
+                IQueryable<ProductAttributeDto>>), typeof(GetGenericQueryHandler<ProductAttributeDto, Domain.Catalog.ProductAttribute>));
+
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<ProductDto, Domain.Catalog.Product>,
+                IQueryable<ProductDto>>), typeof(GetGenericQueryHandler<ProductDto, Domain.Catalog.Product>));
+
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>,
+                IQueryable<SpecificationAttributeDto>>), typeof(GetGenericQueryHandler<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>));
 
         }
     }

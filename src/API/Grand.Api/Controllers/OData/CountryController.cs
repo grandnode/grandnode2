@@ -32,7 +32,7 @@ namespace Grand.Api.Controllers.OData
                 return Forbid();
 
             //Domain.Directory.Country
-            var country = await _mediator.Send(new GetGenericQuery<CountryDto, Domain.Directory.Country>() { Id = key });
+            var country = await _mediator.Send(new GetGenericQuery<CountryDto, Domain.Directory.Country>(key));
             if (!country.Any())
                 return NotFound();
 

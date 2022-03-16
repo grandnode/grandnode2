@@ -33,7 +33,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Brands))
                 return Forbid();
 
-            return Ok(await _mediator.Send(new GetQuery<BrandDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<BrandDto, Domain.Catalog.Brand>()));
         }
 
         [SwaggerOperation(summary: "Get entity from Brand by key", OperationId = "GetBrandById")]
@@ -46,14 +46,12 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Brands))
                 return Forbid();
 
-            var brand = await _mediator.Send(new GetQuery<BrandDto>() { Id = key });
+            var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Domain.Catalog.Brand>(key));
             if (!brand.Any())
                 return NotFound();
 
             return Ok(brand.FirstOrDefault());
         }
-
-        
 
         [SwaggerOperation(summary: "Add new entity to Brand", OperationId = "InsertBrand")]
         [HttpPost]
@@ -85,7 +83,7 @@ namespace Grand.Api.Controllers.OData
                 return Forbid();
 
 
-            var brand = await _mediator.Send(new GetQuery<BrandDto>() { Id = model.Id });
+            var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Domain.Catalog.Brand>(model.Id));
             if (!brand.Any())
             {
                 return NotFound();
@@ -111,7 +109,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Brands))
                 return Forbid();
 
-            var brand = await _mediator.Send(new GetQuery<BrandDto>() { Id = key });
+            var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Domain.Catalog.Brand>(key));
             if (!brand.Any())
             {
                 return NotFound();
@@ -138,7 +136,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Brands))
                 return Forbid();
 
-            var brand = await _mediator.Send(new GetQuery<BrandDto>() { Id = key });
+            var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Domain.Catalog.Brand>(key));
             if (!brand.Any())
             {
                 return NotFound();

@@ -33,7 +33,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes))
                 return Forbid();
 
-            var specificationAttribute = await _mediator.Send(new GetQuery<SpecificationAttributeDto>() { Id = key });
+            var specificationAttribute = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>(key));
             if (!specificationAttribute.Any())
                 return NotFound();
 
@@ -50,7 +50,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes))
                 return Forbid();
 
-            return Ok(await _mediator.Send(new GetQuery<SpecificationAttributeDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>()));
         }
 
         [SwaggerOperation(summary: "Add new entity to SpecificationAttribute", OperationId = "InsertSpecificationAttribute")]
@@ -100,7 +100,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes))
                 return Forbid();
 
-            var specification = await _mediator.Send(new GetQuery<SpecificationAttributeDto>() { Id = key });
+            var specification = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>(key));
             if (!specification.Any())
             {
                 return NotFound();
@@ -127,7 +127,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes))
                 return Forbid();
 
-            var specification = await _mediator.Send(new GetQuery<SpecificationAttributeDto>() { Id = key });
+            var specification = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>(key));
             if (!specification.Any())
             {
                 return NotFound();

@@ -33,7 +33,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Collections))
                 return Forbid();
 
-            var collection = await _mediator.Send(new GetQuery<CollectionDto>() { Id = key });
+            var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>(key));
             if (!collection.Any())
                 return NotFound();
 
@@ -50,7 +50,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Collections))
                 return Forbid();
 
-            return Ok(await _mediator.Send(new GetQuery<CollectionDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>()));
         }
 
         [SwaggerOperation(summary: "Add new entity to Collection", OperationId = "InsertCollection")]
@@ -82,7 +82,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Collections))
                 return Forbid();
 
-            var collection = await _mediator.Send(new GetQuery<CollectionDto>() { Id = model.Id });
+            var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>(model.Id));
             if (!collection.Any())
             {
                 return NotFound();
@@ -108,7 +108,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Collections))
                 return Forbid();
 
-            var collection = await _mediator.Send(new GetQuery<CollectionDto>() { Id = key });
+            var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>(key));
             if (!collection.Any())
             {
                 return NotFound();
@@ -135,7 +135,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Collections))
                 return Forbid();
 
-            var collection = await _mediator.Send(new GetQuery<CollectionDto>() { Id = key });
+            var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Domain.Catalog.Collection>(key));
             if (!collection.Any())
             {
                 return NotFound();
