@@ -31,7 +31,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings))
                 return Forbid();
 
-            var deliverydate = await _mediator.Send(new GetQuery<DeliveryDateDto>() { Id = key });
+            var deliverydate = await _mediator.Send(new GetGenericQuery<DeliveryDateDto, Domain.Shipping.DeliveryDate>(key));
             if (!deliverydate.Any())
                 return NotFound();
 
@@ -48,7 +48,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings))
                 return Forbid();
 
-            return Ok(await _mediator.Send(new GetQuery<DeliveryDateDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<DeliveryDateDto, Domain.Shipping.DeliveryDate>()));
         }
     }
 }

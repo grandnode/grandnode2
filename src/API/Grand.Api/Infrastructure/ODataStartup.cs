@@ -1,6 +1,7 @@
 ﻿using Grand.Api.Constants;
 using Grand.Api.DTOs.Catalog;
 using Grand.Api.DTOs.Common;
+using Grand.Api.DTOs.Shipping;
 using Grand.Api.Infrastructure.DependencyManagement;
 using Grand.Api.Queries.Handlers.Common;
 using Grand.Api.Queries.Models.Common;
@@ -114,6 +115,18 @@ namespace Grand.Api.Infrastructure
 
             services.AddScoped(typeof(IRequestHandler<GetGenericQuery<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>,
                 IQueryable<SpecificationAttributeDto>>), typeof(GetGenericQueryHandler<SpecificationAttributeDto, Domain.Catalog.SpecificationAttribute>));
+
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<WarehouseDto, Domain.Shipping.Warehouse>,
+                IQueryable<WarehouseDto>>), typeof(GetGenericQueryHandler<WarehouseDto, Domain.Shipping.Warehouse>));
+
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<ShippingMethodDto, Domain.Shipping.ShippingMethod>,
+                IQueryable<ShippingMethodDto>>), typeof(GetGenericQueryHandler<ShippingMethodDto, Domain.Shipping.ShippingMethod>));
+
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<PickupPointDto, Domain.Shipping.PickupPoint>,
+                IQueryable<PickupPointDto>>), typeof(GetGenericQueryHandler<PickupPointDto, Domain.Shipping.PickupPoint>));
+
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<DeliveryDateDto, Domain.Shipping.DeliveryDate>,
+                IQueryable<DeliveryDateDto>>), typeof(GetGenericQueryHandler<DeliveryDateDto, Domain.Shipping.DeliveryDate>));
 
         }
     }
