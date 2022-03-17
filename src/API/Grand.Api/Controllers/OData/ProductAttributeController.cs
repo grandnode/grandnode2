@@ -36,7 +36,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes))
                 return Forbid();
 
-            var productAttribute = await _mediator.Send(new GetQuery<ProductAttributeDto>() { Id = key });
+            var productAttribute = await _mediator.Send(new GetGenericQuery<ProductAttributeDto, Domain.Catalog.ProductAttribute>(key));
             if (!productAttribute.Any())
                 return NotFound();
 
@@ -53,7 +53,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes))
                 return Forbid();
 
-            return Ok(await _mediator.Send(new GetQuery<ProductAttributeDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<ProductAttributeDto, Domain.Catalog.ProductAttribute>()));
         }
 
         [SwaggerOperation(summary: "Add new entity to ProductAttribute", OperationId = "InsertProductAttribute")]
@@ -103,7 +103,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes))
                 return Forbid();
 
-            var productAttribute = await _mediator.Send(new GetQuery<ProductAttributeDto>() { Id = key });
+            var productAttribute = await _mediator.Send(new GetGenericQuery<ProductAttributeDto, Domain.Catalog.ProductAttribute>(key));
             if (!productAttribute.Any())
                 return NotFound();
 
@@ -128,7 +128,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes))
                 return Forbid();
 
-            var productAttribute = await _mediator.Send(new GetQuery<ProductAttributeDto>() { Id = key });
+            var productAttribute = await _mediator.Send(new GetGenericQuery<ProductAttributeDto, Domain.Catalog.ProductAttribute>(key));
             if (!productAttribute.Any())
                 return NotFound();
 

@@ -35,7 +35,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Categories))
                 return Forbid();
 
-            var category = await _mediator.Send(new GetQuery<CategoryDto>() { Id = key });
+            var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Domain.Catalog.Category>(key));
             if (!category.Any())
                 return NotFound();
 
@@ -52,7 +52,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Categories))
                 return Forbid();
 
-            return Ok(await _mediator.Send(new GetQuery<CategoryDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<CategoryDto, Domain.Catalog.Category>()));
         }
 
         [SwaggerOperation(summary: "Add new entity to Category", OperationId = "InsertCategory")]
@@ -84,7 +84,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Categories))
                 return Forbid();
 
-            var category = await _mediator.Send(new GetQuery<CategoryDto>() { Id = model.Id });
+            var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Domain.Catalog.Category>(model.Id));
             if (!category.Any())
             {
                 return NotFound();
@@ -108,7 +108,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Categories))
                 return Forbid();
 
-            var category = await _mediator.Send(new GetQuery<CategoryDto>() { Id = key });
+            var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Domain.Catalog.Category>(key));
             if (!category.Any())
             {
                 return NotFound();
@@ -133,7 +133,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Categories))
                 return Forbid();
 
-            var category = await _mediator.Send(new GetQuery<CategoryDto>() { Id = key });
+            var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Domain.Catalog.Category>(key));
             if (!category.Any())
             {
                 return NotFound();
