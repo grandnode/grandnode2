@@ -34,7 +34,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Customers))
                 return Forbid();
 
-            var customerGroup = await _mediator.Send(new GetQuery<CustomerGroupDto>() { Id = key });
+            var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>(key));
             if (!customerGroup.Any())
                 return NotFound();
 
@@ -51,7 +51,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Customers))
                 return Forbid();
 
-            return Ok(await _mediator.Send(new GetQuery<CustomerGroupDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>()));
         }
 
         [SwaggerOperation(summary: "Add new entity to CustomerGroup", OperationId = "InsertCustomerGroup")]
@@ -83,7 +83,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Customers))
                 return Forbid();
 
-            var customerGroup = await _mediator.Send(new GetQuery<CustomerGroupDto>() { Id = model.Id });
+            var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>(model.Id));
             if (!customerGroup.Any())
             {
                 return NotFound();
@@ -108,7 +108,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Customers))
                 return Forbid();
 
-            var customerGroup = await _mediator.Send(new GetQuery<CustomerGroupDto>() { Id = key });
+            var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>(key));
             if (!customerGroup.Any())
             {
                 return NotFound();
@@ -135,7 +135,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Customers))
                 return Forbid();
 
-            var customerGroup = await _mediator.Send(new GetQuery<CustomerGroupDto>() { Id = key });
+            var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>(key));
             if (!customerGroup.Any())
             {
                 return NotFound();

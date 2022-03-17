@@ -1,16 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Grand.Api.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Api.DTOs.Customers
 {
-    public partial class CustomerDto
+    public partial class CustomerDto : BaseApiEntityModel
     {
         public CustomerDto()
         {
-            this.CustomerGuid = Guid.NewGuid();
-            this.Groups = new List<string>();
-            this.Addresses = new List<AddressDto>();
+            CustomerGuid = Guid.NewGuid();
+            Groups = new List<string>();
+            Addresses = new List<AddressDto>();
         }
-        public string Id { get; set; }
         public Guid CustomerGuid { get; set; }
         public string Username { get; set; }
         [Key]
