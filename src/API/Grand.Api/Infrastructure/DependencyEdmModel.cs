@@ -37,12 +37,6 @@ namespace Grand.Api.Infrastructure
 
             #endregion
 
-            #region State province model
-
-            builder.EntitySet<StateProvinceDto>("StateProvince");
-            
-            #endregion
-
             #region layout model
 
             builder.EntitySet<LayoutDto>("CategoryLayout");

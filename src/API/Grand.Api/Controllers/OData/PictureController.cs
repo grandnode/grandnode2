@@ -32,11 +32,11 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Pictures))
                 return Forbid();
 
-            var picture = await _mediator.Send(new GetPictureByIdQuery() { Id = key });
-            if (picture == null)
+            var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Domain.Media.Picture>(key));
+            if (picture == null || !picture.Any())
                 return NotFound();
 
-            return Ok(picture);
+            return Ok(picture.FirstOrDefault());
         }
 
         [SwaggerOperation(summary: "Add new entity in Picture", OperationId = "InsertPicture")]
@@ -70,8 +70,8 @@ namespace Grand.Api.Controllers.OData
 
             if (ModelState.IsValid)
             {
-                var picture = await _mediator.Send(new GetPictureByIdQuery() { Id = model.Id });
-                if (picture == null)
+                var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Domain.Media.Picture>(model.Id));
+                if (picture == null || !picture.Any())
                 {
                     return NotFound();
                 }
@@ -92,12 +92,12 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Pictures))
                 return Forbid();
 
-            var picture = await _mediator.Send(new GetPictureByIdQuery() { Id = key });
-            if (picture == null)
+            var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Domain.Media.Picture>(key));
+            if (picture == null || !picture.Any())
             {
                 return NotFound();
             }
-            await _mediator.Send(new DeletePictureCommand() { PictureDto = picture });
+            await _mediator.Send(new DeletePictureCommand() { PictureDto = picture.FirstOrDefault() });
             return Ok();
         }
     }

@@ -1,6 +1,7 @@
 ﻿using Grand.Api.Constants;
 using Grand.Api.DTOs.Catalog;
 using Grand.Api.DTOs.Common;
+using Grand.Api.DTOs.Customers;
 using Grand.Api.DTOs.Shipping;
 using Grand.Api.Infrastructure.DependencyManagement;
 using Grand.Api.Queries.Handlers.Common;
@@ -127,6 +128,21 @@ namespace Grand.Api.Infrastructure
 
             services.AddScoped(typeof(IRequestHandler<GetGenericQuery<DeliveryDateDto, Domain.Shipping.DeliveryDate>,
                 IQueryable<DeliveryDateDto>>), typeof(GetGenericQueryHandler<DeliveryDateDto, Domain.Shipping.DeliveryDate>));
+
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<VendorDto, Domain.Vendors.Vendor>,
+                IQueryable<VendorDto>>), typeof(GetGenericQueryHandler<VendorDto, Domain.Vendors.Vendor>));
+
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<CustomerGroupDto, Domain.Customers.CustomerGroup>,
+                IQueryable<CustomerGroupDto>>), typeof(GetGenericQueryHandler<CustomerGroupDto, Domain.Customers.CustomerGroup>));
+
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<StoreDto, Domain.Stores.Store>,
+                IQueryable<StoreDto>>), typeof(GetGenericQueryHandler<StoreDto, Domain.Stores.Store>));
+
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<LanguageDto, Domain.Localization.Language>,
+                IQueryable<LanguageDto>>), typeof(GetGenericQueryHandler<LanguageDto, Domain.Localization.Language>));
+
+            services.AddScoped(typeof(IRequestHandler<GetGenericQuery<PictureDto, Domain.Media.Picture>,
+                IQueryable<PictureDto>>), typeof(GetGenericQueryHandler<PictureDto, Domain.Media.Picture>));
 
         }
     }
