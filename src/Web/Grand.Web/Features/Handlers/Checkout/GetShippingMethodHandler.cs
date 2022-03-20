@@ -18,26 +18,19 @@ namespace Grand.Web.Features.Handlers.Checkout
         private readonly IUserFieldService _userFieldService;
         private readonly IOrderCalculationService _orderTotalCalculationService;
         private readonly ITaxService _taxService;
-        private readonly ICurrencyService _currencyService;
         private readonly IPriceFormatter _priceFormatter;
-
-        private readonly ShippingSettings _shippingSettings;
 
         public GetShippingMethodHandler(IShippingService shippingService,
             IUserFieldService userFieldService,
             IOrderCalculationService orderTotalCalculationService,
             ITaxService taxService,
-            ICurrencyService currencyService,
-            IPriceFormatter priceFormatter,
-            ShippingSettings shippingSettings)
+            IPriceFormatter priceFormatter)
         {
             _shippingService = shippingService;
             _userFieldService = userFieldService;
             _orderTotalCalculationService = orderTotalCalculationService;
             _taxService = taxService;
-            _currencyService = currencyService;
             _priceFormatter = priceFormatter;
-            _shippingSettings = shippingSettings;
         }
 
         public async Task<CheckoutShippingMethodModel> Handle(GetShippingMethod request, CancellationToken cancellationToken)
