@@ -26,7 +26,7 @@ namespace Grand.Infrastructure.Roslyn
 
         #endregion
 
-        public static void Load(ApplicationPartManager applicationPartManager, AppConfig config)
+        public static void Load(ApplicationPartManager applicationPartManager, ExtensionsConfig config)
         {
             if (applicationPartManager == null)
                 throw new ArgumentNullException(nameof(applicationPartManager));

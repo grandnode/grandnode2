@@ -11,11 +11,6 @@ namespace Grand.Infrastructure.Configuration
         }
 
         /// <summary>
-        /// Indicates whether we disabled upload plugins/themes
-        /// </summary>
-        public bool DisableUploadExtensions { get; set; }
-       
-        /// <summary>
         /// Indicates whether we should Disable HostedService - BackgroundServiceTask
         /// </summary>
         public bool DisableHostedService { get; set; }
@@ -26,27 +21,6 @@ namespace Grand.Infrastructure.Configuration
         public bool SkipMigrationProcess { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to clear /Plugins/bin directory on application startup
-        /// </summary>
-        public bool ClearPluginShadowDirectoryOnStartup { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether copy dll plugin files to /Plugins/bin on application startup
-        /// </summary>
-        public bool PluginShadowCopy { get; set; }
-        
-        
-        /// <summary>
-        /// A list of plugins to be ignored during start application - pattern
-        /// </summary>
-        public string PluginSkipLoadingPattern { get; set; }
-
-        /// <summary>
-        /// Enable scripting C# applications to execute code.
-        /// </summary>
-        public bool UseRoslynScripts { get; set; }
-        
-        /// <summary>
         /// A value indicating whether SEO friendly URLs with multiple languages are enabled
         /// </summary>
         public bool SeoFriendlyUrlsForLanguagesEnabled { get; set; }
@@ -56,7 +30,6 @@ namespace Grand.Infrastructure.Configuration
         /// Gets or sets a value of "Cache-Control" header value for static content
         /// </summary>
         public string StaticFilesCacheControl { get; set; }
-
        
         /// <summary>
         /// Gets or sets a value indicating whether to display the full error in production environment.
