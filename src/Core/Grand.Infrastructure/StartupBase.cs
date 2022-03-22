@@ -192,6 +192,7 @@ namespace Grand.Infrastructure
             //add AppConfig configuration parameters
             var applicationConfig = services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
             var performanceConfig = services.StartupConfig<PerformanceConfig>(configuration.GetSection("Performance"));
+            var securityConfig = services.StartupConfig<SecurityConfig>(configuration.GetSection("Security"));
             services.StartupConfig<HostingConfig>(configuration.GetSection("Hosting"));
             services.StartupConfig<UrlRewriteConfig>(configuration.GetSection("UrlRewrite"));
             services.StartupConfig<RedisConfig>(configuration.GetSection("Redis"));
@@ -212,7 +213,7 @@ namespace Grand.Infrastructure
             CommonPath.WebHostEnvironment = hostingEnvironment.WebRootPath;
             CommonPath.BaseDirectory = hostingEnvironment.ContentRootPath;
             CommonHelper.CacheTimeMinutes = performanceConfig.DefaultCacheTimeMinutes;
-            CommonHelper.CookieAuthExpires = applicationConfig.CookieAuthExpires > 0 ? applicationConfig.CookieAuthExpires : 24 * 365;
+            CommonHelper.CookieAuthExpires = securityConfig.CookieAuthExpires > 0 ? securityConfig.CookieAuthExpires : 24 * 365;
 
             CommonHelper.IgnoreAcl = performanceConfig.IgnoreAcl;
             CommonHelper.IgnoreStoreLimitations = performanceConfig.IgnoreStoreLimitations;

@@ -24,7 +24,7 @@ namespace Grand.Business.Authentication.Tests
         private Mock<IGroupService> _groupServiceMock;
         private Mock<IUserFieldService> _userFieldServiceMock;
         private DefaultHttpContext _httpContext;
-        private AppConfig _config;
+        private SecurityConfig _config;
 
         [TestInitialize()]
         public void Init()
@@ -35,7 +35,7 @@ namespace Grand.Business.Authentication.Tests
             _customerSettings = new CustomerSettings();
             _groupServiceMock = new Mock<IGroupService>();
             _userFieldServiceMock = new Mock<IUserFieldService>();
-            _config = new AppConfig();
+            _config = new SecurityConfig();
             _config.CookieClaimsIssuer = "grandnode";
             _config.CookiePrefix = ".Grand.";
             _cookieAuthService = new CookieAuthenticationService(_customerSettings, _customerServiceMock.Object, _groupServiceMock.Object, _userFieldServiceMock.Object, _httpAccessorMock.Object, _config);

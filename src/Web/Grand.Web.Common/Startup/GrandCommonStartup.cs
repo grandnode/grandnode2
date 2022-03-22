@@ -24,8 +24,8 @@ namespace Grand.Web.Common.Startup
         /// <param name="configuration">Configuration root of the application</param>
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
+            var securityconfig = new SecurityConfig();
+            configuration.GetSection("Security").Bind(securityconfig);
 
             //add settings
             services.AddSettings();
@@ -37,10 +37,10 @@ namespace Grand.Web.Common.Startup
             services.AddOptions();
 
             //add HTTP sesion state feature
-            services.AddHttpSession(config);
+            services.AddHttpSession(securityconfig);
 
             //add anti-forgery
-            services.AddAntiForgery(config);
+            services.AddAntiForgery(securityconfig);
 
             //add localization
             services.AddLocalization();
@@ -74,23 +74,24 @@ namespace Grand.Web.Common.Startup
             var serviceProvider = application.ApplicationServices;
             var appConfig = serviceProvider.GetRequiredService<AppConfig>();
             var performanceConfig = serviceProvider.GetRequiredService<PerformanceConfig>();
+            var securityConfig = serviceProvider.GetRequiredService<SecurityConfig>();
 
             //add HealthChecks
             application.UseGrandHealthChecks();
 
             //default security headers
-            if (appConfig.UseDefaultSecurityHeaders)
+            if (securityConfig.UseDefaultSecurityHeaders)
             {
                 application.UseDefaultSecurityHeaders();
             }
 
             //use hsts
-            if (appConfig.UseHsts)
+            if (securityConfig.UseHsts)
             {
                 application.UseHsts();
             }
             //enforce HTTPS in ASP.NET Core
-            if (appConfig.UseHttpsRedirection)
+            if (securityConfig.UseHttpsRedirection)
             {
                 application.UseHttpsRedirection();
             }

@@ -25,7 +25,6 @@ namespace Grand.Infrastructure.Configuration
         /// </summary>
         public bool SkipMigrationProcess { get; set; }
 
-
         /// <summary>
         /// Gets or sets a value indicating whether to clear /Plugins/bin directory on application startup
         /// </summary>
@@ -46,22 +45,6 @@ namespace Grand.Infrastructure.Configuration
         /// Enable scripting C# applications to execute code.
         /// </summary>
         public bool UseRoslynScripts { get; set; }
-
-      
-        /// <summary>
-        /// Gets or sets a value indicating for cookie expires in hours - default 24 * 365 = 8760
-        /// </summary>
-        public int CookieAuthExpires { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value for Cookie prefix
-        /// </summary>
-        public string CookiePrefix { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value for Cookie claim issuer 
-        /// </summary>
-        public string CookieClaimsIssuer { get; set; }
         
         /// <summary>
         /// A value indicating whether SEO friendly URLs with multiple languages are enabled
@@ -74,41 +57,13 @@ namespace Grand.Infrastructure.Configuration
         /// </summary>
         public string StaticFilesCacheControl { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value of "Cookie SecurePolicy Always"
-        /// </summary>
-        public bool CookieSecurePolicyAlways { get; set; }
-
+       
         /// <summary>
         /// Gets or sets a value indicating whether to display the full error in production environment.
         /// It's ignored (always enabled) in development environment
         /// </summary>
         public bool DisplayFullErrorStack { get; set; }
-
-       
-        /// <summary>
-        /// Gets or sets a value indicating whether use the default security headers for your application
-        /// </summary>
-        public bool UseDefaultSecurityHeaders { get; set; }
-
-       
         public bool UseSessionStateTempDataProvider { get; set; }
-        
-
-        /// <summary>
-        /// HTTP Strict Transport Security Protocol
-        /// isn't recommended in development because the HSTS header is highly cacheable by browsers
-        /// </summary>
-        public bool UseHsts { get; set; }
-
-        /// <summary>
-        /// Enforce HTTPS in ASP.NET Core
-        /// </summary>
-        public bool UseHttpsRedirection { get; set; }
-
-        public int HttpsRedirectionRedirect { get; set; }
-        public int? HttpsRedirectionHttpsPort { get; set; }
-
         /// <summary>
         /// Localization middleware
         /// </summary>
