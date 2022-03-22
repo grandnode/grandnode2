@@ -19,17 +19,7 @@ namespace Grand.Infrastructure.Configuration
         /// Indicates whether we should Disable HostedService - BackgroundServiceTask
         /// </summary>
         public bool DisableHostedService { get; set; }
-
-        /// <summary>
-        /// A value indicating whether to ignore ACL rules (side-wide). It can significantly improve performance when enabled.
-        /// </summary>
-        public bool IgnoreAcl { get; set; }
-
-        /// <summary>
-        /// A value indicating whether to ignore "limit per store" rules (side-wide). It can significantly improve performance when enabled.
-        /// </summary>
-        public bool IgnoreStoreLimitations { get; set; }
-
+      
         /// <summary>
         /// A value indicating whether to ignore the migration process 
         /// </summary>
@@ -57,11 +47,7 @@ namespace Grand.Infrastructure.Configuration
         /// </summary>
         public bool UseRoslynScripts { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating for default cache time in minutes
-        /// </summary>
-        public int DefaultCacheTimeMinutes { get; set; }
-
+      
         /// <summary>
         /// Gets or sets a value indicating for cookie expires in hours - default 24 * 365 = 8760
         /// </summary>
@@ -76,23 +62,13 @@ namespace Grand.Infrastructure.Configuration
         /// Gets or sets a value for Cookie claim issuer 
         /// </summary>
         public string CookieClaimsIssuer { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether mini profiler should be displayed in public store (used for debugging)
-        /// </summary>
-        public bool DisplayMiniProfilerInPublicStore { get; set; }
-
+        
         /// <summary>
         /// A value indicating whether SEO friendly URLs with multiple languages are enabled
         /// </summary>
         public bool SeoFriendlyUrlsForLanguagesEnabled { get; set; }
         public string SeoFriendlyUrlsDefaultCode { get; set; } = "en";
-        
-        /// <summary>
-        /// A value indicating whether to load all search engine friendly names (slugs) on application startup
-        /// </summary>
-        public bool LoadAllUrlEntitiesOnStartup { get; set; }
-
+      
         /// <summary>
         /// Gets or sets a value of "Cache-Control" header value for static content
         /// </summary>
@@ -109,21 +85,13 @@ namespace Grand.Infrastructure.Configuration
         /// </summary>
         public bool DisplayFullErrorStack { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether we compress response
-        /// </summary>
-        public bool UseResponseCompression { get; set; }
-
+       
         /// <summary>
         /// Gets or sets a value indicating whether use the default security headers for your application
         /// </summary>
         public bool UseDefaultSecurityHeaders { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether to enable html minification
-        /// </summary>
-        public bool UseHtmlMinification { get; set; }
-        public bool HtmlMinificationErrors { get; set; }
+       
         public bool UseSessionStateTempDataProvider { get; set; }
         
 
@@ -147,22 +115,7 @@ namespace Grand.Infrastructure.Configuration
         public bool UseRequestLocalization { get; set; }
         public string DefaultRequestCulture { get; set; }
         public IList<string> SupportedCultures { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether ignore InstallUrlMiddleware
-        /// </summary>
-        public bool IgnoreInstallUrlMiddleware { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether ignore DbVersionCheckMiddleware
-        /// </summary>
-        public bool IgnoreDbVersionCheckMiddleware { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether ignore IgnoreUsePoweredByMiddleware
-        /// </summary>
-        public bool IgnoreUsePoweredByMiddleware { get; set; }
-
+        
         /// <summary>
         /// Gets or sets a value indicating - (Serilog) use middleware for smarter HTTP request logging
         /// </summary>

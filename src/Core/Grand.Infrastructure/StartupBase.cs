@@ -190,7 +190,8 @@ namespace Grand.Infrastructure
             services.AddWkhtmltopdf();
 
             //add AppConfig configuration parameters
-            var config = services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
+            var applicationConfig = services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
+            var performanceConfig = services.StartupConfig<PerformanceConfig>(configuration.GetSection("Performance"));
             services.StartupConfig<HostingConfig>(configuration.GetSection("Hosting"));
             services.StartupConfig<UrlRewriteConfig>(configuration.GetSection("UrlRewrite"));
             services.StartupConfig<RedisConfig>(configuration.GetSection("Redis"));
@@ -210,11 +211,11 @@ namespace Grand.Infrastructure
 
             CommonPath.WebHostEnvironment = hostingEnvironment.WebRootPath;
             CommonPath.BaseDirectory = hostingEnvironment.ContentRootPath;
-            CommonHelper.CacheTimeMinutes = config.DefaultCacheTimeMinutes;
-            CommonHelper.CookieAuthExpires = config.CookieAuthExpires > 0 ? config.CookieAuthExpires : 24 * 365;
+            CommonHelper.CacheTimeMinutes = performanceConfig.DefaultCacheTimeMinutes;
+            CommonHelper.CookieAuthExpires = applicationConfig.CookieAuthExpires > 0 ? applicationConfig.CookieAuthExpires : 24 * 365;
 
-            CommonHelper.IgnoreAcl = config.IgnoreAcl;
-            CommonHelper.IgnoreStoreLimitations = config.IgnoreStoreLimitations;
+            CommonHelper.IgnoreAcl = performanceConfig.IgnoreAcl;
+            CommonHelper.IgnoreStoreLimitations = performanceConfig.IgnoreStoreLimitations;
 
             var mvcCoreBuilder = services.AddMvcCore();
 

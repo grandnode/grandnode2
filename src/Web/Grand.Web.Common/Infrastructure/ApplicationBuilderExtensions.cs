@@ -251,9 +251,9 @@ namespace Grand.Web.Common.Infrastructure
             if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
-            var appConfig = application.ApplicationServices.GetRequiredService<AppConfig>();
+            var performanceConfig = application.ApplicationServices.GetRequiredService<PerformanceConfig>();
             //whether MiniProfiler should be displayed
-            if (appConfig.DisplayMiniProfilerInPublicStore)
+            if (performanceConfig.DisplayMiniProfilerInPublicStore)
             {
                 application.UseMiniProfiler();
             }

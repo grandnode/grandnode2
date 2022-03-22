@@ -20,9 +20,9 @@ namespace Grand.Web.Common.Startup
                 return;
 
             var serviceProvider = application.ApplicationServices;
-            var appConfig = serviceProvider.GetRequiredService<AppConfig>();
+            var performanceConfig = serviceProvider.GetRequiredService<PerformanceConfig>();
 
-            if(!appConfig.IgnoreDbVersionCheckMiddleware)
+            if(!performanceConfig.IgnoreDbVersionCheckMiddleware)
                 application.UseMiddleware<DbVersionCheckMiddleware>();
         }
 

@@ -238,7 +238,7 @@ namespace Grand.Web.Common.Infrastructure
                 options.IgnoredPaths.Add("/.well-known/pki-validation");
                 //determine who can access the MiniProfiler results
                 options.ResultsAuthorize = request =>
-                    !request.HttpContext.RequestServices.GetRequiredService<AppConfig>().DisplayMiniProfilerInPublicStore ||
+                    !request.HttpContext.RequestServices.GetRequiredService<PerformanceConfig>().DisplayMiniProfilerInPublicStore ||
                     request.HttpContext.RequestServices.GetRequiredService<IPermissionService>().Authorize(StandardPermission.AccessAdminPanel).Result;
             });
         }
@@ -277,9 +277,9 @@ namespace Grand.Web.Common.Infrastructure
 
         public static void AddHtmlMinification(this IServiceCollection services, IConfiguration configuration)
         {
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
-            if (config.UseHtmlMinification)
+            var performanceConfig = new PerformanceConfig();
+            configuration.GetSection("Performance").Bind(performanceConfig);
+            if (performanceConfig.UseHtmlMinification)
             {
                 // Add WebMarkupMin services
                 services.AddWebMarkupMin(options =>
@@ -329,7 +329,7 @@ namespace Grand.Web.Common.Infrastructure
                         };
                 });
             }
-            if (config.HtmlMinificationErrors)
+            if (performanceConfig.HtmlMinificationErrors)
                 services.AddSingleton<IWmmLogger, WmmThrowExceptionLogger>();
         }
 

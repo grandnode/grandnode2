@@ -73,6 +73,7 @@ namespace Grand.Web.Common.Startup
         {
             var serviceProvider = application.ApplicationServices;
             var appConfig = serviceProvider.GetRequiredService<AppConfig>();
+            var performanceConfig = serviceProvider.GetRequiredService<PerformanceConfig>();
 
             //add HealthChecks
             application.UseGrandHealthChecks();
@@ -95,14 +96,14 @@ namespace Grand.Web.Common.Startup
             }
 
             //compression
-            if (appConfig.UseResponseCompression)
+            if (performanceConfig.UseResponseCompression)
             {
                 //gzip by default
                 application.UseResponseCompression();
             }
 
             //Add webMarkupMin
-            if (appConfig.UseHtmlMinification)
+            if (performanceConfig.UseHtmlMinification)
             {
                 application.UseHtmlMinification();
             }
@@ -130,14 +131,14 @@ namespace Grand.Web.Common.Startup
             application.UseGrandStaticFiles(appConfig);
 
             //check whether database is installed
-            if (!appConfig.IgnoreInstallUrlMiddleware)
+            if (!performanceConfig.IgnoreInstallUrlMiddleware)
                 application.UseInstallUrl();
 
             //use HTTP session
             application.UseSession();
 
             //use powered by
-            if (!appConfig.IgnoreUsePoweredByMiddleware)
+            if (!performanceConfig.IgnoreUsePoweredByMiddleware)
                 application.UsePoweredBy();
 
             // Write streamlined request completion events, instead of the more verbose ones from the framework.
