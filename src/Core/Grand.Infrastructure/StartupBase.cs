@@ -199,7 +199,7 @@ namespace Grand.Infrastructure
             services.StartupConfig<RabbitConfig>(configuration.GetSection("Rabbit"));
             services.StartupConfig<ApiConfig>(configuration.GetSection("Api"));
             services.StartupConfig<GrandWebApiConfig>(configuration.GetSection("GrandWebApi"));
-            services.StartupConfig<LiteDbConfig>(configuration.GetSection("LiteDb"));
+            services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
             services.StartupConfig<AmazonConfig>(configuration.GetSection("Amazon"));
             services.StartupConfig<AzureConfig>(configuration.GetSection("Azure"));
 
