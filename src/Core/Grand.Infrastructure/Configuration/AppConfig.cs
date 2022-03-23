@@ -43,7 +43,12 @@ namespace Grand.Infrastructure.Configuration
         public bool UseRequestLocalization { get; set; }
         public string DefaultRequestCulture { get; set; }
         public IList<string> SupportedCultures { get; set; }
-        
+
+        /// <summary>
+        /// Gets or sets a value custom response header encoding may be needed in some cases
+        /// </summary>
+        public bool AllowNonAsciiCharInHeaders { get; set; }
+
         /// <summary>
         /// Gets or sets a value indicating - (Serilog) use middleware for smarter HTTP request logging
         /// </summary>

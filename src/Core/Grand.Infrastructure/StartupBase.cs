@@ -194,7 +194,6 @@ namespace Grand.Infrastructure
             var performanceConfig = services.StartupConfig<PerformanceConfig>(configuration.GetSection("Performance"));
             var securityConfig = services.StartupConfig<SecurityConfig>(configuration.GetSection("Security"));
             services.StartupConfig<ExtensionsConfig>(configuration.GetSection("Extensions"));
-            services.StartupConfig<HostingConfig>(configuration.GetSection("Hosting"));
             services.StartupConfig<UrlRewriteConfig>(configuration.GetSection("UrlRewrite"));
             services.StartupConfig<RedisConfig>(configuration.GetSection("Redis"));
             services.StartupConfig<RabbitConfig>(configuration.GetSection("Rabbit"));

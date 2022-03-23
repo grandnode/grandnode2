@@ -33,9 +33,9 @@ namespace Grand.Web.Common.Startup
                 return;
 
             var serviceProvider = application.ApplicationServices;
-            var hostingConfig = serviceProvider.GetRequiredService<HostingConfig>();
+            var securityConfig = serviceProvider.GetRequiredService<SecurityConfig>();
 
-            if (hostingConfig.UseForwardedHeaders)
+            if (securityConfig.UseForwardedHeaders)
                 application.UseGrandForwardedHeaders();
 
         }
