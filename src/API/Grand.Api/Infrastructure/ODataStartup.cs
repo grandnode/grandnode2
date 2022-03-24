@@ -24,7 +24,7 @@ namespace Grand.Api.Infrastructure
     {
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
-            var apiConfig = application.ApplicationServices.GetService<ApiConfig>();
+            var apiConfig = application.ApplicationServices.GetService<BackendAPIConfig>();
             if (apiConfig.Enabled)
             {
                 application.UseCors(Configurations.CorsPolicyName);
@@ -34,7 +34,7 @@ namespace Grand.Api.Infrastructure
         public void ConfigureServices(IServiceCollection services,
             IConfiguration configuration)
         {
-            var apiConfig = services.BuildServiceProvider().GetService<ApiConfig>();
+            var apiConfig = services.BuildServiceProvider().GetService<BackendAPIConfig>();
             if (apiConfig.Enabled)
             {
                 //register RequestHandler
@@ -61,7 +61,7 @@ namespace Grand.Api.Infrastructure
         public bool BeforeConfigure => false;
 
 
-        private IEdmModel GetEdmModel(ApiConfig apiConfig)
+        private IEdmModel GetEdmModel(BackendAPIConfig apiConfig)
         {
             var builder = new ODataConventionModelBuilder {
                 Namespace = Configurations.ODataModelBuilderNamespace
@@ -70,7 +70,7 @@ namespace Grand.Api.Infrastructure
             return builder.GetEdmModel();
         }
 
-        private void RegisterDependencies(ODataConventionModelBuilder builder, ApiConfig apiConfig)
+        private void RegisterDependencies(ODataConventionModelBuilder builder, BackendAPIConfig apiConfig)
         {
             var typeFinder = new AppTypeSearcher();
 

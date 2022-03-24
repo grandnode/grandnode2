@@ -1,6 +1,6 @@
 ﻿namespace Grand.Infrastructure.Configuration
 {
-    public partial class ApiConfig
+    public partial class BackendAPIConfig
     {
         public bool Enabled { get; set; }
         public bool UseSwagger { get; set; }
