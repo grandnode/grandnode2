@@ -198,7 +198,7 @@ namespace Grand.Infrastructure
             services.StartupConfig<RedisConfig>(configuration.GetSection("Redis"));
             services.StartupConfig<RabbitConfig>(configuration.GetSection("Rabbit"));
             services.StartupConfig<ApiConfig>(configuration.GetSection("Api"));
-            services.StartupConfig<GrandWebApiConfig>(configuration.GetSection("GrandWebApi"));
+            services.StartupConfig<FrontendAPIConfig>(configuration.GetSection("FrontendAPI"));
             services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
             services.StartupConfig<AmazonConfig>(configuration.GetSection("Amazon"));
             services.StartupConfig<AzureConfig>(configuration.GetSection("Azure"));

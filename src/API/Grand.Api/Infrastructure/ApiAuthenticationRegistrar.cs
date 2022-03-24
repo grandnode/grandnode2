@@ -66,10 +66,10 @@ namespace Grand.Api.Infrastructure
             });
 
 
-            builder.AddJwtBearer(GrandWebApiConfig.Scheme, options =>
+            builder.AddJwtBearer(FrontendAPIConfig.Scheme, options =>
             {
-                var config = new GrandWebApiConfig();
-                configuration.GetSection("GrandWebApi").Bind(config);
+                var config = new FrontendAPIConfig();
+                configuration.GetSection("FrontentAPI").Bind(config);
                 options.TokenValidationParameters = new TokenValidationParameters {
                     ValidateIssuer = config.ValidateIssuer,
                     ValidateAudience = config.ValidateAudience,

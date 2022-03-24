@@ -1,6 +1,6 @@
 ﻿namespace Grand.Infrastructure.Configuration
 {
-    public class GrandWebApiConfig
+    public class FrontendAPIConfig
     {
         public static string Scheme => "GrandWebBearerScheme";
         public bool Enabled { get; set; }

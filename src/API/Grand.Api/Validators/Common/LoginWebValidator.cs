@@ -11,7 +11,7 @@ namespace Grand.Api.Validators.Common
     {
         public LoginWebValidator(
             IEnumerable<IValidatorConsumer<LoginWebModel>> validators,
-            GrandWebApiConfig apiConfig,
+            FrontendAPIConfig apiConfig,
             ICustomerService customerService,
             ICustomerManagerService customerManagerService)
             : base(validators)
