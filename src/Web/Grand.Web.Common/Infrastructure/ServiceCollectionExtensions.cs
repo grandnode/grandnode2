@@ -44,7 +44,7 @@ namespace Grand.Web.Common.Infrastructure
         /// Adds services required for anti-forgery support
         /// </summary>
         /// <param name="services">Collection of service descriptors</param>
-        public static void AddAntiForgery(this IServiceCollection services, AppConfig config)
+        public static void AddAntiForgery(this IServiceCollection services, SecurityConfig config)
         {
             //override cookie name
             services.AddAntiforgery(options =>
@@ -65,7 +65,7 @@ namespace Grand.Web.Common.Infrastructure
         /// Adds services required for application session state
         /// </summary>
         /// <param name="services">Collection of service descriptors</param>
-        public static void AddHttpSession(this IServiceCollection services, AppConfig config)
+        public static void AddHttpSession(this IServiceCollection services, SecurityConfig config)
         {
             services.AddSession(options =>
             {
@@ -124,8 +124,8 @@ namespace Grand.Web.Common.Infrastructure
         /// <param name="services">Collection of service descriptors</param>
         public static void AddGrandAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
+            var securityconfig = new SecurityConfig();
+            configuration.GetSection("Security").Bind(securityconfig);
 
             //set default authentication schemes
             var authenticationBuilder = services.AddAuthentication(options =>
@@ -137,22 +137,22 @@ namespace Grand.Web.Common.Infrastructure
             //add main cookie authentication
             authenticationBuilder.AddCookie(GrandCookieAuthenticationDefaults.AuthenticationScheme, options =>
             {
-                options.Cookie.Name = config.CookiePrefix + GrandCookieAuthenticationDefaults.AuthenticationScheme;
+                options.Cookie.Name = securityconfig.CookiePrefix + GrandCookieAuthenticationDefaults.AuthenticationScheme;
                 options.Cookie.HttpOnly = true;
                 options.LoginPath = GrandCookieAuthenticationDefaults.LoginPath;
                 options.AccessDeniedPath = GrandCookieAuthenticationDefaults.AccessDeniedPath;
 
-                options.Cookie.SecurePolicy = config.CookieSecurePolicyAlways ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SecurePolicy = securityconfig.CookieSecurePolicyAlways ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
             });
 
             //add external authentication
             authenticationBuilder.AddCookie(GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme, options =>
             {
-                options.Cookie.Name = config.CookiePrefix + GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme;
+                options.Cookie.Name = securityconfig.CookiePrefix + GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme;
                 options.Cookie.HttpOnly = true;
                 options.LoginPath = GrandCookieAuthenticationDefaults.LoginPath;
                 options.AccessDeniedPath = GrandCookieAuthenticationDefaults.AccessDeniedPath;
-                options.Cookie.SecurePolicy = config.CookieSecurePolicyAlways ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SecurePolicy = securityconfig.CookieSecurePolicyAlways ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
             });
 
             //register external authentication plugins now
@@ -184,10 +184,13 @@ namespace Grand.Web.Common.Infrastructure
             //add razor runtime compilation
             mvcBuilder.AddRazorRuntimeCompilation();
 
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
+            var securityConfig = new SecurityConfig();
+            configuration.GetSection("Security").Bind(securityConfig);
 
-            if (config.UseHsts)
+            var appConfig = new AppConfig();
+            configuration.GetSection("Application").Bind(appConfig);
+
+            if (securityConfig.UseHsts)
             {
                 services.AddHsts(options =>
                 {
@@ -196,16 +199,16 @@ namespace Grand.Web.Common.Infrastructure
                 });
             }
 
-            if (config.UseHttpsRedirection)
+            if (securityConfig.UseHttpsRedirection)
             {
                 services.AddHttpsRedirection(options =>
                 {
-                    options.RedirectStatusCode = config.HttpsRedirectionRedirect;
-                    options.HttpsPort = config.HttpsRedirectionHttpsPort;
+                    options.RedirectStatusCode = securityConfig.HttpsRedirectionRedirect;
+                    options.HttpsPort = securityConfig.HttpsRedirectionHttpsPort;
                 });
             }
             //use session-based temp data provider
-            if (config.UseSessionStateTempDataProvider)
+            if (appConfig.UseSessionStateTempDataProvider)
             {
                 mvcBuilder.AddSessionStateTempDataProvider();
             }
@@ -238,7 +241,7 @@ namespace Grand.Web.Common.Infrastructure
                 options.IgnoredPaths.Add("/.well-known/pki-validation");
                 //determine who can access the MiniProfiler results
                 options.ResultsAuthorize = request =>
-                    !request.HttpContext.RequestServices.GetRequiredService<AppConfig>().DisplayMiniProfilerInPublicStore ||
+                    !request.HttpContext.RequestServices.GetRequiredService<PerformanceConfig>().DisplayMiniProfilerInPublicStore ||
                     request.HttpContext.RequestServices.GetRequiredService<IPermissionService>().Authorize(StandardPermission.AccessAdminPanel).Result;
             });
         }
@@ -277,9 +280,9 @@ namespace Grand.Web.Common.Infrastructure
 
         public static void AddHtmlMinification(this IServiceCollection services, IConfiguration configuration)
         {
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
-            if (config.UseHtmlMinification)
+            var performanceConfig = new PerformanceConfig();
+            configuration.GetSection("Performance").Bind(performanceConfig);
+            if (performanceConfig.UseHtmlMinification)
             {
                 // Add WebMarkupMin services
                 services.AddWebMarkupMin(options =>
@@ -329,7 +332,7 @@ namespace Grand.Web.Common.Infrastructure
                         };
                 });
             }
-            if (config.HtmlMinificationErrors)
+            if (performanceConfig.HtmlMinificationErrors)
                 services.AddSingleton<IWmmLogger, WmmThrowExceptionLogger>();
         }
 

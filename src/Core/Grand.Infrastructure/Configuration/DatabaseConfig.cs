@@ -1,6 +1,6 @@
 ﻿namespace Grand.Infrastructure.Configuration
 {
-    public partial class LiteDbConfig
+    public partial class DatabaseConfig
     {
         /// <summary>
         /// Gets or sets a value indicating whether use LiteDB database for your application

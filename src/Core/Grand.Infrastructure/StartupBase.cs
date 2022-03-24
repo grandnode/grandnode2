@@ -123,8 +123,8 @@ namespace Grand.Infrastructure
         /// <param name="configuration"></param>
         private static void RegisterExtensions(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration)
         {
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
+            var config = new ExtensionsConfig();
+            configuration.GetSection("Extensions").Bind(config);
 
             //Load plugins
             PluginManager.Load(mvcCoreBuilder, config);
@@ -190,14 +190,16 @@ namespace Grand.Infrastructure
             services.AddWkhtmltopdf();
 
             //add AppConfig configuration parameters
-            var config = services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
-            services.StartupConfig<HostingConfig>(configuration.GetSection("Hosting"));
+            services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
+            var performanceConfig = services.StartupConfig<PerformanceConfig>(configuration.GetSection("Performance"));
+            var securityConfig = services.StartupConfig<SecurityConfig>(configuration.GetSection("Security"));
+            services.StartupConfig<ExtensionsConfig>(configuration.GetSection("Extensions"));
             services.StartupConfig<UrlRewriteConfig>(configuration.GetSection("UrlRewrite"));
             services.StartupConfig<RedisConfig>(configuration.GetSection("Redis"));
             services.StartupConfig<RabbitConfig>(configuration.GetSection("Rabbit"));
             services.StartupConfig<ApiConfig>(configuration.GetSection("Api"));
             services.StartupConfig<GrandWebApiConfig>(configuration.GetSection("GrandWebApi"));
-            services.StartupConfig<LiteDbConfig>(configuration.GetSection("LiteDb"));
+            services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
             services.StartupConfig<AmazonConfig>(configuration.GetSection("Amazon"));
             services.StartupConfig<AzureConfig>(configuration.GetSection("Azure"));
 
@@ -210,11 +212,11 @@ namespace Grand.Infrastructure
 
             CommonPath.WebHostEnvironment = hostingEnvironment.WebRootPath;
             CommonPath.BaseDirectory = hostingEnvironment.ContentRootPath;
-            CommonHelper.CacheTimeMinutes = config.DefaultCacheTimeMinutes;
-            CommonHelper.CookieAuthExpires = config.CookieAuthExpires > 0 ? config.CookieAuthExpires : 24 * 365;
+            CommonHelper.CacheTimeMinutes = performanceConfig.DefaultCacheTimeMinutes;
+            CommonHelper.CookieAuthExpires = securityConfig.CookieAuthExpires > 0 ? securityConfig.CookieAuthExpires : 24 * 365;
 
-            CommonHelper.IgnoreAcl = config.IgnoreAcl;
-            CommonHelper.IgnoreStoreLimitations = config.IgnoreStoreLimitations;
+            CommonHelper.IgnoreAcl = performanceConfig.IgnoreAcl;
+            CommonHelper.IgnoreStoreLimitations = performanceConfig.IgnoreStoreLimitations;
 
             var mvcCoreBuilder = services.AddMvcCore();
 

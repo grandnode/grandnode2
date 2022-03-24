@@ -41,7 +41,7 @@ namespace Grand.Web.Admin.Controllers
 
         private readonly CurrencySettings _currencySettings;
         private readonly MeasureSettings _measureSettings;
-        private readonly AppConfig _appConfig;
+        private readonly ExtensionsConfig _extConfig;
         #endregion
 
         #region Constructors
@@ -58,7 +58,7 @@ namespace Grand.Web.Admin.Controllers
             ILogger logger,
             CurrencySettings currencySettings,
             MeasureSettings measureSettings,
-            AppConfig appConfig)
+            ExtensionsConfig extConfig)
         {
             _paymentService = paymentService;
             _shippingService = shippingService;
@@ -71,7 +71,7 @@ namespace Grand.Web.Admin.Controllers
             _translationService = translationService;
             _applicationLifetime = applicationLifetime;
             _logger = logger;
-            _appConfig = appConfig;
+            _extConfig = extConfig;
             _machineNameProvider = machineNameProvider;
         }
 
@@ -300,7 +300,7 @@ namespace Grand.Web.Admin.Controllers
 
         public IActionResult Roslyn()
         {
-            return View(_appConfig.UseRoslynScripts);
+            return View(_extConfig.UseRoslynScripts);
         }
 
         [HttpPost]

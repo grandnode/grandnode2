@@ -27,7 +27,7 @@ namespace Grand.Infrastructure.Plugins
 
         private static DirectoryInfo _copyFolder;
         private static DirectoryInfo _pluginFolder;
-        private static AppConfig _config;
+        private static ExtensionsConfig _config;
 
         #endregion
 
@@ -43,7 +43,7 @@ namespace Grand.Infrastructure.Plugins
         /// Load plugins
         /// </summary>
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void Load(IMvcCoreBuilder mvcCoreBuilder, AppConfig config)
+        public static void Load(IMvcCoreBuilder mvcCoreBuilder, ExtensionsConfig config)
         {
             lock (_synLock)
             {
@@ -64,7 +64,7 @@ namespace Grand.Infrastructure.Plugins
                     Directory.CreateDirectory(_pluginFolder.FullName);
                     Directory.CreateDirectory(_copyFolder.FullName);
                     var binFiles = _copyFolder.GetFiles("*", SearchOption.AllDirectories);
-                    if (config.ClearPluginShadowDirectoryOnStartup)
+                    if (config.PluginShadowCopy)
                     {
                         //clear out shadow plugins
                         foreach (var f in binFiles)

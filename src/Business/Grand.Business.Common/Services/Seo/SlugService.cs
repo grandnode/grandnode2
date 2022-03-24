@@ -17,7 +17,7 @@ namespace Grand.Business.Common.Services.Seo
 
         private readonly IRepository<EntityUrl> _urlEntityRepository;
         private readonly ICacheBase _cacheBase;
-        private readonly AppConfig _config;
+        private readonly PerformanceConfig _config;
 
         #endregion
 
@@ -26,12 +26,9 @@ namespace Grand.Business.Common.Services.Seo
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="cacheBase">Cache manager</param>
-        /// <param name="urlEntityRepository">URL Entity repository</param>
-        /// <param name="languageSettings">Localization settings</param>
         public SlugService(ICacheBase cacheBase,
             IRepository<EntityUrl> urlEntityRepository,
-            AppConfig config)
+            PerformanceConfig config)
         {
             _cacheBase = cacheBase;
             _urlEntityRepository = urlEntityRepository;

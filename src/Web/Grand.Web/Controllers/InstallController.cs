@@ -28,7 +28,7 @@ namespace Grand.Web.Controllers
         private readonly IServiceProvider _serviceProvider;
         private readonly IHostApplicationLifetime _applicationLifetime;
         private readonly IMediator _mediator;
-        private readonly LiteDbConfig _litedbConfig;
+        private readonly DatabaseConfig _dbConfig;
 
         /// <summary>
         /// Cookie name to language for the installation page
@@ -44,13 +44,13 @@ namespace Grand.Web.Controllers
             IHostApplicationLifetime applicationLifetime,
             IServiceProvider serviceProvider,
             IMediator mediator,
-            LiteDbConfig litedbConfig)
+            DatabaseConfig litedbConfig)
         {
             _cacheBase = cacheBase;
             _applicationLifetime = applicationLifetime;
             _serviceProvider = serviceProvider;
             _mediator = mediator;
-            _litedbConfig = litedbConfig;
+            _dbConfig = litedbConfig;
         }
 
         #endregion
@@ -163,13 +163,13 @@ namespace Grand.Web.Controllers
                 }
                 else
                 {
-                    if (!_litedbConfig.UseLiteDb)
+                    if (!_dbConfig.UseLiteDb)
                         ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "InfoLiteDb"));
 
-                    if (string.IsNullOrEmpty(_litedbConfig.LiteDbConnectionString))
+                    if (string.IsNullOrEmpty(_dbConfig.LiteDbConnectionString))
                         ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "InfoLiteDbConnectionString"));
 
-                    connectionString = _litedbConfig.LiteDbConnectionString;
+                    connectionString = _dbConfig.LiteDbConnectionString;
                 }
             }
             return connectionString;
@@ -177,11 +177,11 @@ namespace Grand.Web.Controllers
 
         protected async Task CheckConnectionString(IInstallationLocalizedService locService, string connectionString, InstallModel model)
         {
-            if (!_litedbConfig.UseLiteDb && model.DataProvider == DbProvider.LiteDB)
+            if (!_dbConfig.UseLiteDb && model.DataProvider == DbProvider.LiteDB)
             {
                 ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "UseLiteDbEnable"));
             }
-            if (_litedbConfig.UseLiteDb && model.DataProvider != DbProvider.LiteDB)
+            if (_dbConfig.UseLiteDb && model.DataProvider != DbProvider.LiteDB)
             {
                 ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "UseLiteDbDisable"));
             }

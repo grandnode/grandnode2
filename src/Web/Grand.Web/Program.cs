@@ -42,7 +42,7 @@ Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configurat
 Grand.Infrastructure.StartupBase.ConfigureServices(builder.Services, builder.Configuration);
 
 //Allow non ASCII chars in headers
-var config = new HostingConfig();
+var config = new AppConfig();
 builder.Configuration.GetSection("Application").Bind(config);
 if (config.AllowNonAsciiCharInHeaders)
 {
