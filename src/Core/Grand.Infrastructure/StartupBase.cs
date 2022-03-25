@@ -185,9 +185,7 @@ namespace Grand.Infrastructure
                     });
                     cfg.ConfigureEndpoints(context);
                 });
-            });
-            //for automaticly start/stop bus
-            services.AddMassTransitHostedService();
+            });            
         }
 
         /// <summary>
