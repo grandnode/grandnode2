@@ -39,6 +39,13 @@ namespace Grand.Domain.Data
             return _dataSettings;
         }
 
+        public static DataSettings LoadDataSettings(DataSettings dataSettings)
+        {
+            _dataSettings = dataSettings;
+            return _dataSettings;
+        }
+
+
         /// <summary>
         /// Returns a value indicating whether database is already installed
         /// </summary>

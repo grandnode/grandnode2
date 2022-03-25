@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation.AspNetCore;
+using Grand.Domain.Data;
 using Grand.Infrastructure.Caching.RabbitMq;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
@@ -27,6 +28,21 @@ namespace Grand.Infrastructure
     public static class StartupBase
     {
         #region Utilities
+
+        /// <summary>
+        /// Init Database
+        /// </summary>
+        private static void InitDatabase(IServiceCollection services, IConfiguration configuration)
+        {
+            var advancedConfig = services.StartupConfig<AdvancedConfig>(configuration.GetSection("Advanced"));
+            if(!string.IsNullOrEmpty(advancedConfig.DbConnectionString))
+            {
+                DataSettingsManager.LoadDataSettings(new DataSettings() { 
+                    ConnectionString = advancedConfig.DbConnectionString,
+                    DbProvider = (DbProvider)advancedConfig.DbProvider,
+                });
+            }
+        }
 
         /// <summary>
         /// Register and init AutoMapper
@@ -123,14 +139,11 @@ namespace Grand.Infrastructure
         /// <param name="configuration"></param>
         private static void RegisterExtensions(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration)
         {
-            var config = new ExtensionsConfig();
-            configuration.GetSection("Extensions").Bind(config);
-
             //Load plugins
-            PluginManager.Load(mvcCoreBuilder, config);
+            PluginManager.Load(mvcCoreBuilder, configuration);
 
             //Load CTX sctipts
-            RoslynCompiler.Load(mvcCoreBuilder.PartManager, config);
+            RoslynCompiler.Load(mvcCoreBuilder.PartManager, configuration);
         }
 
         /// <summary>
@@ -202,6 +215,8 @@ namespace Grand.Infrastructure
             services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
             services.StartupConfig<AmazonConfig>(configuration.GetSection("Amazon"));
             services.StartupConfig<AzureConfig>(configuration.GetSection("Azure"));
+
+            InitDatabase(services, configuration);
 
             //set base application path
             var provider = services.BuildServiceProvider();
