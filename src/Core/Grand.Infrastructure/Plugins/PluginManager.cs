@@ -50,7 +50,7 @@ namespace Grand.Infrastructure.Plugins
             configuration.GetSection("Extensions").Bind(config);
 
             var advconfig = new AdvancedConfig();
-            configuration.GetSection("AdvancedConfig").Bind(advconfig);
+            configuration.GetSection("Advanced").Bind(advconfig);
 
             lock (_synLock)
             {
