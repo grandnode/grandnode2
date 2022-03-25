@@ -81,10 +81,10 @@ namespace Grand.Business.Storage.Services
         /// <returns>Local picture thumb path</returns>
         protected override async Task<string> GetThumbPhysicalPath(string thumbFileName)
         {
-            var thumbFile = await Task.FromResult($"{_config.AzureBlobStorageEndPoint}{_config.AzureBlobStorageContainerName}/{thumbFileName}");
+            var thumbFilePath = $"{_config.AzureBlobStorageEndPoint}{_config.AzureBlobStorageContainerName}/{thumbFileName}";
             var blobClient = container.GetBlobClient(thumbFileName);
             bool exists = await blobClient.ExistsAsync();
-            return  exists? thumbFile : String.Empty;
+            return  exists? thumbFilePath : string.Empty;
         }
 
         /// <summary>
