@@ -7,9 +7,9 @@ namespace Grand.Web.Admin.Models.Common
     {
         public SystemInfoModel()
         {
-            this.ServerVariables = new List<ServerVariableModel>();
-            this.LoadedAssemblies = new List<LoadedAssembly>();
-            this.SystemWarnings = new List<SystemWarningModel>();
+            ServerVariables = new List<ServerVariableModel>();
+            LoadedAssemblies = new List<LoadedAssembly>();
+            SystemWarnings = new List<SystemWarningModel>();
         }
 
         [GrandResourceDisplayName("Admin.System.SystemInfo.ASPNETInfo")]
@@ -24,6 +24,15 @@ namespace Grand.Web.Admin.Models.Common
 
         [GrandResourceDisplayName("Admin.System.SystemInfo.OperatingSystem")]
         public string OperatingSystem { get; set; }
+
+        [GrandResourceDisplayName("Admin.System.SystemInfo.WebRootPath")]
+        public string WebRootPath { get; set; }
+
+        [GrandResourceDisplayName("Admin.System.SystemInfo.ContentRootPath")]
+        public string ContentRootPath { get; set; }
+
+        [GrandResourceDisplayName("Admin.System.SystemInfo.EnvironmentName")]
+        public string EnvironmentName { get; set; }
 
         [GrandResourceDisplayName("Admin.System.SystemInfo.ServerLocalTime")]
         public DateTime ServerLocalTime { get; set; }

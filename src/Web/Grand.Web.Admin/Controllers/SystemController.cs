@@ -16,6 +16,7 @@ using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Common;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
@@ -37,6 +38,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly ITranslationService _translationService;
         private readonly IMachineNameProvider _machineNameProvider;
         private readonly IHostApplicationLifetime _applicationLifetime;
+        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ILogger _logger;
 
         private readonly CurrencySettings _currencySettings;
@@ -55,6 +57,7 @@ namespace Grand.Web.Admin.Controllers
             ITranslationService translationService,
             IMachineNameProvider machineNameProvider,
             IHostApplicationLifetime applicationLifetime,
+            IWebHostEnvironment webHostEnvironment,
             ILogger logger,
             CurrencySettings currencySettings,
             MeasureSettings measureSettings,
@@ -70,6 +73,7 @@ namespace Grand.Web.Admin.Controllers
             _workContext = workContext;
             _translationService = translationService;
             _applicationLifetime = applicationLifetime;
+            _webHostEnvironment = webHostEnvironment;
             _logger = logger;
             _extConfig = extConfig;
             _machineNameProvider = machineNameProvider;
@@ -95,7 +99,9 @@ namespace Grand.Web.Admin.Controllers
             catch (Exception) { }
 
             model.MachineName = _machineNameProvider.GetMachineName();
-
+            model.WebRootPath = _webHostEnvironment.WebRootPath;
+            model.ContentRootPath = _webHostEnvironment.ContentRootPath;
+            model.EnvironmentName = _webHostEnvironment.EnvironmentName;
             model.ServerTimeZone = TimeZoneInfo.Local.StandardName;
             model.ServerLocalTime = DateTime.Now;
             model.ApplicationTime = _dateTimeService.ConvertToUserTime(DateTime.UtcNow, TimeZoneInfo.Utc, _dateTimeService.CurrentTimeZone);

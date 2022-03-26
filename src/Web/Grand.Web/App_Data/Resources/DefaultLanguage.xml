@@ -12594,9 +12594,15 @@
   <Resource Name="Admin.System.SystemInfo.ASPNETInfo">
     <Value>ASP.NET info</Value>
   </Resource>
+  <Resource Name="Admin.System.SystemInfo.ContentRootPath">
+	<Value>Absolute path to the directory that contains the application content files</Value>
+  </Resource>
   <Resource Name="Admin.System.SystemInfo.GrandVersion">
     <Value>grandnode version</Value>
   </Resource>
+  <Resource Name="Admin.System.SystemInfo.EnvironmentName">
+	<Value>The name of the environment</Value>
+  </Resource>	
   <Resource Name="Admin.System.SystemInfo.HTTPHOST">
     <Value>HTTP_HOST</Value>
   </Resource>
@@ -12623,9 +12629,12 @@
   </Resource>
   <Resource Name="Admin.System.SystemInfo.ServerVariables">
     <Value>Server variables</Value>
-  </Resource>
+  </Resource>	
   <Resource Name="Admin.System.SystemInfo.UTCTime">
     <Value>Greenwich Mean Time (GMT/UTC)</Value>
+  </Resource>
+  <Resource Name="Admin.System.SystemInfo.WebRootPath">
+	<Value>Absolute path to the directory that contains the web-servable application content files</Value>
   </Resource>
   <Resource Name="Admin.System.UserApi.Email">
     <Value>Email</Value>

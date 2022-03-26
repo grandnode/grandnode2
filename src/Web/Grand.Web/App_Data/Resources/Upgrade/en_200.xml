@@ -51,4 +51,13 @@
 	<Resource Name="Admin.Settings.GeneralCommon.ReCaptchaScore">
 		<Value>reCAPTCHA v3 Score (1.0 is very likely a very good interaction, 0.0 is very likely a bot)</Value>
 	</Resource>
+	<Resource Name="Admin.System.SystemInfo.WebRootPath">
+		<Value>Absolute path to the directory that contains the web-servable application content files</Value>
+	</Resource>
+	<Resource Name="Admin.System.SystemInfo.ContentRootPath">
+		<Value>Absolute path to the directory that contains the application content files</Value>
+	</Resource>
+	<Resource Name="Admin.System.SystemInfo.EnvironmentName">
+		<Value>The name of the environment</Value>
+	</Resource>	
 </Language>
