@@ -8,9 +8,9 @@ namespace Grand.Api.Commands.Handlers.Common
 {
     public class GenerateTokenCommandHandler : IRequestHandler<GenerateTokenCommand, string>
     {
-        private readonly ApiConfig _apiConfig;
+        private readonly BackendAPIConfig _apiConfig;
 
-        public GenerateTokenCommandHandler(ApiConfig apiConfig)
+        public GenerateTokenCommandHandler(BackendAPIConfig apiConfig)
         {
             _apiConfig = apiConfig;
         }

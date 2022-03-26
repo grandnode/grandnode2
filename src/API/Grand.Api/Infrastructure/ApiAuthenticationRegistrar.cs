@@ -16,8 +16,8 @@ namespace Grand.Api.Infrastructure
         {
             builder.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
             {
-                var config = new ApiConfig();
-                configuration.GetSection("Api").Bind(config);
+                var config = new BackendAPIConfig();
+                configuration.GetSection("BackendAPI").Bind(config);
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = config.ValidateIssuer,
@@ -66,10 +66,10 @@ namespace Grand.Api.Infrastructure
             });
 
 
-            builder.AddJwtBearer(GrandWebApiConfig.Scheme, options =>
+            builder.AddJwtBearer(FrontendAPIConfig.Scheme, options =>
             {
-                var config = new GrandWebApiConfig();
-                configuration.GetSection("GrandWebApi").Bind(config);
+                var config = new FrontendAPIConfig();
+                configuration.GetSection("FrontentAPI").Bind(config);
                 options.TokenValidationParameters = new TokenValidationParameters {
                     ValidateIssuer = config.ValidateIssuer,
                     ValidateAudience = config.ValidateAudience,

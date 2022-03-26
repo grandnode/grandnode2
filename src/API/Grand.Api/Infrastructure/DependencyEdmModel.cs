@@ -359,7 +359,7 @@ namespace Grand.Api.Infrastructure
             #endregion
         }
 
-        public void Register(ODataConventionModelBuilder builder, ApiConfig apiConfig)
+        public void Register(ODataConventionModelBuilder builder, BackendAPIConfig apiConfig)
         {
             if (apiConfig.SystemModel)
             {

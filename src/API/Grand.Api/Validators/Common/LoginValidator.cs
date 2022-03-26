@@ -12,7 +12,7 @@ namespace Grand.Api.Validators.Common
     {
         public LoginValidator(
             IEnumerable<IValidatorConsumer<LoginModel>> validators,
-            ApiConfig apiConfig, ICustomerService customerService, IUserApiService userApiService, IEncryptionService encryptionService)
+            BackendAPIConfig apiConfig, ICustomerService customerService, IUserApiService userApiService, IEncryptionService encryptionService)
             : base(validators)
         {
             if (!apiConfig.Enabled)

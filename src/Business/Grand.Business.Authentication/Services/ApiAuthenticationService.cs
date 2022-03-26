@@ -79,7 +79,7 @@ namespace Grand.Business.Authentication.Services
         private async Task<Customer> ApiCustomer()
         {
             Customer customer = null;
-            var authResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(GrandWebApiConfig.Scheme);
+            var authResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(FrontendAPIConfig.Scheme);
             if (!authResult.Succeeded)
             {
                 _httpContextAccessor.HttpContext.Response.StatusCode = 400;

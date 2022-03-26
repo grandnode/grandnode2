@@ -23,7 +23,7 @@ namespace Grand.Api.Controllers
         private readonly IRefreshTokenService _refreshTokenService;
         private readonly IUserFieldService _userFieldService;
         private readonly IAntiforgery _antiforgery;
-        private readonly GrandWebApiConfig _apiConfig;
+        private readonly FrontendAPIConfig _apiConfig;
 
         public TokenWebController(
             ICustomerService customerService,
@@ -32,7 +32,7 @@ namespace Grand.Api.Controllers
             IRefreshTokenService refreshTokenService,
             IUserFieldService userFieldService,
             IAntiforgery antiforgery,
-            GrandWebApiConfig apiConfig)
+            FrontendAPIConfig apiConfig)
         {
             _customerService = customerService;
             _mediator = mediator;
