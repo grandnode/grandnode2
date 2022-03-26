@@ -9,7 +9,7 @@ env:
   AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.grandnode_81e0 }}
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 6.0.x
-  WORKING_DIRECTORY: src/Web/Grand.Web
+  WORKING_DIRECTORY: src/Web/Grand.Web  
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -21,6 +21,8 @@ jobs:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
     - name: Restore
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
+    - name: Build sln
+      run: dotnet build "GrandNode.sln"
     - name: Build
       run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
     - name: Test
