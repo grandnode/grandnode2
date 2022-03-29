@@ -8,25 +8,25 @@ namespace Grand.Api.Commands.Handlers.Common
 {
     public class GenerateTokenWebCommandHandler : IRequestHandler<GenerateTokenWebCommand, string>
     {
-        private readonly FrontendAPIConfig _frontentApiConfig;
+        private readonly FrontendAPIConfig _frontendApiConfig;
 
         public GenerateTokenWebCommandHandler(FrontendAPIConfig frontedApiConfig)
         {
-            _frontentApiConfig = frontedApiConfig;
+            _frontendApiConfig = frontedApiConfig;
         }
 
         public async Task<string> Handle(GenerateTokenWebCommand request, CancellationToken cancellationToken)
         {
             var token = new JwtTokenBuilder();
-            token.AddSecurityKey(JwtSecurityKey.Create(_frontentApiConfig.SecretKey));
+            token.AddSecurityKey(JwtSecurityKey.Create(_frontendApiConfig.SecretKey));
 
-            if (_frontentApiConfig.ValidateIssuer)
-                token.AddIssuer(_frontentApiConfig.ValidIssuer);
-            if (_frontentApiConfig.ValidateAudience)
-                token.AddAudience(_frontentApiConfig.ValidAudience);
+            if (_frontendApiConfig.ValidateIssuer)
+                token.AddIssuer(_frontendApiConfig.ValidIssuer);
+            if (_frontendApiConfig.ValidateAudience)
+                token.AddAudience(_frontendApiConfig.ValidAudience);
 
             token.AddClaims(request.Claims);
-            token.AddExpiry(_frontentApiConfig.ExpiryInMinutes);
+            token.AddExpiry(_frontendApiConfig.ExpiryInMinutes);
             token.Build();
 
             return await Task.FromResult(token.Build().Value);
