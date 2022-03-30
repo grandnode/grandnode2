@@ -69,7 +69,7 @@ namespace Grand.Api.Infrastructure
             builder.AddJwtBearer(FrontendAPIConfig.Scheme, options =>
             {
                 var config = new FrontendAPIConfig();
-                configuration.GetSection("FrontentAPI").Bind(config);
+                configuration.GetSection("FrontendAPI").Bind(config);
                 options.TokenValidationParameters = new TokenValidationParameters {
                     ValidateIssuer = config.ValidateIssuer,
                     ValidateAudience = config.ValidateAudience,
