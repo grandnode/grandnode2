@@ -50,7 +50,7 @@ namespace Grand.Web.Common.Menu
         {
             await PopulateNode(siteMap, siteMapNode);
 
-            foreach (var item in siteMapNode.ChildNodes)
+            foreach (var item in siteMapNode.ChildNodes.OrderBy(x=>x.DisplayOrder))
             {
                 var mainsite = new SiteMapNode();
                 siteMap.ChildNodes.Add(mainsite);
