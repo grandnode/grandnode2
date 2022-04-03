@@ -28,6 +28,9 @@ namespace Grand.Web.Common.Startup
             //add WebMarkupMin
             services.AddHtmlMinification(configuration);
 
+            //add ApplicationInsights
+            services.AddApplicationInsights(configuration);
+
             //add and configure MVC feature
             services.AddGrandMvc(configuration);
 

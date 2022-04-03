@@ -213,6 +213,7 @@ namespace Grand.Infrastructure
             services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
             services.StartupConfig<AmazonConfig>(configuration.GetSection("Amazon"));
             services.StartupConfig<AzureConfig>(configuration.GetSection("Azure"));
+            services.StartupConfig<ApplicationInsightsConfig>(configuration.GetSection("ApplicationInsights"));
 
             InitDatabase(services, configuration);
 
