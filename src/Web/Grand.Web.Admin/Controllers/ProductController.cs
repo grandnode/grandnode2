@@ -15,6 +15,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Extensions;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
@@ -2660,7 +2661,11 @@ namespace Grand.Web.Admin.Controllers
                 }
             }
 
+            //update fields on product
             await _mediator.Send(new UpdateIntervalPropertiesCommand() { Product = product, IncludeBothDates = model.IncBothDate, Interval = model.Interval, IntervalUnit = (IntervalUnit)model.IntervalUnit });
+
+            //event notification
+            await _mediator.EntityUpdated(product);
 
             if (!ModelState.IsValid)
             {
