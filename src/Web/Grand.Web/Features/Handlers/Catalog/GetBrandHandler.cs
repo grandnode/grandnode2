@@ -15,7 +15,6 @@ namespace Grand.Web.Features.Handlers.Catalog
     public class GetBrandHandler : IRequestHandler<GetBrand, BrandModel>
     {
         private readonly IMediator _mediator;
-        private readonly ICacheBase _cacheBase;
         private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -23,13 +22,11 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public GetBrandHandler(
             IMediator mediator,
-            ICacheBase cacheBase,
             ISpecificationAttributeService specificationAttributeService,
             IHttpContextAccessor httpContextAccessor,
             CatalogSettings catalogSettings)
         {
             _mediator = mediator;
-            _cacheBase = cacheBase;
             _specificationAttributeService = specificationAttributeService;
             _httpContextAccessor = httpContextAccessor;
             _catalogSettings = catalogSettings;
