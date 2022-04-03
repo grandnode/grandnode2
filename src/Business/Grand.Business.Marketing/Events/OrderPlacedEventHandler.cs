@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Checkout.Events.Orders;
-using Grand.Business.Marketing.Commands.Models;
 using Grand.Business.Marketing.Interfaces.Customers;
 using Grand.Domain.Customers;
+using Grand.Domain.Data;
 using MediatR;
 
 namespace Grand.Business.Marketing.Events
@@ -9,12 +9,13 @@ namespace Grand.Business.Marketing.Events
     public class OrderPlacedEventHandler : INotificationHandler<OrderPlacedEvent>
     {
         private readonly ICustomerActionEventService _customerActionEventService;
-        private readonly IMediator _mediator;
+        private readonly IRepository<CustomerReminderHistory> _customerReminderHistory;
 
-        public OrderPlacedEventHandler(ICustomerActionEventService customerActionEventService, IMediator mediator)
+        public OrderPlacedEventHandler(ICustomerActionEventService customerActionEventService,
+            IRepository<CustomerReminderHistory> customerReminderHistory)
         {
             _customerActionEventService = customerActionEventService;
-            _mediator = mediator;
+            _customerReminderHistory = customerReminderHistory;
         }
 
         public async Task Handle(OrderPlacedEvent notification, CancellationToken cancellationToken)
@@ -23,7 +24,13 @@ namespace Grand.Business.Marketing.Events
             await _customerActionEventService.AddOrder(notification.Order, CustomerActionTypeEnum.AddOrder);
 
             //customer reminder
-            await _mediator.Send(new UpdateCustomerReminderHistoryCommand() { CustomerId = notification.Order.CustomerId, OrderId = notification.Order.Id });
+            var update = UpdateBuilder<CustomerReminderHistory>.Create()
+                .Set(x => x.EndDate, DateTime.UtcNow)
+                .Set(x => x.Status, CustomerReminderHistoryStatusEnum.CompletedOrdered)
+                .Set(x => x.OrderId, notification.Order.Id);
+
+            _ = _customerReminderHistory.UpdateManyAsync(x => x.CustomerId == notification.Order.CustomerId && x.Status == CustomerReminderHistoryStatusEnum.Started, update);
+
         }
     }
 }
