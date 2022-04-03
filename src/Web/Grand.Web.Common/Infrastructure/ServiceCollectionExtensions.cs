@@ -335,7 +335,16 @@ namespace Grand.Web.Common.Infrastructure
             if (performanceConfig.HtmlMinificationErrors)
                 services.AddSingleton<IWmmLogger, WmmThrowExceptionLogger>();
         }
+        public static void AddApplicationInsights(this IServiceCollection services, IConfiguration configuration)
+        {
+            var applicationInsights = new ApplicationInsightsConfig();
+            configuration.GetSection("ApplicationInsights").Bind(applicationInsights);
+            if(applicationInsights.Enabled)
+            {
+                services.AddApplicationInsightsTelemetry();
+            }
 
+        }
         /// <summary>
         /// Adds services for WebEncoderOptions
         /// </summary>

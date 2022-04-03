@@ -14,8 +14,7 @@ namespace Grand.Business.Catalog.Tests.Handlers
     [TestClass()]
     public class UpdateIntervalPropertiesCommandHandlerTests
     {
-        private Mock<MongoRepository<Product>> _repositoryMock;
-        private Mock<IMediator> _mediatorMock;
+        private Mock<MongoRepository<Product>> _repositoryMock;       
         private Mock<ICacheBase> _cacheMock;
         private UpdateIntervalPropertiesCommandHandler _handler;
 
@@ -25,9 +24,8 @@ namespace Grand.Business.Catalog.Tests.Handlers
             CommonPath.BaseDirectory = "";
 
             _repositoryMock = new Mock<MongoRepository<Product>>();
-            _mediatorMock = new Mock<IMediator>();
             _cacheMock = new Mock<ICacheBase>();
-            _handler = new UpdateIntervalPropertiesCommandHandler(_repositoryMock.Object, _mediatorMock.Object, _cacheMock.Object);
+            _handler = new UpdateIntervalPropertiesCommandHandler(_repositoryMock.Object, _cacheMock.Object);
         }
 
         [TestMethod()]
@@ -48,7 +46,7 @@ namespace Grand.Business.Catalog.Tests.Handlers
             //TODO
             //collectionMock.Verify(c => c.UpdateOneAsync(x => x.Id == product.Id, It.IsAny<UpdateDefinition<Product>>(), null, default), Times.Once);
             _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
-            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Product>>(), default(CancellationToken)), Times.Once);
+            
         }
     }
 }

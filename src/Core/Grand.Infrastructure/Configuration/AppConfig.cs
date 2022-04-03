@@ -50,6 +50,11 @@ namespace Grand.Infrastructure.Configuration
         public bool AllowNonAsciiCharInHeaders { get; set; }
 
         /// <summary>
+        /// Gets or sets the maximum allowed size of any request body in bytes
+        /// </summary>
+        public long? MaxRequestBodySize { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating - (Serilog) use middleware for smarter HTTP request logging
         /// </summary>
         public bool UseSerilogRequestLogging { get; set; }

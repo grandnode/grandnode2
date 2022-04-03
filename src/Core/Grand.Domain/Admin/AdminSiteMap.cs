@@ -47,6 +47,11 @@
         public string IconClass { get; set; }
 
         /// <summary>
+        /// Gets or sets the display order
+        /// </summary>
+        public int DisplayOrder { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether to open url in new tab (window) or not
         /// </summary>
         public bool OpenUrlInNewTab { get; set; }

@@ -3,7 +3,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
-using Grand.Infrastructure.Extensions;
 using MediatR;
 
 namespace Grand.Business.Catalog.Commands.Handlers
@@ -11,13 +10,11 @@ namespace Grand.Business.Catalog.Commands.Handlers
     public class UpdateIntervalPropertiesCommandHandler : IRequestHandler<UpdateIntervalPropertiesCommand, bool>
     {
         private readonly IRepository<Product> _productRepository;
-        private readonly IMediator _mediator;
         private readonly ICacheBase _cacheBase;
 
-        public UpdateIntervalPropertiesCommandHandler(IRepository<Product> productRepository, IMediator mediator, ICacheBase cacheBase)
+        public UpdateIntervalPropertiesCommandHandler(IRepository<Product> productRepository, ICacheBase cacheBase)
         {
             _productRepository = productRepository;
-            _mediator = mediator;
             _cacheBase = cacheBase;
         }
 
@@ -35,9 +32,6 @@ namespace Grand.Business.Catalog.Commands.Handlers
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, request.Product.Id));
-
-            //event notification
-            await _mediator.EntityUpdated(request.Product);
 
             return true;
         }

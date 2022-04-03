@@ -3,6 +3,7 @@ using Grand.Web.Common.Startup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
@@ -51,7 +52,19 @@ if (config.AllowNonAsciiCharInHeaders)
         options.ResponseHeaderEncodingSelector = (_) => Encoding.UTF8;
     });
 }
+if(config.MaxRequestBodySize.HasValue)
+{
+    builder.WebHost.ConfigureKestrel(host =>
+    {
+        host.Limits.MaxRequestBodySize = config.MaxRequestBodySize.Value;        
+    });
 
+    builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(opt =>
+    {
+        opt.MultipartBodyLengthLimit = config.MaxRequestBodySize.Value;        
+    });
+
+}
 //register task
 builder.Services.RegisterTasks();
 
