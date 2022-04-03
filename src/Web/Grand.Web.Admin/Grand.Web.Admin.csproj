@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 	<Import Project="..\..\Build\Grand.Common.props" />
 	<PropertyGroup>
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
@@ -6,6 +6,7 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<Content Include="Areas\**" CopyToPublishDirectory="Never"/>
+		<Content Include="wwwroot\**" CopyToPublishDirectory="PreserveNewest"/>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="elFinder.Net.AspNetCore" Version="1.4.4" />
