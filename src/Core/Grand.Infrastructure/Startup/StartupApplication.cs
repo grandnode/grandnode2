@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
-using MongoDB.Driver.Core.Events;
 
 namespace Grand.Infrastructure.Startup
 {
@@ -54,7 +53,7 @@ namespace Grand.Infrastructure.Startup
                     var databaseName = mongourl.DatabaseName;
                     var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
                     clientSettings.LinqProvider = MongoDB.Driver.Linq.LinqProvider.V3;
-                    
+
                     if (applicationInsights.Enabled)
                         clientSettings.ClusterConfigurator = builder => { builder.Subscribe(new ApplicationInsightsSubscriber(serviceCollection)); };
 
@@ -90,21 +89,6 @@ namespace Grand.Infrastructure.Startup
 
             }
 
-        }
-        private void CmdStartHandlerForFindCommand(CommandStartedEvent cmdStart)
-        {
-            if (cmdStart.CommandName == "find")
-            {
-                //WriteToConsole(cmdStart.Command, "request"); 
-            }
-        }
-
-        private void CmdSuccessHandlerForFindCommand(CommandSucceededEvent cmdSuccess)
-        {
-            if (cmdSuccess.CommandName == "find")
-            {
-                //WriteToConsole(cmdSuccess.Reply, "response"); 
-            }
         }
     }
 }
