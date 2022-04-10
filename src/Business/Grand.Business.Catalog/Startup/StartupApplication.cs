@@ -17,6 +17,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Grand.Business.Catalog.Services.Brands;
 using Grand.Business.Catalog.Interfaces.Brands;
+using Grand.Business.Catalog.Services.Directory;
+using Grand.Business.Catalog.Interfaces.Directory;
 
 namespace Grand.Business.Catalog.Startup
 {
@@ -66,6 +68,7 @@ namespace Grand.Business.Catalog.Startup
             serviceCollection.AddScoped<IInventoryManageService, InventoryManageService>();
             serviceCollection.AddScoped<IStockQuantityService, StockQuantityService>();
             serviceCollection.AddScoped<IPricingService, PricingService>();
+            serviceCollection.AddScoped<ISearchTermService, SearchTermService>();
         }
 
         private void RegisterDiscountsService(IServiceCollection serviceCollection)

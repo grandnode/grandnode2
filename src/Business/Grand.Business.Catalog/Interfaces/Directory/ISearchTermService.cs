@@ -1,8 +1,8 @@
-using Grand.Business.Common.Utilities;
+using Grand.Business.Catalog.Utilities;
 using Grand.Domain;
 using Grand.Domain.Common;
 
-namespace Grand.Business.Common.Interfaces.Directory
+namespace Grand.Business.Catalog.Interfaces.Directory
 {
     /// <summary>
     /// Search term service interafce

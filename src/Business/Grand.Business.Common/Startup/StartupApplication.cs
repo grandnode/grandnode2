@@ -57,7 +57,6 @@ namespace Grand.Business.Common.Startup
         }
         private void RegisterDirectoryService(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<ISearchTermService, SearchTermService>();
             serviceCollection.AddScoped<IDateTimeService, DateTimeService>();
             serviceCollection.AddScoped<ICookiePreference, CookiePreference>();
             serviceCollection.AddScoped<IGeoLookupService, GeoLookupService>();

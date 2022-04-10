@@ -1,4 +1,5 @@
-﻿using Grand.Business.Catalog.Interfaces.Prices;
+﻿using Grand.Business.Catalog.Interfaces.Directory;
+using Grand.Business.Catalog.Interfaces.Prices;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Common.Extensions;
@@ -115,8 +116,7 @@ namespace Grand.Web.Admin.Controllers
             var result = new List<BestsellersReportLineModel>();
             foreach (var x in items)
             {
-                var m = new BestsellersReportLineModel
-                {
+                var m = new BestsellersReportLineModel {
                     ProductId = x.ProductId,
                     TotalAmount = _priceFormatter.FormatPrice(x.TotalAmount, false),
                     TotalQuantity = x.TotalQuantity,
@@ -127,8 +127,7 @@ namespace Grand.Web.Admin.Controllers
                 result.Add(m);
             }
 
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = result,
                 Total = items.TotalCount
             };
@@ -140,32 +139,28 @@ namespace Grand.Web.Admin.Controllers
         {
             var report = new List<OrderPeriodReportLineModel>();
             var reportperiod7days = await _orderReportService.GetOrderPeriodReport(7, _workContext.CurrentCustomer.StaffStoreId);
-            report.Add(new OrderPeriodReportLineModel
-            {
+            report.Add(new OrderPeriodReportLineModel {
                 Period = _translationService.GetResource("Admin.Reports.Period.7days"),
                 Count = reportperiod7days.Count,
                 Amount = reportperiod7days.Amount
             });
 
             var reportperiod14days = await _orderReportService.GetOrderPeriodReport(14, _workContext.CurrentCustomer.StaffStoreId);
-            report.Add(new OrderPeriodReportLineModel
-            {
+            report.Add(new OrderPeriodReportLineModel {
                 Period = _translationService.GetResource("Admin.Reports.Period.14days"),
                 Count = reportperiod14days.Count,
                 Amount = reportperiod14days.Amount
             });
 
             var reportperiodmonth = await _orderReportService.GetOrderPeriodReport(30, _workContext.CurrentCustomer.StaffStoreId);
-            report.Add(new OrderPeriodReportLineModel
-            {
+            report.Add(new OrderPeriodReportLineModel {
                 Period = _translationService.GetResource("Admin.Reports.Period.month"),
                 Count = reportperiodmonth.Count,
                 Amount = reportperiodmonth.Amount
             });
 
             var reportperiodyear = await _orderReportService.GetOrderPeriodReport(365, _workContext.CurrentCustomer.StaffStoreId);
-            report.Add(new OrderPeriodReportLineModel
-            {
+            report.Add(new OrderPeriodReportLineModel {
                 Period = _translationService.GetResource("Admin.Reports.Period.year"),
                 Count = reportperiodyear.Count,
                 Amount = reportperiodyear.Amount
@@ -201,8 +196,7 @@ namespace Grand.Web.Admin.Controllers
 
         public async Task<IActionResult> BestsellersReport()
         {
-            var model = new BestsellersReportModel
-            {
+            var model = new BestsellersReportModel {
                 //vendor
                 IsLoggedInAsVendor = _workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer)
             };
@@ -278,8 +272,7 @@ namespace Grand.Web.Admin.Controllers
             var result = new List<BestsellersReportLineModel>();
             foreach (var x in items)
             {
-                var m = new BestsellersReportLineModel
-                {
+                var m = new BestsellersReportLineModel {
                     ProductId = x.ProductId,
                     TotalAmount = _priceFormatter.FormatPrice(x.TotalAmount, false),
                     TotalQuantity = x.TotalQuantity,
@@ -295,8 +288,7 @@ namespace Grand.Web.Admin.Controllers
                 else
                     result.Add(m);
             }
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = result,
                 Total = items.TotalCount
             };
@@ -311,8 +303,7 @@ namespace Grand.Web.Admin.Controllers
                 return Content("");
 
             var model = await GetReportOrderPeriodModel();
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = model,
                 Total = model.Count
             };
@@ -331,8 +322,7 @@ namespace Grand.Web.Admin.Controllers
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
             var model = await _orderReportService.GetOrderByTimeReport(storeId, startDate, endDate);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = model
             };
             return Json(gridModel);
@@ -365,11 +355,9 @@ namespace Grand.Web.Admin.Controllers
             var items = await _orderReportService.ProductsNeverSold(storeId, vendorId,
                 startDateValue, endDateValue,
                 command.Page - 1, command.PageSize, true);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = items.Select(x =>
-                    new NeverSoldReportLineModel
-                    {
+                    new NeverSoldReportLineModel {
                         ProductId = x.Id,
                         ProductName = x.Name,
                     }),
@@ -403,8 +391,7 @@ namespace Grand.Web.Admin.Controllers
 
             var statuses = await _orderStatusService.GetAll();
 
-            var model = report.Select(x => new OrderAverageReportLineSummaryModel
-            {
+            var model = report.Select(x => new OrderAverageReportLineSummaryModel {
                 OrderStatus = statuses.FirstOrDefault(y => y.StatusId == x.OrderStatus)?.Name,
                 SumTodayOrders = _priceFormatter.FormatPrice(x.SumTodayOrders, false),
                 SumThisWeekOrders = _priceFormatter.FormatPrice(x.SumThisWeekOrders, false),
@@ -413,8 +400,7 @@ namespace Grand.Web.Admin.Controllers
                 SumAllTimeOrders = _priceFormatter.FormatPrice(x.SumAllTimeOrders, false),
             }).ToList();
 
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = model,
                 Total = model.Count
             };
@@ -450,8 +436,7 @@ namespace Grand.Web.Admin.Controllers
             foreach (var x in orders)
             {
                 var store = await _storeService.GetStoreById(x.StoreId);
-                items.Add(new OrderModel
-                {
+                items.Add(new OrderModel {
                     Id = x.Id,
                     OrderNumber = x.OrderNumber,
                     StoreName = store != null ? store.Shortcut : "Unknown",
@@ -464,8 +449,7 @@ namespace Grand.Web.Admin.Controllers
                     CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
                 });
             }
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = items,
                 Total = orders.TotalCount
             };
@@ -490,8 +474,7 @@ namespace Grand.Web.Admin.Controllers
             var model = new List<OrderIncompleteReportLineModel>();
             //not paid
             var psPending = await _orderReportService.GetOrderAverageReportLine(storeId: storeId, ps: PaymentStatus.Pending, ignoreCancelledOrders: true);
-            model.Add(new OrderIncompleteReportLineModel
-            {
+            model.Add(new OrderIncompleteReportLineModel {
                 Item = _translationService.GetResource("Admin.Reports.Incomplete.TotalUnpaidOrders"),
                 Count = psPending.CountOrders,
                 Total = _priceFormatter.FormatPrice(psPending.SumOrders, false),
@@ -499,8 +482,7 @@ namespace Grand.Web.Admin.Controllers
             });
             //not shipped
             var ssPending = await _orderReportService.GetOrderAverageReportLine(storeId: storeId, ss: ShippingStatus.Pending, ignoreCancelledOrders: true);
-            model.Add(new OrderIncompleteReportLineModel
-            {
+            model.Add(new OrderIncompleteReportLineModel {
                 Item = _translationService.GetResource("Admin.Reports.Incomplete.TotalNotShippedOrders"),
                 Count = ssPending.CountOrders,
                 Total = _priceFormatter.FormatPrice(ssPending.SumOrders, false),
@@ -508,16 +490,14 @@ namespace Grand.Web.Admin.Controllers
             });
             //pending
             var osPending = await _orderReportService.GetOrderAverageReportLine(storeId: storeId, os: (int)OrderStatusSystem.Pending, ignoreCancelledOrders: true);
-            model.Add(new OrderIncompleteReportLineModel
-            {
+            model.Add(new OrderIncompleteReportLineModel {
                 Item = _translationService.GetResource("Admin.Reports.Incomplete.TotalIncompleteOrders"),
                 Count = osPending.CountOrders,
                 Total = _priceFormatter.FormatPrice(osPending.SumOrders, false),
                 ViewLink = Url.Action("List", "Order", new { orderStatusId = ((int)OrderStatusSystem.Pending).ToString(), area = Constants.AreaAdmin })
             });
 
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = model,
                 Total = model.Count
             };
@@ -531,8 +511,7 @@ namespace Grand.Web.Admin.Controllers
                 return AccessDeniedView();
 
             var status = await _orderStatusService.GetAll();
-            var model = new CountryReportModel
-            {
+            var model = new CountryReportModel {
                 //order statuses
                 AvailableOrderStatuses = status.Select(x => new SelectListItem() { Value = x.StatusId.ToString(), Text = x.Name }).ToList()
             };
@@ -572,16 +551,14 @@ namespace Grand.Web.Admin.Controllers
             foreach (var x in items)
             {
                 var country = await _countryService.GetCountryById(!String.IsNullOrEmpty(x.CountryId) ? x.CountryId : "");
-                var m = new CountryReportLineModel
-                {
+                var m = new CountryReportLineModel {
                     CountryName = country != null ? country.Name : "Unknown",
                     SumOrders = _priceFormatter.FormatPrice(x.SumOrders, false),
                     TotalOrders = x.TotalOrders,
                 };
                 result.Add(m);
             }
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = result,
                 Total = items.Count
             };
@@ -614,8 +591,7 @@ namespace Grand.Web.Admin.Controllers
             //products
             foreach (var product in lowStockProducts.products)
             {
-                var lowStockModel = new LowStockProductModel
-                {
+                var lowStockModel = new LowStockProductModel {
                     Id = product.Id,
                     Name = product.Name,
                     ManageInventoryMethod = product.ManageInventoryMethodId.GetTranslationEnum(_translationService, _workContext.WorkingLanguage.Id),
@@ -628,8 +604,7 @@ namespace Grand.Web.Admin.Controllers
             foreach (var combination in lowStockProducts.combinations)
             {
                 var product = await _productService.GetProductById(combination.ProductId);
-                var lowStockModel = new LowStockProductModel
-                {
+                var lowStockModel = new LowStockProductModel {
                     Id = product.Id,
                     Name = product.Name,
                     Attributes = await _productAttributeFormatter.FormatAttributes(product, combination.Attributes, _workContext.CurrentCustomer, "<br />", true, true, true, false),
@@ -639,8 +614,7 @@ namespace Grand.Web.Admin.Controllers
                 };
                 models.Add(lowStockModel);
             }
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = models.PagedForCommand(command),
                 Total = models.Count
             };
@@ -656,10 +630,8 @@ namespace Grand.Web.Admin.Controllers
                 return AccessDeniedView();
 
             var searchTermRecordLines = await _searchTermService.GetStats(command.Page - 1, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
-                Data = searchTermRecordLines.Select(x => new SearchTermReportLineModel
-                {
+            var gridModel = new DataSourceResult {
+                Data = searchTermRecordLines.Select(x => new SearchTermReportLineModel {
                     Keyword = x.Keyword,
                     Count = x.Count,
                 }),
@@ -686,8 +658,7 @@ namespace Grand.Web.Admin.Controllers
                 model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
 
             var (bestCustomerReportLineModels, totalCount) = await _customerReportViewModelService.PrepareBestCustomerReportLineModel(model, 1, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = bestCustomerReportLineModels.ToList(),
                 Total = totalCount
             };
@@ -701,8 +672,7 @@ namespace Grand.Web.Admin.Controllers
                 model.StoreId = _workContext.CurrentCustomer.StaffStoreId;
 
             var (bestCustomerReportLineModels, totalCount) = await _customerReportViewModelService.PrepareBestCustomerReportLineModel(model, 2, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = bestCustomerReportLineModels.ToList(),
                 Total = totalCount
             };
@@ -717,8 +687,7 @@ namespace Grand.Web.Admin.Controllers
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
             var model = await _customerReportViewModelService.GetReportRegisteredCustomersModel(storeId);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = model,
                 Total = model.Count
             };
@@ -734,8 +703,7 @@ namespace Grand.Web.Admin.Controllers
                 storeId = _workContext.CurrentCustomer.StaffStoreId;
 
             var model = await _customerReportService.GetCustomerByTimeReport(storeId, startDate, endDate);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = model
             };
             return Json(gridModel);

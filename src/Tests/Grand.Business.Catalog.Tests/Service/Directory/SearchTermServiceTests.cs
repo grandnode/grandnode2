@@ -1,4 +1,5 @@
-﻿using Grand.Business.Common.Services.Directory;
+﻿using Grand.Business.Catalog.Services.Directory;
+using Grand.Business.Common.Services.Directory;
 using Grand.Domain.Common;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Events;
@@ -6,7 +7,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Common.Tests.Services.Directory
+namespace Grand.Business.Catalog.Tests.Services.Directory
 {
     [TestClass()]
     public class SearchTermServiceTests

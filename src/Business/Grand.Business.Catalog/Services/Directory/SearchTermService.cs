@@ -1,12 +1,12 @@
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Utilities;
+using Grand.Business.Catalog.Interfaces.Directory;
+using Grand.Business.Catalog.Utilities;
 using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Extensions;
 using MediatR;
 
-namespace Grand.Business.Common.Services.Directory
+namespace Grand.Business.Catalog.Services.Directory
 {
     /// <summary>
     /// Search term service
@@ -91,8 +91,7 @@ namespace Grand.Business.Common.Services.Directory
                              Count = groupedResult.Sum(o => o.Count)
                          })
                         .OrderByDescending(m => m.Count)
-                        .Select(r => new SearchTermReportLine
-                        {
+                        .Select(r => new SearchTermReportLine {
                             Keyword = r.Keyword,
                             Count = r.Count
                         });
