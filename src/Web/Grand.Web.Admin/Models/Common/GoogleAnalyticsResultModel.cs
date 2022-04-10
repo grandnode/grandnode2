@@ -1,8 +1,8 @@
-﻿namespace Grand.Business.Common.Utilities
+﻿namespace Grand.Web.Admin.Models.Common
 {
-    public partial class GoogleAnalyticsResult
+    public partial class GoogleAnalyticsResultModel
     {
-        public GoogleAnalyticsResult()
+        public GoogleAnalyticsResultModel()
         {
             Records = new List<Dictionary<string, string>>();
         }

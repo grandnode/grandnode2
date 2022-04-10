@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Directory;
+﻿using Grand.Web.Admin.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -6,10 +6,10 @@ namespace Grand.Web.Admin.Controllers
 {
     public partial class GoogleAnalyticsController : BaseAdminController
     {
-        private readonly IGoogleAnalyticsService _googleAnalyticsService;
+        private readonly IGoogleAnalyticsViewModelService _googleAnalyticsService;
 
         public GoogleAnalyticsController(
-            IGoogleAnalyticsService googleAnalyticsService)
+            IGoogleAnalyticsViewModelService googleAnalyticsService)
         {
             _googleAnalyticsService = googleAnalyticsService;
         }

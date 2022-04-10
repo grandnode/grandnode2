@@ -70,7 +70,6 @@ namespace Grand.Business.Common.Startup
         private void RegisterConfigurationService(IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<ISettingService, SettingService>();
-            serviceCollection.AddScoped<IGoogleAnalyticsService, GoogleAnalyticsService>();
         }
         private void RegisterLocalizationService(IServiceCollection serviceCollection)
         {
