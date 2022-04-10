@@ -6,8 +6,8 @@
     <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Google.Apis" Version="1.56.0" />
-    <PackageReference Include="Google.Apis.AnalyticsReporting.v4" Version="1.56.0.2484" />
+    <PackageReference Include="Google.Apis" Version="1.57.0" />
+    <PackageReference Include="Google.Apis.AnalyticsReporting.v4" Version="1.57.0.2484" />
     <PackageReference Include="MaxMind.GeoIP2" Version="5.1.0" />
   </ItemGroup>
 </Project>

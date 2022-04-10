@@ -8,6 +8,6 @@
     <ProjectReference Include="..\Grand.Business.Storage\Grand.Business.Storage.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MailKit" Version="3.1.1" />
+    <PackageReference Include="MailKit" Version="3.2.0" />
   </ItemGroup>
 </Project>
