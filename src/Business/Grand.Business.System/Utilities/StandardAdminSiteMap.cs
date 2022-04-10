@@ -816,28 +816,31 @@ namespace Grand.Business.System.Utilities
                                     ResourceName = "Admin.Configuration.Shipping.Restrictions",
                                     ControllerName = "Shipping",
                                     ActionName = "Restrictions",
-                                    DisplayOrder = 3,
+                                    DisplayOrder = 2,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
                                 new AdminSiteMap {
                                     SystemName = "Shipping settings",
-                                    ResourceName = "Admin.Configuration.Shipping.Settings",                                    ControllerName = "Shipping",
+                                    ResourceName = "Admin.Configuration.Shipping.Settings",
+                                    ControllerName = "Shipping",
                                     ActionName = "Settings",
-                                    DisplayOrder = 4,
+                                    DisplayOrder = 3,
                                     IconClass = "fa fa-dot-circle-o"
                                 },
-                        new AdminSiteMap {
-                            SystemName = "Measures",
-                            ResourceName = "Admin.Configuration.Measures",
-                            PermissionNames = new List<string> { PermissionSystemName.Measures },
-                            ControllerName = "Measure",
-                            ActionName = "Index",
-                            IconClass = "fa fa-arrow-circle-o-right",
-                        },
+                                new AdminSiteMap {
+                                    SystemName = "Measures",
+                                    ResourceName = "Admin.Configuration.Measures",
+                                    PermissionNames = new List<string> { PermissionSystemName.Measures },
+                                    ControllerName = "Measure",
+                                    DisplayOrder = 4,
+                                    ActionName = "Index",
+                                    IconClass = "fa fa-arrow-circle-o-right",
+                                },
                                 new AdminSiteMap {
                                     SystemName = "Delivery dates",
                                     ResourceName = "Admin.Configuration.Shipping.DeliveryDates",
                                     ControllerName = "Shipping",
+                                    DisplayOrder = 5,
                                     ActionName = "DeliveryDates",
                                     IconClass = "fa fa-dot-circle-o"
                                 },
@@ -845,6 +848,7 @@ namespace Grand.Business.System.Utilities
                                     SystemName = "Warehouses",
                                     ResourceName = "Admin.Configuration.Shipping.Warehouses",
                                     ControllerName = "Shipping",
+                                    DisplayOrder = 6,
                                     ActionName = "Warehouses",
                                     IconClass = "fa fa-dot-circle-o"
                                 },
@@ -852,6 +856,7 @@ namespace Grand.Business.System.Utilities
                                     SystemName = "PickupPoints",
                                     ResourceName = "Admin.Configuration.Shipping.PickupPoints",
                                     ControllerName = "Shipping",
+                                    DisplayOrder = 7,
                                     ActionName = "PickupPoints",
                                     IconClass = "fa fa-dot-circle-o"
                                 }
