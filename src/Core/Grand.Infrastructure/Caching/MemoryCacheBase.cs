@@ -36,14 +36,14 @@ namespace Grand.Infrastructure.Caching
 
         #region Methods
 
-        public virtual async Task<T> GetAsync<T>(string key, Func<Task<T>> acquire)
+        public virtual Task<T> GetAsync<T>(string key, Func<Task<T>> acquire)
         {
-            return await GetAsync(key, acquire, CommonHelper.CacheTimeMinutes);
+            return GetAsync(key, acquire, CommonHelper.CacheTimeMinutes);
         }
 
-        public virtual async Task<T> GetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime)
+        public virtual Task<T> GetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime)
         {
-            return await _cache.GetOrCreateAsync(key, entry =>
+            return _cache.GetOrCreateAsync(key, entry =>
             {
                 entry.SetOptions(GetMemoryCacheEntryOptions(cacheTime));
                 entry.SetKey(_cacheEntries);

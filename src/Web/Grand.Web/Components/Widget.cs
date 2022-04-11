@@ -43,7 +43,7 @@ namespace Grand.Web.ViewComponents
 
                     model.Add(widgetModel);
                 }
-                return await Task.FromResult(model);
+                return model;
             });
 
             if (!cachedModel.Any())

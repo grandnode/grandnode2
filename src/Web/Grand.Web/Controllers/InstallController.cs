@@ -277,7 +277,7 @@ namespace Grand.Web.Controllers
                     migrationProcess.InstallApplication();
 
                     //restart application
-                    await _cacheBase.GetAsync("Installed", () => Task.FromResult(true), 120);
+                    await _cacheBase.GetAsync("Installed", () => Task.FromResult(true));
                     return View(new InstallModel() { Installed = true });
                 }
                 catch (Exception exception)

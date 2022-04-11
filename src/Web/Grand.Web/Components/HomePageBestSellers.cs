@@ -53,8 +53,6 @@ namespace Grand.Web.Components
 
             var productIds = new List<string>();
             
-            var cachetime = 60;
-
             //load and cache report
             if (_catalogSettings.BestsellersFromReports)
             {
@@ -64,14 +62,14 @@ namespace Grand.Web.Components
                                         createdFromUtc: fromdate,
                                         ps: Domain.Payments.PaymentStatus.Paid,
                                         storeId: _workContext.CurrentStore.Id,
-                                        pageSize: _catalogSettings.NumberOfBestsellersOnHomepage), cachetime);
+                                        pageSize: _catalogSettings.NumberOfBestsellersOnHomepage));
 
                 productIds = report.Select(x => x.ProductId).ToList();
             }
             else
             {
                 productIds = await _cacheBase.GetAsync(CacheKeyConst.BESTSELLER_PRODUCTS_MODEL_KEY,
-                    async () => (await _productService.GetAllProductsDisplayedOnBestSeller()).ToList(), cachetime);
+                    async () => (await _productService.GetAllProductsDisplayedOnBestSeller()).ToList());
 
             }
             //load products
