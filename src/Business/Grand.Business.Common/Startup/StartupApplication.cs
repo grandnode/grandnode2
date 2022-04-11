@@ -58,11 +58,10 @@ namespace Grand.Business.Common.Startup
         private void RegisterDirectoryService(IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<IDateTimeService, DateTimeService>();
-            serviceCollection.AddScoped<IGeoLookupService, GeoLookupService>();
+            
             serviceCollection.AddScoped<ICountryService, CountryService>();
             serviceCollection.AddScoped<ICurrencyService, CurrencyService>();
             serviceCollection.AddScoped<IExchangeRateService, ExchangeRateService>();
-            serviceCollection.AddScoped<IMeasureService, MeasureService>();
             serviceCollection.AddScoped<IGroupService, GroupService>();
         }
         private void RegisterConfigurationService(IServiceCollection serviceCollection)

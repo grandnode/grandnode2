@@ -1,6 +1,6 @@
 using Grand.Domain.Directory;
 
-namespace Grand.Business.Common.Interfaces.Directory
+namespace Grand.Business.Catalog.Interfaces.Directory
 {
     /// <summary>
     /// Measure dimension service interface

@@ -34,6 +34,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Globalization;
 using Grand.Business.Catalog.Interfaces.Brands;
+using Grand.Business.Catalog.Interfaces.Directory;
 
 namespace Grand.Web.Features.Handlers.Products
 {

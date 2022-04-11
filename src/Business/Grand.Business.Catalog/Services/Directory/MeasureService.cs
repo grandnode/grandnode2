@@ -1,4 +1,3 @@
-using Grand.Business.Common.Interfaces.Directory;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
@@ -6,8 +5,9 @@ using Grand.Domain.Data;
 using Grand.Domain.Directory;
 using Grand.SharedKernel;
 using MediatR;
+using Grand.Business.Catalog.Interfaces.Directory;
 
-namespace Grand.Business.Common.Services.Directory
+namespace Grand.Business.Catalog.Services.Directory
 {
     /// <summary>
     /// Measure dimension service
@@ -56,7 +56,7 @@ namespace Grand.Business.Common.Services.Directory
         #region Methods
 
         #region Dimensions
-       
+
         /// <summary>
         /// Gets a measure dimension by identifier
         /// </summary>
@@ -406,7 +406,7 @@ namespace Grand.Business.Common.Services.Directory
 
         #region MeasureUnit
 
-        
+
         /// <summary>
         /// Gets a measure unit by identifier
         /// </summary>

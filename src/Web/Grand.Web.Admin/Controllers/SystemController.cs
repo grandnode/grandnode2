@@ -1,4 +1,5 @@
-﻿using Grand.Business.Checkout.Enum;
+﻿using Grand.Business.Catalog.Interfaces.Directory;
+using Grand.Business.Checkout.Enum;
 using Grand.Business.Checkout.Interfaces.Payments;
 using Grand.Business.Checkout.Interfaces.Shipping;
 using Grand.Business.Common.Interfaces.Directory;

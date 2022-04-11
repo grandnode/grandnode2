@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Extensions;
+using Grand.Business.Catalog.Interfaces.Directory;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Checkout.Extensions;
 using Grand.Business.Checkout.Interfaces.Orders;

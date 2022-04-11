@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Catalog.Services.Directory;
-using Grand.Business.Common.Services.Directory;
 using Grand.Domain.Common;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Events;

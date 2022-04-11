@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Grand.Domain.Catalog;
 using Grand.SharedKernel.Extensions;
+using Grand.Business.Catalog.Interfaces.Directory;
 
 namespace Grand.Business.Catalog.Tests.Service.Tax
 {

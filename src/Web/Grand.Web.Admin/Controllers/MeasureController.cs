@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Common.Interfaces.Configuration;
-using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Services.Security;
 using Grand.Web.Common.DataSource;
@@ -10,6 +9,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Directory;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Business.Catalog.Interfaces.Directory;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -62,8 +62,7 @@ namespace Grand.Web.Admin.Controllers
                 .ToList();
             foreach (var wm in weightsModel)
                 wm.IsPrimaryWeight = wm.Id == _measureSettings.BaseWeightId;
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = weightsModel,
                 Total = weightsModel.Count
             };
@@ -151,8 +150,7 @@ namespace Grand.Web.Admin.Controllers
                 .ToList();
             foreach (var wm in dimensionsModel)
                 wm.IsPrimaryDimension = wm.Id == _measureSettings.BaseDimensionId;
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = dimensionsModel,
                 Total = dimensionsModel.Count
             };
@@ -239,8 +237,7 @@ namespace Grand.Web.Admin.Controllers
                 .Select(x => x.ToModel())
                 .ToList();
 
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = unitsModel,
                 Total = unitsModel.Count
             };

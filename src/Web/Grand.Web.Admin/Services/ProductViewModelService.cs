@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Catalog.Extensions;
 using Grand.Business.Catalog.Interfaces.Categories;
 using Grand.Business.Catalog.Interfaces.Collections;
+using Grand.Business.Catalog.Interfaces.Directory;
 using Grand.Business.Catalog.Interfaces.Discounts;
 using Grand.Business.Catalog.Interfaces.Prices;
 using Grand.Business.Catalog.Interfaces.Products;
