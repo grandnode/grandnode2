@@ -1,4 +1,5 @@
-﻿using Grand.Business.Common.Extensions;
+﻿using Grand.Business.Cms.Interfaces;
+using Grand.Business.Common.Extensions;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Localization;
 using Grand.Business.Common.Interfaces.Logging;

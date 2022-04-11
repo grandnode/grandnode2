@@ -1,4 +1,4 @@
-﻿namespace Grand.Business.Common.Interfaces.Directory
+﻿namespace Grand.Business.Cms.Interfaces
 {
     public interface IConsentCookie
     {

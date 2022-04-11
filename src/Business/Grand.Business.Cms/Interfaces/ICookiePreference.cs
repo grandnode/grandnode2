@@ -1,7 +1,7 @@
 ﻿using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 
-namespace Grand.Business.Common.Interfaces.Directory
+namespace Grand.Business.Cms.Interfaces
 {
     public interface ICookiePreference
     {

@@ -1,8 +1,9 @@
-﻿using Grand.Business.Common.Interfaces.Directory;
+﻿using Grand.Business.Cms.Interfaces;
+using Grand.Business.Common.Interfaces.Directory;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 
-namespace Grand.Business.Common.Services.Directory
+namespace Grand.Business.Cms.Services
 {
     public class CookiePreference : ICookiePreference
     {

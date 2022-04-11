@@ -58,14 +58,12 @@ namespace Grand.Business.Common.Startup
         private void RegisterDirectoryService(IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<IDateTimeService, DateTimeService>();
-            serviceCollection.AddScoped<ICookiePreference, CookiePreference>();
             serviceCollection.AddScoped<IGeoLookupService, GeoLookupService>();
             serviceCollection.AddScoped<ICountryService, CountryService>();
             serviceCollection.AddScoped<ICurrencyService, CurrencyService>();
             serviceCollection.AddScoped<IExchangeRateService, ExchangeRateService>();
             serviceCollection.AddScoped<IMeasureService, MeasureService>();
             serviceCollection.AddScoped<IGroupService, GroupService>();
-            serviceCollection.AddScoped<IRobotsTxtService, RobotsTxtService>();
         }
         private void RegisterConfigurationService(IServiceCollection serviceCollection)
         {

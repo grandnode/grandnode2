@@ -1,4 +1,5 @@
-﻿using Grand.Business.Common.Interfaces.Directory;
+﻿using Grand.Business.Cms.Interfaces;
+using Grand.Business.Common.Interfaces.Directory;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Web.Features.Models.Common;
@@ -9,14 +10,10 @@ namespace Grand.Web.Features.Handlers.Common
 {
     public class GetPrivacyPreferenceModelHandler : IRequestHandler<GetPrivacyPreference, IList<PrivacyPreferenceModel>>
     {
-        private readonly IUserFieldService _userFieldService;
         private readonly ICookiePreference _cookiePreference;
 
-        public GetPrivacyPreferenceModelHandler(
-            IUserFieldService userFieldService,
-            ICookiePreference cookiePreference)
+        public GetPrivacyPreferenceModelHandler(ICookiePreference cookiePreference)
         {
-            _userFieldService = userFieldService;
             _cookiePreference = cookiePreference;
         }
 

@@ -1,12 +1,13 @@
-﻿using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Services.Directory;
+﻿using Grand.Business.Cms.Interfaces;
+using Grand.Business.Cms.Services;
+using Grand.Business.Common.Interfaces.Directory;
 using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Common.Tests.Services.Directory
+namespace Grand.Business.Cms.Tests.Services
 {
     [TestClass()]
     public class CookiePreferenceTests
