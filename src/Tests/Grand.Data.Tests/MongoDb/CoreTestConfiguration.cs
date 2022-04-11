@@ -63,13 +63,6 @@ namespace Grand.Data.Tests.MongoDb
             get { return __messageEncoderSettings; }
         }
 
-        public static SemanticVersion ServerVersion {
-            get {
-                var server = __cluster.Value.SelectServer(WritableServerSelector.Instance, CancellationToken.None);
-                return server.Description.Version;
-            }
-        }
-
         public static TraceSource TraceSource {
             get { return __traceSource; }
         }
