@@ -2,6 +2,7 @@
 using Grand.Business.Catalog.Interfaces.Categories;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Checkout.Interfaces.Orders;
+using Grand.Business.Cms.Interfaces;
 using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Logging;
 using Grand.Domain.Logging;

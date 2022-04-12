@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Directory;
+﻿using Grand.Business.Cms.Interfaces;
 
 namespace Widgets.GoogleAnalytics
 {

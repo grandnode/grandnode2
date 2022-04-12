@@ -1,4 +1,4 @@
-namespace Grand.Business.Common.Interfaces.Directory
+namespace Grand.Business.Catalog.Interfaces.Directory
 {
     /// <summary>
     /// GEO lookup service

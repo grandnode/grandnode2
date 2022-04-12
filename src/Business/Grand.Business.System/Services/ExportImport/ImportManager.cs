@@ -1,6 +1,7 @@
 using Grand.Business.Catalog.Interfaces.Brands;
 using Grand.Business.Catalog.Interfaces.Categories;
 using Grand.Business.Catalog.Interfaces.Collections;
+using Grand.Business.Catalog.Interfaces.Directory;
 using Grand.Business.Catalog.Interfaces.Products;
 using Grand.Business.Catalog.Interfaces.Tax;
 using Grand.Business.Checkout.Interfaces.Shipping;

@@ -1,11 +1,11 @@
 ﻿using Grand.Business.Catalog.Interfaces.Brands;
 using Grand.Business.Catalog.Interfaces.Categories;
+using Grand.Business.Catalog.Interfaces.Directory;
 using Grand.Business.Catalog.Interfaces.Prices;
 using Grand.Business.Catalog.Interfaces.Tax;
 using Grand.Business.Catalog.Queries.Handlers;
 using Grand.Business.Cms.Interfaces;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Security;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Storage.Interfaces;
@@ -91,8 +91,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 }
             }
 
-            var products = (await _mediator.Send(new GetSearchProductsQuery()
-            {
+            var products = (await _mediator.Send(new GetSearchProductsQuery() {
                 Customer = request.Customer,
                 StoreId = storeId,
                 Keywords = request.Term,
@@ -120,8 +119,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                     if (picture != null)
                         pictureUrl = await _pictureService.GetPictureUrl(picture.PictureId, _mediaSettings.AutoCompleteSearchThumbPictureSize);
                 }
-                var rating = await _mediator.Send(new GetProductReviewOverview()
-                {
+                var rating = await _mediator.Send(new GetProductReviewOverview() {
                     Language = request.Language,
                     Product = item,
                     Store = request.Store
@@ -129,8 +127,7 @@ namespace Grand.Web.Features.Handlers.Catalog
 
                 var price = displayPrices ? await PreparePrice(item, request) : (Price: string.Empty, PriceWithDiscount: string.Empty);
 
-                model.Add(new SearchAutoCompleteModel()
-                {
+                model.Add(new SearchAutoCompleteModel() {
                     SearchType = "Product",
                     Label = item.GetTranslation(x => x.Name, request.Language.Id) ?? "",
                     Desc = item.GetTranslation(x => x.ShortDescription, request.Language.Id) ?? "",
@@ -165,8 +162,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                         var desc = "";
                         if (_catalogSettings.SearchByDescription)
                             desc = "&sid=true";
-                        model.Add(new SearchAutoCompleteModel()
-                        {
+                        model.Add(new SearchAutoCompleteModel() {
                             SearchType = "Brand",
                             Label = brand.GetTranslation(x => x.Name, request.Language.Id),
                             Desc = "",
@@ -193,8 +189,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                         var desc = "";
                         if (_catalogSettings.SearchByDescription)
                             desc = "&sid=true";
-                        model.Add(new SearchAutoCompleteModel()
-                        {
+                        model.Add(new SearchAutoCompleteModel() {
                             SearchType = "Category",
                             Label = category.GetTranslation(x => x.Name, request.Language.Id),
                             Desc = "",
@@ -210,8 +205,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 var posts = await _blogService.GetAllBlogPosts(storeId: storeId, pageSize: productNumber, blogPostName: request.Term);
                 foreach (var item in posts)
                 {
-                    model.Add(new SearchAutoCompleteModel()
-                    {
+                    model.Add(new SearchAutoCompleteModel() {
                         SearchType = "Blog",
                         Label = item.GetTranslation(x => x.Title, request.Language.Id),
                         Desc = "",
@@ -231,8 +225,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 }
                 else
                 {
-                    searchTerm = new SearchTerm
-                    {
+                    searchTerm = new SearchTerm {
                         Keyword = request.Term,
                         StoreId = storeId,
                         Count = 1

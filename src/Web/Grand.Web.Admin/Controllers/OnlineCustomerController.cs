@@ -9,6 +9,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Admin.Models.Customers;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Business.Catalog.Interfaces.Directory;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -56,8 +57,7 @@ namespace Grand.Web.Admin.Controllers
             var items = new List<OnlineCustomerModel>();
             foreach (var x in customers)
             {
-                var item = new OnlineCustomerModel()
-                {
+                var item = new OnlineCustomerModel() {
                     Id = x.Id,
                     CustomerInfo = !string.IsNullOrEmpty(x.Email) ? x.Email : _translationService.GetResource("Admin.Customers.Guest"),
                     LastIpAddress = x.LastIpAddress,
@@ -70,8 +70,7 @@ namespace Grand.Web.Admin.Controllers
                 items.Add(item);
             }
 
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = items,
                 Total = customers.TotalCount
             };

@@ -57,21 +57,16 @@ namespace Grand.Business.Common.Startup
         }
         private void RegisterDirectoryService(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<ISearchTermService, SearchTermService>();
             serviceCollection.AddScoped<IDateTimeService, DateTimeService>();
-            serviceCollection.AddScoped<ICookiePreference, CookiePreference>();
-            serviceCollection.AddScoped<IGeoLookupService, GeoLookupService>();
+            
             serviceCollection.AddScoped<ICountryService, CountryService>();
             serviceCollection.AddScoped<ICurrencyService, CurrencyService>();
             serviceCollection.AddScoped<IExchangeRateService, ExchangeRateService>();
-            serviceCollection.AddScoped<IMeasureService, MeasureService>();
             serviceCollection.AddScoped<IGroupService, GroupService>();
-            serviceCollection.AddScoped<IRobotsTxtService, RobotsTxtService>();
         }
         private void RegisterConfigurationService(IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<ISettingService, SettingService>();
-            serviceCollection.AddScoped<IGoogleAnalyticsService, GoogleAnalyticsService>();
         }
         private void RegisterLocalizationService(IServiceCollection serviceCollection)
         {

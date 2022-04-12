@@ -1,14 +1,14 @@
 ﻿//This product contains GeoLite2 data created by MaxMind, from http://www.maxmind.com
 
+using Grand.Business.Catalog.Interfaces.Directory;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
 using Grand.Business.Common.Interfaces.Logging;
 using Grand.SharedKernel.Extensions;
 using MaxMind.GeoIP2;
 using MaxMind.GeoIP2.Exceptions;
 using MaxMind.GeoIP2.Responses;
 
-namespace Grand.Business.Common.Services.Directory
+namespace Grand.Business.Catalog.Services.Directory
 {
     /// <summary>
     /// GEO lookup service

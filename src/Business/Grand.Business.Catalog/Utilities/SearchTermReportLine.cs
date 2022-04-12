@@ -1,4 +1,4 @@
-﻿namespace Grand.Business.Common.Utilities
+﻿namespace Grand.Business.Catalog.Utilities
 {
     /// <summary>
     /// Search term (for statistics)

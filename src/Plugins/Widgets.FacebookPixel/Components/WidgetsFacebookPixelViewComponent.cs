@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Cms.Interfaces;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

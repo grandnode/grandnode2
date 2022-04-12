@@ -12,6 +12,8 @@
 		<PackageReference Include="elFinder.Net.AspNetCore" Version="1.4.4" />
 		<PackageReference Include="elFinder.Net.Core" Version="1.4.4" />
 		<PackageReference Include="elFinder.Net.Drivers.FileSystem" Version="1.4.4" />
+		<PackageReference Include="Google.Apis" Version="1.57.0" />
+		<PackageReference Include="Google.Apis.AnalyticsReporting.v4" Version="1.57.0.2484" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\Business\Grand.Business.Authentication\Grand.Business.Authentication.csproj" />

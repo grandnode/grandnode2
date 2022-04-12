@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Common;
 
-namespace Grand.Business.Common.Interfaces.Directory
+namespace Grand.Business.Cms.Interfaces
 {
     public partial interface IRobotsTxtService
     {
