@@ -722,7 +722,7 @@ namespace Grand.Business.Catalog.Services.Products
 
             foreach (var inventoryJournal in inventoryJournals)
             {
-                var product = _productRepository.GetById(inventoryJournal.ProductId);
+                var product = await _productRepository.GetByIdAsync(inventoryJournal.ProductId);
                 if (product == null)
                     continue;
 

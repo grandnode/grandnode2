@@ -6,7 +6,7 @@
     <PackageReference Include="MongoDB.Driver" Version="2.15.0" />
     <PackageReference Include="MongoDB.Driver.Core" Version="2.15.0" />
     <PackageReference Include="MongoDB.Driver.GridFS" Version="2.15.0" />
-    <PackageReference Include="DotLiquid" Version="2.2.602" />
+    <PackageReference Include="DotLiquid" Version="2.2.610" />
   </ItemGroup>
 
   <ItemGroup>
