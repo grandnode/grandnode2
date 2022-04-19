@@ -35,7 +35,11 @@
                         <tr>
                             <td>
                                 <h3 class="h5 mb-0">
-                                    @address.FirstName @address.LastName
+                                @if(address.NameEnabled && !string.IsNullOrEmpty(address.Name))
+                                {
+                                    @address.Name <br/>
+                                }
+                                @address.FirstName @address.LastName
                                 </h3>
                                 @address.Email
                             </td>
