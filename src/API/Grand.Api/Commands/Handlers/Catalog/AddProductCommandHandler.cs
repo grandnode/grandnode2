@@ -6,7 +6,7 @@ using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using MediatR;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Common.Extensions;
+using Grand.Business.Core.Extensions;
 using Grand.Infrastructure;
 
 namespace Grand.Api.Commands.Models.Catalog

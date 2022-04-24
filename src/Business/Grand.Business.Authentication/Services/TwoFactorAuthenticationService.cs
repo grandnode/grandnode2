@@ -1,6 +1,5 @@
 ﻿using Google.Authenticator;
 using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Business.Authentication.Utilities;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;

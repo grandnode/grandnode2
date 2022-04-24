@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.System.ScheduleTasks;
-using Grand.Business.System.Services.BackgroundServices;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Grand.Business.Authentication.Utilities
+namespace Grand.Business.Core.Utilities.Authentication
 {
     public static class GrandCookieAuthenticationDefaults
     {
