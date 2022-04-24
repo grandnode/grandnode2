@@ -5,8 +5,8 @@
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 	</PropertyGroup>
 	<ItemGroup>
-		<Content Include="Areas\**" CopyToPublishDirectory="Never"/>
-		<Content Include="wwwroot\**" CopyToPublishDirectory="PreserveNewest"/>
+		<Content Include="Areas\**" CopyToPublishDirectory="Never" />
+		<Content Include="wwwroot\**" CopyToPublishDirectory="PreserveNewest" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="elFinder.Net.AspNetCore" Version="1.4.4" />
@@ -16,16 +16,7 @@
 		<PackageReference Include="Google.Apis.AnalyticsReporting.v4" Version="1.57.0.2484" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\Business\Grand.Business.Authentication\Grand.Business.Authentication.csproj" />
-		<ProjectReference Include="..\..\Business\Grand.Business.Catalog\Grand.Business.Catalog.csproj" />
-		<ProjectReference Include="..\..\Business\Grand.Business.Checkout\Grand.Business.Checkout.csproj" />
-		<ProjectReference Include="..\..\Business\Grand.Business.Cms\Grand.Business.Cms.csproj" />
-		<ProjectReference Include="..\..\Business\Grand.Business.Common\Grand.Business.Common.csproj" />
-		<ProjectReference Include="..\..\Business\Grand.Business.Customers\Grand.Business.Customers.csproj" />
-		<ProjectReference Include="..\..\Business\Grand.Business.Marketing\Grand.Business.Marketing.csproj" />
-		<ProjectReference Include="..\..\Business\Grand.Business.Messages\Grand.Business.Messages.csproj" />
-		<ProjectReference Include="..\..\Business\Grand.Business.Storage\Grand.Business.Storage.csproj" />
-		<ProjectReference Include="..\..\Business\Grand.Business.System\Grand.Business.System.csproj" />
+		<ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj" />
 		<ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />
 		<ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
 		<ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />

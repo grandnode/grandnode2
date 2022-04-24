@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Grand.Business.Storage.Extensions
+namespace Grand.Business.Core.Extensions
 {
     /// <summary>
     /// Extensions

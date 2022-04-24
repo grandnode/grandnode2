@@ -1,7 +1,7 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Domain.Customers;
 
-namespace Grand.Business.Authentication.Extensions
+namespace Grand.Business.Core.Extensions
 {
     /// <summary>
     /// Extensions of external authentication method 

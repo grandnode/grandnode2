@@ -9,7 +9,7 @@ using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Logging;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
-using Grand.Business.Common.Extensions;
+using Grand.Business.Core.Extensions;
 
 namespace Grand.Web.Admin.Services
 {

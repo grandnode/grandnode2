@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Grand.Business.Common.Extensions;
+using Grand.Business.Core.Extensions;
 using Grand.Infrastructure.Mapper;
 using Grand.Domain.Vendors;
 using Grand.Web.Admin.Models.Vendors;

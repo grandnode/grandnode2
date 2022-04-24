@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.System.ScheduleTasks;
+using Grand.Business.System.Services.BackgroundServices;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
@@ -6,9 +7,9 @@ using Grand.Infrastructure.TypeSearchers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Grand.Web.Common.Startup
+namespace Grand.Business.System.Utilities.System
 {
-    public static class TaskHandlerHelper
+    public static class TaskHandler
     {
 
         public static void RegisterTasks(this IServiceCollection services)
