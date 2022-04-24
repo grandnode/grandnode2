@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Cms.Interfaces;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Common.Services.Security;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;

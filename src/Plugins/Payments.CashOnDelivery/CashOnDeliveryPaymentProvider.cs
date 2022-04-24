@@ -1,8 +1,8 @@
-﻿using Grand.Business.Checkout.Enum;
+﻿using Grand.Business.Core.Enums.Checkout;
 using Grand.Business.Checkout.Extensions;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Interfaces.Payments;
-using Grand.Business.Checkout.Utilities;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Payments;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;

@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Checkout.Interfaces.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Events;
 using MediatR;
 
-namespace Grand.Business.Checkout.Events.Shipping
+namespace Grand.Business.Core.Events.Checkout.Shipping
 {
     /// <summary>
     /// Update order items 

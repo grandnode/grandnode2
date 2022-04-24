@@ -1,4 +1,4 @@
-using Grand.Business.Authentication.Interfaces;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Domain.Customers;
 
 namespace Grand.Business.Authentication.Extensions

@@ -2,7 +2,7 @@
 using Grand.Domain.Data;
 using MediatR;
 
-namespace Grand.Business.Checkout.Events.Orders
+namespace Grand.Business.Core.Events.Checkout.Orders
 {
     public class OrderDeletedEventHandler : INotificationHandler<OrderDeletedEvent>
     {

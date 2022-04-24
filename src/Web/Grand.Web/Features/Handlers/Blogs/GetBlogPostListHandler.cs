@@ -2,7 +2,7 @@
 using Grand.Domain;
 using Grand.Domain.Blogs;
 using Grand.Domain.Media;
-using Grand.Business.Cms.Interfaces;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Storage.Interfaces;

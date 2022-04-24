@@ -1,4 +1,4 @@
-﻿using Grand.Business.Checkout.Interfaces.Shipping;
+﻿using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;

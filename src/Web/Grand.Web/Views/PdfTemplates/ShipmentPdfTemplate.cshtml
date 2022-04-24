@@ -1,7 +1,7 @@
 ﻿@using  Grand.Domain.Shipping
 @model IList<Shipment>
-@inject Grand.Business.Checkout.Interfaces.Orders.IOrderService _orderService 
-@inject Grand.Business.Checkout.Interfaces.Shipping.IShipmentService _shipmentService
+@inject Grand.Business.Core.Interfaces.Checkout.Orders.IOrderService _orderService 
+@inject Grand.Business.Core.Interfaces.Checkout.Shipping.IShipmentService _shipmentService
 @inject Grand.Business.Core.Interfaces.Common.Directory.ICountryService _cournyService
 @inject Grand.Business.Core.Interfaces.Catalog.Products.IProductService _productService
 @inject Grand.Business.Core.Interfaces.Common.Directory.ICountryService _countryService
@@ -11,9 +11,9 @@
 @inject Grand.Business.Storage.Interfaces.IPictureService _pictureService
 @inject PdfSettings _pdfSettings
 @inject Grand.Business.Core.Interfaces.Common.Localization.ITranslationService _translationService
-@inject Grand.Business.Checkout.Interfaces.Payments.IPaymentService _paymentService
+@inject Grand.Business.Core.Interfaces.Checkout.Payments.IPaymentService _paymentService
 @inject Grand.Business.Core.Interfaces.Common.Directory.ICurrencyService _currencyService
-@inject Grand.Business.Checkout.Interfaces.GiftVouchers.IGiftVoucherService _giftVoucherService
+@inject Grand.Business.Core.Interfaces.Checkout.GiftVouchers.IGiftVoucherService _giftVoucherService
 
 @{
     var logoPicture = await _pictureService.GetPictureById(_pdfSettings.LogoPictureId);

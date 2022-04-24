@@ -1,4 +1,4 @@
-﻿using Grand.Business.Cms.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Common.Extensions;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;

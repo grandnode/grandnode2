@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Interfaces.Shipping;
-using Grand.Business.Checkout.Queries.Models.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;

@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Data;
 using Grand.Domain.Orders;
-using Grand.Business.Checkout.Commands.Models.Orders;
+using Grand.Business.Core.Commands.Checkout.Orders;
 using MediatR;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders

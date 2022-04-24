@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
-using Grand.Business.Checkout.Interfaces.CheckoutAttributes;
+using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;

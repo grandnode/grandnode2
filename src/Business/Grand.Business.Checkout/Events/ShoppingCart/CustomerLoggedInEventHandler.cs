@@ -1,9 +1,9 @@
-﻿using Grand.Business.Checkout.Interfaces.Orders;
+﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Events.Customers;
 using Grand.Infrastructure;
 using MediatR;
 
-namespace Grand.Business.Checkout.Events.ShoppingCart
+namespace Grand.Business.Core.Events.Checkout.ShoppingCart
 {
     public class CustomerLoggedInEventHandler : INotificationHandler<CustomerLoggedInEvent>
     {

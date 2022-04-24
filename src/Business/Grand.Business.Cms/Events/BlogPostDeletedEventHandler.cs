@@ -3,7 +3,7 @@ using Grand.Infrastructure.Events;
 using Grand.Domain.Blogs;
 using MediatR;
 
-namespace Grand.Business.Cms.Interfaces.Events
+namespace Grand.Business.Core.Interfaces.Cms.Events
 {
     public class BlogPostDeletedEventHandler : INotificationHandler<EntityDeleted<BlogPost>>
     {

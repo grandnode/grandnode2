@@ -1,4 +1,4 @@
-﻿using Grand.Business.Checkout.Interfaces.Orders;
+﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Common.Services.Security;

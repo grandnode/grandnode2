@@ -1,4 +1,4 @@
-﻿using Grand.Business.Cms.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Messages.Interfaces;
 using Grand.Infrastructure;

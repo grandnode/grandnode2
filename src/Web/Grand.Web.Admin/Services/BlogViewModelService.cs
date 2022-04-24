@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Cms.Interfaces;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;

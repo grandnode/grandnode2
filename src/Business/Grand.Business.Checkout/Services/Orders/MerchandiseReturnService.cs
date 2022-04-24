@@ -1,5 +1,5 @@
-﻿using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Queries.Models.Orders;
+﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain;
 using Grand.Domain.Data;
 using Grand.Domain.Orders;

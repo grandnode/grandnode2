@@ -1,4 +1,4 @@
-﻿using Grand.Business.Authentication.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Domain.Configuration;
 using Grand.Domain.Data;
 using Grand.Domain.Data.Mongo;

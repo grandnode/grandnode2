@@ -1,4 +1,4 @@
-﻿using Grand.Business.Cms.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Common.Services.Security;
 using Grand.Domain.Cms;

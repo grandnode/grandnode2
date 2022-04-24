@@ -1,10 +1,10 @@
-﻿using Grand.Business.Checkout.Interfaces.Orders;
+﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Events.Customers;
 using Grand.Domain.Orders;
 using MediatR;
 
-namespace Grand.Business.Checkout.Events.Customers
+namespace Grand.Business.Core.Events.Checkout.Customers
 {
     public class CustomerRegisteredEventHandler : INotificationHandler<CustomerRegisteredEvent>
     {

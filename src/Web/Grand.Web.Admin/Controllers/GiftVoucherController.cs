@@ -1,4 +1,4 @@
-﻿using Grand.Business.Checkout.Interfaces.GiftVouchers;
+﻿using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Common.Services.Security;
 using Grand.SharedKernel.Extensions;

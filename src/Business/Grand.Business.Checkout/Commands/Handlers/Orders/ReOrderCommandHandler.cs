@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Checkout.Commands.Models.Orders;
-using Grand.Business.Checkout.Interfaces.Orders;
+using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;

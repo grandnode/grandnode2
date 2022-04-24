@@ -1,7 +1,7 @@
 ﻿using Grand.Api.Commands.Models.Common;
 using Grand.Api.DTOs;
 using Grand.Api.Models.Common;
-using Grand.Business.Authentication.Interfaces;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;

@@ -1,9 +1,9 @@
-﻿using Grand.Business.Checkout.Interfaces.Orders;
+﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Events;
 using MediatR;
 
-namespace Grand.Business.Checkout.Events.Orders
+namespace Grand.Business.Core.Events.Checkout.Orders
 {
     public class MerchandiseReturnDeletedEventHandler : INotificationHandler<EntityDeleted<MerchandiseReturn>>
     {

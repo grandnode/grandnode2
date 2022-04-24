@@ -1,6 +1,6 @@
-﻿using Grand.Business.Checkout.Enum;
-using Grand.Business.Checkout.Interfaces.Shipping;
-using Grand.Business.Checkout.Utilities;
+﻿using Grand.Business.Core.Enums.Checkout;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;

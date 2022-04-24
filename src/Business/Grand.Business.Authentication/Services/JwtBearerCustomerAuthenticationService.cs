@@ -1,4 +1,4 @@
-﻿using Grand.Business.Authentication.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Common.Services.Security;

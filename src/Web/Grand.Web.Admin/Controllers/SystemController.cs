@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
-using Grand.Business.Checkout.Enum;
-using Grand.Business.Checkout.Interfaces.Payments;
-using Grand.Business.Checkout.Interfaces.Shipping;
+using Grand.Business.Core.Enums.Checkout;
+using Grand.Business.Core.Interfaces.Checkout.Payments;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;

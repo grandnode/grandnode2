@@ -1,4 +1,4 @@
-﻿using Grand.Business.Authentication.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Authentication.OAuth;

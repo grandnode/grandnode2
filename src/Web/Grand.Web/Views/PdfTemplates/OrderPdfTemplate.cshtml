@@ -5,9 +5,9 @@
 @inject Grand.Business.Storage.Interfaces.IPictureService _pictureService
 @inject PdfSettings _pdfSettings
 @inject Grand.Business.Core.Interfaces.Common.Localization.ITranslationService _translationService
-@inject Grand.Business.Checkout.Interfaces.Payments.IPaymentService _paymentService
+@inject Grand.Business.Core.Interfaces.Checkout.Payments.IPaymentService _paymentService
 @inject Grand.Business.Core.Interfaces.Common.Directory.ICurrencyService _currencyService
-@inject Grand.Business.Checkout.Interfaces.GiftVouchers.IGiftVoucherService _giftVoucherService
+@inject Grand.Business.Core.Interfaces.Checkout.GiftVouchers.IGiftVoucherService _giftVoucherService
 
 @{
     var logoPicture = await _pictureService.GetPictureById(_pdfSettings.LogoPictureId);

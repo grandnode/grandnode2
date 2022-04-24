@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Checkout.Extensions;
-using Grand.Business.Checkout.Interfaces.Payments;
-using Grand.Business.Checkout.Interfaces.Shipping;
+using Grand.Business.Core.Interfaces.Checkout.Payments;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;

@@ -1,4 +1,4 @@
-﻿using Grand.Business.Checkout.Interfaces.Payments;
+﻿using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Web.Models.Checkout;
 using MediatR;
 

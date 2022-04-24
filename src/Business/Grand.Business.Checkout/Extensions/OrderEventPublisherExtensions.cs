@@ -1,5 +1,5 @@
-﻿using Grand.Business.Checkout.Events.Orders;
-using Grand.Business.Checkout.Utilities;
+﻿using Grand.Business.Core.Events.Checkout.Orders;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Payments;
 using MediatR;
 

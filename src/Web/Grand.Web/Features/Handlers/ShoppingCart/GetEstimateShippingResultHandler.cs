@@ -2,9 +2,9 @@
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Checkout.Extensions;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Interfaces.Shipping;
-using Grand.Business.Checkout.Utilities;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;

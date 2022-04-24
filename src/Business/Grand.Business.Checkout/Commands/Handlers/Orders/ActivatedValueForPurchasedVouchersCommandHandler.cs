@@ -1,5 +1,5 @@
-﻿using Grand.Business.Checkout.Commands.Models.Orders;
-using Grand.Business.Checkout.Interfaces.GiftVouchers;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Messages.Interfaces;
 using Grand.Domain.Catalog;

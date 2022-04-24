@@ -1,7 +1,7 @@
 using DiscountRules.Standard.Models;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Utilities.Catalog;
-using Grand.Business.Checkout.Interfaces.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;

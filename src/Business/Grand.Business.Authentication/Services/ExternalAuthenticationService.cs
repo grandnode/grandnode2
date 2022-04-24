@@ -1,6 +1,6 @@
 using Grand.Business.Authentication.Events;
 using Grand.Business.Authentication.Extensions;
-using Grand.Business.Authentication.Interfaces;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Authentication.Utilities;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Events.Customers;

@@ -1,5 +1,5 @@
 ﻿using Authentication.Google.Models;
-using Grand.Business.Authentication.Interfaces;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Authentication.Utilities;
 using Grand.SharedKernel;
 using Grand.Web.Common.Controllers;

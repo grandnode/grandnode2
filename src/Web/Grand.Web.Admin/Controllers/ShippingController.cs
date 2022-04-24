@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Checkout.Extensions;
-using Grand.Business.Checkout.Interfaces.Shipping;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;

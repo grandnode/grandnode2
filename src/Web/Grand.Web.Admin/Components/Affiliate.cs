@@ -8,7 +8,7 @@ using Grand.Web.Admin.Models.Affiliates;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Checkout.Interfaces.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 
 namespace Grand.Web.Admin.Components
 {

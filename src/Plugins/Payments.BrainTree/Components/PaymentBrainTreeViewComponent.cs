@@ -1,5 +1,5 @@
 ﻿using Braintree;
-using Grand.Business.Checkout.Interfaces.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Common.Components;
 using Grand.Domain.Orders;

@@ -1,4 +1,4 @@
-﻿using Grand.Business.Authentication.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;

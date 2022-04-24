@@ -1,6 +1,6 @@
-﻿using Grand.Business.Checkout.Commands.Models.Shipping;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Interfaces.Shipping;
+﻿using Grand.Business.Core.Commands.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;

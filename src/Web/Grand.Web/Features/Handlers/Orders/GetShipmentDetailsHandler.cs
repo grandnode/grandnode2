@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Catalog.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Checkout.Extensions;
-using Grand.Business.Checkout.Interfaces.Shipping;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Catalog;

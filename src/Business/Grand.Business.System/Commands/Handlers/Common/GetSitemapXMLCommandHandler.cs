@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Cms.Interfaces;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Core.Interfaces.Marketing.Knowledgebase;
 using Grand.Business.Storage.Interfaces;

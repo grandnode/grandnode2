@@ -1,6 +1,6 @@
-﻿using Grand.Business.Checkout.Commands.Models.Orders;
-using Grand.Business.Checkout.Events.Orders;
-using Grand.Business.Checkout.Queries.Models.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Events.Checkout.Orders;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Messages.Interfaces;

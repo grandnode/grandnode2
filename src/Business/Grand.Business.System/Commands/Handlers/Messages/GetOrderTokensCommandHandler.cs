@@ -2,8 +2,8 @@
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Checkout.Extensions;
-using Grand.Business.Checkout.Interfaces.GiftVouchers;
-using Grand.Business.Checkout.Interfaces.Payments;
+using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
+using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
