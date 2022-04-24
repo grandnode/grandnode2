@@ -5,7 +5,7 @@ using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Plugins;

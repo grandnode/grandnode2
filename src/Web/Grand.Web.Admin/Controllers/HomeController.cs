@@ -6,7 +6,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Queries.Customers;
-using Grand.Business.System.Interfaces.Reports;
+using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;

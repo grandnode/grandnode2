@@ -7,7 +7,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Banners;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
-using Grand.Business.Messages.Interfaces;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;

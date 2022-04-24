@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Messages.Interfaces;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Orders;
 using Grand.Web.Commands.Models.Orders;
 using MediatR;

@@ -2,7 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
-using Grand.Business.Messages.Interfaces;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Infrastructure;
 using Grand.Domain.Messages;
 using Grand.Web.Admin.Extensions;

@@ -3,7 +3,7 @@ using Grand.Domain.Shipping;
 using Grand.Web.Common.Components;
 using Grand.Web.Common.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Admin.Models.Affiliates;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;

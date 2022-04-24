@@ -2,7 +2,7 @@
 using Grand.Domain.Customers;
 using System.Security.Cryptography;
 
-namespace Grand.Business.Common.Services.Security
+namespace Grand.Business.Core.Utilities.Common.Security
 {
     public class EncryptionService : IEncryptionService
     {

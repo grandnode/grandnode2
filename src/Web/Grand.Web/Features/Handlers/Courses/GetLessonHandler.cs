@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Marketing.Courses;
-using Grand.Business.Storage.Interfaces;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Courses;
 using Grand.Web.Models.Course;

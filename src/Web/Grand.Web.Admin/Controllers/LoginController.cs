@@ -2,7 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Messages.Interfaces;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;

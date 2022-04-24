@@ -6,7 +6,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Storage.Interfaces;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Infrastructure;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;

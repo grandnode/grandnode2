@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.System.Interfaces.Admin;
+using Grand.Business.Core.Interfaces.System.Admin;
 using Grand.Domain.Admin;
 
 namespace Grand.Web.Common.Menu

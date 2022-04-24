@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Commands.Catalog;
-using Grand.Business.Messages.Interfaces;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Localization;
 using MediatR;
 

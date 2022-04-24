@@ -6,7 +6,7 @@
     var registerUrl = Url.RouteUrl("Register", new { returnUrl = this.Context.Request.Query["returnUrl"] });
     var isAuthenticated = await groupService.IsRegistered(workContext.CurrentCustomer);
     var isCustomerImpersonated = workContext.OriginalCustomerIfImpersonated != null;
-    var isAdminAccess = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.AccessAdminPanel);
+    var isAdminAccess = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.AccessAdminPanel);
 }
 
 @await Component.InvokeAsync("Widget", new { widgetZone = "header_links_before" })

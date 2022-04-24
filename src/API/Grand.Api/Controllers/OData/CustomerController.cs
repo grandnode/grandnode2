@@ -2,7 +2,7 @@
 using Grand.Api.DTOs.Customers;
 using Grand.Api.Queries.Models.Customers;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;

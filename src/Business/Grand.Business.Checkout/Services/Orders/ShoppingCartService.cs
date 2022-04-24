@@ -4,7 +4,7 @@ using Grand.Business.Core.Events.Checkout.ShoppingCart;
 using Grand.Business.Checkout.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Common.Extensions;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;

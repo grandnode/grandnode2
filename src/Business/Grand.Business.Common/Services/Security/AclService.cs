@@ -5,7 +5,7 @@ using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
 using Grand.SharedKernel.Extensions;
 
-namespace Grand.Business.Common.Services.Security
+namespace Grand.Business.Core.Utilities.Common.Security
 {
     /// <summary>
     /// ACL service

@@ -1,3 +1,4 @@
+using Grand.Domain.Directory;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
@@ -118,10 +119,8 @@ namespace Grand.Business.Core.Interfaces.Common.Directory
         /// <summary>
         /// Gets the current user time zone
         /// </summary>
-        public virtual TimeZoneInfo CurrentTimeZone
-        {
-            get
-            {
+        public virtual TimeZoneInfo CurrentTimeZone {
+            get {
                 if (_timeZoneInfo == null)
                 {
                     try

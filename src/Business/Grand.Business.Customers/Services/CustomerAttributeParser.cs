@@ -8,6 +8,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.SharedKernel.Extensions;
 using System.Net;
+using Grand.Business.Core.Extensions;
 
 namespace Grand.Business.Customers.Services
 {

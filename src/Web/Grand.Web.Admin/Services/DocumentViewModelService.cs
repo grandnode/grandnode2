@@ -7,7 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Documents;
-using Grand.Business.Storage.Interfaces;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Common;
 using Grand.Domain.Documents;
 using Grand.Infrastructure;

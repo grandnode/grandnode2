@@ -3,7 +3,7 @@ using Grand.Api.Commands.Models.Common;
 using Grand.Api.DTOs.Common;
 using Grand.Api.Queries.Models.Common;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Utilities.Common.Security;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;

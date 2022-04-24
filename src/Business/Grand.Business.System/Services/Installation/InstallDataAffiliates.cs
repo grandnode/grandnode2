@@ -1,4 +1,4 @@
-﻿using Grand.Business.System.Interfaces.Installation;
+﻿using Grand.Business.Core.Interfaces.System.Installation;
 using Grand.Domain.Affiliates;
 using Grand.Domain.Common;
 

@@ -13,7 +13,7 @@ using Grand.Business.Common.Services.Directory;
 using Grand.Business.Common.Services.Localization;
 using Grand.Business.Common.Services.Logging;
 using Grand.Business.Common.Services.Pdf;
-using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Common.Services.Seo;
 using Grand.Business.Common.Services.Stores;
 using Grand.Infrastructure;

@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Business.System.Interfaces.ScheduleTasks;
+using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
 {

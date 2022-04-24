@@ -2,7 +2,7 @@
 using Grand.Domain.Data;
 using MediatR;
 
-namespace Grand.Business.Messages.Queries.Models.Handlers
+namespace Grand.Business.Core.Queries.Messages.Handlers
 {
     public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, Product>
     {

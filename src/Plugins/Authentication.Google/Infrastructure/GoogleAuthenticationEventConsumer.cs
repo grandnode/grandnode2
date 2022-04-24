@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Authentication.Events;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Messages.Interfaces;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using MediatR;

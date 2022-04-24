@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Catalog.Queries.Handlers;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Storage.Interfaces;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Infrastructure.Caching;
 using Grand.Domain;
 using Grand.Domain.Catalog;

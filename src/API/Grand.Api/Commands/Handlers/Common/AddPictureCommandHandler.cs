@@ -1,7 +1,7 @@
 ﻿using Grand.Api.Commands.Models.Common;
 using Grand.Api.DTOs.Common;
 using Grand.Api.Extensions;
-using Grand.Business.Storage.Interfaces;
+using Grand.Business.Core.Interfaces.Storage;
 using MediatR;
 
 namespace Grand.Api.Commands.Handlers.Common

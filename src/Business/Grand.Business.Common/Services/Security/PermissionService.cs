@@ -7,7 +7,7 @@ using Grand.Domain.Data;
 using Grand.Domain.Permissions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 
-namespace Grand.Business.Common.Services.Security
+namespace Grand.Business.Core.Utilities.Common.Security
 {
     /// <summary>
     /// Permission service

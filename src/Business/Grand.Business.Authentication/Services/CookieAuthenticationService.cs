@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Authentication.Utilities;
-using Grand.Business.Common.Extensions;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure.Configuration;

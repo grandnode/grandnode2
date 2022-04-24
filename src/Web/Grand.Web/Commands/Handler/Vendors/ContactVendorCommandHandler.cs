@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Messages.Interfaces;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Infrastructure;
 using Grand.Domain.Common;
 using Grand.SharedKernel.Extensions;

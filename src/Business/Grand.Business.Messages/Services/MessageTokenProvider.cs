@@ -1,6 +1,6 @@
-﻿using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
-using Grand.Business.Messages.DotLiquidDrops;
+using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 
 namespace Grand.Business.Messages.Services
 {

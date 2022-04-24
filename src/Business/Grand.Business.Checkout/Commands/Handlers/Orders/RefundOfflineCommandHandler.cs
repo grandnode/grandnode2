@@ -3,7 +3,7 @@ using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Business.Messages.Interfaces;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Localization;
 using Grand.Domain.Payments;
 using Grand.SharedKernel;

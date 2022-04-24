@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Business.Storage.Interfaces;
-using Grand.Business.System.Commands.Models.Common;
-using Grand.Business.System.Interfaces.ScheduleTasks;
+using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Commands.System.Common;
+using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using MediatR;
 
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks

@@ -1,4 +1,4 @@
-﻿using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Messages;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Products;
 using MediatR;

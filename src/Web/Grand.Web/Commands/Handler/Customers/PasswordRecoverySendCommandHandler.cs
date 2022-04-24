@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Messages.Interfaces;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
 using Grand.Web.Commands.Models.Customers;
 using MediatR;

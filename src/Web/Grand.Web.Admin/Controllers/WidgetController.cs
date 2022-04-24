@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Cms;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Plugins;

@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Common.Services.Security;
-using Grand.Business.System.Commands.Models.Security;
-using Grand.Business.System.Interfaces.Installation;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Business.Core.Commands.System.Security;
+using Grand.Business.Core.Interfaces.System.Installation;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;

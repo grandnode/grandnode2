@@ -2,7 +2,7 @@
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 
-namespace Grand.Business.Common.Services.Security
+namespace Grand.Business.Core.Utilities.Common.Security
 {
     public class PermissionProvider : IPermissionProvider
     {

@@ -1,6 +1,6 @@
-﻿using Grand.Business.Common.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Business.Storage.Interfaces;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Data;

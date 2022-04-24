@@ -4,14 +4,7 @@
     <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />
     <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
-    <ProjectReference Include="..\Grand.Business.Catalog\Grand.Business.Catalog.csproj" />
-    <ProjectReference Include="..\Grand.Business.Checkout\Grand.Business.Checkout.csproj" />
-    <ProjectReference Include="..\Grand.Business.Common\Grand.Business.Common.csproj" />
-    <ProjectReference Include="..\Grand.Business.Cms\Grand.Business.Cms.csproj" />
-    <ProjectReference Include="..\Grand.Business.Customers\Grand.Business.Customers.csproj" />
-    <ProjectReference Include="..\Grand.Business.Marketing\Grand.Business.Marketing.csproj" />
-    <ProjectReference Include="..\Grand.Business.Messages\Grand.Business.Messages.csproj" />
-    <ProjectReference Include="..\Grand.Business.Storage\Grand.Business.Storage.csproj" />
+    <ProjectReference Include="..\Grand.Business.Core\Grand.Business.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NPOI" Version="2.5.5" />
