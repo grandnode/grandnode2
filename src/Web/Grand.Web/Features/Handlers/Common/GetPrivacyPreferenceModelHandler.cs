@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Cms.Interfaces;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Web.Features.Models.Common;

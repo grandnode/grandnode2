@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
-using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Catalog;
 

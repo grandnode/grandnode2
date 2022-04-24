@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Common.Services.Security;
-using Grand.Business.Marketing.Interfaces.Newsletters;
+using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Messages;
 using Grand.Web.Common.DataSource;

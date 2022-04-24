@@ -1,6 +1,6 @@
-﻿using Grand.Business.Catalog.Interfaces.Directory;
-using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Features.Models.Catalog;
 using MediatR;
 

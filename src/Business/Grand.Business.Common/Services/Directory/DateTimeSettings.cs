@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Configuration;
 
-namespace Grand.Business.Common.Interfaces.Directory
+namespace Grand.Business.Core.Interfaces.Common.Directory
 {
     public class DateTimeSettings : ISettings
     {

@@ -1,4 +1,4 @@
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.System.Interfaces.Reports;
 using Grand.Business.System.Utilities;
 using Grand.Domain;

@@ -1,9 +1,9 @@
-﻿using Grand.Business.Catalog.Interfaces.Brands;
-using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Catalog.Interfaces.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Cms.Interfaces;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Marketing.Interfaces.Knowledgebase;
+using Grand.Business.Core.Interfaces.Marketing.Knowledgebase;
 using Grand.Business.Storage.Interfaces;
 using Grand.Business.System.Commands.Models.Common;
 using Grand.Domain.Blogs;

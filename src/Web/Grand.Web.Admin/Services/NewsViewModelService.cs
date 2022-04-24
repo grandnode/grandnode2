@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Cms.Interfaces;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Seo;
-using Grand.Business.Customers.Interfaces;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Seo;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.News;
 using Grand.Domain.Seo;

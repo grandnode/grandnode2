@@ -1,5 +1,5 @@
 ﻿@model CustomerGroupModel
-@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
 @{ 
     var access = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageAcl);
 }

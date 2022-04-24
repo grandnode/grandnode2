@@ -1,4 +1,4 @@
-using Grand.Business.Catalog.Utilities;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Checkout.Utilities;
 using Grand.Domain.Orders;
 

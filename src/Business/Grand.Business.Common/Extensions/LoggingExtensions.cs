@@ -1,6 +1,6 @@
 using Grand.Domain.Customers;
 using Grand.Domain.Logging;
-using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Core.Interfaces.Common.Logging;
 
 namespace Grand.Business.Common.Extensions
 {

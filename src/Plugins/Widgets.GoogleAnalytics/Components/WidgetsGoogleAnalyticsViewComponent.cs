@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Catalog.Extensions;
-using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Catalog.Interfaces.Products;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Cms.Interfaces;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Logging;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;

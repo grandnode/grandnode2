@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Common.Interfaces.Security;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Common.Services.Security;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;

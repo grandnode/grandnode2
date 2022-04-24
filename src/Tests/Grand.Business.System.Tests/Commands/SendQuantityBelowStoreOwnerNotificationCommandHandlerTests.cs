@@ -1,4 +1,4 @@
-﻿using Grand.Business.Catalog.Commands.Models;
+﻿using Grand.Business.Core.Commands.Catalog;
 using Grand.Business.Messages.Interfaces;
 using Grand.Business.System.Commands.Handlers.Catalog;
 using Grand.Domain.Catalog;

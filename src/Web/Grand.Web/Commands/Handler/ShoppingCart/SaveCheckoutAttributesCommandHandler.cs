@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Checkout.Extensions;
 using Grand.Business.Checkout.Interfaces.CheckoutAttributes;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;

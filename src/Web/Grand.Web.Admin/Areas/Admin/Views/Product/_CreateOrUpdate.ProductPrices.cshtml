@@ -1,5 +1,5 @@
 ﻿@model ProductModel
-@inject Grand.Business.Common.Interfaces.Directory.ICurrencyService currencyService
+@inject Grand.Business.Core.Interfaces.Common.Directory.ICurrencyService currencyService
 @{ 
     var currencies = await currencyService.GetAllCurrencies();
     var defaultCurrency = await currencyService.GetPrimaryStoreCurrency();

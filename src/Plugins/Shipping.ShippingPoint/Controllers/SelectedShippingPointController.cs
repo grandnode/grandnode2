@@ -1,5 +1,5 @@
-﻿using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Common.Interfaces.Directory;
+﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Shipping.ShippingPoint.Models;

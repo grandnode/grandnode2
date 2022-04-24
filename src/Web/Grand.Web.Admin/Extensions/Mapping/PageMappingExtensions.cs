@@ -1,6 +1,6 @@
 ﻿using Grand.Infrastructure.Mapper;
 using Grand.Domain.Pages;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Web.Admin.Models.Pages;
 
 namespace Grand.Web.Admin.Extensions

@@ -1,6 +1,6 @@
-﻿using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Stores;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.System.Interfaces.ScheduleTasks;
 using Grand.Domain.Tasks;

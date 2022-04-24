@@ -1,6 +1,6 @@
-﻿using Grand.Business.Catalog.Interfaces.Discounts;
-using Grand.Business.Catalog.Utilities;
-using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Core.Interfaces.Catalog.Discounts;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;

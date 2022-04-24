@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Pdf;
+﻿using Grand.Business.Core.Interfaces.Common.Pdf;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;

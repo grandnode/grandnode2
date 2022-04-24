@@ -1,4 +1,4 @@
-﻿using Grand.Business.Customers.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.System.Interfaces.ScheduleTasks;
 using Grand.Domain.Common;
 

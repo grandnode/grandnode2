@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Marketing.Interfaces.Contacts;
+using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Infrastructure;
 using Grand.Domain.Messages;
 using Grand.Web.Features.Models.Messages;

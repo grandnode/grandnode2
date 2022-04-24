@@ -1,5 +1,5 @@
-﻿using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Catalog.Utilities;
+﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;

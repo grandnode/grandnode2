@@ -1,4 +1,4 @@
-﻿using Grand.Business.Customers.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Customers.Services;
 using Grand.Domain.Affiliates;
 using Grand.Domain.Data;

@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Messages.Commands.Models;
 using Grand.Business.Messages.DotLiquidDrops;
 using MediatR;

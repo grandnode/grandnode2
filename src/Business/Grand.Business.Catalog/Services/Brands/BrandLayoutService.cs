@@ -1,4 +1,4 @@
-using Grand.Business.Catalog.Interfaces.Brands;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;

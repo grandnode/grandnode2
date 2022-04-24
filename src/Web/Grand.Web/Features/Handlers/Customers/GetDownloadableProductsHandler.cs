@@ -1,8 +1,8 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Checkout.Extensions;
 using Grand.Business.Checkout.Queries.Models.Orders;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using MediatR;

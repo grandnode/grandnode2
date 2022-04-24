@@ -2,14 +2,14 @@
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Web.Common.Extensions;
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Customers;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Grand.Business.System.Interfaces.Reports;
-using Grand.Business.Catalog.Interfaces.Prices;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Checkout.Interfaces.Orders;
 
 namespace Grand.Web.Admin.Services

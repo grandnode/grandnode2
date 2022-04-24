@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Logging;
+﻿using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.System.Interfaces.ScheduleTasks;
 
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks

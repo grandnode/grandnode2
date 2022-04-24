@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Cms.Interfaces;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Security;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Common.Services.Security;
 using Grand.Infrastructure;
 using Grand.Domain.Blogs;

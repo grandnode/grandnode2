@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Catalog.Extensions;
-using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Catalog.Interfaces.Tax;
-using Grand.Business.Catalog.Utilities;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Security;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Catalog;

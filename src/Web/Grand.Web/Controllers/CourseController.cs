@@ -1,10 +1,10 @@
-﻿using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Common.Interfaces.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Common.Services.Security;
-using Grand.Business.Marketing.Interfaces.Courses;
-using Grand.Business.Marketing.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Marketing.Courses;
+using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Courses;
 using Grand.Domain.Customers;

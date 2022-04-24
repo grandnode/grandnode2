@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
-namespace Grand.Business.Common.Interfaces.Directory
+namespace Grand.Business.Core.Interfaces.Common.Directory
 {
     /// <summary>
     /// Represents a datetime service

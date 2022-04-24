@@ -1,10 +1,10 @@
-﻿using Grand.Business.Catalog.Interfaces.Directory;
+﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Checkout.Enum;
 using Grand.Business.Checkout.Interfaces.Payments;
 using Grand.Business.Checkout.Interfaces.Shipping;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.System.Interfaces.MachineNameProvider;
 using Grand.Domain.Directory;

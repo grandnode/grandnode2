@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Checkout.Interfaces.Shipping;
-using Grand.Business.Common.Interfaces.Configuration;
-using Grand.Business.Common.Interfaces.Security;
+using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Common.Services.Security;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;

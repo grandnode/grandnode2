@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Cms.Interfaces;
-using Grand.Business.Common.Interfaces.Security;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Common.Services.Security;
 using Grand.Domain.Data;
 using Grand.Domain.Stores;

@@ -1,4 +1,4 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Checkout.Interfaces.Shipping;
 using Grand.Business.Checkout.Queries.Models.Orders;
 using Grand.Domain.Orders;

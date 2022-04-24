@@ -1,5 +1,5 @@
-﻿using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Catalog.Interfaces.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Common.Extensions;
 using Grand.Business.Storage.Interfaces;
 using Grand.Infrastructure.Caching;

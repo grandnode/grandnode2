@@ -1,4 +1,4 @@
-﻿using Grand.Business.Customers.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;

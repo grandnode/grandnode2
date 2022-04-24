@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Marketing.Extensions;
-using Grand.Business.Marketing.Interfaces.Knowledgebase;
+using Grand.Business.Core.Interfaces.Marketing.Knowledgebase;
 using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;

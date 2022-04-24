@@ -4,7 +4,7 @@ using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Checkout.Interfaces.Payments;
 using Grand.Business.Checkout.Queries.Models.Orders;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;

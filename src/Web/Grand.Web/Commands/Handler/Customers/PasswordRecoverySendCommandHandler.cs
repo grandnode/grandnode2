@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Directory;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Messages.Interfaces;
 using Grand.Domain.Customers;
 using Grand.Web.Commands.Models.Customers;

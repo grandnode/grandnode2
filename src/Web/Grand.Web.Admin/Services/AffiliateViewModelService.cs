@@ -1,10 +1,10 @@
-﻿using Grand.Business.Catalog.Interfaces.Prices;
+﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Customers.Extensions;
-using Grand.Business.Customers.Interfaces;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Affiliates;
 using Grand.Domain.Directory;
 using Grand.Domain.Payments;

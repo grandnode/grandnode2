@@ -1,6 +1,6 @@
 using Grand.Business.Common.Extensions;
 using Grand.Business.Marketing.Extensions;
-using Grand.Business.Marketing.Interfaces.Contacts;
+using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;

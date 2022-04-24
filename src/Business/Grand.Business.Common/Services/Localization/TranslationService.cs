@@ -1,4 +1,4 @@
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Data;
 using Grand.Domain.Localization;
 using Grand.Infrastructure;

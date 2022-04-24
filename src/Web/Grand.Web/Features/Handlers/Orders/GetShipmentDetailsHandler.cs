@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Catalog.Extensions;
-using Grand.Business.Catalog.Interfaces.Products;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Checkout.Extensions;
 using Grand.Business.Checkout.Interfaces.Shipping;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Catalog;
 using Grand.Domain.Shipping;
 using Grand.Web.Features.Models.Common;

@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Cms.Interfaces;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Customers.Interfaces;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Messages.Interfaces;
 using Grand.Infrastructure;
 using Grand.Domain.Blogs;

@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Logging;
+﻿using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.System.Services.Migrations;
 using Grand.Domain.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

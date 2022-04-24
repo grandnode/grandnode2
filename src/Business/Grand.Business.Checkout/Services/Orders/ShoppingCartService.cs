@@ -1,13 +1,13 @@
-using Grand.Business.Catalog.Interfaces.Products;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Checkout.Commands.Models.Orders;
 using Grand.Business.Checkout.Events.ShoppingCart;
 using Grand.Business.Checkout.Extensions;
 using Grand.Business.Checkout.Interfaces.CheckoutAttributes;
 using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Customers.Interfaces;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;

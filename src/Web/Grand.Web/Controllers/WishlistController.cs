@@ -1,11 +1,11 @@
 ﻿using Grand.Business.Checkout.Extensions;
 using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Checkout.Services.Orders;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Security;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Common.Services.Security;
-using Grand.Business.Customers.Interfaces;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Messages.Interfaces;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;

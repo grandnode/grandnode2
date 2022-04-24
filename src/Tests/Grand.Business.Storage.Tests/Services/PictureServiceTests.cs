@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Logging;
+﻿using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Storage.Interfaces;
 using Grand.Business.Storage.Services;
 using Grand.Domain.Data;

@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Checkout.Commands.Models.Orders;
 using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Configuration;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.AdminSearch;

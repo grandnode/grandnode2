@@ -1,5 +1,5 @@
-﻿using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Stores;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Storage.Interfaces;
 using Grand.Business.System.Commands.Models.Common;
 using Grand.Business.System.Interfaces.ScheduleTasks;

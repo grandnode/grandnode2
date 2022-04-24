@@ -1,4 +1,4 @@
-﻿using Grand.Business.Catalog.Utilities;
+﻿using Grand.Business.Core.Utilities.Catalog;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Domain.Catalog;

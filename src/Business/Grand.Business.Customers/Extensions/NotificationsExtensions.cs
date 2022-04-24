@@ -1,5 +1,5 @@
-﻿using Grand.Business.Customers.Events;
-using Grand.Business.Customers.Utilities;
+﻿using Grand.Business.Core.Events.Customers;
+using Grand.Business.Core.Utilities.Customers;
 using MediatR;
 
 namespace Grand.Business.Customers.Extensions

@@ -1,7 +1,7 @@
 ﻿using Grand.Infrastructure.Mapper;
 using Grand.Domain.Orders;
 using Grand.Web.Admin.Models.Orders;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Common.Directory;
 
 namespace Grand.Web.Admin.Extensions
 {

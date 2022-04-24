@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Authentication.Interfaces;
 using Grand.Business.Authentication.Utilities;
-using Grand.Business.Common.Interfaces.Configuration;
-using Grand.Business.Common.Interfaces.Security;
+using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Common.Services.Security;
 using Grand.Domain.Configuration;
 using Grand.Domain.Data;

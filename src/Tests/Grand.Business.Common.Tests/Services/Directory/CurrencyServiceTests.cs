@@ -1,5 +1,5 @@
-﻿using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Common.Services.Directory;
 using Grand.Domain.Data;
 using Grand.Domain.Data.Mongo;

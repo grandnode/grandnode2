@@ -1,4 +1,4 @@
-﻿using Grand.Business.Marketing.Interfaces.Newsletters;
+﻿using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Infrastructure.Extensions;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;

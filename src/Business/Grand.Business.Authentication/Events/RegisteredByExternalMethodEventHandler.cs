@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Authentication.Utilities;
-using Grand.Business.Customers.Utilities;
+using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
 using MediatR;
 

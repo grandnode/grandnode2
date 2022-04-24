@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Stores;
+﻿using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;

@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Customers.Interfaces;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Media;
 using Grand.Domain.Vendors;

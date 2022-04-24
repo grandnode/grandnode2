@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Cms.Interfaces;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Localization;
 
 namespace Widgets.FacebookPixel
 {

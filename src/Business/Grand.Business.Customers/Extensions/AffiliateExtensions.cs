@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Customers.Interfaces;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Affiliates;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Extensions;

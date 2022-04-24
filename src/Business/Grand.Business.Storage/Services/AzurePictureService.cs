@@ -1,5 +1,5 @@
 ﻿using Azure.Storage.Blobs;
-using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Data;
 using Grand.Domain.Media;

@@ -1,6 +1,6 @@
-﻿using Grand.Business.Catalog.Interfaces.Categories;
+﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Catalog.Queries.Handlers;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Storage.Interfaces;
 using Grand.Infrastructure.Caching;
 using Grand.Domain;

@@ -1,4 +1,4 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Messages.Commands.Models;
 using Grand.Business.Messages.DotLiquidDrops;
 using MediatR;

@@ -1,5 +1,5 @@
-﻿using Grand.Business.Catalog.Interfaces.Tax;
-using Grand.Business.Common.Interfaces.Configuration;
+﻿using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Common.Services.Security;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;

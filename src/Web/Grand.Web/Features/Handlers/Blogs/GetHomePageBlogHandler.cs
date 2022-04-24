@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Cms.Interfaces;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Storage.Interfaces;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;

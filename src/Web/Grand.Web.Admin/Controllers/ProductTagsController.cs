@@ -1,6 +1,6 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Common.Services.Security;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;

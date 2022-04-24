@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Checkout.Interfaces.GiftVouchers;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Common.Services.Security;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Interfaces;

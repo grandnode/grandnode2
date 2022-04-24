@@ -1,5 +1,5 @@
-﻿using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Seo;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;

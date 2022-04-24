@@ -1,5 +1,5 @@
-﻿using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Pdf;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Domain.Data;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;

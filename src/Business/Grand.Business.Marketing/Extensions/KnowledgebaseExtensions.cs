@@ -1,6 +1,6 @@
 ﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Marketing.Interfaces.Knowledgebase;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Interfaces.Marketing.Knowledgebase;
 using Grand.Domain.Knowledgebase;
 using Grand.Infrastructure;
 

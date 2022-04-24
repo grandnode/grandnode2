@@ -1,5 +1,5 @@
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Customers.Utilities;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Utilities.Customers;
 using Grand.Business.System.Interfaces.Installation;
 using Grand.Business.System.Utilities;
 using Grand.Domain;

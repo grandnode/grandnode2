@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Configuration;
+﻿using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Microsoft.AspNetCore.Mvc;

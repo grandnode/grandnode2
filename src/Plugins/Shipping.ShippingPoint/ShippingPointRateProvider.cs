@@ -2,8 +2,8 @@
 using Grand.Business.Checkout.Interfaces.Shipping;
 using Grand.Business.Checkout.Utilities;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;

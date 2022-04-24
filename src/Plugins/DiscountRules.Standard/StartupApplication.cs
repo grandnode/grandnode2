@@ -1,5 +1,5 @@
 ﻿using DiscountRules.Provider;
-using Grand.Business.Catalog.Interfaces.Discounts;
+using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

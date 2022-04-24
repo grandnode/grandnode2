@@ -2,7 +2,7 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Infrastructure.Validators;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Admin.Models.Catalog;
 
 namespace Grand.Web.Admin.Validators.Catalog

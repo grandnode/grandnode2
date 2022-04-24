@@ -1,7 +1,7 @@
-﻿@inject Grand.Business.Common.Interfaces.Directory.IGroupService  groupService
+﻿@inject Grand.Business.Core.Interfaces.Common.Directory.IGroupService  groupService
 @inject IWorkContext workContext
 @inject IPageHeadBuilder pagebuilder
-@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
 @{
     var registerUrl = Url.RouteUrl("Register", new { returnUrl = this.Context.Request.Query["returnUrl"] });
     var isAuthenticated = await groupService.IsRegistered(workContext.CurrentCustomer);

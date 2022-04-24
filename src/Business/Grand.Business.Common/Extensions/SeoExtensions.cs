@@ -1,5 +1,5 @@
-﻿using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Seo;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Localization;

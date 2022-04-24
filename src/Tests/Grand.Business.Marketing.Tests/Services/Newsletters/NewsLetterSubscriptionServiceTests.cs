@@ -1,6 +1,6 @@
-﻿using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Marketing.Events;
-using Grand.Business.Marketing.Interfaces.Newsletters;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Events.Marketing;
+using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Business.Marketing.Services.Newsteletters;
 using Grand.Domain;
 using Grand.Domain.Data;

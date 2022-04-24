@@ -1,7 +1,7 @@
 ﻿@model MerchandiseReturnModel
 @inject AdminAreaSettings adminAreaSettings
 @inject OrderSettings orderSettings
-@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
 @{
     //has "Manage Documents" permission?
     var canManageDocuments = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageDocuments);

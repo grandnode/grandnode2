@@ -1,5 +1,5 @@
-﻿using Grand.Business.Catalog.Interfaces.Brands;
-using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Storage.Interfaces;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;

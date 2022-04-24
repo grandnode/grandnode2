@@ -1,5 +1,5 @@
-using Grand.Business.Catalog.Interfaces.Directory;
-using Grand.Business.Catalog.Utilities;
+using Grand.Business.Core.Interfaces.Catalog.Directory;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Data;

@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Common;
 using Grand.Domain.Data;
 using Grand.Infrastructure;

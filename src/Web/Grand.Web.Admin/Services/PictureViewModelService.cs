@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Storage.Interfaces;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;

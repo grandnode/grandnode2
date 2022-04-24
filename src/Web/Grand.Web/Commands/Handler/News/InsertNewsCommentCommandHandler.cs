@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Cms.Interfaces;
-using Grand.Business.Customers.Interfaces;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Messages.Interfaces;
 using Grand.Infrastructure;
 using Grand.Domain.Localization;

@@ -1,4 +1,4 @@
-﻿using Grand.Business.Customers.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
 using Grand.Domain.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

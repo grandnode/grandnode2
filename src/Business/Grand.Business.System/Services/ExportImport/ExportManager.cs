@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Checkout.Interfaces.Orders;
 using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Marketing.Interfaces.Contacts;
-using Grand.Business.Marketing.Interfaces.Newsletters;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Marketing.Contacts;
+using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Business.Messages.Interfaces;
 using Grand.Business.Storage.Interfaces;
 using Grand.Business.System.Interfaces.ExportImport;

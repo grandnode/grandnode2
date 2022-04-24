@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Checkout.Commands.Models.Orders;
 using Grand.Business.Checkout.Events.Orders;
 using Grand.Business.Checkout.Queries.Models.Orders;
-using Grand.Business.Common.Interfaces.Pdf;
-using Grand.Business.Customers.Interfaces;
+using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Messages.Interfaces;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
