@@ -3,7 +3,7 @@ using Grand.Business.Core.Events.Customers;
 using Grand.Infrastructure;
 using MediatR;
 
-namespace Grand.Business.Core.Events.Checkout.ShoppingCart
+namespace Grand.Business.Checkout.Events.ShoppingCart
 {
     public class CustomerLoggedInEventHandler : INotificationHandler<CustomerLoggedInEvent>
     {

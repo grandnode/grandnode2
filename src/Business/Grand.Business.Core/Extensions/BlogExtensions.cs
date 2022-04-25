@@ -1,6 +1,6 @@
 using Grand.Domain.Blogs;
 
-namespace Grand.Business.Cms.Extensions
+namespace Grand.Business.Core.Extensions
 {
     /// <summary>
     /// Extensions

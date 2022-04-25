@@ -1,4 +1,4 @@
-using Grand.Business.Checkout.Services.Orders;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
@@ -10,7 +10,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
     /// </summary>
     public partial interface IShoppingCartService
     {
-       
+
         /// <summary>
         /// Gets shopping cart
         /// </summary>
@@ -62,7 +62,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
             ShoppingCartType shoppingCartType, string storeId, string warehouseId = null, IList<CustomAttribute> attributes = null,
             double? customerEnteredPrice = null,
             DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
-            int quantity = 1, 
+            int quantity = 1,
             bool automaticallyAddRequiredProductsIfEnabled = true, string reservationId = "", string parameter = "", string duration = "",
             ShoppingCartValidatorOptions validator = null);
 

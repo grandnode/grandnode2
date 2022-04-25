@@ -1,8 +1,9 @@
-﻿using Grand.Domain.Catalog;
+﻿using Grand.Business.Core.Events.Checkout.Orders;
+using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using MediatR;
 
-namespace Grand.Business.Core.Events.Checkout.Orders
+namespace Grand.Business.Checkout.Events.Orders
 {
     public class OrderDeletedEventHandler : INotificationHandler<OrderDeletedEvent>
     {

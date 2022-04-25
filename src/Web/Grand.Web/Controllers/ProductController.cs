@@ -484,8 +484,8 @@ namespace Grand.Web.Controllers
         [ValidateCaptcha]
         [DenySystemAccount]
         public virtual async Task<IActionResult> ProductReviews(
-            string productId, 
-            ProductReviewsModel model, 
+            string productId,
+            ProductReviewsModel model,
             bool captchaValid,
             [FromServices] IGroupService groupService,
             [FromServices] IOrderService orderService,
@@ -512,10 +512,10 @@ namespace Grand.Web.Controllers
 
             if (_catalogSettings.ProductReviewPossibleOnlyOnce)
             {
-                var reviews = await productReviewService.GetAllProductReviews(customerId: _workContext.CurrentCustomer.Id, 
+                var reviews = await productReviewService.GetAllProductReviews(customerId: _workContext.CurrentCustomer.Id,
                                                                               productId: productId,
                                                                               pageSize: 1);
-                if(reviews.Any())
+                if (reviews.Any())
                     ModelState.AddModelError(string.Empty, _translationService.GetResource("Reviews.ProductReviewPossibleOnlyOnce"));
             }
 

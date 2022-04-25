@@ -1,11 +1,12 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
+﻿using Grand.Business.Core.Events.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using Grand.Domain.Orders;
 using MediatR;
 
-namespace Grand.Business.Core.Events.Checkout.Orders
+namespace Grand.Business.Checkout.Events.Orders
 {
     public class OrderPlacedEventHandler : INotificationHandler<OrderPlacedEvent>
     {

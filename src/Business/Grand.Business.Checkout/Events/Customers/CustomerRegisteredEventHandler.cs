@@ -4,7 +4,7 @@ using Grand.Business.Core.Events.Customers;
 using Grand.Domain.Orders;
 using MediatR;
 
-namespace Grand.Business.Core.Events.Checkout.Customers
+namespace Grand.Business.Checkout.Events.Customers
 {
     public class CustomerRegisteredEventHandler : INotificationHandler<CustomerRegisteredEvent>
     {

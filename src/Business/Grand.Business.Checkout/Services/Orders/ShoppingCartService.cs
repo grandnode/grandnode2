@@ -1,7 +1,6 @@
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Events.Checkout.ShoppingCart;
-using Grand.Business.Checkout.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Extensions;
@@ -15,7 +14,7 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-
+using Grand.Business.Core.Utilities.Checkout;
 
 namespace Grand.Business.Checkout.Services.Orders
 {
@@ -248,8 +247,7 @@ namespace Grand.Business.Checkout.Services.Orders
             else
             {
                 DateTime now = DateTime.UtcNow;
-                shoppingCartItem = new ShoppingCartItem
-                {
+                shoppingCartItem = new ShoppingCartItem {
                     ShoppingCartTypeId = shoppingCartType,
                     StoreId = storeId,
                     WarehouseId = warehouseId,
@@ -318,8 +316,7 @@ namespace Grand.Business.Checkout.Services.Orders
             await _mediator.Publish(new AddToCartEvent(customer, shoppingCartItem, product));
             if (automaticallyAddRequiredProductsIfEnabled)
             {
-                await _mediator.Send(new AddRequiredProductsCommand()
-                {
+                await _mediator.Send(new AddRequiredProductsCommand() {
                     Customer = customer,
                     Product = product,
                     ShoppingCartType = shoppingCartItem.ShoppingCartTypeId,
@@ -392,8 +389,7 @@ namespace Grand.Business.Checkout.Services.Orders
                     {
                         foreach (var item in groupToBook.Where(x => x.Date >= rentalStartDate && x.Date <= rentalEndDate))
                         {
-                            await _productReservationService.InsertCustomerReservationsHelper(new CustomerReservationsHelper
-                            {
+                            await _productReservationService.InsertCustomerReservationsHelper(new CustomerReservationsHelper {
                                 CustomerId = customer.Id,
                                 ReservationId = item.Id,
                                 ShoppingCartItemId = shoppingCartItem.Id
@@ -404,8 +400,7 @@ namespace Grand.Business.Checkout.Services.Orders
                     {
                         foreach (var item in groupToBook.Where(x => x.Date >= rentalStartDate && x.Date < rentalEndDate))
                         {
-                            await _productReservationService.InsertCustomerReservationsHelper(new CustomerReservationsHelper
-                            {
+                            await _productReservationService.InsertCustomerReservationsHelper(new CustomerReservationsHelper {
                                 CustomerId = customer.Id,
                                 ReservationId = item.Id,
                                 ShoppingCartItemId = shoppingCartItem.Id
@@ -418,8 +413,7 @@ namespace Grand.Business.Checkout.Services.Orders
 
             if (!string.IsNullOrEmpty(reservationId))
             {
-                await _productReservationService.InsertCustomerReservationsHelper(new CustomerReservationsHelper
-                {
+                await _productReservationService.InsertCustomerReservationsHelper(new CustomerReservationsHelper {
                     CustomerId = customer.Id,
                     ReservationId = reservationId,
                     ShoppingCartItemId = shoppingCartItem.Id

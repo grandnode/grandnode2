@@ -5,7 +5,7 @@ using Grand.Domain.Shipping;
 using Grand.Infrastructure.Events;
 using MediatR;
 
-namespace Grand.Business.Core.Events.Checkout.Shipping
+namespace Grand.Business.Checkout.Events.Shipping
 {
     /// <summary>
     /// Update order items 

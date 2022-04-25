@@ -1,4 +1,4 @@
-﻿namespace Grand.Business.Checkout.Services.Orders
+﻿namespace Grand.Business.Core.Utilities.Checkout
 {
     public class ShoppingCartValidatorOptions
     {

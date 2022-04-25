@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.System.ScheduleTasks;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Localization;
 
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks

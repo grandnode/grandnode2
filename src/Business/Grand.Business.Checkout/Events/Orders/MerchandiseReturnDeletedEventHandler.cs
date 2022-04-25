@@ -3,7 +3,7 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure.Events;
 using MediatR;
 
-namespace Grand.Business.Core.Events.Checkout.Orders
+namespace Grand.Business.Checkout.Events.Orders
 {
     public class MerchandiseReturnDeletedEventHandler : INotificationHandler<EntityDeleted<MerchandiseReturn>>
     {
