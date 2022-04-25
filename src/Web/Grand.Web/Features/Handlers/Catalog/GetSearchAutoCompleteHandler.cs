@@ -5,7 +5,7 @@ using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Catalog.Queries.Handlers;
 using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Common.Extensions;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Storage;

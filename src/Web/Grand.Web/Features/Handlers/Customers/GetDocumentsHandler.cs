@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Marketing.Documents;
 using Grand.Domain.Documents;

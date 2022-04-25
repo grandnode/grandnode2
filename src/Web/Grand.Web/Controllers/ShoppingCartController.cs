@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Discounts;
-using Grand.Business.Checkout.Extensions;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -9,7 +9,6 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Storage.Extensions;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;

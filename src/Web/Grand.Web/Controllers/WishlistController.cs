@@ -1,4 +1,4 @@
-﻿using Grand.Business.Checkout.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;

@@ -1,10 +1,9 @@
-﻿using Grand.Business.Common.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Business.Storage.Extensions;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Common;
 using Grand.Domain.Localization;

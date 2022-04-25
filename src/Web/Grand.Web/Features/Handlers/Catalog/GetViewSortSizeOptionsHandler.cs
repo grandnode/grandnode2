@@ -4,7 +4,7 @@ using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
 using MediatR;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Grand.Business.Common.Extensions;
+using Grand.Business.Core.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Grand.Infrastructure.Extensions;

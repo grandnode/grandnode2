@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;

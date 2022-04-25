@@ -3,7 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
-using Grand.Business.Storage.Extensions;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;

@@ -10,7 +10,7 @@ using Grand.Web.Events.Cache;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Media;
 using MediatR;
-using Grand.Business.Common.Extensions;
+using Grand.Business.Core.Extensions;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {

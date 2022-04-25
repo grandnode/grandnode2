@@ -5,7 +5,6 @@ using Grand.Web.Features.Models.Blogs;
 using Grand.Web.Events.Cache;
 using Grand.Web.Models.Blogs;
 using MediatR;
-using Grand.Business.Cms.Extensions;
 
 namespace Grand.Web.Features.Handlers.Blogs
 {
@@ -15,7 +14,7 @@ namespace Grand.Web.Features.Handlers.Blogs
         private readonly ICacheBase _cacheBase;
         private readonly IWorkContext _workContext;
 
-        public GetBlogPostYearHandler(IBlogService blogService, ICacheBase cacheBase, 
+        public GetBlogPostYearHandler(IBlogService blogService, ICacheBase cacheBase,
             IWorkContext workContext)
         {
             _blogService = blogService;

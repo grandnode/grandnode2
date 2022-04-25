@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Catalog.Queries.Handlers;
-using Grand.Business.Common.Extensions;
+using Grand.Business.Core.Extensions;
 using Grand.Domain.Catalog;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
