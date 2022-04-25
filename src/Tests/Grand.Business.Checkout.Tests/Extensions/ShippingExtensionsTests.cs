@@ -1,4 +1,4 @@
-﻿using Grand.Business.Checkout.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Domain.Shipping;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

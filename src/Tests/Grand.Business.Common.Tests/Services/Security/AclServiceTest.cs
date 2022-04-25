@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Utilities.Common.Security;
+﻿using Grand.Business.Common.Services.Security;
 using Grand.Domain.Catalog;
 using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

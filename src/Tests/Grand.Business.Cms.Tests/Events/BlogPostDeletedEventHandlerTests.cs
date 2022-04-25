@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Cms.Events;
+﻿using Grand.Business.Cms.Events;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Domain.Blogs;
 using Grand.Domain.Seo;

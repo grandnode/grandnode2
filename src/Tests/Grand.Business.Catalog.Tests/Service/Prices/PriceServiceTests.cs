@@ -8,7 +8,6 @@ using Grand.Business.Catalog.Services.Prices;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Common.Services.Directory;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
@@ -23,6 +22,7 @@ using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Business.Common.Services.Directory;
 
 namespace Grand.Business.Catalog.Tests.Service.Prices
 {
