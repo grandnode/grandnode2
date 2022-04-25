@@ -84,7 +84,7 @@ namespace Grand.Business.Common.Startup
             serviceCollection.AddScoped<IPermissionService, PermissionService>();
             serviceCollection.AddScoped<IAclService, AclService>();
             serviceCollection.AddScoped<IEncryptionService, EncryptionService>();
-
+            serviceCollection.AddScoped<IPermissionProvider, PermissionProvider>();
         }
 
         private void RegisterSeoService(IServiceCollection serviceCollection)

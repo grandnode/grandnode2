@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
@@ -17,6 +16,7 @@ using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Business.Core.Utilities.Checkout;
 
 namespace Grand.Web.Controllers
 {
@@ -216,7 +216,7 @@ namespace Grand.Web.Controllers
             return Json(new { success = true, message = "" });
 
         }
-        
+
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
@@ -230,7 +230,7 @@ namespace Grand.Web.Controllers
 
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist);
             if (!cart.Any())
-                return Content(""); 
+                return Content("");
 
             //validate CAPTCHA
             if (captchaSettings.Enabled && captchaSettings.ShowOnEmailWishlistToFriendPage && !captchaValid)

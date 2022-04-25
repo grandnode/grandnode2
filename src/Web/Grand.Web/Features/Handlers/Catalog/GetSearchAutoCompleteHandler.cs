@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Catalog.Queries.Handlers;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Security;
@@ -19,6 +18,7 @@ using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using MediatR;
+using Grand.Business.Core.Queries.Catalog;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {

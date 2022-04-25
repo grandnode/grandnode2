@@ -264,13 +264,8 @@ namespace Grand.Web.Controllers
                     }
 
                     //register default permissions
-                    var permissionProviders = new List<Type>();
-                    permissionProviders.Add(typeof(PermissionProvider));
-                    foreach (var providerType in permissionProviders)
-                    {
-                        var provider = (IPermissionProvider)Activator.CreateInstance(providerType);
-                        await _mediator.Send(new InstallPermissionsCommand() { PermissionProvider = provider });
-                    }
+                    var permissionProvider = _serviceProvider.GetRequiredService<IPermissionProvider>();
+                    await _mediator.Send(new InstallPermissionsCommand() { PermissionProvider = permissionProvider });
 
                     //install migration process - install only header
                     var migrationProcess = _serviceProvider.GetRequiredService<IMigrationProcess>();
