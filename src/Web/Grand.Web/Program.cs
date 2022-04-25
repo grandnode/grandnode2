@@ -1,4 +1,5 @@
 ﻿using Grand.Infrastructure.Configuration;
+using Grand.Web.Common.Startup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -65,7 +66,7 @@ if (config.MaxRequestBodySize.HasValue)
 
 }
 //register task
-//builder.Services.RegisterTasks();
+builder.Services.RegisterTasks();
 
 //build app
 var app = builder.Build();

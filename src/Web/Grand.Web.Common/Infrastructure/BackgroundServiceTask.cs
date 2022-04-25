@@ -6,7 +6,7 @@ using Grand.Domain.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Grand.Business.System.Services.BackgroundServices
+namespace Grand.Web.Common.Infrastructure
 {
     public class BackgroundServiceTask : BackgroundService
     {

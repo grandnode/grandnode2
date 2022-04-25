@@ -1,13 +1,13 @@
 ﻿using Grand.Business.Core.Interfaces.System.ScheduleTasks;
-using Grand.Business.System.Services.BackgroundServices;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearchers;
+using Grand.Web.Common.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Grand.Business.System.Utilities.System
+namespace Grand.Web.Common.Startup
 {
     public static class TaskHandler
     {
