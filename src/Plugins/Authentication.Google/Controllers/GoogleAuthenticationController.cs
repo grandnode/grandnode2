@@ -1,6 +1,5 @@
 ﻿using Authentication.Google.Models;
 using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Business.Authentication.Utilities;
 using Grand.SharedKernel;
 using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Authentication;
@@ -8,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
+using Grand.Business.Core.Utilities.Authentication;
 
 namespace Authentication.Google.Controllers
 {
