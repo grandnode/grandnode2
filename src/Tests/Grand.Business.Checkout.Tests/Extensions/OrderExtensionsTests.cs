@@ -49,16 +49,16 @@ namespace Grand.Business.Checkout.Tests.Extensions
         {
             var order = new Order();
             order.OrderItems.Add(new OrderItem() { IsShipEnabled = false, OpenQty = 1 });
-            Assert.IsFalse(order.HasItesmsToAddToShipment());
+            Assert.IsFalse(order.HasItemsToAddToShipment());
             order.OrderItems.Add(new OrderItem() { IsShipEnabled = true, OpenQty = 1 });
-            Assert.IsTrue(order.HasItesmsToAddToShipment());
+            Assert.IsTrue(order.HasItemsToAddToShipment());
         }
 
         [TestMethod]
         public void HasItemsToAddToShipment_NullOrder_ThrowException()
         {
             Order order = null;
-            Assert.ThrowsException<ArgumentNullException>(() => order.HasItesmsToAddToShipment());
+            Assert.ThrowsException<ArgumentNullException>(() => order.HasItemsToAddToShipment());
         }
 
         [TestMethod]
@@ -76,7 +76,7 @@ namespace Grand.Business.Checkout.Tests.Extensions
         public void OrderTagExists_NullOrder_ThrowException()
         {
             Order order = null;
-            Assert.ThrowsException<ArgumentNullException>(() => order.HasItesmsToAddToShipment());
+            Assert.ThrowsException<ArgumentNullException>(() => order.HasItemsToAddToShipment());
         }
     }
 }
