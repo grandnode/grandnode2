@@ -4,7 +4,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
 
-namespace Grand.Business.Core.Events.Marketing
+namespace Grand.Business.Marketing.Events
 {
     public class OrderPlacedEventHandler : INotificationHandler<OrderPlacedEvent>
     {

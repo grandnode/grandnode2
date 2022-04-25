@@ -3,7 +3,7 @@ using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Domain.Customers;
 using MediatR;
 
-namespace Grand.Business.Core.Events.Marketing
+namespace Grand.Business.Marketing.Events
 {
     public class OrderPaidEventHandler : INotificationHandler<OrderPaidEvent>
     {

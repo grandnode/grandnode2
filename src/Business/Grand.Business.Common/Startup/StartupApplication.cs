@@ -13,7 +13,6 @@ using Grand.Business.Common.Services.Directory;
 using Grand.Business.Common.Services.Localization;
 using Grand.Business.Common.Services.Logging;
 using Grand.Business.Common.Services.Pdf;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Common.Services.Seo;
 using Grand.Business.Common.Services.Stores;
 using Grand.Infrastructure;
@@ -21,7 +20,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
+using Grand.Business.Common.Services.Security;
 
 namespace Grand.Business.Common.Startup
 {
@@ -58,7 +57,7 @@ namespace Grand.Business.Common.Startup
         private void RegisterDirectoryService(IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<IDateTimeService, DateTimeService>();
-            
+
             serviceCollection.AddScoped<ICountryService, CountryService>();
             serviceCollection.AddScoped<ICurrencyService, CurrencyService>();
             serviceCollection.AddScoped<IExchangeRateService, ExchangeRateService>();

@@ -1,8 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 
-namespace Grand.Business.Core.Utilities.Common.Security
+namespace Grand.Business.Common.Services.Security
 {
     public class PermissionProvider : IPermissionProvider
     {

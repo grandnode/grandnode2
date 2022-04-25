@@ -1,8 +1,9 @@
-﻿using Grand.Domain.Customers;
+﻿using Grand.Business.Core.Queries.Messages;
+using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;
 
-namespace Grand.Business.Core.Queries.Messages.Handlers
+namespace Grand.Business.Messages.Queries.Handlers
 {
     public class GetCustomerByIdQueryHandler : IRequestHandler<GetCustomerByIdQuery, Customer>
     {

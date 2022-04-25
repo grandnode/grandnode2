@@ -3,7 +3,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using MediatR;
 
-namespace Grand.Business.Catalog.Queries.Handlers
+namespace Grand.Business.Core.Queries.Catalog
 {
     public class GetSearchProductsQuery : IRequest<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)>
     {
