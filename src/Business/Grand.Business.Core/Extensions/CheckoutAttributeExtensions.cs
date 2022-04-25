@@ -1,7 +1,7 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 
-namespace Grand.Business.Checkout.Extensions
+namespace Grand.Business.Core.Extensions
 {
     /// <summary>
     /// Extensions

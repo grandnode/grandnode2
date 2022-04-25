@@ -9,8 +9,4 @@
   <ItemGroup>
     <PackageReference Include="MailKit" Version="3.2.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DotLiquidDrops\" />
-    <Folder Include="Extensions\" />
-  </ItemGroup>
 </Project>

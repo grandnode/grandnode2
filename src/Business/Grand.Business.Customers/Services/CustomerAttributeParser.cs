@@ -1,6 +1,5 @@
-using Grand.Business.Common.Extensions;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Customers.Extensions;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -8,7 +7,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.SharedKernel.Extensions;
 using System.Net;
-using Grand.Business.Core.Extensions;
 
 namespace Grand.Business.Customers.Services
 {

@@ -181,5 +181,13 @@ namespace Grand.Business.Core.Interfaces.Storage
         /// <returns>Picture binary or throws an exception</returns>
         byte[] ValidatePicture(byte[] pictureBinary, string mimeType);
 
+        /// <summary>
+        /// Convert picture
+        /// </summary>
+        /// <param name="pictureBinary">Picture binary</param>
+        /// <param name="imageQuality">Image quality</param>
+        /// <param name="format">Format</param>
+        /// <returns>Picture binary or throws an exception</returns>
+        byte[] ConvertPicture(byte[] pictureBinary, int imageQuality, string format = "Webp");
     }
 }

@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Customers.Extensions;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Affiliates;
 using Grand.Domain.Directory;

@@ -1,5 +1,4 @@
-﻿using Grand.Business.Catalog.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Categories;
+﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;

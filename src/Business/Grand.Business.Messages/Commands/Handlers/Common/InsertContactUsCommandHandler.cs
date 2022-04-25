@@ -33,7 +33,6 @@ namespace Grand.Business.Messages.Commands.Handlers
             };
 
             await _repository.InsertAsync(contactus);
-
             return true;
         }
     }

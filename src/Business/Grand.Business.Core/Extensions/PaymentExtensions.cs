@@ -3,7 +3,7 @@ using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 
-namespace Grand.Business.Checkout.Extensions
+namespace Grand.Business.Core.Extensions
 {
     /// <summary>
     /// Payment extensions

@@ -152,9 +152,8 @@ namespace Grand.Web.Admin.Controllers
                 {
                     try
                     {
-                        using var image = SKBitmap.Decode(picture.PictureBinary);
-                        SKData d = SKImage.FromBitmap(image).Encode(SKEncodedImageFormat.Webp, mediaSettings.ImageQuality);
-                        await pictureService.UpdatePicture(picture.Id, d.ToArray(), "image/webp", picture.SeoFilename, picture.AltAttribute, picture.TitleAttribute, 
+                        var pictureConverted = pictureService.ConvertPicture(picture.PictureBinary, mediaSettings.ImageQuality);
+                        await pictureService.UpdatePicture(picture.Id, pictureConverted, "image/webp", picture.SeoFilename, picture.AltAttribute, picture.TitleAttribute, 
                             picture.Style, picture.ExtraField, true, false);
                         numberOfConvertItems += 1;
                     }

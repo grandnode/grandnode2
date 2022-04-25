@@ -5,5 +5,8 @@
     <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
     <ProjectReference Include="..\Grand.Business.Core\Grand.Business.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Extensions\" />
   </ItemGroup> 
 </Project>

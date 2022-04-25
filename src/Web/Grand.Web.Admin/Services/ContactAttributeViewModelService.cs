@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Business.Marketing.Extensions;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Infrastructure;
 using Grand.Domain.Catalog;

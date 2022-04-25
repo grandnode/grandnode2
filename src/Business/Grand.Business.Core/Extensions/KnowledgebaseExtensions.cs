@@ -1,10 +1,9 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Marketing.Knowledgebase;
 using Grand.Domain.Knowledgebase;
 using Grand.Infrastructure;
 
-namespace Grand.Business.Marketing.Extensions
+namespace Grand.Business.Core.Extensions
 {
     /// <summary>
     /// Extensions 

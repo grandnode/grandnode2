@@ -796,6 +796,28 @@ namespace Grand.Business.Storage.Services
                 return byteArray;
             }
         }
+
+
+
+        /// <summary>
+        /// Convert picture
+        /// </summary>
+        /// <param name="pictureBinary">Picture binary</param>
+        /// <param name="imageQuality">Image quality</param>
+        /// <param name="format">Format</param>
+        /// <returns>Picture binary or throws an exception</returns>
+        public virtual byte[] ConvertPicture(byte[] pictureBinary, int imageQuality, string format = "Webp")
+        {
+            Enum.TryParse(typeof(SKEncodedImageFormat), format, out var skformat);
+            if (skformat == null)
+                skformat = SKEncodedImageFormat.Webp;
+
+            using var image = SKBitmap.Decode(pictureBinary);
+            SKData d = SKImage.FromBitmap(image).Encode((SKEncodedImageFormat)skformat, imageQuality);
+            return d.ToArray();
+        }
+
+
         protected SKEncodedImageFormat EncodedImageFormat(string mimetype)
         {
             SKEncodedImageFormat defaultFormat = SKEncodedImageFormat.Jpeg;

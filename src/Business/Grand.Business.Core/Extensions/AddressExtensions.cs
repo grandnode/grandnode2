@@ -1,6 +1,6 @@
 using Grand.Domain.Common;
 
-namespace Grand.Business.Common.Extensions
+namespace Grand.Business.Core.Extensions
 {
     public static class AddressExtensions
     {

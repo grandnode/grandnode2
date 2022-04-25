@@ -8,7 +8,6 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Storage.Extensions;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Interfaces.System.ExportImport;
 using Grand.Domain.Catalog;

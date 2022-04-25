@@ -9,7 +9,6 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Business.Customers.Extensions;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Interfaces.Marketing.Customers;

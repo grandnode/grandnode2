@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
-using Grand.Business.Marketing.Services.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -18,6 +17,7 @@ using Grand.Web.Common.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
+using Grand.Business.Core.Utilities.Marketing;
 
 namespace Grand.Web.Admin.Services
 {

@@ -1,4 +1,4 @@
-﻿using Grand.Business.Marketing.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Marketing.Knowledgebase;
 using Grand.Domain;
 using Grand.Domain.Customers;
