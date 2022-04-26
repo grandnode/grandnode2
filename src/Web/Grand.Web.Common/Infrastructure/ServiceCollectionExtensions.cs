@@ -177,13 +177,13 @@ namespace Grand.Web.Common.Infrastructure
         public static IMvcBuilder AddGrandMvc(this IServiceCollection services, IConfiguration configuration)
         {
             //add basic MVC feature
-            var mvcBuilder = services.AddMvc();
+            var mvcBuilder = services.AddControllersWithViews();
 
             //add view localization
             mvcBuilder.AddViewLocalization();
             //add razor runtime compilation
             mvcBuilder.AddRazorRuntimeCompilation();
-
+                        
             var securityConfig = new SecurityConfig();
             configuration.GetSection("Security").Bind(securityConfig);
 
