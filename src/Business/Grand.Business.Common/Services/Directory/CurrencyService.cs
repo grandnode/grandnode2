@@ -1,5 +1,5 @@
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Security;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Data;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;

@@ -1,8 +1,8 @@
-﻿using Grand.Business.Catalog.Interfaces.Prices;
+﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Catalog.Services.Prices;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Security;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Common.Services.Directory;
 using Grand.Domain.Data;
 using Grand.Domain.Data.Mongo;

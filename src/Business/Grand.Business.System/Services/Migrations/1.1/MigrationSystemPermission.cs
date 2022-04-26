@@ -1,6 +1,6 @@
-﻿using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Common.Services.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Permissions;

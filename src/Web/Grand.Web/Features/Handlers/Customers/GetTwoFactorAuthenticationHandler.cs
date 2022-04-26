@@ -1,5 +1,5 @@
-﻿using Grand.Business.Authentication.Interfaces;
-using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;

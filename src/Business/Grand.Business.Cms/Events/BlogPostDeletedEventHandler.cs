@@ -1,9 +1,9 @@
-using Grand.Business.Common.Interfaces.Seo;
+using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Infrastructure.Events;
 using Grand.Domain.Blogs;
 using MediatR;
 
-namespace Grand.Business.Cms.Interfaces.Events
+namespace Grand.Business.Cms.Events
 {
     public class BlogPostDeletedEventHandler : INotificationHandler<EntityDeleted<BlogPost>>
     {

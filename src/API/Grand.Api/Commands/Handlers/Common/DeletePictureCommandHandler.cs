@@ -1,5 +1,5 @@
 ﻿using Grand.Api.Commands.Models.Common;
-using Grand.Business.Storage.Interfaces;
+using Grand.Business.Core.Interfaces.Storage;
 using MediatR;
 
 namespace Grand.Api.Commands.Handlers.Common

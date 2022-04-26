@@ -1,8 +1,8 @@
 ﻿//This product contains GeoLite2 data created by MaxMind, from http://www.maxmind.com
 
-using Grand.Business.Catalog.Interfaces.Directory;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Core.Interfaces.Catalog.Directory;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.SharedKernel.Extensions;
 using MaxMind.GeoIP2;
 using MaxMind.GeoIP2.Exceptions;

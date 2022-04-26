@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Build\Grand.Common.props" />
+  <ItemGroup>
+	<ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />
+	<ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
+	<ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
+  </ItemGroup>	
+</Project>

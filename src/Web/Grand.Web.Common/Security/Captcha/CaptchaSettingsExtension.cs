@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
 
 namespace Grand.Web.Common.Security.Captcha
 {

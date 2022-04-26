@@ -1,8 +1,9 @@
-﻿using Grand.Domain.Catalog;
+﻿using Grand.Business.Core.Queries.Messages;
+using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using MediatR;
 
-namespace Grand.Business.Messages.Queries.Models.Handlers
+namespace Grand.Business.Messages.Queries.Handlers
 {
     public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, Product>
     {

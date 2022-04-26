@@ -1,5 +1,5 @@
-﻿using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Providers;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Providers;
 using Grand.Domain.Directory;
 
 namespace Grand.Business.Common.Services.Directory

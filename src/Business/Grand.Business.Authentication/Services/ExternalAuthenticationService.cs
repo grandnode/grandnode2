@@ -1,20 +1,19 @@
-using Grand.Business.Authentication.Events;
-using Grand.Business.Authentication.Extensions;
-using Grand.Business.Authentication.Interfaces;
-using Grand.Business.Authentication.Utilities;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Customers.Events;
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Customers.Utilities;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Events.Customers;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
-using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Business.Core.Utilities.Authentication;
+using Grand.Business.Core.Commands.Customers;
 
 namespace Grand.Business.Authentication.Services
 {
@@ -141,7 +140,7 @@ namespace Grand.Business.Authentication.Services
                 return Error(registrationResult.Errors);
 
             //allow to save other customer values by consuming this event
-            await _mediator.Publish(new RegisteredByExternalMethodEventHandler(_workContext.CurrentCustomer, parameters, registrationResult));
+            await _mediator.Publish(new RegisteredByExternalMethod(_workContext.CurrentCustomer, parameters, registrationResult));
 
             //raise vustomer registered event
             await _mediator.Publish(new CustomerRegisteredEvent(_workContext.CurrentCustomer));
@@ -290,8 +289,7 @@ namespace Grand.Business.Authentication.Services
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
 
-            var externalAuthenticationRecord = new ExternalAuthentication
-            {
+            var externalAuthenticationRecord = new ExternalAuthentication {
                 CustomerId = customer.Id,
                 Email = parameters.Email,
                 ExternalIdentifier = parameters.Identifier,
@@ -314,9 +312,9 @@ namespace Grand.Business.Authentication.Services
                 throw new ArgumentNullException(nameof(parameters));
 
             var associationRecord = (from q in _externalAuthenticationRecordRepository.Table
-                        where q.ExternalIdentifier.ToLowerInvariant() == parameters.Identifier
-                        && q.ProviderSystemName.ToLowerInvariant() == parameters.ProviderSystemName.ToLowerInvariant()
-                        select q).FirstOrDefault();
+                                     where q.ExternalIdentifier.ToLowerInvariant() == parameters.Identifier
+                                     && q.ProviderSystemName.ToLowerInvariant() == parameters.ProviderSystemName.ToLowerInvariant()
+                                     select q).FirstOrDefault();
 
             if (associationRecord == null)
                 return null;

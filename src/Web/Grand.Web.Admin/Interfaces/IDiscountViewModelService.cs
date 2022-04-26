@@ -1,4 +1,4 @@
-﻿using Grand.Business.Catalog.Interfaces.Discounts;
+﻿using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Domain.Catalog;
 using Grand.Domain.Discounts;
 using Grand.Domain.Vendors;

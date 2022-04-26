@@ -1,5 +1,5 @@
-using Grand.Business.Checkout.Interfaces.GiftVouchers;
-using Grand.Business.Checkout.Queries.Models.Orders;
+using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Infrastructure.Extensions;
 using Grand.Domain;
 using Grand.Domain.Data;

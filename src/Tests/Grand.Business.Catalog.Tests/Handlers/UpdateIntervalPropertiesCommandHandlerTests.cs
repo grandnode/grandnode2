@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Catalog.Commands.Handlers;
-using Grand.Business.Catalog.Commands.Models;
+using Grand.Business.Core.Commands.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure.Caching;

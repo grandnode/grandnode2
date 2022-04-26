@@ -1,8 +1,8 @@
-﻿using Grand.Business.Authentication.Interfaces;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Customers.Events;
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Events.Customers;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;

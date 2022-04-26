@@ -1,12 +1,12 @@
-using Grand.Business.Catalog.Extensions;
-using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Catalog.Interfaces.Discounts;
-using Grand.Business.Catalog.Interfaces.Collections;
-using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Catalog.Queries.Models;
-using Grand.Business.Catalog.Utilities;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Catalog.Discounts;
+using Grand.Business.Core.Interfaces.Catalog.Collections;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Infrastructure;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -15,7 +15,7 @@ using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
 using Grand.Domain.Orders;
 using MediatR;
-using Grand.Business.Catalog.Interfaces.Brands;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 
 namespace Grand.Business.Catalog.Services.Prices
 {

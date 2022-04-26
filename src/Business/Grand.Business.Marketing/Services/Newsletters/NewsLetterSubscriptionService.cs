@@ -1,7 +1,7 @@
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Marketing.Extensions;
-using Grand.Business.Marketing.Interfaces.Newsletters;
+using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Infrastructure.Extensions;
 using Grand.Domain;
 using Grand.Domain.Data;

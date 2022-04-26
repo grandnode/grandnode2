@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Stores;
+﻿using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Domain.Common;
@@ -8,7 +8,7 @@ using Grand.Web.Admin.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Common.Directory;
 
 namespace Grand.Web.Admin.Controllers
 {

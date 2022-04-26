@@ -1,10 +1,10 @@
 ﻿using Grand.Infrastructure;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Models.Common;
 using Grand.Web.Features.Models.Common;
 using MediatR;
-using Grand.Business.Common.Extensions;
+using Grand.Business.Core.Extensions;
 
 namespace Grand.Web.Features.Handlers.Common
 {

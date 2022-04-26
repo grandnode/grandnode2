@@ -1,4 +1,4 @@
-﻿using Grand.Business.Storage.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Storage.Services;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;

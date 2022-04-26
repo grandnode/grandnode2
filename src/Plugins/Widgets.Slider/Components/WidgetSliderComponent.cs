@@ -1,5 +1,5 @@
-﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Storage.Interfaces;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Microsoft.AspNetCore.Mvc;

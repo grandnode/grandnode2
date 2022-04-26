@@ -1,4 +1,4 @@
-﻿using Grand.Business.Checkout.Events.ShoppingCart;
+﻿using Grand.Business.Core.Events.Checkout.ShoppingCart;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;

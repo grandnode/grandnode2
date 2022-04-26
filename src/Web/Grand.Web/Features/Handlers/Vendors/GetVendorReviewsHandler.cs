@@ -1,6 +1,6 @@
-﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Customers.Interfaces;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure;
 using Grand.Domain.Customers;
 using Grand.Domain.Vendors;

@@ -1,10 +1,10 @@
-﻿using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Common.Interfaces.Stores;
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Marketing.Interfaces.Campaigns;
-using Grand.Business.Messages.DotLiquidDrops;
-using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Marketing.Campaigns;
+using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Infrastructure.Extensions;
 using Grand.Domain;
 using Grand.Domain.Customers;

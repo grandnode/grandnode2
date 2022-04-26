@@ -1,5 +1,5 @@
 ﻿using Grand.Api.Infrastructure.Extensions;
-using Grand.Business.Authentication.Interfaces;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

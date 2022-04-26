@@ -1,7 +1,7 @@
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Customers.Utilities;
-using Grand.Business.System.Interfaces.Installation;
-using Grand.Business.System.Utilities;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Utilities.Customers;
+using Grand.Business.Core.Interfaces.System.Installation;
+using Grand.Business.Core.Utilities.System;
 using Grand.Domain;
 using Grand.Domain.Admin;
 using Grand.Domain.Affiliates;

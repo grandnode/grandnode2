@@ -1,4 +1,4 @@
-﻿using Grand.Business.Checkout.Interfaces.CheckoutAttributes;
+﻿using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Checkout.Services.CheckoutAttributes;
 using Grand.Domain.Data;
 using Grand.Domain.Orders;

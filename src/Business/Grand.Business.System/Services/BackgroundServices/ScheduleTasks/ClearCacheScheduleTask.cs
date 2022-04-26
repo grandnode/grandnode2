@@ -1,4 +1,4 @@
-﻿using Grand.Business.System.Interfaces.ScheduleTasks;
+﻿using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Infrastructure.Caching;
 
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks

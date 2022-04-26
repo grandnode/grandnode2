@@ -1,15 +1,13 @@
-﻿using Grand.Business.Catalog.Extensions;
-using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Catalog.Interfaces.Tax;
-using Grand.Business.Catalog.Utilities;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Services.Orders;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
-using Grand.Business.Storage.Interfaces;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -22,6 +20,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
+using Grand.Business.Core.Utilities.Checkout;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart
 {

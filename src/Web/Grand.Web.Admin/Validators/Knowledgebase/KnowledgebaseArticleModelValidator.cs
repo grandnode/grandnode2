@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Marketing.Interfaces.Knowledgebase;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Marketing.Knowledgebase;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Admin.Models.Knowledgebase;
 

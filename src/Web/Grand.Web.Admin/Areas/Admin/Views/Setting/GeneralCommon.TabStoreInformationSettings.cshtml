@@ -1,6 +1,6 @@
 ﻿@model GeneralCommonSettingsModel
-@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
-@using Grand.Business.Common.Services.Security;
+@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
+@using Grand.Business.Core.Utilities.Common.Security;
 @{
     var canUpload = await permissionService.Authorize(StandardPermission.ManagePlugins);
 }

@@ -1,6 +1,6 @@
-using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;

@@ -1,4 +1,4 @@
-﻿using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Messages;
 using Microsoft.AspNetCore.StaticFiles;
 
 namespace Grand.Business.Messages.Services

@@ -1,13 +1,13 @@
 ﻿@model (IList<Order>, string)
-@inject Grand.Business.Catalog.Interfaces.Products.IProductService _productService
-@inject Grand.Business.Common.Interfaces.Directory.ICountryService _countryService
-@inject Grand.Business.Common.Interfaces.Stores.IStoreService _storeService
-@inject Grand.Business.Storage.Interfaces.IPictureService _pictureService
+@inject Grand.Business.Core.Interfaces.Catalog.Products.IProductService _productService
+@inject Grand.Business.Core.Interfaces.Common.Directory.ICountryService _countryService
+@inject Grand.Business.Core.Interfaces.Common.Stores.IStoreService _storeService
+@inject Grand.Business.Core.Interfaces.Storage.IPictureService _pictureService
 @inject PdfSettings _pdfSettings
-@inject Grand.Business.Common.Interfaces.Localization.ITranslationService _translationService
-@inject Grand.Business.Checkout.Interfaces.Payments.IPaymentService _paymentService
-@inject Grand.Business.Common.Interfaces.Directory.ICurrencyService _currencyService
-@inject Grand.Business.Checkout.Interfaces.GiftVouchers.IGiftVoucherService _giftVoucherService
+@inject Grand.Business.Core.Interfaces.Common.Localization.ITranslationService _translationService
+@inject Grand.Business.Core.Interfaces.Checkout.Payments.IPaymentService _paymentService
+@inject Grand.Business.Core.Interfaces.Common.Directory.ICurrencyService _currencyService
+@inject Grand.Business.Core.Interfaces.Checkout.GiftVouchers.IGiftVoucherService _giftVoucherService
 
 @{
     var logoPicture = await _pictureService.GetPictureById(_pdfSettings.LogoPictureId);

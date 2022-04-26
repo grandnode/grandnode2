@@ -1,4 +1,4 @@
-﻿using Grand.Business.Catalog.Utilities;
+﻿using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.Models;

@@ -1,5 +1,5 @@
-﻿using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;

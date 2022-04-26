@@ -1,5 +1,5 @@
-﻿using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Catalog.Interfaces.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using MediatR;
 
 namespace Grand.Api.Commands.Models.Catalog

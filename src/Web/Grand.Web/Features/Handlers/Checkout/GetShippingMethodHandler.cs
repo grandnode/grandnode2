@@ -1,8 +1,8 @@
-﻿using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Catalog.Interfaces.Tax;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Interfaces.Shipping;
-using Grand.Business.Common.Interfaces.Directory;
+﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Shipping;

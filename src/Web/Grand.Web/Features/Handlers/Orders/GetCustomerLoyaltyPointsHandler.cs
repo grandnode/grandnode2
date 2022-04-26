@@ -1,6 +1,6 @@
-﻿using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Common.Interfaces.Directory;
+﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Orders;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;

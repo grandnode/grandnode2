@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Api.DTOs.Customers;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Validators;
 

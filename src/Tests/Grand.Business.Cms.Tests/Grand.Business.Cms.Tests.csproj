@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Business\Grand.Business.Cms\Grand.Business.Cms.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj" />
   </ItemGroup>
 
 </Project>

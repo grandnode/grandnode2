@@ -1,6 +1,5 @@
-﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Marketing.Extensions;
-using Grand.Business.Marketing.Interfaces.Contacts;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Web.Common.Security.Captcha;

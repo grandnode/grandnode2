@@ -1,4 +1,4 @@
-using Grand.Business.Catalog.Interfaces.Products;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Infrastructure.Extensions;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;

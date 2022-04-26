@@ -1,5 +1,5 @@
-﻿using Grand.Business.Catalog.Queries.Handlers;
-using Grand.Business.Common.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
@@ -23,16 +23,14 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public async Task<ProductsByTagModel> Handle(GetProductsByTag request, CancellationToken cancellationToken)
         {
-            var model = new ProductsByTagModel
-            {
+            var model = new ProductsByTagModel {
                 Id = request.ProductTag.Id,
                 TagName = request.ProductTag.GetTranslation(y => y.Name, request.Language.Id),
                 TagSeName = request.ProductTag.GetSeName(request.Language.Id)
             };
 
             //view/sorting/page size
-            var options = await _mediator.Send(new GetViewSortSizeOptions()
-            {
+            var options = await _mediator.Send(new GetViewSortSizeOptions() {
                 Command = request.Command,
                 PagingFilteringModel = request.Command,
                 Language = request.Language,
@@ -43,8 +41,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             model.PagingFilteringContext = options.command;
 
             //products
-            var products = (await _mediator.Send(new GetSearchProductsQuery()
-            {
+            var products = (await _mediator.Send(new GetSearchProductsQuery() {
                 Customer = request.Customer,
                 StoreId = request.Store.Id,
                 ProductTag = request.ProductTag.Name,
@@ -54,8 +51,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 PageSize = request.Command.PageSize
             })).products;
 
-            model.Products = (await _mediator.Send(new GetProductOverview()
-            {
+            model.Products = (await _mediator.Send(new GetProductOverview() {
                 Products = products,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
             })).ToList();

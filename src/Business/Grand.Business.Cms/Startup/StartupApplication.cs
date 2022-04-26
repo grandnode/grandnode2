@@ -1,4 +1,4 @@
-﻿using Grand.Business.Cms.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Cms.Services;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;

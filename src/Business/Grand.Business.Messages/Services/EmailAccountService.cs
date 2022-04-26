@@ -1,4 +1,4 @@
-﻿using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Messages;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;

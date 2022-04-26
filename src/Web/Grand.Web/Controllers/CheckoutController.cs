@@ -1,17 +1,15 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Checkout.Commands.Models.Orders;
-using Grand.Business.Checkout.Enum;
-using Grand.Business.Checkout.Extensions;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Interfaces.Payments;
-using Grand.Business.Checkout.Interfaces.Shipping;
-using Grand.Business.Checkout.Services.Orders;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Addresses;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Customers.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Enums.Checkout;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Payments;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Addresses;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
@@ -28,6 +26,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Grand.Business.Core.Utilities.Checkout;
 
 namespace Grand.Web.Controllers
 {
@@ -145,8 +144,7 @@ namespace Grand.Web.Controllers
                 filterByCountryId = _workContext.CurrentCustomer.BillingAddress.CountryId;
             }
 
-            var paymentMethodModel = await _mediator.Send(new GetPaymentMethod()
-            {
+            var paymentMethodModel = await _mediator.Send(new GetPaymentMethod() {
                 Cart = cart,
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,
@@ -172,24 +170,19 @@ namespace Grand.Web.Controllers
             return errors;
         }
 
-        protected virtual bool IsRequestBeingRedirected
-        {
-            get
-            {
+        protected virtual bool IsRequestBeingRedirected {
+            get {
                 var response = HttpContext.Response;
                 return new List<int> { 301, 302 }.Contains(response.StatusCode);
             }
         }
-        protected virtual bool IsPostBeingDone
-        {
-            get
-            {
+        protected virtual bool IsPostBeingDone {
+            get {
                 if (HttpContext.Items["grand.IsPOSTBeingDone"] == null)
                     return false;
                 return Convert.ToBoolean(HttpContext.Items["grand.IsPOSTBeingDone"]);
             }
-            set
-            {
+            set {
                 HttpContext.Items["grand.IsPOSTBeingDone"] = value;
             }
         }
@@ -212,7 +205,7 @@ namespace Grand.Web.Controllers
             await _customerService.ResetCheckoutData(customer, _workContext.CurrentStore.Id);
 
             //validation (cart)
-            var checkoutAttributes = await customer.GetUserField<List<CustomAttribute>>(_userFieldService, SystemCustomerFieldNames.CheckoutAttributes, 
+            var checkoutAttributes = await customer.GetUserField<List<CustomAttribute>>(_userFieldService, SystemCustomerFieldNames.CheckoutAttributes,
                 _workContext.CurrentStore.Id);
             var scWarnings = await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes, true);
             if (scWarnings.Any())
@@ -259,8 +252,7 @@ namespace Grand.Web.Controllers
             }
 
             //model
-            var model = new CheckoutCompletedModel
-            {
+            var model = new CheckoutCompletedModel {
                 OrderId = order.Id,
                 OrderNumber = order.OrderNumber,
                 OrderCode = order.Code,
@@ -281,8 +273,7 @@ namespace Grand.Web.Controllers
         [NonAction]
         protected async Task<JsonResult> LoadStepAfterBillingAddress(IList<ShoppingCartItem> cart)
         {
-            var shippingMethodModel = await _mediator.Send(new GetShippingMethod()
-            {
+            var shippingMethodModel = await _mediator.Send(new GetShippingMethod() {
                 Cart = cart,
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,
@@ -309,8 +300,7 @@ namespace Grand.Web.Controllers
 
             return Json(new
             {
-                update_section = new UpdateSectionJsonModel
-                {
+                update_section = new UpdateSectionJsonModel {
                     name = "shipping-method",
                     model = shippingMethodModel
                 },
@@ -336,8 +326,7 @@ namespace Grand.Web.Controllers
                 }
 
                 //payment is required
-                var paymentMethodModel = await _mediator.Send(new GetPaymentMethod()
-                {
+                var paymentMethodModel = await _mediator.Send(new GetPaymentMethod() {
                     Cart = cart,
                     Currency = _workContext.WorkingCurrency,
                     Customer = _workContext.CurrentCustomer,
@@ -369,8 +358,7 @@ namespace Grand.Web.Controllers
                 //customer have to choose a payment method
                 return Json(new
                 {
-                    update_section = new UpdateSectionJsonModel
-                    {
+                    update_section = new UpdateSectionJsonModel {
                         name = "payment-method",
                         model = paymentMethodModel
                     },
@@ -385,8 +373,7 @@ namespace Grand.Web.Controllers
             var confirmOrderModel = await _mediator.Send(new GetConfirmOrder() { Cart = cart, Customer = _workContext.CurrentCustomer });
             return Json(new
             {
-                update_section = new UpdateSectionJsonModel
-                {
+                update_section = new UpdateSectionJsonModel {
                     name = "confirm-order",
                     model = confirmOrderModel
                 },
@@ -413,8 +400,7 @@ namespace Grand.Web.Controllers
                 var confirmOrderModel = await _mediator.Send(new GetConfirmOrder() { Cart = cart, Customer = _workContext.CurrentCustomer });
                 return Json(new
                 {
-                    update_section = new UpdateSectionJsonModel
-                    {
+                    update_section = new UpdateSectionJsonModel {
                         name = "confirm-order",
                         model = confirmOrderModel
                     },
@@ -426,8 +412,7 @@ namespace Grand.Web.Controllers
             var paymenInfoModel = await _mediator.Send(new GetPaymentInfo() { PaymentMethod = paymentMethod });
             return Json(new
             {
-                update_section = new UpdateSectionJsonModel
-                {
+                update_section = new UpdateSectionJsonModel {
                     name = "payment-info",
                     model = paymenInfoModel
                 },
@@ -456,11 +441,9 @@ namespace Grand.Web.Controllers
             }
             var paymentMethodModel = await GetCheckoutPaymentMethodModel(cart);
             var requiresShipping = cart.RequiresShipping();
-            var model = new CheckoutModel
-            {
+            var model = new CheckoutModel {
                 ShippingRequired = requiresShipping,
-                BillingAddress = await _mediator.Send(new GetBillingAddress()
-                {
+                BillingAddress = await _mediator.Send(new GetBillingAddress() {
                     Cart = cart,
                     Currency = _workContext.WorkingCurrency,
                     Customer = _workContext.CurrentCustomer,
@@ -468,8 +451,7 @@ namespace Grand.Web.Controllers
                     Store = _workContext.CurrentStore,
                     PrePopulateNewAddressWithCustomerFields = true
                 }),
-                ShippingAddress = await _mediator.Send(new GetShippingAddress()
-                {
+                ShippingAddress = await _mediator.Send(new GetShippingAddress() {
                     Currency = _workContext.WorkingCurrency,
                     Customer = _workContext.CurrentCustomer,
                     Language = _workContext.WorkingLanguage,
@@ -522,8 +504,7 @@ namespace Grand.Web.Controllers
                     if (!ModelState.IsValid)
                     {
                         //model is not valid. redisplay the form with errors
-                        var billingAddressModel = await _mediator.Send(new GetBillingAddress()
-                        {
+                        var billingAddressModel = await _mediator.Send(new GetBillingAddress() {
                             Cart = cart,
                             Currency = _workContext.WorkingCurrency,
                             Customer = _workContext.CurrentCustomer,
@@ -536,8 +517,7 @@ namespace Grand.Web.Controllers
                         billingAddressModel.NewAddressPreselected = true;
                         return Json(new
                         {
-                            update_section = new UpdateSectionJsonModel
-                            {
+                            update_section = new UpdateSectionJsonModel {
                                 name = "billing",
                                 model = billingAddressModel
                             },
@@ -556,9 +536,9 @@ namespace Grand.Web.Controllers
                     if (address == null)
                     {
                         //address is not found. create a new one
-                        address = 
+                        address =
                             await _groupService.IsGuest(_workContext.CurrentCustomer) ?
-                            model.NewAddress.ToEntity() : 
+                            model.NewAddress.ToEntity() :
                             model.NewAddress.ToEntity(_workContext.CurrentCustomer, addressSettings);
 
                         address.Attributes = customAttributes;
@@ -628,8 +608,7 @@ namespace Grand.Web.Controllers
                             throw new Exception("Pickup point is not allowed");
 
                         //save "pick up in store" shipping method
-                        var pickUpInStoreShippingOption = new ShippingOption
-                        {
+                        var pickUpInStoreShippingOption = new ShippingOption {
                             Name = string.Format(_translationService.GetResource("Checkout.PickupPoints.Name"), selectedPoint.Name),
                             Rate = selectedPoint.PickupFee,
                             Description = selectedPoint.Description,
@@ -679,12 +658,11 @@ namespace Grand.Web.Controllers
                         {
                             ModelState.AddModelError("", error);
                         }
-                        
+
                         if (!ModelState.IsValid)
-                        {        
+                        {
                             //model is not valid. redisplay the form with errors
-                            var shippingAddressModel = await _mediator.Send(new GetShippingAddress()
-                            {
+                            var shippingAddressModel = await _mediator.Send(new GetShippingAddress() {
                                 Currency = _workContext.WorkingCurrency,
                                 Customer = _workContext.CurrentCustomer,
                                 Language = _workContext.WorkingLanguage,
@@ -696,8 +674,7 @@ namespace Grand.Web.Controllers
                             shippingAddressModel.NewAddressPreselected = true;
                             return Json(new
                             {
-                                update_section = new UpdateSectionJsonModel
-                                {
+                                update_section = new UpdateSectionJsonModel {
                                     name = "shipping",
                                     model = shippingAddressModel
                                 },
@@ -732,7 +709,7 @@ namespace Grand.Web.Controllers
                     }
                 }
 
-                if (model.BillToTheSameAddress && !pickupInstore && 
+                if (model.BillToTheSameAddress && !pickupInstore &&
                     (_workContext.CurrentCustomer.ShippingAddress.AddressType != AddressType.Shipping))
                 {
                     _workContext.CurrentCustomer.BillingAddress = _workContext.CurrentCustomer.ShippingAddress;
@@ -742,8 +719,7 @@ namespace Grand.Web.Controllers
                 }
                 else
                 {
-                    var billingAddressModel = await _mediator.Send(new GetBillingAddress()
-                    {
+                    var billingAddressModel = await _mediator.Send(new GetBillingAddress() {
                         Cart = cart,
                         Currency = _workContext.WorkingCurrency,
                         Customer = _workContext.CurrentCustomer,
@@ -756,8 +732,7 @@ namespace Grand.Web.Controllers
 
                     return Json(new
                     {
-                        update_section = new UpdateSectionJsonModel
-                        {
+                        update_section = new UpdateSectionJsonModel {
                             name = "billing",
                             model = billingAddressModel
                         },
@@ -794,7 +769,7 @@ namespace Grand.Web.Controllers
                 var splittedOption = shippingoption.Split(new[] { "___" }, StringSplitOptions.RemoveEmptyEntries);
                 if (splittedOption.Length != 2)
                     throw new Exception("Selected shipping method can't be parsed");
-                
+
                 var selectedName = splittedOption[0];
                 var shippingRateProviderSystemName = splittedOption[1];
 
@@ -882,8 +857,7 @@ namespace Grand.Web.Controllers
                     var confirmOrderModel = await _mediator.Send(new GetConfirmOrder() { Cart = cart, Customer = _workContext.CurrentCustomer });
                     return Json(new
                     {
-                        update_section = new UpdateSectionJsonModel
-                        {
+                        update_section = new UpdateSectionJsonModel {
                             name = "confirm-order",
                             model = confirmOrderModel
                         },
@@ -952,8 +926,7 @@ namespace Grand.Web.Controllers
                     var confirmOrderModel = await _mediator.Send(new GetConfirmOrder() { Cart = cart, Customer = _workContext.CurrentCustomer });
                     return Json(new
                     {
-                        update_section = new UpdateSectionJsonModel
-                        {
+                        update_section = new UpdateSectionJsonModel {
                             name = "confirm-order",
                             model = confirmOrderModel
                         },
@@ -965,8 +938,7 @@ namespace Grand.Web.Controllers
                 var paymenInfoModel = await _mediator.Send(new GetPaymentInfo() { PaymentMethod = paymentMethod });
                 return Json(new
                 {
-                    update_section = new UpdateSectionJsonModel
-                    {
+                    update_section = new UpdateSectionJsonModel {
                         name = "payment-info",
                         model = paymenInfoModel
                     }
@@ -988,8 +960,7 @@ namespace Grand.Web.Controllers
                 await CartValidate(cart);
 
                 //prevent 2 orders being placed within an X seconds time frame
-                if (!await _mediator.Send(new GetMinOrderPlaceIntervalValid()
-                {
+                if (!await _mediator.Send(new GetMinOrderPlaceIntervalValid() {
                     Customer = _workContext.CurrentCustomer,
                     Store = _workContext.CurrentStore
                 }))
@@ -1031,8 +1002,7 @@ namespace Grand.Web.Controllers
 
                 return Json(new
                 {
-                    update_section = new UpdateSectionJsonModel
-                    {
+                    update_section = new UpdateSectionJsonModel {
                         name = "confirm-order",
                         model = confirmOrderModel
                     },

@@ -1,7 +1,7 @@
 ﻿@model CustomerGroupModel
-@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
 @{ 
-    var access = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageAcl);
+    var access = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManageAcl);
 }
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />

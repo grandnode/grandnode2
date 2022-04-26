@@ -1,9 +1,9 @@
-﻿using Grand.Business.Customers.Commands.Models;
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Customers.Events;
+﻿using Grand.Business.Core.Commands.Customers;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Events.Customers;
 using Grand.Domain.Customers;
 using MediatR;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Common.Directory;
 
 namespace Grand.Business.Customers.Commands.Handlers
 {

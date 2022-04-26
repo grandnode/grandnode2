@@ -1,7 +1,7 @@
-﻿using Grand.Business.Messages.Interfaces;
-using Grand.Business.System.Interfaces.ScheduleTasks;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Common.Extensions;
+﻿using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Interfaces.System.ScheduleTasks;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Extensions;
 
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
 {

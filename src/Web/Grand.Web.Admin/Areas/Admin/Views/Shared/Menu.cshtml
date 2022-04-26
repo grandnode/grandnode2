@@ -1,7 +1,7 @@
-﻿@using Grand.Business.Common.Interfaces.Security
-@using Grand.Business.Common.Interfaces.Localization
+﻿@using Grand.Business.Core.Interfaces.Common.Security
+@using Grand.Business.Core.Interfaces.Common.Localization
 @using Grand.Web.Common.Menu
-@using Grand.Business.System.Interfaces.Admin
+@using Grand.Business.Core.Interfaces.System.Admin
 @inject IPermissionService permissionService
 @inject ITranslationService translationService
 @inject IAdminSiteMapService adminSiteMapService
@@ -38,7 +38,7 @@
                         var pluginNode = rootNode.ChildNodes.FirstOrDefault(x => x.SystemName == "Third party plugins");
                         if (pluginNode != null && pluginNode.Visible)
                         {
-                            var hasManagePluginsPermission = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManagePlugins);
+                            var hasManagePluginsPermission = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManagePlugins);
                             pluginNode.Visible = hasManagePluginsPermission && pluginNode.ChildNodes.Any(x => x.Visible);
                         }
                     }

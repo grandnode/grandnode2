@@ -1,6 +1,6 @@
 ﻿@model ProductAttributeCombinationModel
-@inject Grand.Business.Common.Interfaces.Stores.IStoreService _storeService
-@inject Grand.Business.Common.Interfaces.Directory.IGroupService _groupService
+@inject Grand.Business.Core.Interfaces.Common.Stores.IStoreService _storeService
+@inject Grand.Business.Core.Interfaces.Common.Directory.IGroupService _groupService
 @{
     Layout = "";
     if (string.IsNullOrEmpty(Model.Id))

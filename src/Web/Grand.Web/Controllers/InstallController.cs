@@ -1,8 +1,8 @@
-﻿using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
-using Grand.Business.System.Commands.Models.Security;
-using Grand.Business.System.Interfaces.Installation;
+﻿using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Business.Core.Commands.System.Security;
+using Grand.Business.Core.Interfaces.System.Installation;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
@@ -264,13 +264,8 @@ namespace Grand.Web.Controllers
                     }
 
                     //register default permissions
-                    var permissionProviders = new List<Type>();
-                    permissionProviders.Add(typeof(PermissionProvider));
-                    foreach (var providerType in permissionProviders)
-                    {
-                        var provider = (IPermissionProvider)Activator.CreateInstance(providerType);
-                        await _mediator.Send(new InstallPermissionsCommand() { PermissionProvider = provider });
-                    }
+                    var permissionProvider = _serviceProvider.GetRequiredService<IPermissionProvider>();
+                    await _mediator.Send(new InstallPermissionsCommand() { PermissionProvider = permissionProvider });
 
                     //install migration process - install only header
                     var migrationProcess = _serviceProvider.GetRequiredService<IMigrationProcess>();
