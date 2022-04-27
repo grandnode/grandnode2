@@ -1,8 +1,8 @@
 ﻿using Grand.Api.Commands.Models.Customers;
 using Grand.Api.DTOs.Customers;
 using Grand.Api.Queries.Models.Common;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
 using MediatR;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;

@@ -1,8 +1,8 @@
-﻿using Grand.Business.Authentication.Interfaces;
-using Grand.Business.Authentication.Utilities;
-using Grand.Business.Common.Interfaces.Configuration;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
+﻿using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Authentication;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Configuration;
 using Grand.Domain.Data;
 using Grand.Infrastructure;
@@ -177,13 +177,13 @@ namespace Grand.Web.Common.Infrastructure
         public static IMvcBuilder AddGrandMvc(this IServiceCollection services, IConfiguration configuration)
         {
             //add basic MVC feature
-            var mvcBuilder = services.AddMvc();
+            var mvcBuilder = services.AddControllersWithViews();
 
             //add view localization
             mvcBuilder.AddViewLocalization();
             //add razor runtime compilation
             mvcBuilder.AddRazorRuntimeCompilation();
-
+                        
             var securityConfig = new SecurityConfig();
             configuration.GetSection("Security").Bind(securityConfig);
 

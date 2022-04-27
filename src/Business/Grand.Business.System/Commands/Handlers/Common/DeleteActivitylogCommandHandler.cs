@@ -1,4 +1,4 @@
-﻿using Grand.Business.System.Commands.Models.Common;
+﻿using Grand.Business.Core.Commands.System.Common;
 using Grand.Domain.Data;
 using Grand.Domain.Logging;
 using MediatR;

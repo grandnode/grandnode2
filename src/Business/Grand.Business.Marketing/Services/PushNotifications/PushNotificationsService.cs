@@ -1,6 +1,6 @@
-﻿using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Marketing.Interfaces.PushNotifications;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Marketing.PushNotifications;
 using Grand.Business.Marketing.Utilities;
 using Grand.Domain;
 using Grand.Domain.Data;

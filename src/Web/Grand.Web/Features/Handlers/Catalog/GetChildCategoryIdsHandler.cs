@@ -1,4 +1,4 @@
-﻿using Grand.Business.Catalog.Interfaces.Categories;
+﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Web.Features.Models.Catalog;

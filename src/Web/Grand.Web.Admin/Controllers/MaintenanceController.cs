@@ -1,13 +1,13 @@
-﻿using Grand.Business.Cms.Interfaces;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Common.Interfaces.Seo;
-using Grand.Business.Common.Services.Security;
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Storage.Interfaces;
-using Grand.Business.System.Commands.Models.Common;
+﻿using Grand.Business.Core.Interfaces.Cms;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Common.Seo;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Commands.System.Common;
 using Grand.Domain.Media;
 using Grand.Domain.Seo;
 using Grand.Web.Admin.Extensions;
@@ -18,7 +18,6 @@ using Grand.Web.Common.Security.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using SkiaSharp;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -153,9 +152,8 @@ namespace Grand.Web.Admin.Controllers
                 {
                     try
                     {
-                        using var image = SKBitmap.Decode(picture.PictureBinary);
-                        SKData d = SKImage.FromBitmap(image).Encode(SKEncodedImageFormat.Webp, mediaSettings.ImageQuality);
-                        await pictureService.UpdatePicture(picture.Id, d.ToArray(), "image/webp", picture.SeoFilename, picture.AltAttribute, picture.TitleAttribute, 
+                        var pictureConverted = pictureService.ConvertPicture(picture.PictureBinary, mediaSettings.ImageQuality);
+                        await pictureService.UpdatePicture(picture.Id, pictureConverted, "image/webp", picture.SeoFilename, picture.AltAttribute, picture.TitleAttribute, 
                             picture.Style, picture.ExtraField, true, false);
                         numberOfConvertItems += 1;
                     }

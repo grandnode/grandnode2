@@ -1,4 +1,4 @@
-﻿using Grand.Business.Marketing.Interfaces.Courses;
+﻿using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Infrastructure.Extensions;
 using Grand.Domain.Courses;
 using Grand.Domain.Data;

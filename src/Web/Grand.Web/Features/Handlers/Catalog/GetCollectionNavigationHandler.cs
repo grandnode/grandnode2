@@ -1,5 +1,5 @@
-﻿using Grand.Business.Catalog.Interfaces.Collections;
-using Grand.Business.Common.Extensions;
+﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
+using Grand.Business.Core.Extensions;
 using Grand.Infrastructure.Caching;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;

@@ -1,8 +1,8 @@
-﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Services.Security;
-using Grand.Business.Customers.Commands.Models;
-using Grand.Business.Customers.Interfaces;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Business.Core.Commands.Customers;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;

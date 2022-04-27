@@ -1,19 +1,18 @@
-﻿using Grand.Business.Common.Interfaces.Addresses;
-using Grand.Business.Common.Interfaces.Configuration;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Common.Interfaces.Pdf;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Interfaces.Seo;
-using Grand.Business.Common.Interfaces.Stores;
+﻿using Grand.Business.Core.Interfaces.Common.Addresses;
+using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Interfaces.Common.Seo;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Common.Services.Addresses;
 using Grand.Business.Common.Services.Configuration;
 using Grand.Business.Common.Services.Directory;
 using Grand.Business.Common.Services.Localization;
 using Grand.Business.Common.Services.Logging;
 using Grand.Business.Common.Services.Pdf;
-using Grand.Business.Common.Services.Security;
 using Grand.Business.Common.Services.Seo;
 using Grand.Business.Common.Services.Stores;
 using Grand.Infrastructure;
@@ -21,7 +20,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
+using Grand.Business.Common.Services.Security;
 
 namespace Grand.Business.Common.Startup
 {
@@ -58,7 +57,7 @@ namespace Grand.Business.Common.Startup
         private void RegisterDirectoryService(IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<IDateTimeService, DateTimeService>();
-            
+
             serviceCollection.AddScoped<ICountryService, CountryService>();
             serviceCollection.AddScoped<ICurrencyService, CurrencyService>();
             serviceCollection.AddScoped<IExchangeRateService, ExchangeRateService>();
@@ -85,7 +84,7 @@ namespace Grand.Business.Common.Startup
             serviceCollection.AddScoped<IPermissionService, PermissionService>();
             serviceCollection.AddScoped<IAclService, AclService>();
             serviceCollection.AddScoped<IEncryptionService, EncryptionService>();
-
+            serviceCollection.AddScoped<IPermissionProvider, PermissionProvider>();
         }
 
         private void RegisterSeoService(IServiceCollection serviceCollection)

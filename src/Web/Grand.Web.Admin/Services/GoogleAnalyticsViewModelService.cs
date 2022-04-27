@@ -2,8 +2,8 @@
 using Google.Apis.AnalyticsReporting.v4.Data;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Seo;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Common;

@@ -3,8 +3,8 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using MediatR;
 using System.Net;
-using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Common.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Extensions;
 
 namespace Grand.Web.Features.Handlers.Products
 {

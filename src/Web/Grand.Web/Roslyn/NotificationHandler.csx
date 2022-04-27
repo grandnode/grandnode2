@@ -3,7 +3,7 @@
 #r "Grand.Business.Messages"
 #r "Grand.Web"
 
-using Grand.Business.Messages.Events;
+using Grand.Business.Core.Events.Messages;
 using Grand.Domain.Orders;
 using MediatR;
 using System.Threading;

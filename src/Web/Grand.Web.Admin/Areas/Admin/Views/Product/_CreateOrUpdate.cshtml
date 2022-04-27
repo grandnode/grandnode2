@@ -1,8 +1,8 @@
 ﻿@model ProductModel
-@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
 @{
     //has "Manage Documents" permission?
-    var canManageDocuments = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageDocuments);
+    var canManageDocuments = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManageDocuments);
 }
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden" />

@@ -1,9 +1,9 @@
-using Grand.Business.Catalog.Interfaces.Directory;
-using Grand.Business.Catalog.Interfaces.Tax;
-using Grand.Business.Catalog.Utilities;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Core.Interfaces.Catalog.Directory;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;

@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Grand.Infrastructure.Validators;
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Admin.Models.Customers;
 
 namespace Grand.Web.Admin.Validators.Customers

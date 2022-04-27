@@ -1,14 +1,13 @@
-﻿using Grand.Business.Catalog.Interfaces.Brands;
-using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Catalog.Interfaces.Directory;
-using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Catalog.Interfaces.Tax;
-using Grand.Business.Catalog.Queries.Handlers;
-using Grand.Business.Cms.Interfaces;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
-using Grand.Business.Storage.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Catalog.Directory;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Interfaces.Cms;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -19,6 +18,7 @@ using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using MediatR;
+using Grand.Business.Core.Queries.Catalog;
 
 namespace Grand.Web.Features.Handlers.Catalog
 {

@@ -1,5 +1,5 @@
-﻿using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
 using Grand.Domain;
 using Grand.Domain.Customers;

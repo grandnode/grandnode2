@@ -1,10 +1,10 @@
-﻿using Grand.Business.Checkout.Commands.Models.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Checkout.Extensions;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Interfaces.Payments;
-using Grand.Business.Checkout.Queries.Models.Orders;
-using Grand.Business.Checkout.Utilities;
-using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Payments;
+using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Business.Core.Utilities.Checkout;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Logging;
 using Grand.SharedKernel;
 using MediatR;

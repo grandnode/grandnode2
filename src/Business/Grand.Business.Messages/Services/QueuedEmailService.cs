@@ -1,4 +1,4 @@
-﻿using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Messages;
 using Grand.Infrastructure.Extensions;
 using Grand.Domain;
 using Grand.Domain.Data;

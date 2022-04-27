@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Microsoft.Extensions.Localization;
 
 namespace Grand.Web.Common.Localization

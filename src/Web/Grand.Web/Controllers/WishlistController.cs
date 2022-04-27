@@ -1,12 +1,11 @@
-﻿using Grand.Business.Checkout.Extensions;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Services.Orders;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
@@ -17,6 +16,7 @@ using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Business.Core.Utilities.Checkout;
 
 namespace Grand.Web.Controllers
 {
@@ -216,7 +216,7 @@ namespace Grand.Web.Controllers
             return Json(new { success = true, message = "" });
 
         }
-        
+
         [HttpPost]
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
@@ -230,7 +230,7 @@ namespace Grand.Web.Controllers
 
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.Wishlist);
             if (!cart.Any())
-                return Content(""); 
+                return Content("");
 
             //validate CAPTCHA
             if (captchaSettings.Enabled && captchaSettings.ShowOnEmailWishlistToFriendPage && !captchaValid)

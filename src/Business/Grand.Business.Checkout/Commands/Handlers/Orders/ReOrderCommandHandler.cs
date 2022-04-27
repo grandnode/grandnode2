@@ -1,12 +1,13 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Checkout.Commands.Models.Orders;
-using Grand.Business.Checkout.Interfaces.Orders;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Checkout.Services.Orders;
-using Grand.Business.Customers.Interfaces;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using MediatR;
+using Grand.Business.Core.Utilities.Checkout;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {

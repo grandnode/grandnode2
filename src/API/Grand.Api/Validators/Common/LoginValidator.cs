@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Grand.Api.Models.Common;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Customers.Interfaces;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;

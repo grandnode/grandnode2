@@ -1,5 +1,5 @@
-﻿using Grand.Business.Marketing.Commands.Models;
-using Grand.Business.Marketing.Interfaces.Customers;
+﻿using Grand.Business.Core.Commands.Marketing;
+using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Domain.Catalog;

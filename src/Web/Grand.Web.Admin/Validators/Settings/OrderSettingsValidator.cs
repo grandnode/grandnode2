@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Validators;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Admin.Models.Settings;
 
 namespace Grand.Web.Admin.Validators.Settings

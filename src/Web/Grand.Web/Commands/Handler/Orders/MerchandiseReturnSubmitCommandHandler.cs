@@ -1,9 +1,9 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;

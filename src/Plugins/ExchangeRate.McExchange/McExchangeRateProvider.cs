@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Providers;
+﻿using Grand.Business.Core.Interfaces.Common.Providers;
 using Grand.SharedKernel;
 using System.Net.Http;
 

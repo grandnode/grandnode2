@@ -1,10 +1,10 @@
 ﻿using DiscountRules.Standard.Models;
-using Grand.Business.Catalog.Interfaces.Discounts;
-using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Catalog.Utilities;
-using Grand.Business.Checkout.Extensions;
-using Grand.Business.Common.Interfaces.Configuration;
+using Grand.Business.Core.Interfaces.Catalog.Discounts;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;

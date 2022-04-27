@@ -1,4 +1,4 @@
-﻿using Grand.Business.System.Interfaces.Installation;
+﻿using Grand.Business.Core.Interfaces.System.Installation;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.System.Services.Installation

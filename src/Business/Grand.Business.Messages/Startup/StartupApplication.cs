@@ -1,4 +1,4 @@
-﻿using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Messages.Services;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;

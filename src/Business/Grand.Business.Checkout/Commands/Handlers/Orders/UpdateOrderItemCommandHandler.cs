@@ -1,11 +1,11 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Checkout.Commands.Models.Orders;
-using Grand.Business.Checkout.Extensions;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Interfaces.Shipping;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using MediatR;
+using Grand.Business.Core.Extensions;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {
@@ -44,7 +44,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             request.Order.OrderSubtotalExclTax += (request.OrderItem.PriceExclTax - originalOrderItem.PriceExclTax);
             request.Order.OrderSubtotalInclTax += (request.OrderItem.PriceInclTax - originalOrderItem.PriceInclTax);
-            request.Order.OrderTax += 
+            request.Order.OrderTax +=
                 ((request.OrderItem.PriceInclTax - request.OrderItem.PriceExclTax)
                 - (originalOrderItem.PriceInclTax - originalOrderItem.PriceExclTax));
             request.Order.OrderTotal += (request.OrderItem.PriceInclTax - originalOrderItem.PriceInclTax);
@@ -75,8 +75,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             await _mediator.Send(new CheckOrderStatusCommand() { Order = request.Order });
 
             //add a note
-            await _orderService.InsertOrderNote(new OrderNote
-            {
+            await _orderService.InsertOrderNote(new OrderNote {
                 Note = "Order item has been edited",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,

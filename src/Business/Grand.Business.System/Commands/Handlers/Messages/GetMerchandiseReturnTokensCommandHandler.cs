@@ -1,9 +1,9 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Messages.Commands.Models;
-using Grand.Business.Messages.DotLiquidDrops;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Commands.Messages;
+using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using MediatR;
 
 namespace Grand.Business.System.Commands.Handlers.Messages

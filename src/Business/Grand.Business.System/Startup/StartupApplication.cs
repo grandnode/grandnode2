@@ -1,9 +1,9 @@
-﻿using Grand.Business.System.Interfaces.Admin;
-using Grand.Business.System.Interfaces.ExportImport;
-using Grand.Business.System.Interfaces.Installation;
-using Grand.Business.System.Interfaces.MachineNameProvider;
-using Grand.Business.System.Interfaces.Reports;
-using Grand.Business.System.Interfaces.ScheduleTasks;
+﻿using Grand.Business.Core.Interfaces.System.Admin;
+using Grand.Business.Core.Interfaces.System.ExportImport;
+using Grand.Business.Core.Interfaces.System.Installation;
+using Grand.Business.Core.Interfaces.System.MachineNameProvider;
+using Grand.Business.Core.Interfaces.System.Reports;
+using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Business.System.Services.Admin;
 using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
 using Grand.Business.System.Services.ExportImport;

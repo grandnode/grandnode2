@@ -1,8 +1,7 @@
-﻿using Grand.Business.Authentication.Interfaces;
-using Grand.Business.Authentication.Utilities;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Customers.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure.Configuration;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -10,6 +9,7 @@ using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Grand.Business.Core.Utilities.Authentication;
 
 namespace Grand.Business.Authentication.Services
 {
@@ -103,8 +103,7 @@ namespace Grand.Business.Authentication.Services
             var userPrincipal = new ClaimsPrincipal(userIdentity);
 
             //set value that indicates whether the session is persisted and the time at which the authentication was issued
-            var authenticationProperties = new AuthenticationProperties
-            {
+            var authenticationProperties = new AuthenticationProperties {
                 IsPersistent = isPersistent,
                 IssuedUtc = DateTime.UtcNow,
                 ExpiresUtc = DateTime.UtcNow.AddHours(CommonHelper.CookieAuthExpires)
@@ -216,11 +215,10 @@ namespace Grand.Business.Authentication.Services
 
             //If provided guid is empty (only remove cookies)
             if (customerGuid == Guid.Empty)
-                return Task.CompletedTask; 
+                return Task.CompletedTask;
 
             //set new cookie value
-            var options = new CookieOptions
-            {
+            var options = new CookieOptions {
                 HttpOnly = true,
                 Expires = cookieExpiresDate
             };

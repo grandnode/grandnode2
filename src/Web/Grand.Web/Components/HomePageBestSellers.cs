@@ -1,5 +1,5 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.System.Interfaces.Reports;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Domain.Catalog;

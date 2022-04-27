@@ -1,7 +1,7 @@
 ﻿using Grand.Api.DTOs.Shipping;
 using Grand.Api.Queries.Models.Common;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;

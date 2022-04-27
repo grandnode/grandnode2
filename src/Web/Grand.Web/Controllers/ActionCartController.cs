@@ -1,11 +1,10 @@
-﻿using Grand.Business.Catalog.Extensions;
-using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Services.Orders;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
@@ -492,7 +491,7 @@ namespace Grand.Web.Controllers
                 });
 
             addToCartWarnings.AddRange(warnings);
-            
+
             #region Return result
 
             if (addToCartWarnings.Any())
@@ -773,7 +772,7 @@ namespace Grand.Web.Controllers
                 model = model,
             });
         }
-       
+
         [HttpPost]
         public virtual async Task<IActionResult> UpdateItemCart(string shoppingCartItemId, IFormCollection form)
         {

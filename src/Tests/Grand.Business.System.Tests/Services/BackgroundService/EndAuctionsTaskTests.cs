@@ -1,9 +1,8 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Services.Orders;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
 using Grand.Domain;
 using Grand.Domain.Catalog;
@@ -13,6 +12,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Business.Core.Utilities.Checkout;
 
 namespace Grand.Business.System.Tests.Services.BackgroundService
 {

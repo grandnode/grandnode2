@@ -1,5 +1,5 @@
-﻿using Grand.Business.Checkout.Events.ShoppingCart;
-using Grand.Business.Marketing.Interfaces.Customers;
+﻿using Grand.Business.Core.Events.Checkout.ShoppingCart;
+using Grand.Business.Core.Interfaces.Marketing.Customers;
 using MediatR;
 
 namespace Grand.Business.Marketing.Events

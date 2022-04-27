@@ -2,13 +2,13 @@
 using Grand.Domain.Shipping;
 using Grand.Web.Common.Components;
 using Grand.Web.Common.Extensions;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Admin.Models.Affiliates;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Checkout.Interfaces.Orders;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 
 namespace Grand.Web.Admin.Components
 {

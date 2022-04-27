@@ -1,4 +1,4 @@
-﻿using Grand.Business.Authentication.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Models.Customer;

@@ -1,15 +1,14 @@
-﻿using Grand.Business.Catalog.Extensions;
-using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Catalog.Interfaces.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Checkout.Extensions;
-using Grand.Business.Checkout.Interfaces.CheckoutAttributes;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Interfaces.Shipping;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -17,7 +16,7 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-
+using Grand.Business.Core.Utilities.Checkout;
 
 namespace Grand.Business.Checkout.Services.Orders
 {

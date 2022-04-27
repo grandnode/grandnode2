@@ -1,6 +1,5 @@
 ﻿using Authentication.Facebook.Models;
-using Grand.Business.Authentication.Interfaces;
-using Grand.Business.Authentication.Utilities;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.SharedKernel;
 using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Authentication;
@@ -8,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
+using Grand.Business.Core.Utilities.Authentication;
 
 namespace Authentication.Facebook.Controllers
 {

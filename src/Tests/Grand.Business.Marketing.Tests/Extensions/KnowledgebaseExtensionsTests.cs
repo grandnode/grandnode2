@@ -1,4 +1,4 @@
-﻿using Grand.Business.Marketing.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Domain.Knowledgebase;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

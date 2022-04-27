@@ -1,4 +1,4 @@
-﻿using Grand.Business.Storage.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Storage;
 
 namespace Grand.Web.Admin.Extensions
 {

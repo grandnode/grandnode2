@@ -1,10 +1,9 @@
-﻿using Grand.Business.Catalog.Interfaces.Tax;
-using Grand.Business.Checkout.Extensions;
-using Grand.Business.Checkout.Interfaces.CheckoutAttributes;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
+﻿using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Infrastructure;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -15,7 +14,7 @@ using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Orders;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Http;
-using Grand.Business.Catalog.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Catalog.Directory;
 
 namespace Grand.Web.Admin.Services
 {

@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj" />
     <ProjectReference Include="..\..\Business\Grand.Business.Marketing\Grand.Business.Marketing.csproj" />
   </ItemGroup>
 

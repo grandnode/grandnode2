@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Grand.Business.Checkout.Interfaces.Payments;
+using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Payments;
 

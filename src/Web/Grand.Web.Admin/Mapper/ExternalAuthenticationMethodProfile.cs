@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Grand.Business.Authentication.Interfaces;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.ExternalAuthentication;
 

@@ -1,9 +1,9 @@
 using DiscountRules.Standard.Models;
-using Grand.Business.Catalog.Interfaces.Discounts;
-using Grand.Business.Catalog.Utilities;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Common.Interfaces.Configuration;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Catalog.Discounts;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
 
 namespace DiscountRules.Provider

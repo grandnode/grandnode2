@@ -1,6 +1,6 @@
-﻿using Grand.Business.Authentication.Events;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Commands.Customers;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using MediatR;
@@ -11,7 +11,7 @@ namespace Authentication.Facebook.Infrastructure.Cache
     /// <summary>
     /// Facebook authentication event consumer (used for saving customer fields on registration)
     /// </summary>
-    public partial class FacebookAuthenticationEventConsumer : INotificationHandler<RegisteredByExternalMethodEventHandler>
+    public partial class FacebookAuthenticationEventConsumer : INotificationHandler<RegisteredByExternalMethod>
     {
         #region Fields
 
@@ -40,7 +40,7 @@ namespace Authentication.Facebook.Infrastructure.Cache
 
         #region Methods
 
-        public async Task Handle(RegisteredByExternalMethodEventHandler eventMessage, CancellationToken cancellationToken)
+        public async Task Handle(RegisteredByExternalMethod eventMessage, CancellationToken cancellationToken)
         {
             if (eventMessage?.Customer == null || eventMessage.AuthenticationParameters == null)
                 return;
@@ -63,7 +63,7 @@ namespace Authentication.Facebook.Infrastructure.Cache
                 await _messageProviderService.SendCustomerRegisteredMessage(eventMessage.Customer, _workContext.CurrentStore, _workContext.WorkingLanguage.Id);
 
             //send welcome message 
-            if(eventMessage.RegistrationResult.Success)
+            if (eventMessage.RegistrationResult.Success)
                 await _messageProviderService.SendCustomerWelcomeMessage(eventMessage.Customer, _workContext.CurrentStore, _workContext.WorkingLanguage.Id);
 
         }

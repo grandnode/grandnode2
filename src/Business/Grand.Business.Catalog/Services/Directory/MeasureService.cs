@@ -5,7 +5,7 @@ using Grand.Domain.Data;
 using Grand.Domain.Directory;
 using Grand.SharedKernel;
 using MediatR;
-using Grand.Business.Catalog.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Catalog.Directory;
 
 namespace Grand.Business.Catalog.Services.Directory
 {

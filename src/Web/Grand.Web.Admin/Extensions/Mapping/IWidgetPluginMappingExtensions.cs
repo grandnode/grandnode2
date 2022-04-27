@@ -1,5 +1,5 @@
 ﻿using Grand.Infrastructure.Mapper;
-using Grand.Business.Cms.Interfaces;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Web.Admin.Models.Cms;
 
 namespace Grand.Web.Admin.Extensions

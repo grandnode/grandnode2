@@ -1,10 +1,10 @@
 ﻿using Grand.Api.Commands.Models.Customers;
 using Grand.Api.DTOs.Customers;
 using Grand.Api.Queries.Models.Customers;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Customers.Utilities;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

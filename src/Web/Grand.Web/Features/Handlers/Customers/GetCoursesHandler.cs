@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Courses;
 using Grand.Domain.Customers;
-using Grand.Business.Marketing.Interfaces.Courses;
+using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using MediatR;

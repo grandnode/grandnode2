@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Grand.Business.Catalog.Interfaces.Tax;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Tax;
 

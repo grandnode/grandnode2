@@ -1,4 +1,4 @@
-﻿using Grand.Business.Marketing.Interfaces.Banners;
+﻿using Grand.Business.Core.Interfaces.Marketing.Banners;
 using Grand.Infrastructure.Extensions;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;

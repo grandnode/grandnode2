@@ -1,10 +1,10 @@
-﻿using Grand.Business.Checkout.Commands.Models.Shipping;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Interfaces.Shipping;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Pdf;
-using Grand.Business.Common.Services.Security;
+﻿using Grand.Business.Core.Commands.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;

@@ -1,16 +1,16 @@
-﻿using Grand.Business.Catalog.Interfaces.Tax;
+﻿using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Catalog.Services.Tax;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Tax;
-using Grand.Business.Common.Interfaces.Logging;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Grand.Domain.Catalog;
 using Grand.SharedKernel.Extensions;
-using Grand.Business.Catalog.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Catalog.Directory;
 
 namespace Grand.Business.Catalog.Tests.Service.Tax
 {

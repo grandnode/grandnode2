@@ -1,4 +1,4 @@
-﻿using Grand.Business.Marketing.Interfaces.Newsletters;
+﻿using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Web.Commands.Models.Newsletter;
 using MediatR;
 

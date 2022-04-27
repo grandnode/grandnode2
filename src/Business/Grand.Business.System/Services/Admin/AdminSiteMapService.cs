@@ -1,5 +1,5 @@
-﻿using Grand.Business.System.Interfaces.Admin;
-using Grand.Business.System.Utilities;
+﻿using Grand.Business.Core.Interfaces.System.Admin;
+using Grand.Business.Core.Utilities.System;
 using Grand.Infrastructure.Caching;
 using Grand.Domain.Admin;
 using Grand.Domain.Data;
