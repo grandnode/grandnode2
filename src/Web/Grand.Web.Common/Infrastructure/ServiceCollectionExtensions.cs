@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Authentication;
+﻿using Azure.Identity;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Authentication;
@@ -101,13 +102,31 @@ namespace Grand.Web.Common.Infrastructure
         /// </summary>
         public static void AddGrandDataProtection(this IServiceCollection services, IConfiguration configuration)
         {
-            var config = new RedisConfig();
-            configuration.GetSection("Redis").Bind(config);
+            var redisconfig = new RedisConfig();
+            configuration.GetSection("Redis").Bind(redisconfig);
 
-            if (config.PersistKeysToRedis)
+            var azureconfig = new AzureConfig();
+            configuration.GetSection("Azure").Bind(azureconfig);
+
+            if (redisconfig.PersistKeysToRedis)
             {
                 services.AddDataProtection(opt => opt.ApplicationDiscriminator = "grandnode")
-                    .PersistKeysToStackExchangeRedis(ConnectionMultiplexer.Connect(config.PersistKeysToRedisUrl));
+                    .PersistKeysToStackExchangeRedis(ConnectionMultiplexer.Connect(redisconfig.PersistKeysToRedisUrl));
+            }
+            else if (azureconfig.PersistKeysToAzureKeyVault || azureconfig.PersistKeysToAzureBlobStorage)
+            {
+                if (azureconfig.PersistKeysToAzureKeyVault)
+                    services.AddDataProtection()
+                        // This blob must already exist before the application is run
+                        .PersistKeysToAzureBlobStorage(azureconfig.PersistKeysAzureBlobStorageConnectionString, azureconfig.DataProtectionContainerName, azureconfig.DataProtectionBlobName)
+                        .ProtectKeysWithAzureKeyVault(new Uri(azureconfig.KeyIdentifier),
+                        new DefaultAzureCredential());
+                else
+                {
+                    services.AddDataProtection()
+                        .PersistKeysToAzureBlobStorage(azureconfig.PersistKeysAzureBlobStorageConnectionString, azureconfig.DataProtectionContainerName, azureconfig.DataProtectionBlobName);
+                }
+
             }
             else
             {
@@ -183,7 +202,7 @@ namespace Grand.Web.Common.Infrastructure
             mvcBuilder.AddViewLocalization();
             //add razor runtime compilation
             mvcBuilder.AddRazorRuntimeCompilation();
-                        
+
             var securityConfig = new SecurityConfig();
             configuration.GetSection("Security").Bind(securityConfig);
 
@@ -339,7 +358,7 @@ namespace Grand.Web.Common.Infrastructure
         {
             var applicationInsights = new ApplicationInsightsConfig();
             configuration.GetSection("ApplicationInsights").Bind(applicationInsights);
-            if(applicationInsights.Enabled)
+            if (applicationInsights.Enabled)
             {
                 services.AddApplicationInsightsTelemetry();
             }
