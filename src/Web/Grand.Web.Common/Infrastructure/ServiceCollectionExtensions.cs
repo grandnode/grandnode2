@@ -130,8 +130,12 @@ namespace Grand.Web.Common.Infrastructure
             }
             else
             {
-                var dataProtectionKeysPath = CommonPath.DataProtectionKeysPath;
+                var securityconfig = new SecurityConfig();
+                configuration.GetSection("Security").Bind(securityconfig);
+
+                var dataProtectionKeysPath = string.IsNullOrEmpty(securityconfig.KeyPersistenceLocation) ? CommonPath.DataProtectionKeysPath : securityconfig.KeyPersistenceLocation;
                 var dataProtectionKeysFolder = new DirectoryInfo(dataProtectionKeysPath);
+
                 //configure the data protection system to persist keys to the specified directory
                 services.AddDataProtection().PersistKeysToFileSystem(dataProtectionKeysFolder);
             }
