@@ -13,6 +13,10 @@
         public string AllowedHosts { get; set; }
 
         /// <summary>
+        /// Gets or sets a value for Key persistence location
+        /// </summary>
+        public string KeyPersistenceLocation { get; set; }
+        /// <summary>
         /// Gets or sets a value indicating for cookie expires in hours - default 24 * 365 = 8760
         /// </summary>
         public int CookieAuthExpires { get; set; }
