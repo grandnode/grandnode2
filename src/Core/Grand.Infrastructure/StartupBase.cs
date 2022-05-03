@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FluentValidation.AspNetCore;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching.RabbitMq;
 using Grand.Infrastructure.Configuration;
@@ -35,9 +34,9 @@ namespace Grand.Infrastructure
         private static void InitDatabase(IServiceCollection services, IConfiguration configuration)
         {
             var advancedConfig = services.StartupConfig<AdvancedConfig>(configuration.GetSection("Advanced"));
-            if(!string.IsNullOrEmpty(advancedConfig.DbConnectionString))
+            if (!string.IsNullOrEmpty(advancedConfig.DbConnectionString))
             {
-                DataSettingsManager.LoadDataSettings(new DataSettings() { 
+                DataSettingsManager.LoadDataSettings(new DataSettings() {
                     ConnectionString = advancedConfig.DbConnectionString,
                     DbProvider = (DbProvider)advancedConfig.DbProvider,
                 });
@@ -70,24 +69,6 @@ namespace Grand.Infrastructure
 
             //register automapper
             AutoMapperConfig.Init(config);
-        }
-
-        /// <summary>
-        /// Add FluenValidation
-        /// </summary>
-        /// <param name="mvcCoreBuilder"></param>
-        /// <param name="typeSearcher"></param>
-        private static void AddFluentValidation(IMvcCoreBuilder mvcCoreBuilder, ITypeSearcher typeSearcher)
-        {
-            //Add fluentValidation
-            mvcCoreBuilder.AddFluentValidation(configuration =>
-            {
-                var assemblies = typeSearcher.GetAssemblies();
-                configuration.RegisterValidatorsFromAssemblies(assemblies);
-                configuration.DisableDataAnnotationsValidation = true;
-                //implicit/automatic validation of child properties
-                configuration.ImplicitlyValidateChildProperties = true;
-            });
         }
 
         /// <summary>
@@ -185,7 +166,7 @@ namespace Grand.Infrastructure
                     });
                     cfg.ConfigureEndpoints(context);
                 });
-            });            
+            });
         }
 
         /// <summary>
@@ -275,9 +256,6 @@ namespace Grand.Infrastructure
 
             //register mapper configurations
             InitAutoMapper(typeSearcher);
-
-            //add fluenvalidation
-            AddFluentValidation(mvcBuilder, typeSearcher);
 
             //Register custom type converters
             RegisterTypeConverter(typeSearcher);
