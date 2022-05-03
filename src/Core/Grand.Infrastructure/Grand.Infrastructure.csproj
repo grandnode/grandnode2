@@ -2,8 +2,8 @@
   <Import Project="..\..\Build\Grand.Common.props" />
   <ItemGroup>
     <PackageReference Include="GoogleAuthenticator" Version="2.5.0" />
-    <PackageReference Include="MassTransit" Version="8.0.1" />
-    <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.1" />
+    <PackageReference Include="MassTransit" Version="8.0.2" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.2" />
 	<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.4" />

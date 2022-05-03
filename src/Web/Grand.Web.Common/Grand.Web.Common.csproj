@@ -4,14 +4,14 @@
     <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.2.1" />
     <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.1.0" />
     <PackageReference Include="Azure.Identity" Version="1.6.0" />
-    <PackageReference Include="Flurl.Http" Version="3.2.2" />
+    <PackageReference Include="Flurl.Http" Version="3.2.3" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="6.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.4" />
     <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="6.0.2" />
     <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.2.22" />
     <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" Version="0.16.1" />
     <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
-    <PackageReference Include="Wangkanai.Detection" Version="5.2.0" />
+    <PackageReference Include="Wangkanai.Detection" Version="5.2.1" />
     <PackageReference Include="WebMarkupMin.AspNetCore6" Version="2.11.0" />
     <PackageReference Include="WebMarkupMin.Core" Version="2.9.0" />
     <PackageReference Include="WebMarkupMin.NUglify" Version="2.11.0" />
