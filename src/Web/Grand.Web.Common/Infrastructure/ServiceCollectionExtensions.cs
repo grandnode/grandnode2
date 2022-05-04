@@ -1,4 +1,5 @@
 ﻿using Azure.Identity;
+using FluentValidation.AspNetCore;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Security;
@@ -235,6 +236,17 @@ namespace Grand.Web.Common.Infrastructure
             {
                 mvcBuilder.AddSessionStateTempDataProvider();
             }
+
+            //Add fluentValidation
+            mvcBuilder.AddFluentValidation(configuration =>
+            {
+                var typeSearcher = new AppTypeSearcher();
+                var assemblies = typeSearcher.GetAssemblies();
+                configuration.RegisterValidatorsFromAssemblies(assemblies);
+                configuration.DisableDataAnnotationsValidation = true;
+                //implicit/automatic validation of child properties
+                configuration.ImplicitlyValidateChildProperties = true;
+            });
 
             //MVC now serializes JSON with camel case names by default, use this code to avoid it
             mvcBuilder.AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
