@@ -516,6 +516,9 @@
   <Resource Name="Account.Login.ForgotPassword">
     <Value>Forgot password?</Value>
   </Resource>
+  <Resource Name="Account.Login.EmailCode">
+    <Value>Login with E-mail Code</Value>
+  </Resource>
   <Resource Name="Account.Login.LoginButton">
     <Value>Log in</Value>
   </Resource>
@@ -581,6 +584,24 @@
   </Resource>
   <Resource Name="Account.OutOfStockSubscriptions.ProductColumn">
     <Value>Product</Value>
+  </Resource>
+  <Resource Name="Account.LoginWithEmailCode">
+    <Value>Login With E-mail Code</Value>
+  </Resource>
+  <Resource Name="Account.LoginWithEmailCode.Email">
+    <Value>Your email address</Value>
+  </Resource>
+  <Resource Name="Account.LoginWithEmailCode.SendButton">
+    <Value>Send Email</Value>
+  </Resource>
+  <Resource Name="Account.LoginWithEmailCode.Tooltip">
+    <Value>Please enter your email address below. You will receive a link to login to your account without having to enter your password.</Value>
+  </Resource>
+  <Resource Name="Account.LoginWithEmailCode.EmailHasBeenSent">
+    <Value>Login email has been sent to you.</Value>
+  </Resource>
+  <Resource Name="Account.LoginWithEmailCode.EmailNotFound">
+    <Value>Email not found.</Value>
   </Resource>
   <Resource Name="Account.PasswordRecovery">
     <Value>Password recovery</Value>
@@ -16532,6 +16553,9 @@
   </Resource>
   <Resource Name="Title.PasswordRecovery">
     <Value>Password Recovery</Value>
+  </Resource>
+  <Resource Name="Title.LoginWithEmailCode">
+    <Value>Login With E-mail Code</Value>
   </Resource>
   <Resource Name="Title.ProductAskQuestion">
     <Value>Ask question</Value>

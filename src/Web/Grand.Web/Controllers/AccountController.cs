@@ -271,10 +271,57 @@ namespace Grand.Web.Controllers
 
         #endregion
 
-        #region Password recovery
+        #region Login With E-mail Code
 
         //available even when navigation is not allowed
         [PublicStore(true)]
+        public virtual IActionResult LoginWithEmailCode()
+        {
+            var model = new LoginWithEmailCodeModel();
+            model.DisplayCaptcha = _captchaSettings.Enabled;
+            return View(model);
+        }
+
+        [HttpPost]
+        [AutoValidateAntiforgeryToken]
+        [ValidateCaptcha]
+        [PublicStore(true)]
+        public virtual async Task<IActionResult> LoginWithEmailCode(LoginWithEmailCodeModel model, bool captchaValid)
+        {
+            //validate CAPTCHA
+            if (_captchaSettings.Enabled && !captchaValid)
+            {
+                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
+            }
+
+            if (ModelState.IsValid)
+            {
+                var customer = await _customerService.GetCustomerByEmail(model.Email);
+                if (customer != null && customer.Active && !customer.Deleted)
+                {
+                    // TODO - Actually send the e-mail!
+                    //await _mediator.Send(new PasswordRecoverySendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model });
+
+                    model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailHasBeenSent");
+                    model.Send = true;
+                }
+                else
+                {
+                    model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailNotFound");
+                }
+
+                return View(model);
+            }
+
+            return View(model);
+        }
+
+            #endregion
+
+            #region Password recovery
+
+            //available even when navigation is not allowed
+            [PublicStore(true)]
         public virtual IActionResult PasswordRecovery()
         {
             var model = new PasswordRecoveryModel();
