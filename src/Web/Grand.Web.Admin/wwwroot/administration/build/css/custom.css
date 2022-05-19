@@ -6513,9 +6513,7 @@ form>h4 {
     .control__indicator_custom {
         margin-left: 12px;
     }
-    .btn-group.btn-group-devided>.btn {
-        margin-bottom: 5px;
-    }
+    
     .popup-window .btn-group.btn-group-devided > .btn {
        
         margin-right: 2px;
