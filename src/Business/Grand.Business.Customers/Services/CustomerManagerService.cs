@@ -140,6 +140,67 @@ namespace Grand.Business.Customers.Services
         }
 
         /// <summary>
+        /// Login customer with E-mail Code
+        /// </summary>
+        /// <param name="userId">UserId of the record</param>
+        /// <param name="loginCode">loginCode provided in e-mail</param>
+        /// <returns>Result</returns>
+        public virtual async Task<CustomerLoginResults> LoginCustomerWithEmailCode(string userId, string loginCode)
+        {
+            var customer = await _customerService.GetCustomerById(userId);
+
+            if (customer == null)
+                return CustomerLoginResults.CustomerNotExist;
+            if (customer.Deleted)
+                return CustomerLoginResults.Deleted;
+            if (!customer.Active)
+                return CustomerLoginResults.NotActive;
+            if (!await _groupService.IsRegistered(customer))
+                return CustomerLoginResults.NotRegistered;
+
+            if (customer.CannotLoginUntilDateUtc.HasValue && customer.CannotLoginUntilDateUtc.Value > DateTime.UtcNow)
+                return CustomerLoginResults.LockedOut;
+
+            if (string.IsNullOrEmpty(loginCode))
+                return CustomerLoginResults.WrongPassword;
+            
+            // Hash loginCode & generate current timestamp
+            string hashedLoginCode = _encryptionService.CreatePasswordHash(loginCode, customer.PasswordSalt, _customerSettings.HashedPasswordFormat);
+            long curTimeStamp = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
+
+            // Get saved loginCode & get expiry timestamp
+            string savedHashedLoginCode = await _userFieldService.GetFieldsForEntity<string>(customer, SystemCustomerFieldNames.EmailLoginToken);
+            long savedHashedLoginCodeExpiry = await _userFieldService.GetFieldsForEntity<long>(customer, SystemCustomerFieldNames.EmailLoginTokenExpiry);
+
+
+            var isValid = hashedLoginCode == savedHashedLoginCode && curTimeStamp < savedHashedLoginCodeExpiry;
+
+            if (!isValid)
+            {
+                //wrong password or expired
+                // Do not increase the FailedLoginAttempts as it seems unlikely a brute force will success to guess a GUID within the 10 minute expiry period.
+                
+                await _customerService.UpdateCustomerLastLoginDate(customer);
+                return CustomerLoginResults.WrongPassword; // or expired
+            }
+
+            //2fa required
+            if (customer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled) && _customerSettings.TwoFactorAuthenticationEnabled)
+                return CustomerLoginResults.RequiresTwoFactor;
+
+            //save last login date
+            customer.FailedLoginAttempts = 0;
+            customer.CannotLoginUntilDateUtc = null;
+            customer.LastLoginDateUtc = DateTime.UtcNow;
+            await _customerService.UpdateCustomerLastLoginDate(customer);
+
+            // Remove code used to login so the link can't be used twice. We do this by setting the expiry timestamp to 0
+            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.EmailLoginTokenExpiry, 0);
+
+            return CustomerLoginResults.Successful;
+        }
+
+        /// <summary>
         /// Register customer
         /// </summary>
         /// <param name="request">Request</param>

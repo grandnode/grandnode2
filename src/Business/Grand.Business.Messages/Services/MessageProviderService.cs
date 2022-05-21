@@ -220,6 +220,19 @@ namespace Grand.Business.Messages.Services
         }
 
         /// <summary>
+        /// Sends an e-mail login link to the customer
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <param name="store">Store</param>
+        /// <param name="languageId">Message language identifier</param>
+        /// <returns>Queued email identifier</returns>
+        public virtual async Task<int> SendCustomerEmailLoginLinkMessage(Customer customer, Store store, string languageId)
+        {
+            return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerEmailLoginCode);
+        }
+
+
+        /// <summary>
         /// Sends a new customer note added notification to a customer
         /// </summary>
         /// <param name="customerNote">Customer note</param>

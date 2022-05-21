@@ -540,6 +540,9 @@
   <Resource Name="Account.Login.WrongCredentials">
     <Value>The credentials provided are incorrect</Value>
   </Resource>
+  <Resource Name="Account.Login.WrongCredentials.CodeExpired">
+    <Value>The login link provided has expired or has already been used.</Value>
+  </Resource>
   <Resource Name="Account.Login.WrongCredentials.CustomerNotExist">
     <Value>No customer account found</Value>
   </Resource>

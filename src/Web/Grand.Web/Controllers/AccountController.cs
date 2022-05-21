@@ -275,151 +275,183 @@ namespace Grand.Web.Controllers
 
         //available even when navigation is not allowed
         [PublicStore(true)]
-        public virtual IActionResult LoginWithEmailCode()
+        public virtual async Task<IActionResult> LoginWithEmailCode(string? userId, string? loginCode)
         {
-            var model = new LoginWithEmailCodeModel();
-            model.DisplayCaptcha = _captchaSettings.Enabled;
+            // Prepare model as it's used later in the method
+            var model = new LoginWithEmailCodeModel() { DisplayCaptcha = _captchaSettings.Enabled };
+
+            if (userId == null || loginCode == null) return View(model); // if no parameters - present login page
+
+           // otherwise, it's a login attempt...
+
+            var loginResult = await _customerManagerService.LoginCustomerWithEmailCode(userId, loginCode);
+            var customer = await _customerService.GetCustomerById(userId);
+
+            switch (loginResult)
+            {
+                case CustomerLoginResults.Successful:
+                    {
+                        //sign in
+                        return await SignInAction(customer, false, "/"); // Send False for 'Remember Me' & send customer to index
+                    }
+                case CustomerLoginResults.RequiresTwoFactor:
+                    {
+                        var userName = _customerSettings.UsernamesEnabled ? customer.Username : customer.Email;
+                        HttpContext.Session.SetString("RequiresTwoFactor", userName);
+                        return RedirectToRoute("TwoFactorAuthorization");
+                    }
+
+                // Removed other case statements as they are highly unlikely to occur unless the user has been edited the url directly.
+                case CustomerLoginResults.LockedOut:
+                        model.Result = _translationService.GetResource("Account.Login.WrongCredentials.LockedOut");
+                    break;
+                case CustomerLoginResults.WrongPassword: // It's most likely to has expired in this case.
+                default:
+                        model.Result = _translationService.GetResource("Account.Login.WrongCredentials.CodeExpired");
+                    break;
+            }
+
+            //If we got this far, something failed - send to login form.
             return View(model);
         }
 
-        [HttpPost]
-        [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
-        [PublicStore(true)]
-        public virtual async Task<IActionResult> LoginWithEmailCode(LoginWithEmailCodeModel model, bool captchaValid)
-        {
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && !captchaValid)
+            [HttpPost]
+            [AutoValidateAntiforgeryToken]
+            [ValidateCaptcha]
+            [PublicStore(true)]
+            public virtual async Task<IActionResult> LoginWithEmailCode(LoginWithEmailCodeModel model, bool captchaValid)
             {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
-
-            if (ModelState.IsValid)
-            {
-                var customer = await _customerService.GetCustomerByEmail(model.Email);
-                if (customer != null && customer.Active && !customer.Deleted)
+                //validate CAPTCHA
+                if (_captchaSettings.Enabled && !captchaValid)
                 {
-                    // TODO - Actually send the e-mail!
-                    //await _mediator.Send(new PasswordRecoverySendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model });
-
-                    model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailHasBeenSent");
-                    model.Send = true;
+                    ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
                 }
-                else
+
+                if (ModelState.IsValid)
                 {
-                    model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailNotFound");
+                    var customer = await _customerService.GetCustomerByEmail(model.Email);
+                    if (customer != null && customer.Active && !customer.Deleted)
+                    {
+                        await _mediator.Send(new EmailCodeSendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model, HashedPasswordFormat = _customerSettings.HashedPasswordFormat });
+
+                        model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailHasBeenSent");
+                        model.Send = true;
+                    }
+                    else
+                    {
+                        model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailNotFound");
+                    }
+
+                    return View(model);
                 }
 
                 return View(model);
             }
-
-            return View(model);
-        }
 
             #endregion
 
             #region Password recovery
 
+                //available even when navigation is not allowed
+                [PublicStore(true)]
+            public virtual IActionResult PasswordRecovery()
+            {
+                var model = new PasswordRecoveryModel();
+                model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage;
+                return View(model);
+            }
+
+            [HttpPost]
+            [AutoValidateAntiforgeryToken]
+            [ValidateCaptcha]
+            [PublicStore(true)]
+            public virtual async Task<IActionResult> PasswordRecovery(PasswordRecoveryModel model, bool captchaValid)
+            {
+                //validate CAPTCHA
+                if (_captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage && !captchaValid)
+                {
+                    ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
+                }
+
+                if (ModelState.IsValid)
+                {
+                    var customer = await _customerService.GetCustomerByEmail(model.Email);
+                    if (customer != null && customer.Active && !customer.Deleted)
+                    {
+                        await _mediator.Send(new PasswordRecoverySendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model });
+
+                        model.Result = _translationService.GetResource("Account.PasswordRecovery.EmailHasBeenSent");
+                        model.Send = true;
+                    }
+                    else
+                    {
+                        model.Result = _translationService.GetResource("Account.PasswordRecovery.EmailNotFound");
+                    }
+
+                    return View(model);
+                }
+                return View(model);
+            }
+
+            [PublicStore(true)]
+            public virtual async Task<IActionResult> PasswordRecoveryConfirm(string token, string email)
+            {
+                var customer = await _customerService.GetCustomerByEmail(email);
+                if (customer == null)
+                    return RedirectToRoute("HomePage");
+
+                var model = await _mediator.Send(new GetPasswordRecoveryConfirm() { Customer = customer, Token = token });
+
+                return View(model);
+            }
+
+            [HttpPost]
+            [AutoValidateAntiforgeryToken]
             //available even when navigation is not allowed
             [PublicStore(true)]
-        public virtual IActionResult PasswordRecovery()
-        {
-            var model = new PasswordRecoveryModel();
-            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage;
-            return View(model);
-        }
-
-        [HttpPost]
-        [AutoValidateAntiforgeryToken]
-        [ValidateCaptcha]
-        [PublicStore(true)]
-        public virtual async Task<IActionResult> PasswordRecovery(PasswordRecoveryModel model, bool captchaValid)
-        {
-            //validate CAPTCHA
-            if (_captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage && !captchaValid)
+            public virtual async Task<IActionResult> PasswordRecoveryConfirm(string token, string email, PasswordRecoveryConfirmModel model)
             {
-                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-            }
+                var customer = await _customerService.GetCustomerByEmail(email);
+                if (customer == null)
+                    return RedirectToRoute("HomePage");
 
-            if (ModelState.IsValid)
-            {
-                var customer = await _customerService.GetCustomerByEmail(model.Email);
-                if (customer != null && customer.Active && !customer.Deleted)
+                //validate token
+                if (!customer.IsPasswordRecoveryTokenValid(token))
                 {
-                    await _mediator.Send(new PasswordRecoverySendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model });
-
-                    model.Result = _translationService.GetResource("Account.PasswordRecovery.EmailHasBeenSent");
-                    model.Send = true;
-                }
-                else
-                {
-                    model.Result = _translationService.GetResource("Account.PasswordRecovery.EmailNotFound");
-                }
-
-                return View(model);
-            }
-            return View(model);
-        }
-
-        [PublicStore(true)]
-        public virtual async Task<IActionResult> PasswordRecoveryConfirm(string token, string email)
-        {
-            var customer = await _customerService.GetCustomerByEmail(email);
-            if (customer == null)
-                return RedirectToRoute("HomePage");
-
-            var model = await _mediator.Send(new GetPasswordRecoveryConfirm() { Customer = customer, Token = token });
-
-            return View(model);
-        }
-
-        [HttpPost]
-        [AutoValidateAntiforgeryToken]
-        //available even when navigation is not allowed
-        [PublicStore(true)]
-        public virtual async Task<IActionResult> PasswordRecoveryConfirm(string token, string email, PasswordRecoveryConfirmModel model)
-        {
-            var customer = await _customerService.GetCustomerByEmail(email);
-            if (customer == null)
-                return RedirectToRoute("HomePage");
-
-            //validate token
-            if (!customer.IsPasswordRecoveryTokenValid(token))
-            {
-                model.DisablePasswordChanging = true;
-                model.Result = _translationService.GetResource("Account.PasswordRecovery.WrongToken");
-            }
-
-            //validate token expiration date
-            if (customer.IsPasswordRecoveryLinkExpired(_customerSettings))
-            {
-                model.DisablePasswordChanging = true;
-                model.Result = _translationService.GetResource("Account.PasswordRecovery.LinkExpired");
-                return View(model);
-            }
-
-            if (ModelState.IsValid)
-            {
-                var response = await _customerManagerService.ChangePassword(new ChangePasswordRequest(email,
-                    false, _customerSettings.DefaultPasswordFormat, model.NewPassword));
-                if (response.Success)
-                {
-                    await _userFieldService.SaveField(customer, SystemCustomerFieldNames.PasswordRecoveryToken, "");
-
                     model.DisablePasswordChanging = true;
-                    model.Result = _translationService.GetResource("Account.PasswordRecovery.PasswordHasBeenChanged");
-                }
-                else
-                {
-                    model.Result = response.Errors.FirstOrDefault();
+                    model.Result = _translationService.GetResource("Account.PasswordRecovery.WrongToken");
                 }
 
+                //validate token expiration date
+                if (customer.IsPasswordRecoveryLinkExpired(_customerSettings))
+                {
+                    model.DisablePasswordChanging = true;
+                    model.Result = _translationService.GetResource("Account.PasswordRecovery.LinkExpired");
+                    return View(model);
+                }
+
+                if (ModelState.IsValid)
+                {
+                    var response = await _customerManagerService.ChangePassword(new ChangePasswordRequest(email,
+                        false, _customerSettings.DefaultPasswordFormat, model.NewPassword));
+                    if (response.Success)
+                    {
+                        await _userFieldService.SaveField(customer, SystemCustomerFieldNames.PasswordRecoveryToken, "");
+
+                        model.DisablePasswordChanging = true;
+                        model.Result = _translationService.GetResource("Account.PasswordRecovery.PasswordHasBeenChanged");
+                    }
+                    else
+                    {
+                        model.Result = response.Errors.FirstOrDefault();
+                    }
+
+                    return View(model);
+                }
                 return View(model);
             }
-            return View(model);
-        }
 
-        #endregion
+            #endregion
 
         #region Register
 
