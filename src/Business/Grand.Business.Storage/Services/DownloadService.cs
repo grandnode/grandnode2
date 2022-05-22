@@ -51,7 +51,7 @@ namespace Grand.Business.Storage.Services
                 return null;
 
             var _download = await _downloadRepository.GetByIdAsync(downloadId);
-            if (!_download.UseDownloadUrl)
+            if (_download != null && !_download.UseDownloadUrl)
                 _download.DownloadBinary = await DownloadAsBytes(_download.DownloadObjectId);
 
             return _download;

@@ -743,6 +743,9 @@ namespace Grand.Business.System.Services.Installation
             await dbContext.CreateIndex(_courseRepository, OrderBuilder<Course>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
             await dbContext.CreateIndex(_courseLevelRepository, OrderBuilder<CourseLevel>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
 
+            //admin site map
+            await dbContext.CreateIndex(_adminRepository, OrderBuilder<AdminSiteMap>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+
             //if(dataSettings.DbProvider == DbProvider.CosmosDB)
             //{
             //    //
