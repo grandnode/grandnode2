@@ -315,143 +315,143 @@ namespace Grand.Web.Controllers
             return View(model);
         }
 
-            [HttpPost]
-            [AutoValidateAntiforgeryToken]
-            [ValidateCaptcha]
-            [PublicStore(true)]
-            public virtual async Task<IActionResult> LoginWithEmailCode(LoginWithEmailCodeModel model, bool captchaValid)
+        [HttpPost]
+        [AutoValidateAntiforgeryToken]
+        [ValidateCaptcha]
+        [PublicStore(true)]
+        public virtual async Task<IActionResult> LoginWithEmailCode(LoginWithEmailCodeModel model, bool captchaValid)
+        {
+            //validate CAPTCHA
+            if (_captchaSettings.Enabled && !captchaValid)
             {
-                //validate CAPTCHA
-                if (_captchaSettings.Enabled && !captchaValid)
+                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
+            }
+
+            if (ModelState.IsValid)
+            {
+                var customer = await _customerService.GetCustomerByEmail(model.Email);
+                if (customer != null && customer.Active && !customer.Deleted)
                 {
-                    ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
+                    await _mediator.Send(new EmailCodeSendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model, HashedPasswordFormat = _customerSettings.HashedPasswordFormat });
+
+                    model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailHasBeenSent");
+                    model.Send = true;
                 }
-
-                if (ModelState.IsValid)
+                else
                 {
-                    var customer = await _customerService.GetCustomerByEmail(model.Email);
-                    if (customer != null && customer.Active && !customer.Deleted)
-                    {
-                        await _mediator.Send(new EmailCodeSendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model, HashedPasswordFormat = _customerSettings.HashedPasswordFormat });
-
-                        model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailHasBeenSent");
-                        model.Send = true;
-                    }
-                    else
-                    {
-                        model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailNotFound");
-                    }
-
-                    return View(model);
+                    model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailNotFound");
                 }
 
                 return View(model);
             }
 
-            #endregion
+            return View(model);
+        }
 
-            #region Password recovery
+        #endregion
 
-                //available even when navigation is not allowed
-                [PublicStore(true)]
-            public virtual IActionResult PasswordRecovery()
-            {
-                var model = new PasswordRecoveryModel();
-                model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage;
-                return View(model);
-            }
+        #region Password recovery
 
-            [HttpPost]
-            [AutoValidateAntiforgeryToken]
-            [ValidateCaptcha]
-            [PublicStore(true)]
-            public virtual async Task<IActionResult> PasswordRecovery(PasswordRecoveryModel model, bool captchaValid)
-            {
-                //validate CAPTCHA
-                if (_captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage && !captchaValid)
-                {
-                    ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
-                }
-
-                if (ModelState.IsValid)
-                {
-                    var customer = await _customerService.GetCustomerByEmail(model.Email);
-                    if (customer != null && customer.Active && !customer.Deleted)
-                    {
-                        await _mediator.Send(new PasswordRecoverySendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model });
-
-                        model.Result = _translationService.GetResource("Account.PasswordRecovery.EmailHasBeenSent");
-                        model.Send = true;
-                    }
-                    else
-                    {
-                        model.Result = _translationService.GetResource("Account.PasswordRecovery.EmailNotFound");
-                    }
-
-                    return View(model);
-                }
-                return View(model);
-            }
-
-            [PublicStore(true)]
-            public virtual async Task<IActionResult> PasswordRecoveryConfirm(string token, string email)
-            {
-                var customer = await _customerService.GetCustomerByEmail(email);
-                if (customer == null)
-                    return RedirectToRoute("HomePage");
-
-                var model = await _mediator.Send(new GetPasswordRecoveryConfirm() { Customer = customer, Token = token });
-
-                return View(model);
-            }
-
-            [HttpPost]
-            [AutoValidateAntiforgeryToken]
             //available even when navigation is not allowed
             [PublicStore(true)]
-            public virtual async Task<IActionResult> PasswordRecoveryConfirm(string token, string email, PasswordRecoveryConfirmModel model)
+        public virtual IActionResult PasswordRecovery()
+        {
+            var model = new PasswordRecoveryModel();
+            model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage;
+            return View(model);
+        }
+
+        [HttpPost]
+        [AutoValidateAntiforgeryToken]
+        [ValidateCaptcha]
+        [PublicStore(true)]
+        public virtual async Task<IActionResult> PasswordRecovery(PasswordRecoveryModel model, bool captchaValid)
+        {
+            //validate CAPTCHA
+            if (_captchaSettings.Enabled && _captchaSettings.ShowOnPasswordRecoveryPage && !captchaValid)
             {
-                var customer = await _customerService.GetCustomerByEmail(email);
-                if (customer == null)
-                    return RedirectToRoute("HomePage");
+                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
+            }
 
-                //validate token
-                if (!customer.IsPasswordRecoveryTokenValid(token))
+            if (ModelState.IsValid)
+            {
+                var customer = await _customerService.GetCustomerByEmail(model.Email);
+                if (customer != null && customer.Active && !customer.Deleted)
                 {
-                    model.DisablePasswordChanging = true;
-                    model.Result = _translationService.GetResource("Account.PasswordRecovery.WrongToken");
+                    await _mediator.Send(new PasswordRecoverySendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model });
+
+                    model.Result = _translationService.GetResource("Account.PasswordRecovery.EmailHasBeenSent");
+                    model.Send = true;
+                }
+                else
+                {
+                    model.Result = _translationService.GetResource("Account.PasswordRecovery.EmailNotFound");
                 }
 
-                //validate token expiration date
-                if (customer.IsPasswordRecoveryLinkExpired(_customerSettings))
-                {
-                    model.DisablePasswordChanging = true;
-                    model.Result = _translationService.GetResource("Account.PasswordRecovery.LinkExpired");
-                    return View(model);
-                }
+                return View(model);
+            }
+            return View(model);
+        }
 
-                if (ModelState.IsValid)
-                {
-                    var response = await _customerManagerService.ChangePassword(new ChangePasswordRequest(email,
-                        false, _customerSettings.DefaultPasswordFormat, model.NewPassword));
-                    if (response.Success)
-                    {
-                        await _userFieldService.SaveField(customer, SystemCustomerFieldNames.PasswordRecoveryToken, "");
+        [PublicStore(true)]
+        public virtual async Task<IActionResult> PasswordRecoveryConfirm(string token, string email)
+        {
+            var customer = await _customerService.GetCustomerByEmail(email);
+            if (customer == null)
+                return RedirectToRoute("HomePage");
 
-                        model.DisablePasswordChanging = true;
-                        model.Result = _translationService.GetResource("Account.PasswordRecovery.PasswordHasBeenChanged");
-                    }
-                    else
-                    {
-                        model.Result = response.Errors.FirstOrDefault();
-                    }
+            var model = await _mediator.Send(new GetPasswordRecoveryConfirm() { Customer = customer, Token = token });
 
-                    return View(model);
-                }
+            return View(model);
+        }
+
+        [HttpPost]
+        [AutoValidateAntiforgeryToken]
+        //available even when navigation is not allowed
+        [PublicStore(true)]
+        public virtual async Task<IActionResult> PasswordRecoveryConfirm(string token, string email, PasswordRecoveryConfirmModel model)
+        {
+            var customer = await _customerService.GetCustomerByEmail(email);
+            if (customer == null)
+                return RedirectToRoute("HomePage");
+
+            //validate token
+            if (!customer.IsPasswordRecoveryTokenValid(token))
+            {
+                model.DisablePasswordChanging = true;
+                model.Result = _translationService.GetResource("Account.PasswordRecovery.WrongToken");
+            }
+
+            //validate token expiration date
+            if (customer.IsPasswordRecoveryLinkExpired(_customerSettings))
+            {
+                model.DisablePasswordChanging = true;
+                model.Result = _translationService.GetResource("Account.PasswordRecovery.LinkExpired");
                 return View(model);
             }
 
-            #endregion
+            if (ModelState.IsValid)
+            {
+                var response = await _customerManagerService.ChangePassword(new ChangePasswordRequest(email,
+                    false, _customerSettings.DefaultPasswordFormat, model.NewPassword));
+                if (response.Success)
+                {
+                    await _userFieldService.SaveField(customer, SystemCustomerFieldNames.PasswordRecoveryToken, "");
+
+                    model.DisablePasswordChanging = true;
+                    model.Result = _translationService.GetResource("Account.PasswordRecovery.PasswordHasBeenChanged");
+                }
+                else
+                {
+                    model.Result = response.Errors.FirstOrDefault();
+                }
+
+                return View(model);
+            }
+            return View(model);
+        }
+
+        #endregion
 
         #region Register
 
