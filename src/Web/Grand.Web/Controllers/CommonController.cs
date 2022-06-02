@@ -130,7 +130,13 @@ namespace Grand.Web.Controllers
 
         public virtual IActionResult Route([FromServices] LinkGenerator linkGenerator, string route)
         {
+            if (string.IsNullOrEmpty(route))
+                return Json(new { redirectToUrl = string.Empty });
+
             var url = linkGenerator.GetUriByRouteValues(HttpContext, route, null);
+            if (string.IsNullOrEmpty(url))
+                return Json(new { redirectToUrl = string.Empty });
+
             return Json(new { redirectToUrl = url });
         }
 
