@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Grand.Web.Common.Controllers;
+using Microsoft.AspNetCore.Routing;
 
 namespace Grand.Web.Controllers
 {
@@ -125,6 +126,12 @@ namespace Grand.Web.Controllers
             Response.StatusCode = 403;
             Response.ContentType = "text/html";
             return View();
+        }
+
+        public virtual IActionResult Route([FromServices] LinkGenerator linkGenerator, string route)
+        {
+            var url = linkGenerator.GetUriByRouteValues(HttpContext, route, null);
+            return Json(new { redirectToUrl = url });
         }
 
         //external authentication error
