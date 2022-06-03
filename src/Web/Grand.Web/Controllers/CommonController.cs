@@ -27,7 +27,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Grand.Web.Common.Controllers;
-using Microsoft.AspNetCore.Routing;
 
 namespace Grand.Web.Controllers
 {
@@ -134,7 +133,7 @@ namespace Grand.Web.Controllers
                 return Json(new { redirectToUrl = string.Empty });
 
             var url = Url.RouteUrl(routeName);
-            
+
             return Json(new { redirectToUrl = url });
         }
 
