@@ -45,7 +45,7 @@ namespace Grand.Web.Controllers
         public override RedirectToRouteResult RedirectToRoute(string routeName)
         {
             if (IsJsonResponseView())
-                return RedirectToRoute("Route", new { route = routeName });
+                return RedirectToRoute("Route", new { routeName = routeName });
 
             return base.RedirectToRoute(routeName);
         }
