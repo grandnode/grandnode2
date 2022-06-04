@@ -127,6 +127,16 @@ namespace Grand.Web.Controllers
             return View();
         }
 
+        public virtual IActionResult Route(string routeName)
+        {
+            if (string.IsNullOrEmpty(routeName))
+                return Json(new { redirectToUrl = string.Empty });
+
+            var url = Url.RouteUrl(routeName);
+
+            return Json(new { redirectToUrl = url });
+        }
+
         //external authentication error
         public virtual IActionResult ExternalAuthenticationError(IEnumerable<string> errors)
         {
