@@ -404,6 +404,11 @@ namespace Grand.Web.Endpoints
                             pattern + "access-denied",
                             new { controller = "Common", action = "AccessDenied" });
 
+            //page not found
+            endpointRouteBuilder.MapControllerRoute("Route",
+                            "route",
+                            new { controller = "Common", action = "Route" });
+
             //lets encrypt
             endpointRouteBuilder.MapControllerRoute("well-known",
                             ".well-known/pki-validation/{fileName}",
