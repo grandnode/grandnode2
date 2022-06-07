@@ -194,8 +194,8 @@ namespace Grand.Business.Customers.Services
             customer.LastLoginDateUtc = DateTime.UtcNow;
             await _customerService.UpdateCustomerLastLoginDate(customer);
 
-            // Remove code used to login so the link can't be used twice. We do this by setting the expiry timestamp to 0
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.EmailLoginTokenExpiry, 0);
+            // Remove code used to login so the link can't be used twice.
+            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.EmailLoginToken, "");
 
             return CustomerLoginResults.Successful;
         }
