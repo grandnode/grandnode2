@@ -21,11 +21,10 @@ namespace Grand.Web.Commands.Handler.Customers
 
         public async Task<bool> Handle(EmailCodeSendCommand request, CancellationToken cancellationToken)
         {
-            const int MINUTES_TO_EXPIRE = 10; // This could be moved to a config area so the admin can change it.
     
             // Generate GUID & Timestamp
             request.Customer.LoginCode = (Guid.NewGuid()).ToString(); // Store in model so we can pass it down to the message send process.
-            long loginCodeExpiry = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds() + (MINUTES_TO_EXPIRE * 60);
+            long loginCodeExpiry = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds() + (request.MinutesToExpire * 60);
 
 
             // Encrypt loginCode

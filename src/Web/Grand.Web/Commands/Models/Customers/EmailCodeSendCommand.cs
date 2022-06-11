@@ -16,6 +16,8 @@ namespace Grand.Web.Commands.Models.Customers
         public Store Store { get; set; }
         public Language Language { get; set; }
 
+        public int MinutesToExpire { get; set; }
+
         public HashedPasswordFormat HashedPasswordFormat { get; set; } = HashedPasswordFormat.SHA1;
         public EncryptionService EncryptionService { get; set; } = new EncryptionService();
     }

@@ -11194,6 +11194,12 @@
   <Resource Name="Admin.Settings.Customer.TwoFactorAuthenticationType">
     <Value>Two factor authentication type</Value>
   </Resource>
+  <Resource Name="Admin.Settings.Customer.LoginWithEmailCodeEnabled">
+    <Value>Login with email enabled</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.Customer.LoginCodeMinutesToExpire">
+    <Value>Minutes to expire for email login</Value>
+  </Resource>
   <Resource Name="Admin.Settings.Customer.UnduplicatedPasswordsNumber">
     <Value>Unduplicated passwords number</Value>
   </Resource>

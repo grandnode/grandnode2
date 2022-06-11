@@ -88,6 +88,7 @@ namespace Grand.Web.Controllers
         {
             var model = new LoginModel();
             model.UsernamesEnabled = _customerSettings.UsernamesEnabled;
+            model.LoginWithEmailCodeEnabled = _customerSettings.LoginWithEmailCodeEnabled;
             model.CheckoutAsGuest = checkoutAsGuest.GetValueOrDefault();
             model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage;
             return View(model);
@@ -277,12 +278,14 @@ namespace Grand.Web.Controllers
         [PublicStore(true)]
         public virtual async Task<IActionResult> LoginWithEmailCode(string? userId, string? loginCode)
         {
+            if (!_customerSettings.LoginWithEmailCodeEnabled) return RedirectToAction("Login");
+
             // Prepare model as it's used later in the method
             var model = new LoginWithEmailCodeModel() { DisplayCaptcha = _captchaSettings.Enabled };
 
             if (userId == null || loginCode == null) return View(model); // if no parameters - present login page
 
-           // otherwise, it's a login attempt...
+            // otherwise, it's a login attempt...
 
             var loginResult = await _customerManagerService.LoginCustomerWithEmailCode(userId, loginCode);
             var customer = await _customerService.GetCustomerById(userId);
@@ -321,6 +324,8 @@ namespace Grand.Web.Controllers
         [PublicStore(true)]
         public virtual async Task<IActionResult> LoginWithEmailCode(LoginWithEmailCodeModel model, bool captchaValid)
         {
+            if (!_customerSettings.LoginWithEmailCodeEnabled) return RedirectToAction("Login");
+
             //validate CAPTCHA
             if (_captchaSettings.Enabled && !captchaValid)
             {
@@ -332,7 +337,7 @@ namespace Grand.Web.Controllers
                 var customer = await _customerService.GetCustomerByEmail(model.Email);
                 if (customer != null && customer.Active && !customer.Deleted)
                 {
-                    await _mediator.Send(new EmailCodeSendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model, HashedPasswordFormat = _customerSettings.HashedPasswordFormat });
+                    await _mediator.Send(new EmailCodeSendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model, HashedPasswordFormat = _customerSettings.HashedPasswordFormat, MinutesToExpire = _customerSettings.LoginCodeMinutesToExpire });
 
                     model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailHasBeenSent");
                     model.Send = true;
@@ -341,7 +346,7 @@ namespace Grand.Web.Controllers
                 {
                     model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailNotFound");
                 }
-
+                
                 return View(model);
             }
 

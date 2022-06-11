@@ -195,6 +195,16 @@ namespace Grand.Domain.Customers
         public TwoFactorAuthenticationType TwoFactorAuthenticationType { get; set; }
 
         /// <summary>
+        /// Defines whether the login with e-mail code functionality is enabled or disabled.
+        /// </summary>
+        public bool LoginWithEmailCodeEnabled { get; set; }
+
+        /// <summary>
+        /// If the login with e-mail code is enable, how many minutes should the e-mail link stay active for before expiry.
+        /// </summary>
+        public int LoginCodeMinutesToExpire { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether geo-location is enabled
         /// </summary>
         public bool GeoEnabled { get; set; }
