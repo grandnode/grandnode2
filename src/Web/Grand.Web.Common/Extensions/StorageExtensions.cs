@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Grand.Business.Core.Extensions
+namespace Grand.Web.Common.Extensions
 {
     /// <summary>
-    /// Extensions
+    /// Storage extensions
     /// </summary>
     public static class Extensions
     {
