@@ -14,10 +14,14 @@
     var logoExists = logoPicture != null;
     var limitbyVendor = !string.IsNullOrEmpty(Model.Item2);
 }
-<style>
-    html {
-        font-size: 18px;
-    }
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body>
+    <style>
+   
 
     .column {
         display: flex;
@@ -27,9 +31,7 @@
     }
 
     .col-container {
-        display: table;
-        width: 100%;
-        margin-top: 15px;
+       
     }
 
         .col-container .column {
@@ -47,8 +49,7 @@
     }
 
     .addresses .billing {
-        width: 50%;
-        float: left;
+        
     }
 
     .addresses .shipping {
@@ -90,11 +91,6 @@
 </style>
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title></title>
-</head>
-<body>
     @{ var i = 0; }
     @foreach (var order in Model.Item1)
     {
@@ -104,7 +100,7 @@
         {
             <div>@_pdfSettings.InvoiceHeaderText</div>
         }
-        <div class="col-container">
+        <div style=" display: table;margin-top: 15px;">
             <div class="left column"><h2>@store.CompanyName</h2></div>
             <div class="right column"><img src="@(logoExists ? await _pictureService.GetPictureUrl(logoPicture, 0, false, store.Url) : "" )" /></div>
         </div>
@@ -112,9 +108,9 @@
         <div class="addresses">
             @if (order.BillingAddress != null)
             {
-                <div class="billing column">
+                <div style="width: 100px;float: left;">
                     <h3>@(_translationService.GetResource("PDFInvoice.BillingInformation", order.CustomerLanguageId))</h3>
-                    <ul>
+                    <ul style="list-style: none;">
                         @if (!string.IsNullOrEmpty(order.BillingAddress.Company))
                         {
                             <li>@(string.Format(_translationService.GetResource("PDFInvoice.Company", order.CustomerLanguageId), order.BillingAddress.Company))</li>
@@ -128,15 +124,15 @@
                             var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(order.PaymentMethodSystemName);
                             string paymentMethodStr = paymentMethod != null ? paymentMethod.FriendlyName : order.PaymentMethodSystemName;
                         }
-                        <li>@(string.Format(_translationService.GetResource("PDFInvoice.PaymentMethod", order.CustomerLanguageId), paymentMethodStr))</li>
+                        <li style="list-style: none">@(string.Format(_translationService.GetResource("PDFInvoice.PaymentMethod", order.CustomerLanguageId), paymentMethodStr))</li>
                     </ul>
                 </div>
             }
             @if (order.ShippingAddress != null)
             {
-                <div class="shipping column">
+                <div style="width: 100px; float: left;">
                     <h3>@(_translationService.GetResource("PDFInvoice.ShippingInformation", order.CustomerLanguageId))</h3>
-                    <ul>
+                    <ul style="list-style: none">
                         @if (!string.IsNullOrEmpty(order.ShippingAddress.Company))
                         {
                             <li>@(string.Format(_translationService.GetResource("PDFInvoice.Company", order.CustomerLanguageId), order.ShippingAddress.Company))</li>
@@ -153,7 +149,7 @@
         </div>
 
         <div style="display:block; clear:both;"></div>
-        <div class="summary">
+        <div style="margin-top: 20px;">
             <h3>@(_translationService.GetResource("PDFInvoice.Product(s)", order.CustomerLanguageId))</h3>
         </div>
         <table class="orderItems">

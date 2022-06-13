@@ -5,7 +5,7 @@ using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.SharedKernel.Extensions;
-//using HtmlRendererCore.PdfSharp;
+using HtmlRendererCore.PdfSharp;
 
 namespace Grand.Business.Common.Services.Pdf
 {
@@ -16,7 +16,6 @@ namespace Grand.Business.Common.Services.Pdf
     {
         private const string _orderTemaplate = "~/Views/PdfTemplates/OrderPdfTemplate.cshtml";
         private const string _shipmentsTemaplate = "~/Views/PdfTemplates/ShipmentPdfTemplate.cshtml";
-        private const string _paginationFooter = "assets/pdf/pagination.html";
 
         private readonly IViewRenderService _viewRenderService;
         private readonly ILanguageService _languageService;
@@ -32,6 +31,16 @@ namespace Grand.Business.Common.Services.Pdf
             _storeFilesContext = storeFilesContext;
         }
 
+        protected PdfGenerateConfig PdfConfig()
+        {
+            var config = new PdfGenerateConfig {
+                PageSize = PdfSharpCore.PageSize.A4
+            };
+            config.SetMargins(20);
+            config.PageOrientation = PdfSharpCore.PageOrientation.Portrait;
+            return config;
+        }
+
         public async Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string languageId = "", string vendorId = "")
         {
             if (stream == null)
@@ -41,8 +50,8 @@ namespace Grand.Business.Common.Services.Pdf
                 throw new ArgumentNullException(nameof(orders));
 
             var html = await _viewRenderService.RenderToStringAsync<(IList<Order>, string)>(_orderTemaplate, new(orders, vendorId));
-            //var pdf = PdfGenerator.GeneratePdf(html, PdfSharpCore.PageSize.A4);
-            //pdf.Save(stream);
+            var pdf = PdfGenerator.GeneratePdf(html, PdfConfig());
+            pdf.Save(stream);
         }
 
         public async Task<string> PrintOrderToPdf(Order order, string languageId, string vendorId = "")
@@ -83,8 +92,8 @@ namespace Grand.Business.Common.Services.Pdf
                 throw new ArgumentException(string.Format("Cannot load language. ID={0}", languageId));
 
             var html = await _viewRenderService.RenderToStringAsync<IList<Shipment>>(_shipmentsTemaplate, shipments);
-            //var pdf = PdfGenerator.GeneratePdf(html, PdfSharpCore.PageSize.A4);
-            //pdf.Save(stream);
+            var pdf = PdfGenerator.GeneratePdf(html, PdfConfig());
+            pdf.Save(stream);
         }
 
         public async Task<string> SaveOrderToBinary(Order order, string languageId, string vendorId = "")

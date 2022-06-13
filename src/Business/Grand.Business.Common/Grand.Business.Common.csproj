@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\Build\Grand.Common.props" />
-  <!--<ItemGroup>
+  <ItemGroup>
     <PackageReference Include="HtmlRendererCore.PdfSharp" Version="1.0.5" />
-  </ItemGroup>-->
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />
     <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />

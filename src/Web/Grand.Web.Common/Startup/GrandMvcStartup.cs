@@ -46,7 +46,7 @@ namespace Grand.Web.Common.Startup
             //add MiniProfiler
             application.UseProfiler();
 
-            //MVC endpoint routing
+            //endpoint routing
             application.UseGrandEndpoints();
 
             //save log application started
