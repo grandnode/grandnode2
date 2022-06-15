@@ -1,4 +1,5 @@
 using FluentValidation;
+using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
@@ -15,6 +16,7 @@ using Grand.Web.Common.Routing;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.TagHelpers;
 using Grand.Web.Common.Themes;
+using Grand.Web.Common.ViewRender;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -141,6 +143,8 @@ namespace Grand.Web.Common.Startup
 
             //request reCAPTCHA service
             serviceCollection.AddHttpClient<GoogleReCaptchaValidator>();
+
+            serviceCollection.AddScoped<IViewRenderService, ViewRenderService>();
         }
 
     }

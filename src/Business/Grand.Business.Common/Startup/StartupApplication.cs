@@ -50,8 +50,7 @@ namespace Grand.Business.Common.Startup
             serviceCollection.AddScoped<IAddressAttributeService, AddressAttributeService>();
             serviceCollection.AddScoped<IUserFieldService, UserFieldService>();
             serviceCollection.AddScoped<IHistoryService, HistoryService>();
-            serviceCollection.AddScoped<IPdfService, WkPdfService>();
-            serviceCollection.AddScoped<IViewRenderService, ViewRenderService>();
+            serviceCollection.AddScoped<IPdfService, HtmlToPdfService>();
 
         }
         private void RegisterDirectoryService(IServiceCollection serviceCollection)

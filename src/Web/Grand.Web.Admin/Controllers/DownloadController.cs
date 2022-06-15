@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Domain.Media;
 using Grand.Web.Admin.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -35,8 +35,7 @@ namespace Grand.Web.Admin.Controllers
             string contentType = !String.IsNullOrWhiteSpace(download.ContentType)
                 ? download.ContentType
                 : "application/octet-stream";
-            return new FileContentResult(download.DownloadBinary, contentType)
-            {
+            return new FileContentResult(download.DownloadBinary, contentType) {
                 FileDownloadName = fileName + download.Extension
             };
         }
@@ -52,8 +51,7 @@ namespace Grand.Web.Admin.Controllers
                 return Json(new { success = false, error = "URL can't be empty" });
             }
             //insert
-            var download = new Download
-            {
+            var download = new Download {
                 DownloadGuid = Guid.NewGuid(),
                 UseDownloadUrl = true,
                 DownloadUrl = downloadUrl,
@@ -98,8 +96,7 @@ namespace Grand.Web.Admin.Controllers
                 fileExtension = fileExtension.ToLowerInvariant();
 
 
-            var download = new Download
-            {
+            var download = new Download {
                 DownloadGuid = Guid.NewGuid(),
                 UseDownloadUrl = false,
                 DownloadUrl = "",

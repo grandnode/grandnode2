@@ -22,6 +22,7 @@ using Grand.Web.Features.Models.ShoppingCart;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Controllers
 {

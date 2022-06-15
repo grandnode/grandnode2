@@ -205,8 +205,6 @@ namespace Grand.Web.Common.Infrastructure
 
             //add view localization
             mvcBuilder.AddViewLocalization();
-            //add razor runtime compilation
-            mvcBuilder.AddRazorRuntimeCompilation();
 
             var securityConfig = new SecurityConfig();
             configuration.GetSection("Security").Bind(securityConfig);

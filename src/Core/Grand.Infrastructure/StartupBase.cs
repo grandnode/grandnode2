@@ -17,7 +17,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Wkhtmltopdf.NetCore;
 
 namespace Grand.Infrastructure
 {
@@ -178,9 +177,6 @@ namespace Grand.Infrastructure
         {
             //add accessor to HttpContext
             services.AddHttpContextAccessor();
-            //add wkhtmltopdf
-            services.AddWkhtmltopdf();
-
             //add AppConfig configuration parameters
             services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
             var performanceConfig = services.StartupConfig<PerformanceConfig>(configuration.GetSection("Performance"));
