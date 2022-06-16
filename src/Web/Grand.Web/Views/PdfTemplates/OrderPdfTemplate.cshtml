@@ -55,13 +55,16 @@
     @foreach (var order in Model.Item1)
     {
         var store = await _storeService.GetStoreById(order.StoreId);
-        var url = logoExists ? await _pictureService.GetPictureUrl(logoPicture, 0, false, store.Url) : "";
         if (!string.IsNullOrEmpty(_pdfSettings.InvoiceHeaderText))
         {
             <div>@_pdfSettings.InvoiceHeaderText</div>
         }
         <h2>@store.CompanyName</h2>
-        <div><img src="@(logoExists ? url:"")" alt="logo" title="logo" /></div>
+        if (logoExists)
+        {
+            var url = await _pictureService.GetPictureUrl(logoPicture, 0, false, store.Url);
+            <div><img src="@url" alt="logo" title="logo" /></div>
+        }
         <h3>@(string.Format(_translationService.GetResource("PDFInvoice.Order#", order.CustomerLanguageId), order.OrderNumber))</h3>
         <table>
             <tr>
