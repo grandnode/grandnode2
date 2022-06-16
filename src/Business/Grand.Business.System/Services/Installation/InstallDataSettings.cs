@@ -305,6 +305,8 @@ namespace Grand.Business.System.Services.Installation
                 AllowUsersToDeleteAccount = false,
                 AllowUsersToExportData = false,
                 TwoFactorAuthenticationEnabled = false,
+                LoginWithEmailCodeEnabled = true,
+                LoginCodeMinutesToExpire = 10
             });
 
             await _settingService.SaveSetting(new AddressSettings {

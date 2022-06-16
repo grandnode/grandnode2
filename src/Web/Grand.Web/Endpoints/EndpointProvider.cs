@@ -113,6 +113,16 @@ namespace Grand.Web.Endpoints
                             pattern + "account/checkusernameavailability",
                             new { controller = "Account", action = "CheckUsernameAvailability" });
 
+            //Login with email code
+            endpointRouteBuilder.MapControllerRoute("LoginWithEmailCode",
+                            pattern + "LoginWithEmailCode",
+                            new { controller = "Account", action = "LoginWithEmailCode" });
+
+            //Login with email code
+            endpointRouteBuilder.MapControllerRoute("LoginWithEmailCodeConfirm",
+                            pattern + "LoginWithEmailCodeConfirm",
+                            new { controller = "Account", action = "SecureLoginWithEmailCode" });
+
             //passwordrecovery
             endpointRouteBuilder.MapControllerRoute("PasswordRecovery",
                             pattern + "passwordrecovery",

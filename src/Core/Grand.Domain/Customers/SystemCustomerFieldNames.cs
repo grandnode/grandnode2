@@ -24,6 +24,9 @@ namespace Grand.Domain.Customers
         public static string DiscountCoupons { get { return "DiscountCoupons"; } }
         public static string GiftVoucherCoupons { get { return "GiftVoucherCoupons"; } }
         public static string UrlReferrer { get { return "UrlReferrer"; } }
+        public static string EmailLoginToken { get { return "EmailLoginToken"; } }
+        public static string EmailLoginTokenExpiry { get { return "EmailLoginTokenExpiry"; } }
+
         public static string PasswordRecoveryToken { get { return "PasswordRecoveryToken"; } }
         public static string PasswordRecoveryTokenDateGenerated { get { return "PasswordRecoveryTokenDateGenerated"; } }
         public static string AccountActivationToken { get { return "AccountActivationToken"; } }

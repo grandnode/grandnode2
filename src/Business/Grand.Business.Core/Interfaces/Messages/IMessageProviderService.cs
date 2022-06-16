@@ -53,6 +53,15 @@ namespace Grand.Business.Core.Interfaces.Messages
         Task<int> SendCustomerPasswordRecoveryMessage(Customer customer, Store store, string languageId);
 
         /// <summary>
+        /// Sends E-mail login code to the customer
+        /// </summary>
+        /// <param name="customer">Customer instance</param>
+        /// <param name="store">Store</param>
+        /// <param name="languageId">Message language identifier</param>
+        /// <returns>Queued email identifier</returns>
+        Task<int> SendCustomerEmailLoginLinkMessage(Customer customer, Store store, string languageId);
+
+        /// <summary>
         /// Sends a new customer note added notification to a customer
         /// </summary>
         /// <param name="customer">Customer instance</param>

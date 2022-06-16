@@ -110,6 +110,11 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             get { return string.Format("{0}/passwordrecovery/confirm?token={1}&email={2}", url, _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordRecoveryToken), WebUtility.UrlEncode(_customer.Email)); }
         }
 
+        public string LoginCodeURL 
+        {
+            get { return string.Format("{0}/LoginWithEmailCode/?userId={1}&loginCode={2}", url, _customer.Id, _customer.LoginCode); }
+        }
+
         public string AccountActivationURL
         {
             get { return string.Format("{0}/account/activation?token={1}&email={2}", url, _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AccountActivationToken), WebUtility.UrlEncode(_customer.Email)); ; }

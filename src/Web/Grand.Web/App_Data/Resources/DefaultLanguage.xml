@@ -516,6 +516,9 @@
   <Resource Name="Account.Login.ForgotPassword">
     <Value>Forgot password?</Value>
   </Resource>
+  <Resource Name="Account.Login.EmailCode">
+    <Value>Login with E-mail Code</Value>
+  </Resource>
   <Resource Name="Account.Login.LoginButton">
     <Value>Log in</Value>
   </Resource>
@@ -536,6 +539,9 @@
   </Resource>
   <Resource Name="Account.Login.WrongCredentials">
     <Value>The credentials provided are incorrect</Value>
+  </Resource>
+  <Resource Name="Account.Login.WrongCredentials.CodeExpired">
+    <Value>The login link provided has expired or has already been used.</Value>
   </Resource>
   <Resource Name="Account.Login.WrongCredentials.CustomerNotExist">
     <Value>No customer account found</Value>
@@ -581,6 +587,24 @@
   </Resource>
   <Resource Name="Account.OutOfStockSubscriptions.ProductColumn">
     <Value>Product</Value>
+  </Resource>
+  <Resource Name="Account.LoginWithEmailCode">
+    <Value>Login With E-mail Code</Value>
+  </Resource>
+  <Resource Name="Account.LoginWithEmailCode.Email">
+    <Value>Your email address</Value>
+  </Resource>
+  <Resource Name="Account.LoginWithEmailCode.SendButton">
+    <Value>Send Email</Value>
+  </Resource>
+  <Resource Name="Account.LoginWithEmailCode.Tooltip">
+    <Value>Please enter your email address below. You will receive a link to login to your account without having to enter your password.</Value>
+  </Resource>
+  <Resource Name="Account.LoginWithEmailCode.EmailHasBeenSent">
+    <Value>Login email has been sent to you.</Value>
+  </Resource>
+  <Resource Name="Account.LoginWithEmailCode.EmailNotFound">
+    <Value>Email not found.</Value>
   </Resource>
   <Resource Name="Account.PasswordRecovery">
     <Value>Password recovery</Value>
@@ -11170,6 +11194,12 @@
   <Resource Name="Admin.Settings.Customer.TwoFactorAuthenticationType">
     <Value>Two factor authentication type</Value>
   </Resource>
+  <Resource Name="Admin.Settings.Customer.LoginWithEmailCodeEnabled">
+    <Value>Login with email enabled</Value>
+  </Resource>
+  <Resource Name="Admin.Settings.Customer.LoginCodeMinutesToExpire">
+    <Value>Minutes to expire for email login</Value>
+  </Resource>
   <Resource Name="Admin.Settings.Customer.UnduplicatedPasswordsNumber">
     <Value>Unduplicated passwords number</Value>
   </Resource>
@@ -16532,6 +16562,9 @@
   </Resource>
   <Resource Name="Title.PasswordRecovery">
     <Value>Password Recovery</Value>
+  </Resource>
+  <Resource Name="Title.LoginWithEmailCode">
+    <Value>Login With E-mail Code</Value>
   </Resource>
   <Resource Name="Title.ProductAskQuestion">
     <Value>Ask question</Value>

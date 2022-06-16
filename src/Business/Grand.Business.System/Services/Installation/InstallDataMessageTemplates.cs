@@ -273,6 +273,14 @@ namespace Grand.Business.System.Services.Installation
                                        },
                                    new MessageTemplate
                                        {
+                                           Name = "Customer.EmailLoginCode",
+                                           Subject = "Login to {{Store.Name}}",
+                                           Body = "<a href=\"{{Store.URL}}\">{{Store.Name}}</a>  <br />\r\n  <br />\r\n  To login to {{Store.Name}} <a href=\"{{Customer.LoginCodeURL}}\">click here</a>.     <br />\r\n  <br />\r\n  {{Store.Name}}",
+                                           IsActive = true,
+                                           EmailAccountId = eaGeneral.Id,
+                                       },
+                                   new MessageTemplate
+                                       {
                                            Name = "Customer.WelcomeMessage",
                                            Subject = "Welcome to {{Store.Name}}",
                                            Body = "We welcome you to <a href=\"{{Store.URL}}\"> {{Store.Name}}</a>.<br />\r\n<br />\r\nYou can now take part in the various services we have to offer you. Some of these services include:<br />\r\n<br />\r\nPermanent Cart - Any products added to your online cart remain there until you remove them, or check them out.<br />\r\nAddress Book - We can now deliver your products to another address other than yours! This is perfect to send birthday gifts direct to the birthday-person themselves.<br />\r\nOrder History - View your history of purchases that you have made with us.<br />\r\nProducts Reviews - Share your opinions on products with our other customers.<br />\r\n<br />\r\nFor help with any of our online services, please email the store-owner: <a href=\"mailto:{{Store.Email}}\">{{Store.Email}}</a>.<br />\r\n<br />\r\nNote: This email address was provided on our registration page. If you own the email and did not register on our site, please send an email to <a href=\"mailto:{{Store.Email}}\">{{Store.Email}}</a>.",

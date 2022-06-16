@@ -79,6 +79,13 @@
                                         <span class="ml-3 forgot-password">
                                             <a asp-route="PasswordRecovery">@Loc["Account.Login.ForgotPassword"]</a>
                                         </span>
+                                        @if (Model.LoginWithEmailCodeEnabled)
+                                        {
+                                            <span class="ml-3 email-code">
+                                                <a asp-route="LoginWithEmailCode">@Loc["Account.Login.EmailCode"]</a>
+                                            </span>
+                                        }
+
                                     </div>
                                     @if (Model.DisplayCaptcha)
                                     {

@@ -88,6 +88,7 @@ namespace Grand.Web.Controllers
         {
             var model = new LoginModel();
             model.UsernamesEnabled = _customerSettings.UsernamesEnabled;
+            model.LoginWithEmailCodeEnabled = _customerSettings.LoginWithEmailCodeEnabled;
             model.CheckoutAsGuest = checkoutAsGuest.GetValueOrDefault();
             model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage;
             return View(model);
@@ -271,10 +272,93 @@ namespace Grand.Web.Controllers
 
         #endregion
 
-        #region Password recovery
+        #region Login With E-mail Code
 
         //available even when navigation is not allowed
         [PublicStore(true)]
+        public virtual async Task<IActionResult> LoginWithEmailCode(string? userId, string? loginCode)
+        {
+            if (!_customerSettings.LoginWithEmailCodeEnabled) return RedirectToAction("Login");
+
+            // Prepare model as it's used later in the method
+            var model = new LoginWithEmailCodeModel() { DisplayCaptcha = _captchaSettings.Enabled };
+
+            if (userId == null || loginCode == null) return View(model); // if no parameters - present login page
+
+            // otherwise, it's a login attempt...
+
+            var loginResult = await _customerManagerService.LoginCustomerWithEmailCode(userId, loginCode);
+            var customer = await _customerService.GetCustomerById(userId);
+
+            switch (loginResult)
+            {
+                case CustomerLoginResults.Successful:
+                    {
+                        //sign in
+                        return await SignInAction(customer, false, "/"); // Send False for 'Remember Me' & send customer to index
+                    }
+                case CustomerLoginResults.RequiresTwoFactor:
+                    {
+                        var userName = _customerSettings.UsernamesEnabled ? customer.Username : customer.Email;
+                        HttpContext.Session.SetString("RequiresTwoFactor", userName);
+                        return RedirectToRoute("TwoFactorAuthorization");
+                    }
+
+                // Removed other case statements as they are highly unlikely to occur unless the user has been edited the url directly.
+                case CustomerLoginResults.LockedOut:
+                        model.Result = _translationService.GetResource("Account.Login.WrongCredentials.LockedOut");
+                    break;
+                case CustomerLoginResults.WrongPassword: // It's most likely to has expired in this case.
+                default:
+                        model.Result = _translationService.GetResource("Account.Login.WrongCredentials.CodeExpired");
+                    break;
+            }
+
+            //If we got this far, something failed - send to login form.
+            return View(model);
+        }
+
+        [HttpPost]
+        [AutoValidateAntiforgeryToken]
+        [ValidateCaptcha]
+        [PublicStore(true)]
+        public virtual async Task<IActionResult> LoginWithEmailCode(LoginWithEmailCodeModel model, bool captchaValid)
+        {
+            if (!_customerSettings.LoginWithEmailCodeEnabled) return RedirectToAction("Login");
+
+            //validate CAPTCHA
+            if (_captchaSettings.Enabled && !captchaValid)
+            {
+                ModelState.AddModelError("", _captchaSettings.GetWrongCaptchaMessage(_translationService));
+            }
+
+            if (ModelState.IsValid)
+            {
+                var customer = await _customerService.GetCustomerByEmail(model.Email);
+                if (customer != null && customer.Active && !customer.Deleted)
+                {
+                    await _mediator.Send(new EmailCodeSendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model, HashedPasswordFormat = _customerSettings.HashedPasswordFormat, MinutesToExpire = _customerSettings.LoginCodeMinutesToExpire });
+
+                    model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailHasBeenSent");
+                    model.Send = true;
+                }
+                else
+                {
+                    model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailNotFound");
+                }
+                
+                return View(model);
+            }
+
+            return View(model);
+        }
+
+        #endregion
+
+        #region Password recovery
+
+            //available even when navigation is not allowed
+            [PublicStore(true)]
         public virtual IActionResult PasswordRecovery()
         {
             var model = new PasswordRecoveryModel();

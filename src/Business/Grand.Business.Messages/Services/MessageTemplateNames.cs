@@ -7,6 +7,7 @@ namespace Grand.Business.Messages
         public const string CustomerWelcome = "Customer.WelcomeMessage";
         public const string CustomerEmailValidation = "Customer.EmailValidationMessage";
         public const string CustomerPasswordRecovery = "Customer.PasswordRecovery";
+        public const string CustomerEmailLoginCode = "Customer.EmailLoginCode";
         public const string CustomerNewCustomerNote = "Customer.NewCustomerNote";
         public const string CustomerEmailTokenValidationMessage = "Customer.EmailTokenValidationMessage";
 

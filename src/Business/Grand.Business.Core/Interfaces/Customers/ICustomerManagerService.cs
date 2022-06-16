@@ -17,6 +17,14 @@ namespace Grand.Business.Core.Interfaces.Customers
         Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password);
 
         /// <summary>
+        /// Login customer with E-mail Code
+        /// </summary>
+        /// <param name="userId">UserId of the record</param>
+        /// <param name="loginCode">loginCode provided in e-mail</param>
+        /// <returns>Result</returns>
+        Task<CustomerLoginResults> LoginCustomerWithEmailCode(string userId, string loginCode);
+
+        /// <summary>
         /// Register customer
         /// </summary>
         /// <param name="request">Request</param>
