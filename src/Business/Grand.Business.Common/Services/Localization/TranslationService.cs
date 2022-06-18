@@ -6,7 +6,6 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;
-using System.Collections.Concurrent;
 using System.Xml;
 
 namespace Grand.Business.Common.Services.Localization
@@ -185,11 +184,11 @@ namespace Grand.Business.Common.Services.Localization
                 var key = string.Format(CacheKey.TRANSLATERESOURCES_ALL_KEY, languageId);
                 _allTranslateResource = _cacheBase.Get(key, () =>
                 {
-                    return 
+                    return
                         GetAllResources(languageId)
                             .GroupBy(r => r.Name)
                             .ToDictionary(
-                                keySelector: g => g.Key, 
+                                keySelector: g => g.Key,
                                 elementSelector: g => g.First().Value);
                 });
                 _allTranslateResource.TryGetValue(name, out result);
@@ -281,7 +280,7 @@ namespace Grand.Business.Common.Services.Localization
                 {
                     resource.Name = resource.Name.ToLowerInvariant();
                     resource.Value = value;
-                    if(Enum.TryParse<TranslationResourceArea>(area, out var areaEnum))
+                    if (Enum.TryParse<TranslationResourceArea>(area, out var areaEnum))
                         resource.Area = areaEnum;
                     await _translationRepository.UpdateAsync(resource);
                 }
