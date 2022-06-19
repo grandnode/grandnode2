@@ -262,7 +262,7 @@ namespace Grand.Business.Common.Services.Localization
             foreach (XmlNode node in nodes)
             {
                 string name = node.Attributes["Name"].InnerText.Trim();
-                string area = node.Attributes["Area"].InnerText.Trim();
+                string area = node.Attributes["Area"]?.InnerText.Trim();
                 string value = "";
                 var valueNode = node.SelectSingleNode("Value");
                 if (valueNode != null)
@@ -325,7 +325,7 @@ namespace Grand.Business.Common.Services.Localization
             foreach (XmlNode node in nodes)
             {
                 string name = node.Attributes["Name"].InnerText.Trim();
-                string area = node.Attributes["Area"].InnerText.Trim();
+                string area = node.Attributes["Area"]?.InnerText.Trim();
                 string value = "";
                 var valueNode = node.SelectSingleNode("Value");
                 if (valueNode != null)
