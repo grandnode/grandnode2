@@ -14084,8 +14084,7 @@
 	<Resource Name="Enums.Grand.Domain.Permissions.PasswordFormat.Hashed" Area="Common">
 		<Value>Hashed</Value>
 	</Resource>
-	<Resource Name="Enums.Grand.Domain.Permissions.UserRegistrationType.AdminApproval">
-		Area="Common"
+	<Resource Name="Enums.Grand.Domain.Permissions.UserRegistrationType.AdminApproval" Area="Common">
 		<Value>A customer should be approved by administrator</Value>
 	</Resource>
 	<Resource Name="Enums.Grand.Domain.Permissions.UserRegistrationType.Disabled" Area="Common">
@@ -15171,163 +15170,163 @@
 	<Resource Name="PDFProductCatalog.Weight" Area="Front">
 		<Value>Weight: {0}</Value>
 	</Resource>
-	<Resource Name="Permission.AccessAdminPanel">
+	<Resource Name="Permission.AccessAdminPanel" Area="Admin">
 		<Value>Access admin area</Value>
 	</Resource>
-	<Resource Name="Permission.AccessWebService" Area="Front">
+	<Resource Name="Permission.AccessWebService" Area="Admin">
 		<Value>Plugins. Access Web Service</Value>
 	</Resource>
-	<Resource Name="Permission.AllowCustomerImpersonation" Area="Front">
+	<Resource Name="Permission.AllowCustomerImpersonation" Area="Admin">
 		<Value>Admin area. Allow Customer Impersonation</Value>
 	</Resource>
-	<Resource Name="Permission.DisplayPrices" Area="Front">
+	<Resource Name="Permission.DisplayPrices" Area="Admin">
 		<Value>Public store. Display Prices</Value>
 	</Resource>
-	<Resource Name="Permission.EnableShoppingCart" Area="Front">
+	<Resource Name="Permission.EnableShoppingCart" Area="Admin">
 		<Value>Public store. Enable shopping cart</Value>
 	</Resource>
-	<Resource Name="Permission.EnableWishlist" Area="Front">
+	<Resource Name="Permission.EnableWishlist" Area="Admin">
 		<Value>Public store. Enable wishlist</Value>
 	</Resource>
-	<Resource Name="Permission.HtmlEditor.ManagePictures" Area="Front">
+	<Resource Name="Permission.HtmlEditor.ManagePictures" Area="Admin">
 		<Value>Admin area. HTML Editor. Manage pictures</Value>
 	</Resource>
-	<Resource Name="Permission.ManageACL" Area="Front">
+	<Resource Name="Permission.ManageACL" Area="Admin">
 		<Value>Admin area. Manage ACL</Value>
 	</Resource>
-	<Resource Name="Permission.ManageActivityLog" Area="Front">
+	<Resource Name="Permission.ManageActivityLog" Area="Admin">
 		<Value>Admin area. Manage Activity Log</Value>
 	</Resource>
-	<Resource Name="Permission.ManageAffiliates" Area="Front">
+	<Resource Name="Permission.ManageAffiliates" Area="Admin">
 		<Value>Admin area. Manage Affiliates</Value>
 	</Resource>
-	<Resource Name="Permission.ManageAttributes" Area="Front">
+	<Resource Name="Permission.ManageAttributes" Area="Admin">
 		<Value>Admin area. Manage Attributes</Value>
 	</Resource>
-	<Resource Name="Permission.ManageBlog" Area="Front">
+	<Resource Name="Permission.ManageBlog" Area="Admin">
 		<Value>Admin area. Manage Blog</Value>
 	</Resource>
-	<Resource Name="Permission.ManageBrands" Area="Front">
+	<Resource Name="Permission.ManageBrands" Area="Admin">
 		<Value>Admin area. Manage Brands</Value>
 	</Resource>
-	<Resource Name="Permission.ManageCampaigns" Area="Front">
+	<Resource Name="Permission.ManageCampaigns" Area="Admin">
 		<Value>Admin area. Manage Campaigns</Value>
 	</Resource>
-	<Resource Name="Permission.ManageCategories" Area="Front">
+	<Resource Name="Permission.ManageCategories" Area="Admin">
 		<Value>Admin area. Manage Categories</Value>
 	</Resource>
-	<Resource Name="Permission.ManageCollections" Area="Front">
+	<Resource Name="Permission.ManageCollections" Area="Admin">
 		<Value>Admin area. Manage Collections</Value>
 	</Resource>
-	<Resource Name="Permission.ManageCountries" Area="Front">
+	<Resource Name="Permission.ManageCountries" Area="Admin">
 		<Value>Admin area. Manage Countries</Value>
 	</Resource>
-	<Resource Name="Permission.ManageCurrencies" Area="Front">
+	<Resource Name="Permission.ManageCurrencies" Area="Admin">
 		<Value>Admin area. Manage Currencies</Value>
 	</Resource>
-	<Resource Name="Permission.ManageCurrentCarts" Area="Front">
+	<Resource Name="Permission.ManageCurrentCarts" Area="Admin">
 		<Value>Admin area. Manage Current Carts</Value>
 	</Resource>
-	<Resource Name="Permission.ManageCustomerGroups" Area="Front">
+	<Resource Name="Permission.ManageCustomerGroups" Area="Admin">
 		<Value>Admin area. Manage Customer groups</Value>
 	</Resource>
-	<Resource Name="Permission.ManageCustomers" Area="Front">
+	<Resource Name="Permission.ManageCustomers" Area="Admin">
 		<Value>Admin area. Manage Customers</Value>
 	</Resource>
-	<Resource Name="Permission.ManageDiscounts" Area="Front">
+	<Resource Name="Permission.ManageDiscounts" Area="Admin">
 		<Value>Admin area. Manage Discounts</Value>
 	</Resource>
-	<Resource Name="Permission.ManageEmailAccounts" Area="Front">
+	<Resource Name="Permission.ManageEmailAccounts" Area="Admin">
 		<Value>Admin area. Manage Email Accounts</Value>
 	</Resource>
-	<Resource Name="Permission.ManageExternalAuthenticationMethods" Area="Front">
+	<Resource Name="Permission.ManageExternalAuthenticationMethods" Area="Admin">
 		<Value>Admin area. Manage External Authentication Methods</Value>
 	</Resource>
-	<Resource Name="Permission.ManageGiftVouchers" Area="Front">
+	<Resource Name="Permission.ManageGiftVouchers" Area="Admin">
 		<Value>Admin area. Manage Gift vouchers</Value>
 	</Resource>
-	<Resource Name="Permission.ManageLanguages" Area="Front">
+	<Resource Name="Permission.ManageLanguages" Area="Admin">
 		<Value>Admin area. Manage Languages</Value>
 	</Resource>
-	<Resource Name="Permission.ManageMaintenance" Area="Front">
+	<Resource Name="Permission.ManageMaintenance" Area="Admin">
 		<Value>Admin area. Manage Maintenance</Value>
 	</Resource>
-	<Resource Name="Permission.ManageMeasures" Area="Front">
+	<Resource Name="Permission.ManageMeasures" Area="Admin">
 		<Value>Admin area. Manage Measures</Value>
 	</Resource>
-	<Resource Name="Permission.ManageMerchandiseReturns" Area="Front">
+	<Resource Name="Permission.ManageMerchandiseReturns" Area="Admin">
 		<Value>Admin area. Manage Merchandise Returns</Value>
 	</Resource>
-	<Resource Name="Permission.ManageMessageContactForm" Area="Front">
+	<Resource Name="Permission.ManageMessageContactForm" Area="Admin">
 		<Value>Admin area. Manage Message Contact Form</Value>
 	</Resource>
-	<Resource Name="Permission.ManageMessageQueue" Area="Front">
+	<Resource Name="Permission.ManageMessageQueue" Area="Admin">
 		<Value>Admin area. Manage Message Queue</Value>
 	</Resource>
-	<Resource Name="Permission.ManageMessageTemplates" Area="Front">
+	<Resource Name="Permission.ManageMessageTemplates" Area="Admin">
 		<Value>Admin area. Manage Message Templates</Value>
 	</Resource>
-	<Resource Name="Permission.ManageNews" Area="Front">
+	<Resource Name="Permission.ManageNews" Area="Admin">
 		<Value>Admin area. Manage News</Value>
 	</Resource>
-	<Resource Name="Permission.ManageNewsletterSubscribers" Area="Front">
+	<Resource Name="Permission.ManageNewsletterSubscribers" Area="Admin">
 		<Value>Admin area. Manage Newsletter Subscribers</Value>
 	</Resource>
-	<Resource Name="Permission.ManageOrders" Area="Front">
+	<Resource Name="Permission.ManageOrders" Area="Admin">
 		<Value>Admin area. Manage Orders</Value>
 	</Resource>
-	<Resource Name="Permission.ManageOrderTags" Area="Front">
+	<Resource Name="Permission.ManageOrderTags" Area="Admin">
 		<Value>Admin area. Manage Order Tags</Value>
 	</Resource>
-	<Resource Name="Permission.ManagePages" Area="Front">
+	<Resource Name="Permission.ManagePages" Area="Admin">
 		<Value>Admin area. Manage Pages</Value>
 	</Resource>
-	<Resource Name="Permission.ManagePaymentMethods" Area="Front">
+	<Resource Name="Permission.ManagePaymentMethods" Area="Admin">
 		<Value>Admin area. Manage Payment Methods</Value>
 	</Resource>
-	<Resource Name="Permission.ManagePlugins" Area="Front">
+	<Resource Name="Permission.ManagePlugins" Area="Admin">
 		<Value>Admin area. Manage Plugins</Value>
 	</Resource>
-	<Resource Name="Permission.ManageProductReviews" Area="Front">
+	<Resource Name="Permission.ManageProductReviews" Area="Admin">
 		<Value>Admin area. Manage Product Reviews</Value>
 	</Resource>
-	<Resource Name="Permission.ManageProducts" Area="Front">
+	<Resource Name="Permission.ManageProducts" Area="Admin">
 		<Value>Admin area. Manage Products</Value>
 	</Resource>
-	<Resource Name="Permission.ManageProductTags" Area="Front">
+	<Resource Name="Permission.ManageProductTags" Area="Admin">
 		<Value>Admin area. Manage Product Tags</Value>
 	</Resource>
-	<Resource Name="Permission.ManageReports" Area="Front">
+	<Resource Name="Permission.ManageReports" Area="Admin">
 		<Value>Admin area. Manage Reports</Value>
 	</Resource>
-	<Resource Name="Permission.ManageScheduleTasks" Area="Front">
+	<Resource Name="Permission.ManageScheduleTasks" Area="Admin">
 		<Value>Admin area. Manage Schedule Tasks</Value>
 	</Resource>
-	<Resource Name="Permission.ManageSettings" Area="Front">
+	<Resource Name="Permission.ManageSettings" Area="Admin">
 		<Value>Admin area. Manage Settings</Value>
 	</Resource>
-	<Resource Name="Permission.ManageShippingSettings" Area="Front">
+	<Resource Name="Permission.ManageShippingSettings" Area="Admin">
 		<Value>Admin area. Manage Shipping Settings</Value>
 	</Resource>
-	<Resource Name="Permission.ManageStores" Area="Front">
+	<Resource Name="Permission.ManageStores" Area="Admin">
 		<Value>Admin area. Manage Stores</Value>
 	</Resource>
-	<Resource Name="Permission.ManageSystemLog" Area="Front">
+	<Resource Name="Permission.ManageSystemLog" Area="Admin">
 		<Value>Admin area. Manage System Log</Value>
 	</Resource>
-	<Resource Name="Permission.ManageTaxSettings" Area="Front">
+	<Resource Name="Permission.ManageTaxSettings" Area="Admin">
 		<Value>Admin area. Manage Tax Settings</Value>
 	</Resource>
-	<Resource Name="Permission.ManageVendors" Area="Front">
+	<Resource Name="Permission.ManageVendors" Area="Admin">
 		<Value>Admin area. Manage Vendors</Value>
 	</Resource>
-	<Resource Name="Permission.ManageWidgets" Area="Front">
+	<Resource Name="Permission.ManageWidgets" Area="Admin">
 		<Value>Admin area. Manage Widgets</Value>
 	</Resource>
-	<Resource Name="Permission.PublicStoreAllowNavigation" Area="Front">
+	<Resource Name="Permission.PublicStoreAllowNavigation" Area="Admin">
 		<Value>Public store. Allow navigation</Value>
 	</Resource>
-	<Resource Name="PopupInteractiveForm.EmailForm" Area="Front">
+	<Resource Name="PopupInteractiveForm.EmailForm" Area="Admin">
 		<Value>Message from form {0}</Value>
 	</Resource>
 	<Resource Name="PopupInteractiveForm.Fields.IsRequired" Area="Front">
