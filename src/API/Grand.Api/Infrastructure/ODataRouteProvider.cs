@@ -25,7 +25,7 @@ namespace Grand.Api.Infrastructure
                 //OData
                 var serviceProvider = routeBuilder.ServiceProvider;
                 IEdmModel model = GetEdmModel(serviceProvider, apiConfig);
-                routeBuilder.Count().Filter().OrderBy().MaxTop(Configurations.MaxLimit);
+                routeBuilder.Count().Filter().Expand().OrderBy().MaxTop(Configurations.MaxLimit);
                 routeBuilder.MapODataRoute(Configurations.ODataRouteName, Configurations.ODataRoutePrefix, model);
                 routeBuilder.EnableDependencyInjection();
             }
@@ -35,6 +35,7 @@ namespace Grand.Api.Infrastructure
         {
             var builder = new ODataConventionModelBuilder(serviceProvider);
             builder.Namespace = Configurations.ODataModelBuilderNamespace;
+            builder.EnableLowerCamelCase();
             RegisterDependencies(builder, apiConfig);
             return builder.GetEdmModel();
         }

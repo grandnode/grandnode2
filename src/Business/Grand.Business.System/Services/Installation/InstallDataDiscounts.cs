@@ -22,7 +22,7 @@ namespace Grand.Business.System.Services.Installation
                                             DiscountAmount = 10,
                                             RequiresCouponCode = true,
                                             IsEnabled = true,
-                                            CurrencyCode = "USD"
+                                            CurrencyCode = "EUR"
                                         },
                                     new Discount
                                         {
@@ -35,7 +35,7 @@ namespace Grand.Business.System.Services.Installation
                                             EndDateUtc = new DateTime(2030,1,1),
                                             RequiresCouponCode = true,
                                             IsEnabled = true,
-                                            CurrencyCode = "USD"
+                                            CurrencyCode = "EUR"
                                         },
                                 };
             await _discountRepository.InsertAsync(discounts);

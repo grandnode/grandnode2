@@ -951,147 +951,147 @@ namespace Grand.Business.System.Utilities
                             ActionName = "List",
                             IconClass = "fa fa-dot-circle-o"
                         },
-                        new AdminSiteMap {
-                            SystemName = "Local plugins",
-                            ResourceName = "Admin.Plugins.Local",
-                            PermissionNames = new List<string> { PermissionSystemName.Plugins },
-                            ControllerName = "Plugin",
-                            ActionName = "List",
-                            IconClass = "fa fa-dot-circle-o"
-                        }
+                        //new AdminSiteMap {
+                        //    SystemName = "Local plugins",
+                        //    ResourceName = "Admin.Plugins.Local",
+                        //    PermissionNames = new List<string> { PermissionSystemName.Plugins },
+                        //    ControllerName = "Plugin",
+                        //    ActionName = "List",
+                        //    IconClass = "fa fa-dot-circle-o"
+                        //}
                     }
                 },
-                new AdminSiteMap {
-                    SystemName = "System",
-                    ResourceName = "Admin.System",
-                    PermissionNames = new List<string> { PermissionSystemName.SystemLog, PermissionSystemName.MessageQueue, PermissionSystemName.MessageContactForm,
-                        PermissionSystemName.Maintenance, PermissionSystemName.ScheduleTasks },
-                    IconClass = "icon-info",
-                    ChildNodes = new List<AdminSiteMap>() {
-                        new AdminSiteMap {
-                            SystemName = "Log",
-                            ResourceName = "Admin.System.Log",
-                            PermissionNames = new List<string> { PermissionSystemName.SystemLog },
-                            ControllerName = "Logger",
-                            ActionName = "List",
-                            IconClass = "fa fa-dot-circle-o"
-                        },
-                        new AdminSiteMap {
-                            SystemName = "System information",
-                            ResourceName = "Admin.System.SystemInfo",
-                            PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                            ControllerName = "Common",
-                            ActionName = "SystemInfo",
-                            IconClass = "fa fa-dot-circle-o"
-                        },
-                        new AdminSiteMap {
-                            SystemName = "Queued emails",
-                            ResourceName = "Admin.System.QueuedEmails",
-                            PermissionNames = new List<string> { PermissionSystemName.MessageQueue },
-                            ControllerName = "QueuedEmail",
-                            ActionName = "List",
-                            IconClass = "fa fa-dot-circle-o"
-                        },
-                        new AdminSiteMap {
-                            SystemName = "Contact Us form",
-                            ResourceName = "Admin.System.ContactForm",
-                            PermissionNames = new List<string> { PermissionSystemName.MessageContactForm },
-                            ControllerName = "ContactForm",
-                            ActionName = "List",
-                            IconClass = "fa fa-dot-circle-o"
-                        },
-                        new AdminSiteMap {
-                            SystemName = "Maintenance",
-                            ResourceName = "Admin.System.Maintenance",
-                            PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                            ControllerName = "Common",
-                            ActionName = "Maintenance",
-                            IconClass = "fa fa-dot-circle-o"
-                        },
-                        new AdminSiteMap {
-                            SystemName = "Schedule tasks",
-                            ResourceName = "Admin.System.ScheduleTasks",
-                            PermissionNames = new List<string> { PermissionSystemName.ScheduleTasks },
-                            ControllerName = "ScheduleTask",
-                            ActionName = "List",
-                            IconClass = "fa fa-dot-circle-o"
-                        },
-                        new AdminSiteMap {
-                            SystemName = "Developer tools",
-                            ResourceName = "Admin.System.DeveloperTools",
-                            PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                            IconClass = "fa fa-dot-circle-o",
-                            ChildNodes = new List<AdminSiteMap>() {
-                                new AdminSiteMap {
-                                    SystemName = "Manage API Users",
-                                    ResourceName = "Admin.System.APIUsers",
-                                    PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                                    ControllerName = "ApiUser",
-                                    ActionName = "Index",
-                                    IconClass = "fa fa-dot-circle-o"
-                                },
-                                new AdminSiteMap {
-                                    SystemName = "Roslyn compiler",
-                                    ResourceName = "Admin.System.Roslyn",
-                                    PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                                    ControllerName = "Common",
-                                    ActionName = "Roslyn",
-                                    IconClass = "fa fa-dot-circle-o"
-                                },
-                                new AdminSiteMap {
-                                    SystemName = "Custom css",
-                                    ResourceName = "Admin.System.CustomCss",
-                                    PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                                    ControllerName = "Common",
-                                    ActionName = "CustomCss",
-                                    IconClass = "fa fa-dot-circle-o"
-                                },
-                                new AdminSiteMap {
-                                    SystemName = "Custom JS",
-                                    ResourceName = "Admin.System.CustomJs",
-                                    PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                                    ControllerName = "Common",
-                                    ActionName = "CustomJs",
-                                    IconClass = "fa fa-dot-circle-o"
-                                },
-                                new AdminSiteMap {
-                                    SystemName = "Robot.txt",
-                                    ResourceName = "Admin.System.AdditionsRobotsTxt",
-                                    PermissionNames = new List<string> { PermissionSystemName.Maintenance },
-                                    ControllerName = "Common",
-                                    ActionName = "AdditionsRobotsTxt",
-                                    IconClass = "fa fa-dot-circle-o"
-                                }
-                            }
-                        }
-                    }
-                },
-                new AdminSiteMap {
-                    SystemName = "Help",
-                    ResourceName = "Admin.Help",
-                    IconClass = "icon-question",
-                    ChildNodes = new List<AdminSiteMap>() {
-                        new AdminSiteMap {
-                            SystemName = "Community forums",
-                            ResourceName = "Admin.Help.Forums",
-                            Url = "https://grandnode.com/boards?utm_source=web&utm_medium=admin&utm_term=web&utm_campaign=Community",
-                            IconClass = "fa fa-dot-circle-o",
-                            OpenUrlInNewTab = true
-                        },
-                        new AdminSiteMap {
-                            SystemName = "Premium support services",
-                            ResourceName = "Admin.Help.SupportServices",
-                            Url = "https://grandnode.com/premium-support-packages?utm_source=web&utm_medium=admin&utm_term=web&utm_campaign=Support",
-                            IconClass = "fa fa-dot-circle-o",
-                            OpenUrlInNewTab = true
-                        }
-                    }
-                },
-                new AdminSiteMap {
-                    SystemName = "Third party plugins",
-                    ResourceName = "Admin.Plugins"
-                }
+/*				new AdminSiteMap {
+					SystemName = "System",
+					ResourceName = "Admin.System",
+					PermissionNames = new List<string> { PermissionSystemName.SystemLog, PermissionSystemName.MessageQueue, PermissionSystemName.MessageContactForm,
+						PermissionSystemName.Maintenance, PermissionSystemName.ScheduleTasks },
+					IconClass = "icon-info",
+					ChildNodes = new List<AdminSiteMap>() {
+						new AdminSiteMap {
+							SystemName = "Log",
+							ResourceName = "Admin.System.Log",
+							PermissionNames = new List<string> { PermissionSystemName.SystemLog },
+							ControllerName = "Logger",
+							ActionName = "List",
+							IconClass = "fa fa-dot-circle-o"
+						},
+						new AdminSiteMap {
+							SystemName = "System information",
+							ResourceName = "Admin.System.SystemInfo",
+							PermissionNames = new List<string> { PermissionSystemName.Maintenance },
+							ControllerName = "Common",
+							ActionName = "SystemInfo",
+							IconClass = "fa fa-dot-circle-o"
+						},
+						new AdminSiteMap {
+							SystemName = "Queued emails",
+							ResourceName = "Admin.System.QueuedEmails",
+							PermissionNames = new List<string> { PermissionSystemName.MessageQueue },
+							ControllerName = "QueuedEmail",
+							ActionName = "List",
+							IconClass = "fa fa-dot-circle-o"
+						},
+						new AdminSiteMap {
+							SystemName = "Contact Us form",
+							ResourceName = "Admin.System.ContactForm",
+							PermissionNames = new List<string> { PermissionSystemName.MessageContactForm },
+							ControllerName = "ContactForm",
+							ActionName = "List",
+							IconClass = "fa fa-dot-circle-o"
+						},
+						new AdminSiteMap {
+							SystemName = "Maintenance",
+							ResourceName = "Admin.System.Maintenance",
+							PermissionNames = new List<string> { PermissionSystemName.Maintenance },
+							ControllerName = "Common",
+							ActionName = "Maintenance",
+							IconClass = "fa fa-dot-circle-o"
+						},
+						new AdminSiteMap {
+							SystemName = "Schedule tasks",
+							ResourceName = "Admin.System.ScheduleTasks",
+							PermissionNames = new List<string> { PermissionSystemName.ScheduleTasks },
+							ControllerName = "ScheduleTask",
+							ActionName = "List",
+							IconClass = "fa fa-dot-circle-o"
+						},
+						new AdminSiteMap {
+							SystemName = "Developer tools",
+							ResourceName = "Admin.System.DeveloperTools",
+							PermissionNames = new List<string> { PermissionSystemName.Maintenance },
+							IconClass = "fa fa-dot-circle-o",
+							ChildNodes = new List<AdminSiteMap>() {
+								new AdminSiteMap {
+									SystemName = "Manage API Users",
+									ResourceName = "Admin.System.APIUsers",
+									PermissionNames = new List<string> { PermissionSystemName.Maintenance },
+									ControllerName = "ApiUser",
+									ActionName = "Index",
+									IconClass = "fa fa-dot-circle-o"
+								},
+								new AdminSiteMap {
+									SystemName = "Roslyn compiler",
+									ResourceName = "Admin.System.Roslyn",
+									PermissionNames = new List<string> { PermissionSystemName.Maintenance },
+									ControllerName = "Common",
+									ActionName = "Roslyn",
+									IconClass = "fa fa-dot-circle-o"
+								},
+								new AdminSiteMap {
+									SystemName = "Custom css",
+									ResourceName = "Admin.System.CustomCss",
+									PermissionNames = new List<string> { PermissionSystemName.Maintenance },
+									ControllerName = "Common",
+									ActionName = "CustomCss",
+									IconClass = "fa fa-dot-circle-o"
+								},
+								new AdminSiteMap {
+									SystemName = "Custom JS",
+									ResourceName = "Admin.System.CustomJs",
+									PermissionNames = new List<string> { PermissionSystemName.Maintenance },
+									ControllerName = "Common",
+									ActionName = "CustomJs",
+									IconClass = "fa fa-dot-circle-o"
+								},
+								new AdminSiteMap {
+									SystemName = "Robot.txt",
+									ResourceName = "Admin.System.AdditionsRobotsTxt",
+									PermissionNames = new List<string> { PermissionSystemName.Maintenance },
+									ControllerName = "Common",
+									ActionName = "AdditionsRobotsTxt",
+									IconClass = "fa fa-dot-circle-o"
+								}
+							}
+						}
+					}
+				},*/
+/*				new AdminSiteMap {
+					SystemName = "Help",
+					ResourceName = "Admin.Help",
+					IconClass = "icon-question",
+					ChildNodes = new List<AdminSiteMap>() {
+						new AdminSiteMap {
+							SystemName = "Community forums",
+							ResourceName = "Admin.Help.Forums",
+							Url = "https://grandnode.com/boards?utm_source=web&utm_medium=admin&utm_term=web&utm_campaign=Community",
+							IconClass = "fa fa-dot-circle-o",
+							OpenUrlInNewTab = true
+						},
+						new AdminSiteMap {
+							SystemName = "Premium support services",
+							ResourceName = "Admin.Help.SupportServices",
+							Url = "https://grandnode.com/premium-support-packages?utm_source=web&utm_medium=admin&utm_term=web&utm_campaign=Support",
+							IconClass = "fa fa-dot-circle-o",
+							OpenUrlInNewTab = true
+						}
+					}
+				},*/
+		/*		new AdminSiteMap {
+					SystemName = "Third party plugins",
+					ResourceName = "Admin.Plugins"
+				}*/
 
-            };
+			};
     };
 }

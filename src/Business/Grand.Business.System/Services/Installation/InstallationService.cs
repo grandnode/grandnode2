@@ -712,17 +712,22 @@ namespace Grand.Business.System.Services.Installation
             await InstallMerchandiseReturnReasons();
             await InstallMerchandiseReturnActions();
             await InstallOrderStatus();
+			if (true)
+			{
+                await InstallCheckoutAttributes();
+                await InstallDiscounts();
+            }
             if (installSampleData)
             {
-                await InstallCheckoutAttributes();
                 await InstallSpecificationAttributes();
                 await InstallProductAttributes();
                 await InstallCategories();
                 await InstallBrands();
                 await InstallProducts(defaultUserEmail);
-                await InstallDiscounts();
+
                 await InstallBlogPosts();
                 await InstallNews();
+
                 await InstallWarehouses();
                 await InstallPickupPoints();
                 await InstallVendors();

@@ -21,30 +21,28 @@
         <form asp-action="Index" asp-controller="Install" id="installation-form" method="post" autocomplete="off">
             <div class="row flex-row">
                 <div class="col-xl-5 col-lg-6 col-md-12 logo-container">
-                    <img class="img-fluid" title="" alt="grandNode" src="~/logo.png" />
+                    <img class="img-fluid" title="" alt="Logo" src="~/logo.png" />
                 </div>
                 <div class="col-xl-7 col-lg-6 col-md-12">
                     <div class="row">
-                        <div class="col-md">
-                            <h1 class="generalTitle">@LocalizedService.GetResource("Title")</h1>
-                        </div>
-                        <div class="col-md-3 col-5 pt-3">
+						<div class="col-md">
+							@*<h1 class="generalTitle">@LocalizedService.GetResource("Title")</h1>*@
+							<h1 class="generalTitle">INSTALLATION</h1>
+						</div>
+                        @*<div class="col-md-3 col-5 pt-3">
                             @Html.DropDownList("language", Model.AvailableLanguages, new { @class = "custom-select", onchange = "window.location.href = this.value;" })
-                        </div>
+                        </div>*@
                     </div>
                 </div>
             </div>
-            <div class="content">
+            @*<div class="content">
                 <p>
                     @LocalizedService.GetResource("Tooltip2")
                     <div style="color: Red;">
                         @Html.ValidationSummary(false)
                     </div>
                 </p>
-            </div>
-            <div class="card">
-                <a href="https://bit.ly/3cD1drT" target="_blank"><img class="img-fluid" title="" alt="GrandNode Support Services" src="~/banner.jpg" /></a>
-            </div>
+            </div>*@
             <div class="card">
                 <h3 class="card-header">
                     @LocalizedService.GetResource("CompanyInformation")
@@ -185,9 +183,9 @@
                 </div>
             </section>
             <div class="row">
-                <div class="col-12">
+                @*<div class="col-12">
                     @LocalizedService.GetResource("Documentation1") <a href="https://docs.grandnode.com/" target="_blank">@LocalizedService.GetResource("Documentation2")</a>.
-                </div>
+                </div>*@
                 <div class="col-6 text-left">
                     <input class="btn btn-success" type="button" id="installation" name="installation" value="@LocalizedService.GetResource("Install")" style="width: 100px;" />
                 </div>
@@ -218,7 +216,7 @@
             <div class="col-12">
                 <div class="row">
                     <div class="col-12 text-center">
-                        <img class="img-fluid" title="" alt="grandNode" src="~/logo.png" />
+                        <img class="img-fluid" title="" alt="logo" src="~/logo.png" />
                     </div>
                     <div class="col-12">
                         <div class="row">

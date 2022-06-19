@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Api.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("odata/[controller]")]
     [ApiExplorerSettings(IgnoreApi = false)]
-    [AuthorizeApiAdmin]
+    //[AuthorizeApiAdmin]
     public abstract partial class BaseODataController : ODataController
     {
         public override ForbidResult Forbid()

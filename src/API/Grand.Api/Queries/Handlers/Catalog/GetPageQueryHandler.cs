@@ -8,17 +8,19 @@ using System.Threading.Tasks;
 
 namespace Grand.Api.Queries.Handlers.Common
 {
-	public class GetCategoryQueryHandler : IRequestHandler<GetQuery<CategoryDto>, IQueryable<CategoryDto>>
+	public class GetPageQueryHandler : IRequestHandler<GetQuery<PageDto>, IQueryable<PageDto>>
     {
         private readonly IDatabaseContext _dbContext;
 
-        public GetCategoryQueryHandler(IDatabaseContext dbContext)
+        public GetPageQueryHandler(IDatabaseContext dbContext)
         {
             _dbContext = dbContext;
         }
-        public async Task<IQueryable<CategoryDto>> Handle(GetQuery<CategoryDto> request, CancellationToken cancellationToken)
+
+
+        public async Task<IQueryable<PageDto>> Handle(GetQuery<PageDto> request, CancellationToken cancellationToken)
         {
-            var query = _dbContext.Table<CategoryDto>(typeof(Domain.Catalog.Category).Name);
+            var query = _dbContext.Table<PageDto>(typeof(Domain.Pages.Page).Name);
 
             if (string.IsNullOrEmpty(request.Id))
                 return query;

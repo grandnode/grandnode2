@@ -322,11 +322,11 @@ namespace Grand.Business.System.Services.Installation
                 AllowCustomerToSelectTheme = false,
                 DisplayCookieInformation = false,
                 LogoPicture = "logo.png",
-                FacebookLink = "https://www.facebook.com/grandnodecom",
-                TwitterLink = "https://twitter.com/grandnode",
-                YoutubeLink = "http://www.youtube.com/user/grandnode",
-                InstagramLink = "https://www.instagram.com/grandnode/",
-                LinkedInLink = "https://www.linkedin.com/company/grandnode.com/",
+                FacebookLink = "https://www.facebook.com",
+                TwitterLink = "https://twitter.com",
+                YoutubeLink = "http://www.youtube.com",
+                InstagramLink = "https://www.instagram.com",
+                LinkedInLink = "",
                 PinterestLink = "",
             });
 
@@ -343,15 +343,15 @@ namespace Grand.Business.System.Services.Installation
             });
 
             await _settingService.SaveSetting(new CurrencySettings {
-                PrimaryStoreCurrencyId = _currencyRepository.Table.Single(c => c.CurrencyCode == "USD").Id,
-                PrimaryExchangeRateCurrencyId = _currencyRepository.Table.Single(c => c.CurrencyCode == "USD").Id,
+                PrimaryStoreCurrencyId = _currencyRepository.Table.Single(c => c.CurrencyCode == "EUR").Id,
+                PrimaryExchangeRateCurrencyId = _currencyRepository.Table.Single(c => c.CurrencyCode == "EUR").Id,
                 ActiveExchangeRateProviderSystemName = "CurrencyExchange.MoneyConverter",
                 AutoUpdateEnabled = false
             });
 
             await _settingService.SaveSetting(new MeasureSettings {
                 BaseDimensionId = _measureDimensionRepository.Table.Single(m => m.SystemKeyword == "centimetres").Id,
-                BaseWeightId = _measureWeightRepository.Table.Single(m => m.SystemKeyword == "lb").Id,
+                BaseWeightId = _measureWeightRepository.Table.Single(m => m.SystemKeyword == "kg").Id,
             });
 
             await _settingService.SaveSetting(new ShoppingCartSettings {

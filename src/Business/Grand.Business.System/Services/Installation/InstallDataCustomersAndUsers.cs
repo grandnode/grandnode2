@@ -79,21 +79,21 @@ namespace Grand.Business.System.Services.Installation
                 LastActivityDateUtc = DateTime.UtcNow,
                 PasswordChangeDateUtc = DateTime.UtcNow,
             };
-            var country = _countryRepository.Table.FirstOrDefault(c => c.ThreeLetterIsoCode == "USA");
+            var country = _countryRepository.Table.FirstOrDefault(c => c.ThreeLetterIsoCode == "NLD");
             var defaultAdminUserAddress = new Address
             {
                 FirstName = "John",
-                LastName = "Smith",
+                LastName = "Doe",
                 PhoneNumber = "12345678",
                 Email = "admin@yourstore.com",
                 FaxNumber = "",
-                Company = "GrandNode LTD",
-                Address1 = "21 West 52nd Street",
+                Company = "Decor wonen",
+                Address1 = "Ridderhaven 1-54 2984 BV Ridderkerk",
                 Address2 = "",
-                City = "New York",
-                StateProvinceId = country?.StateProvinces.FirstOrDefault(sp => sp.Name == "New York")?.Id,
+                City = "Rotterdam",
+                //StateProvinceId = country?.StateProvinces.FirstOrDefault(sp => sp.Name == "New York")?.Id,
                 CountryId = country?.Id,
-                ZipPostalCode = "10021",
+                ZipPostalCode = "3029",
                 CreatedOnUtc = DateTime.UtcNow,
             };
             adminUser.Addresses.Add(defaultAdminUserAddress);
@@ -102,7 +102,7 @@ namespace Grand.Business.System.Services.Installation
             adminUser.Groups.Add(crAdministrators.Id);
             adminUser.Groups.Add(crRegistered.Id);
             adminUser.UserFields.Add(new UserField() { Key = SystemCustomerFieldNames.FirstName, Value = "John", StoreId = "" });
-            adminUser.UserFields.Add(new UserField() { Key = SystemCustomerFieldNames.LastName, Value = "Smith", StoreId = "" });
+            adminUser.UserFields.Add(new UserField() { Key = SystemCustomerFieldNames.LastName, Value = "Doe", StoreId = "" });
             await _customerRepository.InsertAsync(adminUser);
 
             //Anonymous user
