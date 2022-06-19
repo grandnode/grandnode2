@@ -262,7 +262,7 @@ namespace Grand.Business.Core.Extensions
         /// <param name="languageCulture">Language culture code. If null or empty, then a resource will be added for all languages</param>
         public static async Task AddOrUpdatePluginTranslateResource(this BasePlugin plugin,
             ITranslationService translationService, ILanguageService languageService,
-            string name, string value, TranslationResourceArea area = TranslationResourceArea.None, string languageCulture = null)
+            string name, string value, TranslationResourceArea area = TranslationResourceArea.Common, string languageCulture = null)
         {
             //actually plugin instance is not required
             if (plugin == null)
