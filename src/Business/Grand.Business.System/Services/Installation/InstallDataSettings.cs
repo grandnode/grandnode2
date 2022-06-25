@@ -305,7 +305,7 @@ namespace Grand.Business.System.Services.Installation
                 AllowUsersToDeleteAccount = false,
                 AllowUsersToExportData = false,
                 TwoFactorAuthenticationEnabled = false,
-                LoginWithEmailCodeEnabled = true,
+                LoginWithMagicLinkEnabled = true,
                 LoginCodeMinutesToExpire = 10
             });
 

@@ -22,7 +22,7 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// <param name="userId">UserId of the record</param>
         /// <param name="loginCode">loginCode provided in e-mail</param>
         /// <returns>Result</returns>
-        Task<CustomerLoginResults> LoginCustomerWithEmailCode(string userId, string loginCode);
+        Task<CustomerLoginResults> LoginCustomerWithMagicLink(string userId, string loginCode);
 
         /// <summary>
         /// Register customer

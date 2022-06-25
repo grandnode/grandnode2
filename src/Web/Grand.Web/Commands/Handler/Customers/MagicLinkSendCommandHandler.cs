@@ -6,12 +6,12 @@ using MediatR;
 
 namespace Grand.Web.Commands.Handler.Customers
 {
-    public class EmailCodeSendCommandHandler : IRequestHandler<EmailCodeSendCommand, bool>
+    public class MagicLinkSendCommandHandler : IRequestHandler<MagicLinkSendCommand, bool>
     {
         private readonly IUserFieldService _userFieldService;
         private readonly IMessageProviderService _messageProviderService;
 
-        public EmailCodeSendCommandHandler(
+        public MagicLinkSendCommandHandler(
             IUserFieldService userFieldService,
             IMessageProviderService messageProviderService)
         {
@@ -19,7 +19,7 @@ namespace Grand.Web.Commands.Handler.Customers
             _messageProviderService = messageProviderService;
         }
 
-        public async Task<bool> Handle(EmailCodeSendCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(MagicLinkSendCommand request, CancellationToken cancellationToken)
         {
     
             // Generate GUID & Timestamp

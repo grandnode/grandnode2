@@ -17,12 +17,12 @@
     }
 
     $(document).ready(function () {
-        $("#@Html.IdFor(model => model.CustomerSettings.LoginWithEmailCodeEnabled)").click(toggleLoginCodeMinutesToExpire);
+        $("#@Html.IdFor(model => model.CustomerSettings.LoginWithMagicLinkEnabled)").click(toggleLoginCodeMinutesToExpire);
         toggleLoginCodeMinutesToExpire();
     });
 
     function toggleLoginCodeMinutesToExpire() {
-        if ($('#@Html.IdFor(model => model.CustomerSettings.LoginWithEmailCodeEnabled)').is(':checked')) {
+        if ($('#@Html.IdFor(model => model.CustomerSettings.LoginWithMagicLinkEnabled)').is(':checked')) {
             $('#minutestoexpire').show();
         }
         else {
@@ -158,14 +158,14 @@
 
         <div class="form-group">
             <div class="col-8 col-md-4 col-sm-4 text-right">
-                <admin-label asp-for="CustomerSettings.LoginWithEmailCodeEnabled" class="control-label" />
+                <admin-label asp-for="CustomerSettings.LoginWithMagicLinkEnabled" class="control-label" />
             </div>
             <div class="col-4 col-md-8 col-sm-8">
                 <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                        <admin-input asp-for="CustomerSettings.LoginWithEmailCodeEnabled" />
+                        <admin-input asp-for="CustomerSettings.LoginWithMagicLinkEnabled" />
                         <div class="control__indicator"></div>
                     </label>
-                    <span asp-validation-for="CustomerSettings.LoginWithEmailCodeEnabled"></span>
+                    <span asp-validation-for="CustomerSettings.LoginWithMagicLinkEnabled"></span>
             </div>
         </div>
         

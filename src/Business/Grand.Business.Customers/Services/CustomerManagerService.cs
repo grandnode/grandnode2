@@ -145,7 +145,7 @@ namespace Grand.Business.Customers.Services
         /// <param name="userId">UserId of the record</param>
         /// <param name="loginCode">loginCode provided in e-mail</param>
         /// <returns>Result</returns>
-        public virtual async Task<CustomerLoginResults> LoginCustomerWithEmailCode(string userId, string loginCode)
+        public virtual async Task<CustomerLoginResults> LoginCustomerWithMagicLink(string userId, string loginCode)
         {
             var customer = await _customerService.GetCustomerById(userId);
 

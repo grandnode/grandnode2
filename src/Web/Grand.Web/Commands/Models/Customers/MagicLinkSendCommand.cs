@@ -8,9 +8,9 @@ using MediatR;
 
 namespace Grand.Web.Commands.Models.Customers
 {
-    public class EmailCodeSendCommand : IRequest<bool>
+    public class MagicLinkSendCommand : IRequest<bool>
     {
-        public LoginWithEmailCodeModel Model { get; set; }
+        public LoginWithMagicLinkModel Model { get; set; }
 
         public Customer Customer { get; set; }
         public Store Store { get; set; }

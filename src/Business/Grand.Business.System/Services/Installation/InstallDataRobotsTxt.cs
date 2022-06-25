@@ -42,7 +42,7 @@ Disallow: /newsletter/subscriptionactivation
 Disallow: /order/*
 Disallow: /orderdetails
 Disallow: /passwordrecovery/confirm
-Disallow: /LoginWithEmailCode
+Disallow: /LoginWithMagicLink
 Disallow: /popupinteractiveform
 Disallow: /register/*
 Disallow: /merchandisereturn

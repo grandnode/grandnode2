@@ -112,7 +112,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 
         public string LoginCodeURL 
         {
-            get { return string.Format("{0}/LoginWithEmailCode/?userId={1}&loginCode={2}", url, _customer.Id, _customer.LoginCode); }
+            get { return string.Format("{0}/LoginWithMagicLink/?userId={1}&loginCode={2}", url, _customer.Id, _customer.LoginCode); }
         }
 
         public string AccountActivationURL

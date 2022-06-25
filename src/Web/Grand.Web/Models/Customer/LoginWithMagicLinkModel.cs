@@ -4,10 +4,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Customer
 {
-    public partial class LoginWithEmailCodeModel : BaseModel
+    public partial class LoginWithMagicLinkModel : BaseModel
     {
         [DataType(DataType.EmailAddress)]
-        [GrandResourceDisplayName("Account.LoginWithEmailCode.Email")]
+        [GrandResourceDisplayName("Account.LoginWithMagicLink.Email")]
         public string Email { get; set; }
         public string Result { get; set; }
         public bool Send { get; set; }

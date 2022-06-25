@@ -170,8 +170,8 @@ namespace Grand.Web.Admin.Models.Settings
             [GrandResourceDisplayName("Admin.Settings.Customer.TwoFactorAuthenticationEnabled")]
             public bool TwoFactorAuthenticationEnabled { get; set; }
 
-            [GrandResourceDisplayName("Admin.Settings.Customer.LoginWithEmailCodeEnabled")]
-            public bool LoginWithEmailCodeEnabled { get; set; }
+            [GrandResourceDisplayName("Admin.Settings.Customer.LoginWithMagicLinkEnabled")]
+            public bool LoginWithMagicLinkEnabled { get; set; }
 
             [GrandResourceDisplayName("Admin.Settings.Customer.LoginCodeMinutesToExpire")]
             public int LoginCodeMinutesToExpire { get; set; }

@@ -25,7 +25,7 @@ namespace Grand.Web.Models.Customer
 
         public bool DisplayCaptcha { get; set; }
 
-        public bool LoginWithEmailCodeEnabled { get; set; }
+        public bool LoginWithMagicLinkEnabled { get; set; }
 
     }
 }

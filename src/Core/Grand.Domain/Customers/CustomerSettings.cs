@@ -197,7 +197,7 @@ namespace Grand.Domain.Customers
         /// <summary>
         /// Defines whether the login with e-mail code functionality is enabled or disabled.
         /// </summary>
-        public bool LoginWithEmailCodeEnabled { get; set; }
+        public bool LoginWithMagicLinkEnabled { get; set; }
 
         /// <summary>
         /// If the login with e-mail code is enable, how many minutes should the e-mail link stay active for before expiry.

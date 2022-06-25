@@ -88,7 +88,7 @@ namespace Grand.Web.Controllers
         {
             var model = new LoginModel();
             model.UsernamesEnabled = _customerSettings.UsernamesEnabled;
-            model.LoginWithEmailCodeEnabled = _customerSettings.LoginWithEmailCodeEnabled;
+            model.LoginWithMagicLinkEnabled = _customerSettings.LoginWithMagicLinkEnabled;
             model.CheckoutAsGuest = checkoutAsGuest.GetValueOrDefault();
             model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage;
             return View(model);
@@ -276,18 +276,18 @@ namespace Grand.Web.Controllers
 
         //available even when navigation is not allowed
         [PublicStore(true)]
-        public virtual async Task<IActionResult> LoginWithEmailCode(string? userId, string? loginCode)
+        public virtual async Task<IActionResult> LoginWithMagicLink(string? userId, string? loginCode)
         {
-            if (!_customerSettings.LoginWithEmailCodeEnabled) return RedirectToAction("Login");
+            if (!_customerSettings.LoginWithMagicLinkEnabled) return RedirectToAction("Login");
 
             // Prepare model as it's used later in the method
-            var model = new LoginWithEmailCodeModel() { DisplayCaptcha = _captchaSettings.Enabled };
+            var model = new LoginWithMagicLinkModel() { DisplayCaptcha = _captchaSettings.Enabled };
 
             if (userId == null || loginCode == null) return View(model); // if no parameters - present login page
 
             // otherwise, it's a login attempt...
 
-            var loginResult = await _customerManagerService.LoginCustomerWithEmailCode(userId, loginCode);
+            var loginResult = await _customerManagerService.LoginCustomerWithMagicLink(userId, loginCode);
             var customer = await _customerService.GetCustomerById(userId);
 
             switch (loginResult)
@@ -322,9 +322,9 @@ namespace Grand.Web.Controllers
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
         [PublicStore(true)]
-        public virtual async Task<IActionResult> LoginWithEmailCode(LoginWithEmailCodeModel model, bool captchaValid)
+        public virtual async Task<IActionResult> LoginWithMagicLink(LoginWithMagicLinkModel model, bool captchaValid)
         {
-            if (!_customerSettings.LoginWithEmailCodeEnabled) return RedirectToAction("Login");
+            if (!_customerSettings.LoginWithMagicLinkEnabled) return RedirectToAction("Login");
 
             //validate CAPTCHA
             if (_captchaSettings.Enabled && !captchaValid)
@@ -337,14 +337,14 @@ namespace Grand.Web.Controllers
                 var customer = await _customerService.GetCustomerByEmail(model.Email);
                 if (customer != null && customer.Active && !customer.Deleted)
                 {
-                    await _mediator.Send(new EmailCodeSendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model, HashedPasswordFormat = _customerSettings.HashedPasswordFormat, MinutesToExpire = _customerSettings.LoginCodeMinutesToExpire });
+                    await _mediator.Send(new MagicLinkSendCommand() { Customer = customer, Store = _workContext.CurrentStore, Language = _workContext.WorkingLanguage, Model = model, HashedPasswordFormat = _customerSettings.HashedPasswordFormat, MinutesToExpire = _customerSettings.LoginCodeMinutesToExpire });
 
-                    model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailHasBeenSent");
+                    model.Result = _translationService.GetResource("Account.LoginWithMagicLink.EmailHasBeenSent");
                     model.Send = true;
                 }
                 else
                 {
-                    model.Result = _translationService.GetResource("Account.LoginWithEmailCode.EmailNotFound");
+                    model.Result = _translationService.GetResource("Account.LoginWithMagicLink.EmailNotFound");
                 }
                 
                 return View(model);

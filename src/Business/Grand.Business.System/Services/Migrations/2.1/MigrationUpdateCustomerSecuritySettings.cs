@@ -31,7 +31,7 @@ namespace Grand.Business.System.Services.Migrations._2._1
             {
 
                 repository.SaveSetting(new CustomerSettings {
-                    LoginWithEmailCodeEnabled = false,
+                    LoginWithMagicLinkEnabled = false,
                     LoginCodeMinutesToExpire = 10
                 });
             }

@@ -516,8 +516,8 @@
   <Resource Name="Account.Login.ForgotPassword">
     <Value>Forgot password?</Value>
   </Resource>
-  <Resource Name="Account.Login.EmailCode">
-    <Value>Login with E-mail Code</Value>
+  <Resource Name="Account.Login.MagicLink">
+    <Value>Login with Magic Link</Value>
   </Resource>
   <Resource Name="Account.Login.LoginButton">
     <Value>Log in</Value>
@@ -588,22 +588,22 @@
   <Resource Name="Account.OutOfStockSubscriptions.ProductColumn">
     <Value>Product</Value>
   </Resource>
-  <Resource Name="Account.LoginWithEmailCode">
-    <Value>Login With E-mail Code</Value>
+  <Resource Name="Account.LoginWithMagicLink">
+    <Value>Login With Magic Link</Value>
   </Resource>
-  <Resource Name="Account.LoginWithEmailCode.Email">
+  <Resource Name="Account.LoginWithMagicLink.Email">
     <Value>Your email address</Value>
   </Resource>
-  <Resource Name="Account.LoginWithEmailCode.SendButton">
+  <Resource Name="Account.LoginWithMagicLink.SendButton">
     <Value>Send Email</Value>
   </Resource>
-  <Resource Name="Account.LoginWithEmailCode.Tooltip">
+  <Resource Name="Account.LoginWithMagicLink.Tooltip">
     <Value>Please enter your email address below. You will receive a link to login to your account without having to enter your password.</Value>
   </Resource>
-  <Resource Name="Account.LoginWithEmailCode.EmailHasBeenSent">
+  <Resource Name="Account.LoginWithMagicLink.EmailHasBeenSent">
     <Value>Login email has been sent to you.</Value>
   </Resource>
-  <Resource Name="Account.LoginWithEmailCode.EmailNotFound">
+  <Resource Name="Account.LoginWithMagicLink.EmailNotFound">
     <Value>Email not found.</Value>
   </Resource>
   <Resource Name="Account.PasswordRecovery">
@@ -11194,11 +11194,11 @@
   <Resource Name="Admin.Settings.Customer.TwoFactorAuthenticationType">
     <Value>Two factor authentication type</Value>
   </Resource>
-  <Resource Name="Admin.Settings.Customer.LoginWithEmailCodeEnabled">
-    <Value>Login with email enabled</Value>
+  <Resource Name="Admin.Settings.Customer.LoginWithMagicLinkEnabled">
+    <Value>Login with magic link enabled</Value>
   </Resource>
   <Resource Name="Admin.Settings.Customer.LoginCodeMinutesToExpire">
-    <Value>Minutes to expire for email login</Value>
+    <Value>Minutes to expire for magic link</Value>
   </Resource>
   <Resource Name="Admin.Settings.Customer.UnduplicatedPasswordsNumber">
     <Value>Unduplicated passwords number</Value>
@@ -16563,8 +16563,8 @@
   <Resource Name="Title.PasswordRecovery">
     <Value>Password Recovery</Value>
   </Resource>
-  <Resource Name="Title.LoginWithEmailCode">
-    <Value>Login With E-mail Code</Value>
+  <Resource Name="Title.LoginWithMagicLink">
+    <Value>Login With Magic Link</Value>
   </Resource>
   <Resource Name="Title.ProductAskQuestion">
     <Value>Ask question</Value>
