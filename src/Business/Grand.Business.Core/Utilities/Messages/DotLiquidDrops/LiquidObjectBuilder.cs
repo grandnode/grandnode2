@@ -99,11 +99,11 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             return this;
         }
 
-        public LiquidObjectBuilder AddCustomerTokens(Customer customer, Store store, DomainHost host, Language language, CustomerNote customerNote = null)
+        public LiquidObjectBuilder AddCustomerTokens(Customer customer, Store store, DomainHost host, Language language, CustomerNote customerNote = null, string? loginCode = null)
         {
             _chain.Add(async liquidObject =>
             {
-                var liquidCustomer = new LiquidCustomer(customer, store, host, customerNote);
+                var liquidCustomer = new LiquidCustomer(customer, store, host, customerNote, loginCode);
                 liquidObject.Customer = liquidCustomer;
 
                 await _mediator.EntityTokensAdded(customer, liquidCustomer, liquidObject);

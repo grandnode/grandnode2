@@ -23,21 +23,20 @@ namespace Grand.Web.Commands.Handler.Customers
         {
     
             // Generate GUID & Timestamp
-            request.Customer.LoginCode = (Guid.NewGuid()).ToString(); // Store in model so we can pass it down to the message send process.
+            var loginCode = (Guid.NewGuid()).ToString();
             long loginCodeExpiry = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds() + (request.MinutesToExpire * 60);
 
 
             // Encrypt loginCode
             var salt = request.Customer.PasswordSalt;
-            var hashedLoginCode = request.EncryptionService.CreatePasswordHash(request.Customer.LoginCode, salt, request.HashedPasswordFormat);
+            var hashedLoginCode = request.EncryptionService.CreatePasswordHash(loginCode, salt, request.HashedPasswordFormat);
 
             // Save to Db
             await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.EmailLoginToken, hashedLoginCode);
             await _userFieldService.SaveField(request.Customer, SystemCustomerFieldNames.EmailLoginTokenExpiry, loginCodeExpiry);
            
             // Send email
-            await _messageProviderService.SendCustomerEmailLoginLinkMessage(request.Customer, request.Store, request.Language.Id);
-            request.Customer.LoginCode = ""; // Wipe this out! Should be no reference to the unhashed version of this code on the system once we no longer need it.
+            await _messageProviderService.SendCustomerEmailLoginLinkMessage(request.Customer, request.Store, request.Language.Id, loginCode);
 
             return true;
         }

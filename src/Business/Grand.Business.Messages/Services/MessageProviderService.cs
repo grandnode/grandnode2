@@ -141,9 +141,12 @@ namespace Grand.Business.Messages.Services
         /// <param name="templateName">Message template name</param>
         /// <param name="toEmailAccount">Send email to email account</param>
         /// <param name="customerNote">Customer note</param>
+        /// <param name="loginCode">(Optional) Login Code for inclusion within magic link email</param>
         /// <returns>Queued email identifier</returns>
-        protected virtual async Task<int> SendCustomerMessage(Customer customer, Store store, string languageId, string templateName, bool toEmailAccount = false, CustomerNote customerNote = null)
+        protected virtual async Task<int> SendCustomerMessage(Customer customer, Store store, string languageId, string templateName, bool toEmailAccount = false, CustomerNote customerNote = null, string? loginCode = null)
         {
+            // Note: If more attributes outside of the models are sent down the call stack in addition to login code in future, it may be useful to send in a hashmap called "AdditionalTokens"
+
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
 
@@ -158,7 +161,8 @@ namespace Grand.Business.Messages.Services
 
             var builder = new LiquidObjectBuilder(_mediator);
             builder.AddStoreTokens(store, language, emailAccount)
-                   .AddCustomerTokens(customer, store, _storeHelper.DomainHost, language, customerNote);
+                   .AddCustomerTokens(customer, store, _storeHelper.DomainHost, language, customerNote, loginCode);
+            
 
             LiquidObject liquidObject = await builder.BuildAsync();
             //event notification
@@ -225,10 +229,11 @@ namespace Grand.Business.Messages.Services
         /// <param name="customer">Customer</param>
         /// <param name="store">Store</param>
         /// <param name="languageId">Message language identifier</param>
+        /// <param name="loginCode">Login Code for inclusion within the URL</param>
         /// <returns>Queued email identifier</returns>
-        public virtual async Task<int> SendCustomerEmailLoginLinkMessage(Customer customer, Store store, string languageId)
+        public virtual async Task<int> SendCustomerEmailLoginLinkMessage(Customer customer, Store store, string languageId, string loginCode)
         {
-            return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerEmailLoginCode);
+            return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerEmailLoginCode, false, null, loginCode);
         }
 
 

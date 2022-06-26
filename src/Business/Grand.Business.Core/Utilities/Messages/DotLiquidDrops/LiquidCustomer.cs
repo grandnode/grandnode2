@@ -15,7 +15,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
         private readonly Store _store;
         private readonly DomainHost _host;
         private readonly string url;
-        public LiquidCustomer(Customer customer, Store store, DomainHost host, CustomerNote customerNote = null)
+        public LiquidCustomer(Customer customer, Store store, DomainHost host, CustomerNote customerNote = null, string? loginCode = null)
         {
             _customer = customer;
             _customerNote = customerNote;
@@ -23,6 +23,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
             _host = host;
             url = _host?.Url.Trim('/') ?? (_store.SslEnabled ? _store.SecureUrl.Trim('/') : _store.Url.Trim('/'));
             AdditionalTokens = new Dictionary<string, string>();
+            AdditionalTokens.Add("loginCode", loginCode);
         }
 
         public string Email
@@ -112,7 +113,7 @@ namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 
         public string LoginCodeURL 
         {
-            get { return string.Format("{0}/LoginWithMagicLink/?userId={1}&loginCode={2}", url, _customer.Id, _customer.LoginCode); }
+            get { return string.Format("{0}/LoginWithMagicLink/?userId={1}&loginCode={2}", url, _customer.Id, AdditionalTokens["loginCode"]); }
         }
 
         public string AccountActivationURL

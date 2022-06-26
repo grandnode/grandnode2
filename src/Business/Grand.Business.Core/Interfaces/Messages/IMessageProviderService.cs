@@ -59,7 +59,7 @@ namespace Grand.Business.Core.Interfaces.Messages
         /// <param name="store">Store</param>
         /// <param name="languageId">Message language identifier</param>
         /// <returns>Queued email identifier</returns>
-        Task<int> SendCustomerEmailLoginLinkMessage(Customer customer, Store store, string languageId);
+        Task<int> SendCustomerEmailLoginLinkMessage(Customer customer, Store store, string languageId, string loginCode);
 
         /// <summary>
         /// Sends a new customer note added notification to a customer

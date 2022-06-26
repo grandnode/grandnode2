@@ -52,11 +52,6 @@ namespace Grand.Domain.Customers
         public string PasswordSalt { get; set; }
 
         /// <summary>
-        /// Gets or sets the login token
-        /// </summary>
-        public string LoginCode { get; set; }
-
-        /// <summary>
         /// Gets or sets the admin comment
         /// </summary>
         public string AdminComment { get; set; }
