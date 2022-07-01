@@ -14,7 +14,8 @@ namespace Grand.Web.Validators.Install
             RuleFor(x => x.AdminEmail).EmailAddress();
             RuleFor(x => x.AdminPassword).NotEmpty();
             RuleFor(x => x.ConfirmPassword).NotEmpty();
-            RuleFor(x => x.AdminPassword).Equal(x => x.ConfirmPassword);
+            RuleFor(x => x.AdminPassword).Equal(x => x.ConfirmPassword)
+                .WithMessage("Passwords must be equals");
         }
     }
 }
