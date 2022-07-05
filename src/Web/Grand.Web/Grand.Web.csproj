@@ -33,7 +33,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.6" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="App_Data\**" CopyToPublishDirectory="PreserveNewest" Exclude="App_Data\appsettings.json;App_Data\DataProtectionKeys\*.xml;" />
