@@ -5,13 +5,17 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Grand.Infrastructure.Validators
 {
-    public class ValidationFilter : IAsyncActionFilter
+    public class FluentValidationFilter : IAsyncActionFilter
     {
+        #region Fields
+
         private readonly IServiceProvider _serviceProvider;
+        
+        #endregion
 
         #region Ctor
 
-        public ValidationFilter(IServiceProvider serviceProvider)
+        public FluentValidationFilter(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }
@@ -34,7 +38,6 @@ namespace Grand.Infrastructure.Validators
             }
             if (context.ActionArguments.TryGetValue("model", out var model))
             {
-
                 Type genericType = typeof(IValidator<>).MakeGenericType(model.GetType());
                 if (genericType is not null)
                 {
@@ -43,17 +46,11 @@ namespace Grand.Infrastructure.Validators
                     {
                         var contextvalidator = new ValidationContext<object>(model);
                         var result = await validator.ValidateAsync(contextvalidator);
-                        if (!result.IsValid)
-                        {
-                            result.AddToModelState(context.ModelState, "");
-                        }
+                        if (!result.IsValid) result.AddToModelState(context.ModelState, "");
                     }
                 }
             }
-
-
             await next();
-
         }
         #endregion
     }

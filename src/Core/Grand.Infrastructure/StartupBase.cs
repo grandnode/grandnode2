@@ -210,10 +210,10 @@ namespace Grand.Infrastructure
             CommonHelper.IgnoreAcl = performanceConfig.IgnoreAcl;
             CommonHelper.IgnoreStoreLimitations = performanceConfig.IgnoreStoreLimitations;
 
-            services.AddTransient<ValidationFilter>();
+            services.AddTransient<FluentValidationFilter>();
             var mvcCoreBuilder = services.AddMvcCore(options =>
             {
-                options.Filters.AddService<ValidationFilter>();
+                options.Filters.AddService<FluentValidationFilter>();
             });
 
             return mvcCoreBuilder;
