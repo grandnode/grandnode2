@@ -22,7 +22,6 @@ namespace Grand.Web.Common.Controllers
     /// </summary>
     [PasswordExpired]
     [CustomerActivity]
-    [Validation]
     public abstract class BaseController : Controller
     {
 
