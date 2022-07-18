@@ -80,10 +80,13 @@
                         {
                             for (int i = 0; i < Model.AssociatedCustomers.Count; i++)
                             {
-                                @Html.ActionLink(Model.AssociatedCustomers[i].Email, "Edit", "Customer", new { id = Model.AssociatedCustomers[i].Id }, new { })
-                                if (i != Model.AssociatedCustomers.Count - 1)
+                                if (!string.IsNullOrEmpty(Model.AssociatedCustomers[i].Email))
                                 {
-                                    <text>, </text>
+                                    @Html.ActionLink(Model.AssociatedCustomers[i].Email, "Edit", "Customer", new { id = Model.AssociatedCustomers[i].Id }, new { })
+                                    if (i != Model.AssociatedCustomers.Count - 1)
+                                    {
+                                        <text>, </text>
+                                    }
                                 }
                             }
                         }
