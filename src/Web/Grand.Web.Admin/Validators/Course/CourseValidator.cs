@@ -10,12 +10,20 @@ namespace Grand.Web.Admin.Validators.Courses
     {
         public CourseValidator(
             IEnumerable<IValidatorConsumer<CourseModel>> validators,
-            ITranslationService translationService, IProductCourseService productCourseService)
+            ITranslationService translationService,
+            IProductService productService,
+            IProductCourseService productCourseService)
             : base(validators)
         {
             RuleFor(x => x.Name).NotEmpty().WithMessage(translationService.GetResource("Admin.Courses.Course.Fields.Name.Required"));
             RuleFor(x => x.ProductId).MustAsync(async (x, y, context) =>
             {
+                if (!string.IsNullOrEmpty(x.ProductId))
+                {
+                    var product = await productService.GetProductById(x.ProductId);
+                    if (product == null)
+                        return false;
+                }
                 if (!string.IsNullOrEmpty(x.ProductId) && !string.IsNullOrEmpty(x.Id))
                 {
                     var course = await productCourseService.GetCourseByProductId(x.ProductId);
