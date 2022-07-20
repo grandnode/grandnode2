@@ -377,8 +377,10 @@
                                         else
                                         {
                                             <label asp-for="CountryId" class="col-form-label">@Loc["Account.Fields.Country"]:</label>
-                                            <select asp-for="CountryId" class="custom-select form-control" asp-items="Model.AvailableCountries"></select>
-                                            <span asp-validation-for="CountryId"></span>
+                                            <select asp-for="CountryId" class="custom-select form-control" 
+                                             onchange="@Html.IdFor(model => model.CountryId)_select_element(this)"
+                                            asp-items="Model.AvailableCountries"></select>
+                                            
                                         }
                                     </fieldset>
                                 }
@@ -386,18 +388,28 @@
                                 {
                                     <fieldset class="form-group col-12 col-sm-6">
                                         <legend class="sr-only">@Loc["account.fields.stateprovince"]</legend>
-                                        <validation-provider tag="div" rules="required" name="StateProvinceId" v-slot="{ errors, classes }">
+                                        @if(Model.StateProvinceRequired)
+                                        {
+                                            <validation-provider tag="div" rules="required" name="StateProvinceId" v-slot="{ errors, classes }">
+                                                <label asp-for="StateProvinceId" class="col-form-label">@Loc["Account.Fields.StateProvince"]:</label>
+                                                @if (Model.StateProvinceRequired)
+                                                {
+                                                    <span class="required">*</span>
+                                                }
+                                                <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" class="custom-select form-control"
+                                                        onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-model="customer.StateProvinceId"></select>
+                                                <span class="field-validation-error">{{ errors[0] }}</span>
+                                                <span asp-validation-for="StateProvinceId"></span>
+                                                <span id="states-loading-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
+                                            </validation-provider>
+                                        }
+                                        else
+                                        {
                                             <label asp-for="StateProvinceId" class="col-form-label">@Loc["Account.Fields.StateProvince"]:</label>
-                                            @if (Model.StateProvinceRequired)
-                                            {
-                                                <span class="required">*</span>
-                                            }
                                             <select asp-for="StateProvinceId" data-val-required="@Loc["Address.Fields.StateProvince.Required"]" class="custom-select form-control"
-                                                    onchange="@Html.IdFor(model => model.StateProvinceId)_select_element(this)" asp-items="Model.AvailableStates" v-model="customer.StateProvinceId"></select>
-                                            <span class="field-validation-error">{{ errors[0] }}</span>
-                                            <span asp-validation-for="StateProvinceId"></span>
+                                                    asp-items="Model.AvailableStates" v-model="customer.StateProvinceId"></select>
                                             <span id="states-loading-progress" style="display: none;" class="please-wait">@Loc["Common.Wait..."]</span>
-                                        </validation-provider>
+                                        }
                                     </fieldset>
                                 }
                             </div>
