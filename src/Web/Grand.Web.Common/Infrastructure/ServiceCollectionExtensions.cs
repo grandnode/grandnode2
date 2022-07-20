@@ -241,9 +241,8 @@ namespace Grand.Web.Common.Infrastructure
                 var typeSearcher = new AppTypeSearcher();
                 var assemblies = typeSearcher.GetAssemblies();
                 configuration.RegisterValidatorsFromAssemblies(assemblies);
-                configuration.DisableDataAnnotationsValidation = true;
-                //implicit/automatic validation of child properties
-                configuration.ImplicitlyValidateChildProperties = true;
+                configuration.DisableDataAnnotationsValidation = true;                
+                configuration.AutomaticValidationEnabled = false;
             });
 
             //MVC now serializes JSON with camel case names by default, use this code to avoid it

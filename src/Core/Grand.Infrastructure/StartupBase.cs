@@ -7,6 +7,7 @@ using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.Roslyn;
 using Grand.Infrastructure.TypeConverters;
 using Grand.Infrastructure.TypeSearchers;
+using Grand.Infrastructure.Validators;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using MassTransit;
@@ -209,7 +210,11 @@ namespace Grand.Infrastructure
             CommonHelper.IgnoreAcl = performanceConfig.IgnoreAcl;
             CommonHelper.IgnoreStoreLimitations = performanceConfig.IgnoreStoreLimitations;
 
-            var mvcCoreBuilder = services.AddMvcCore();
+            services.AddTransient<FluentValidationFilter>();
+            var mvcCoreBuilder = services.AddMvcCore(options =>
+            {
+                options.Filters.AddService<FluentValidationFilter>();
+            });
 
             return mvcCoreBuilder;
         }

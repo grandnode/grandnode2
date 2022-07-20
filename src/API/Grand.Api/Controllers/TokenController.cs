@@ -29,6 +29,9 @@ namespace Grand.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] LoginModel model)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var claims = new Dictionary<string, string> {
                 { "Email", model.Email }
             };
