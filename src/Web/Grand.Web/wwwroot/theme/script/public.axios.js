@@ -171,15 +171,12 @@ var AxiosCart = {
         }
         if (response.data.sidebarshoppingcartmodel) {
             var newfly = response.data.sidebarshoppingcartmodel;
-            this.flycart = newfly;
-            this.flycartitems = newfly.Items;
-            this.flycartindicator = newfly.TotalProducts;
             vm.flycart = newfly;
             vm.flycartitems = newfly.Items;
             vm.flycartindicator = newfly.TotalProducts;
 
         }
-        if (response.data.updatetopcartsectionhtml !== 'undefiend') {
+        if (response.data.updatetopcartsectionhtml !== 'undefined') {
             vm.flycartindicator = response.data.updatetopcartsectionhtml;
         }
         if (response.data.product) {
