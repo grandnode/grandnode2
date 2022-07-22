@@ -16,6 +16,7 @@
                 window.history.replaceState({ path: stateurl.href }, '', stateurl.href);
             },
             getResponse(url) {
+                document.getElementById("app").setAttribute("v-cloak", true);
                 url = new URL(url);
                 url.searchParams.set('timestamp', new Date().getTime());
                 const options = {
@@ -27,9 +28,11 @@
                 };
                 axios.get(url, options)
                     .then(response => {
+                        document.getElementById("app").removeAttribute("v-cloak");
                         catalog.Model = response.data;
                     })
                     .catch(err => {
+                        document.getElementById("app").removeAttribute("v-cloak");
                         console.log(`${err} whilst contacting the catalog page.`)
                     });
             },
