@@ -33,7 +33,7 @@
             },
             updateCart() {
                 axios({
-                    baseURL: '/Component/Index?Name=OrderSummary',
+                    baseURL: '@Url.RouteUrl("ShoppingCartSummary")',
                     method: 'get',
                     data: null,
                     headers: {

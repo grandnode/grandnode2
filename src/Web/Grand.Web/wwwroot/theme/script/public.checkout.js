@@ -294,11 +294,8 @@ var vmorder = new Vue({
                 },
                 updateOrderSummary: function (displayOrderReviewData) {
                     axios({
-                        baseURL: '/Component/Index?Name=OrderSummary',
-                        method: 'post',
-                        data: {
-                            prepareAndDisplayOrderReviewData: displayOrderReviewData,
-                        },
+                        baseURL: '/cart/summary?prepareAndDisplayOrderReviewData='+displayOrderReviewData,
+                        method: 'get',
                         headers: {
                             'Accept': 'application/json',
                             'Content-Type': 'application/json',
@@ -757,7 +754,7 @@ var vmorder = new Vue({
         },
         updateCart() {
             axios({
-                baseURL: '/Component/Index?Name=OrderSummary',
+                baseURL: '/cart/summary/',
                 method: 'get',
                 data: null,
                 headers: {

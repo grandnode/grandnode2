@@ -283,6 +283,26 @@ namespace Grand.Web.Controllers
             return View(model);
         }
 
+        [DenySystemAccount]
+        public async Task<IActionResult> CartSummary(bool? prepareAndDisplayOrderReviewData)
+        {
+            var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
+
+            var model = await _mediator.Send(new GetShoppingCart() {
+                Cart = cart,
+                IsEditable = false,
+                PrepareAndDisplayOrderReviewData = prepareAndDisplayOrderReviewData.GetValueOrDefault(),
+                Customer = _workContext.CurrentCustomer,
+                Currency = _workContext.WorkingCurrency,
+                Language = _workContext.WorkingLanguage,
+                Store = _workContext.CurrentStore,
+                TaxDisplayType = _workContext.TaxDisplayType
+            });
+
+            return View(model);
+
+        }
+
         [AutoValidateAntiforgeryToken]
         [DenySystemAccount]
         [HttpPost]
