@@ -33,6 +33,9 @@
     </script>
 }
     <div class="form-horizontal">
+        @*Add dummy text and password fields to avoid autofill issue on create customer page*@
+         <input type="text" style="opacity: 0;position: absolute;">
+         <input type="password" style="opacity: 0;position: absolute;">
         <vc:admin-widget widget-zone="customer_details_info_top" additional-data="Model" />
         <div class="form-body">
             @if (Model.UsernamesEnabled)
