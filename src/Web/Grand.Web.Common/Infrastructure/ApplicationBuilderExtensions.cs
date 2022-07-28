@@ -1,5 +1,5 @@
-﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Logging;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Common;
 using Grand.Domain.Data;
 using Grand.Infrastructure;
@@ -251,9 +251,9 @@ namespace Grand.Web.Common.Infrastructure
             if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
-            var appConfig = application.ApplicationServices.GetRequiredService<AppConfig>();
+            var performanceConfig = application.ApplicationServices.GetRequiredService<PerformanceConfig>();
             //whether MiniProfiler should be displayed
-            if (appConfig.DisplayMiniProfilerInPublicStore)
+            if (performanceConfig.DisplayMiniProfilerInPublicStore)
             {
                 application.UseMiniProfiler();
             }

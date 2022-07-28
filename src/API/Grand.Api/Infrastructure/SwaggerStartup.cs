@@ -15,7 +15,7 @@ namespace Grand.Api.Infrastructure
     {
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
-            var apiConfig = application.ApplicationServices.GetService<ApiConfig>();
+            var apiConfig = application.ApplicationServices.GetService<BackendAPIConfig>();
 
             if(apiConfig.Enabled)
                 application.UseODataQueryRequest();
@@ -32,7 +32,7 @@ namespace Grand.Api.Infrastructure
 
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            var apiConfig = services.BuildServiceProvider().GetService<ApiConfig>();
+            var apiConfig = services.BuildServiceProvider().GetService<BackendAPIConfig>();
             if (apiConfig.Enabled && apiConfig.UseSwagger)
             {
                 

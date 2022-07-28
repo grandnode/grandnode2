@@ -41,5 +41,13 @@ namespace Grand.Web.Controllers
 
             return base.View(viewName, model);
         }
+
+        public override RedirectToRouteResult RedirectToRoute(string routeName)
+        {
+            if (IsJsonResponseView())
+                return RedirectToRoute("Route", new { routeName = routeName });
+
+            return base.RedirectToRoute(routeName);
+        }
     }
 }

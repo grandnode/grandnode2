@@ -1,11 +1,11 @@
 ﻿using Grand.Infrastructure;
 using Grand.Domain.Customers;
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Customers;
-using Grand.Business.Common.Extensions;
+using Grand.Business.Core.Extensions;
 
 namespace Grand.Web.Admin.Services
 {

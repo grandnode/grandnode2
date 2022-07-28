@@ -1,4 +1,4 @@
-﻿using Grand.Business.Catalog.Queries.Models;
+﻿using Grand.Business.Core.Queries.Catalog;
 using Grand.Infrastructure;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;

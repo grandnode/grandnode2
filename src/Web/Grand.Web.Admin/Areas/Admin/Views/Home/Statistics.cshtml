@@ -1,12 +1,12 @@
 ﻿@model DashboardModel
-@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
 
 @{
     //page title
     ViewBag.Title = Loc["Admin.Dashboard.Statistics"];
-    var canManageOrders = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageOrders);
-    var canManageCustomers = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageCustomers);
-    var canManageProducts = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageProducts);
+    var canManageOrders = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManageOrders);
+    var canManageCustomers = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManageCustomers);
+    var canManageProducts = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManageProducts);
 }
 
 <div class="page-bar" style="height:43px;">

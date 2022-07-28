@@ -1,4 +1,4 @@
-﻿using Grand.Business.Catalog.Events.Models;
+﻿using Grand.Business.Core.Events.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using MediatR;

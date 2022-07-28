@@ -1,9 +1,9 @@
-﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Marketing.Commands.Models;
-using Grand.Business.Marketing.Interfaces.Contacts;
-using Grand.Business.Marketing.Interfaces.Customers;
-using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Commands.Marketing;
+using Grand.Business.Core.Interfaces.Marketing.Contacts;
+using Grand.Business.Core.Interfaces.Marketing.Customers;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Infrastructure;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
@@ -11,7 +11,7 @@ using Grand.Domain.Messages;
 using Grand.Domain.Orders;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Common.Directory;
 
 namespace Grand.Business.Marketing.Commands.Handlers
 {

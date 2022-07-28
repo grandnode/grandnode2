@@ -14,53 +14,23 @@
     <OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Authentication.Facebook\refs" />
-    <RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Authentication.Facebook\ref" />
-  </Target>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Authentication.Facebook\refs" />
+		<RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Authentication.Facebook\ref" />
+	</Target>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="6.0.1" />
+	<ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="6.0.6" />
   </ItemGroup>
   
   <Target Name="CopyFile" AfterTargets="AfterBuild">
     <ItemGroup>
-      <CopyFiles Include="$(NuGetPackageRoot)\microsoft.aspnetcore.authentication.facebook\6.0.1\lib\net6.0\*.dll" />
+      <CopyFiles Include="$(NuGetPackageRoot)\microsoft.aspnetcore.authentication.facebook\6.0.6\lib\net6.0\*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(CopyFiles)" DestinationFolder="..\..\Web\Grand.Web\Plugins\Authentication.Facebook\" />
   </Target>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\Business\Grand.Business.Authentication\Grand.Business.Authentication.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Catalog\Grand.Business.Catalog.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Checkout\Grand.Business.Checkout.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Cms\Grand.Business.Cms.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Common\Grand.Business.Common.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Customers\Grand.Business.Customers.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Marketing\Grand.Business.Marketing.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Messages\Grand.Business.Messages.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Storage\Grand.Business.Storage.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.System\Grand.Business.System.csproj">
-      <Private>false</Private>
-    </ProjectReference>
     <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj">
       <Private>false</Private>
     </ProjectReference>
@@ -73,6 +43,9 @@
     <ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj">
       <Private>false</Private>
     </ProjectReference>
+	<ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj">
+	   <Private>false</Private>
+	</ProjectReference>
   </ItemGroup>
   
   <ItemGroup>

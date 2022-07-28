@@ -1,12 +1,12 @@
 ﻿using Google.Authenticator;
-using Grand.Business.Authentication.Interfaces;
-using Grand.Business.Authentication.Utilities;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Grand.Business.Core.Utilities.Authentication;
 
 namespace Grand.Business.Authentication.Services
 {

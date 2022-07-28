@@ -1,7 +1,7 @@
-﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.System.Commands.Models.Security;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Commands.System.Security;
 using MediatR;
 
 namespace Grand.Business.System.Commands.Handlers.Security

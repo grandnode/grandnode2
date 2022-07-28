@@ -3,6 +3,7 @@ using Grand.Web.Common.Startup;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
@@ -42,7 +43,7 @@ Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configurat
 Grand.Infrastructure.StartupBase.ConfigureServices(builder.Services, builder.Configuration);
 
 //Allow non ASCII chars in headers
-var config = new HostingConfig();
+var config = new AppConfig();
 builder.Configuration.GetSection("Application").Bind(config);
 if (config.AllowNonAsciiCharInHeaders)
 {
@@ -51,9 +52,26 @@ if (config.AllowNonAsciiCharInHeaders)
         options.ResponseHeaderEncodingSelector = (_) => Encoding.UTF8;
     });
 }
+if (config.MaxRequestBodySize.HasValue)
+{
+    builder.WebHost.ConfigureKestrel(host =>
+    {
+        host.Limits.MaxRequestBodySize = config.MaxRequestBodySize.Value;
+    });
 
+    builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(opt =>
+    {
+        opt.MultipartBodyLengthLimit = config.MaxRequestBodySize.Value;
+    });
+
+}
 //register task
 builder.Services.RegisterTasks();
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
+}
 
 //build app
 var app = builder.Build();

@@ -1,5 +1,5 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Catalog.Queries.Models;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Domain.Catalog;

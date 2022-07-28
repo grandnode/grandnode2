@@ -1,18 +1,18 @@
 ﻿@model DashboardModel
 
 @inject Grand.Domain.Customers.CustomerSettings customerSettings
-@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
-@inject Grand.Business.Customers.Interfaces.ICustomerService customerService
-@inject Grand.Business.System.Interfaces.Reports.IOrderReportService orderReportService
-@inject Grand.Business.Catalog.Interfaces.Prices.IPriceFormatter priceFormatter
+@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
+@inject Grand.Business.Core.Interfaces.Customers.ICustomerService customerService
+@inject Grand.Business.Core.Interfaces.System.Reports.IOrderReportService orderReportService
+@inject Grand.Business.Core.Interfaces.Catalog.Prices.IPriceFormatter priceFormatter
 @inject Grand.Infrastructure.IWorkContext workContext
-@inject Grand.Business.Common.Interfaces.Directory.IGroupService groupService
+@inject Grand.Business.Core.Interfaces.Common.Directory.IGroupService groupService
 @{
     //page title
     ViewBag.Title = Loc["Admin.Dashboard"];
     var isAdminAccess = await groupService.IsAdmin(workContext.CurrentCustomer);
-    var canAccessReports = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageReports);
-    var canManageOrders = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageOrders);
+    var canAccessReports = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManageReports);
+    var canManageOrders = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManageOrders);
     var customersOnline = (await customerService.GetOnlineCustomers(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineCustomerMinutes), null, workContext.CurrentCustomer.StaffStoreId, workContext.CurrentCustomer.SeId, 1, 1)).TotalCount;
     var customersShoppingCart = await customerService.GetCountOnlineShoppingCart(DateTime.UtcNow.AddMinutes(-customerSettings.OnlineShoppingCartMinutes), workContext.CurrentCustomer.StaffStoreId, workContext.CurrentCustomer.SeId);
     var ordersToday = await orderReportService.GetOrderPeriodReport(0, workContext.CurrentCustomer.StaffStoreId, workContext.CurrentCustomer.SeId);

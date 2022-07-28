@@ -1,4 +1,4 @@
-﻿using Grand.Business.Customers.Queries.Models;
+﻿using Grand.Business.Core.Queries.Customers;
 using Grand.Domain.Data;
 using Grand.Infrastructure;
 using MediatR;

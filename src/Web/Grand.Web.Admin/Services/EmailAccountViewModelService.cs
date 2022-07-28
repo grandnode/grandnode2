@@ -1,4 +1,4 @@
-﻿using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Messages;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;

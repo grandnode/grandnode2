@@ -1,9 +1,9 @@
-﻿using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Queries.Models.Orders;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Tax;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;

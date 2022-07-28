@@ -1,74 +1,47 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-  <Import Project="..\..\Build\Grand.Common.props" />
-  <PropertyGroup>
-    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-  </PropertyGroup>
+	<Import Project="..\..\Build\Grand.Common.props" />
+	<PropertyGroup>
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\Web\Grand.Web\Plugins\Payments.PayPalStandard\</OutputPath>
-    <OutDir>$(OutputPath)</OutDir>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<OutputPath>..\..\Web\Grand.Web\Plugins\Payments.PayPalStandard\</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\Web\Grand.Web\Plugins\Payments.PayPalStandard\</OutputPath>
-    <OutDir>$(OutputPath)</OutDir>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<OutputPath>..\..\Web\Grand.Web\Plugins\Payments.PayPalStandard\</OutputPath>
+		<OutDir>$(OutputPath)</OutDir>
+	</PropertyGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Payments.PayPalStandard\refs" />
-    <RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Payments.PayPalStandard\ref" />
-  </Target>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\..\Business\Grand.Business.Authentication\Grand.Business.Authentication.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Catalog\Grand.Business.Catalog.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Checkout\Grand.Business.Checkout.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Cms\Grand.Business.Cms.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Common\Grand.Business.Common.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Customers\Grand.Business.Customers.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Marketing\Grand.Business.Marketing.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Messages\Grand.Business.Messages.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.Storage\Grand.Business.Storage.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Business\Grand.Business.System\Grand.Business.System.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj">
-      <Private>false</Private>
-    </ProjectReference>
-  </ItemGroup>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Payments.PayPalStandard\refs" />
+		<RemoveDir Directories="..\..\Web\Grand.Web\Plugins\Payments.PayPalStandard\ref" />
+	</Target>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+		<ProjectReference Include="..\..\Web\Grand.Web.Common\Grand.Web.Common.csproj">
+			<Private>false</Private>
+		</ProjectReference>
+	</ItemGroup>
 
 
-  <ItemGroup>
-    <None Update="logo.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="logo.jpg">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>

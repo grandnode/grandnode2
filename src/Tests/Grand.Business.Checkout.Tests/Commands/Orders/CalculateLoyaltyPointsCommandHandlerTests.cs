@@ -1,5 +1,5 @@
 ﻿using Grand.Business.Checkout.Commands.Handlers.Orders;
-using Grand.Business.Checkout.Commands.Models.Orders;
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

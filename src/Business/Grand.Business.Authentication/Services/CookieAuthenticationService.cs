@@ -1,8 +1,7 @@
-﻿using Grand.Business.Authentication.Interfaces;
-using Grand.Business.Authentication.Utilities;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Customers.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure.Configuration;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -10,6 +9,7 @@ using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Grand.Business.Core.Utilities.Authentication;
 
 namespace Grand.Business.Authentication.Services
 {
@@ -20,7 +20,7 @@ namespace Grand.Business.Authentication.Services
     {
         #region Const
 
-        private string CUSTOMER_COOKIE_NAME => $"{_appConfig.CookiePrefix}Customer";
+        private string CUSTOMER_COOKIE_NAME => $"{_securityConfig.CookiePrefix}Customer";
 
         #endregion
 
@@ -31,7 +31,7 @@ namespace Grand.Business.Authentication.Services
         private readonly IGroupService _groupService;
         private readonly IUserFieldService _userFieldService;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly AppConfig _appConfig;
+        private readonly SecurityConfig _securityConfig;
         private Customer _cachedCustomer;
 
         #endregion
@@ -46,21 +46,21 @@ namespace Grand.Business.Authentication.Services
         /// <param name="groupService">Group service</param>
         /// <param name="userFieldService">Generic sttribute service</param>
         /// <param name="httpContextAccessor">HTTP context accessor</param>
-        /// <param name="AppConfig">AppConfig</param>
+        /// <param name="SecurityConfig">SecurityConfig</param>
         public CookieAuthenticationService(
             CustomerSettings customerSettings,
             ICustomerService customerService,
             IGroupService groupService,
             IUserFieldService userFieldService,
             IHttpContextAccessor httpContextAccessor,
-            AppConfig appConfig)
+            SecurityConfig securityConfig)
         {
             _customerSettings = customerSettings;
             _customerService = customerService;
             _groupService = groupService;
             _userFieldService = userFieldService;
             _httpContextAccessor = httpContextAccessor;
-            _appConfig = appConfig;
+            _securityConfig = securityConfig;
 
         }
 
@@ -82,10 +82,10 @@ namespace Grand.Business.Authentication.Services
             var claims = new List<Claim>();
 
             if (!string.IsNullOrEmpty(customer.Username))
-                claims.Add(new Claim(ClaimTypes.Name, customer.Username, ClaimValueTypes.String, _appConfig.CookieClaimsIssuer));
+                claims.Add(new Claim(ClaimTypes.Name, customer.Username, ClaimValueTypes.String, _securityConfig.CookieClaimsIssuer));
 
             if (!string.IsNullOrEmpty(customer.Email))
-                claims.Add(new Claim(ClaimTypes.Email, customer.Email, ClaimValueTypes.Email, _appConfig.CookieClaimsIssuer));
+                claims.Add(new Claim(ClaimTypes.Email, customer.Email, ClaimValueTypes.Email, _securityConfig.CookieClaimsIssuer));
 
             //add token
             var passwordtoken = await customer.GetUserField<string>(_userFieldService, SystemCustomerFieldNames.PasswordToken);
@@ -93,18 +93,17 @@ namespace Grand.Business.Authentication.Services
             {
                 var passwordguid = Guid.NewGuid().ToString();
                 await _userFieldService.SaveField(customer, SystemCustomerFieldNames.PasswordToken, passwordguid);
-                claims.Add(new Claim(ClaimTypes.UserData, passwordguid, ClaimValueTypes.String, _appConfig.CookieClaimsIssuer));
+                claims.Add(new Claim(ClaimTypes.UserData, passwordguid, ClaimValueTypes.String, _securityConfig.CookieClaimsIssuer));
             }
             else
-                claims.Add(new Claim(ClaimTypes.UserData, passwordtoken, ClaimValueTypes.String, _appConfig.CookieClaimsIssuer));
+                claims.Add(new Claim(ClaimTypes.UserData, passwordtoken, ClaimValueTypes.String, _securityConfig.CookieClaimsIssuer));
 
             //create principal for the present scheme of authentication
             var userIdentity = new ClaimsIdentity(claims, GrandCookieAuthenticationDefaults.AuthenticationScheme);
             var userPrincipal = new ClaimsPrincipal(userIdentity);
 
             //set value that indicates whether the session is persisted and the time at which the authentication was issued
-            var authenticationProperties = new AuthenticationProperties
-            {
+            var authenticationProperties = new AuthenticationProperties {
                 IsPersistent = isPersistent,
                 IssuedUtc = DateTime.UtcNow,
                 ExpiresUtc = DateTime.UtcNow.AddHours(CommonHelper.CookieAuthExpires)
@@ -151,7 +150,7 @@ namespace Grand.Business.Authentication.Services
             {
                 //get customer by username if exists
                 var usernameClaim = authenticateResult.Principal.FindFirst(claim => claim.Type == ClaimTypes.Name
-                    && claim.Issuer.Equals(_appConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase));
+                    && claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase));
                 if (usernameClaim != null)
                     customer = await _customerService.GetCustomerByUsername(usernameClaim.Value);
             }
@@ -159,7 +158,7 @@ namespace Grand.Business.Authentication.Services
             {
                 //get customer by email
                 var emailClaim = authenticateResult.Principal.FindFirst(claim => claim.Type == ClaimTypes.Email
-                    && claim.Issuer.Equals(_appConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase));
+                    && claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase));
                 if (emailClaim != null)
                     customer = await _customerService.GetCustomerByEmail(emailClaim.Value);
             }
@@ -170,7 +169,7 @@ namespace Grand.Business.Authentication.Services
                 if (!string.IsNullOrEmpty(passwordtoken))
                 {
                     var tokenClaim = authenticateResult.Principal.FindFirst(claim => claim.Type == ClaimTypes.UserData
-                        && claim.Issuer.Equals(_appConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase));
+                        && claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase));
                     if (tokenClaim == null || tokenClaim.Value != passwordtoken)
                     {
                         customer = null;
@@ -216,11 +215,10 @@ namespace Grand.Business.Authentication.Services
 
             //If provided guid is empty (only remove cookies)
             if (customerGuid == Guid.Empty)
-                return Task.CompletedTask; 
+                return Task.CompletedTask;
 
             //set new cookie value
-            var options = new CookieOptions
-            {
+            var options = new CookieOptions {
                 HttpOnly = true,
                 Expires = cookieExpiresDate
             };

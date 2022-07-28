@@ -1,12 +1,12 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Checkout.Commands.Models.Orders;
-using Grand.Business.Checkout.Extensions;
-using Grand.Business.Checkout.Interfaces.GiftVouchers;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Interfaces.Shipping;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using MediatR;
+using Grand.Business.Core.Extensions;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {
@@ -47,9 +47,9 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             if (product == null)
                 return (true, "Product not exists.");
 
-            if (request.OrderItem.OpenQty == 0 
-                || request.OrderItem.Status == OrderItemStatus.Close 
-                || request.OrderItem.OpenQty!= request.OrderItem.Quantity
+            if (request.OrderItem.OpenQty == 0
+                || request.OrderItem.Status == OrderItemStatus.Close
+                || request.OrderItem.OpenQty != request.OrderItem.Quantity
                 )
             {
                 return (true, "You can't delete this order item.");
@@ -75,8 +75,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             }
 
             //add a note
-            await _orderService.InsertOrderNote(new OrderNote
-            {
+            await _orderService.InsertOrderNote(new OrderNote {
                 Note = $"Order item has been deleted - {product.Name}",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
@@ -94,7 +93,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             request.Order.OrderSubtotalInclTax -= request.OrderItem.PriceInclTax;
             request.Order.OrderTax -= (request.OrderItem.PriceInclTax - request.OrderItem.PriceExclTax);
             request.Order.OrderTotal -= request.OrderItem.PriceInclTax;
-            
+
             if (request.Order.ShippingStatusId == ShippingStatus.PartiallyShipped)
             {
                 if (!request.Order.HasItemsToAddToShipment() && !shipments.Where(x => x.DeliveryDateUtc == null).Any())

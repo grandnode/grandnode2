@@ -1,5 +1,5 @@
-﻿using Grand.Business.Checkout.Commands.Models.Orders;
-using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
 using Grand.Web.Features.Models.Checkout;
 using Grand.Web.Models.Checkout;

@@ -1,4 +1,4 @@
-﻿using Grand.Business.Cms.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
@@ -43,7 +43,7 @@ namespace Grand.Web.ViewComponents
 
                     model.Add(widgetModel);
                 }
-                return await Task.FromResult(model);
+                return model;
             });
 
             if (!cachedModel.Any())

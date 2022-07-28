@@ -1,6 +1,6 @@
 ﻿using Grand.Domain.Localization;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Localization;
@@ -90,6 +90,7 @@ namespace Grand.Web.Admin.Services
                 var resource = new TranslationResource { LanguageId = model.LanguageId };
                 resource.Name = model.Name;
                 resource.Value = model.Value;
+                resource.Area = (TranslationResourceArea)model.Area;
                 await _translationService.InsertTranslateResource(resource);
             }
             else
@@ -116,6 +117,8 @@ namespace Grand.Web.Admin.Services
             }
             resource.Name = model.Name;
             resource.Value = model.Value;
+            resource.Area = (TranslationResourceArea)model.Area;
+
             await _translationService.UpdateTranslateResource(resource);
             return (false, string.Empty);
         }
@@ -132,6 +135,7 @@ namespace Grand.Web.Admin.Services
                     Id = x.Id,
                     Name = x.Name,
                     Value = x.Value,
+                    Area = (int)x.Area
                 });
 
             if (model != null)

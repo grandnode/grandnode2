@@ -11,6 +11,9 @@ namespace Grand.Web.Admin.Models.Localization
         [GrandResourceDisplayName("Admin.Configuration.Languages.Resources.Fields.Value")]
         public string Value { get; set; }
 
+        [GrandResourceDisplayName("Admin.Configuration.Languages.Resources.Fields.Area")]
+        public int Area { get; set; }
+
         public string LanguageId { get; set; }
     }
 }

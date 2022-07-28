@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Grand.Api.DTOs.Catalog;
-using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Validators;
 
 namespace Grand.Api.Validators.Catalog

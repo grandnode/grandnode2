@@ -1,4 +1,4 @@
-﻿using Grand.Business.Checkout.Interfaces.Orders;
+﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
@@ -143,7 +143,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 throw new ArgumentNullException(nameof(orderTag));
 
             //update orders
-            await _orderRepository.Pull(string.Empty, x => x.OrderTags, orderTag.Id, true);
+            await _orderRepository.Pull(string.Empty, x => x.OrderTags, orderTag.Id);
 
             //delete tag
             await _orderTagRepository.DeleteAsync(orderTag);

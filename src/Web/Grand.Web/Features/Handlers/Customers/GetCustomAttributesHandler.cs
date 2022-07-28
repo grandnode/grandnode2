@@ -1,6 +1,5 @@
-﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Customers.Extensions;
-using Grand.Business.Customers.Interfaces;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;

@@ -1,8 +1,10 @@
-﻿using Grand.Business.Authentication.Interfaces;
-using Grand.Business.Authentication.Utilities;
-using Grand.Business.Common.Interfaces.Configuration;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
+﻿using Azure.Identity;
+using FluentValidation.AspNetCore;
+using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Authentication;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Configuration;
 using Grand.Domain.Data;
 using Grand.Infrastructure;
@@ -44,7 +46,7 @@ namespace Grand.Web.Common.Infrastructure
         /// Adds services required for anti-forgery support
         /// </summary>
         /// <param name="services">Collection of service descriptors</param>
-        public static void AddAntiForgery(this IServiceCollection services, AppConfig config)
+        public static void AddAntiForgery(this IServiceCollection services, SecurityConfig config)
         {
             //override cookie name
             services.AddAntiforgery(options =>
@@ -65,7 +67,7 @@ namespace Grand.Web.Common.Infrastructure
         /// Adds services required for application session state
         /// </summary>
         /// <param name="services">Collection of service descriptors</param>
-        public static void AddHttpSession(this IServiceCollection services, AppConfig config)
+        public static void AddHttpSession(this IServiceCollection services, SecurityConfig config)
         {
             services.AddSession(options =>
             {
@@ -99,18 +101,42 @@ namespace Grand.Web.Common.Infrastructure
         /// <summary>
         /// Adds data protection services
         /// </summary>
-        /// <param name="services">Collection of service descriptors</param>
-        public static void AddGrandDataProtection(this IServiceCollection services, AppConfig config)
+        public static void AddGrandDataProtection(this IServiceCollection services, IConfiguration configuration)
         {
-            if (config.PersistKeysToRedis)
+            var redisconfig = new RedisConfig();
+            configuration.GetSection("Redis").Bind(redisconfig);
+
+            var azureconfig = new AzureConfig();
+            configuration.GetSection("Azure").Bind(azureconfig);
+
+            if (redisconfig.PersistKeysToRedis)
             {
                 services.AddDataProtection(opt => opt.ApplicationDiscriminator = "grandnode")
-                    .PersistKeysToStackExchangeRedis(ConnectionMultiplexer.Connect(config.PersistKeysToRedisUrl));
+                    .PersistKeysToStackExchangeRedis(ConnectionMultiplexer.Connect(redisconfig.PersistKeysToRedisUrl));
+            }
+            else if (azureconfig.PersistKeysToAzureKeyVault || azureconfig.PersistKeysToAzureBlobStorage)
+            {
+                if (azureconfig.PersistKeysToAzureKeyVault)
+                    services.AddDataProtection()
+                        // This blob must already exist before the application is run
+                        .PersistKeysToAzureBlobStorage(azureconfig.PersistKeysAzureBlobStorageConnectionString, azureconfig.DataProtectionContainerName, azureconfig.DataProtectionBlobName)
+                        .ProtectKeysWithAzureKeyVault(new Uri(azureconfig.KeyIdentifier),
+                        new DefaultAzureCredential());
+                else
+                {
+                    services.AddDataProtection()
+                        .PersistKeysToAzureBlobStorage(azureconfig.PersistKeysAzureBlobStorageConnectionString, azureconfig.DataProtectionContainerName, azureconfig.DataProtectionBlobName);
+                }
+
             }
             else
             {
-                var dataProtectionKeysPath = CommonPath.DataProtectionKeysPath;
+                var securityconfig = new SecurityConfig();
+                configuration.GetSection("Security").Bind(securityconfig);
+
+                var dataProtectionKeysPath = string.IsNullOrEmpty(securityconfig.KeyPersistenceLocation) ? CommonPath.DataProtectionKeysPath : securityconfig.KeyPersistenceLocation;
                 var dataProtectionKeysFolder = new DirectoryInfo(dataProtectionKeysPath);
+
                 //configure the data protection system to persist keys to the specified directory
                 services.AddDataProtection().PersistKeysToFileSystem(dataProtectionKeysFolder);
             }
@@ -122,8 +148,8 @@ namespace Grand.Web.Common.Infrastructure
         /// <param name="services">Collection of service descriptors</param>
         public static void AddGrandAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
+            var securityconfig = new SecurityConfig();
+            configuration.GetSection("Security").Bind(securityconfig);
 
             //set default authentication schemes
             var authenticationBuilder = services.AddAuthentication(options =>
@@ -135,22 +161,22 @@ namespace Grand.Web.Common.Infrastructure
             //add main cookie authentication
             authenticationBuilder.AddCookie(GrandCookieAuthenticationDefaults.AuthenticationScheme, options =>
             {
-                options.Cookie.Name = config.CookiePrefix + GrandCookieAuthenticationDefaults.AuthenticationScheme;
+                options.Cookie.Name = securityconfig.CookiePrefix + GrandCookieAuthenticationDefaults.AuthenticationScheme;
                 options.Cookie.HttpOnly = true;
                 options.LoginPath = GrandCookieAuthenticationDefaults.LoginPath;
                 options.AccessDeniedPath = GrandCookieAuthenticationDefaults.AccessDeniedPath;
 
-                options.Cookie.SecurePolicy = config.CookieSecurePolicyAlways ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SecurePolicy = securityconfig.CookieSecurePolicyAlways ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
             });
 
             //add external authentication
             authenticationBuilder.AddCookie(GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme, options =>
             {
-                options.Cookie.Name = config.CookiePrefix + GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme;
+                options.Cookie.Name = securityconfig.CookiePrefix + GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme;
                 options.Cookie.HttpOnly = true;
                 options.LoginPath = GrandCookieAuthenticationDefaults.LoginPath;
                 options.AccessDeniedPath = GrandCookieAuthenticationDefaults.AccessDeniedPath;
-                options.Cookie.SecurePolicy = config.CookieSecurePolicyAlways ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SecurePolicy = securityconfig.CookieSecurePolicyAlways ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
             });
 
             //register external authentication plugins now
@@ -175,17 +201,18 @@ namespace Grand.Web.Common.Infrastructure
         public static IMvcBuilder AddGrandMvc(this IServiceCollection services, IConfiguration configuration)
         {
             //add basic MVC feature
-            var mvcBuilder = services.AddMvc();
+            var mvcBuilder = services.AddControllersWithViews();
 
             //add view localization
             mvcBuilder.AddViewLocalization();
-            //add razor runtime compilation
-            mvcBuilder.AddRazorRuntimeCompilation();
 
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
+            var securityConfig = new SecurityConfig();
+            configuration.GetSection("Security").Bind(securityConfig);
 
-            if (config.UseHsts)
+            var appConfig = new AppConfig();
+            configuration.GetSection("Application").Bind(appConfig);
+
+            if (securityConfig.UseHsts)
             {
                 services.AddHsts(options =>
                 {
@@ -194,19 +221,29 @@ namespace Grand.Web.Common.Infrastructure
                 });
             }
 
-            if (config.UseHttpsRedirection)
+            if (securityConfig.UseHttpsRedirection)
             {
                 services.AddHttpsRedirection(options =>
                 {
-                    options.RedirectStatusCode = config.HttpsRedirectionRedirect;
-                    options.HttpsPort = config.HttpsRedirectionHttpsPort;
+                    options.RedirectStatusCode = securityConfig.HttpsRedirectionRedirect;
+                    options.HttpsPort = securityConfig.HttpsRedirectionHttpsPort;
                 });
             }
             //use session-based temp data provider
-            if (config.UseSessionStateTempDataProvider)
+            if (appConfig.UseSessionStateTempDataProvider)
             {
                 mvcBuilder.AddSessionStateTempDataProvider();
             }
+
+            //Add fluentValidation
+            mvcBuilder.AddFluentValidation(configuration =>
+            {
+                var typeSearcher = new AppTypeSearcher();
+                var assemblies = typeSearcher.GetAssemblies();
+                configuration.RegisterValidatorsFromAssemblies(assemblies);
+                configuration.DisableDataAnnotationsValidation = true;                
+                configuration.AutomaticValidationEnabled = false;
+            });
 
             //MVC now serializes JSON with camel case names by default, use this code to avoid it
             mvcBuilder.AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
@@ -236,7 +273,7 @@ namespace Grand.Web.Common.Infrastructure
                 options.IgnoredPaths.Add("/.well-known/pki-validation");
                 //determine who can access the MiniProfiler results
                 options.ResultsAuthorize = request =>
-                    !request.HttpContext.RequestServices.GetRequiredService<AppConfig>().DisplayMiniProfilerInPublicStore ||
+                    !request.HttpContext.RequestServices.GetRequiredService<PerformanceConfig>().DisplayMiniProfilerInPublicStore ||
                     request.HttpContext.RequestServices.GetRequiredService<IPermissionService>().Authorize(StandardPermission.AccessAdminPanel).Result;
             });
         }
@@ -275,9 +312,9 @@ namespace Grand.Web.Common.Infrastructure
 
         public static void AddHtmlMinification(this IServiceCollection services, IConfiguration configuration)
         {
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
-            if (config.UseHtmlMinification)
+            var performanceConfig = new PerformanceConfig();
+            configuration.GetSection("Performance").Bind(performanceConfig);
+            if (performanceConfig.UseHtmlMinification)
             {
                 // Add WebMarkupMin services
                 services.AddWebMarkupMin(options =>
@@ -327,10 +364,19 @@ namespace Grand.Web.Common.Infrastructure
                         };
                 });
             }
-            if (config.HtmlMinificationErrors)
+            if (performanceConfig.HtmlMinificationErrors)
                 services.AddSingleton<IWmmLogger, WmmThrowExceptionLogger>();
         }
+        public static void AddApplicationInsights(this IServiceCollection services, IConfiguration configuration)
+        {
+            var applicationInsights = new ApplicationInsightsConfig();
+            configuration.GetSection("ApplicationInsights").Bind(applicationInsights);
+            if (applicationInsights.Enabled)
+            {
+                services.AddApplicationInsightsTelemetry();
+            }
 
+        }
         /// <summary>
         /// Adds services for WebEncoderOptions
         /// </summary>

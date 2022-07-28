@@ -1,4 +1,4 @@
-﻿using Grand.Business.Checkout.Interfaces.Orders;
+﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Infrastructure;
 using Grand.Domain.Orders;
 using Grand.Web.Common.Components;

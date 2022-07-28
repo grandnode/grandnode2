@@ -1,6 +1,7 @@
 ﻿using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System.Reflection;
@@ -27,7 +28,7 @@ namespace Grand.Infrastructure.Plugins
 
         private static DirectoryInfo _copyFolder;
         private static DirectoryInfo _pluginFolder;
-        private static AppConfig _config;
+        private static ExtensionsConfig _config;
 
         #endregion
 
@@ -43,8 +44,14 @@ namespace Grand.Infrastructure.Plugins
         /// Load plugins
         /// </summary>
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void Load(IMvcCoreBuilder mvcCoreBuilder, AppConfig config)
+        public static void Load(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration)
         {
+            var config = new ExtensionsConfig();
+            configuration.GetSection("Extensions").Bind(config);
+
+            var advconfig = new AdvancedConfig();
+            configuration.GetSection("Advanced").Bind(advconfig);
+
             lock (_synLock)
             {
                 if (mvcCoreBuilder == null)
@@ -58,13 +65,15 @@ namespace Grand.Infrastructure.Plugins
                 var referencedPlugins = new List<PluginInfo>();
                 try
                 {
-                    var installedPluginSystemNames = PluginExtensions.ParseInstalledPluginsFile(CommonPath.InstalledPluginsFilePath);
+                    var installedPluginSystemNames =
+                        advconfig.InstalledPlugins.Any() ? advconfig.InstalledPlugins :
+                        PluginExtensions.ParseInstalledPluginsFile(CommonPath.InstalledPluginsFilePath);
 
                     Log.Information("Creating shadow copy folder and querying for dlls");
                     Directory.CreateDirectory(_pluginFolder.FullName);
                     Directory.CreateDirectory(_copyFolder.FullName);
                     var binFiles = _copyFolder.GetFiles("*", SearchOption.AllDirectories);
-                    if (config.ClearPluginShadowDirectoryOnStartup)
+                    if (config.PluginShadowCopy)
                     {
                         //clear out shadow plugins
                         foreach (var f in binFiles)

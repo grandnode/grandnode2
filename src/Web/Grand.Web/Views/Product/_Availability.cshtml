@@ -10,5 +10,8 @@
             </span>
         </div>
     }
-    <partial name="_OutOfStockSubscription" model="Model" />
+    @if (Model.DisplayOutOfStockSubscription)
+    {
+        <partial name="_OutOfStockSubscription" model="Model" />
+    }
 </div>

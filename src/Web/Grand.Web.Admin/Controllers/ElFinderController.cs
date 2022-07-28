@@ -1,5 +1,5 @@
-﻿using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;

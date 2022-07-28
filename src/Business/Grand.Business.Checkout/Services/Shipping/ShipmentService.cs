@@ -1,4 +1,4 @@
-using Grand.Business.Checkout.Interfaces.Shipping;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Domain;
 using Grand.Domain.Data;
 using Grand.Domain.Shipping;

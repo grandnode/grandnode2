@@ -1,5 +1,5 @@
-﻿using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.System.Interfaces.Installation;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.System.Installation;
 using Grand.SharedKernel.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 

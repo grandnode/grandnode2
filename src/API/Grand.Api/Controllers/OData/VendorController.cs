@@ -1,7 +1,7 @@
 ﻿using Grand.Api.DTOs.Customers;
 using Grand.Api.Queries.Models.Common;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
@@ -31,7 +31,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Vendors))
                 return Forbid();
 
-            var vendor = await _mediator.Send(new GetQuery<VendorDto>() { Id = key });
+            var vendor = await _mediator.Send(new GetGenericQuery<VendorDto, Domain.Vendors.Vendor>(key));
             if (!vendor.Any())
                 return NotFound();
 
@@ -49,7 +49,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Vendors))
                 return Forbid();
 
-            return Ok(await _mediator.Send(new GetQuery<VendorDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<VendorDto, Domain.Vendors.Vendor>()));
         }
     }
 }

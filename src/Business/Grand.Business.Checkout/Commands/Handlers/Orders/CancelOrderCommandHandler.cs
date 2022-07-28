@@ -1,12 +1,12 @@
-﻿using Grand.Business.Catalog.Interfaces.Discounts;
-using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Checkout.Commands.Models.Orders;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Interfaces.Shipping;
-using Grand.Business.Checkout.Events.Orders;
+﻿using Grand.Business.Core.Interfaces.Catalog.Discounts;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Domain.Orders;
 using MediatR;
-using Grand.Business.Checkout.Interfaces.Payments;
+using Grand.Business.Core.Interfaces.Checkout.Payments;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {

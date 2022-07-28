@@ -1,10 +1,11 @@
-﻿using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
-using Grand.Business.System.Commands.Models.Security;
-using Grand.Business.System.Interfaces.Installation;
+﻿using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Business.Core.Commands.System.Security;
+using Grand.Business.Core.Interfaces.System.Installation;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.Infrastructure.Migrations;
 using Grand.Infrastructure.Plugins;
@@ -27,6 +28,7 @@ namespace Grand.Web.Controllers
         private readonly IServiceProvider _serviceProvider;
         private readonly IHostApplicationLifetime _applicationLifetime;
         private readonly IMediator _mediator;
+        private readonly DatabaseConfig _dbConfig;
 
         /// <summary>
         /// Cookie name to language for the installation page
@@ -41,12 +43,14 @@ namespace Grand.Web.Controllers
             ICacheBase cacheBase,
             IHostApplicationLifetime applicationLifetime,
             IServiceProvider serviceProvider,
-            IMediator mediator)
+            IMediator mediator,
+            DatabaseConfig litedbConfig)
         {
             _cacheBase = cacheBase;
             _applicationLifetime = applicationLifetime;
             _serviceProvider = serviceProvider;
             _mediator = mediator;
+            _dbConfig = litedbConfig;
         }
 
         #endregion
@@ -135,7 +139,7 @@ namespace Grand.Web.Controllers
         {
             var connectionString = "";
 
-            if (model.ConnectionInfo)
+            if (model.ConnectionInfo && model.DataProvider != DbProvider.LiteDB)
             {
                 if (string.IsNullOrEmpty(model.DatabaseConnectionString))
                     ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "ConnectionStringRequired"));
@@ -144,38 +148,62 @@ namespace Grand.Web.Controllers
             }
             else
             {
-                if (string.IsNullOrEmpty(model.MongoDBDatabaseName))
-                    ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "DatabaseNameRequired"));
-                if (string.IsNullOrEmpty(model.MongoDBServerName))
-                    ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "MongoDBServerNameRequired"));
+                if (model.DataProvider != DbProvider.LiteDB)
+                {
+                    if (string.IsNullOrEmpty(model.MongoDBDatabaseName))
+                        ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "DatabaseNameRequired"));
+                    if (string.IsNullOrEmpty(model.MongoDBServerName))
+                        ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "MongoDBServerNameRequired"));
 
-                var userNameandPassword = "";
-                if (!(string.IsNullOrEmpty(model.MongoDBUsername)))
-                    userNameandPassword = model.MongoDBUsername + ":" + model.MongoDBPassword + "@";
+                    var userNameandPassword = "";
+                    if (!(string.IsNullOrEmpty(model.MongoDBUsername)))
+                        userNameandPassword = model.MongoDBUsername + ":" + model.MongoDBPassword + "@";
 
-                connectionString = "mongodb://" + userNameandPassword + model.MongoDBServerName + "/" + model.MongoDBDatabaseName;
+                    connectionString = "mongodb://" + userNameandPassword + model.MongoDBServerName + "/" + model.MongoDBDatabaseName;
+                }
+                else
+                {
+                    if (!_dbConfig.UseLiteDb)
+                        ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "InfoLiteDb"));
+
+                    if (string.IsNullOrEmpty(_dbConfig.LiteDbConnectionString))
+                        ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "InfoLiteDbConnectionString"));
+
+                    connectionString = _dbConfig.LiteDbConnectionString;
+                }
             }
             return connectionString;
         }
 
         protected async Task CheckConnectionString(IInstallationLocalizedService locService, string connectionString, InstallModel model)
         {
+            if (!_dbConfig.UseLiteDb && model.DataProvider == DbProvider.LiteDB)
+            {
+                ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "UseLiteDbEnable"));
+            }
+            if (_dbConfig.UseLiteDb && model.DataProvider != DbProvider.LiteDB)
+            {
+                ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "UseLiteDbDisable"));
+            }
+
             if (ModelState.IsValid && !string.IsNullOrEmpty(connectionString))
             {
                 try
                 {
-                    var mdb = _serviceProvider.GetRequiredService<IDatabaseContext>();
-                    mdb.SetConnection(connectionString);
-                    if (await mdb.DatabaseExist())
-                        ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "AlreadyInstalled"));
+                    if (model.DataProvider != DbProvider.LiteDB)
+                    {
+                        var mdb = _serviceProvider.GetRequiredService<IDatabaseContext>();
+                        mdb.SetConnection(connectionString);
+                        if (await mdb.DatabaseExist())
+                            ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "AlreadyInstalled"));
+                    }
                 }
                 catch (Exception ex)
                 {
                     ModelState.AddModelError("", ex.InnerException != null ? ex.InnerException.Message : ex.Message);
                 }
             }
-            else
-                ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "ConnectionStringRequired"));
+            else if(string.IsNullOrEmpty(connectionString)) ModelState.AddModelError("", locService.GetResource(model.SelectedLanguage, "ConnectionStringRequired"));
 
         }
 
@@ -203,7 +231,9 @@ namespace Grand.Web.Controllers
                         ConnectionString = connectionString,
                         DbProvider = model.DataProvider
                     };
+
                     await DataSettingsManager.SaveSettings(settings);
+                    DataSettingsManager.LoadSettings(reloadSettings: true);
 
                     var installationService = _serviceProvider.GetRequiredService<IInstallationService>();
                     await installationService.InstallData(
@@ -234,20 +264,15 @@ namespace Grand.Web.Controllers
                     }
 
                     //register default permissions
-                    var permissionProviders = new List<Type>();
-                    permissionProviders.Add(typeof(PermissionProvider));
-                    foreach (var providerType in permissionProviders)
-                    {
-                        var provider = (IPermissionProvider)Activator.CreateInstance(providerType);
-                        await _mediator.Send(new InstallPermissionsCommand() { PermissionProvider = provider });
-                    }
+                    var permissionProvider = _serviceProvider.GetRequiredService<IPermissionProvider>();
+                    await _mediator.Send(new InstallPermissionsCommand() { PermissionProvider = permissionProvider });
 
                     //install migration process - install only header
                     var migrationProcess = _serviceProvider.GetRequiredService<IMigrationProcess>();
                     migrationProcess.InstallApplication();
 
                     //restart application
-                    await _cacheBase.GetAsync("Installed", () => Task.FromResult(true), 120);
+                    await _cacheBase.GetAsync("Installed", () => Task.FromResult(true));
                     return View(new InstallModel() { Installed = true });
                 }
                 catch (Exception exception)

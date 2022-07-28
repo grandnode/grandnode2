@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Addresses;
+﻿using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Web.Features.Models.Common;

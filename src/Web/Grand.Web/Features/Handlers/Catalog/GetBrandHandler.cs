@@ -1,7 +1,6 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Catalog.Queries.Handlers;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain.Catalog;
-using Grand.Infrastructure.Caching;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
@@ -15,7 +14,6 @@ namespace Grand.Web.Features.Handlers.Catalog
     public class GetBrandHandler : IRequestHandler<GetBrand, BrandModel>
     {
         private readonly IMediator _mediator;
-        private readonly ICacheBase _cacheBase;
         private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -23,13 +21,11 @@ namespace Grand.Web.Features.Handlers.Catalog
 
         public GetBrandHandler(
             IMediator mediator,
-            ICacheBase cacheBase,
             ISpecificationAttributeService specificationAttributeService,
             IHttpContextAccessor httpContextAccessor,
             CatalogSettings catalogSettings)
         {
             _mediator = mediator;
-            _cacheBase = cacheBase;
             _specificationAttributeService = specificationAttributeService;
             _httpContextAccessor = httpContextAccessor;
             _catalogSettings = catalogSettings;
@@ -43,8 +39,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 request.Command.OrderBy = request.Brand.DefaultSort;
 
             //view/sorting/page size
-            var options = await _mediator.Send(new GetViewSortSizeOptions()
-            {
+            var options = await _mediator.Send(new GetViewSortSizeOptions() {
                 Command = request.Command,
                 PagingFilteringModel = request.Command,
                 Language = request.Language,
@@ -57,8 +52,7 @@ namespace Grand.Web.Features.Handlers.Catalog
             IList<string> alreadyFilteredSpecOptionIds = await model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIds
                 (_httpContextAccessor.HttpContext.Request.Query, _specificationAttributeService);
 
-            var products = (await _mediator.Send(new GetSearchProductsQuery()
-            {
+            var products = (await _mediator.Send(new GetSearchProductsQuery() {
                 LoadFilterableSpecificationAttributeOptionIds = !_catalogSettings.IgnoreFilterableSpecAttributeOption,
                 BrandId = request.Brand.Id,
                 Customer = request.Customer,
@@ -71,8 +65,7 @@ namespace Grand.Web.Features.Handlers.Catalog
                 PageSize = request.Command.PageSize
             }));
 
-            model.Products = (await _mediator.Send(new GetProductOverview()
-            {
+            model.Products = (await _mediator.Send(new GetProductOverview() {
                 Products = products.products,
                 PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages
             })).ToList();

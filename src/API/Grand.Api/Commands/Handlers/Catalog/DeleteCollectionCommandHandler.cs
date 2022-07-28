@@ -1,6 +1,6 @@
-﻿using Grand.Business.Catalog.Interfaces.Collections;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
+﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Infrastructure;
 using MediatR;
 

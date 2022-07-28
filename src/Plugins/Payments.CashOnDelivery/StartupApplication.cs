@@ -1,4 +1,4 @@
-﻿using Grand.Business.Checkout.Interfaces.Payments;
+﻿using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

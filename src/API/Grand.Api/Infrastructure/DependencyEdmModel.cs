@@ -37,12 +37,6 @@ namespace Grand.Api.Infrastructure
 
             #endregion
 
-            #region State province model
-
-            builder.EntitySet<StateProvinceDto>("StateProvince");
-            
-            #endregion
-
             #region layout model
 
             builder.EntitySet<LayoutDto>("CategoryLayout");
@@ -365,7 +359,7 @@ namespace Grand.Api.Infrastructure
             #endregion
         }
 
-        public void Register(ODataConventionModelBuilder builder, ApiConfig apiConfig)
+        public void Register(ODataConventionModelBuilder builder, BackendAPIConfig apiConfig)
         {
             if (apiConfig.SystemModel)
             {

@@ -1,4 +1,4 @@
-﻿using Grand.Business.Marketing.Interfaces.Contacts;
+﻿using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Infrastructure;
 using Grand.Web.Common.Components;
 using Grand.Web.Events;

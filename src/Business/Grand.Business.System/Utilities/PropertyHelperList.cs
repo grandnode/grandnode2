@@ -1,6 +1,6 @@
 ﻿using NPOI.SS.UserModel;
 
-namespace Grand.Business.System.Utilities
+namespace Grand.Business.System.Utilities.System
 {
     public class PropertyHelperList<T>
     {

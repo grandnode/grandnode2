@@ -137,6 +137,12 @@
   <LocaleResource Name="MongoDBStandard">
     <Value>Use MongoDB Server database</Value>
   </LocaleResource>
+  <LocaleResource Name="UseLiteDbEnable">
+	<Value>The installation process for LiteDB database requires enabling a setting UseLiteDb in Appsettings</Value>
+  </LocaleResource>
+  <LocaleResource Name="UseLiteDbDisable">
+	<Value>The installation process for MongoDB database requires disabling a setting UseLiteDb in Appsettings</Value>
+  </LocaleResource>
   <LocaleResource Name="StoreInformation">
     <Value>Store information</Value>
   </LocaleResource>

@@ -1,4 +1,4 @@
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
@@ -95,7 +95,14 @@ namespace Grand.Business.Common.Services.Localization
                 throw new ArgumentNullException(nameof(languageCode));
 
             var key = string.Format(CacheKey.LANGUAGES_BY_CODE, languageCode);
-            return await _cacheBase.GetAsync(key, async () => await _languageRepository.FirstOrDefaultAsync(x=>x.UniqueSeoCode.ToLowerInvariant() == languageCode.ToLowerInvariant()));
+            return await _cacheBase.GetAsync(key, async () =>
+            {
+                var query = from q in _languageRepository.Table
+                            where q.UniqueSeoCode.ToLowerInvariant() == languageCode.ToLowerInvariant()
+                            select q;
+                return await Task.FromResult(query.FirstOrDefault());
+            });
+
         }
 
         /// <summary>

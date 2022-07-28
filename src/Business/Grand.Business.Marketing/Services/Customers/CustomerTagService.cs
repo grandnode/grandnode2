@@ -1,4 +1,4 @@
-using Grand.Business.Marketing.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
@@ -67,7 +67,7 @@ namespace Grand.Business.Marketing.Services.Customers
                 throw new ArgumentNullException(nameof(customerTag));
 
             //update customer
-            await _customerRepository.Pull(string.Empty, x => x.CustomerTags, customerTag.Id, true);
+            await _customerRepository.Pull(string.Empty, x => x.CustomerTags, customerTag.Id);
 
             //delete
             await _customerTagRepository.DeleteAsync(customerTag);

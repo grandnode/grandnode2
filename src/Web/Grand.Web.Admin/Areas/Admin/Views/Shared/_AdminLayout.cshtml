@@ -1,17 +1,17 @@
 ﻿@inject IWorkContext workContext
-@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
 @inject CommonSettings commonSettings
 @inject CustomerSettings customerSettings
 @inject LanguageSettings languageSettings
 @inject AdminAreaSettings adminAreaSettings
 @inject Grand.Infrastructure.Configuration.AppConfig appConfig
-@inject Grand.Business.Common.Interfaces.Directory.IGroupService groupService
+@inject Grand.Business.Core.Interfaces.Common.Directory.IGroupService groupService
 
 @using System.Text.Encodings.Web
 @using Grand.Domain.Customers
 @using Grand.Infrastructure;
 @using Grand.Domain.Localization
-@using Grand.Business.Common.Services.Security;
+@using Grand.Business.Core.Utilities.Common.Security;
 @using Grand.Domain.Common;
 @{
     var currentCustomer = workContext.CurrentCustomer;

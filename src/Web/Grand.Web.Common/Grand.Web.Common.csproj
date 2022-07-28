@@ -1,28 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\Build\Grand.Common.props" />
   <ItemGroup>
-    <PackageReference Include="Flurl.Http" Version="3.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="6.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.1" />
-    <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="6.0.1" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.2.1" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.1.0" />
+    <PackageReference Include="Azure.Identity" Version="1.6.0" />
+    <PackageReference Include="Flurl.Http" Version="3.2.4" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="6.0.6" />
+    <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="6.0.2" />
     <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.2.22" />
-    <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" Version="0.16.1" />
+    <PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" Version="0.17.0" />
     <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
-    <PackageReference Include="Wangkanai.Detection" Version="4.0.0" />
+    <PackageReference Include="Wangkanai.Detection" Version="5.3.0" />
     <PackageReference Include="WebMarkupMin.AspNetCore6" Version="2.11.0" />
     <PackageReference Include="WebMarkupMin.Core" Version="2.9.0" />
     <PackageReference Include="WebMarkupMin.NUglify" Version="2.11.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Business\Grand.Business.Authentication\Grand.Business.Authentication.csproj" />
-    <ProjectReference Include="..\..\Business\Grand.Business.Cms\Grand.Business.Cms.csproj" />
-    <ProjectReference Include="..\..\Business\Grand.Business.Common\Grand.Business.Common.csproj" />
-    <ProjectReference Include="..\..\Business\Grand.Business.Customers\Grand.Business.Customers.csproj" />
-    <ProjectReference Include="..\..\Business\Grand.Business.Storage\Grand.Business.Storage.csproj" />
-    <ProjectReference Include="..\..\Business\Grand.Business.System\Grand.Business.System.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj" />
     <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
   </ItemGroup>
-
 </Project>

@@ -1,7 +1,7 @@
-﻿using Grand.Business.Checkout.Commands.Models.Orders;
-using Grand.Business.Checkout.Events.Orders;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Interfaces.Payments;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Events.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Domain.Payments;
 using MediatR;
 

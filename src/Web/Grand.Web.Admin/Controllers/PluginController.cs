@@ -1,7 +1,7 @@
-﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Common.Services.Security;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
@@ -31,7 +31,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly IHostApplicationLifetime _applicationLifetime;
         private readonly IServiceProvider _serviceProvider;
         private readonly IWorkContext _workContext;
-        private readonly AppConfig _appConfig;
+        private readonly ExtensionsConfig _extConfig;
         #endregion
 
         #region Constructors
@@ -43,7 +43,7 @@ namespace Grand.Web.Admin.Controllers
             IHostApplicationLifetime applicationLifetime,
             IWorkContext workContext,
             IServiceProvider serviceProvider,
-            AppConfig appConfig)
+            ExtensionsConfig extConfig)
         {
             _translationService = translationService;
             _themeProvider = themeProvider;
@@ -51,7 +51,7 @@ namespace Grand.Web.Admin.Controllers
             _workContext = workContext;
             _applicationLifetime = applicationLifetime;
             _serviceProvider = serviceProvider;
-            _appConfig = appConfig;
+            _extConfig = extConfig;
         }
 
         #endregion
@@ -242,7 +242,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public IActionResult Remove(IFormCollection form)
         {
-            if (_appConfig.DisableUploadExtensions)
+            if (_extConfig.DisableUploadExtensions)
             {
                 Error("Upload plugins/themes is disable");
                 return RedirectToAction("List");
@@ -300,7 +300,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public IActionResult UploadPlugin(IFormFile zippedFile)
         {
-            if(_appConfig.DisableUploadExtensions)
+            if(_extConfig.DisableUploadExtensions)
             {
                 Error("Upload plugins/themes is disable");
                 return RedirectToAction("List");
@@ -349,7 +349,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public IActionResult UploadTheme(IFormFile zippedFile)
         {
-            if (_appConfig.DisableUploadExtensions)
+            if (_extConfig.DisableUploadExtensions)
             {
                 Error("Upload plugins/themes is disable");
                 return RedirectToAction("GeneralCommon", "Setting");

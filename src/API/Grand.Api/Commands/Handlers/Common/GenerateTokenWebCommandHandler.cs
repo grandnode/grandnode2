@@ -8,25 +8,25 @@ namespace Grand.Api.Commands.Handlers.Common
 {
     public class GenerateTokenWebCommandHandler : IRequestHandler<GenerateTokenWebCommand, string>
     {
-        private readonly GrandWebApiConfig _grandWebApiConfig;
+        private readonly FrontendAPIConfig _frontendApiConfig;
 
-        public GenerateTokenWebCommandHandler(GrandWebApiConfig grandWebApiConfig)
+        public GenerateTokenWebCommandHandler(FrontendAPIConfig frontedApiConfig)
         {
-            _grandWebApiConfig = grandWebApiConfig;
+            _frontendApiConfig = frontedApiConfig;
         }
 
         public async Task<string> Handle(GenerateTokenWebCommand request, CancellationToken cancellationToken)
         {
             var token = new JwtTokenBuilder();
-            token.AddSecurityKey(JwtSecurityKey.Create(_grandWebApiConfig.SecretKey));
+            token.AddSecurityKey(JwtSecurityKey.Create(_frontendApiConfig.SecretKey));
 
-            if (_grandWebApiConfig.ValidateIssuer)
-                token.AddIssuer(_grandWebApiConfig.ValidIssuer);
-            if (_grandWebApiConfig.ValidateAudience)
-                token.AddAudience(_grandWebApiConfig.ValidAudience);
+            if (_frontendApiConfig.ValidateIssuer)
+                token.AddIssuer(_frontendApiConfig.ValidIssuer);
+            if (_frontendApiConfig.ValidateAudience)
+                token.AddAudience(_frontendApiConfig.ValidAudience);
 
             token.AddClaims(request.Claims);
-            token.AddExpiry(_grandWebApiConfig.ExpiryInMinutes);
+            token.AddExpiry(_frontendApiConfig.ExpiryInMinutes);
             token.Build();
 
             return await Task.FromResult(token.Build().Value);

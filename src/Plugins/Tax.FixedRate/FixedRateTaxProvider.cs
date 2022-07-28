@@ -1,7 +1,7 @@
-﻿using Grand.Business.Catalog.Interfaces.Tax;
-using Grand.Business.Catalog.Utilities;
-using Grand.Business.Common.Interfaces.Configuration;
-using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Tax.FixedRate.Models;
 
 namespace Tax.FixedRate

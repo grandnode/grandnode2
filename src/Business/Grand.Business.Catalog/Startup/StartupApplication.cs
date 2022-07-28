@@ -1,9 +1,9 @@
-﻿using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Catalog.Interfaces.Discounts;
-using Grand.Business.Catalog.Interfaces.Collections;
-using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Catalog.Interfaces.Tax;
+﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Catalog.Discounts;
+using Grand.Business.Core.Interfaces.Catalog.Collections;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Catalog.Services.Categories;
 using Grand.Business.Catalog.Services.Discounts;
 using Grand.Business.Catalog.Services.Collections;
@@ -16,7 +16,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Grand.Business.Catalog.Services.Brands;
-using Grand.Business.Catalog.Interfaces.Brands;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
+using Grand.Business.Catalog.Services.Directory;
+using Grand.Business.Core.Interfaces.Catalog.Directory;
 
 namespace Grand.Business.Catalog.Startup
 {
@@ -66,6 +68,10 @@ namespace Grand.Business.Catalog.Startup
             serviceCollection.AddScoped<IInventoryManageService, InventoryManageService>();
             serviceCollection.AddScoped<IStockQuantityService, StockQuantityService>();
             serviceCollection.AddScoped<IPricingService, PricingService>();
+            serviceCollection.AddScoped<ISearchTermService, SearchTermService>();
+            serviceCollection.AddScoped<IGeoLookupService, GeoLookupService>();
+            serviceCollection.AddScoped<IMeasureService, MeasureService>();
+
         }
 
         private void RegisterDiscountsService(IServiceCollection serviceCollection)

@@ -2,8 +2,8 @@
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Storage.Interfaces;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Data;
 using Grand.Domain.Media;
 using Grand.Infrastructure;
@@ -21,7 +21,7 @@ namespace Grand.Business.Storage.Services
     {
         #region Fields
 
-        private readonly AppConfig _config;
+        private readonly AmazonConfig _config;
         private readonly string _bucketName;
         private readonly string _distributionDomainName;
         private bool _bucketExist = false;
@@ -39,7 +39,7 @@ namespace Grand.Business.Storage.Services
             IMediaFileStore mediaFileStore,
             MediaSettings mediaSettings,
             StorageSettings storageSettings,
-            AppConfig config)
+            AmazonConfig config)
             : base(pictureRepository,
                 logger,
                 mediator,

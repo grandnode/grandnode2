@@ -1,7 +1,7 @@
 ﻿using Grand.Api.DTOs.Common;
 using Grand.Api.Queries.Models.Common;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
@@ -31,7 +31,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Currencies))
                 return Forbid();
 
-            var currency = await _mediator.Send(new GetQuery<CurrencyDto>() { Id = key });
+            var currency = await _mediator.Send(new GetGenericQuery<CurrencyDto, Domain.Directory.Currency>(key));
             if (!currency.Any())
                 return NotFound();
 
@@ -48,7 +48,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Currencies))
                 return Forbid();
 
-            return Ok(await _mediator.Send(new GetQuery<CurrencyDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<CurrencyDto, Domain.Directory.Currency>()));
         }
     }
 }

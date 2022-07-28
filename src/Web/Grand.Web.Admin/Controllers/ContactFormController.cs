@@ -1,6 +1,6 @@
-﻿using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Services.Security;
-using Grand.Business.Marketing.Interfaces.Contacts;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Infrastructure;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;

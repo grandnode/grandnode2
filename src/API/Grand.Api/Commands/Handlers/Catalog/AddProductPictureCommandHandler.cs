@@ -1,5 +1,5 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Storage.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using MediatR;
 

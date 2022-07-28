@@ -1,4 +1,5 @@
-﻿using Grand.Business.Catalog.Interfaces.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Queries.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -149,7 +150,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
                         ||
                         p.Locales.Any(x => x.LocaleKey == "Name" && x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower()))
                         ||
-                        (request.SearchSku && p.Sku.ToLower().Contains(request.Keywords.ToLower()))
+                        (request.SearchSku && p.Sku != null && p.Sku.ToLower().Contains(request.Keywords.ToLower()))
                         );
                 else
                 {
@@ -162,7 +163,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
                             ||
                             (p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower())))
                             ||
-                            (request.SearchSku && p.Sku.ToLower().Contains(request.Keywords.ToLower()))
+                            (request.SearchSku && p.Sku != null && p.Sku.ToLower().Contains(request.Keywords.ToLower()))
                             );
                 }
 

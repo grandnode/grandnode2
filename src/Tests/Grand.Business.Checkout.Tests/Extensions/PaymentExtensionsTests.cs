@@ -1,5 +1,5 @@
-﻿using Grand.Business.Checkout.Extensions;
-using Grand.Business.Checkout.Interfaces.Payments;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Domain.Payments;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

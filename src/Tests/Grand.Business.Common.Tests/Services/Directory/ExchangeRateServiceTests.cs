@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Providers;
+﻿using Grand.Business.Core.Interfaces.Common.Providers;
 using Grand.Business.Common.Services.Directory;
 using Grand.Domain.Directory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

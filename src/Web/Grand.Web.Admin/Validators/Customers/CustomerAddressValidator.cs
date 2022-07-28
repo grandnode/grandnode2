@@ -1,5 +1,5 @@
 ﻿using Grand.Infrastructure.Validators;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Admin.Models.Customers;
 using Grand.Web.Admin.Validators.Common;
 

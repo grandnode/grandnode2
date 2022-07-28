@@ -1,4 +1,4 @@
-﻿using Grand.Business.Catalog.Interfaces.Collections;
+﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Web.Features.Models.Catalog;
 using MediatR;
 

@@ -1,5 +1,5 @@
 ﻿using Grand.Web.Common.Filters;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Models.Common;
 using Grand.Web.Features.Models.Common;
 using MediatR;

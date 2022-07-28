@@ -1,7 +1,7 @@
 ﻿@model IList<Grand.Web.Models.Common.ContactUsModel.ContactAttributeModel>
 @using Grand.Domain.Media;
 @using System.Text;
-@inject Grand.Business.Storage.Interfaces.IDownloadService downloadService
+@inject Grand.Business.Core.Interfaces.Storage.IDownloadService downloadService
 
 @if (Model.Any())
 {

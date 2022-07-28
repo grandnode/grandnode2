@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Grand.Business.Common.Interfaces.Localization;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Payments.BrainTree.Models;
 
 namespace Payments.BrainTree.Validators

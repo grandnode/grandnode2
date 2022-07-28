@@ -1,4 +1,5 @@
-﻿@model LanguageModel
+﻿@using Grand.Domain.Localization
+@model LanguageModel
 @inject AdminAreaSettings adminAreaSettings
 <vc:admin-widget widget-zone="language_details_resources_top" additional-data="Model" />
 <div class="panel panel-default">
@@ -40,8 +41,33 @@
 @if (!String.IsNullOrEmpty(Model.Id))
 {
     <script>
+            @{
+                var areas = TranslationResourceArea.Common.ToSelectList(Context);
+            }
+            var allArea = [
+                @foreach (var method in areas)
+                {
+                        <text>
+                        {
+                            Id: '@(method.Value)',
+                            Name: "@Html.Raw(method.Text)"
+                        },
+                        </text>
+                }
+            ];
+
+            function getName(fieldNameValue){
+                var returnValue = "";
+                allArea.forEach(function(element) {
+                   if(element.Id == fieldNameValue ){
+                      returnValue = element.Name;
+                    }
+                });
+                return returnValue;
+            }
+
             $(document).ready(function() {
-                $("#resources-grid").kendoGrid({
+                var _grid = $("#resources-grid").kendoGrid({
                     dataSource: {
                         transport: {
                             read: {
@@ -77,6 +103,7 @@
                             model: {
                                 id: "Id",
                                 fields: {
+                                    Area: { editable: true, type: "string" },
                                     Name: { editable: true, type: "string" },
                                     Value: { editable: true, type: "string" },
                                     Id: { editable: false, type: "string" }
@@ -123,6 +150,23 @@
                             sortable: true
 
                         }, {
+                            field: "Area",
+                            title: "@Loc["Admin.Configuration.Languages.Resources.Fields.Area"]",
+                            width: 100,
+                            template: "#=getName(Area)#",
+                            editor: function (container, options) {
+                                $("<input data-bind='value:Area' />")
+                                    .attr("id", "ddl_Area")
+                                    .appendTo(container)
+                                    .kendoDropDownList({
+                                        dataSource: allArea,
+                                        dataTextField: "Name",
+                                        dataValueField: "Id",
+                                        template: "<span data-id='${data.id}'>${data.Name}</span>",                                        
+                                    });
+                            }
+                        },
+                        {
                             command: [
                                 {
                                     name: "edit",

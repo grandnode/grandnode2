@@ -1,4 +1,4 @@
-﻿using Grand.Business.Marketing.Services.Customers;
+﻿using Grand.Business.Core.Utilities.Marketing;
 using Grand.Domain.Customers;
 using Grand.Web.Admin.Models.Catalog;
 using Grand.Web.Admin.Models.Customers;

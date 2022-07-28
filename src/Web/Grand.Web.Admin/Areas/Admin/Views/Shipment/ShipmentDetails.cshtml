@@ -1,9 +1,9 @@
 ﻿@model ShipmentModel
-@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
 @{
     //page title
     ViewBag.Title = Loc["Admin.Orders.Shipments.ViewDetails"];
-    var canManageDocuments = await permissionService.Authorize(Grand.Business.Common.Services.Security.StandardPermission.ManageDocuments);
+    var canManageDocuments = await permissionService.Authorize(Grand.Business.Core.Utilities.Common.Security.StandardPermission.ManageDocuments);
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Shipment" asp-action="ShipmentDetails" method="post">
     <input type="hidden" asp-for="Id" />

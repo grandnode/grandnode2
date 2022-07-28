@@ -1,4 +1,4 @@
-﻿using Grand.Business.Checkout.Queries.Models.Orders;
+﻿using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Orders;
 using MediatR;
 

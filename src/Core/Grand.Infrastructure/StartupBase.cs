@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
-using FluentValidation.AspNetCore;
-using Grand.Domain.Data.Mongo;
+using Grand.Domain.Data;
 using Grand.Infrastructure.Caching.RabbitMq;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Mapper;
@@ -8,6 +7,8 @@ using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.Roslyn;
 using Grand.Infrastructure.TypeConverters;
 using Grand.Infrastructure.TypeSearchers;
+using Grand.Infrastructure.Validators;
+using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using MassTransit;
 using MediatR;
@@ -17,7 +18,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Wkhtmltopdf.NetCore;
 
 namespace Grand.Infrastructure
 {
@@ -27,6 +27,21 @@ namespace Grand.Infrastructure
     public static class StartupBase
     {
         #region Utilities
+
+        /// <summary>
+        /// Init Database
+        /// </summary>
+        private static void InitDatabase(IServiceCollection services, IConfiguration configuration)
+        {
+            var advancedConfig = services.StartupConfig<AdvancedConfig>(configuration.GetSection("Advanced"));
+            if (!string.IsNullOrEmpty(advancedConfig.DbConnectionString))
+            {
+                DataSettingsManager.LoadDataSettings(new DataSettings() {
+                    ConnectionString = advancedConfig.DbConnectionString,
+                    DbProvider = (DbProvider)advancedConfig.DbProvider,
+                });
+            }
+        }
 
         /// <summary>
         /// Register and init AutoMapper
@@ -54,24 +69,6 @@ namespace Grand.Infrastructure
 
             //register automapper
             AutoMapperConfig.Init(config);
-        }
-
-        /// <summary>
-        /// Add FluenValidation
-        /// </summary>
-        /// <param name="mvcCoreBuilder"></param>
-        /// <param name="typeSearcher"></param>
-        private static void AddFluentValidation(IMvcCoreBuilder mvcCoreBuilder, ITypeSearcher typeSearcher)
-        {
-            //Add fluentValidation
-            mvcCoreBuilder.AddFluentValidation(configuration =>
-            {
-                var assemblies = typeSearcher.GetAssemblies();
-                configuration.RegisterValidatorsFromAssemblies(assemblies);
-                configuration.DisableDataAnnotationsValidation = true;
-                //implicit/automatic validation of child properties
-                configuration.ImplicitlyValidateChildProperties = true;
-            });
         }
 
         /// <summary>
@@ -123,14 +120,11 @@ namespace Grand.Infrastructure
         /// <param name="configuration"></param>
         private static void RegisterExtensions(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration)
         {
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
-
             //Load plugins
-            PluginManager.Load(mvcCoreBuilder, config);
+            PluginManager.Load(mvcCoreBuilder, configuration);
 
             //Load CTX sctipts
-            RoslynCompiler.Load(mvcCoreBuilder.PartManager, config);
+            RoslynCompiler.Load(mvcCoreBuilder.PartManager, configuration);
         }
 
         /// <summary>
@@ -147,15 +141,18 @@ namespace Grand.Infrastructure
         /// Add Mass Transit rabitMq message broker
         /// </summary>
         /// <param name="services"></param>
-        private static void AddMassTransitRabbitMq(IServiceCollection services, AppConfig config, AppTypeSearcher typeSearcher)
+        private static void AddMassTransitRabbitMq(IServiceCollection services, IConfiguration configuration, AppTypeSearcher typeSearcher)
         {
+            var config = new RabbitConfig();
+            configuration.GetSection("Rabbit").Bind(config);
+
             if (!config.RabbitEnabled) return;
             services.AddMassTransit(x =>
             {
                 x.AddConsumers(q => !q.Equals(typeof(CacheMessageEventConsumer)), typeSearcher.GetAssemblies().ToArray());
 
                 // reddits have more priority
-                if (!config.RedisPubSubEnabled && config.RabbitCachePubSubEnabled)
+                if (config.RabbitCachePubSubEnabled)
                 {
                     x.AddConsumer<CacheMessageEventConsumer>().Endpoint(t => t.Name = config.RabbitCacheReceiveEndpoint);
                 }
@@ -170,8 +167,6 @@ namespace Grand.Infrastructure
                     cfg.ConfigureEndpoints(context);
                 });
             });
-            //for automaticly start/stop bus
-            services.AddMassTransitHostedService();
         }
 
         /// <summary>
@@ -183,17 +178,22 @@ namespace Grand.Infrastructure
         {
             //add accessor to HttpContext
             services.AddHttpContextAccessor();
-            //add wkhtmltopdf
-            services.AddWkhtmltopdf();
-
             //add AppConfig configuration parameters
-            var config = services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
-            //add hosting configuration parameters
-            services.StartupConfig<HostingConfig>(configuration.GetSection("Hosting"));
-            //add api configuration parameters
-            services.StartupConfig<ApiConfig>(configuration.GetSection("Api"));
-            //add grand.web api token config
-            services.StartupConfig<GrandWebApiConfig>(configuration.GetSection("GrandWebApi"));
+            services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
+            var performanceConfig = services.StartupConfig<PerformanceConfig>(configuration.GetSection("Performance"));
+            var securityConfig = services.StartupConfig<SecurityConfig>(configuration.GetSection("Security"));
+            services.StartupConfig<ExtensionsConfig>(configuration.GetSection("Extensions"));
+            services.StartupConfig<UrlRewriteConfig>(configuration.GetSection("UrlRewrite"));
+            services.StartupConfig<RedisConfig>(configuration.GetSection("Redis"));
+            services.StartupConfig<RabbitConfig>(configuration.GetSection("Rabbit"));
+            services.StartupConfig<BackendAPIConfig>(configuration.GetSection("BackendAPI"));
+            services.StartupConfig<FrontendAPIConfig>(configuration.GetSection("FrontendAPI"));
+            services.StartupConfig<DatabaseConfig>(configuration.GetSection("Database"));
+            services.StartupConfig<AmazonConfig>(configuration.GetSection("Amazon"));
+            services.StartupConfig<AzureConfig>(configuration.GetSection("Azure"));
+            services.StartupConfig<ApplicationInsightsConfig>(configuration.GetSection("ApplicationInsights"));
+
+            InitDatabase(services, configuration);
 
             //set base application path
             var provider = services.BuildServiceProvider();
@@ -204,16 +204,17 @@ namespace Grand.Infrastructure
 
             CommonPath.WebHostEnvironment = hostingEnvironment.WebRootPath;
             CommonPath.BaseDirectory = hostingEnvironment.ContentRootPath;
-            CommonHelper.CacheTimeMinutes = config.DefaultCacheTimeMinutes;
-            CommonHelper.CookieAuthExpires = config.CookieAuthExpires > 0 ? config.CookieAuthExpires : 24 * 365;
+            CommonHelper.CacheTimeMinutes = performanceConfig.DefaultCacheTimeMinutes;
+            CommonHelper.CookieAuthExpires = securityConfig.CookieAuthExpires > 0 ? securityConfig.CookieAuthExpires : 24 * 365;
 
-            CommonHelper.IgnoreAcl = config.IgnoreAcl;
-            CommonHelper.IgnoreStoreLimitations = config.IgnoreStoreLimitations;
+            CommonHelper.IgnoreAcl = performanceConfig.IgnoreAcl;
+            CommonHelper.IgnoreStoreLimitations = performanceConfig.IgnoreStoreLimitations;
 
-            //register mongo mappings
-            MongoDBMapperConfiguration.RegisterMongoDBMappings();
-
-            var mvcCoreBuilder = services.AddMvcCore();
+            services.AddTransient<FluentValidationFilter>();
+            var mvcCoreBuilder = services.AddMvcCore(options =>
+            {
+                options.Filters.AddService<FluentValidationFilter>();
+            });
 
             return mvcCoreBuilder;
         }
@@ -257,20 +258,14 @@ namespace Grand.Infrastructure
             //register mapper configurations
             InitAutoMapper(typeSearcher);
 
-            //add fluenvalidation
-            AddFluentValidation(mvcBuilder, typeSearcher);
-
             //Register custom type converters
             RegisterTypeConverter(typeSearcher);
-
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
 
             //add mediator
             AddMediator(services, typeSearcher);
 
             //Add MassTransit
-            AddMassTransitRabbitMq(services, config, typeSearcher);
+            AddMassTransitRabbitMq(services, configuration, typeSearcher);
 
             //Register startup
             var instancesAfter = startupConfigurations
@@ -282,6 +277,9 @@ namespace Grand.Infrastructure
             //configure services
             foreach (var instance in instancesAfter)
                 instance.ConfigureServices(services, configuration);
+
+            //Execute startupbase interface
+            ExecuteStartupBase(typeSearcher);
         }
 
         /// <summary>
@@ -304,6 +302,20 @@ namespace Grand.Infrastructure
             //configure request pipeline
             foreach (var instance in instances)
                 instance.Configure(application, webHostEnvironment);
+        }
+
+        private static void ExecuteStartupBase(AppTypeSearcher typeSearcher)
+        {
+            var startupBaseConfigurations = typeSearcher.ClassesOfType<IStartupBase>();
+
+            //create and sort instances of startup configurations
+            var instances = startupBaseConfigurations
+                .Select(startup => (IStartupBase)Activator.CreateInstance(startup))
+                .OrderBy(startup => startup.Priority);
+
+            //execute
+            foreach (var instance in instances)
+                instance.Execute();
         }
 
         #endregion

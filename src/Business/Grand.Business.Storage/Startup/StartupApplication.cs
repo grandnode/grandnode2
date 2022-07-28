@@ -1,4 +1,4 @@
-﻿using Grand.Business.Storage.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Storage.Services;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
@@ -14,14 +14,16 @@ namespace Grand.Business.Storage.Startup
     {
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
-
             services.AddScoped<IDownloadService, DownloadService>();
 
             //picture service
-            var useAzureBlobStorage = !String.IsNullOrEmpty(config.AzureBlobStorageConnectionString);
-            var useAmazonBlobStorage = (!String.IsNullOrEmpty(config.AmazonAwsAccessKeyId) && !String.IsNullOrEmpty(config.AmazonAwsSecretAccessKey) && !String.IsNullOrEmpty(config.AmazonBucketName) && !String.IsNullOrEmpty(config.AmazonRegion));
+            var azureconfig = new AzureConfig();
+            configuration.GetSection("Azure").Bind(azureconfig);
+            var useAzureBlobStorage = !string.IsNullOrEmpty(azureconfig.AzureBlobStorageConnectionString);
+
+            var amazonconfig = new AmazonConfig();
+            configuration.GetSection("Amazon").Bind(amazonconfig);
+            var useAmazonBlobStorage = (!string.IsNullOrEmpty(amazonconfig.AmazonAwsAccessKeyId) && !string.IsNullOrEmpty(amazonconfig.AmazonAwsSecretAccessKey) && !string.IsNullOrEmpty(amazonconfig.AmazonBucketName) && !string.IsNullOrEmpty(amazonconfig.AmazonRegion));
 
             if (useAzureBlobStorage)
             {
