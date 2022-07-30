@@ -156,7 +156,7 @@
                         {
                             <li>@(_translationService.GetResource("PDFInvoice.PaymentmethodAdditionalFee", order.CustomerLanguageId)) @if(priceIncludesTax){@order.PaymentMethodAdditionalFeeInclTax}else{  @order.PaymentMethodAdditionalFeeExclTax} @order.CustomerCurrencyCode</li>
                         }
-                        <li>@(_translationService.GetResource("PDFInvoice.Shipping", order.CustomerLanguageId)) @if(priceIncludesTax){@order.OrderShippingInclTax}else{  @order.PaymentMethodAdditionalFeeExclTax}  @order.OrderShippingExclTax</li>
+                        <li>@(_translationService.GetResource("PDFInvoice.Shipping", order.CustomerLanguageId)) @if(priceIncludesTax){@order.OrderShippingInclTax}else{  @order.PaymentMethodAdditionalFeeExclTax}  @order.OrderShippingExclTax @order.CustomerCurrencyCode</li>
                         @if (order.OrderDiscount > 0)
                         {
                             <li>@(_translationService.GetResource("PDFInvoice.Discount", order.CustomerLanguageId)) @order.OrderDiscount @order.CustomerCurrencyCode</li>
