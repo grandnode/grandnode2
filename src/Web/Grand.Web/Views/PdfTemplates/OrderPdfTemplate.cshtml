@@ -58,7 +58,7 @@
         var store = await _storeService.GetStoreById(order.StoreId);
         if (!string.IsNullOrEmpty(_pdfSettings.InvoiceHeaderText))
         {
-            <div>@_pdfSettings.InvoiceHeaderText</div>
+            <div>  @Html.Raw(@_pdfSettings.InvoiceHeaderText)</div>
         }
         <h2>@store.CompanyName</h2>
         if (logoExists)
@@ -137,7 +137,7 @@
                     </td>
                     <td>@if(priceIncludesTax){@item.UnitPriceInclTax}else{@item.UnitPriceExclTax}</td>
                     <td>@item.Quantity</td>
-                    <td>>@if(priceIncludesTax){@item.PriceInclTax}else{@item.PriceExclTax}</td>
+                    <td>@if(priceIncludesTax){@item.PriceInclTax}else{@item.PriceExclTax}</td>
                 </tr>
             }
         </table>
@@ -173,7 +173,7 @@
                         {
                             <li>@(_translationService.GetResource("PDFInvoice.Tax", order.CustomerLanguageId)) @order.OrderTax @order.CustomerCurrencyCode</li>
                         }
-                        <li>@(_translationService.GetResource("PDFInvoice.OrderTotal", order.CustomerLanguageId))@order.OrderTotal @order.CustomerCurrencyCode</li>
+                        <li>@(_translationService.GetResource("PDFInvoice.OrderTotal", order.CustomerLanguageId)) @order.OrderTotal @order.CustomerCurrencyCode</li>
                     </ul>
                 </div>
             </div>
@@ -181,7 +181,7 @@
         if (!string.IsNullOrEmpty(_pdfSettings.InvoiceFooterText))
         {
             <footer class="footer">
-                @_pdfSettings.InvoiceFooterText
+                 @Html.Raw(@_pdfSettings.InvoiceFooterText)
             </footer>
         }
         if (Model.Item1.Count - 1 > i)
