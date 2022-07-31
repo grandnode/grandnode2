@@ -763,7 +763,7 @@ var vmorder = new Vue({
         },
         updateTotals() {
             axios({
-                baseURL: '/Component/Index?Name=OrderTotals',
+                baseURL: '/cart/total/',
                 method: 'get',
                 data: null,
                 headers: {
