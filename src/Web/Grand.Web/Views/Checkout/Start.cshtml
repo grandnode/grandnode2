@@ -6,6 +6,7 @@
     <script asp-location="Footer" asp-src="/theme/script/public.checkout.js" asp-order="300"></script>
 
     <script asp-location="Footer" asp-order="301">
+        vmorder.vCartUrl.init('@Url.RouteUrl("ShoppingCartSummary")', '@Url.RouteUrl("ShoppingCartTotal")');
         vmorder.vShipping.init('#co-shipping-form', '/checkout/SaveShipping/');
         vmorder.vBilling.init('#co-billing-form', '/checkout/SaveBilling/');
         vmorder.vShippingMethod.init('#co-shipping-method-form', '/checkout/SaveShippingMethod/');

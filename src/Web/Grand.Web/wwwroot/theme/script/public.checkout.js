@@ -46,6 +46,7 @@ var vmorder = new Vue({
             acceptTerms: false,
             // checkout steps methods
             Checkout: null,
+            vCartUrl: null,
             vShipping: null,
             vBilling: null,
             vShippingMethod: null,
@@ -301,6 +302,19 @@ var vmorder = new Vue({
                     return false;
                 },
             };
+        },
+        vmCartUrl(){
+            this.vCartUrl = {
+                urlCartSummary: false,
+                urlCartTotal: false,
+
+                init: function (urlCartSummary, urlCartTotal) {
+                    this.urlCartSummary = urlCartSummary;
+                    this.urlCartTotal = urlCartTotal;
+                    vmorder.updateCart();
+                    vmorder.updateTotals();
+                },
+            }
         },
         vmShipping() {
             this.vShipping = {
@@ -686,7 +700,7 @@ var vmorder = new Vue({
                 saveUrl: false,
                 isSuccess: false,
 
-                init: function (saveUrl, successUrl) {
+                init: function (saveUrl,  successUrl) {
                     this.saveUrl = saveUrl;
                     this.successUrl = successUrl;
                 },
@@ -749,7 +763,7 @@ var vmorder = new Vue({
         },
         updateCart() {
             axios({
-                baseURL: '/cart/summary/',
+                baseURL: this.vCartUrl.urlCartSummary,
                 method: 'get',
                 data: null,
                 headers: {
@@ -763,7 +777,7 @@ var vmorder = new Vue({
         },
         updateTotals() {
             axios({
-                baseURL: '/cart/total/',
+                baseURL: this.vCartUrl.urlCartTotal,
                 method: 'get',
                 data: null,
                 headers: {
@@ -834,6 +848,7 @@ var vmorder = new Vue({
         }
     },
     created() {
+        this.vmCartUrl();
         this.vmCheckout();
         this.vmShipping();
         this.vmBilling();
@@ -841,8 +856,6 @@ var vmorder = new Vue({
         this.vmPaymentMethod();
         this.vmPaymentInfo();
         this.vmConfirmOrder();
-        this.updateCart();
-        this.updateTotals();
         this.cartView();
         this.otherScripts();
     },
