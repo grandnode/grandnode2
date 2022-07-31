@@ -3,7 +3,7 @@ using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Payments;
 using MediatR;
 
-namespace Grand.Business.Checkout.Extensions
+namespace Grand.Business.Core.Extensions
 {
     public static class OrderEventPublisherExtensions
     {

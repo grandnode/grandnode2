@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Checkout.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
@@ -698,11 +697,11 @@ namespace Grand.Business.Checkout.Services.Orders
                     if (!recurringProducts.HasValue)
                         recurringProducts = (product.RecurringCyclePeriodId, product.RecurringCycleLength, product.RecurringTotalCycles);
                     else
-                        if (recurringProducts.Value.recurringCyclePeriod != product.RecurringCyclePeriodId || 
-                            recurringProducts.Value.recurringCycleLength != product.RecurringCycleLength || 
+                        if (recurringProducts.Value.recurringCyclePeriod != product.RecurringCyclePeriodId ||
+                            recurringProducts.Value.recurringCycleLength != product.RecurringCycleLength ||
                             recurringProducts.Value.recurringTotalCycles != product.RecurringTotalCycles
                         )
-                            hasRecurringProductsMix = true;
+                        hasRecurringProductsMix = true;
                 }
                 else
                     hasStandartProducts = true;
@@ -841,7 +840,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 warnings.Add("Wishlist is disabled");
                 return warnings;
             }
-            
+
             if (quantity <= 0)
             {
                 warnings.Add(_translationService.GetResource("ShoppingCart.QuantityShouldPositive"));

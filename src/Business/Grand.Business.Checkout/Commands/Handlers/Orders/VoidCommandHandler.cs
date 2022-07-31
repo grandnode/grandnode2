@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Commands.Checkout.Orders;
-using Grand.Business.Checkout.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
@@ -8,6 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Logging;
 using Grand.SharedKernel;
 using MediatR;
+using Grand.Business.Core.Extensions;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {

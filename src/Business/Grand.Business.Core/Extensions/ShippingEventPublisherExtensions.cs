@@ -2,7 +2,7 @@
 using Grand.Domain.Shipping;
 using MediatR;
 
-namespace Grand.Business.Checkout.Extensions
+namespace Grand.Business.Core.Extensions
 {
     public static class ShippingEventPublisherExtensions
     {
