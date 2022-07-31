@@ -7,9 +7,7 @@ using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
-using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
@@ -21,10 +19,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
-using Grand.Domain.Shipping;
-using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.ShoppingCart;
-using Grand.Web.Models.Common;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
@@ -37,7 +32,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 {
     public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingCartModel>
     {
-        private readonly IPaymentService _paymentService;
         private readonly IProductService _productService;
         private readonly IPictureService _pictureService;
         private readonly IProductAttributeParser _productAttributeParser;
@@ -51,7 +45,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
         private readonly IPriceFormatter _priceFormatter;
         private readonly ICheckoutAttributeParser _checkoutAttributeParser;
         private readonly IDownloadService _downloadService;
-        private readonly ICountryService _countryService;
         private readonly IWarehouseService _warehouseService;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
         private readonly IPricingService _pricingService;
@@ -66,11 +59,9 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
         private readonly OrderSettings _orderSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly CatalogSettings _catalogSettings;
-        private readonly ShippingSettings _shippingSettings;
         private readonly CommonSettings _commonSettings;
 
         public GetShoppingCartHandler(
-            IPaymentService paymentService,
             IProductService productService,
             IPictureService pictureService,
             IProductAttributeParser productAttributeParser,
@@ -84,7 +75,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             IPriceFormatter priceFormatter,
             ICheckoutAttributeParser checkoutAttributeParser,
             IDownloadService downloadService,
-            ICountryService countryService,
             IWarehouseService warehouseService,
             IProductAttributeFormatter productAttributeFormatter,
             IPricingService priceCalculationService,
@@ -99,10 +89,8 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             OrderSettings orderSettings,
             ShoppingCartSettings shoppingCartSettings,
             CatalogSettings catalogSettings,
-            ShippingSettings shippingSettings,
             CommonSettings commonSettings)
         {
-            _paymentService = paymentService;
             _productService = productService;
             _pictureService = pictureService;
             _productAttributeParser = productAttributeParser;
@@ -116,7 +104,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             _priceFormatter = priceFormatter;
             _checkoutAttributeParser = checkoutAttributeParser;
             _downloadService = downloadService;
-            _countryService = countryService;
             _warehouseService = warehouseService;
             _productAttributeFormatter = productAttributeFormatter;
             _pricingService = priceCalculationService;
@@ -131,7 +118,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             _orderSettings = orderSettings;
             _shoppingCartSettings = shoppingCartSettings;
             _catalogSettings = catalogSettings;
-            _shippingSettings = shippingSettings;
             _commonSettings = commonSettings;
         }
 
@@ -147,8 +133,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             await PrepareCheckoutAttributes(model, request);
 
             await PrepareCartItems(model, request);
-
-            await PrepareOrderReview(model, request);
 
             return model;
         }
@@ -480,73 +464,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
             #endregion
 
-        }
-
-        private async Task PrepareOrderReview(ShoppingCartModel model, GetShoppingCart request)
-        {
-            #region Order review data
-
-            if (request.PrepareAndDisplayOrderReviewData)
-            {
-                model.OrderReviewData.Display = true;
-
-                //billing info
-                var billingAddress = request.Customer.BillingAddress;
-                if (billingAddress != null)
-                    model.OrderReviewData.BillingAddress = await _mediator.Send(new GetAddressModel() {
-                        Language = request.Language,
-                        Address = billingAddress,
-                        ExcludeProperties = false,
-                    });
-                //shipping info
-                if (request.Cart.RequiresShipping())
-                {
-                    model.OrderReviewData.IsShippable = true;
-
-                    var pickupPoint = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.SelectedPickupPoint, request.Store.Id);
-
-                    model.OrderReviewData.SelectedPickUpInStore = _shippingSettings.AllowPickUpInStore && !String.IsNullOrEmpty(pickupPoint);
-
-                    if (!model.OrderReviewData.SelectedPickUpInStore)
-                    {
-                        var shippingAddress = request.Customer.ShippingAddress;
-                        if (shippingAddress != null)
-                            model.OrderReviewData.ShippingAddress = await _mediator.Send(new GetAddressModel() {
-                                Language = request.Language,
-                                Address = shippingAddress,
-                                ExcludeProperties = false,
-                            });
-                    }
-                    else
-                    {
-                        var pickup = await _mediator.Send(new GetPickupPointById() { Id = pickupPoint });
-                        if (pickup != null)
-                        {
-                            var country = await _countryService.GetCountryById(pickup.Address.CountryId);
-                            model.OrderReviewData.PickupAddress = new AddressModel {
-                                Address1 = pickup.Address.Address1,
-                                City = pickup.Address.City,
-                                CountryName = country != null ? country.Name : string.Empty,
-                                ZipPostalCode = pickup.Address.ZipPostalCode
-                            };
-                        }
-                    }
-                    //selected shipping method
-                    var shippingOption = request.Customer.GetUserFieldFromEntity<ShippingOption>(SystemCustomerFieldNames.SelectedShippingOption, request.Store.Id);
-                    if (shippingOption != null)
-                    {
-                        model.OrderReviewData.ShippingMethod = shippingOption.Name;
-                        model.OrderReviewData.ShippingAdditionDescription = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ShippingOptionAttributeDescription, request.Store.Id);
-                    }
-                }
-                //payment info
-                var selectedPaymentMethodSystemName = request.Customer.GetUserFieldFromEntity<string>(
-                    SystemCustomerFieldNames.SelectedPaymentMethod, request.Store.Id);
-                var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(selectedPaymentMethodSystemName);
-                model.OrderReviewData.PaymentMethod = paymentMethod != null ? paymentMethod.FriendlyName : "";
-
-            }
-            #endregion
         }
 
         private async Task<PictureModel> PrepareCartItemPicture(Product product, IList<CustomAttribute> attributes)

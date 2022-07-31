@@ -32,6 +32,7 @@
                 body.classList.add("cart-view");
             },
             updateCart() {
+                alert('updatecart');
                 axios({
                     baseURL: '@Url.RouteUrl("ShoppingCartSummary")',
                     method: 'get',

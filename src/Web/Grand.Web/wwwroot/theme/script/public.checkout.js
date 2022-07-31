@@ -37,6 +37,7 @@ var vmorder = new Vue({
             // payment info
             PaymentViewComponentName: null,
             // confirm order
+            OrderReviewData: null,
             MinOrderTotalWarning: null,
             TermsOfServiceOnOrderConfirmPage: null,
             ConfirmWarnings: null,
@@ -105,6 +106,17 @@ var vmorder = new Vue({
             setTimeout(function () {
                 button.classList.remove('disabled');
             }, 600);
+        },
+        vmShipping() {
+            this.vShipping = {
+                form: false,
+                saveUrl: false,
+
+                init: function (form, saveUrl) {
+                    this.form = form;
+                    this.saveUrl = saveUrl;
+                },
+            }
         },
         vmCheckout() {
             this.Checkout = {
@@ -249,9 +261,7 @@ var vmorder = new Vue({
                                 }
                             }).then(function () {
                                 document.querySelector(".payment-info-next-step-button").classList.remove("disabled");
-                            });
-
-                            this.updateOrderSummary(false);
+                            });                            
                             vmorder.updateTotals();
 
                         }
@@ -259,10 +269,8 @@ var vmorder = new Vue({
                             var model = response.data.update_section.model;
                             vmorder.MinOrderTotalWarning = model.MinOrderTotalWarning;
                             vmorder.ConfirmWarnings = model.Warnings;
-
+                            vmorder.OrderReviewData = model.OrderReviewData;
                             vmorder.Confirm = true;
-
-                            this.updateOrderSummary(true);
                             vmorder.updateTotals();
                         }
 
@@ -291,19 +299,6 @@ var vmorder = new Vue({
                         return true;
                     }
                     return false;
-                },
-                updateOrderSummary: function (displayOrderReviewData) {
-                    axios({
-                        baseURL: '/cart/summary?prepareAndDisplayOrderReviewData='+displayOrderReviewData,
-                        method: 'get',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-Response-View': 'Json'
-                        }
-                    }).then(response => {
-                        vmorder.cart.OrderReviewData = response.data.OrderReviewData
-                    });
                 },
             };
         },

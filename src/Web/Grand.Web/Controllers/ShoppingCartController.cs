@@ -284,14 +284,13 @@ namespace Grand.Web.Controllers
         }
 
         [DenySystemAccount]
-        public async Task<IActionResult> CartSummary(bool? prepareAndDisplayOrderReviewData)
+        public async Task<IActionResult> CartSummary()
         {
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
             var model = await _mediator.Send(new GetShoppingCart() {
                 Cart = cart,
                 IsEditable = false,
-                PrepareAndDisplayOrderReviewData = prepareAndDisplayOrderReviewData.GetValueOrDefault(),
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,
                 Language = _workContext.WorkingLanguage,

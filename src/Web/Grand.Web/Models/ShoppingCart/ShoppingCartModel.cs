@@ -1,6 +1,5 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Infrastructure.Models;
-using Grand.Web.Models.Common;
 using Grand.Web.Models.Media;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -15,8 +14,7 @@ namespace Grand.Web.Models.ShoppingCart
             DiscountBox = new DiscountBoxModel();
             GiftVoucherBox = new GiftVoucherBoxModel();
             CheckoutAttributes = new List<CheckoutAttributeModel>();
-            OrderReviewData = new OrderReviewDataModel();
-        }        
+        }
         public bool ShowSku { get; set; }
         public bool ShowProductImages { get; set; }
         public bool IsEditable { get; set; }
@@ -35,8 +33,6 @@ namespace Grand.Web.Models.ShoppingCart
         public bool TermsOfServiceOnOrderConfirmPage { get; set; }
         public DiscountBoxModel DiscountBox { get; set; }
         public GiftVoucherBoxModel GiftVoucherBox { get; set; }
-        public OrderReviewDataModel OrderReviewData { get; set; }
-
         #region Nested Classes
 
         public partial class ShoppingCartItemModel : BaseEntityModel
@@ -50,7 +46,7 @@ namespace Grand.Web.Models.ShoppingCart
             }
             public string Sku { get; set; }
             public bool IsCart { get; set; }
-            public PictureModel Picture {get;set;}
+            public PictureModel Picture { get; set; }
             public string ProductId { get; set; }
             public string ProductName { get; set; }
             public string ProductSeName { get; set; }
@@ -118,7 +114,7 @@ namespace Grand.Web.Models.ShoppingCart
             public bool IsPreSelected { get; set; }
         }
 
-        public partial class DiscountBoxModel: BaseModel
+        public partial class DiscountBoxModel : BaseModel
         {
             public DiscountBoxModel()
             {
@@ -141,28 +137,6 @@ namespace Grand.Web.Models.ShoppingCart
             public bool IsApplied { get; set; }
         }
 
-        public partial class OrderReviewDataModel : BaseModel
-        {
-            public OrderReviewDataModel()
-            {
-                BillingAddress = new AddressModel();
-                ShippingAddress = new AddressModel();
-                PickupAddress = new AddressModel();
-            }
-            public bool Display { get; set; }
-
-            public AddressModel BillingAddress { get; set; }
-
-            public bool IsShippable { get; set; }
-            public AddressModel ShippingAddress { get; set; }
-            public bool SelectedPickUpInStore { get; set; }
-            public AddressModel PickupAddress { get; set; }
-            public string ShippingMethod { get; set; }
-            public string ShippingAdditionDescription { get; set; }
-
-            public string PaymentMethod { get; set; }
-
-        }
-		#endregion
+        #endregion
     }
 }

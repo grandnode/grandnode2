@@ -20,6 +20,5 @@ namespace Grand.Web.Features.Models.ShoppingCart
         public bool IsEditable { get; set; } = true;
         public bool ValidateCheckoutAttributes { get; set; } = false;
         public bool SetEstimateShippingDefaultAddress { get; set; } = true;
-        public bool PrepareAndDisplayOrderReviewData { get; set; } = false;
     }
 }
