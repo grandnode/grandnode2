@@ -8,12 +8,10 @@
 @inject Grand.Business.Core.Interfaces.Checkout.Payments.IPaymentService _paymentService
 @inject Grand.Business.Core.Interfaces.Common.Directory.ICurrencyService _currencyService
 @inject Grand.Business.Core.Interfaces.Checkout.GiftVouchers.IGiftVoucherService _giftVoucherService
-@inject IWorkContext workContext
 @{
     var logoPicture = await _pictureService.GetPictureById(_pdfSettings.LogoPictureId);
     var logoExists = logoPicture != null;
-    var limitbyVendor = !string.IsNullOrEmpty(Model.Item2); 
-    var priceIncludesTax = workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
+    var limitbyVendor = !string.IsNullOrEmpty(Model.Item2);
 }
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -55,6 +53,7 @@
     }
     @foreach (var order in Model.Item1)
     {
+        var priceIncludesTax = order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax;
         var store = await _storeService.GetStoreById(order.StoreId);
         if (!string.IsNullOrEmpty(_pdfSettings.InvoiceHeaderText))
         {
@@ -88,7 +87,7 @@
                                 string paymentMethodStr = paymentMethod != null ? paymentMethod.FriendlyName : order.PaymentMethodSystemName;
                             }
                             <li>@(string.Format(_translationService.GetResource("PDFInvoice.PaymentMethod", order.CustomerLanguageId), paymentMethodStr))</li>
-                            @await Component.InvokeAsync("Widget", new { widgetZone = "payment_method_below", additionalData = @order.Id })
+                            @await Component.InvokeAsync("Widget", new { widgetZone = "pdf_payment_method_below", additionalData = @order.Id })
                         </ul>
                     }
                 </td>
