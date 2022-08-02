@@ -64,7 +64,7 @@ namespace Grand.Business.Common.Services.Directory
                 if (!showHidden)
                     query = query.Where(c => c.Published);
 
-                if (!showHidden && !CommonHelper.IgnoreStoreLimitations && string.IsNullOrEmpty(storeId))
+                if (!showHidden && !CommonHelper.IgnoreStoreLimitations && !string.IsNullOrEmpty(storeId))
                 {
                     //Store acl
                     query = from p in query
