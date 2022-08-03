@@ -14,6 +14,11 @@ namespace Grand.Business.Core.Utilities.Catalog
         public string DiscountRequirementId { get; set; }
 
         /// <summary>
+        /// Gets or sets the metadata 
+        /// </summary>
+        public string MetaData { get; set; }
+
+        /// <summary>
         /// Gets or sets the discount ID (identifier)
         /// </summary>
         public string DiscountId { get; set; }
