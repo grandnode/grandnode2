@@ -1,20 +1,16 @@
-using DiscountRules.Standard.Models;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Domain.Orders;
 
 namespace DiscountRules.Provider
 {
     public partial class HasAllProductsDiscountRule : IDiscountRule
     {
-        private readonly ISettingService _settingService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
-        public HasAllProductsDiscountRule(ISettingService settingService, ShoppingCartSettings shoppingCartSettings)
+        public HasAllProductsDiscountRule(ShoppingCartSettings shoppingCartSettings)
         {
-            _settingService = settingService;
             _shoppingCartSettings = shoppingCartSettings;
         }
 
@@ -31,9 +27,9 @@ namespace DiscountRules.Provider
             //invalid by default
             var result = new DiscountRuleValidationResult();
 
-            var restrictedProductIds = _settingService.GetSettingByKey<RequirementProducts>(string.Format("DiscountRules.Standard.RestrictedProductIds-{0}-{1}", request.DiscountId, request.DiscountRequirementId));
+            var restrictedProductIds = string.IsNullOrEmpty(request.MetaData) ? new List<string>() : request.MetaData.Split(',').ToList();
 
-            if (restrictedProductIds == null || !restrictedProductIds.Products.Any())
+            if (!restrictedProductIds.Any())
             {
                 //valid
                 result.IsValid = true;
@@ -54,7 +50,7 @@ namespace DiscountRules.Provider
             var cart = cartQuery.ToList();
 
             bool allFound = true;
-            foreach (var restrictedProduct in restrictedProductIds.Products.Select(x => x.Trim()))
+            foreach (var restrictedProduct in restrictedProductIds.Select(x => x.Trim()))
             {
                 if (String.IsNullOrWhiteSpace(restrictedProduct))
                     continue;
@@ -139,7 +135,7 @@ namespace DiscountRules.Provider
         {
             //configured 
             string result = "Admin/HasAllProducts/Configure/?discountId=" + discountId;
-            if (!String.IsNullOrEmpty(discountRequirementId))
+            if (!string.IsNullOrEmpty(discountRequirementId))
                 result += string.Format("&discountRequirementId={0}", discountRequirementId);
             return result;
         }

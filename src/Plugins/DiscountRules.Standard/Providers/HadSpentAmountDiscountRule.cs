@@ -1,8 +1,6 @@
-using DiscountRules.Standard.Models;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
 
@@ -10,13 +8,11 @@ namespace DiscountRules.Provider
 {
     public partial class HadSpentAmountDiscountRule : IDiscountRule
     {
-        private readonly ISettingService _settingService;
         private readonly IOrderService _orderService;
         private readonly ITranslationService _translationService;
 
-        public HadSpentAmountDiscountRule(ISettingService settingService, IOrderService orderService, ITranslationService translationService)
+        public HadSpentAmountDiscountRule(IOrderService orderService, ITranslationService translationService)
         {
-            _settingService = settingService;
             _orderService = orderService;
             _translationService = translationService;
         }
@@ -34,29 +30,30 @@ namespace DiscountRules.Provider
             //invalid by default
             var result = new DiscountRuleValidationResult();
 
-            var spentAmountRequirement = _settingService.GetSettingByKey<RequirementHadSpentAmount>(string.Format("DiscountRules.Standard.HadSpentAmount-{0}-{1}", request.DiscountId, request.DiscountRequirementId));
-
-            if (spentAmountRequirement == null || spentAmountRequirement.SpentAmount == 0)
+            if (double.TryParse(request.MetaData, out var spentAmountRequirement))
             {
-                //valid
-                result.IsValid = true;
-                return result;
-            }
+                if (spentAmountRequirement == 0)
+                {
+                    //valid
+                    result.IsValid = true;
+                    return result;
+                }
 
-            if (request.Customer == null)
-                return result;
+                if (request.Customer == null)
+                    return result;
 
-            var orders = await _orderService.SearchOrders(storeId: request.Store.Id,
-                customerId: request.Customer.Id,
-                os: (int)OrderStatusSystem.Complete);
-            double spentAmount = orders.Sum(o => o.OrderTotal);
-            if (spentAmount > spentAmountRequirement.SpentAmount)
-            {
-                result.IsValid = true;
-            }
-            else
-            {
-                result.UserError = _translationService.GetResource("Plugins.DiscountRules.Standard.HadSpentAmount.NotEnough");
+                var orders = await _orderService.SearchOrders(storeId: request.Store.Id,
+                    customerId: request.Customer.Id,
+                    os: (int)OrderStatusSystem.Complete);
+                double spentAmount = orders.Sum(o => o.OrderTotal);
+                if (spentAmount > spentAmountRequirement)
+                {
+                    result.IsValid = true;
+                }
+                else
+                {
+                    result.UserError = _translationService.GetResource("Plugins.DiscountRules.Standard.HadSpentAmount.NotEnough");
+                }
             }
             return result;
         }
@@ -71,7 +68,7 @@ namespace DiscountRules.Provider
         {
             //configured 
             string result = "Admin/HadSpentAmount/Configure/?discountId=" + discountId;
-            if (!String.IsNullOrEmpty(discountRequirementId))
+            if (!string.IsNullOrEmpty(discountRequirementId))
                 result += string.Format("&discountRequirementId={0}", discountRequirementId);
             return result;
         }

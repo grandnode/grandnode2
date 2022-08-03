@@ -1,10 +1,8 @@
-﻿using DiscountRules.Standard.Models;
-using Grand.Business.Core.Interfaces.Catalog.Discounts;
+﻿using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,20 +13,17 @@ namespace DiscountRules.Provider
     {
         private readonly IWorkContext _workContext;
         private readonly IProductService _productService;
-        private readonly ISettingService _settingService;
         private readonly IServiceProvider _serviceProvider;
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
         public ShoppingCartDiscountRule(
-            IWorkContext workContext, 
+            IWorkContext workContext,
             IProductService productService,
             IServiceProvider serviceProvider,
-            ISettingService settingService, 
             ShoppingCartSettings shoppingCartSettings)
         {
             _workContext = workContext;
             _productService = productService;
-            _settingService = settingService;
             _serviceProvider = serviceProvider;
             _shoppingCartSettings = shoppingCartSettings;
         }
@@ -45,36 +40,38 @@ namespace DiscountRules.Provider
 
             var result = new DiscountRuleValidationResult();
 
-            var spentAmountRequirement = _settingService.GetSettingByKey<RequirementSpentAmount>(string.Format("DiscountRequirement.ShoppingCart-{0}", request.DiscountRequirementId));
-
-            if (spentAmountRequirement == null || spentAmountRequirement.SpentAmount == 0)
+            if (double.TryParse(request.MetaData, out var spentAmountRequirement))
             {
-                result.IsValid = true;
-                return result;
+                if (spentAmountRequirement == 0)
+                {
+                    result.IsValid = true;
+                    return result;
+                }
+
+                var cart = _workContext.CurrentCustomer.ShoppingCartItems
+                        .Where(sci => sci.ShoppingCartTypeId == ShoppingCartType.ShoppingCart)
+                        .LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, request.Store.Id)
+                        .ToList();
+
+                if (cart.Count == 0)
+                {
+                    result.IsValid = false;
+                    return result;
+                }
+                double spentAmount = 0;
+
+                var priceCalculationService = _serviceProvider.GetRequiredService<IPricingService>();
+
+                foreach (var ca in cart)
+                {
+                    bool calculateWithDiscount = false;
+                    var product = await _productService.GetProductById(ca.ProductId);
+                    if (product != null)
+                        spentAmount += (await priceCalculationService.GetSubTotal(ca, product, calculateWithDiscount)).subTotal;
+                }
+
+                result.IsValid = spentAmount > spentAmountRequirement;
             }
-            var cart = _workContext.CurrentCustomer.ShoppingCartItems
-                    .Where(sci => sci.ShoppingCartTypeId == ShoppingCartType.ShoppingCart)
-                    .LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, request.Store.Id)
-                    .ToList();
-
-            if (cart.Count == 0)
-            {
-                result.IsValid = false;
-                return result;
-            }
-            double spentAmount = 0;
-
-            var priceCalculationService = _serviceProvider.GetRequiredService<IPricingService>();
-
-            foreach (var ca in cart)
-            {
-                bool calculateWithDiscount = false;
-                var product = await _productService.GetProductById(ca.ProductId);
-                if (product != null)
-                    spentAmount += (await priceCalculationService.GetSubTotal(ca, product, calculateWithDiscount)).subTotal;
-            }
-
-            result.IsValid = spentAmount > spentAmountRequirement.SpentAmount;
             return result;
         }
 
@@ -88,7 +85,7 @@ namespace DiscountRules.Provider
         {
             //configured 
             string result = "Admin/ShoppingCartAmount/Configure/?discountId=" + discountId;
-            if (!String.IsNullOrEmpty(discountRequirementId))
+            if (!string.IsNullOrEmpty(discountRequirementId))
                 result += string.Format("&discountRequirementId={0}", discountRequirementId);
             return result;
         }

@@ -1,20 +1,16 @@
-using DiscountRules.Standard.Models;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Domain.Orders;
 
 namespace DiscountRules.Provider
 {
     public partial class HasOneProductDiscountRule : IDiscountRule
     {
-        private readonly ISettingService _settingService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
-        public HasOneProductDiscountRule(ISettingService settingService, ShoppingCartSettings shoppingCartSettings)
+        public HasOneProductDiscountRule(ShoppingCartSettings shoppingCartSettings)
         {
-            _settingService = settingService;
             _shoppingCartSettings = shoppingCartSettings;
         }
 
@@ -31,9 +27,9 @@ namespace DiscountRules.Provider
             //invalid by default
             var result = new DiscountRuleValidationResult();
 
-            var restrictedProductIds = _settingService.GetSettingByKey<RequirementProducts>(string.Format("DiscountRules.Standard.RestrictedProductIds-{0}-{1}", request.DiscountId, request.DiscountRequirementId));
+            var restrictedProductIds = string.IsNullOrEmpty(request.MetaData) ? new List<string>() : request.MetaData.Split(',').ToList();
 
-            if (restrictedProductIds == null || !restrictedProductIds.Products.Any())
+            if (!restrictedProductIds.Any())
             {
                 //valid
                 result.IsValid = true;
@@ -54,16 +50,16 @@ namespace DiscountRules.Provider
 
             //process
             bool found = false;
-            foreach (var restrictedProduct in restrictedProductIds.Products)
+            foreach (var restrictedProduct in restrictedProductIds)
             {
-                if (String.IsNullOrWhiteSpace(restrictedProduct))
+                if (string.IsNullOrWhiteSpace(restrictedProduct))
                     continue;
 
                 foreach (var sci in cart)
                 {
-                    if (restrictedProduct.Contains(":"))
+                    if (restrictedProduct.Contains(':'))
                     {
-                        if (restrictedProduct.Contains("-"))
+                        if (restrictedProduct.Contains('-'))
                         {
                             //the third way (the quantity rage specified)
                             //{Product ID}:{Min quantity}-{Max quantity}. For example, 77:1-3, 123:2-5, 156:3-8
@@ -139,7 +135,7 @@ namespace DiscountRules.Provider
         {
             //configured 
             string result = "Admin/HasOneProduct/Configure/?discountId=" + discountId;
-            if (!String.IsNullOrEmpty(discountRequirementId))
+            if (!string.IsNullOrEmpty(discountRequirementId))
                 result += string.Format("&discountRequirementId={0}", discountRequirementId);
             return result;
         }
