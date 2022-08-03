@@ -55,23 +55,48 @@
             },
             dataSource: {
                 transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("ProductAttributeCombinationList", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
+                    read: function(options) {
+                        $.ajax({
+                            url: "@Html.Raw(Url.Action("ProductAttributeCombinationList", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken(options.data),
+                            success: function(result) {
+                                options.success(result);
+                                $('input[name="Ticks"]').val(result.ExtraData.ProductTicks);
+                            },
+                            error: function(result) {
+                                options.error(result);
+                            }
+                        });
                     },
-                    update: {
-                        url: "@Html.Raw(Url.Action("ProductAttributeCombinationUpdate", "Product", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
+                    update: function(options) {
+                        $.ajax({
+                            url: "@Html.Raw(Url.Action("ProductAttributeCombinationUpdate", "Product", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken(options.data),
+                            success: function(result) {
+                                options.success(result);
+                            },
+                            error: function(result) {
+                                options.error(result);
+                            }
+                        });
                     },
-                    destroy: {
-                        url: "@Html.Raw(Url.Action("ProductAttributeCombinationDelete", "Product", new { area = Constants.AreaAdmin }))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
+                    destroy: function(options) {
+                        $.ajax({
+                            url: "@Html.Raw(Url.Action("ProductAttributeCombinationDelete", "Product", new { area = Constants.AreaAdmin }))",
+                            type: "POST",
+                            dataType: "json",
+                            data: addAntiForgeryToken(options.data),
+                            success: function(result) {
+                                options.success(result);
+                            },
+                            error: function(result) {
+                                options.error(result);
+                            }
+                        });
                     }
                 },
                 schema: {
@@ -95,7 +120,7 @@
                     }
                 },
                 requestEnd: function(e) {
-                    if (e.type == "update") {
+                    if (e.type == "update" || e.type == "destroy") {
                         this.read();
                     }
                 },

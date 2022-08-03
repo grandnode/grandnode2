@@ -2344,7 +2344,8 @@ namespace Grand.Web.Admin.Controllers
             var combinationsModel = await _productViewModelService.PrepareProductAttributeCombinationModel(product);
             var gridModel = new DataSourceResult {
                 Data = combinationsModel,
-                Total = combinationsModel.Count
+                Total = combinationsModel.Count,
+                ExtraData = new { ProductTicks = product.UpdatedOnUtc.Ticks.ToString() }
             };
             return Json(gridModel);
         }
