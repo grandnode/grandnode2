@@ -25,11 +25,11 @@ namespace DiscountRules.Provider
             if (request.Customer == null)
                 return result;
 
-            if (string.IsNullOrEmpty(request.MetaData))
+            if (string.IsNullOrEmpty(request.DiscountRule.Metadata))
                 return result;
 
             foreach (var customerGroup in request.Customer.Groups.ToList())
-                if (request.MetaData == customerGroup)
+                if (request.DiscountRule.Metadata == customerGroup)
                 {
                     //valid
                     result.IsValid = true;

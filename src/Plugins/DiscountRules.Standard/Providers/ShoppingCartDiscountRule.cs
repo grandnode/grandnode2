@@ -40,7 +40,7 @@ namespace DiscountRules.Provider
 
             var result = new DiscountRuleValidationResult();
 
-            if (double.TryParse(request.MetaData, out var spentAmountRequirement))
+            if (double.TryParse(request.DiscountRule.Metadata, out var spentAmountRequirement))
             {
                 if (spentAmountRequirement == 0)
                 {

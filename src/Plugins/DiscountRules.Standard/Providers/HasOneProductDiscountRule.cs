@@ -27,7 +27,7 @@ namespace DiscountRules.Provider
             //invalid by default
             var result = new DiscountRuleValidationResult();
 
-            var restrictedProductIds = string.IsNullOrEmpty(request.MetaData) ? new List<string>() : request.MetaData.Split(',').ToList();
+            var restrictedProductIds = string.IsNullOrEmpty(request.DiscountRule.Metadata) ? new List<string>() : request.DiscountRule.Metadata.Split(',').ToList();
 
             if (!restrictedProductIds.Any())
             {

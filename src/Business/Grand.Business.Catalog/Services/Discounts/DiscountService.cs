@@ -519,11 +519,11 @@ namespace Grand.Business.Catalog.Services.Discounts
             }
 
             //discount requirements
-            var requirements = discount.DiscountRules.ToList();
-            foreach (var req in requirements)
+            var discountRules = discount.DiscountRules.ToList();
+            foreach (var rule in discountRules)
             {
                 //load a plugin
-                var discountRequirementPlugin = LoadDiscountProviderBySystemName(req.DiscountRequirementRuleSystemName);
+                var discountRequirementPlugin = LoadDiscountProviderBySystemName(rule.DiscountRequirementRuleSystemName);
 
                 if (discountRequirementPlugin == null)
                     continue;
@@ -533,14 +533,13 @@ namespace Grand.Business.Catalog.Services.Discounts
 
                 var ruleRequest = new DiscountRuleValidationRequest
                 {
-                    DiscountRequirementId = req.Id,
-                    MetaData = req.Metadata,
-                    DiscountId = discount.Id,
+                    DiscountRule = rule,
+                    Discount = discount,
                     Customer = customer,
                     Store = _workContext.CurrentStore
                 };
 
-                var singleRequirementRule = discountRequirementPlugin.GetRequirementRules().Single(x => x.SystemName == req.DiscountRequirementRuleSystemName);
+                var singleRequirementRule = discountRequirementPlugin.GetRequirementRules().Single(x => x.SystemName == rule.DiscountRequirementRuleSystemName);
                 var ruleResult = await singleRequirementRule.CheckRequirement(ruleRequest);
                 if (!ruleResult.IsValid)
                 {
