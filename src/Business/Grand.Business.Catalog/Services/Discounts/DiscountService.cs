@@ -296,7 +296,7 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// </summary>
         /// <param name="code"></param>
         /// <returns></returns>
-        public async Task<DiscountCoupon> GetDiscountCodeByCode(string couponCode)
+        public virtual async Task<DiscountCoupon> GetDiscountCodeByCode(string couponCode)
         {
             var query = await Task.FromResult(_discountCouponRepository.Table.Where(x => x.CouponCode == couponCode).ToList());
             return query.FirstOrDefault();
@@ -655,7 +655,7 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// <param name="currency">currency</param>
         /// <param name="customer">Customer</param>
         /// <param name="product">Product</param>
-        public async Task<double> GetDiscountAmount(Discount discount, Customer customer, Currency currency, Product product, double amount)
+        public virtual async Task<double> GetDiscountAmount(Discount discount, Customer customer, Currency currency, Product product, double amount)
         {
             if (discount == null)
                 throw new ArgumentNullException(nameof(discount));
@@ -785,7 +785,7 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// Get all discount amount providers
         /// </summary>
         /// <returns></returns>
-        public IList<IDiscountAmountProvider> LoadDiscountAmountProviders()
+        public virtual IList<IDiscountAmountProvider> LoadDiscountAmountProviders()
         {
             return _discountAmountProviders.ToList();
         }
