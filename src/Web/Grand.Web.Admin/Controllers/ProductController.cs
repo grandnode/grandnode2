@@ -2373,7 +2373,7 @@ namespace Grand.Web.Admin.Controllers
             await productAttributeService.DeleteProductAttributeCombination(combination, productId);
             if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
             {
-                var pr = await _productService.GetProductById(productId);
+                var pr = await _productService.GetProductById(productId, true);
                 pr.StockQuantity = pr.ProductAttributeCombinations.Sum(x => x.StockQuantity);
                 pr.ReservedQuantity = pr.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
                 await _inventoryManageService.UpdateStockProduct(pr, false);
