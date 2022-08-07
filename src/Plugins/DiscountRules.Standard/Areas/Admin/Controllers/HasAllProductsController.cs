@@ -1,8 +1,6 @@
 ﻿using DiscountRules.HasAllProducts.Models;
-using DiscountRules.Standard.Models;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Common.Stores;
@@ -25,7 +23,6 @@ namespace DiscountRules.HasAllProducts.Controllers
     public class HasAllProductsController : BasePluginController
     {
         private readonly IDiscountService _discountService;
-        private readonly ISettingService _settingService;
         private readonly IPermissionService _permissionService;
         private readonly IWorkContext _workContext;
         private readonly ITranslationService _translationService;
@@ -34,7 +31,6 @@ namespace DiscountRules.HasAllProducts.Controllers
         private readonly IProductService _productService;
 
         public HasAllProductsController(IDiscountService discountService,
-            ISettingService settingService,
             IPermissionService permissionService,
             IWorkContext workContext,
             ITranslationService translationService,
@@ -43,7 +39,6 @@ namespace DiscountRules.HasAllProducts.Controllers
             IProductService productService)
         {
             _discountService = discountService;
-            _settingService = settingService;
             _permissionService = permissionService;
             _workContext = workContext;
             _translationService = translationService;
@@ -61,22 +56,25 @@ namespace DiscountRules.HasAllProducts.Controllers
             if (discount == null)
                 throw new ArgumentException("Discount could not be loaded");
 
-            if (!String.IsNullOrEmpty(discountRequirementId))
+            var restrictedProductIds = string.Empty;
+
+            if (!string.IsNullOrEmpty(discountRequirementId))
             {
                 var discountRequirement = discount.DiscountRules.FirstOrDefault(dr => dr.Id == discountRequirementId);
                 if (discountRequirement == null)
                     return Content("Failed to load requirement.");
+
+                restrictedProductIds = discountRequirement.Metadata;
             }
 
-            var restrictedProductIds = _settingService.GetSettingByKey<RequirementProducts>(string.Format("DiscountRules.Standard.RestrictedProductIds-{0}-{1}", discount.Id, !String.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : ""))?.Products;
-
-            var model = new RequirementModel();
-            model.RequirementId = !String.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "";
-            model.DiscountId = discountId;
-            model.Products = restrictedProductIds == null ? "" : string.Join(",", restrictedProductIds);
+            var model = new RequirementModel {
+                RequirementId = !string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "",
+                DiscountId = discountId,
+                Products = restrictedProductIds
+            };
 
             //add a prefix
-            ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("DiscountRulesHasAllProducts{0}-{1}", discount.Id, !String.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "");
+            ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("DiscountRulesHasAllProducts{0}-{1}", discount.Id, !string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "");
 
             return View(model);
         }
@@ -93,25 +91,25 @@ namespace DiscountRules.HasAllProducts.Controllers
                 throw new ArgumentException("Discount could not be loaded");
 
             DiscountRule discountRequirement = null;
-            if (!String.IsNullOrEmpty(discountRequirementId))
+
+            if (!string.IsNullOrEmpty(discountRequirementId))
                 discountRequirement = discount.DiscountRules.FirstOrDefault(dr => dr.Id == discountRequirementId);
 
             if (discountRequirement != null)
             {
                 //update existing rule
-                await _settingService.SetSetting(string.Format("DiscountRules.Standard.RestrictedProductIds-{0}-{1}", discount.Id, discountRequirement.Id), new RequirementProducts() { Products = productIds.Split(",") });
+                discountRequirement.Metadata = productIds;
+                await _discountService.UpdateDiscount(discount);
             }
             else
             {
                 //save new rule
-                discountRequirement = new DiscountRule
-                {
-                    DiscountRequirementRuleSystemName = "DiscountRules.HasAllProducts"
+                discountRequirement = new DiscountRule {
+                    DiscountRequirementRuleSystemName = "DiscountRules.HasAllProducts",
+                    Metadata = productIds
                 };
                 discount.DiscountRules.Add(discountRequirement);
                 await _discountService.UpdateDiscount(discount);
-
-                await _settingService.SetSetting(string.Format("DiscountRules.Standard.RestrictedProductIds-{0}-{1}", discount.Id, discountRequirement.Id), new RequirementProducts() { Products = productIds.Split(",") });
             }
             return new JsonResult(new { Result = true, NewRequirementId = discountRequirement.Id });
         }
@@ -121,9 +119,10 @@ namespace DiscountRules.HasAllProducts.Controllers
             if (!await _permissionService.Authorize(StandardPermission.ManageProducts))
                 return Content("Access denied");
 
-            var model = new RequirementModel.AddProductModel();
-            //a vendor should have access only to his products
-            model.IsLoggedInAsVendor = _workContext.CurrentVendor != null;
+            var model = new RequirementModel.AddProductModel {
+                //a vendor should have access only to his products
+                IsLoggedInAsVendor = _workContext.CurrentVendor != null
+            };
 
             //stores
             model.AvailableStores.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "" });
@@ -159,7 +158,7 @@ namespace DiscountRules.HasAllProducts.Controllers
                 model.SearchVendorId = _workContext.CurrentVendor.Id;
             }
             var searchCategoryIds = new List<string>();
-            if (!String.IsNullOrEmpty(model.SearchCategoryId))
+            if (!string.IsNullOrEmpty(model.SearchCategoryId))
                 searchCategoryIds.Add(model.SearchCategoryId);
 
             var products = (await _productService.SearchProducts(
@@ -174,8 +173,7 @@ namespace DiscountRules.HasAllProducts.Controllers
                 showHidden: true
                 )).products;
             var gridModel = new DataSourceResult();
-            gridModel.Data = products.Select(x => new RequirementModel.ProductModel
-            {
+            gridModel.Data = products.Select(x => new RequirementModel.ProductModel {
                 Id = x.Id,
                 Name = x.Name,
                 Published = x.Published

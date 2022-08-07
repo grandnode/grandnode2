@@ -250,12 +250,13 @@ namespace Grand.Web.Admin.Services
             string url = string.Format("{0}/{1}", storeLocation, discountRequirementRule.GetConfigurationUrl(discount.Id, discountRequirementId));
             return url;
         }
+
         public virtual async Task DeleteDiscountRequirement(DiscountRule discountRequirement, Discount discount)
         {
-            await _discountService.DeleteDiscountRequirement(discountRequirement);
             discount.DiscountRules.Remove(discountRequirement);
             await _discountService.UpdateDiscount(discount);
         }
+
         public virtual async Task<DiscountModel.AddProductToDiscountModel> PrepareProductToDiscountModel()
         {
             var model = new DiscountModel.AddProductToDiscountModel();
