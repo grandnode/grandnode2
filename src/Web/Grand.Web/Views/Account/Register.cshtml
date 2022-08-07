@@ -469,7 +469,7 @@
                     <div class="form-group">
                         <validation-provider tag="div" vid="customer.Password" rules="required" v-slot="{ errors, classes }">
                             <label asp-for="Password" class="col-form-label">@Loc["Account.Fields.Password"]:</label>
-                            <input asp-for="Password" v-model="customer.Password" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                            <input asp-for="Password" v-model="customer.Password" v-bind:class="[classes , 'form-control']" autocomplete="off" />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Password"></span>
                         </validation-provider>
@@ -477,7 +477,7 @@
                     <div class="form-group">
                         <validation-provider tag="div" vid="customer.ConfirmPassword" rules="required|confirmed:@@customer.Password" v-slot="{ errors, classes }">
                             <label asp-for="ConfirmPassword" class="col-form-label">@Loc["Account.Fields.ConfirmPassword"]:</label>
-                            <input asp-for="ConfirmPassword" v-model="customer.ConfirmPassword" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                            <input asp-for="ConfirmPassword" v-model="customer.ConfirmPassword" v-bind:class="[classes , 'form-control']" autocomplete="off" />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="ConfirmPassword"></span>
                         </validation-provider>

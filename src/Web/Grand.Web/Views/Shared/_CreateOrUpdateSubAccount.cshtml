@@ -37,7 +37,7 @@
         <validation-provider tag="div" rules="required" name="Password" v-slot="{ errors, classes }">
             <label asp-for="Password" class="col-form-label">@Loc["Account.Fields.Password"]:</label>
             <span class="required">*</span>
-            <input asp-for="Password" v-model="createorupdatesubaccount.Password" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+            <input asp-for="Password" v-model="createorupdatesubaccount.Password" v-bind:class="[classes , 'form-control']" autocomplete="off" />
             <span class="field-validation-error">{{ errors[0] }}</span>
             <span asp-validation-for="Password"></span>
         </validation-provider>
