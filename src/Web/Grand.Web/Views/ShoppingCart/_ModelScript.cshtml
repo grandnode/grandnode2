@@ -63,7 +63,7 @@
             termsCheck(guest) {
                 if (vmorder.cart.MinOrderSubtotalWarning == null) {
                     if (this.terms) {
-                        if (guest) {
+                        if (guest) {                          
                             window.location = '@Url.RouteUrl("Checkout")';
                         } else {
                             document.getElementById('shopping-cart-form').setAttribute('action', '@Url.RouteUrl("StartCheckout")');
@@ -75,6 +75,43 @@
                         vmorder.acceptTerms = true;
                     }
                 }
+            },
+             CheckoutAndValidate(guest) {
+                 if (vmorder.cart.MinOrderSubtotalWarning == null) {
+                     if (vmorder.cart.TermsOfServiceOnShoppingCartPage) {
+                         if (this.terms) {
+                             if (guest) {
+                                 vmorder.SafeNavigateToCheckout();
+                             } else {
+                                 document.getElementById('shopping-cart-form').setAttribute('action', '@Url.RouteUrl("StartCheckout")');
+                                 document.getElementById('shopping-cart-form').submit();
+                             }
+                             vmorder.acceptTerms = false;
+                         }
+                         else {
+                             vmorder.acceptTerms = true;
+                         }
+                     } else {
+                         if (guest) {
+                             vmorder.SafeNavigateToCheckout();
+                         } else {
+                             document.getElementById('shopping-cart-form').setAttribute('action', '@Url.RouteUrl("StartCheckout")');
+                             document.getElementById('shopping-cart-form').submit();
+                         }
+                     }
+                 }
+            },
+            SafeNavigateToCheckout(){
+                axios({
+                    url: '@Url.Action("Index", "Checkout")',                  
+                    method: 'get',
+                }).then(function(response) {
+                   if (response.status === 200) {
+                       window.location.href = response.request.responseURL;
+                }
+                }).catch(function(error) {
+                    alert(error)
+                });
             },
             ApplyGiftVoucher(href) {
                 var bodyFormData = new FormData();
@@ -190,6 +227,7 @@
                 });
             },
             deleteitem(href) {
+                document.getElementById("app").setAttribute("v-cloak", true);
                 axios({
                     method: 'post',
                     url: href,
@@ -205,6 +243,7 @@
                         document.querySelector('.qty-indicator.cart-qty').innerText = response.data.totalproducts;
                     }
                 }).then(function () {
+                    document.getElementById("app").removeAttribute("v-cloak", true);
                     this.vmorder.updateTotals();
                 });
             },

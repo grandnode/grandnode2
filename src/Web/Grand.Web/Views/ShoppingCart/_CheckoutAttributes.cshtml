@@ -15,10 +15,8 @@
             </template>
             <template v-if="attribute.AttributeControlType == 1">
                 <label :for="'checkout_attribute_' + attribute.Id" class="sr-only">checkout_attribute_{{attribute.Id}}</label>
-                <select :id="'checkout_attribute_' + attribute.Id" class="form-control custom-select" onchange="checkoutAttributeChange()" :name="'checkout_attribute_' + attribute.Id">
-                    <template v-if="attribute.IsRequired == false">
-                        <option value="">---</option>
-                    </template>
+                <select :id="'checkout_attribute_' + attribute.Id" class="form-control custom-select" onchange="checkoutAttributeChange()" :name="'checkout_attribute_' + attribute.Id">                 
+                    <option value="">---</option>                  
                     <option v-for="attributeValue in attribute.Values" :selected="attributeValue.IsPreSelected" :value="attributeValue.Id">
                         <template v-if="attributeValue.PriceAdjustment == null">
                             {{attributeValue.Name}}
