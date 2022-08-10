@@ -103,7 +103,7 @@
             },
             SafeNavigateToCheckout(){
                 axios({
-                    url: '@Url.Action("Index", "Checkout")',                  
+                    url: "/Checkout/Index",                  
                     method: 'get',
                 }).then(function(response) {
                    if (response.status === 200) {
