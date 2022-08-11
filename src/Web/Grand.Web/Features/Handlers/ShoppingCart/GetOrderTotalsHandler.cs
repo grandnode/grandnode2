@@ -79,9 +79,12 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax && !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
             var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(request.Cart, subTotalIncludingTax);
             model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.subTotalWithoutDiscount, request.Currency, request.Language, subTotalIncludingTax);
+            model.SubTotalValue = shoppingCartSubTotal.subTotalWithoutDiscount;
             if (shoppingCartSubTotal.discountAmount > 0)
             {
                 model.SubTotalDiscount = _priceFormatter.FormatPrice(-shoppingCartSubTotal.discountAmount, request.Currency, request.Language, subTotalIncludingTax);
+                model.SubTotalDiscountValue = -shoppingCartSubTotal.discountAmount;
+                shoppingCartSubTotal.appliedDiscounts.ForEach(x => model.Discounts.Add(x.DiscountId));
             }
         }
 
@@ -90,7 +93,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             model.RequiresShipping = request.Cart.RequiresShipping();
             if (model.RequiresShipping)
             {
-                double? shoppingCartShippingBase = (await _orderTotalCalculationService.GetShoppingCartShippingTotal(request.Cart)).shoppingCartShippingTotal;
+                var shoppingCartShippingBase = (await _orderTotalCalculationService.GetShoppingCartShippingTotal(request.Cart)).shoppingCartShippingTotal;
                 if (shoppingCartShippingBase.HasValue)
                 {
                     model.Shipping = _priceFormatter.FormatShippingPrice(shoppingCartShippingBase.Value);
@@ -108,18 +111,19 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
         {
             var paymentMethodSystemName = request.Customer.GetUserFieldFromEntity<string>(
                     SystemCustomerFieldNames.SelectedPaymentMethod, request.Store.Id);
-            double paymentMethodAdditionalFee = await _paymentService.GetAdditionalHandlingFee(request.Cart, paymentMethodSystemName);
-            double paymentMethodAdditionalFeeWithTaxBase = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer)).paymentPrice;
+            var paymentMethodAdditionalFee = await _paymentService.GetAdditionalHandlingFee(request.Cart, paymentMethodSystemName);
+            var paymentMethodAdditionalFeeWithTaxBase = (await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, request.Customer)).paymentPrice;
             if (paymentMethodAdditionalFeeWithTaxBase > 0)
             {
                 model.PaymentMethodAdditionalFee = _priceFormatter.FormatPaymentMethodAdditionalFee(paymentMethodAdditionalFeeWithTaxBase);
+                model.PaymentMethodAdditionalFeeValue = paymentMethodAdditionalFeeWithTaxBase;
             }
         }
 
         private async Task PrepareTax(OrderTotalsModel model, GetOrderTotals request)
         {
-            bool displayTax = true;
-            bool displayTaxRates = true;
+            bool displayTax;
+            bool displayTaxRates;
             if (_taxSettings.HideTaxInOrderSummary && request.TaxDisplayType == TaxDisplayType.IncludingTax)
             {
                 displayTax = false;
@@ -143,8 +147,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     model.Tax = _priceFormatter.FormatPrice(taxtotal.taxtotal, false);
                     foreach (var tr in taxRates)
                     {
-                        model.TaxRates.Add(new OrderTotalsModel.TaxRate
-                        {
+                        model.TaxRates.Add(new OrderTotalsModel.TaxRate {
                             Rate = _priceFormatter.FormatTaxRate(tr.Key),
                             Value = _priceFormatter.FormatPrice(tr.Value, false),
                         });
@@ -158,19 +161,22 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
         private async Task PrepareTotal(OrderTotalsModel model, GetOrderTotals request)
         {
             var carttotal = await _orderTotalCalculationService.GetShoppingCartTotal(request.Cart);
-            double? shoppingCartTotalBase = carttotal.shoppingCartTotal;
-            double orderTotalDiscountAmountBase = carttotal.discountAmount;
+            var shoppingCartTotalBase = carttotal.shoppingCartTotal;
+            var orderTotalDiscountAmountBase = carttotal.discountAmount;
             List<AppliedGiftVoucher> appliedGiftVouchers = carttotal.appliedGiftVouchers;
-            int redeemedLoyaltyPoints = carttotal.redeemedLoyaltyPoints;
-            double redeemedLoyaltyPointsAmount = carttotal.redeemedLoyaltyPointsAmount;
+            var redeemedLoyaltyPoints = carttotal.redeemedLoyaltyPoints;
+            var redeemedLoyaltyPointsAmount = carttotal.redeemedLoyaltyPointsAmount;
             if (shoppingCartTotalBase.HasValue)
             {
                 model.OrderTotal = _priceFormatter.FormatPrice(shoppingCartTotalBase.Value, false);
+                model.OrderTotalValue = shoppingCartTotalBase.Value;
             }
             //discount
             if (orderTotalDiscountAmountBase > 0)
             {
                 model.OrderTotalDiscount = _priceFormatter.FormatPrice(-orderTotalDiscountAmountBase, false);
+                model.OrderTotalDiscountValue = -orderTotalDiscountAmountBase;
+                carttotal.appliedDiscounts.ForEach(x => model.Discounts.Add(x.DiscountId));
             }
 
             //gift vouchers
@@ -194,7 +200,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 _loyaltyPointsSettings.DisplayHowMuchWillBeEarned &&
                 shoppingCartTotalBase.HasValue)
             {
-                double? shippingBaseInclTax = model.RequiresShipping
+                var shippingBaseInclTax = model.RequiresShipping
                     ? (await _orderTotalCalculationService.GetShoppingCartShippingTotal(request.Cart, true)).shoppingCartShippingTotal
                     : 0;
                 var earnLoyaltyPoints = shoppingCartTotalBase.Value - shippingBaseInclTax.Value;
@@ -205,14 +211,13 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
         private void PrepareGiftVouchers(AppliedGiftVoucher appliedGiftVoucher, OrderTotalsModel model, GetOrderTotals request)
         {
-            var gcModel = new OrderTotalsModel.GiftVoucher
-            {
+            var gcModel = new OrderTotalsModel.GiftVoucher {
                 Id = appliedGiftVoucher.GiftVoucher.Id,
                 CouponCode = appliedGiftVoucher.GiftVoucher.Code,
             };
             gcModel.Amount = _priceFormatter.FormatPrice(-appliedGiftVoucher.AmountCanBeUsed, false);
 
-            double remainingAmountBase = appliedGiftVoucher.GiftVoucher.GetGiftVoucherRemainingAmount() - appliedGiftVoucher.AmountCanBeUsed;
+            var remainingAmountBase = appliedGiftVoucher.GiftVoucher.GetGiftVoucherRemainingAmount() - appliedGiftVoucher.AmountCanBeUsed;
             gcModel.Remaining = _priceFormatter.FormatPrice(remainingAmountBase, false);
 
             model.GiftVouchers.Add(gcModel);

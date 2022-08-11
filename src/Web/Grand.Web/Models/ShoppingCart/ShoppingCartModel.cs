@@ -41,7 +41,7 @@ namespace Grand.Web.Models.ShoppingCart
             {
                 Picture = new PictureModel();
                 AllowedQuantities = new List<SelectListItem>();
-                Discounts = new List<string>();
+                Discounts = new HashSet<string>();
                 Warnings = new List<string>();
             }
             public string Sku { get; set; }
@@ -64,7 +64,7 @@ namespace Grand.Web.Models.ShoppingCart
             public double SubTotalValue { get; set; }
             public string Discount { get; set; }
             public int DiscountedQty { get; set; }
-            public List<string> Discounts { get; set; }
+            public HashSet<string> Discounts { get; set; }
             public int Quantity { get; set; }
             public List<SelectListItem> AllowedQuantities { get; set; }
             public string AttributeInfo { get; set; }

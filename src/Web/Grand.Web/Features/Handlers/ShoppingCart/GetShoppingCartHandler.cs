@@ -425,10 +425,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                         if (discount != null && discount.MaximumDiscountedQuantity.HasValue)
                             cartItemModel.DiscountedQty = discount.MaximumDiscountedQuantity.Value;
 
-                        foreach (var disc in appliedDiscounts)
-                        {
-                            cartItemModel.Discounts.Add(disc.DiscountId);
-                        }
+                        appliedDiscounts.ForEach(x => cartItemModel.Discounts.Add(x.DiscountId));
                     }
                     //sub total
                     var subtotal = await _pricingService.GetSubTotal(sci, product, true);
