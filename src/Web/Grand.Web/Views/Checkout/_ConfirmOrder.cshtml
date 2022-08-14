@@ -26,7 +26,7 @@
                 </b-form-checkbox>
                 <div class="alert alert-info my-2" :show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</div>
             </div>
-            <button class="btn btn-secondary" id="new-back-confirm_order">@Loc["Common.Back"]</button>
+            <button class="btn btn-secondary" id="new-back-confirm_order"  @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</button>
             <button class="btn btn-info" @@click="vmorder.termsCheck()">
                 @Loc["Common.Confirm"]
             </button>
