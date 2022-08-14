@@ -1,96 +1,48 @@
-﻿@using System.Globalization 
-@model ProductOverviewModel
-@{
-    //prepare "Add to cart" Axios link
-    string addtocartlink = "";
-    string addtowishlistlink = "";
-    string quickviewurl = Url.RouteUrl("QuickView-Product", new { productId = Model.Id });
-
-    var shoppingCartTypeId = (int)ShoppingCartType.ShoppingCart;
-    var quantity = 1;
-    if (!Model.ShowQty)
-    {
-        if (Model.ProductPrice.ForceRedirectionAfterAddingToCart)
-        {
-            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = shoppingCartTypeId, quantity = quantity, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart });
-        }
-        else
-        {
-            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = shoppingCartTypeId, quantity = quantity });
-        }
-        addtowishlistlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist, quantity = quantity });
-    }
-    else
-    {
-        if (Model.ProductPrice.ForceRedirectionAfterAddingToCart)
-        {
-            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = shoppingCartTypeId, forceredirection = Model.ProductPrice.ForceRedirectionAfterAddingToCart });
-        }
-        else
-        {
-            addtocartlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = shoppingCartTypeId });
-        }
-        addtowishlistlink = Url.RouteUrl("AddProductCatalog", new { productId = Model.Id, shoppingCartTypeId = (int)ShoppingCartType.Wishlist });
-    }
-    var addtocomparelink = Url.RouteUrl("AddProductToCompare", new { productId = Model.Id });
-}
-
-@await Component.InvokeAsync("Widget", new { widgetZone = "productbox_before_content", additionalData = Model })
-<div class="w-100 mb-3 border-bottom">
-    <article class="card product-box list mb-3" v-bind:class="{ mobile: isMobile()}">
+﻿<div class="w-100 mb-3 border-bottom">
+    <article v-bind:class="{ mobile: isMobile()}" class="card product-box list mb-3 test">
         <div class="picture-container">
-            <a class="img-container" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })" title="@Model.DefaultPictureModel.Title">
-                <b-card-img-lazy alt="@Model.DefaultPictureModel.AlternateText" class="main-product-img" src="@Model.DefaultPictureModel.ImageUrl" title="@Model.DefaultPictureModel.Title"></b-card-img-lazy>
-                @if (!string.IsNullOrEmpty(Model.SecondPictureModel.ImageUrl))
-                {
-                    <b-card-img-lazy class="hover-img" alt="@Model.SecondPictureModel.AlternateText" src="@Model.SecondPictureModel.ImageUrl"></b-card-img-lazy>
-                }
+            <a class="img-container" :href="Model.Url" :title="Model.DefaultPictureModel.Title">
+                <b-card-img-lazy :alt="Model.DefaultPictureModel.AlternateText" class="main-product-img" :src="Model.DefaultPictureModel.ImageUrl" :title="Model.DefaultPictureModel.Title"></b-card-img-lazy>
+                <template v-if="Model.SecondPictureModel.ImageUrl !== null">
+                    <b-card-img-lazy class="hover-img" :alt="Model.SecondPictureModel.AlternateText" :src="Model.SecondPictureModel.ImageUrl"></b-card-img-lazy>
+                </template>
             </a>
-            <a title="@Loc["Products.QuickView"]" class="btn btn-secondary quick-view-button" data-toggle="modal" data-target="ModalQuickView" onclick="AxiosCart.quickview_product('@quickviewurl');return false;">
+            <a title="@Loc["Products.QuickView"]" class="btn btn-secondary quick-view-button" data-target="ModalQuickView" :onclick="'AxiosCart.quickview_product(`@Url.RouteUrl("QuickView-Product")/' + Model.Id + '`);return false;'">
                 <b-icon icon="search"></b-icon>
                 <span>@Loc["Products.QuickView"]</span>
             </a>
-            @if (!string.IsNullOrEmpty(Model.Flag))
-            {
+            <template v-if="Model.Flag !== null">
                 <div class="product-label">
-                    <div class="badge badge-info">@Model.Flag</div>
+                    <div class="badge badge-info">{{Model.Flag}}</div>
                 </div>
-            }
+            </template>
         </div>
         <div class="card-body">
-            <h5 class="card-title mb-0">
-                <a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">
-                    @Model.Name
+            <div class="card-title h3 mb-0">
+                <a :href="Model.Url">
+                    {{Model.Name}}
                 </a>
-            </h5>
-            @if (Model.ShowSku && !string.IsNullOrEmpty(Model.Sku))
-            {
-                <span class="sku">@Model.Sku</span>
-            }
+            </div>
+            <template v-if="Model.ShowSku && Model.Sku !== null">
+                <span class="sku">{{Model.Sku}}</span>
+            </template>
             <div class="prices-rating">
-                @if (Model.ReviewOverviewModel.AllowCustomerReviews)
-                {
-                    double ratingValue = 0;
-                    if (Model.ReviewOverviewModel.TotalReviews != 0)
-                    {
-                        ratingValue = Convert.ToDouble(((Model.ReviewOverviewModel.RatingSum * (double)100) / Model.ReviewOverviewModel.TotalReviews) / (double)100);
-                    }
-                    <template>
-                        <div class="rating">
-                            <b-form-rating id="rating-inline-list-@Model.Id" class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline value="@(ratingValue.ToString("0.00", CultureInfo.InvariantCulture))"></b-form-rating>
-                            <b-link href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">@Model.ReviewOverviewModel.TotalReviews @Loc["Reviews.Overview.Reviews"]</b-link>
-                        </div>
-                    </template>
-                }
-                @if (Model.ProductType == ProductType.Auction)
-                {
-
-                    @if (Model.EndTime.HasValue)
-                    {
-                        <div class="countdown-box alert alert-info d-table mb-1">
-                            @if (Model.EndTime > DateTime.UtcNow)
-                            {
-                                <countdown :end-time="@Model.EndTime.Value.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds">
+                <template v-if="Model.ReviewOverviewModel.AllowCustomerReviews">
+                    <div class="rating">
+                        <template v-if="Model.ReviewOverviewModel.TotalReviews > 0">
+                            <b-form-rating :id="'rating-inline-grid-' + Model.Id" class="p-0" variant="warning" aria-label="Rating" no-border size="sm" show-value precision="2" readonly inline :value="Model.ReviewOverviewModel.RatingSum / Model.ReviewOverviewModel.TotalReviews"></b-form-rating>
+                        </template>
+                        <template v-else>
+                            <b-form-rating :id="'rating-inline-grid-' + Model.Id" class="p-0" variant="warning" no-border size="sm" show-value precision="2" readonly inline :value="0"></b-form-rating>
+                        </template>
+                        <b-link :href="Model.Url">{{Model.ReviewOverviewModel.TotalReviews}} @Loc["Reviews.Overview.Reviews"]</b-link>
+                    </div>
+                </template>
+                <template v-if="Model.ProductType == 40">
+                    <template v-if="Model.EndTime !== null">
+                        <div class="countdown-box alert alert-info w-100 mb-1">
+                            <template v-if="new Date(Model.EndTime).getTime() > new Date().getTime()">
+                                <countdown :end-time="new Date(Model.EndTime).getTime()">
                                     <template v-slot:process="{ timeObj }">
                                         <span class="col-form-label">@Loc["AddToCart.Timeleft"]</span>
                                         <span>{{ `${timeObj.d}` }}</span>
@@ -102,198 +54,184 @@
                                         <span>@Loc["ShoppingCart.Auctionends"]</span>
                                     </template>
                                 </countdown>
-                            }
-                            else
-                            {
+                            </template>
+                            <template v-else>
                                 <div class="d-inline-flex flex-wrap justify-content-center">
-                                    <label class="ended-label">@Loc["ShoppingCart.Auctionends"]:</label>
-                                    <div class="count-date">@Model.EndTimeLocalTime.Value.ToString()</div>
+                                    <label class="ended-label mb-0">@Loc["ShoppingCart.Auctionends"]:</label>
+                                    <div class="count-date" v-html="new Date(Model.EndTimeLocalTime).toLocaleString()"></div>
                                 </div>
-                            }
+                            </template>
                         </div>
-                    }
-                }
-                <div class="prices @if (Model.ProductType == ProductType.Reservation) { <text>reservation-price</text> } ">
-                    @if (Model.ProductType != ProductType.Auction)
-                    {
+                    </template>
+                </template>
+                <div class="prices" v-bind:class="{ 'reservation-price': Model.ProductType == 15 }">
+                    <template v-if="Model.ProductType != 25">
                         <div class="actual-price price">
-                            @Model.ProductPrice.Price
+                            {{Model.ProductPrice.Price}}
                         </div>
-                    }
-                    else
-                    {
+                    </template>
+                    <template v-else>
                         <div class="actual-price price">
-                            @(Model.ProductPrice.HighestBidValue > 0 ? Model.ProductPrice.HighestBid : Model.ProductPrice.StartPrice)
+                            <template v-if="Model.ProductPrice.HighestBidValue > 0 ">
+                                {{Model.ProductPrice.HighestBid}}
+                            </template>
+                            <template v-else>
+                                {{Model.ProductPrice.StartPrice}}
+                            </template>
                         </div>
-                    }
-                    @if (!String.IsNullOrEmpty(Model.ProductPrice.OldPrice))
-                    {
+                    </template>
+                    <template v-if="Model.ProductPrice.OldPrice !== null">
                         <div class="old-price price">
-                            @Model.ProductPrice.OldPrice
+                            {{Model.ProductPrice.OldPrice}}
                         </div>
-                    }
+                    </template>
                 </div>
             </div>
-            @if (Model.SpecificationAttributeModels.Any())
-            {
+            <template v-if="Model.SpecificationAttributeModels.length > 0">
                 <div class="spec-container">
-                    @{
-                        var group = Model.SpecificationAttributeModels.GroupBy(x => x.SpecificationAttributeName);
-                    }
                     <table>
                         <tbody>
-                            @foreach (var item in group)
-                            {
-                                <tr class="attr">
-                                    <td>
-                                        <div class="spec-name">
-                                            @{
-                                                var groupList = item.ToList();
-                                            }
-                                            @groupList[0].SpecificationAttributeName:
-                                        </div>
-                                    </td>
-                                    <td>
-                                        @{
-                                            var groupList2 = item.ToList();
-                                        }
-                                        <div class="spec-value">
-                                            @foreach (var spec in groupList)
-                                            {
-                                                <span>
-                                                    @Html.Raw(spec.ValueRaw)
-                                                </span>
-                                            }
-                                        </div>
-                                    </td>
-
-                                </tr>
-                            }
+                            <tr class="attr" v-for="item in Model.SpecificationAttributeModels" v-bind:id="item.SpecificationAttributeId">
+                                <td>
+                                    <div class="spec-name">
+                                        {{item.SpecificationAttributeName}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="spec-value">
+                                        <span v-html="item.ValueRaw"></span>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
-            }
-            @if (Model.ProductAttributeModels.Any())
-            {
+            </template>
+            <template v-if="Model.ProductAttributeModels.length > 0">
                 <div class="attr-container">
                     <table>
                         <tbody>
-                            @foreach (var item in Model.ProductAttributeModels)
-                            {
-                                <tr class="attr">
-                                    <td>
-                                        <div class="attr-name">
-                                            @item.Name
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="attr-value">
-                                            @foreach (var spec in item.Values)
-                                            {
-                                                switch (item.AttributeControlType)
-                                                {
-                                                    case AttributeControlType.DropdownList:
-                                                    case AttributeControlType.RadioList:
-                                                    case AttributeControlType.Checkboxes:
-                                                    case AttributeControlType.ReadonlyCheckboxes:
-                                                        <a class="btn btn-light name" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
-                                                            @Html.Raw(spec.Name)
-                                                        </a>
-                                                        break;
-                                                    case AttributeControlType.ColorSquares:
-                                                        if ((spec.PictureModel.FullSizeImageUrl) != null)
-                                                        {
-                                                            <a class="btn btn-light name color-container" title="@spec.Name" v-on:click='productImage' data-href="@spec.PictureModel.FullSizeImageUrl">
-                                                                <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
-                                                            </a>
-                                                        }
-                                                        else
-                                                        {
-                                                            <a class="btn btn-light name color-container" title="@spec.Name" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
-                                                                <span class="color" style="background-color:@spec.ColorSquaresRgb;">&nbsp;</span>
-                                                            </a>
-                                                        }
-                                                        break;
-                                                    case AttributeControlType.ImageSquares:
-                                                        if ((spec.PictureModel.FullSizeImageUrl) != null)
-                                                        {
-                                                            <a class="btn btn-light p-1 name image-container" v-on:click='productImage' data-href="@spec.PictureModel.FullSizeImageUrl">
-                                                                <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name" />
-                                                            </a>
-                                                        }
-                                                        else
-                                                        {
-                                                            <a class="btn btn-light p-1 name image-container" href="@Url.RouteUrl("Product", new { SeName = Model.SeName })?@item.Name=@Html.Raw(spec.Name)">
-                                                                <img src="@spec.ImageSquaresPictureModel?.ImageUrl" alt="@spec.Name" />
-                                                            </a>
-                                                        }
-                                                        break;
-                                                    default:
-                                                        break;
-                                                }
-                                            }
-                                        </div>
-                                    </td>
-
-                                </tr>
-                            }
+                            <tr v-for="item in Model.ProductAttributeModels" v-bind:id="item.ProductAttributeId">
+                                <td>
+                                    <div class="attr-name">
+                                        {{item.Name}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="attr-value">
+                                        <template v-for="spec in item.Values">
+                                            <template v-if="item.AttributeControlType == 1 || item.AttributeControlType == 2 || item.AttributeControlType == 3 || item.AttributeControlType == 50">
+                                                <a class="btn btn-sm btn-light name" :href="'/'+ Model.SeName + '?' + item.Name + '=' + spec.Name">
+                                                    {{spec.Name}}
+                                                </a>
+                                            </template>
+                                            <template v-if="item.AttributeControlType == 40">
+                                                <template v-if="spec.PictureModel.FullSizeImageUrl !== null">
+                                                    <a class="btn btn-sm btn-light name color-container" :title="spec.Name" @@click="productImage($event)" :data-href="spec.PictureModel.FullSizeImageUrl">
+                                                        <span class="color" :style="'background-color:' + spec.ColorSquaresRgb">&nbsp;</span>
+                                                    </a>
+                                                </template>
+                                                <template v-else>
+                                                    <a class="btn btn-sm btn-light name color-container" :title="spec.Name" :href="'/'+ Model.SeName + '?' + item.Name + '=' + spec.Name">
+                                                        <span class="color" :style="'background-color:' + spec.ColorSquaresRgb">&nbsp;</span>
+                                                    </a>
+                                                </template>
+                                            </template>
+                                            <template v-if="item.AttributeControlType == 45">
+                                                <template v-if="spec.PictureModel.FullSizeImageUrl !== null">
+                                                    <a class="btn btn-sm btn-light p-1 name image-container" v-on:click='productImage' :data-href="spec.PictureModel.FullSizeImageUrl">
+                                                        <img :src="spec.ImageSquaresPictureModel?.ImageUrl" :alt="spec.Name" />
+                                                    </a>
+                                                </template>
+                                                <template v-else>
+                                                    <a class="btn btn-sm btn-light p-1 name image-container" :href="'/'+ Model.SeName + '?' + item.Name + '=' + spec.Name">
+                                                        <img :src="spec.ImageSquaresPictureModel?.ImageUrl" alt="spec.Name" />
+                                                    </a>
+                                                </template>
+                                            </template>
+                                        </template>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
-            }
-            <div class="desc">
-                @Html.Raw(Model.ShortDescription)
-            </div>
-            @if (Model.ShowQty)
-            {
-                var qtyId = "addtocart_" + @Model.Id + "_EnteredQuantity";
-                <input class="form-control input-group-addon catalog-quantity" type="number" min="1" id="@qtyId" name="@qtyId" value="1">
-            }
-            <div class="btn-group">
-                @if (!Model.ProductPrice.DisableWishlistButton && Model.ProductType == ProductType.SimpleProduct)
-                {
-                    <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" onclick="AxiosCart.addproducttocart_catalog('@addtowishlistlink', '@Model.ShowQty', '@Model.Id');return false;">
-                        <b-icon icon="heart"></b-icon>
-                        <span class="sr-only">AddToWishlist</span>
-                    </button>
-                }
-                @if (!Model.ProductPrice.DisableBuyButton)
-                {
-                    var addToCartText = Loc["ShoppingCart.AddToCart"];
-                    if (Model.ProductType == ProductType.Reservation)
-                    {
-                        addToCartText = Loc["ShoppingCart.Reservation"];
-                    }
-                    if (Model.ProductPrice.AvailableForPreOrder)
-                    {
-                        addToCartText = Loc["ShoppingCart.PreOrder"];
-                    }
-                    <button class="btn btn-info justify-content-center w-100" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', '@Model.ShowQty', '@Model.Id');return false;">
-                        <b-icon icon="cart2" class="mx-auto d-sm-none d-block"></b-icon>
-                        <span class="add-cart-text d-sm-block d-none">@(addToCartText)</span>
-                        <span class="sr-only">AddToCart</span>
-                    </button>
-                }
-                else
-                {
-                    if (Model.ProductType == ProductType.Auction)
-                    {
-                        var addToCartText = Loc["ShoppingCart.Bids"];
-                        <button class="btn btn-info justify-content-center w-100" onclick="AxiosCart.addproducttocart_catalog('@addtocartlink', 'false', '@Model.Id');return false;">
-                            <b-icon icon="hammer" class="mx-auto d-sm-none d-block"></b-icon>
-                            <span class="add-cart-text d-sm-block d-none">@(addToCartText)</span>
+            </template>
+            <div class="desc" v-html="Model.ShortDescription"></div>
+            <template v-if="Model.ShowQty">
+                <input class="form-control input-group-addon catalog-quantity" type="number" min="1" :id="'addtocart_' + Model.Id + '_EnteredQuantity'" :name="'addtocart_' + Model.Id + '_EnteredQuantity'" value="1">
+            </template>
+            <b-button-group>
+                <template v-if="!Model.ProductPrice.DisableWishlistButton && Model.ProductType == 0">
+                    <template v-if="!Model.ShowQty">
+                        <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/2?quantity=1`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">
+                            <span class="sr-only">AddToWishlist</span>
+                            <b-icon icon="heart"></b-icon>
+                        </button>
+                    </template>
+                    <template v-else>
+                        <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToWishlist"]" class="btn btn-secondary" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/2`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">
+                            <b-icon icon="heart"></b-icon>
+                            <span class="sr-only">AddToWishlist</span>
+                        </button>
+                    </template>
+                </template>
+                <template v-if="!Model.ProductPrice.DisableBuyButton">
+                    <template v-if="!Model.ShowQty">
+                        <button class="btn btn-info justify-content-center w-100" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/1?quantity=1`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">
+                            <b-icon icon="cart2" class="mx-auto d-sm-none d-block"></b-icon>
+                            <span class="add-cart-text d-sm-block d-none">
+                                <template v-if="Model.ProductType == 20">
+                                    @Loc["ShoppingCart.Reservation"]
+                                </template>
+                                <template v-else>
+                                    <template v-if="Model.ProductPrice.AvailableForPreOrder">
+                                        @Loc["ShoppingCart.PreOrder"]
+                                    </template>
+                                    <template v-else>
+                                        @Loc["ShoppingCart.AddToCart"]
+                                    </template>
+                                </template>
+                            </span>
                             <span class="sr-only">AddToCart</span>
                         </button>
-                    }
-                }
-                @if (!Model.ProductPrice.DisableAddToCompareListButton && Model.ProductType == ProductType.SimpleProduct)
-                {
-                    <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-secondary" onclick="AxiosCart.addproducttocomparelist('@Model.Id', '@Loc["Products.ProductHasBeenAddedToCompareList.Link"]', '@Url.RouteUrl("CompareProducts")')">
+                    </template>
+                    <template v-else>
+                        <button class="btn btn-info justify-content-center w-100" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/1`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">
+                            <b-icon icon="cart2" class="mx-auto d-sm-none d-block"></b-icon>
+                            <span class="add-cart-text d-sm-block d-none">
+                                <template v-if="Model.ProductType == 20">
+                                    @Loc["ShoppingCart.Reservation"]
+                                </template>
+                                <template v-else>
+                                    <template v-if="Model.ProductPrice.AvailableForPreOrder">
+                                        @Loc["ShoppingCart.PreOrder"]
+                                    </template>
+                                    <template v-else>
+                                        @Loc["ShoppingCart.AddToCart"]
+                                    </template>
+                                </template>
+                            </span>
+                            <span class="sr-only">AddToCart</span>
+                        </button>
+                    </template>
+                </template>
+                <template v-else>
+                    <template v-if="Model.ProductType == 40">
+                        <button class="btn btn-info justify-content-center w-100" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/1?quantity=1`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">
+                            <b-icon icon="hammer" class="mx-auto d-sm-none d-block"></b-icon>
+                            <span class="add-cart-text d-sm-block d-none">@Loc["ShoppingCart.Bids"]</span>
+                            <span class="sr-only">AddToCart</span>
+                        </button>
+                    </template>
+                </template>
+                <template v-if="!Model.ProductPrice.DisableAddToCompareListButton && Model.ProductType == 0">
+                    <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToCompareList"]" class="btn btn-secondary" :onclick="'AxiosCart.addproducttocomparelist(`'+ Model.Id +'`, `@Loc["Products.ProductHasBeenAddedToCompareList.Link"]`, `@Url.RouteUrl("CompareProducts")`)'">
                         <span class="sr-only">AddToCompareList</span>
                         <b-icon icon="shuffle"></b-icon>
                     </button>
-                }
-            </div>
+                </template>
+            </b-button-group>
         </div>
     </article>
 </div>
