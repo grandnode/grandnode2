@@ -251,7 +251,8 @@ var vmorder = new Vue({
                                 headers: {
                                     'Accept': 'application/json',
                                     'Content-Type': 'application/json',
-                                }
+                                },
+                                showLoader: false
                             }).then(response => {
                                 vmorder.paymentBusy = false;
                                 var html = response.data;
@@ -345,13 +346,13 @@ var vmorder = new Vue({
                 save: function () {
                     if (vmorder.Checkout.loadWaiting != false) return;
                     vmorder.Checkout.setLoadWaiting('shipping');
-
                     var form = document.querySelector(this.form);
                     var data = new FormData(form);
                     axios({
                         url: this.saveUrl,
                         method: 'post',
                         data: data,
+                        showLoader: false
                     }).then(function (response) {
                         if (response.data.goto_section !== undefined) {
                             if (!(response.data.update_section.name == "shipping")) {
@@ -431,6 +432,7 @@ var vmorder = new Vue({
                         url: this.saveUrl,
                         method: 'post',
                         data: data,
+                        showLoader: false
                     }).then(function (response) {
                         if (document.querySelector('#back-' + response.data.goto_section)) {
                             vmorder.previousStep.push('buttonBilling');
@@ -508,6 +510,7 @@ var vmorder = new Vue({
                             url: this.saveUrl,
                             method: 'post',
                             data: data,
+                            showLoader: false
                         }).then(function (response) {
                             if (response.data.error !== undefined) {
                                 vmorder.ShippingMethodError = response.data.message;
@@ -589,6 +592,7 @@ var vmorder = new Vue({
                             url: this.saveUrl,
                             method: 'post',
                             data: data,
+                            showLoader: false
                         }).then(function (response) {
                             if (response.data.goto_section !== undefined) {
                                 vmorder.vPaymentMethod.nextStep(response);
@@ -646,6 +650,7 @@ var vmorder = new Vue({
                             url: this.saveUrl,
                             method: 'post',
                             data: data,
+                            showLoader: false
                         }).then(function (response) {
                             if (response.data.goto_section !== undefined) {
                                 vmorder.previousStep.push('buttonPaymentInfo');
@@ -660,6 +665,7 @@ var vmorder = new Vue({
                                     baseURL: '/Component/Form?Name=' + model.PaymentViewComponentName,
                                     method: 'post',
                                     data: data,
+                                    showLoader: false
                                 }).then(response => {
                                     var html = response.data;
                                     document.querySelector('.payment-info .info').innerHTML = html;
@@ -715,6 +721,7 @@ var vmorder = new Vue({
                         axios({
                             url: this.saveUrl,
                             method: 'post',
+                            showLoader: false
                         }).then(function (response) {
                             vmorder.vConfirmOrder.nextStep(response);
                         }).catch(function (error) {
@@ -770,7 +777,8 @@ var vmorder = new Vue({
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'X-Response-View': 'Json'
-                }
+                },
+                showLoader: false
             }).then(response => {
                 this.cart = response.data;
             })
@@ -784,7 +792,8 @@ var vmorder = new Vue({
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'X-Response-View': 'Json'
-                }
+                },
+                showLoader: false
             }).then(response => {
                 this.totals = response.data;
             });
@@ -828,6 +837,7 @@ var vmorder = new Vue({
             axios({
                 url: url,
                 method: 'post',
+                showLoader: false
             }).then(function (response) {
                 vmorder.shippingBusy = false;
                 document.getElementById('shipping_form').innerHTML = response.data;

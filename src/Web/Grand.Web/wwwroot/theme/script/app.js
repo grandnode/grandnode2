@@ -1,4 +1,5 @@
-﻿
+﻿axios.defaults.showLoader = true;
+
 var vm = new Vue({
     el: '#app',
     data: function () {
@@ -26,7 +27,7 @@ var vm = new Vue({
         flywish: null,
         wishlistitems: null,
         wishindicator: undefined,
-        UpdatedShoppingCartItemId: null,        
+        UpdatedShoppingCartItemId: null,      
     },
     mounted: function () {
         if (localStorage.fluid == "true") this.fluid = "fluid";
@@ -47,6 +48,40 @@ var vm = new Vue({
         PopupQuickViewVueModal: function () {
             vm.getLinkedProductsQV(vm.PopupQuickViewVueModal.Id);
         }
+    },
+    created: function () {
+        axios.interceptors.request.use(
+            config => {
+                if (config.showLoader) {
+                    document.getElementById("app").setAttribute("v-cloak", true);
+                }
+                return config;
+            },
+            error => {
+                if (error.config.showLoader) {
+                    document.getElementById("app").removeAttribute("v-cloak");
+                }
+                return Promise.reject(error);
+            }
+        );
+        axios.interceptors.response.use(
+            response => {
+                if (response.config.showLoader) {
+                    document.getElementById("app").removeAttribute("v-cloak");
+                }
+
+                return response;
+            },
+            error => {
+                let response = error.response;
+
+                if (response.config.showLoader) {
+                    document.getElementById("app").removeAttribute("v-cloak");
+                }
+
+                return Promise.reject(error);
+            }
+        )
     },
     methods: {
         backToTop() {
@@ -235,7 +270,8 @@ var vm = new Vue({
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'X-Response-View': 'Json'
-                }
+                },
+                showLoader: false
             }).then(response => (
                 this.flycart = response.data,
                 this.flycartitems = response.data.Items,
@@ -251,7 +287,8 @@ var vm = new Vue({
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',                    
-                }
+                },
+                showLoader: false
             }).then(response => (
                 this.loader = false,
                 this.flywish = response.data,
@@ -272,7 +309,8 @@ var vm = new Vue({
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'X-Response-View': 'Json'
-                }
+                },
+                showLoader: false
             }).then(response => {
                 this.loader = false;
                 this.compareproducts = response.data
