@@ -1,4 +1,5 @@
 ﻿using Azure.Identity;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Configuration;
@@ -11,6 +12,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearchers;
+using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Themes;
 using Microsoft.AspNetCore.Builder;
@@ -24,6 +26,7 @@ using Microsoft.Extensions.WebEncoders;
 using Newtonsoft.Json.Serialization;
 using StackExchange.Redis;
 using System.IO.Compression;
+using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using WebMarkupMin.AspNet.Common.Compressors;
@@ -236,14 +239,10 @@ namespace Grand.Web.Common.Infrastructure
             }
 
             //Add fluentValidation
-            mvcBuilder.AddFluentValidation(configuration =>
-            {
-                var typeSearcher = new AppTypeSearcher();
-                var assemblies = typeSearcher.GetAssemblies();
-                configuration.RegisterValidatorsFromAssemblies(assemblies);
-                configuration.DisableDataAnnotationsValidation = true;                
-                configuration.AutomaticValidationEnabled = false;
-            });
+            services.AddFluentValidationClientsideAdapters();
+            var typeSearcher = new AppTypeSearcher();
+            var assemblies = typeSearcher.GetAssemblies();
+            services.AddValidatorsFromAssemblies(assemblies);
 
             //MVC now serializes JSON with camel case names by default, use this code to avoid it
             mvcBuilder.AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());

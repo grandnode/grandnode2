@@ -1,4 +1,3 @@
-using FluentValidation;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Domain.Data;
 using Grand.Infrastructure;
@@ -7,8 +6,6 @@ using Grand.Infrastructure.Caching.Message;
 using Grand.Infrastructure.Caching.RabbitMq;
 using Grand.Infrastructure.Caching.Redis;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.TypeSearchers;
-using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Middleware;
 using Grand.Web.Common.Page;
@@ -23,7 +20,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using StackExchange.Redis;
-using System.Reflection;
 
 namespace Grand.Web.Common.Startup
 {
@@ -43,8 +39,6 @@ namespace Grand.Web.Common.Startup
             RegisterCache(services, configuration);
 
             RegisterContextService(services);
-
-            RegisterValidators(services);
 
             RegisterFramework(services);
         }
@@ -88,33 +82,6 @@ namespace Grand.Web.Common.Startup
             serviceCollection.AddScoped<IStoreHelper, StoreHelper>();
         }
 
-
-        private void RegisterValidators(IServiceCollection serviceCollection)
-        {
-            var typeSearcher = new AppTypeSearcher();
-
-            var validators = typeSearcher.ClassesOfType(typeof(IValidator)).ToList();
-            foreach (var validator in validators)
-            {
-                serviceCollection.AddTransient(validator);
-            }
-
-            //validator consumers
-            var validatorconsumers = typeSearcher.ClassesOfType(typeof(IValidatorConsumer<>)).ToList();
-            foreach (var consumer in validatorconsumers)
-            {
-                var types = consumer.GetTypeInfo().FindInterfaces((type, criteria) =>
-                 {
-                     var isMatch = type.GetTypeInfo().IsGenericType && ((Type)criteria).IsAssignableFrom(type.GetGenericTypeDefinition());
-                     return isMatch;
-                 }, typeof(IValidatorConsumer<>));
-                foreach (var item in types)
-                {
-                    serviceCollection.AddScoped(item, consumer);
-                }
-
-            }
-        }
 
         private void RegisterFramework(IServiceCollection serviceCollection)
         {
