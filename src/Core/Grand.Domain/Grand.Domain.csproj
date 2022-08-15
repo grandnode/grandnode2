@@ -2,10 +2,10 @@
   <Import Project="..\..\Build\Grand.Common.props" />
   <ItemGroup>
     <PackageReference Include="LiteDB" Version="5.0.12" />
-    <PackageReference Include="MongoDB.Bson" Version="2.16.1" />
-    <PackageReference Include="MongoDB.Driver" Version="2.16.1" />
-    <PackageReference Include="MongoDB.Driver.Core" Version="2.16.1" />
-    <PackageReference Include="MongoDB.Driver.GridFS" Version="2.16.1" />
+    <PackageReference Include="MongoDB.Bson" Version="2.17.1" />
+    <PackageReference Include="MongoDB.Driver" Version="2.17.1" />
+    <PackageReference Include="MongoDB.Driver.Core" Version="2.17.1" />
+    <PackageReference Include="MongoDB.Driver.GridFS" Version="2.17.1" />
     <PackageReference Include="DotLiquid" Version="2.2.656" />
   </ItemGroup>
 
