@@ -57,6 +57,9 @@ body:not(.modal-open) {
 .modal.fade + .modal-backdrop  {
     opacity: .5;
 }
+[v-cloak] .axios-request::before {
+    opacity: 0.5
+}
 [v-cloak] .page-loader-container::before {
     content: '';
     position: fixed;
@@ -65,7 +68,6 @@ body:not(.modal-open) {
     width: 100%;
     height: 100%;
     background: #fff;
-    opacity: 0.5;
     overflow: hidden;
     z-index: 1040;
 }

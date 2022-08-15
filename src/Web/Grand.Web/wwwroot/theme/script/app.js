@@ -54,6 +54,8 @@ var vm = new Vue({
             config => {
                 if (config.showLoader) {
                     document.getElementById("app").setAttribute("v-cloak", true);
+                    var element = document.querySelector(".page-loader-container");
+                    element.classList.add("axios-request");
                 }
                 return config;
             },
