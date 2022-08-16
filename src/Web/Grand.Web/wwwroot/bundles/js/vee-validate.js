@@ -1,6 +1,6 @@
 (window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["vee-validate"],{"7bb1":function(e,r,n){"use strict";n.d(r,"a",(function(){return Pe})),n.d(r,"b",(function(){return xe})),n.d(r,"c",(function(){return M})),n.d(r,"d",(function(){return x}));var t=n("a026"),i=function(){return i=Object.assign||function(e){for(var r,n=1,t=arguments.length;n<t;n++)for(var i in r=arguments[n],r)Object.prototype.hasOwnProperty.call(r,i)&&(e[i]=r[i]);return e},i.apply(this,arguments)};
 /**
-  * vee-validate v3.4.13
+  * vee-validate v3.4.14
   * (c) 2021 Abdelrahman Awad
   * @license MIT
   */
