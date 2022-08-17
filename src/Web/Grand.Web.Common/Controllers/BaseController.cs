@@ -8,12 +8,12 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Models;
 using Grand.Web.Common.Page;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Net.Http.Headers;
 
 namespace Grand.Web.Common.Controllers
 {
@@ -97,7 +97,7 @@ namespace Grand.Web.Common.Controllers
             var workContext = HttpContext.RequestServices.GetRequiredService<IWorkContext>();
             var logger = HttpContext.RequestServices.GetRequiredService<ILogger>();
             _ = logger.InsertLog(Domain.Logging.LogLevel.Error, exception?.Message, exception?.ToString(), workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                HttpContext.Request?.GetDisplayUrl(), HttpContext.Request?.Headers[HeaderNames.Referer]);
+                HttpContext.Request?.GetDisplayUrl(), HttpContext.Request?.GetTypedHeaders().Referer?.ToString());
         }
 
         /// <summary>

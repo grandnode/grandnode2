@@ -15,7 +15,6 @@ using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.Net.Http.Headers;
 using Wangkanai.Detection.Services;
 
 namespace Grand.Web.Common
@@ -214,7 +213,7 @@ namespace Grand.Web.Common
                 {
                     //remove cookie
                     await _authenticationService.SetCustomerGuid(Guid.Empty);
-                    
+
                     //set if use impersonated session
                     var impersonatedCustomer = await SetImpersonatedCustomer(customer);
                     if (impersonatedCustomer != null)
@@ -274,10 +273,9 @@ namespace Grand.Web.Common
             {
                 //create guest if not exists
                 customer = await _customerService.InsertGuestCustomer(CurrentStore);
-                string referrer = _httpContextAccessor?.HttpContext?.Request?.Headers[HeaderNames.Referer];
-                if (!string.IsNullOrEmpty(referrer))
+                if (_httpContextAccessor?.HttpContext?.Request?.GetTypedHeaders().Referer?.ToString() is { } referer)
                 {
-                    await _userFieldService.SaveField(customer, SystemCustomerFieldNames.UrlReferrer, referrer);
+                    await _userFieldService.SaveField(customer, SystemCustomerFieldNames.UrlReferrer, referer);
                 }
                 //set customer cookie
                 await _authenticationService.SetCustomerGuid(customer.CustomerGuid);
