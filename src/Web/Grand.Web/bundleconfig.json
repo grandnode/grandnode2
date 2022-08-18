@@ -8,7 +8,6 @@
       "wwwroot/theme/css/product/product.rtl.css",
       "wwwroot/theme/css/customer/customer.rtl.css",
       "wwwroot/theme/css/cart/cart.rtl.css"
-
     ],
     "minify": {
       "enabled": true,

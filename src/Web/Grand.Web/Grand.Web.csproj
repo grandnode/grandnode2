@@ -32,7 +32,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.8" />
 	</ItemGroup>
 	<ItemGroup>
@@ -58,6 +57,8 @@
 		<Compile Remove="Plugins\**" />
 		<EmbeddedResource Remove="Plugins\**" />
 		<None Remove="Plugins\**" />
+		<Content Remove="package.json" />
+		<None Include="package.json" />
 		<Content Update="Plugins\**">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
