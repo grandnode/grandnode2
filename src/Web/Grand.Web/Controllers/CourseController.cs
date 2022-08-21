@@ -12,7 +12,6 @@ using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Courses;
 using Grand.Web.Features.Models.Courses;
 using MediatR;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 
@@ -25,7 +24,6 @@ namespace Grand.Web.Controllers
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
         private readonly ICustomerActivityService _customerActivityService;
-        private readonly IUserFieldService _userFieldService;
         private readonly ITranslationService _translationService;
         private readonly ICustomerActionEventService _customerActionEventService;
         private readonly ICourseService _courseService;
@@ -40,7 +38,6 @@ namespace Grand.Web.Controllers
             IWorkContext workContext,
             IGroupService groupService,
             ICustomerActivityService customerActivityService,
-            IUserFieldService userFieldService,
             ITranslationService translationService,
             ICustomerActionEventService customerActionEventService,
             ICourseService courseService,
@@ -54,7 +51,6 @@ namespace Grand.Web.Controllers
             _workContext = workContext;
             _groupService = groupService;
             _customerActivityService = customerActivityService;
-            _userFieldService = userFieldService;
             _translationService = translationService;
             _customerActionEventService = customerActionEventService;
             _courseService = courseService;
