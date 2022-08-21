@@ -326,8 +326,6 @@ namespace Grand.Web.Controllers
             return Redirect(returnUrl);
         }
 
-
-
         //contact us page
         //available even when a store is closed
         [ClosedStore(true)]

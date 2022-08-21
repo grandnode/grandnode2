@@ -104,9 +104,6 @@ namespace Grand.Web.Controllers
             if (!await CheckPermission(course, customer))
                 return InvokeHttp404();
 
-            //'Continue shopping' URL
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.LastContinueShoppingPage, HttpContext?.Request?.GetDisplayUrl(), _workContext.CurrentStore.Id);
-
             //display "edit" (manage) link
             if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageCourses, customer))
                 DisplayEditLink(Url.Action("Edit", "Course", new { id = course.Id, area = "Admin" }));
@@ -141,9 +138,6 @@ namespace Grand.Web.Controllers
             if (!await CheckPermission(course, customer))
                 return InvokeHttp404();
 
-            //'Continue shopping' URL
-            await _userFieldService.SaveField(customer, SystemCustomerFieldNames.LastContinueShoppingPage, HttpContext?.Request?.GetDisplayUrl(), _workContext.CurrentStore.Id);
-
             //display "edit" (manage) link
             if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageCourses, customer))
                 DisplayEditLink(Url.Action("EditLesson", "Course", new { id = lesson.Id, area = "Admin" }));
@@ -152,7 +146,7 @@ namespace Grand.Web.Controllers
             _ = _customerActivityService.InsertActivity("PublicStore.ViewLesson", lesson.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewLesson"), lesson.Name);
-            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.GetTypedHeaders().Referer?.ToString());
+            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path, Request.GetTypedHeaders().Referer?.ToString());
 
             //model
             var model = await _mediator.Send(new GetLesson() {
