@@ -1,6 +1,8 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Storage.Extensions;
 using Grand.Domain.Data;
 using Grand.Domain.Media;
 using Grand.Infrastructure;
@@ -107,8 +109,26 @@ namespace Grand.Business.Storage.Services
         /// <param name="binary">Picture binary</param>
         protected override Task SaveThumb(string thumbFileName, byte[] binary)
         {
+                    
             Stream stream = new MemoryStream(binary);
             container.UploadBlob(thumbFileName, stream);
+
+            //Update content type and other properties 
+            string contentType = thumbFileName.GetFileContentType();
+            var blobClient = container.GetBlobClient(thumbFileName);            
+            BlobProperties properties = blobClient.GetProperties();
+            BlobHttpHeaders blobHttpHeaders = new BlobHttpHeaders {
+                // Set the MIME ContentType every time the properties 
+                // are updated or the field will be cleared
+                ContentType = contentType,
+                // Populate remaining headers with 
+                // the pre-existing properties
+                CacheControl = properties.CacheControl,
+                ContentDisposition = properties.ContentDisposition,
+                ContentEncoding = properties.ContentEncoding,
+                ContentHash = properties.ContentHash
+            };
+            blobClient.SetHttpHeaders(blobHttpHeaders);            
             return Task.CompletedTask;
         }
 
