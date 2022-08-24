@@ -44,9 +44,7 @@ namespace Grand.Api.Infrastructure
                 services.AddCors(options =>
                 {
                     options.AddPolicy(Configurations.CorsPolicyName,
-                        builder => builder.AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader());
+                        builder => builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader());
                 });
                 //Add OData
                 services.AddControllers().AddOData(opt =>
