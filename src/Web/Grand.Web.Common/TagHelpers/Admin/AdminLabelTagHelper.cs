@@ -12,6 +12,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
     {
         private const string ForAttributeName = "asp-for";
         private const string DisplayHintAttributeName = "asp-display-hint";
+        private const string RequiredAttributeName = "asp-required";
 
         private readonly IWorkContext _workContext;
         private readonly ITranslationService _translationService;
@@ -25,6 +26,9 @@ namespace Grand.Web.Common.TagHelpers.Admin
         [HtmlAttributeName(DisplayHintAttributeName)]
         public bool DisplayHint { get; set; } = true;
 
+        [HtmlAttributeName(RequiredAttributeName)]
+        public bool RequiredAttribute { get; set; }
+
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
             await base.ProcessAsync(context, output);
@@ -33,6 +37,10 @@ namespace Grand.Web.Common.TagHelpers.Admin
             var classValue = output.Attributes.ContainsName("class")
                                 ? $"{output.Attributes["class"].Value}"
                                 : "control-label col-md-3 col-sm-3";
+            if (RequiredAttribute)
+            {
+                classValue = classValue + " required";
+            }
             output.Attributes.SetAttribute("class", classValue);
 
             var resourceDisplayName = For.Metadata.GetDisplayName();
