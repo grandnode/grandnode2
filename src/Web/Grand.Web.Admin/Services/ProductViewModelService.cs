@@ -2545,7 +2545,7 @@ namespace Grand.Web.Admin.Services
 
                 if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
                 {
-                    var pr = await _productService.GetProductById(model.ProductId);
+                    var pr = await _productService.GetProductById(model.ProductId, true);
                     pr.StockQuantity = pr.ProductAttributeCombinations.Sum(x => x.StockQuantity);
                     pr.ReservedQuantity = pr.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
                     await _inventoryManageService.UpdateStockProduct(pr, false);
