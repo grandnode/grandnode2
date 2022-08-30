@@ -123,8 +123,7 @@ namespace Grand.Web.Controllers
         {
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
-            var checkoutAttributes = await _mediator.Send(new SaveCheckoutAttributesCommand()
-            {
+            var checkoutAttributes = await _mediator.Send(new SaveCheckoutAttributesCommand() {
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore,
                 Cart = cart,
@@ -145,8 +144,7 @@ namespace Grand.Web.Controllers
                         disabledAttributeIds.Add(attribute.Id);
                 }
             }
-            var model = await _mediator.Send(new GetOrderTotals()
-            {
+            var model = await _mediator.Send(new GetOrderTotals() {
                 Cart = cart,
                 IsEditable = true,
                 Store = _workContext.CurrentStore,
@@ -239,8 +237,7 @@ namespace Grand.Web.Controllers
                 }
             }
 
-            var download = new Download
-            {
+            var download = new Download {
                 DownloadGuid = Guid.NewGuid(),
                 UseDownloadUrl = false,
                 DownloadUrl = "",
@@ -270,8 +267,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("HomePage");
 
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());
-            var model = await _mediator.Send(new GetShoppingCart()
-            {
+            var model = await _mediator.Send(new GetShoppingCart() {
                 Cart = cart,
                 ValidateCheckoutAttributes = checkoutAttributes,
                 Customer = _workContext.CurrentCustomer,
@@ -411,8 +407,7 @@ namespace Grand.Web.Controllers
                 await _shoppingCartService.DeleteShoppingCartItem(_workContext.CurrentCustomer, item, ensureOnlyActiveCheckoutAttributes: true);
             }
 
-            var miniShoppingCartmodel = await _mediator.Send(new GetMiniShoppingCart()
-            {
+            var miniShoppingCartmodel = await _mediator.Send(new GetMiniShoppingCart() {
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,
                 Language = _workContext.WorkingLanguage,
@@ -430,8 +425,7 @@ namespace Grand.Web.Controllers
             else
             {
                 var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());
-                var shoppingcartmodel = await _mediator.Send(new GetShoppingCart()
-                {
+                var shoppingcartmodel = await _mediator.Send(new GetShoppingCart() {
                     Cart = cart,
                     Customer = _workContext.CurrentCustomer,
                     Currency = _workContext.WorkingCurrency,
@@ -473,8 +467,7 @@ namespace Grand.Web.Controllers
                 await _customerService.UpdateShoppingCartItem(_workContext.CurrentCustomer.Id, item);
             }
 
-            var miniShoppingCart = await _mediator.Send(new GetMiniShoppingCart()
-            {
+            var miniShoppingCart = await _mediator.Send(new GetMiniShoppingCart() {
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,
                 Language = _workContext.WorkingLanguage,
@@ -483,8 +476,7 @@ namespace Grand.Web.Controllers
             });
 
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());
-            var shoppingcartmodel = await _mediator.Send(new GetShoppingCart()
-            {
+            var shoppingcartmodel = await _mediator.Send(new GetShoppingCart() {
                 Cart = cart,
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,
@@ -504,14 +496,10 @@ namespace Grand.Web.Controllers
         public virtual IActionResult ContinueShopping()
         {
             var returnUrl = _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastContinueShoppingPage, _workContext.CurrentStore.Id);
-            if (!string.IsNullOrEmpty(returnUrl))
-            {
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
-            }
-            else
-            {
-                return RedirectToRoute("HomePage");
-            }
+
+            return RedirectToRoute("HomePage");
         }
 
         [DenySystemAccount]
@@ -522,8 +510,7 @@ namespace Grand.Web.Controllers
             //parse and save checkout attributes
             if (form != null && form.Count > 0)
             {
-                checkoutAttributes = (await _mediator.Send(new SaveCheckoutAttributesCommand()
-                {
+                checkoutAttributes = (await _mediator.Send(new SaveCheckoutAttributesCommand() {
                     Customer = _workContext.CurrentCustomer,
                     Store = _workContext.CurrentStore,
                     Cart = cart,
@@ -634,8 +621,7 @@ namespace Grand.Web.Controllers
                 isApplied = false;
             }
 
-            var model = await _mediator.Send(new GetShoppingCart()
-            {
+            var model = await _mediator.Send(new GetShoppingCart() {
                 Cart = cart,
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,
@@ -670,7 +656,7 @@ namespace Grand.Web.Controllers
             if (!string.IsNullOrWhiteSpace(giftvouchercouponcode))
             {
                 var giftVoucher = (await _mediator.Send(new GetGiftVoucherQuery() { Code = giftvouchercouponcode, IsGiftVoucherActivated = true })).FirstOrDefault();
-                var isGiftVoucherValid = giftVoucher != null 
+                var isGiftVoucherValid = giftVoucher != null
                     && giftVoucher.IsGiftVoucherValid(_workContext.WorkingCurrency, _workContext.CurrentStore);
 
                 if (isGiftVoucherValid)
@@ -694,8 +680,7 @@ namespace Grand.Web.Controllers
                 isApplied = false;
             }
 
-            var model = await _mediator.Send(new GetShoppingCart()
-            {
+            var model = await _mediator.Send(new GetShoppingCart() {
                 Cart = cart,
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,
@@ -719,8 +704,7 @@ namespace Grand.Web.Controllers
         {
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
-            var model = await _mediator.Send(new GetEstimateShippingResult()
-            {
+            var model = await _mediator.Send(new GetEstimateShippingResult() {
                 Cart = cart,
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,
@@ -755,8 +739,7 @@ namespace Grand.Web.Controllers
             }
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());
 
-            var model = await _mediator.Send(new GetShoppingCart()
-            {
+            var model = await _mediator.Send(new GetShoppingCart() {
                 Cart = cart,
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,
@@ -788,8 +771,7 @@ namespace Grand.Web.Controllers
             }
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());
 
-            var model = await _mediator.Send(new GetShoppingCart()
-            {
+            var model = await _mediator.Send(new GetShoppingCart() {
                 Cart = cart,
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,

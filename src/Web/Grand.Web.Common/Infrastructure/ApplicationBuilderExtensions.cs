@@ -122,8 +122,7 @@ namespace Grand.Web.Common.Infrastructure
                         //get current customer
                         var workContext = context.HttpContext.RequestServices.GetRequiredService<IWorkContext>();
                         _ = logger.InsertLog(Domain.Logging.LogLevel.Error, 
-                            $"Error 404. The requested page ({context.HttpContext.Request.Scheme}://{context.HttpContext.Request.Host}{context.HttpContext.Request.Path})" +
-                            $" was not found",
+                            $"Error 404. The requested page ({context.HttpContext.Request?.GetDisplayUrl()}) was not found",
                             customer: workContext.CurrentCustomer, 
                             ipAddress: context.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                             pageurl: context.HttpContext?.Request?.GetDisplayUrl(),

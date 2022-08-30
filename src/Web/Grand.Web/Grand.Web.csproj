@@ -57,8 +57,6 @@
 		<Compile Remove="Plugins\**" />
 		<EmbeddedResource Remove="Plugins\**" />
 		<None Remove="Plugins\**" />
-		<Content Remove="package.json" />
-		<None Include="package.json" />
 		<Content Update="Plugins\**">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>

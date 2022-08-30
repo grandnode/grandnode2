@@ -1,14 +1,19 @@
 {
-  "name": "app",
+  "name": "grandnode",
   "version": "1.0.0",
+  "description": "",
   "private": true,
+  "scripts": {
+    "build": "webpack"
+  },
   "devDependencies": {
-    "del": "^7.0.0",
-    "gulp": "^4.0.2",
-    "gulp-concat": "^2.6.1",
-    "gulp-cssmin": "^0.2.0",
-    "gulp-htmlmin": "^5.0.1",
-    "gulp-uglify": "^3.0.2",
-    "merge-stream": "^2.0.0"
+    "css-loader": "^6.7.1",
+    "css-minimizer-webpack-plugin": "^4.0.0",
+    "mini-css-extract-plugin": "^2.6.1",
+    "webpack-cli": "^4.10.0",
+    "webpack-remove-empty-scripts": "^0.8.1"
+  },
+  "dependencies": {
+    "lodash": "^4.17.20"
   }
 }

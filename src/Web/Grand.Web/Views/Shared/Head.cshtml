@@ -2,7 +2,7 @@
 
 @{
     var supportRtl = workContext.WorkingLanguage.Rtl;
-    
+
     <script asp-location="Head" src="/bundles/app.runtime.bundle.js"></script>
     <script asp-location="Head" src="/bundles/chunk-vendors.runtime.bundle.js"></script>
     <link asp-src="/bundles/libs.css" rel="stylesheet">
@@ -40,15 +40,8 @@
         }
     </environment>
 
-
-    <environment include="Development">
-        <script asp-location="Footer" asp-src="/theme/script/public.common.js" asp-order="201"></script>
-        <script asp-location="Footer" asp-src="/theme/script/public.axios.js" asp-order="202"></script>
-    </environment>
-    <environment include="Production">
-        <script asp-location="Footer" asp-src="/bundles/site.min.js" asp-order="200"></script>
-    </environment>
-
+    <script asp-location="Footer" asp-src="/theme/script/public.common.js" asp-order="201"></script>
+    <script asp-location="Footer" asp-src="/theme/script/public.axios.js" asp-order="202"></script>
     <script asp-location="Footer" asp-src="/theme/script/app.js" asp-order="900"></script>
     <script asp-location="Footer" asp-src="/assets/custom/script.js" asp-order="901"></script>
 }
