@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain;
 using Grand.Domain.Common;
@@ -32,7 +33,7 @@ namespace Grand.Business.Storage.Services
         private readonly IMediaFileStore _mediaFileStore;
         private readonly MediaSettings _mediaSettings;
         private readonly StorageSettings _storageSettings;
-
+        private readonly IMimeMappingService _mimeMappingService;
         #endregion
 
         #region Ctor
@@ -53,6 +54,7 @@ namespace Grand.Business.Storage.Services
             IWorkContext workContext,
             ICacheBase cacheBase,
             IMediaFileStore mediaFileStore,
+            IMimeMappingService mimeMappingService,
             MediaSettings mediaSettings,
             StorageSettings storageSettings)
         {
@@ -64,6 +66,7 @@ namespace Grand.Business.Storage.Services
             _mediaFileStore = mediaFileStore;
             _mediaSettings = mediaSettings;
             _storageSettings = storageSettings;
+            _mimeMappingService = mimeMappingService;
         }
 
         #endregion
@@ -350,7 +353,7 @@ namespace Grand.Business.Storage.Services
                 await DeletePictureThumbs(picture);
 
                 picture.IsNew = false;
-                await _pictureRepository.UpdateField(picture.Id, x => x.IsNew, picture.IsNew);                
+                await _pictureRepository.UpdateField(picture.Id, x => x.IsNew, picture.IsNew);
             }
 
             var seoFileName = picture.SeoFilename;
@@ -362,53 +365,45 @@ namespace Grand.Business.Storage.Services
                 thumbFileName = !string.IsNullOrEmpty(seoFileName) ?
                     string.Format("{0}_{1}.{2}", picture.Id, seoFileName, lastPart) :
                     string.Format("{0}.{1}", picture.Id, lastPart);
-
-                var thumbFilePath = await GetThumbPhysicalPath(thumbFileName);
-
-                if (!string.IsNullOrEmpty(thumbFilePath))
-                    return GetThumbUrl(thumbFileName, storeLocation);
-
-                var pictureBinary = await LoadPictureBinary(picture);
-
-                using (var mutex = new Mutex(false, thumbFileName))
-                {
-                    mutex.WaitOne();
-                    await SaveThumb(thumbFileName, pictureBinary);
-                    mutex.ReleaseMutex();
-                }
             }
             else
             {
                 thumbFileName = !string.IsNullOrEmpty(seoFileName) ?
                     string.Format("{0}_{1}_{2}.{3}", picture.Id, seoFileName, targetSize, lastPart) :
                     string.Format("{0}_{1}.{2}", picture.Id, targetSize, lastPart);
+            }
+            var thumbFilePath = await GetThumbPhysicalPath(thumbFileName);
 
-                var thumbFilePath = await GetThumbPhysicalPath(thumbFileName);
+            if (!string.IsNullOrEmpty(thumbFilePath))
+                return GetThumbUrl(thumbFileName, storeLocation);
 
-                if (!string.IsNullOrEmpty(thumbFilePath))
-                    return GetThumbUrl(thumbFileName, storeLocation);
-
-                var pictureBinary = await LoadPictureBinary(picture);
-
+            var pictureBinary = await LoadPictureBinary(picture);
+            if (pictureBinary != null && targetSize != 0)
+            {
+                try
+                {
+                    using var image = SKBitmap.Decode(pictureBinary);
+                    var resizedbinary = ApplyResize(image, EncodedImageFormat(picture.MimeType), targetSize);
+                    if (resizedbinary != null)
+                        pictureBinary = resizedbinary;
+                }
+                catch { }
+            }
+            try
+            {
                 using (var mutex = new Mutex(false, thumbFileName))
                 {
                     mutex.WaitOne();
-                    if (pictureBinary != null)
-                    {
-                        try
-                        {
-                            using var image = SKBitmap.Decode(pictureBinary);
-                            var resizedbinary = ApplyResize(image, EncodedImageFormat(picture.MimeType), targetSize);
-                            if (resizedbinary != null)
-                                pictureBinary = resizedbinary;
-                        }
-                        catch { }
-                    }
                     await SaveThumb(thumbFileName, pictureBinary);
-
                     mutex.ReleaseMutex();
                 }
             }
+            catch(Exception ex)
+            {
+                _= _logger.InsertLog(Domain.Logging.LogLevel.Error, ex.Message);
+                return await GetDefaultPictureUrl(targetSize, storeLocation);
+            }
+
             return GetThumbUrl(thumbFileName, storeLocation);
         }
 

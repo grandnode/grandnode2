@@ -1,8 +1,8 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Business.Storage.Extensions;
 using Grand.Domain.Data;
 using Grand.Domain.Media;
 using Grand.Infrastructure;
@@ -21,6 +21,7 @@ namespace Grand.Business.Storage.Services
 
         private static BlobContainerClient container = null;
         private readonly AzureConfig _config;
+        private readonly IMimeMappingService _mimeMappingService;
 
         #endregion
 
@@ -34,17 +35,20 @@ namespace Grand.Business.Storage.Services
             IMediaFileStore mediaFileStore,
             MediaSettings mediaSettings,
             StorageSettings storageSettings,
-            AzureConfig config)
+            AzureConfig config,
+            IMimeMappingService mimeMappingService)
             : base(pictureRepository,
                 logger,
                 mediator,
                 workContext,
                 cacheBase,
                 mediaFileStore,
+                mimeMappingService,
                 mediaSettings,
                 storageSettings)
         {
             _config = config;
+            _mimeMappingService = mimeMappingService;
 
             if (string.IsNullOrEmpty(_config.AzureBlobStorageConnectionString))
                 throw new Exception("Azure connection string for BLOB is not specified");
@@ -54,6 +58,7 @@ namespace Grand.Business.Storage.Services
                 throw new Exception("Azure end point for BLOB is not specified");
 
             container = new BlobContainerClient(_config.AzureBlobStorageConnectionString, _config.AzureBlobStorageContainerName);
+
 
         }
 
@@ -114,7 +119,7 @@ namespace Grand.Business.Storage.Services
             container.UploadBlob(thumbFileName, stream);
 
             //Update content type and other properties 
-            string contentType = thumbFileName.GetFileContentType();
+            string contentType = _mimeMappingService.Map(thumbFileName);
             var blobClient = container.GetBlobClient(thumbFileName);            
             BlobProperties properties = blobClient.GetProperties();
             BlobHttpHeaders blobHttpHeaders = new BlobHttpHeaders {

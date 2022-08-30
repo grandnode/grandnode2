@@ -3,6 +3,7 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Data;
 using Grand.Domain.Media;
@@ -26,6 +27,7 @@ namespace Grand.Business.Storage.Services
         private readonly string _distributionDomainName;
         private bool _bucketExist = false;
         private readonly IAmazonS3 _s3Client;
+        private readonly IMimeMappingService _mimeMappingService;
 
         #endregion
 
@@ -37,6 +39,7 @@ namespace Grand.Business.Storage.Services
             IWorkContext workContext,
             ICacheBase cacheBase,
             IMediaFileStore mediaFileStore,
+            IMimeMappingService mimeMappingService,
             MediaSettings mediaSettings,
             StorageSettings storageSettings,
             AmazonConfig config)
@@ -46,10 +49,12 @@ namespace Grand.Business.Storage.Services
                 workContext,
                 cacheBase,
                 mediaFileStore,
+                mimeMappingService,
                 mediaSettings,
                 storageSettings)
         {
             _config = config;
+            _mimeMappingService = mimeMappingService;
 
             //Arguments guard
             if (string.IsNullOrEmpty(_config.AmazonAwsAccessKeyId))
@@ -72,7 +77,6 @@ namespace Grand.Business.Storage.Services
 
             //Cloudfront distribution
             _distributionDomainName = _config.AmazonDistributionDomainName;
-
         }
 
         #endregion
