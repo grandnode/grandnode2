@@ -1,10 +1,10 @@
-﻿using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Stores;
-using Grand.Business.Common.Services.Security;
-using Grand.Business.Marketing.Interfaces.Campaigns;
-using Grand.Business.Marketing.Interfaces.Newsletters;
-using Grand.Business.Messages.Interfaces;
-using Grand.Business.System.Interfaces.ExportImport;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Business.Core.Interfaces.Marketing.Campaigns;
+using Grand.Business.Core.Interfaces.Marketing.Newsletters;
+using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Interfaces.System.ExportImport;
 using Grand.Domain.Messages;
 using Grand.Infrastructure;
 using Grand.SharedKernel;

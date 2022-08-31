@@ -1,14 +1,14 @@
-﻿using Grand.Business.Authentication.Interfaces;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Addresses;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Customers.Events;
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Customers.Queries.Models;
-using Grand.Business.Customers.Utilities;
-using Grand.Business.Messages.Interfaces;
-using Grand.Business.System.Interfaces.ExportImport;
+﻿using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Addresses;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Events.Customers;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Queries.Customers;
+using Grand.Business.Core.Utilities.Customers;
+using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Interfaces.System.ExportImport;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.Controllers
 {
+    [DenySystemAccount]
     public partial class AccountController : BasePublicController
     {
         #region Fields
@@ -481,7 +482,7 @@ namespace Grand.Web.Controllers
                                 await _messageProviderService.SendCustomerWelcomeMessage(_workContext.CurrentCustomer, _workContext.CurrentStore, _workContext.WorkingLanguage.Id);
 
                                 var redirectUrl = Url.RouteUrl("RegisterResult", new { resultId = (int)UserRegistrationType.Standard }, HttpContext.Request.Scheme);
-                                if (!String.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                                 {
                                     redirectUrl = CommonExtensions.ModifyQueryString(redirectUrl, "returnurl", returnUrl);
                                 }

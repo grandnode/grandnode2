@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Stores;
+﻿using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
@@ -90,7 +90,7 @@ namespace Grand.Web.Common
                     if (_cachedDomainHost == null)
                     {
                         //try to determine the current HOST header
-                        string host = _httpContextAccessor.HttpContext?.Request?.Headers[HeaderNames.Host];
+                        var host = _httpContextAccessor.HttpContext?.Request?.GetTypedHeaders().Host.ToString();
                         if (StoreHost != null)
                         {
                             _cachedDomainHost = StoreHost.HostValue(host) ?? new DomainHost() {

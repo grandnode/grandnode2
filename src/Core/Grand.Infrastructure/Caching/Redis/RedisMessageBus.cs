@@ -11,15 +11,15 @@ namespace Grand.Infrastructure.Caching.Redis
     {
         private readonly ISubscriber _subscriber;
         private readonly IServiceProvider _serviceProvider;
-        private readonly AppConfig _appConfig;
+        private readonly RedisConfig _redisConfig;
 
         private static readonly string _clientId = Guid.NewGuid().ToString("N");
 
-        public RedisMessageBus(ISubscriber subscriber, IServiceProvider serviceProvider, AppConfig appConfig)
+        public RedisMessageBus(ISubscriber subscriber, IServiceProvider serviceProvider, RedisConfig redisConfig)
         {
             _subscriber = subscriber;
             _serviceProvider = serviceProvider;
-            _appConfig = appConfig;
+            _redisConfig = redisConfig;
             SubscribeAsync();
         }
 
@@ -34,7 +34,7 @@ namespace Grand.Infrastructure.Caching.Redis
                     MessageType = msg.MessageType
                 };
                 var message = JsonConvert.SerializeObject(clientmsg);
-                await pub.PublishAsync(_appConfig.RedisPubSubChannel, message);
+                await pub.PublishAsync(_redisConfig.RedisPubSubChannel, message);
             }
             catch(Exception ex)
             {
@@ -46,7 +46,7 @@ namespace Grand.Infrastructure.Caching.Redis
         {
             var sub = _subscriber.Multiplexer.GetSubscriber();
 
-            sub.SubscribeAsync(_appConfig.RedisPubSubChannel, async (_, redisValue) =>
+            sub.SubscribeAsync(_redisConfig.RedisPubSubChannel, async (_, redisValue) =>
             {
                 try
                 {

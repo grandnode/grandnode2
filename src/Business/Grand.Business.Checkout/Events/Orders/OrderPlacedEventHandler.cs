@@ -1,5 +1,6 @@
-﻿using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Customers.Interfaces;
+﻿using Grand.Business.Core.Events.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data;
 using Grand.Domain.Orders;

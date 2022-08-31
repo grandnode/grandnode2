@@ -1,4 +1,4 @@
-using Grand.Business.Common.Interfaces.Configuration;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Domain.Configuration;
 using Grand.Domain.Data;
 using Grand.Infrastructure.Caching;
@@ -220,8 +220,8 @@ namespace Grand.Business.Common.Services.Configuration
                 {
                     var setting = settings.FirstOrDefault(x => x.StoreId == storeId);
 
-                    if (setting == null && !String.IsNullOrEmpty(storeId))
-                        setting = settings.FirstOrDefault(x => x.StoreId == "");
+                    if (setting == null && !string.IsNullOrEmpty(storeId))
+                        setting = settings.FirstOrDefault(x => string.IsNullOrEmpty(x.StoreId));
 
                     return JsonSerializer.Deserialize(setting.Metadata, type) as ISettings;
                 }

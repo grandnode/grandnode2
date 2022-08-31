@@ -24,7 +24,7 @@
                     <fieldset class="form-group">
                         <validation-provider tag="div" rules="required" name="Password" v-slot="{ errors, classes }">
                             <label asp-for="Password" class="col-form-label">@Loc["Account.DeleteAccount.Fields.Password"]:</label>
-                            <input asp-for="Password" v-model="deleteaccount.Password" v-bind:class="[classes , 'form-control']" autofocus="autofocus" />
+                            <input asp-for="Password" v-model="deleteaccount.Password" v-bind:class="[classes , 'form-control']" autofocus="autofocus" autocomplete="off" />
                             <span class="field-validation-error">{{ errors[0] }}</span>
                             <span asp-validation-for="Password"></span>
                         </validation-provider>

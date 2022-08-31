@@ -1,5 +1,5 @@
-﻿using Grand.Business.Common.Interfaces.Addresses;
-using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Core.Interfaces.Common.Addresses;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Common.Services.Addresses;
 using Grand.Domain.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

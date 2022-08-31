@@ -1,7 +1,7 @@
 ﻿using elFinder.Net.AspNetCore.Extensions;
 using elFinder.Net.AspNetCore.Helper;
 using elFinder.Net.Core;
-using Grand.Business.Storage.Interfaces;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Media;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Interfaces;

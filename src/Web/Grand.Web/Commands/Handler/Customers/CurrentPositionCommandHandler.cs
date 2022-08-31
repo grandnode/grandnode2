@@ -1,4 +1,4 @@
-﻿using Grand.Business.Marketing.Interfaces.Customers;
+﻿using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Web.Commands.Models.Customers;
 using MediatR;
 

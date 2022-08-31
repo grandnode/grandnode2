@@ -1,7 +1,7 @@
-﻿using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Services.Security;
-using Grand.Business.Customers.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -9,6 +9,7 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Admin.Models.Customers;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Business.Core.Interfaces.Catalog.Directory;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -56,8 +57,7 @@ namespace Grand.Web.Admin.Controllers
             var items = new List<OnlineCustomerModel>();
             foreach (var x in customers)
             {
-                var item = new OnlineCustomerModel()
-                {
+                var item = new OnlineCustomerModel() {
                     Id = x.Id,
                     CustomerInfo = !string.IsNullOrEmpty(x.Email) ? x.Email : _translationService.GetResource("Admin.Customers.Guest"),
                     LastIpAddress = x.LastIpAddress,
@@ -70,8 +70,7 @@ namespace Grand.Web.Admin.Controllers
                 items.Add(item);
             }
 
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = items,
                 Total = customers.TotalCount
             };

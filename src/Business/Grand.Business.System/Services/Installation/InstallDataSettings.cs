@@ -1,7 +1,7 @@
-﻿using Grand.Business.Common.Interfaces.Configuration;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Storage.Interfaces;
-using Grand.Business.System.Interfaces.Installation;
+﻿using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Interfaces.System.Installation;
 using Grand.Domain.AdminSearch;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;

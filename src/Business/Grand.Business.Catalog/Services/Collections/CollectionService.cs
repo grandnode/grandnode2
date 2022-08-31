@@ -1,5 +1,5 @@
-using Grand.Business.Catalog.Interfaces.Collections;
-using Grand.Business.Common.Interfaces.Security;
+using Grand.Business.Core.Interfaces.Catalog.Collections;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;

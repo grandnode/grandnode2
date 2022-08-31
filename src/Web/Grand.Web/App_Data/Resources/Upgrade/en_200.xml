@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="English">
+	<Resource Name="Admin.Catalog.Picture.Fields.ExtraField">
+		<Value>Extra field</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Picture.Fields.Style">
+		<Value>Style</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.Pictures.Fields.ExtraField">
+		<Value>Extra field</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.Pictures.Fields.Style">
+		<Value>Style</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.Pictures.Fields.ExtraField">
+		<Value>Extra field</Value>
+	</Resource>
+	<Resource Name="Admin.GiftVouchers.Fields.StoreId">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.GiftVouchers_Assign_StoreId">
+		<Value>Gift voucher assign to the current store</Value>
+	</Resource>
+	<Resource Name="Address.Fields.AddressName">
+		<Value>Address name</Value>
+	</Resource>
+	<Resource Name="Admin.Address.Fields.AddressName">
+		<Value>Address name</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Customer.AddressFormFields.NameEnabled">
+		<Value>'Address name' enabled</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts">
+		<Value>Used by products</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts.OptionName">
+		<Value>Name</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts.Product">
+		<Value>Product</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts.Published">
+		<Value>Published</Value>
+	</Resource>
+	<Resource Name="Products.Mpn">
+		<Value>Manufacturer part number</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.GeneralCommon.ReCaptchaTheme">
+		<Value>Theme for reCAPTCHA (e.g. blackglass, white) </Value>
+	</Resource>
+	<Resource Name="Admin.Settings.GeneralCommon.ReCaptchaScore">
+		<Value>reCAPTCHA v3 Score (1.0 is very likely a very good interaction, 0.0 is very likely a bot)</Value>
+	</Resource>
+	<Resource Name="Admin.System.SystemInfo.WebRootPath">
+		<Value>Absolute path to the directory that contains the web-servable application content files</Value>
+	</Resource>
+	<Resource Name="Admin.System.SystemInfo.ContentRootPath">
+		<Value>Absolute path to the directory that contains the application content files</Value>
+	</Resource>
+	<Resource Name="Admin.System.SystemInfo.EnvironmentName">
+		<Value>The name of the environment</Value>
+	</Resource>	
+</Language>

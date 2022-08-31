@@ -1,11 +1,12 @@
-﻿using Grand.Business.Checkout.Enum;
-using Grand.Business.Checkout.Interfaces.Payments;
-using Grand.Business.Checkout.Interfaces.Shipping;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Common.Services.Security;
-using Grand.Business.System.Interfaces.MachineNameProvider;
+﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
+using Grand.Business.Core.Enums.Checkout;
+using Grand.Business.Core.Interfaces.Checkout.Payments;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Business.Core.Interfaces.System.MachineNameProvider;
 using Grand.Domain.Directory;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
@@ -16,6 +17,7 @@ using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Common;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
@@ -37,11 +39,12 @@ namespace Grand.Web.Admin.Controllers
         private readonly ITranslationService _translationService;
         private readonly IMachineNameProvider _machineNameProvider;
         private readonly IHostApplicationLifetime _applicationLifetime;
+        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ILogger _logger;
 
         private readonly CurrencySettings _currencySettings;
         private readonly MeasureSettings _measureSettings;
-        private readonly AppConfig _appConfig;
+        private readonly ExtensionsConfig _extConfig;
         #endregion
 
         #region Constructors
@@ -55,10 +58,11 @@ namespace Grand.Web.Admin.Controllers
             ITranslationService translationService,
             IMachineNameProvider machineNameProvider,
             IHostApplicationLifetime applicationLifetime,
+            IWebHostEnvironment webHostEnvironment,
             ILogger logger,
             CurrencySettings currencySettings,
             MeasureSettings measureSettings,
-            AppConfig appConfig)
+            ExtensionsConfig extConfig)
         {
             _paymentService = paymentService;
             _shippingService = shippingService;
@@ -70,8 +74,9 @@ namespace Grand.Web.Admin.Controllers
             _workContext = workContext;
             _translationService = translationService;
             _applicationLifetime = applicationLifetime;
+            _webHostEnvironment = webHostEnvironment;
             _logger = logger;
-            _appConfig = appConfig;
+            _extConfig = extConfig;
             _machineNameProvider = machineNameProvider;
         }
 
@@ -95,7 +100,9 @@ namespace Grand.Web.Admin.Controllers
             catch (Exception) { }
 
             model.MachineName = _machineNameProvider.GetMachineName();
-
+            model.WebRootPath = _webHostEnvironment.WebRootPath;
+            model.ContentRootPath = _webHostEnvironment.ContentRootPath;
+            model.EnvironmentName = _webHostEnvironment.EnvironmentName;
             model.ServerTimeZone = TimeZoneInfo.Local.StandardName;
             model.ServerLocalTime = DateTime.Now;
             model.ApplicationTime = _dateTimeService.ConvertToUserTime(DateTime.UtcNow, TimeZoneInfo.Utc, _dateTimeService.CurrentTimeZone);
@@ -300,7 +307,7 @@ namespace Grand.Web.Admin.Controllers
 
         public IActionResult Roslyn()
         {
-            return View(_appConfig.UseRoslynScripts);
+            return View(_extConfig.UseRoslynScripts);
         }
 
         [HttpPost]

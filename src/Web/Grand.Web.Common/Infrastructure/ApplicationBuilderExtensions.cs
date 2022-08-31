@@ -1,5 +1,5 @@
-﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Logging;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Domain.Common;
 using Grand.Domain.Data;
 using Grand.Infrastructure;
@@ -79,7 +79,7 @@ namespace Grand.Web.Common.Infrastructure
                             customer: workContext.CurrentCustomer,
                             ipAddress: context.Connection?.RemoteIpAddress?.ToString(),
                             pageurl: context.Request?.GetDisplayUrl(),
-                            referrerUrl: context.Request?.Headers[HeaderNames.Referer]);
+                            referrerUrl: context.Request?.GetTypedHeaders().Referer?.ToString());
                             //log error
                             _ = logger.Error(exception.Message, exception, workContext.CurrentCustomer);
                         }
@@ -122,12 +122,11 @@ namespace Grand.Web.Common.Infrastructure
                         //get current customer
                         var workContext = context.HttpContext.RequestServices.GetRequiredService<IWorkContext>();
                         _ = logger.InsertLog(Domain.Logging.LogLevel.Error, 
-                            $"Error 404. The requested page ({context.HttpContext.Request.Scheme}://{context.HttpContext.Request.Host}{context.HttpContext.Request.Path})" +
-                            $" was not found",
+                            $"Error 404. The requested page ({context.HttpContext.Request?.GetDisplayUrl()}) was not found",
                             customer: workContext.CurrentCustomer, 
                             ipAddress: context.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                             pageurl: context.HttpContext?.Request?.GetDisplayUrl(),
-                            referrerUrl: context.HttpContext?.Request?.Headers[HeaderNames.Referer]);
+                            referrerUrl: context.HttpContext?.Request?.GetTypedHeaders().Referer?.ToString());
                     }
                 }
                 await Task.CompletedTask;
@@ -155,7 +154,7 @@ namespace Grand.Web.Common.Infrastructure
                         _ = logger.InsertLog(Domain.Logging.LogLevel.Error, "Error 400. Bad request", null, customer: workContext.CurrentCustomer,
                             ipAddress: context.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                             pageurl: context.HttpContext?.Request?.GetDisplayUrl(),
-                            referrerUrl: context.HttpContext?.Request?.Headers[HeaderNames.Referer]);
+                            referrerUrl: context.HttpContext?.Request?.GetTypedHeaders().Referer?.ToString());
                     }
                 }
                 return Task.CompletedTask;
@@ -251,9 +250,9 @@ namespace Grand.Web.Common.Infrastructure
             if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
-            var appConfig = application.ApplicationServices.GetRequiredService<AppConfig>();
+            var performanceConfig = application.ApplicationServices.GetRequiredService<PerformanceConfig>();
             //whether MiniProfiler should be displayed
-            if (appConfig.DisplayMiniProfilerInPublicStore)
+            if (performanceConfig.DisplayMiniProfilerInPublicStore)
             {
                 application.UseMiniProfiler();
             }

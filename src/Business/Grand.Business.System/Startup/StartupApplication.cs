@@ -1,9 +1,9 @@
-﻿using Grand.Business.System.Interfaces.Admin;
-using Grand.Business.System.Interfaces.ExportImport;
-using Grand.Business.System.Interfaces.Installation;
-using Grand.Business.System.Interfaces.MachineNameProvider;
-using Grand.Business.System.Interfaces.Reports;
-using Grand.Business.System.Interfaces.ScheduleTasks;
+﻿using Grand.Business.Core.Interfaces.System.Admin;
+using Grand.Business.Core.Interfaces.System.ExportImport;
+using Grand.Business.Core.Interfaces.System.Installation;
+using Grand.Business.Core.Interfaces.System.MachineNameProvider;
+using Grand.Business.Core.Interfaces.System.Reports;
+using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Business.System.Services.Admin;
 using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
 using Grand.Business.System.Services.ExportImport;
@@ -26,11 +26,8 @@ namespace Grand.Business.System.Startup
     {
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            var config = new AppConfig();
-            configuration.GetSection("Application").Bind(config);
-
             RegisterReports(services);
-            RegisterMachineNameProvider(services, config);
+            RegisterMachineNameProvider(services, configuration);
             RegisterTask(services);
             RegisterExportImportService(services);
             RegisterInstallService(services);
@@ -72,8 +69,10 @@ namespace Grand.Business.System.Startup
             serviceCollection.AddScoped<IProductsReportService, ProductsReportService>();
         }
 
-        private void RegisterMachineNameProvider(IServiceCollection serviceCollection, AppConfig config)
+        private void RegisterMachineNameProvider(IServiceCollection serviceCollection, IConfiguration configuration)
         {
+            var config = new AzureConfig();
+            configuration.GetSection("Azure").Bind(config);
             if (config.RunOnAzureWebApps)
             {
                 serviceCollection.AddSingleton<IMachineNameProvider, AzureWebAppsMachineNameProvider>();

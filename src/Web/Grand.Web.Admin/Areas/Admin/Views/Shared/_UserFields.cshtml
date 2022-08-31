@@ -1,5 +1,5 @@
 ﻿@model Grand.Infrastructure.Models.BaseEntityModel
-@inject Grand.Business.Common.Interfaces.Stores.IStoreService storeService
+@inject Grand.Business.Core.Interfaces.Common.Stores.IStoreService storeService
 @{
     var userFields = Model.UserFields.ToList();
     var stores = (await storeService.GetAllStores()).Select(store => new SelectListItem

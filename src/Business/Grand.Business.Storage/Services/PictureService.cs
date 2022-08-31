@@ -1,6 +1,6 @@
-﻿using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Storage.Interfaces;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Data;
@@ -796,6 +796,28 @@ namespace Grand.Business.Storage.Services
                 return byteArray;
             }
         }
+
+
+
+        /// <summary>
+        /// Convert picture
+        /// </summary>
+        /// <param name="pictureBinary">Picture binary</param>
+        /// <param name="imageQuality">Image quality</param>
+        /// <param name="format">Format</param>
+        /// <returns>Picture binary or throws an exception</returns>
+        public virtual byte[] ConvertPicture(byte[] pictureBinary, int imageQuality, string format = "Webp")
+        {
+            Enum.TryParse(typeof(SKEncodedImageFormat), format, out var skformat);
+            if (skformat == null)
+                skformat = SKEncodedImageFormat.Webp;
+
+            using var image = SKBitmap.Decode(pictureBinary);
+            SKData d = SKImage.FromBitmap(image).Encode((SKEncodedImageFormat)skformat, imageQuality);
+            return d.ToArray();
+        }
+
+
         protected SKEncodedImageFormat EncodedImageFormat(string mimetype)
         {
             SKEncodedImageFormat defaultFormat = SKEncodedImageFormat.Jpeg;

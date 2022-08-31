@@ -1,5 +1,5 @@
-﻿using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Marketing.Interfaces.Newsletters;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Web.Commands.Models.Newsletter;
 using Grand.Web.Models.Newsletter;
 using MediatR;

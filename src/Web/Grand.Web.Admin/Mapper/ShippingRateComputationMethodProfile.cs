@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Grand.Business.Checkout.Interfaces.Shipping;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Infrastructure.Mapper;
 using Grand.Web.Admin.Models.Shipping;
 

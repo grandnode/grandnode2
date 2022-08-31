@@ -1,7 +1,7 @@
 ﻿@model String
-@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
+@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
 @using Grand.SharedKernel.Extensions
-@using Grand.Business.Common.Services.Security
+@using Grand.Business.Core.Utilities.Common.Security
 @{
     var allowFileman = await permissionService.Authorize(StandardPermission.HtmlEditorManagePictures);
     var random = CommonHelper.GenerateRandomInteger();    

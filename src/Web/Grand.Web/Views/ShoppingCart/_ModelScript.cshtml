@@ -32,8 +32,9 @@
                 body.classList.add("cart-view");
             },
             updateCart() {
+                alert('updatecart');
                 axios({
-                    baseURL: '/Component/Index?Name=OrderSummary',
+                    baseURL: '@Url.RouteUrl("ShoppingCartSummary")',
                     method: 'get',
                     data: null,
                     headers: {
@@ -47,7 +48,7 @@
             },
             updateTotals() {
                 axios({
-                    baseURL: '/Component/Index?Name=OrderTotals',
+                    baseURL: '@Url.RouteUrl("ShoppingCartTotal")',
                     method: 'get',
                     data: null,
                     headers: {

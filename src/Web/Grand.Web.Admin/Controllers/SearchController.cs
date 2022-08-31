@@ -1,10 +1,10 @@
-﻿using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Catalog.Interfaces.Collections;
-using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Cms.Interfaces;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Customers.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Catalog.Collections;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Cms;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure;
 using Grand.Domain;
 using Grand.Domain.AdminSearch;
@@ -12,14 +12,14 @@ using Grand.Domain.Customers;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Models.Settings;
 using Microsoft.AspNetCore.Mvc;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Web.Common.DataSource;
 using Grand.Domain.Catalog;
 using Grand.Web.Admin.Models.Common;
-using Grand.Business.Common.Interfaces.Stores;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
-using Grand.Business.Catalog.Interfaces.Brands;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 
 namespace Grand.Web.Admin.Controllers
 {

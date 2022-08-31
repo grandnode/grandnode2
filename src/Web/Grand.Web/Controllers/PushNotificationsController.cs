@@ -1,4 +1,4 @@
-﻿using Grand.Business.Marketing.Interfaces.PushNotifications;
+﻿using Grand.Business.Core.Interfaces.Marketing.PushNotifications;
 using Grand.Domain.PushNotifications;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;

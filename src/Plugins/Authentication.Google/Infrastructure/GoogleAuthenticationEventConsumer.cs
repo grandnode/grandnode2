@@ -1,6 +1,6 @@
-﻿using Grand.Business.Authentication.Events;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Messages.Interfaces;
+﻿using Grand.Business.Core.Commands.Customers;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using MediatR;
@@ -11,7 +11,7 @@ namespace Authentication.Google.Infrastructure.Cache
     /// <summary>
     /// Google authentication event consumer (used for saving customer fields on registration)
     /// </summary>
-    public partial class GoogleAuthenticationEventConsumer : INotificationHandler<RegisteredByExternalMethodEventHandler>
+    public partial class GoogleAuthenticationEventConsumer : INotificationHandler<RegisteredByExternalMethod>
     {
         #region Fields
 
@@ -42,7 +42,7 @@ namespace Authentication.Google.Infrastructure.Cache
 
         #region Methods
 
-        public async Task Handle(RegisteredByExternalMethodEventHandler eventMessage, CancellationToken cancellationToken)
+        public async Task Handle(RegisteredByExternalMethod eventMessage, CancellationToken cancellationToken)
         {
             if (eventMessage?.Customer == null || eventMessage.AuthenticationParameters == null)
                 return;

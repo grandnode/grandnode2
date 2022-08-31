@@ -1,12 +1,12 @@
-using Grand.Business.Catalog.Extensions;
-using Grand.Business.Catalog.Interfaces.Categories;
-using Grand.Business.Catalog.Interfaces.Discounts;
-using Grand.Business.Catalog.Interfaces.Collections;
-using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Catalog.Queries.Models;
-using Grand.Business.Catalog.Utilities;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
+using Grand.Business.Core.Interfaces.Catalog.Discounts;
+using Grand.Business.Core.Interfaces.Catalog.Collections;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Infrastructure;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -15,7 +15,7 @@ using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
 using Grand.Domain.Orders;
 using MediatR;
-using Grand.Business.Catalog.Interfaces.Brands;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 
 namespace Grand.Business.Catalog.Services.Prices
 {
@@ -619,28 +619,25 @@ namespace Grand.Business.Catalog.Services.Prices
                 double attributesTotalPrice = 0;
                 if (attributes != null && attributes.Any())
                 {
-                    if (product.ProductTypeId != ProductType.BundledProduct)
+                    var attributeValues = _productAttributeParser.ParseProductAttributeValues(product, attributes);
+                    if (attributeValues != null)
                     {
-                        var attributeValues = _productAttributeParser.ParseProductAttributeValues(product, attributes);
-                        if (attributeValues != null)
+                        foreach (var attributeValue in attributeValues)
                         {
-                            foreach (var attributeValue in attributeValues)
-                            {
-                                attributesTotalPrice += await GetProductAttributeValuePriceAdjustment(attributeValue);
-                            }
+                            attributesTotalPrice += await GetProductAttributeValuePriceAdjustment(attributeValue);
                         }
                     }
-                    else
+                    if (product.ProductTypeId == ProductType.BundledProduct)
                     {
                         foreach (var item in product.BundleProducts)
                         {
                             var p1 = await _productService.GetProductById(item.ProductId);
                             if (p1 != null)
                             {
-                                var attributeValues = _productAttributeParser.ParseProductAttributeValues(p1, attributes);
-                                if (attributeValues != null)
+                                var bundledProductsAttributeValues = _productAttributeParser.ParseProductAttributeValues(p1, attributes);
+                                if (bundledProductsAttributeValues != null)
                                 {
-                                    foreach (var attributeValue in attributeValues)
+                                    foreach (var attributeValue in bundledProductsAttributeValues)
                                     {
                                         attributesTotalPrice += (item.Quantity * await GetProductAttributeValuePriceAdjustment(attributeValue));
                                     }

@@ -1,12 +1,13 @@
-﻿using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Queries.Models.Orders;
-using Grand.Business.Common.Interfaces.Addresses;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Common.Addresses;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Orders;
+using Grand.Web.Common.Filters;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Orders;
@@ -19,6 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Web.Controllers
 {
+    [DenySystemAccount]
     public partial class MerchandiseReturnController : BasePublicController
     {
         #region Fields

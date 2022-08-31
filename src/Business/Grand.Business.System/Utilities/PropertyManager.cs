@@ -1,6 +1,7 @@
-﻿using NPOI.SS.UserModel;
+﻿using Grand.Business.Core.Utilities.System;
+using NPOI.SS.UserModel;
 
-namespace Grand.Business.System.Utilities
+namespace Grand.Business.System.Utilities.System
 {
     /// <summary>
     /// Class for working with PropertyByName object list
@@ -74,7 +75,12 @@ namespace Grand.Business.System.Utilities
             IRow _row = sheet.CreateRow(row);
             foreach (var prop in _properties.Values)
             {
-                _row.CreateCell(prop.PropertyOrderPosition).SetCellValue(prop.GetProperty(CurrentObject)?.ToString());
+                var cellValue = (prop.GetProperty(CurrentObject)?.ToString());
+                if(cellValue != null && cellValue.Length >= 32767) // 32767 is the max char size of an excel cell
+                {
+                    cellValue = cellValue.Substring(0, 32767); //Truncate the content to max size.
+                }
+                _row.CreateCell(prop.PropertyOrderPosition).SetCellValue(cellValue);
             }
         }
 

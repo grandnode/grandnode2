@@ -1,12 +1,13 @@
 ﻿using Authentication.Facebook.Models;
-using Grand.Business.Authentication.Interfaces;
-using Grand.Business.Authentication.Utilities;
+using Grand.Business.Core.Interfaces.Authentication;
 using Grand.SharedKernel;
 using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Facebook;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
+using Grand.Business.Core.Utilities.Authentication;
 
 namespace Authentication.Facebook.Controllers
 {
@@ -14,18 +15,19 @@ namespace Authentication.Facebook.Controllers
     {
         #region Fields
 
-        private readonly FacebookExternalAuthSettings _facebookExternalAuthSettings;
         private readonly IExternalAuthenticationService _externalAuthenticationService;
+        private readonly IConfiguration _configuration;
 
         #endregion
 
         #region Ctor
 
-        public FacebookAuthenticationController(FacebookExternalAuthSettings facebookExternalAuthSettings,
-            IExternalAuthenticationService externalAuthenticationService)
+        public FacebookAuthenticationController(
+            IExternalAuthenticationService externalAuthenticationService,
+            IConfiguration configuration)
         {
-            _facebookExternalAuthSettings = facebookExternalAuthSettings;
             _externalAuthenticationService = externalAuthenticationService;
+            _configuration = configuration;
         }
 
         #endregion
@@ -37,7 +39,7 @@ namespace Authentication.Facebook.Controllers
             if (!_externalAuthenticationService.AuthenticationProviderIsAvailable(FacebookAuthenticationDefaults.ProviderSystemName))
                 throw new GrandException("Facebook authentication module cannot be loaded");
 
-            if (string.IsNullOrEmpty(_facebookExternalAuthSettings.ClientKeyIdentifier) || string.IsNullOrEmpty(_facebookExternalAuthSettings.ClientSecret))
+            if (string.IsNullOrEmpty(_configuration["FacebookSettings:AppId"]) || string.IsNullOrEmpty(_configuration["FacebookSettings:AppSecret"]))
                 throw new GrandException("Facebook authentication module not configured");
 
             //configure login callback action

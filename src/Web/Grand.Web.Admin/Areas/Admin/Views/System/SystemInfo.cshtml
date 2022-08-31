@@ -49,6 +49,24 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
+                                        <admin-label asp-for="WebRootPath" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <label class="control-label">@Model.WebRootPath</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="ContentRootPath" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <label class="control-label">@Model.ContentRootPath</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <admin-label asp-for="EnvironmentName" />
+                                        <div class="col-md-9 col-sm-9">
+                                            <label class="control-label">@Model.EnvironmentName</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
                                         <admin-label asp-for="ServerTimeZone" />
                                         <div class="col-md-9 col-sm-9">
                                             <label class="control-label">@Model.ServerTimeZone</label>

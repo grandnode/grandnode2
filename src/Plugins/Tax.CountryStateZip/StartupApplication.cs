@@ -1,4 +1,4 @@
-using Grand.Business.Catalog.Interfaces.Tax;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

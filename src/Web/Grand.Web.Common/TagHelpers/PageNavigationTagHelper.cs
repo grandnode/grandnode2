@@ -1,4 +1,4 @@
-﻿using Grand.Business.Common.Interfaces.Localization;
+﻿using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Page.Paging;
 using Microsoft.AspNetCore.Mvc.Rendering;

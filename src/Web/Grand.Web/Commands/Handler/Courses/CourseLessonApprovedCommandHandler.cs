@@ -1,5 +1,5 @@
 ﻿using Grand.Domain.Courses;
-using Grand.Business.Marketing.Interfaces.Courses;
+using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Web.Commands.Models.Courses;
 using MediatR;
 

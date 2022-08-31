@@ -1,11 +1,11 @@
-﻿using Grand.Business.Checkout.Commands.Models.Orders;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Interfaces.Payments;
-using Grand.Business.Checkout.Queries.Models.Orders;
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Services.Security;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Payments;
+using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.SharedKernel;
@@ -199,7 +199,7 @@ namespace Grand.Web.Admin.Controllers
             model.IPAddress = paymentTransaction.IPAddress;
             model.Description = paymentTransaction.Description;
             model.AdditionalInfo = paymentTransaction.AdditionalInfo;
-
+	    model.AuthorizationTransactionId = paymentTransaction.AuthorizationTransactionId;
 
             //payment method buttons
             //model.CanCancelOrder = await _mediator.Send(new CanCancelOrderQuery() { Order = order });

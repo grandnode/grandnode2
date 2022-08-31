@@ -1,5 +1,5 @@
-using Grand.Business.Common.Extensions;
-using Grand.Business.Common.Interfaces.Directory;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Data;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
@@ -64,7 +64,7 @@ namespace Grand.Business.Common.Services.Directory
                 if (!showHidden)
                     query = query.Where(c => c.Published);
 
-                if (!showHidden && !CommonHelper.IgnoreStoreLimitations && string.IsNullOrEmpty(storeId))
+                if (!showHidden && !CommonHelper.IgnoreStoreLimitations && !string.IsNullOrEmpty(storeId))
                 {
                     //Store acl
                     query = from p in query

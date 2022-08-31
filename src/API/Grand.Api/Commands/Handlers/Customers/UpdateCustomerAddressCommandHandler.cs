@@ -1,7 +1,7 @@
 ﻿using Grand.Api.Commands.Models.Customers;
 using Grand.Api.DTOs.Customers;
 using Grand.Api.Extensions;
-using Grand.Business.Customers.Interfaces;
+using Grand.Business.Core.Interfaces.Customers;
 using MediatR;
 
 namespace Grand.Api.Commands.Handlers.Customers

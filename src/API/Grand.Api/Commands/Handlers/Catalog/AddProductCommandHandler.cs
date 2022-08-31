@@ -1,12 +1,12 @@
 ﻿using Grand.Api.DTOs.Catalog;
 using Grand.Api.Extensions;
 using Grand.Domain.Seo;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Business.Common.Interfaces.Seo;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Common.Seo;
 using MediatR;
-using Grand.Business.Catalog.Interfaces.Products;
-using Grand.Business.Common.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Extensions;
 using Grand.Infrastructure;
 
 namespace Grand.Api.Commands.Models.Catalog

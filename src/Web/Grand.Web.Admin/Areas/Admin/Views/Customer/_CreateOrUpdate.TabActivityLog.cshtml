@@ -1,6 +1,6 @@
 ﻿@model CustomerModel
 @inject AdminAreaSettings adminAreaSettings
-@inject Grand.Business.Common.Interfaces.Security.IPermissionService permisionService
+@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permisionService
 @{
     var defaultGridPageSize = adminAreaSettings.DefaultGridPageSize;
     var gridPageSizes = adminAreaSettings.GridPageSizes;
@@ -157,7 +157,7 @@
         </script>
     }
 
-    @if (await permisionService.Authorize(Grand.Business.Common.Services.Security.PermissionSystemName.MessageQueue))
+    @if (await permisionService.Authorize(Grand.Business.Core.Utilities.Common.Security.PermissionSystemName.MessageQueue))
     {
         <br />
         <strong>@Loc["Admin.System.QueuedEmails"]</strong>

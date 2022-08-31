@@ -1,9 +1,9 @@
 ﻿@inject IWorkContext workContext
-@inject Grand.Business.Common.Interfaces.Security.IPermissionService permissionService
-@inject Grand.Business.Checkout.Interfaces.Orders.IShoppingCartService shoppingCartService
+@inject Grand.Business.Core.Interfaces.Common.Security.IPermissionService permissionService
+@inject Grand.Business.Core.Interfaces.Checkout.Orders.IShoppingCartService shoppingCartService
 @inject ShoppingCartSettings shoppingCartSettings
 @inject CatalogSettings catalogSettings
-@using Grand.Business.Common.Services.Security
+@using Grand.Business.Core.Utilities.Common.Security
 @{
 
     var shoppingCartTypes = new List<ShoppingCartType>();

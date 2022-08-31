@@ -20,7 +20,7 @@ namespace Grand.Infrastructure.Caching
         private bool _disposed;
         private static CancellationTokenSource _resetCacheToken = new();
 
-        protected readonly ConcurrentDictionary<string, ICacheEntry> _cacheEntries = new();
+        protected readonly ConcurrentDictionary<string, SemaphoreSlim> _cacheEntries = new();
 
         #endregion
 
@@ -36,19 +36,32 @@ namespace Grand.Infrastructure.Caching
 
         #region Methods
 
-        public virtual async Task<T> GetAsync<T>(string key, Func<Task<T>> acquire)
+        public virtual Task<T> GetAsync<T>(string key, Func<Task<T>> acquire)
         {
-            return await GetAsync(key, acquire, CommonHelper.CacheTimeMinutes);
+            return GetAsync(key, acquire, CommonHelper.CacheTimeMinutes);
         }
 
         public virtual async Task<T> GetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime)
         {
-            return await _cache.GetOrCreateAsync(key, entry =>
+            T cacheEntry;
+            if (!_cache.TryGetValue(key, out cacheEntry))
             {
-                entry.SetOptions(GetMemoryCacheEntryOptions(cacheTime));
-                entry.SetKey(_cacheEntries);
-                return acquire();
-            });
+                SemaphoreSlim slock = _cacheEntries.GetOrAdd(key, k => new SemaphoreSlim(1, 1));
+                await slock.WaitAsync();
+                try
+                {
+                    if (!_cache.TryGetValue(key, out cacheEntry))
+                    {
+                        cacheEntry = await acquire();
+                        _cache.Set(key, cacheEntry, GetMemoryCacheEntryOptions(cacheTime));
+                    }
+                }
+                finally
+                {
+                    slock.Release();
+                }
+            }
+            return cacheEntry;
         }
 
         public virtual T Get<T>(string key, Func<T> acquire)
@@ -58,12 +71,25 @@ namespace Grand.Infrastructure.Caching
 
         public virtual T Get<T>(string key, Func<T> acquire, int cacheTime)
         {
-            return _cache.GetOrCreate(key, entry =>
+            T cacheEntry;
+            if (!_cache.TryGetValue(key, out cacheEntry))
             {
-                entry.SetOptions(GetMemoryCacheEntryOptions(cacheTime));
-                entry.SetKey(_cacheEntries);
-                return acquire();
-            });
+                SemaphoreSlim slock = _cacheEntries.GetOrAdd(key, k => new SemaphoreSlim(1, 1));
+                slock.Wait();
+                try
+                {
+                    if (!_cache.TryGetValue(key, out cacheEntry))
+                    {
+                        cacheEntry = acquire();
+                        _cache.Set(key, cacheEntry, GetMemoryCacheEntryOptions(cacheTime));
+                    }
+                }
+                finally
+                {
+                    slock.Release();
+                }
+            }
+            return cacheEntry;
         }        
 
         public virtual Task RemoveAsync(string key, bool publisher = true)

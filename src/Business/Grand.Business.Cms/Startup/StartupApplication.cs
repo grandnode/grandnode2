@@ -1,4 +1,4 @@
-﻿using Grand.Business.Cms.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Cms.Services;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;
@@ -12,10 +12,14 @@ namespace Grand.Business.Cms.Startup
     {
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            RegisterBlogService(services);
-            RegisterWidgetService(services);
-            RegisterNewsService(services);
-            RegisterPagesService(services);
+            services.AddScoped<IBlogService, BlogService>();
+            services.AddScoped<IWidgetService, WidgetService>();
+            services.AddScoped<INewsService, NewsService>();
+            services.AddScoped<IPageLayoutService, PageLayoutService>();
+            services.AddScoped<IPageService, PageService>();
+            services.AddScoped<ICookiePreference, CookiePreference>();
+            services.AddScoped<IRobotsTxtService, RobotsTxtService>();
+
         }
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
@@ -24,25 +28,6 @@ namespace Grand.Business.Cms.Startup
         public int Priority => 100;
         public bool BeforeConfigure => false;
 
-        private void RegisterBlogService(IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddScoped<IBlogService, BlogService>();
-        }
-
-        private void RegisterWidgetService(IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddScoped<IWidgetService, WidgetService>();
-        }
-        private void RegisterNewsService(IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddScoped<INewsService, NewsService>();
-        }
-        private void RegisterPagesService(IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddScoped<IPageLayoutService, PageLayoutService>();
-            serviceCollection.AddScoped<IPageService, PageService>();
-
-        }
 
     }
 }

@@ -1,4 +1,4 @@
-using Grand.Business.Catalog.Interfaces.Products;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
@@ -135,7 +135,7 @@ namespace Grand.Business.Catalog.Services.Products
                 throw new ArgumentNullException(nameof(specificationAttribute));
 
             //delete from all product collections
-            await _productRepository.PullFilter(string.Empty, x => x.ProductSpecificationAttributes, z => z.SpecificationAttributeId, specificationAttribute.Id, true);
+            await _productRepository.PullFilter(string.Empty, x => x.ProductSpecificationAttributes, z => z.SpecificationAttributeId, specificationAttribute.Id);
 
             await _specificationAttributeRepository.DeleteAsync(specificationAttribute);
 
@@ -181,7 +181,7 @@ namespace Grand.Business.Catalog.Services.Products
                 throw new ArgumentNullException(nameof(specificationAttributeOption));
 
             //delete from all product collections
-            await _productRepository.PullFilter(string.Empty, x => x.ProductSpecificationAttributes, z => z.SpecificationAttributeOptionId, specificationAttributeOption.Id, true);
+            await _productRepository.PullFilter(string.Empty, x => x.ProductSpecificationAttributes, z => z.SpecificationAttributeOptionId, specificationAttributeOption.Id);
 
             var specificationAttribute = await GetSpecificationAttributeByOptionId(specificationAttributeOption.Id);
             var sao = specificationAttribute.SpecificationAttributeOptions.Where(x => x.Id == specificationAttributeOption.Id).FirstOrDefault();

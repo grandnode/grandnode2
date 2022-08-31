@@ -1,4 +1,4 @@
-﻿using Grand.Business.Messages.Commands.Models;
+﻿using Grand.Business.Core.Commands.Messages;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
 using MediatR;
@@ -33,7 +33,6 @@ namespace Grand.Business.Messages.Commands.Handlers
             };
 
             await _repository.InsertAsync(contactus);
-
             return true;
         }
     }

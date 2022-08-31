@@ -1,16 +1,15 @@
-﻿using Grand.Business.Catalog.Interfaces.Discounts;
-using Grand.Business.Checkout.Extensions;
-using Grand.Business.Checkout.Interfaces.CheckoutAttributes;
-using Grand.Business.Checkout.Interfaces.GiftVouchers;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Queries.Models.Orders;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Storage.Extensions;
-using Grand.Business.Storage.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Catalog.Discounts;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
+using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -18,10 +17,12 @@ using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.ShoppingCart;
+using Grand.Web.Common.Filters;
 using Grand.Web.Features.Models.ShoppingCart;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Controllers
 {
@@ -114,6 +115,7 @@ namespace Grand.Web.Controllers
             return Json(model);
         }
 
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> CheckoutAttributeChange(IFormCollection form,
             [FromServices] ICheckoutAttributeParser checkoutAttributeParser,
@@ -121,8 +123,7 @@ namespace Grand.Web.Controllers
         {
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
-            var checkoutAttributes = await _mediator.Send(new SaveCheckoutAttributesCommand()
-            {
+            var checkoutAttributes = await _mediator.Send(new SaveCheckoutAttributesCommand() {
                 Customer = _workContext.CurrentCustomer,
                 Store = _workContext.CurrentStore,
                 Cart = cart,
@@ -143,8 +144,7 @@ namespace Grand.Web.Controllers
                         disabledAttributeIds.Add(attribute.Id);
                 }
             }
-            var model = await _mediator.Send(new GetOrderTotals()
-            {
+            var model = await _mediator.Send(new GetOrderTotals() {
                 Cart = cart,
                 IsEditable = true,
                 Store = _workContext.CurrentStore,
@@ -163,6 +163,7 @@ namespace Grand.Web.Controllers
             });
         }
 
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> UploadFileCheckoutAttribute(string attributeId,
             [FromServices] IDownloadService downloadService)
@@ -236,8 +237,7 @@ namespace Grand.Web.Controllers
                 }
             }
 
-            var download = new Download
-            {
+            var download = new Download {
                 DownloadGuid = Guid.NewGuid(),
                 UseDownloadUrl = false,
                 DownloadUrl = "",
@@ -267,8 +267,7 @@ namespace Grand.Web.Controllers
                 return RedirectToRoute("HomePage");
 
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());
-            var model = await _mediator.Send(new GetShoppingCart()
-            {
+            var model = await _mediator.Send(new GetShoppingCart() {
                 Cart = cart,
                 ValidateCheckoutAttributes = checkoutAttributes,
                 Customer = _workContext.CurrentCustomer,
@@ -280,7 +279,42 @@ namespace Grand.Web.Controllers
             return View(model);
         }
 
+        [DenySystemAccount]
+        public async Task<IActionResult> CartSummary()
+        {
+            var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
+
+            var model = await _mediator.Send(new GetShoppingCart() {
+                Cart = cart,
+                IsEditable = false,
+                Customer = _workContext.CurrentCustomer,
+                Currency = _workContext.WorkingCurrency,
+                Language = _workContext.WorkingLanguage,
+                Store = _workContext.CurrentStore,
+                TaxDisplayType = _workContext.TaxDisplayType
+            });
+
+            return View(model);
+        }
+
+        [DenySystemAccount]
+        public async Task<IActionResult> CartTotal()
+        {
+            var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
+
+            var model = await _mediator.Send(new GetOrderTotals() {
+                Cart = cart,
+                Store = _workContext.CurrentStore,
+                Currency = _workContext.WorkingCurrency,
+                Customer = _workContext.CurrentCustomer,
+                Language = _workContext.WorkingLanguage,
+                TaxDisplayType = _workContext.TaxDisplayType
+            });
+            return View(model);
+        }
+
         [AutoValidateAntiforgeryToken]
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> UpdateQuantity(string shoppingcartId, int quantity)
         {
@@ -336,6 +370,7 @@ namespace Grand.Web.Controllers
 
         }
 
+        [DenySystemAccount]
         public virtual async Task<IActionResult> ClearCart()
         {
             if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))
@@ -352,6 +387,7 @@ namespace Grand.Web.Controllers
 
         }
 
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> DeleteCartItem(string id, bool shoppingcartpage = false)
         {
@@ -371,8 +407,7 @@ namespace Grand.Web.Controllers
                 await _shoppingCartService.DeleteShoppingCartItem(_workContext.CurrentCustomer, item, ensureOnlyActiveCheckoutAttributes: true);
             }
 
-            var miniShoppingCartmodel = await _mediator.Send(new GetMiniShoppingCart()
-            {
+            var miniShoppingCartmodel = await _mediator.Send(new GetMiniShoppingCart() {
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,
                 Language = _workContext.WorkingLanguage,
@@ -390,8 +425,7 @@ namespace Grand.Web.Controllers
             else
             {
                 var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());
-                var shoppingcartmodel = await _mediator.Send(new GetShoppingCart()
-                {
+                var shoppingcartmodel = await _mediator.Send(new GetShoppingCart() {
                     Cart = cart,
                     Customer = _workContext.CurrentCustomer,
                     Currency = _workContext.WorkingCurrency,
@@ -409,6 +443,7 @@ namespace Grand.Web.Controllers
             }
         }
 
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> ChangeTypeCartItem(string id, bool status = false)
         {
@@ -432,8 +467,7 @@ namespace Grand.Web.Controllers
                 await _customerService.UpdateShoppingCartItem(_workContext.CurrentCustomer.Id, item);
             }
 
-            var miniShoppingCart = await _mediator.Send(new GetMiniShoppingCart()
-            {
+            var miniShoppingCart = await _mediator.Send(new GetMiniShoppingCart() {
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,
                 Language = _workContext.WorkingLanguage,
@@ -442,8 +476,7 @@ namespace Grand.Web.Controllers
             });
 
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());
-            var shoppingcartmodel = await _mediator.Send(new GetShoppingCart()
-            {
+            var shoppingcartmodel = await _mediator.Send(new GetShoppingCart() {
                 Cart = cart,
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,
@@ -463,16 +496,13 @@ namespace Grand.Web.Controllers
         public virtual IActionResult ContinueShopping()
         {
             var returnUrl = _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastContinueShoppingPage, _workContext.CurrentStore.Id);
-            if (!string.IsNullOrEmpty(returnUrl))
-            {
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
-            }
-            else
-            {
-                return RedirectToRoute("HomePage");
-            }
+
+            return RedirectToRoute("HomePage");
         }
 
+        [DenySystemAccount]
         public virtual async Task<IActionResult> StartCheckout(IFormCollection form = null)
         {
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
@@ -480,8 +510,7 @@ namespace Grand.Web.Controllers
             //parse and save checkout attributes
             if (form != null && form.Count > 0)
             {
-                checkoutAttributes = (await _mediator.Send(new SaveCheckoutAttributesCommand()
-                {
+                checkoutAttributes = (await _mediator.Send(new SaveCheckoutAttributesCommand() {
                     Customer = _workContext.CurrentCustomer,
                     Store = _workContext.CurrentStore,
                     Cart = cart,
@@ -512,6 +541,7 @@ namespace Grand.Web.Controllers
         }
 
         [AutoValidateAntiforgeryToken]
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> ApplyDiscountCoupon(string discountcouponcode)
         {
@@ -591,8 +621,7 @@ namespace Grand.Web.Controllers
                 isApplied = false;
             }
 
-            var model = await _mediator.Send(new GetShoppingCart()
-            {
+            var model = await _mediator.Send(new GetShoppingCart() {
                 Cart = cart,
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,
@@ -611,6 +640,7 @@ namespace Grand.Web.Controllers
         }
 
         [AutoValidateAntiforgeryToken]
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> ApplyGiftVoucher(string giftvouchercouponcode)
         {
@@ -626,7 +656,7 @@ namespace Grand.Web.Controllers
             if (!string.IsNullOrWhiteSpace(giftvouchercouponcode))
             {
                 var giftVoucher = (await _mediator.Send(new GetGiftVoucherQuery() { Code = giftvouchercouponcode, IsGiftVoucherActivated = true })).FirstOrDefault();
-                var isGiftVoucherValid = giftVoucher != null 
+                var isGiftVoucherValid = giftVoucher != null
                     && giftVoucher.IsGiftVoucherValid(_workContext.WorkingCurrency, _workContext.CurrentStore);
 
                 if (isGiftVoucherValid)
@@ -650,8 +680,7 @@ namespace Grand.Web.Controllers
                 isApplied = false;
             }
 
-            var model = await _mediator.Send(new GetShoppingCart()
-            {
+            var model = await _mediator.Send(new GetShoppingCart() {
                 Cart = cart,
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,
@@ -675,8 +704,7 @@ namespace Grand.Web.Controllers
         {
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
 
-            var model = await _mediator.Send(new GetEstimateShippingResult()
-            {
+            var model = await _mediator.Send(new GetEstimateShippingResult() {
                 Cart = cart,
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,
@@ -690,6 +718,7 @@ namespace Grand.Web.Controllers
         }
 
         [AutoValidateAntiforgeryToken]
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> RemoveDiscountCoupon(string discountId)
         {
@@ -710,8 +739,7 @@ namespace Grand.Web.Controllers
             }
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());
 
-            var model = await _mediator.Send(new GetShoppingCart()
-            {
+            var model = await _mediator.Send(new GetShoppingCart() {
                 Cart = cart,
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,
@@ -727,6 +755,7 @@ namespace Grand.Web.Controllers
         }
 
         [AutoValidateAntiforgeryToken]
+        [DenySystemAccount]
         [HttpPost]
         public virtual async Task<IActionResult> RemoveGiftVoucherCode(string giftVoucherId, [FromServices] IGiftVoucherService giftVoucherService)
         {
@@ -742,8 +771,7 @@ namespace Grand.Web.Controllers
             }
             var cart = await _shoppingCartService.GetShoppingCart(_workContext.CurrentStore.Id, PrepareCartTypes());
 
-            var model = await _mediator.Send(new GetShoppingCart()
-            {
+            var model = await _mediator.Send(new GetShoppingCart() {
                 Cart = cart,
                 Customer = _workContext.CurrentCustomer,
                 Currency = _workContext.WorkingCurrency,

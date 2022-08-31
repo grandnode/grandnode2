@@ -1,5 +1,5 @@
 @model string
-@inject Grand.Business.Storage.Interfaces.IPictureService pictureService
+@inject Grand.Business.Core.Interfaces.Storage.IPictureService pictureService
 @{
     var random = CommonHelper.GenerateRandomInteger();
     var clientId = "picture" + random;

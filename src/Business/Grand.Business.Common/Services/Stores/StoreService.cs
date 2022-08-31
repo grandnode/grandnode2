@@ -1,4 +1,4 @@
-using Grand.Business.Common.Interfaces.Stores;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;

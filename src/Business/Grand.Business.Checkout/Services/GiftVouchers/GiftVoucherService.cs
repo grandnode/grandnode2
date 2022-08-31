@@ -1,5 +1,5 @@
-using Grand.Business.Checkout.Interfaces.GiftVouchers;
-using Grand.Business.Checkout.Queries.Models.Orders;
+using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Infrastructure.Extensions;
 using Grand.Domain;
 using Grand.Domain.Data;
@@ -37,7 +37,7 @@ namespace Grand.Business.Checkout.Services.GiftVouchers
 
         #region Methods
 
-        
+
         /// <summary>
         /// Gets a gift voucher
         /// </summary>
@@ -66,8 +66,7 @@ namespace Grand.Business.Checkout.Services.GiftVouchers
             string recipientName = null,
             int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var model = new GetGiftVoucherQuery()
-            {
+            var model = new GetGiftVoucherQuery() {
                 CreatedFromUtc = createdFromUtc,
                 CreatedToUtc = createdToUtc,
                 Code = giftVoucherCouponCode,
@@ -147,13 +146,13 @@ namespace Grand.Business.Checkout.Services.GiftVouchers
         /// <returns>Gift voucher entries</returns>
         public virtual async Task<IList<GiftVoucher>> GetGiftVouchersByPurchasedWithOrderItemId(string purchasedWithOrderItemId)
         {
-            if (String.IsNullOrEmpty(purchasedWithOrderItemId))
+            if (string.IsNullOrEmpty(purchasedWithOrderItemId))
                 return new List<GiftVoucher>();
 
             var query = from p in _giftVoucherRepository.Table
                         select p;
 
-            query = query.Where(gc => gc.PurchasedWithOrderItem.Id == purchasedWithOrderItemId);
+            query = query.Where(gc => gc.PurchasedWithOrderItem!=null && gc.PurchasedWithOrderItem.Id == purchasedWithOrderItemId);
             query = query.OrderBy(gc => gc.Id);
 
             return await Task.FromResult(query.ToList());

@@ -33,14 +33,7 @@ namespace Grand.Domain.Data
         /// </summary>
         /// <returns>collection of entities</returns>
         Task<List<T>> GetAllAsync();
-
-        /// <summary>
-        /// get first item in query as async
-        /// </summary>
-        /// <param name="filter"></param>
-        /// <returns></returns>
-        Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> filter);
-
+        
         /// <summary>
         /// Insert entity
         /// </summary>
@@ -147,9 +140,8 @@ namespace Grand.Domain.Data
         /// <param name="elemFieldMatch">Subdocument field to match</param>
         /// <param name="elemMatch">Subdocument ident value</param>
         /// <param name="value">Subdocument - to update (all values)</param>
-        /// <param name="updateMany">Update many records</param>
         /// <returns></returns>
-        Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch, U value, bool updateMany = false);
+        Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch, U value);
 
         // <summary>
         /// Update subdocuments
@@ -160,9 +152,8 @@ namespace Grand.Domain.Data
         /// <param name="field"></param>
         /// <param name="elemFieldMatch">Subdocument field to match</param>
         /// <param name="value">Subdocument - to update (all values)</param>
-        /// <param name="updateMany">Update many records</param>
         /// <returns></returns>
-        Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value, bool updateMany = false);
+        Task UpdateToSet<U>(Expression<Func<T, IEnumerable<U>>> field, U elemFieldMatch, U value);
 
 
         /// <summary>
@@ -175,7 +166,7 @@ namespace Grand.Domain.Data
         /// <param name="elemFieldMatch"></param>
         /// <param name="elemMatch"></param>
         /// <returns></returns>
-        Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, bool updateMany = false);
+        Task PullFilter<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch);
 
         /// <summary>
         /// Delete subdocument
@@ -192,9 +183,9 @@ namespace Grand.Domain.Data
         /// </summary>
         /// <param name="id"></param>
         /// <param name="field"></param>
-        /// <param name="elemMatch"></param>
+        /// <param name="element"></param>
         /// <returns></returns>
-        Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element, bool updateMany = false);
+        Task Pull(string id, Expression<Func<T, IEnumerable<string>>> field, string element);
 
         /// <summary>
         /// Async Update entities

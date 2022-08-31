@@ -1,10 +1,9 @@
-﻿using Grand.Business.Cms.Interfaces;
-using Grand.Business.Common.Interfaces.Directory;
-using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Stores;
-using Grand.Business.Marketing.Interfaces.Contacts;
-using Grand.Business.Storage.Extensions;
-using Grand.Business.Storage.Interfaces;
+﻿using Grand.Business.Core.Interfaces.Cms;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Interfaces.Marketing.Contacts;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Themes;
@@ -27,6 +26,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Grand.Web.Common.Controllers;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Controllers
 {
@@ -127,6 +127,16 @@ namespace Grand.Web.Controllers
             return View();
         }
 
+        public virtual IActionResult Route(string routeName)
+        {
+            if (string.IsNullOrEmpty(routeName))
+                return Json(new { redirectToUrl = string.Empty });
+
+            var url = Url.RouteUrl(routeName);
+
+            return Json(new { redirectToUrl = url });
+        }
+
         //external authentication error
         public virtual IActionResult ExternalAuthenticationError(IEnumerable<string> errors)
         {
@@ -134,6 +144,7 @@ namespace Grand.Web.Controllers
         }
 
         [PublicStore(true)]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> SetLanguage(
             [FromServices] AppConfig config,
             string langcode, string returnUrl = default)
@@ -201,6 +212,7 @@ namespace Grand.Web.Controllers
             return Redirect(url);
         }
 
+        [DenySystemAccount]
         [PublicStore(true)]
         public virtual async Task<IActionResult> SetCurrency(
             [FromServices] ICurrencyService currencyService,
@@ -231,6 +243,7 @@ namespace Grand.Web.Controllers
             return Redirect(returnUrl);
         }
 
+        [DenySystemAccount]
         //available even when navigation is not allowed
         [PublicStore(true)]
         public virtual async Task<IActionResult> SetStore(
@@ -271,6 +284,7 @@ namespace Grand.Web.Controllers
             return Redirect(returnUrl);
         }
 
+        [DenySystemAccount]
         //available even when navigation is not allowed
         [PublicStore(true)]
         public virtual async Task<IActionResult> SetTaxType(int customerTaxType, string returnUrl = "")
@@ -292,6 +306,7 @@ namespace Grand.Web.Controllers
             return Redirect(returnUrl);
         }
 
+        [DenySystemAccount]
         public virtual async Task<IActionResult> SetStoreTheme(
             [FromServices] IThemeContext themeContext, string themeName, string returnUrl = "")
         {
@@ -310,8 +325,6 @@ namespace Grand.Web.Controllers
 
             return Redirect(returnUrl);
         }
-
-
 
         //contact us page
         //available even when a store is closed
@@ -338,6 +351,7 @@ namespace Grand.Web.Controllers
         [AutoValidateAntiforgeryToken]
         [ValidateCaptcha]
         [ClosedStore(true)]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> ContactUsSend(
             [FromServices] StoreInformationSettings storeInformationSettings,
             [FromServices] IPageService pageService,
@@ -411,6 +425,7 @@ namespace Grand.Web.Controllers
         [HttpPost]
         [ClosedStore(true)]
         [PublicStore(true)]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> CookieAccept(bool accept,
             [FromServices] StoreInformationSettings storeInformationSettings,
             [FromServices] IUserFieldService userFieldService,
@@ -461,6 +476,7 @@ namespace Grand.Web.Controllers
         [HttpPost]
         [ClosedStore(true)]
         [PublicStore(true)]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> PrivacyPreference(IFormCollection form,
             [FromServices] StoreInformationSettings storeInformationSettings,
             [FromServices] IUserFieldService userFieldService,
@@ -511,6 +527,7 @@ namespace Grand.Web.Controllers
         public virtual IActionResult StoreClosed() => View();
 
         [HttpPost]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> ContactAttributeChange(IFormCollection form)
         {
             var result = await _mediator.Send(new ContactAttributeChangeCommand() {
@@ -526,6 +543,7 @@ namespace Grand.Web.Controllers
         }
 
         [HttpPost]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> UploadFileContactAttribute(string attributeId,
             [FromServices] IDownloadService downloadService,
             [FromServices] IContactAttributeService contactAttributeService)
@@ -626,6 +644,7 @@ namespace Grand.Web.Controllers
 
 
         [HttpPost, ActionName("PopupInteractiveForm")]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> PopupInteractiveForm(IFormCollection formCollection)
         {
             var result = await _mediator.Send(new PopupInteractiveCommand() { Form = formCollection });
@@ -639,6 +658,7 @@ namespace Grand.Web.Controllers
         [HttpPost]
         [ClosedStore(true)]
         [PublicStore(true)]
+        [DenySystemAccount]
         public virtual async Task<IActionResult> SaveCurrentPosition(
             LocationModel model,
             [FromServices] CustomerSettings customerSettings)

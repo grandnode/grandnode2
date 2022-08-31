@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Api.Models.Common;
-using Grand.Business.Customers.Interfaces;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
@@ -11,7 +11,7 @@ namespace Grand.Api.Validators.Common
     {
         public LoginWebValidator(
             IEnumerable<IValidatorConsumer<LoginWebModel>> validators,
-            GrandWebApiConfig apiConfig,
+            FrontendAPIConfig apiConfig,
             ICustomerService customerService,
             ICustomerManagerService customerManagerService)
             : base(validators)

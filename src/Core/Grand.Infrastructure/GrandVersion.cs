@@ -11,7 +11,7 @@
         /// <summary>
         /// Gets the minor version
         /// </summary>
-        public const string MinorVersion = "0";
+        public const string MinorVersion = "1";
 
         /// <summary>
         /// Gets the patch version

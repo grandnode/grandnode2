@@ -1,5 +1,5 @@
-using Grand.Business.Checkout.Enum;
-using Grand.Business.Checkout.Interfaces.Shipping;
+using Grand.Business.Core.Enums.Checkout;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Infrastructure.TypeSearchers;
 
 namespace Grand.Business.Checkout.Services.Shipping

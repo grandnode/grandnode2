@@ -1,7 +1,7 @@
-using Grand.Business.Customers.Interfaces;
-using Grand.Business.Customers.Utilities;
-using Grand.Business.System.Interfaces.Installation;
-using Grand.Business.System.Utilities;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Utilities.Customers;
+using Grand.Business.Core.Interfaces.System.Installation;
+using Grand.Business.Core.Utilities.System;
 using Grand.Domain;
 using Grand.Domain.Admin;
 using Grand.Domain.Affiliates;
@@ -743,6 +743,9 @@ namespace Grand.Business.System.Services.Installation
             await dbContext.CreateIndex(_courseRepository, OrderBuilder<Course>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
             await dbContext.CreateIndex(_courseLevelRepository, OrderBuilder<CourseLevel>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
 
+            //admin site map
+            await dbContext.CreateIndex(_adminRepository, OrderBuilder<AdminSiteMap>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
+
             //if(dataSettings.DbProvider == DbProvider.CosmosDB)
             //{
             //    //
@@ -757,7 +760,7 @@ namespace Grand.Business.System.Services.Installation
         {
             try
             {
-                var dataSettings = DataSettingsManager.LoadSettings();
+                var dataSettings = DataSettingsManager.LoadSettings(reloadSettings: true);
                 var dbContext = _serviceProvider.GetRequiredService<IDatabaseContext>();
                 dbContext.SetConnection(dataSettings.ConnectionString);
 

@@ -1,8 +1,8 @@
-using Grand.Business.Catalog.Events.Models;
-using Grand.Business.Catalog.Interfaces.Products;
+using Grand.Business.Core.Events.Catalog;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Catalog.Queries.Handlers;
-using Grand.Business.Catalog.Queries.Models;
-using Grand.Business.Common.Interfaces.Security;
+using Grand.Business.Core.Queries.Catalog;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;

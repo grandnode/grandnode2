@@ -1,10 +1,5 @@
-﻿using Grand.Business.Common.Interfaces.Localization;
-using Grand.Business.Common.Interfaces.Logging;
-using Grand.Domain.Data;
-using Grand.Domain.Localization;
+﻿using Grand.Domain.Data;
 using Grand.Infrastructure.Migrations;
-using Grand.SharedKernel.Extensions;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Grand.Business.System.Services.Migrations._1._1
 {
@@ -23,26 +18,7 @@ namespace Grand.Business.System.Services.Migrations._1._1
         /// <returns></returns>
         public bool UpgradeProcess(IDatabaseContext database, IServiceProvider serviceProvider)
         {
-            var langRepository = serviceProvider.GetRequiredService<IRepository<Language>>();
-            var logService = serviceProvider.GetRequiredService<ILogger>();
-            var translationService = serviceProvider.GetRequiredService<ITranslationService>();
-
-            try
-            {
-                var language = langRepository.Table.FirstOrDefault(l => l.Name == "English");
-
-                if (language == null)
-                    language = langRepository.Table.FirstOrDefault();
-
-                var filePath = CommonPath.MapPath("App_Data/Resources/Upgrade/en_110.xml");
-                var localesXml = File.ReadAllText(filePath);
-                translationService.ImportResourcesFromXmlInstall(language, localesXml).GetAwaiter().GetResult();
-            }
-            catch (Exception ex)
-            {
-                logService.InsertLog(Domain.Logging.LogLevel.Error, "UpgradeProcess - MigrationUpdateResourceString", ex.Message).GetAwaiter().GetResult();
-            }
-            return true;
+            return serviceProvider.ImportLanguageResourcesFromXml("App_Data/Resources/Upgrade/en_110.xml");
         }
     }
 }

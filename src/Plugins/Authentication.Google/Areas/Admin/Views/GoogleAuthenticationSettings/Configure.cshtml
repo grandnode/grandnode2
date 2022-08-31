@@ -13,12 +13,18 @@
             </div>
             <div class="panel-body">
                 @Html.Raw(Loc["Plugins.ExternalAuth.Google.Description"])
+                <p>
+                    <br /><br />
+                    To edit google settings in the grandnode application, please open the file App_Settings.json, 
+                    find section GoogleSettings and enter the correct values.
+                </p>
                 <div class="form-group">
                     <div class="col-md-3 col-sm-3 text-right">
                         <admin-label asp-for="ClientKeyIdentifier" class="control-label" />
                     </div>
                     <div class="col-md-9 col-sm-9">
-                        <admin-input asp-for="ClientKeyIdentifier" />
+                        <input asp-for=ClientKeyIdentifier type="text"
+                        disabled class="form-control k-input text-box single-line" />
                         <span asp-validation-for="ClientKeyIdentifier"></span>
                     </div>
                 </div>
@@ -27,7 +33,7 @@
                         <admin-label asp-for="ClientSecret" class="control-label" />
                     </div>
                     <div class="col-md-9 col-sm-9">
-                        <admin-input asp-for="ClientSecret" />
+                        <input asp-for=ClientSecret type="text" disabled class="form-control k-input text-box single-line" />
                         <span asp-validation-for="ClientSecret"></span>
                     </div>
                 </div>

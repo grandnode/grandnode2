@@ -404,6 +404,11 @@ namespace Grand.Web.Endpoints
                             pattern + "access-denied",
                             new { controller = "Common", action = "AccessDenied" });
 
+            //page not found
+            endpointRouteBuilder.MapControllerRoute("Route",
+                            "route",
+                            new { controller = "Common", action = "Route" });
+
             //lets encrypt
             endpointRouteBuilder.MapControllerRoute("well-known",
                             ".well-known/pki-validation/{fileName}",
@@ -532,6 +537,16 @@ namespace Grand.Web.Endpoints
             endpointRouteBuilder.MapControllerRoute("ShoppingCart",
                             $"{pattern}cart/",
                             new { controller = "ShoppingCart", action = "Cart" });
+
+            //shopping cart summary
+            endpointRouteBuilder.MapControllerRoute("ShoppingCartSummary",
+                            $"{pattern}cart/summary/",
+                            new { controller = "ShoppingCart", action = "CartSummary" });
+
+            //shopping cart total
+            endpointRouteBuilder.MapControllerRoute("ShoppingCartTotal",
+                            $"{pattern}cart/total/",
+                            new { controller = "ShoppingCart", action = "CartTotal" });
 
             //Continue shopping
             endpointRouteBuilder.MapControllerRoute("ContinueShopping",

@@ -1,7 +1,7 @@
 ﻿using Grand.Api.DTOs.Common;
 using Grand.Api.Queries.Models.Common;
-using Grand.Business.Common.Interfaces.Security;
-using Grand.Business.Common.Services.Security;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
@@ -31,7 +31,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Languages))
                 return Forbid();
 
-            var language = await _mediator.Send(new GetQuery<LanguageDto>() { Id = key });
+            var language = await _mediator.Send(new GetGenericQuery<LanguageDto, Domain.Localization.Language>(key));
             if (!language.Any())
                 return NotFound();
 
@@ -48,7 +48,7 @@ namespace Grand.Api.Controllers.OData
             if (!await _permissionService.Authorize(PermissionSystemName.Languages))
                 return Forbid();
 
-            return Ok(await _mediator.Send(new GetQuery<LanguageDto>()));
+            return Ok(await _mediator.Send(new GetGenericQuery<LanguageDto, Domain.Localization.Language>()));
         }
     }
 }

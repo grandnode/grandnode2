@@ -27,6 +27,8 @@ namespace Grand.Web.Admin.Mapper
                 .ForMember(dest => dest.ReCaptchaVersion, mo => mo.MapFrom(p => p.ReCaptchaVersion))
                 .ForMember(dest => dest.ReCaptchaPublicKey, mo => mo.MapFrom(p => p.ReCaptchaPublicKey))
                 .ForMember(dest => dest.ReCaptchaPrivateKey, mo => mo.MapFrom(p => p.ReCaptchaPrivateKey))
+                .ForMember(dest => dest.ReCaptchaScore, mo => mo.MapFrom(p => p.ReCaptchaScore))
+                .ForMember(dest => dest.ReCaptchaTheme, mo => mo.MapFrom(p => p.ReCaptchaTheme))
                 .ForMember(dest => dest.AvailableReCaptchaVersions, mo => mo.Ignore())
                 .ForMember(dest => dest.UserFields, mo => mo.Ignore());
 

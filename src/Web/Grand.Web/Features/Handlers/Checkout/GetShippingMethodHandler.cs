@@ -1,8 +1,8 @@
-﻿using Grand.Business.Catalog.Interfaces.Prices;
-using Grand.Business.Catalog.Interfaces.Tax;
-using Grand.Business.Checkout.Interfaces.Orders;
-using Grand.Business.Checkout.Interfaces.Shipping;
-using Grand.Business.Common.Interfaces.Directory;
+﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Shipping;
@@ -18,26 +18,19 @@ namespace Grand.Web.Features.Handlers.Checkout
         private readonly IUserFieldService _userFieldService;
         private readonly IOrderCalculationService _orderTotalCalculationService;
         private readonly ITaxService _taxService;
-        private readonly ICurrencyService _currencyService;
         private readonly IPriceFormatter _priceFormatter;
-
-        private readonly ShippingSettings _shippingSettings;
 
         public GetShippingMethodHandler(IShippingService shippingService,
             IUserFieldService userFieldService,
             IOrderCalculationService orderTotalCalculationService,
             ITaxService taxService,
-            ICurrencyService currencyService,
-            IPriceFormatter priceFormatter,
-            ShippingSettings shippingSettings)
+            IPriceFormatter priceFormatter)
         {
             _shippingService = shippingService;
             _userFieldService = userFieldService;
             _orderTotalCalculationService = orderTotalCalculationService;
             _taxService = taxService;
-            _currencyService = currencyService;
             _priceFormatter = priceFormatter;
-            _shippingSettings = shippingSettings;
         }
 
         public async Task<CheckoutShippingMethodModel> Handle(GetShippingMethod request, CancellationToken cancellationToken)
