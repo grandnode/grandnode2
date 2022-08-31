@@ -1,5 +1,7 @@
 ﻿@model CheckoutShippingAddressModel
 @using System.Text
+@using Grand.Business.Core.Interfaces.Common.Directory
+@inject ICountryService _countryService
 
 @if (Model.AllowPickUpInStore && !Model.PickUpInStoreOnly && Model.PickupPoints.Any())
 {
@@ -32,11 +34,13 @@
                 @if (Model.PickupPoints.Count == 1)
                 {
                     var point = Model.PickupPoints.First();
+                    var pickupPointStateProvince = (await _countryService.GetStateProvincesByCountryId(point.Address.CountryId))?.Where(x => x.Id == point.Address.StateProvinceId).FirstOrDefault().Name;
+
                     @Html.Hidden("pickup-point-id", point.Id)
                     <div class="section single-pickup-point">
                         <ul>
                             <li class="single-pickup-point name">@point.Name</li>
-                            <li class="single-pickup-point address">@(string.Format("{0} {1} {2}", point.Address.City, point.Address.ZipPostalCode, point.Address.Address1))</li>
+                            <li class="single-pickup-point address">@(string.Format("{0} {1} {2} {3}",pickupPointStateProvince, point.Address.City, point.Address.ZipPostalCode, point.Address.Address1))</li>
                             @if (!string.IsNullOrEmpty(point.PickupFee))
                             {
                                 <li class="single-pickup-point fee">@point.PickupFee</li>
@@ -52,6 +56,11 @@
                         {
                             var addressLine = new StringBuilder();
                             addressLine.Append(point.Name);
+                            if(!string.IsNullOrEmpty(point.Address.StateProvinceId))
+                            {
+                                var pickupPointStateProvince = (await _countryService.GetStateProvincesByCountryId(point.Address.CountryId))?.Where(x => x.Id == point.Address.StateProvinceId).FirstOrDefault().Name;
+                                addressLine.AppendFormat(", {0}", pickupPointStateProvince);
+                            }
                             if (!string.IsNullOrEmpty(point.Address.City))
                             {
                                 addressLine.AppendFormat(", {0}", point.Address.City);
