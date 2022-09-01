@@ -1,7 +1,7 @@
 ﻿<div v-if="vmorder.Confirm" class="checkout-data order-summary-content col-12 px-0">
     @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_confirm_top" })
     <div class="order-summary mb-3">
-        <partial name="_ReviewData" model="null" />
+        <partial name="Partials/ReviewData" model="null" />
     </div>
     <div class="confirm-order">
         <div v-if="vmorder.MinOrderTotalWarning !== null">

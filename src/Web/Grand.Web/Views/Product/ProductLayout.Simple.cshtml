@@ -44,7 +44,7 @@
 <!--product breadcrumb-->
 @section Breadcrumb
 {
-    <partial name="_Breadcrumbs" model="Model.Breadcrumb" />
+    <partial name="Partials/Breadcrumbs" model="Model.Breadcrumb" />
 }
 
 <vc:widget widget-zone="productdetails_after_breadcrumb" additional-data="@Model.Id"></vc:widget>
@@ -57,7 +57,7 @@
                     <div class="row">
                         <vc:widget widget-zone="productdetails_before_pictures" additional-data="@Model.Id"></vc:widget>
                         <!--product pictures-->
-                        <partial name="_Pictures" model="Model" />
+                        <partial name="Partials/Pictures" model="Model" />
                         <vc:widget widget-zone="productdetails_after_pictures" additional-data="@Model.Id"></vc:widget>
                         <div class="col-xl-6 col-lg-6 col-md-7 col-12 overview pl-md-3 pl-0 pr-0">
                             @if (!string.IsNullOrEmpty(Model.Flag))
@@ -66,14 +66,14 @@
                                     <div class="badge badge-info">@Model.Flag</div>
                                 </div>
                             }
-                            <partial name="_Unavailable" model="Model" />
+                            <partial name="Partials/Unavailable" model="Model" />
                             <h1 class="generalTitle" itemprop="name">
                                 @Model.Name
                             </h1>
                             <!--product reviews-->
                             @if (Model.ProductReviewOverview.AllowCustomerReviews)
                             {
-                                <partial name="_ProductReviewOverview" model="Model.ProductReviewOverview" />
+                                <partial name="Partials/ProductReviewOverview" model="Model.ProductReviewOverview" />
                             }
                             <vc:widget widget-zone="productdetails_overview_top" additional-data="@Model.Id"></vc:widget>
                             @if (!String.IsNullOrEmpty(Model.ShortDescription))
@@ -85,30 +85,30 @@
                             <!--collections-->
                             @if (Model.ProductCollections.Any())
                             {
-                                <partial name="_Collections" model="Model.ProductCollections" />
+                                <partial name="Partials/Collections" model="Model.ProductCollections" />
                             }
                             <!--availability-->
                             @if (!String.IsNullOrWhiteSpace(Model.StockAvailability) || Model.DisplayOutOfStockSubscription)
                             {
-                                <partial name="_Availability" model="Model" />
+                                <partial name="Partials/Availability" model="Model" />
                             }
                             <!--Code products - SKU, MAN, GTIN, Vendor info -->
-                            <partial name="_Codes" model="Model" />
+                            <partial name="Partials/Codes" model="Model" />
                             <!--delivery-->
                             @if ((Model.FreeShippingNotificationEnabled && Model.IsFreeShipping) || !string.IsNullOrWhiteSpace(Model.DeliveryDate)
                             || Model.NotReturnable || Model.AdditionalShippingCharge > 0)
                             {
-                                <partial name="_DeliveryInfo" model="Model" />
+                                <partial name="Partials/DeliveryInfo" model="Model" />
                             }
                             <!--sample download-->
                             @if (Model.HasSampleDownload)
                             {
-                                <partial name="_DownloadSample" model="Model" />
+                                <partial name="Partials/DownloadSample" model="Model" />
                             }
                             <!--product bundles-->
                             @if (Model.ProductBundleModels.Any())
                             {
-                                <partial name="_ProductBundles" model="Model" />
+                                <partial name="Partials/ProductBundles" model="Model" />
                             }
                             <!--attributes-->
                             @{
@@ -116,13 +116,13 @@
                                 {
                                     var dataDictAttributes = new ViewDataDictionary(ViewData);
                                     dataDictAttributes.TemplateInfo.HtmlFieldPrefix = string.Format("attributes_{0}", Model.Id);
-                                    <partial name="_ProductAttributes" model="Model.ProductAttributes" view-data="dataDictAttributes" />
+                                    <partial name="Partials/ProductAttributes" model="Model.ProductAttributes" view-data="dataDictAttributes" />
                                 }
                             }
                             <!--warehouses-->
                             @if (Model.AllowToSelectWarehouse)
                             {
-                                <partial name="_Warehouses" model="Model" />
+                                <partial name="Partials/Warehouses" model="Model" />
                             }
                             <!--gift voucher-->
                             @{
@@ -130,7 +130,7 @@
                                 {
                                     var dataDictGiftVoucher = new ViewDataDictionary(ViewData);
                                     dataDictGiftVoucher.TemplateInfo.HtmlFieldPrefix = string.Format("giftvoucher_{0}", Model.Id);
-                                    <partial name="_GiftVoucherInfo" model="Model.GiftVoucher" view-data="dataDictGiftVoucher" />
+                                    <partial name="Partials/GiftVoucherInfo" model="Model.GiftVoucher" view-data="dataDictGiftVoucher" />
                                 }
                             }
                             <!--reservation info-->
@@ -138,21 +138,21 @@
                             {
                                 var dataDictReservation = new ViewDataDictionary(ViewData);
                                 dataDictReservation.TemplateInfo.HtmlFieldPrefix = string.Format("reservation_{0}", Model.Id);
-                                <partial name="_ReservationInfo" model="Model" view-data="dataDictReservation" />
+                                <partial name="Partials/ReservationInfo" model="Model" view-data="dataDictReservation" />
                             }
                             <!--price & add to cart-->
                             <div class="overview-buttons generalMarginSupporter">
                                 @if (Model.TierPrices.Any())
                                 {
                                     <div class="col-lg-12 px-0">
-                                        <partial name="_TierPrices" model="Model.TierPrices" />
+                                        <partial name="Partials/TierPrices" model="Model.TierPrices" />
                                     </div>
                                 }
                                 <div class="col-lg-12 px-0">
                                     @{
                                         var dataDictPrice = new ViewDataDictionary(ViewData);
                                         dataDictPrice.TemplateInfo.HtmlFieldPrefix = string.Format("price_{0}", Model.Id);
-                                        <partial name="_Prices" model="Model.ProductPrice" view-data="dataDictPrice" />
+                                        <partial name="Partials/Prices" model="Model.ProductPrice" view-data="dataDictPrice" />
                                     }
                                 </div>
                                 <div class="generalMarginSupporter">
@@ -161,7 +161,7 @@
                                     {
                                         var dataDictAuction = new ViewDataDictionary(ViewData);
                                         dataDictAuction.TemplateInfo.HtmlFieldPrefix = string.Format("auction_{0}", Model.Id);
-                                        <partial name="_AuctionInfo" model="Model" view-data="dataDictAuction" />
+                                        <partial name="Partials/AuctionInfo" model="Model" view-data="dataDictAuction" />
                                     }
                                     @{
                                         var dataDictAddToWishlist = new ViewDataDictionary(ViewData);
@@ -169,16 +169,16 @@
                                         var dataDictAddToCart = new ViewDataDictionary(ViewData);
                                         dataDictAddToCart.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", Model.Id);
                                     }
-                                    <partial name="_AddToCart" model="Model.AddToCart" view-data="dataDictAddToCart" />
+                                    <partial name="Partials/AddToCart" model="Model.AddToCart" view-data="dataDictAddToCart" />
                                     <div class="btn-group mt-2 mb-3 w-100">
                                         @if (Model.ProductType == ProductType.SimpleProduct || Model.ProductType == ProductType.BundledProduct)
                                         {
-                                            <partial name="_AddToWishlist" model="Model.AddToCart" view-data="dataDictAddToWishlist" />
-                                            <partial name="_ProductsComparison" model="Model" />
+                                            <partial name="Partials/AddToWishlist" model="Model.AddToCart" view-data="dataDictAddToWishlist" />
+                                            <partial name="Partials/ProductsComparison" model="Model" />
                                         }
                                         @if (Model.EmailAFriendEnabled)
                                         {
-                                            <partial name="_SendFriend" model="Model" />
+                                            <partial name="Partials/SendFriend" model="Model" />
                                         }
                                     </div>
                                 </div>
@@ -186,7 +186,7 @@
                             @if (!String.IsNullOrWhiteSpace(Model.PageShareCode))
                             {
                                 <div class="col-12 product-share px-0">
-                                    <partial name="_ShareButton" model="Model" />
+                                    <partial name="Partials/ShareButton" model="Model" />
                                 </div>
                             }
                             <vc:widget widget-zone="productdetails_overview_bottom" additional-data="@Model.Id"></vc:widget>
@@ -203,13 +203,13 @@
                             @if (Model.ProductTags.Any())
                             {
                                 <b-tab title="@Loc["Products.Tags"]">
-                                    <partial name="_ProductTags" model="Model.ProductTags" />
+                                    <partial name="Partials/ProductTags" model="Model.ProductTags" />
                                 </b-tab>
                             }
                             @if (Model.ProductSpecifications.Any())
                             {
                                 <b-tab title="@Loc["Products.Specs"]">
-                                    <partial name="_ProductSpecifications" model="Model.ProductSpecifications" />
+                                    <partial name="Partials/ProductSpecifications" model="Model.ProductSpecifications" />
                                 </b-tab>
                             }
                             @if (Model.ProductReviewOverview.AllowCustomerReviews)
@@ -221,7 +221,7 @@
                             @if (Model.AskQuestionOnProduct)
                             {
                                 <b-tab title="@Loc["Products.ContactUs"]" @if (Model.ProductAskQuestion.DisplayCaptcha) { <text> @@click="askquestion.getCaptcha()" </text> }>
-                                    <partial name="_AskQuestionOnProduct" model="Model.ProductAskQuestion" />
+                                    <partial name="Partials/AskQuestionOnProduct" model="Model.ProductAskQuestion" />
                                 </b-tab>
                             }
                         </b-tabs>
@@ -233,7 +233,7 @@
                 <vc:recommended-products product-id="@Model.Id" product-thumb-picture-size="null"></vc:recommended-products>
                 @if (Model.RenderCaptcha)
                 {
-                    <partial name="_Captcha" />
+                    <partial name="Partials/Captcha" />
                 }
             </div>
         </form>

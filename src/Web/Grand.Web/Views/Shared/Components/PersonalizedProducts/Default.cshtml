@@ -7,7 +7,7 @@
             @foreach (var item in Model)
             {
                 <div class="col-xl-@order.Pp_Xl col-lg-@order.Pp_Lg col-md-@order.Pp_Md col-sm-@order.Pp_Sm col-@order.Pp_Col product-container mb-2">
-                    <partial name="_CatalogProductView" model="item" />
+                    <partial name="Partials/CatalogProductView" model="item" />
                 </div>
             }
         </div>

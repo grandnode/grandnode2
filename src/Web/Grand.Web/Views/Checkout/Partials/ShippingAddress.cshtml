@@ -14,7 +14,7 @@
         </div>
     }
 
-    <partial name="_ShippingAddressPickupInStore" model="Model" />
+    <partial name="Partials/ShippingAddressPickupInStore" model="Model" />
     <div v-show="vmorder.shippingContainer">
         @if (Model.ExistingAddresses.Any())
         {
@@ -63,7 +63,7 @@
                 @{
                     var dataDictAddress = new ViewDataDictionary(ViewData);
                     dataDictAddress.TemplateInfo.HtmlFieldPrefix = "ShippingNewAddress";
-                    <partial name="_CreateOrUpdateAddress" model="Model.NewAddress" view-data="dataDictAddress" />
+                    <partial name="Partials/CreateOrUpdateAddress" model="Model.NewAddress" view-data="dataDictAddress" />
                 }
                 <div asp-validation-summary="ModelOnly" class="message-error"></div>
                 <template v-if="vmorder.shippingAddressErrors !== null">

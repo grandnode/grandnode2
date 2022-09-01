@@ -10,8 +10,7 @@
         @Loc["reviews.onlyregistereduserscanwritereviews"]
     </div>
 </template>
-<partial name="_ProductReview.Modal.cshtml" model="Model" />
-
+<partial name="Partials/ProductReview.Modal.cshtml" model="Model" />
 <template id="product-review-list" v-if="productreviews.Model !== null">
     <div class="product-review-list">
         <template v-if="productreviews.Model.Items.length > 0">

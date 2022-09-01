@@ -21,7 +21,7 @@
                 dataDictAttributes.Add("ProductId", item.ProductId);
                 dataDictAttributes.TemplateInfo.HtmlFieldPrefix = string.Format("attributes_{0}", item.ProductId);
                 <div class="col-12 pt-1">
-                    <partial name="_ProductAttributesBundle" model="item.ProductAttributes" view-data="dataDictAttributes" />
+                    <partial name="Partials/ProductAttributesBundle" model="item.ProductAttributes" view-data="dataDictAttributes" />
                 </div>
             }
         </div>

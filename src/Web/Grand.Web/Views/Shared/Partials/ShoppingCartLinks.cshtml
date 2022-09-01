@@ -29,7 +29,7 @@
 }
 @if (catalogSettings.CompareProductsEnabled)
 {
-    <partial name="SidebarCompareProducts" />
+    <partial name="Partials/SidebarCompareProducts" />
 }
 @if (wishlistEnabled || shoppingCartEnabled)
 {
@@ -37,9 +37,9 @@
     {
         if (wishlistEnabled)
         {
-            <partial name="SidebarWishlist" model="wishlistItems" />
+            <partial name="Partials/SidebarWishlist" model="wishlistItems" />
         }
-        <partial name="SidebarShoppingCart" model="shoppingCartItems" />
+        <partial name="Partials/SidebarShoppingCart" model="shoppingCartItems" />
     }
     else
     {

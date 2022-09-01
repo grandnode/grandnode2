@@ -18,7 +18,7 @@
                     </b-sidebar>
                 </template>
             </div>
-            <partial name="_Logo" />
+            <partial name="Partials/Logo" />
             <ul class="navbar-nav top-header-items order-3">
                 <template>
                     <li class="nav-item">
@@ -49,19 +49,19 @@
                         <template>
                             <b-sidebar id="sidebar-right" body-class="user-panel" title="@Loc["Account.MyAccount"]" @if (!supportRtl) { <text>right</text> } backdrop>
                                 <div class="d-inline-flex flex-wrap mb-2">
-                                    <partial name="_Selector_TaxType" />
-                                    <partial name="_Selector_Currency" />
-                                    <partial name="_Selector_Language" />
-                                    <partial name="_Selector_Store" />
-                                    <partial name="_Selector_Theme" />
+                                    <partial name="Partials/Selector_TaxType" />
+                                    <partial name="Partials/Selector_Currency" />
+                                    <partial name="Partials/Selector_Language" />
+                                    <partial name="Partials/Selector_Store" />
+                                    <partial name="Partials/Selector_Theme" />
                                     @await Component.InvokeAsync("Widget", new { widgetZone = "header_selectors" })
                                 </div>
-                                <partial name="_HeaderLinks" />
+                                <partial name="Partials/HeaderLinks" />
                             </b-sidebar>
                         </template>
                     </li>
                 </template>
-                <partial name="_ShoppingCartLinks" />
+                <partial name="Partials/ShoppingCartLinks" />
             </ul>
         </b-container>
     </nav>

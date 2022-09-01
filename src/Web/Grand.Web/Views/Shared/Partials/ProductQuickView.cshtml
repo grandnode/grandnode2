@@ -51,17 +51,10 @@
                                                         </span>
                                                     </div>
                                                 </template>
-
-
-
                                                 @* PRODUCT BUNDLES *@
-
-                                                <partial name="QuickView/_ProductBundles" />
-
+                                                <partial name="Partials/QuickView/ProductBundles" />
                                                 @* ATTRIBUTES *@
-
-                                                <partial name="QuickView/_Attributes" />
-                                                
+                                                <partial name="Partials/QuickView/Attributes" />
                                                 <template v-if="PopupQuickViewVueModal.ProductAttributes.length > 0">
                                                     <div class="attributes">
                                                         <table class="table">
@@ -84,32 +77,32 @@
                                                 </script>
                                                 @* WAREHOUSES *@
 
-                                                <partial name="QuickView/_Warehouses" />
+                                                <partial name="Partials/QuickView/Warehouses" />
 
                                                 @* RESERVATIONS *@
 
-                                                <partial name="QuickView/_ReservationInfo" />
+                                                <partial name="Partials/QuickView/ReservationInfo" />
 
                                                 @* GIFT VOUCHERS *@
 
-                                                <partial name="QuickView/_GiftVoucherInfo" />
+                                                <partial name="Partials/QuickView/GiftVoucherInfo" />
 
                                                 @* PRICES *@
 
-                                                <partial name="QuickView/_Prices" />
+                                                <partial name="Partials/QuickView/Prices" />
 
                                                 @* AUCTION *@
 
-                                                <partial name="QuickView/_AuctionInfo" />
+                                                <partial name="Partials/QuickView/AuctionInfo" />
 
                                                 @* ADD TO CART *@
 
                                                 <template v-if="PopupQuickViewVueModal.ProductType !== 10">
-                                                    <partial name="QuickView/_AddToCart" />
+                                                    <partial name="Partials/QuickView/AddToCart" />
                                                     <template v-if="(!PopupQuickViewVueModal.AddToCart.DisableWishlistButton || PopupQuickViewVueModal.CompareProductsEnabled || PopupQuickViewVueModal.EmailAFriendEnabled) && PopupQuickViewVueModal.AddToCart.UpdatedShoppingCartItemId == null">
                                                         <div class="btn-group mt-2 mb-3 w-100">
-                                                            <partial name="QuickView/_AddToWishlist" />
-                                                            <partial name="QuickView/_ProductsComparison" />
+                                                            <partial name="Partials/QuickView/AddToWishlist" />
+                                                            <partial name="Partials/QuickView/ProductsComparison" />
                                                         </div>
                                                     </template>
                                                 </template>
@@ -211,8 +204,8 @@
 
                                                                             <!--price & add to cart-->
 
-                                                                            <partial name="QuickView/_PricesGroup" />
-                                                                            <partial name="QuickView/_AddToCartGroup" />
+                                                                            <partial name="Partials/QuickView/PricesGroup" />
+                                                                            <partial name="Partials/QuickView/AddToCartGroup" />
 
                                                                         </div>
                                                                     </div>
@@ -233,7 +226,7 @@
                                     </template>
                                 </div>
                             </div>
-                            <partial name="QuickView/_LinkedProducts" />
+                            <partial name="Partials/QuickView/LinkedProducts" />
                         </div>
                     </div>
                 </div>

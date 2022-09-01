@@ -139,7 +139,7 @@
                         <div class="cart-options">
                             <div class="row">
                                 <div v-if="vmorder.cart.IsEditable" class="col-12 col-md-6 checkoutAttributes">
-                                    <partial name="_CheckoutAttributes" />
+                                    <partial name="Partials/CheckoutAttributes" />
                                 </div>
                                 <div class="selected-checkout-attributes col-sm-3 col-md-6 col-12 ml-auto justify-content-end text-right mt-3">
                                     <div v-html="vmorder.cart.CheckoutAttributeInfo"></div>
@@ -153,16 +153,16 @@
                     </div>
                     <div class="col-lg-4 col-12 totals">
                         <div class="totals-inner">
-                            <partial name="OrderTotals" />
+                            <partial name="Partials/OrderTotals" />
                             <div class="cart-collaterals">
                                 <div class="deals">
                                     @if (Model.GiftVoucherBox.Display)
                                     {
-                                        <partial name="_GiftVoucherBox" />
+                                        <partial name="Partials/GiftVoucherBox" />
                                     }
                                     @if (Model.DiscountBox.Display)
                                     {
-                                        <partial name="_DiscountBox" />
+                                        <partial name="Partials/DiscountBox" />
                                     }
                                     @await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_content_deals" })
                                 </div>
@@ -242,4 +242,4 @@
     @await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_content_after" })
 </div>
 
-<partial name="_ModelScript" model="Model" />
+<partial name="Partials/ModelScript" model="Model" />

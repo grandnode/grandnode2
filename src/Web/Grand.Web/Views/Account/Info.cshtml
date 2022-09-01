@@ -164,6 +164,7 @@
                                                       selected-day="(Model.DateOfBirthDay.HasValue ? Model.DateOfBirthDay.Value : 0)"
                                                       selected-month="(Model.DateOfBirthMonth.HasValue ? Model.DateOfBirthMonth.Value : 0)"
                                                       selected-year="(Model.DateOfBirthYear.HasValue ? Model.DateOfBirthYear.Value : 0)"
+                                                      PartialViewName="Partials/DatePickerDropDowns"
                                                       class="col-12 input-group px-0" />
 
                                 <span asp-validation-for="DateOfBirthDay"></span>
@@ -200,7 +201,7 @@
                                     </validation-provider>
                                     @if (Model.CheckUsernameAvailabilityEnabled)
                                     {
-                                        <partial name="_CheckUsernameAvailability" />
+                                        <partial name="Partials/CheckUsernameAvailability" />
                                     }
                                 </div>
                             </fieldset>
@@ -491,12 +492,12 @@
                                     </label>
                                     <span asp-validation-for="Newsletter"></span>
                                 </div>
-                                <partial name="_NewsLetterCategories" model="Model.NewsletterCategories" />
+                                <partial name="Partials/NewsLetterCategories" model="Model.NewsletterCategories" />
                             }
 
                             @if (Model.CustomerAttributes.Any())
                             {
-                                <partial name="_CustomerAttributes" model="Model.CustomerAttributes" />
+                                <partial name="Partials/CustomerAttributes" model="Model.CustomerAttributes" />
                             }
                         </fieldset>
                     </div>
