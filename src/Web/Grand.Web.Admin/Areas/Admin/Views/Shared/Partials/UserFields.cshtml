@@ -1,0 +1,134 @@
+﻿@model Grand.Infrastructure.Models.BaseEntityModel
+@inject Grand.Business.Core.Interfaces.Common.Stores.IStoreService storeService
+@{
+    var userFields = Model.UserFields.ToList();
+    var stores = (await storeService.GetAllStores()).Select(store => new SelectListItem
+    {
+        Text = store.Shortcut,
+        Value = store.Id,
+    }).ToList();
+}
+<vc:admin-widget widget-zone="userfield_details_info_top" additional-data="Model" />
+<div class="form-horizontal form-userfield" id="form-userfield">
+    @for (int item = 0; item < userFields.Count; item++)
+    {
+        <div id="UserFieldsItem_@item" class="form-body">
+            <div class="form-group">
+                <label class="control-label col-md-3 col-sm-3">@userFields[item].Key</label>
+                <div class="col-md-6 col-sm-6">
+                    <admin-input asp-for="@userFields[item].Value" />
+                    <input type="hidden" asp-for="@userFields[item].Key" />
+                </div>
+                <div class="col-md-3 col-sm-3 input-group custom-input-group">
+                    <admin-select asp-for="@userFields[item].StoreId" asp-items="@stores" />
+                    <span class="input-group-addon btn red deleteuserfield" data-id="@item" onclick="deleteUserFields(@item)"><i class="fa fa fa-times"></i></span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script id="template" type="text/html">
+    <div id="UserFieldsItem_${id}" class="form-body">
+        <div class="form-group">
+            <label class="control-label col-md-3 col-sm-3">${key}</label>
+            <div class="col-md-6 col-sm-6">
+                <input class="form-control k-input text-box single-line valid"
+                       id="UserFields_${id}__Value" name="UserFields[${id}].Value" type="text" value="${value}">
+                <input type="hidden" id="UserFields_${id}__Key" name="UserFields[${id}].Key" value="${key}">
+            </div>
+            <div class="col-md-3 col-sm-3 input-group custom-input-group">
+                <select id="UserFields_{id}__StoreId" name="UserFields[${id}].StoreId" class="form-control k-input valid">
+                    @foreach (var store in stores)
+                    {
+                        <option value="@store.Value">@store.Text</option>
+                    }
+                </select>
+                <span class="input-group-addon btn red deleteuserfield" data-id="${id}" onclick="deleteUserFields(${id})"><i class="fa fa fa-times"></i></span>
+            </div>
+        </div>
+    </div>
+
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <p>
+            <strong>@Loc["Admin.Common.UserFields.AddNew"]</strong>
+        </p>
+        <div class="form-horizontal">
+            <div class="form-body">
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3">@Loc["Admin.Common.UserFields.Fields.Key"]</label>
+                    <div class="col-md-9 col-sm-9">
+                        <input class="form-control k-input text-box single-line valid" id="ga_key" name="ga_key" type="text" value="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-3 col-sm-3">@Loc["Admin.Common.UserFields.Fields.Value"]</label>
+                    <div class="col-md-9 col-sm-9">
+                        <input class="form-control k-input text-box single-line valid" id="ga_value" name="ga_value" type="text" value="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer">
+        <button type="button" id="addUserField" onclick="addUserFields()" class="k-primary k-button"><i class="fa fa-plus"></i>@Loc["Admin.Common.UserFields.AddNew.Button"]</button>
+    </div>
+</div>
+<script>
+    var counter = @userFields.Count;
+
+    function addUserFields()
+    {
+        const attrKey = $("#ga_key").val();
+        const attrValue = $("#ga_value").val();
+
+        //some validation
+        if (attrKey === "") {
+            alert('@Loc["Admin.Common.UserFields.Fields.Key.Required"]');
+            return;
+        }
+        if (attrValue === "") {
+            alert('@Loc["Admin.Common.UserFields.Fields.Value.Required"]');
+            return;
+        }
+        const data = { key: attrKey, value: attrValue, id: counter };
+        $("#template").tmpl(data).appendTo("#form-userfield");
+        counter = counter + 1;
+    }
+
+    function deleteUserFields(id) {
+       // remove record
+       document.getElementById('UserFieldsItem_' + id).remove();
+       counter = counter - 1;
+       // update records
+       const records = document.querySelectorAll('#form-userfield .form-body');
+       records.forEach(function (element, id) {
+           const input_val = element.querySelector('input[type="text"]');
+           const input_key = element.querySelector('input[type="hidden"]');
+           const input_del = element.querySelector('.deleteuserfield');
+           const select = element.querySelector('select');
+
+           input_del.setAttribute('data-id', id);
+           input_del.setAttribute('onclick', 'deleteUserFields('+id+')');
+
+           element.id = 'UserFieldsItem_' + id;
+
+           input_val.id = 'UserFields_' + id + '__Value';
+           input_val.setAttribute('name', 'UserFields[' + id + '].Value');
+
+           input_key.id = 'UserFields_' + id + '__Key';
+           input_key.setAttribute('name', 'UserFields[' + id + '].Key');
+
+           select.id = 'UserFields_' + id + '__StoreId';
+           select.setAttribute('name', 'UserFields[' + id + '].StoreId');
+
+
+           select.setAttribute('name', 'UserFields[' + id + '].StoreId');
+        });
+    }
+</script>
+<vc:admin-widget widget-zone="userfield_details_info_bottom" additional-data="Model" />
+
