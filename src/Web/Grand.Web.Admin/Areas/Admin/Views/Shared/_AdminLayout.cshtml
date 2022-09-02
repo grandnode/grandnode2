@@ -40,9 +40,9 @@
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <head-custom>
-        <partial name="HeadAdmin" />
-        <resources asp-type="HeadLink" />
-        <resources asp-type="HeadScript" />
+    <partial name="Partials/HeadAdmin" />
+    <resources asp-type="HeadLink" />
+    <resources asp-type="HeadScript" />
 </head>
 <body class="nav-sm @if (IsSectionDefined("popupwindow")) { @RenderSection("popupwindow") <text>no-sidebar</text> }">
     @Html.AntiForgeryToken()
@@ -65,7 +65,7 @@
             }
             else
             {
-                <partial name="Menu" />
+                <partial name="Partials/Menu" />
             }
             <vc:admin-widget widget-zone="admin_header_after" additional-data="null" />
             @if (IsSectionDefined("statusbar"))
@@ -265,7 +265,7 @@
             }
 
             <div class="right_col" role="main">
-                <partial name="Notifications" />
+                <partial name="Partials/Notifications" />
                 @RenderBody()
             </div>
             <div class="throbber">
