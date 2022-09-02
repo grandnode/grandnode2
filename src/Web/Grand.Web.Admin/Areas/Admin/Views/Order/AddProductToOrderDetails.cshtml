@@ -62,13 +62,13 @@
                                 </div>
                                 @{
                                     var dataDict = new ViewDataDictionary(ViewData) { new KeyValuePair<string, object>("productId", Model.ProductId) };
-                                    <partial name="_ProductAddAttributes" model="Model.ProductAttributes" view-data="dataDict" />
+                                    <partial name="Partials/ProductAddAttributes" model="Model.ProductAttributes" view-data="dataDict" />
                                 }
                                 @{
 
                                     var dataDictGiftVoucher = new ViewDataDictionary(ViewData);
                                     dataDictGiftVoucher.TemplateInfo.HtmlFieldPrefix = "giftvoucher";
-                                    <partial name="_ProductAddGiftVoucherInfo" model="Model.GiftVoucher" view-data="dataDictGiftVoucher" />
+                                    <partial name="Partials/ProductAddGiftVoucherInfo" model="Model.GiftVoucher" view-data="dataDictGiftVoucher" />
                                 }
                                 <div class="form-actions">
                                     <div class="row">
