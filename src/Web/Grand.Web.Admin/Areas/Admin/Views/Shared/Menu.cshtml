@@ -44,7 +44,7 @@
                     }
                     @foreach (var item in rootNode.ChildNodes.Where(x => x.Visible))
                     {
-                        <partial name="_MenuItem" model="item" />
+                        <partial name="Partials/MenuItem" model="item" />
                     }
                 </ul>
             </div>
