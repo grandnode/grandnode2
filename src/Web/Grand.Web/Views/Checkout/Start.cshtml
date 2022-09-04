@@ -77,7 +77,7 @@
                                         <validation-observer v-slot="{ handleSubmit }">
                                             <form action="" id="co-shipping-form" v-on:submit.prevent="handleSubmit(vmorder.formCheckoutSubmit)">
                                                 <div id="checkout-shipping-load">
-                                                    <partial name="_ShippingAddress" model="Model.ShippingAddress" />
+                                                    <partial name="Partials/ShippingAddress" model="Model.ShippingAddress" />
                                                 </div>
                                                 <input type="submit" ref="shippingSubmit" id="opc-shipping-submit" class="d-none" />
                                             </form>
@@ -97,11 +97,11 @@
                                             <div id="checkout-billing-load">
                                                 @if (Model.ShippingRequired)
                                                 {
-                                                    <partial name="_BillingAddress" model="Model" />
+                                                    <partial name="Partials/BillingAddress" model="Model" />
                                                 }
                                                 else
                                                 {
-                                                    <partial name="_BillingWithoutShipping" model="Model.BillingAddress" />
+                                                    <partial name="Partials/BillingWithoutShipping" model="Model.BillingAddress" />
                                                 }
                                             </div>
                                             <input type="submit" ref="billingSubmit" id="opc-billing-submit" class="d-none" />
@@ -126,7 +126,7 @@
                                         <form id="co-shipping-method-form" action="">
                                             <div id="checkout-shipping-method-load">
                                                 @*In that field all available shipping methods will be loaded*@
-                                                <partial name="_ShippingMethods" model="Model" />
+                                                <partial name="Partials/ShippingMethods" model="Model" />
                                             </div>
                                             <div class="col-12 buttons py-1 px-0 mt-3" id="shipping-method-buttons-container">
                                                 <a class="btn btn-secondary" href="#" id="back-shipping_method" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
@@ -145,7 +145,7 @@
                                     <form action="" id="co-payment-method-form">
                                         <div id="checkout-payment-method-load">
                                             @*In that field all available payment methods will be loaded*@
-                                            <partial name="_PaymentMethods" model="Model" />
+                                            <partial name="Partials/PaymentMethods" model="Model" />
                                         </div>
                                     </form>
                                     <div class="col-12 buttons py-1 mt-3 px-0" id="payment-method-buttons-container">
@@ -165,7 +165,7 @@
                                     <form action="" id="co-payment-info-form">
                                         <div id="checkout-payment-info-load">
                                             @*In that field payment info section will be loaded*@
-                                            <partial name="_PaymentInfo" />
+                                            <partial name="Partials/PaymentInfo" />
                                         </div>
                                     </form>
                                     <div class="col-12 buttons py-1 mt-3 px-0" id="payment-info-buttons-container">
@@ -183,7 +183,7 @@
                             <b-collapse id="opc-confirm-order" accordion="my-accordion" role="tabpanel" appear>
                                 <div class="card-body">
                                     <div id="checkout-confirm-order-load">
-                                        <partial name="_ConfirmOrder" />
+                                        <partial name="Partials/ConfirmOrder" />
                                     </div>
                                     <div id="confirm-order-buttons-container">
                                         <a class="btn btn-secondary sr-only" href="#" id="back-confirm_order" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</a>
@@ -197,7 +197,7 @@
             </div>
             <div class="col-xl-5 col-12">
                 <div class="opc-totals">
-                    <partial name="_Summary" />
+                    <partial name="Partials/Summary" />
                 </div>
             </div>
         </div>

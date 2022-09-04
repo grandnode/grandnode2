@@ -10,11 +10,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     @RenderSection("meta", required: false)    
     <head-custom>
-    <partial name="Head" />
+    <partial name="Partials/Head" />
     <vc:widget widget-zone="head_html_tag" additional-data="null"></vc:widget>
     <canonical-urls>
     @*Favicon - upload favicon.ico file to the wwwroot directory*@
-    <partial name="_Favicons" />
+    <partial name="Partials/Favicons" />
     @if (config.DisplayMiniProfilerInPublicStore)
     {
         <mini-profiler />
@@ -35,7 +35,7 @@
             <div class="page-loader"></div>
         </div>
         <vc:get-coordinate></vc:get-coordinate>
-        <partial name="Header" />
+        <partial name="Partials/Header" />
         <b-container class="main-container">
             @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
             @if (IsSectionDefined("Breadcrumb"))
@@ -47,8 +47,8 @@
             <vc:voice-navigation></vc:voice-navigation>
         </b-container>
         @await Component.InvokeAsync("Footer")
-        <partial name="_Cookie" />
-        <partial name="_Notifications" />
+        <partial name="Partials/Cookie" />
+        <partial name="Partials/Notifications" />
     </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = "body_end_html_tag_before" })
     <resources asp-type="ScriptFooter" />

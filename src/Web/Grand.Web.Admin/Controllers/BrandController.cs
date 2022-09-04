@@ -297,7 +297,7 @@ namespace Grand.Web.Admin.Controllers
             if (!permission.allow)
                 return Content(permission.message);
 
-            return View("PicturePopup", await _pictureViewModelService.PreparePictureModel(brand.PictureId, brand.Id));
+            return View("Partials/PicturePopup", await _pictureViewModelService.PreparePictureModel(brand.PictureId, brand.Id));
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -327,7 +327,7 @@ namespace Grand.Web.Admin.Controllers
 
             Error(ModelState);
 
-            return View("PicturePopup", model);
+            return View("Partials/PicturePopup", model);
         }
 
         #endregion

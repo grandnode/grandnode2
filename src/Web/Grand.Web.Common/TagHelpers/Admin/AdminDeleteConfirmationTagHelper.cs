@@ -57,7 +57,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
             output.Attributes.SetAttribute("id", windowId);
             output.Attributes.SetAttribute("style", "display:none");
 
-            output.Content.SetHtmlContent((await _htmlHelper.PartialAsync("Delete", deleteConfirmationModel)).ToHtmlString());
+            output.Content.SetHtmlContent((await _htmlHelper.PartialAsync("Partials/Delete", deleteConfirmationModel)).ToHtmlString());
 
             var window = new StringBuilder();
             window.AppendLine("<script>");

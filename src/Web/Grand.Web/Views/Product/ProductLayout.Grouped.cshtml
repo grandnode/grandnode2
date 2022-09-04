@@ -42,7 +42,7 @@
 <!--product breadcrumb-->
 @section Breadcrumb
 {
-    <partial name="_Breadcrumbs" model="Model.Breadcrumb" />
+    <partial name="Partials/Breadcrumbs" model="Model.Breadcrumb" />
 }
 @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_after_breadcrumb", additionalData = Model.Id })
 <div class="page product-details-page product-standard product-grouped">
@@ -55,7 +55,7 @@
                         <div class="row">
                             <vc:widget widget-zone="productdetails_before_pictures" additional-data="@Model.Id"></vc:widget>
                             <!--product pictures-->
-                            <partial name="_Pictures" model="Model" />
+                            <partial name="Partials/Pictures" model="Model" />
                             <vc:widget widget-zone="productdetails_after_pictures" additional-data="@Model.Id"></vc:widget>
                             <div class="col-xl-6 col-lg-6 col-md-7 col-12 overview pl-md-3 pl-0 pr-0">
                                 @if (!string.IsNullOrEmpty(Model.Flag))
@@ -64,7 +64,7 @@
                                         <div class="badge badge-info">@Model.Flag</div>
                                     </div>
                                 }
-                                <partial name="_Unavailable" model="Model" />
+                                <partial name="Partials/Unavailable" model="Model" />
                                 <div class="product-name">
                                     <h1 class="generalTitle mb-3" itemprop="name">
                                         @Model.Name
@@ -80,26 +80,26 @@
                                 <!--product reviews-->
                                 @if (Model.ProductReviewOverview.AllowCustomerReviews)
                                 {
-                                    <partial name="_ProductReviewOverview" model="Model.ProductReviewOverview" />
+                                    <partial name="Partials/ProductReviewOverview" model="Model.ProductReviewOverview" />
                                 }
                                 <!--product collections-->
                                 @if (Model.ProductCollections.Any())
                                 {
-                                    <partial name="_Collections" model="Model.ProductCollections" />
+                                    <partial name="Partials/Collections" model="Model.ProductCollections" />
                                 }
                                 <!--warehouses-->
                                 @if (Model.AllowToSelectWarehouse)
                                 {
-                                    <partial name="_Warehouses" model="Model" />
+                                    <partial name="Partials/Warehouses" model="Model" />
                                 }
                                 <!--compare, email a friend-->
                                 <b-btn-group class="mt-2 mb-3 w-100">
                                     @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_inside_overview_buttons_before", additionalData = Model.Id })
-                                    <partial name="_ProductsComparison" model="Model" />
-                                    <partial name="_SendFriend" model="Model" />
+                                    <partial name="Partials/ProductsComparison" model="Model" />
+                                    <partial name="Partials/SendFriend" model="Model" />
                                     @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_inside_overview_buttons_after", additionalData = Model.Id })
                                 </b-btn-group>
-                                <partial name="_ShareButton" model="Model" />
+                                <partial name="Partials/ShareButton" model="Model" />
                                 @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_overview_bottom", additionalData = Model.Id })
                             </div>
                         </div>
@@ -115,13 +115,13 @@
                             @if (Model.ProductTags.Any())
                             {
                                 <b-tab title="@Loc["Products.Tags"]">
-                                    <partial name="_ProductTags" model="Model.ProductTags" />
+                                    <partial name="Partials/ProductTags" model="Model.ProductTags" />
                                 </b-tab>
                             }
                             @if (Model.ProductSpecifications.Any())
                             {
                                 <b-tab title="@Loc["Products.Specs"]">
-                                    <partial name="_ProductSpecifications" model="Model.ProductSpecifications" />
+                                    <partial name="Partials/ProductSpecifications" model="Model.ProductSpecifications" />
                                 </b-tab>
                             }
                             @if (Model.ProductReviewOverview.AllowCustomerReviews)
@@ -133,7 +133,7 @@
                             @if (Model.AskQuestionOnProduct)
                             {
                                 <b-tab title="@Loc["Products.ContactUs"]" @if (Model.ProductAskQuestion.DisplayCaptcha) { <text> @@click="askquestion.getCaptcha()" </text> }>
-                                    <partial name="_AskQuestionOnProduct" model="Model.ProductAskQuestion" />
+                                    <partial name="Partials/AskQuestionOnProduct" model="Model.ProductAskQuestion" />
                                 </b-tab>
                             }
                         </b-tabs>
@@ -156,19 +156,19 @@
                                                 @Html.Raw(variant.ShortDescription)
                                             </div>
                                             <!--availability-->
-                                            <partial name="_Availability" model="variant" />
+                                            <partial name="Partials/Availability" model="variant" />
                                             <!--Code products - SKU, MAN, GTIN, Vendor info -->
-                                            <partial name="_Codes" model="variant" />
+                                            <partial name="Partials/Codes" model="variant" />
                                             <!--delivery-->
                                             @if ((variant.FreeShippingNotificationEnabled && Model.IsFreeShipping) || !string.IsNullOrWhiteSpace(variant.DeliveryDate)
                                    || variant.NotReturnable || variant.AdditionalShippingCharge > 0)
                                             {
-                                                <partial name="_DeliveryInfo" model="variant" />
+                                                <partial name="Partials/DeliveryInfo" model="variant" />
                                             }
                                             <!--sample download-->
                                             @if (variant.HasSampleDownload)
                                             {
-                                                <partial name="_DownloadSample" model="variant" />
+                                                <partial name="Partials/DownloadSample" model="variant" />
                                             }
                                             <!--attributes-->
                                             @{
@@ -176,7 +176,7 @@
                                                 {
                                                     var dataDictAttributes = new ViewDataDictionary(ViewData);
                                                     dataDictAttributes.TemplateInfo.HtmlFieldPrefix = string.Format("attributes_{0}", variant.Id);
-                                                    <partial name="_ProductAttributes" model="variant.ProductAttributes" view-data="dataDictAttributes" />
+                                                    <partial name="Partials/ProductAttributes" model="variant.ProductAttributes" view-data="dataDictAttributes" />
                                                 }
                                             }
                                             <!--gift voucher-->
@@ -185,13 +185,13 @@
                                                 {
                                                     var dataDictGiftVoucher = new ViewDataDictionary(ViewData);
                                                     dataDictGiftVoucher.TemplateInfo.HtmlFieldPrefix = string.Format("giftvoucher_{0}", variant.Id);
-                                                    <partial name="_GiftVoucherInfo" model="variant.GiftVoucher" view-data="dataDictGiftVoucher" />
+                                                    <partial name="Partials/GiftVoucherInfo" model="variant.GiftVoucher" view-data="dataDictGiftVoucher" />
                                                 }
                                             }
                                             <!--price breaks-->
                                             @if (variant.TierPrices.Any())
                                             {
-                                                <partial name="_TierPrices" model="variant.TierPrices" />
+                                                <partial name="Partials/TierPrices" model="variant.TierPrices" />
                                             }
                                             @{
                                                 var dataDictAddToCart = new ViewDataDictionary(ViewData);
@@ -201,14 +201,14 @@
                                             @{
                                                 var dataDictPrice = new ViewDataDictionary(ViewData);
                                                 dataDictPrice.TemplateInfo.HtmlFieldPrefix = string.Format("price_{0}", variant.Id);
-                                                <partial name="_Prices" model="variant.ProductPrice" view-data="dataDictPrice" />
+                                                <partial name="Partials/Prices" model="variant.ProductPrice" view-data="dataDictPrice" />
                                             }
                                             @{
-                                                <partial name="_AddToCart" model="variant.AddToCart" view-data="dataDictAddToCart" />
+                                                <partial name="Partials/AddToCart" model="variant.AddToCart" view-data="dataDictAddToCart" />
                                                 var dataDictAddToWishlist = new ViewDataDictionary(ViewData);
                                                 dataDictAddToWishlist.TemplateInfo.HtmlFieldPrefix = string.Format("addtocart_{0}", variant.Id);
                                                 <div class="mt-2">
-                                                    <partial name="_AddToWishlist" model="variant.AddToCart" view-data="dataDictAddToWishlist" />
+                                                    <partial name="Partials/AddToWishlist" model="variant.AddToCart" view-data="dataDictAddToWishlist" />
                                                 </div>
                                             }
                                         </div>
@@ -227,7 +227,7 @@
                 </div>
                 @if (Model.RenderCaptcha)
                 {
-                    <partial name="_Captcha" />
+                    <partial name="Partials/Captcha" />
                 }
             </div>
             @await Component.InvokeAsync("RelatedProducts", new { productId = Model.Id })

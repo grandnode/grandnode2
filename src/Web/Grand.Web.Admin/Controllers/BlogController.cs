@@ -243,7 +243,7 @@ namespace Grand.Web.Admin.Controllers
             if (string.IsNullOrEmpty(blogpost.PictureId))
                 return Content("Picture not exist");
 
-            return View("PicturePopup", await _pictureViewModelService.PreparePictureModel(blogpost.PictureId, blogpost.Id));
+            return View("Partials/PicturePopup", await _pictureViewModelService.PreparePictureModel(blogpost.PictureId, blogpost.Id));
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -269,7 +269,7 @@ namespace Grand.Web.Admin.Controllers
 
             Error(ModelState);
 
-            return View("PicturePopup", model);
+            return View("Partials/PicturePopup", model);
         }
 
         #endregion

@@ -76,7 +76,7 @@
                             <tabstrip-item text="@Loc["Admin.Orders.Shipments.ViewDetails.Info"]" tab-index="0">
                                 <content>
                                     <div>
-                                        <partial name="_Info" model="Model" />
+                                        <partial name="Partials/Info" model="Model" />
                                     </div>
                                 </content>
                             </tabstrip-item>
@@ -85,7 +85,7 @@
                                 <tabstrip-item text="@Loc["Admin.Orders.Shipments.Documents"]" tab-index="1">
                                     <content>
                                         <div>
-                                            <partial name="_Documents" model="Model" />
+                                            <partial name="Partials/Documents" model="Model" />
                                         </div>
                                     </content>
                                 </tabstrip-item>
@@ -93,7 +93,7 @@
                             <tabstrip-item text="@Loc["Admin.Orders.Shipments.ShipmentNotes"]" tab-index="2">
                                 <content>
                                     <div>
-                                        <partial name="_ShipmentNotes" model="Model" />
+                                        <partial name="Partials/ShipmentNotes" model="Model" />
                                     </div>
                                 </content>
                             </tabstrip-item>
@@ -104,7 +104,7 @@
                                             <input type="submit" asp-action="EditUserFields" value="@Loc["Admin.Common.Save"]" id="btnSaveUserFields" name="save-generic-attributes" class="k-button" />
                                         </div>
                                         <div class="form-horizontal">
-                                            <partial name="_UserFields" model="Model" />
+                                            <partial name="Partials/UserFields" model="Model" />
                                         </div>
                                     </div>
                                 </content>

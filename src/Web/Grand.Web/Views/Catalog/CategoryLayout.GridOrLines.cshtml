@@ -117,7 +117,7 @@
             <div class="form-row">
                 <template v-for="Model in catalog.Model.FeaturedProducts">
                     <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-                        <partial name="_CatalogProductView" />
+                        <partial name="Partials/CatalogProductGridView" />
                     </div>
                 </template>
             </div>
@@ -127,14 +127,14 @@
     <div id="catalog-products">
         @await Component.InvokeAsync("Widget", new { widgetZone = "categorydetails_before_filters", additionalData = Model.Id })
         <template v-if="catalog.Model !== undefined">
-            <partial name="_Selectors" />
+            <partial name="Partials/Selectors" />
             <template v-if="catalog.Model.Products.length > 0">
                 <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
                     <div class="col-12 product-grid px-0">
                         <div class="form-row">
                             <template v-for="Model in catalog.Model.Products">
                                 <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-                                    <partial name="_CatalogProductView" />
+                                    <partial name="Partials/CatalogProductGridView" />
                                 </div>
                             </template>
                         </div>
@@ -145,13 +145,13 @@
                         <div class="col-12">
                             <div class="row">
                                 <template v-for="Model in catalog.Model.Products">
-                                    <partial name="_CatalogProductListView" />
+                                    <partial name="Partials/CatalogProductListView" />
                                 </template>
                             </div>
                         </div>
                     </div>
                 </template>
-                <partial name="_Pagination" />
+                <partial name="Partials/Pagination" />
             </template>
             <template v-else>
                 <div class="alert alert-info my-3">
@@ -176,12 +176,11 @@
 </div>
 
 @section filters
-    {
+{
     @*Rendering filtering section*@
     @if (Model.PagingFilteringContext.SpecificationFilter.Enabled)
     {
-        <partial name="_Filtering" />
+        <partial name="Partials/Filtering" />
     }
 }
-
-<partial name="_ModelScript" model="@Json.Serialize(Model)" />
+<partial name="Partials/ModelScript" model="@Json.Serialize(Model)" />

@@ -714,7 +714,7 @@ namespace Grand.Web.Controllers
                 ZipPostalCode = zipPostalCode
             });
 
-            return PartialView("_EstimateShippingResult", model);
+            return PartialView("Partials/EstimateShippingResult", model);
         }
 
         [AutoValidateAntiforgeryToken]
