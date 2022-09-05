@@ -159,9 +159,9 @@ namespace Shipping.ShippingPoint
             return new List<string>();
         }
 
-        public async Task<string> GetPublicViewComponentName()
+        public async Task<string> GetControllerRouteName()
         {
-            return await Task.FromResult("ShippingPoint");
+            return await Task.FromResult("Plugins.ShippingPoint.Points");
         }
 
         public ShippingRateCalculationType ShippingRateCalculationType => ShippingRateCalculationType.Off;

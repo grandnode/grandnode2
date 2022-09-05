@@ -383,11 +383,11 @@ namespace Grand.Web.Controllers
 
         public virtual async Task<IActionResult> GetShippingFormPartialView(string shippingOption)
         {
-            var viewcomponent = await GetShippingComputation(shippingOption).GetPublicViewComponentName();
-            if (string.IsNullOrEmpty(viewcomponent))
+            var routeName = await GetShippingComputation(shippingOption).GetControllerRouteName();
+            if (string.IsNullOrEmpty(routeName))
                 return Content("");
 
-            return ViewComponent(viewcomponent, new { shippingOption = shippingOption });
+            return RedirectToRoute(routeName, new { shippingOption });
         }
 
         [NonAction]

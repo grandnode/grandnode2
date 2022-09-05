@@ -123,7 +123,7 @@ namespace Shipping.FixedRateShipping
             return await Task.FromResult(new List<string>());
         }
 
-        public async Task<string> GetPublicViewComponentName()
+        public async Task<string> GetControllerRouteName()
         {
             return await Task.FromResult("");
         }

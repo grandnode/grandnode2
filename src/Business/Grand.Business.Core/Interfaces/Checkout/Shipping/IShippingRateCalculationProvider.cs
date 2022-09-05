@@ -46,10 +46,10 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
         Task<IList<string>> ValidateShippingForm(IFormCollection form);
 
         /// <summary>
-        /// Gets a view component for displaying plugin ("shipping" checkout step)
+        /// Gets a route name for displaying plugin ("shipping" checkout step)
         /// </summary>
         /// <param name="viewComponentName">View component name</param>
-        Task<string> GetPublicViewComponentName();
+        Task<string> GetControllerRouteName();
 
     }
 }
