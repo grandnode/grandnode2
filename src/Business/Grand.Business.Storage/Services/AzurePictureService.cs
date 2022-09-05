@@ -36,14 +36,14 @@ namespace Grand.Business.Storage.Services
             MediaSettings mediaSettings,
             StorageSettings storageSettings,
             AzureConfig config,
-            IMimeMappingService mimeMappingService)
+            IMimeMappingService mimeMappingService
+            )
             : base(pictureRepository,
                 logger,
                 mediator,
                 workContext,
                 cacheBase,
                 mediaFileStore,
-                mimeMappingService,
                 mediaSettings,
                 storageSettings)
         {
@@ -58,7 +58,6 @@ namespace Grand.Business.Storage.Services
                 throw new Exception("Azure end point for BLOB is not specified");
 
             container = new BlobContainerClient(_config.AzureBlobStorageConnectionString, _config.AzureBlobStorageContainerName);
-
 
         }
 

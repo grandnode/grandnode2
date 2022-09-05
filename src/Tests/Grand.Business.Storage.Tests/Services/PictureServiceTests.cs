@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Storage.Services;
 using Grand.Domain.Data;
@@ -24,7 +23,6 @@ namespace Grand.Business.Storage.Tests.Services
         private Mock<IWorkContext> _workContextMock;
         private Mock<ICacheBase> _cacheMock;
         private Mock<IMediaFileStore> _mediaFileStoreMock;
-        private Mock<IMimeMappingService> _mimeMappingService;
 
         private MediaSettings _settings;
         private StorageSettings _storagesettings;
@@ -43,7 +41,7 @@ namespace Grand.Business.Storage.Tests.Services
             _settings = new MediaSettings();
             _storagesettings = new StorageSettings();
             _service = new PictureService(_repoMock.Object, _logerMock.Object, _mediatorMock.Object, _workContextMock.Object
-                , _cacheMock.Object, _mediaFileStoreMock.Object, _mimeMappingService.Object, _settings, _storagesettings);
+                , _cacheMock.Object, _mediaFileStoreMock.Object, _settings, _storagesettings);
         }
 
         [TestMethod]

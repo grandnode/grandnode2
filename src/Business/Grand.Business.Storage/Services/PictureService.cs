@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Logging;
-using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain;
 using Grand.Domain.Common;
@@ -33,7 +32,7 @@ namespace Grand.Business.Storage.Services
         private readonly IMediaFileStore _mediaFileStore;
         private readonly MediaSettings _mediaSettings;
         private readonly StorageSettings _storageSettings;
-        private readonly IMimeMappingService _mimeMappingService;
+
         #endregion
 
         #region Ctor
@@ -54,7 +53,6 @@ namespace Grand.Business.Storage.Services
             IWorkContext workContext,
             ICacheBase cacheBase,
             IMediaFileStore mediaFileStore,
-            IMimeMappingService mimeMappingService,
             MediaSettings mediaSettings,
             StorageSettings storageSettings)
         {
@@ -66,7 +64,6 @@ namespace Grand.Business.Storage.Services
             _mediaFileStore = mediaFileStore;
             _mediaSettings = mediaSettings;
             _storageSettings = storageSettings;
-            _mimeMappingService = mimeMappingService;
         }
 
         #endregion
