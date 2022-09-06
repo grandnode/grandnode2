@@ -121,9 +121,9 @@ namespace Payments.CashOnDelivery
             return await Task.FromResult<PaymentTransaction>(null);
         }
 
-        public void GetPublicViewComponent(out string viewComponentName)
+        public Task<string> GetControllerRouteName()
         {
-            viewComponentName = "PaymentCashOnDelivery";
+            return Task.FromResult("Plugin.PaymentCashOnDelivery");
         }
 
         public async Task<CapturePaymentResult> Capture(PaymentTransaction paymentTransaction)

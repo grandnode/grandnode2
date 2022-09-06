@@ -1,19 +1,18 @@
 ﻿using Braintree;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Web.Common.Components;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Payments.BrainTree.Models;
 using Payments.BrainTree.Validators;
 using System.Net;
 
-namespace Payments.BrainTree.Components
+namespace Payments.BrainTree.Controllers
 {
-    [ViewComponent(Name = "PaymentBrainTree")]
-    public class PaymentBrainTreeViewComponent : BaseViewComponent
+    public class PaymentBrainTreeController : BasePaymentController
     {
         private readonly BrainTreePaymentSettings _brainTreePaymentSettings;
         private readonly IOrderCalculationService _orderTotalCalculationService;
@@ -21,7 +20,7 @@ namespace Payments.BrainTree.Components
         private readonly IWorkContext _workContext;
         private readonly ITranslationService _translationService;
 
-        public PaymentBrainTreeViewComponent(BrainTreePaymentSettings brainTreePaymentSettings,
+        public PaymentBrainTreeController(BrainTreePaymentSettings brainTreePaymentSettings,
             IOrderCalculationService orderTotalCalculationService,
             IShoppingCartService shoppingCartService,
             IWorkContext workContext,
@@ -34,7 +33,7 @@ namespace Payments.BrainTree.Components
             _translationService = translationService;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync()
+        public async Task<IActionResult> PaymentInfo()
         {
             var model = new PaymentInfoModel();
 
@@ -51,8 +50,7 @@ namespace Payments.BrainTree.Components
                 var publicKey = _brainTreePaymentSettings.PublicKey;
                 var privateKey = _brainTreePaymentSettings.PrivateKey;
 
-                var gateway = new BraintreeGateway
-                {
+                var gateway = new BraintreeGateway {
                     Environment = useSandBox ? Braintree.Environment.SANDBOX : Braintree.Environment.PRODUCTION,
                     MerchantId = merchantId,
                     PublicKey = publicKey,
@@ -62,15 +60,14 @@ namespace Payments.BrainTree.Components
                 ViewBag.ClientToken = gateway.ClientToken.Generate();
                 ViewBag.OrderTotal = (await _orderTotalCalculationService.GetShoppingCartTotal(cart)).shoppingCartTotal;
 
-                return View(this.GetViewPath("PaymentInfo_3DS"), model);
+                return View("PaymentInfo_3DS", model);
             }
 
             //years
             for (var i = 0; i < 15; i++)
             {
                 var year = Convert.ToString(DateTime.Now.Year + i);
-                model.ExpireYears.Add(new SelectListItem
-                {
+                model.ExpireYears.Add(new SelectListItem {
                     Text = year,
                     Value = year,
                 });
@@ -79,9 +76,8 @@ namespace Payments.BrainTree.Components
             //months
             for (var i = 1; i <= 12; i++)
             {
-                var text = (i < 10) ? "0" + i : i.ToString();
-                model.ExpireMonths.Add(new SelectListItem
-                {
+                var text = i < 10 ? "0" + i : i.ToString();
+                model.ExpireMonths.Add(new SelectListItem {
                     Text = text,
                     Value = i.ToString(),
                 });
@@ -89,7 +85,7 @@ namespace Payments.BrainTree.Components
 
             //set postback values (we cannot access "Form" with "GET" requests)
             if (Request.Method == WebRequestMethods.Http.Get)
-                return View(this.GetViewPath("PaymentInfo"), model);
+                return View("PaymentInfo", model);
 
             var form = await HttpContext.Request.ReadFormAsync();
 
@@ -114,7 +110,7 @@ namespace Payments.BrainTree.Components
                             select error.ErrorMessage;
                 model.Errors = string.Join(", ", query);
             }
-            return View(this.GetViewPath("PaymentInfo"), model);
+            return View("PaymentInfo", model);
         }
     }
 }

@@ -8,6 +8,12 @@ namespace Payments.PayPalStandard
     {
         public void RegisterEndpoint(IEndpointRouteBuilder endpointRouteBuilder)
         {
+            //PaymentInfo
+            endpointRouteBuilder.MapControllerRoute("Plugin.PayPalStandard",
+                 "Plugins/PaymentPayPalStandard/PaymentInfo",
+                 new { controller = "PaymentPayPalStandard", action = "PaymentInfo", area = "" }
+            );
+
             //PDT
             endpointRouteBuilder.MapControllerRoute("Plugin.Payments.PayPalStandard.PDTHandler",
                  "Plugins/PaymentPayPalStandard/PDTHandler",

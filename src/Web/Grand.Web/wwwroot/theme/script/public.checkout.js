@@ -35,7 +35,7 @@ var vmorder = new Vue({
             LoyaltyPointsEnoughToPayForOrder: null,
             UseLoyaltyPoints: null,
             // payment info
-            PaymentViewComponentName: null,
+            PaymentUrl: null,
             // confirm order
             OrderReviewData: null,
             MinOrderTotalWarning: null,
@@ -239,13 +239,13 @@ var vmorder = new Vue({
                         }
                         if (response.data.goto_section == "payment_info") {
                             var model = response.data.update_section.model;
-                            vmorder.PaymentViewComponentName = model.PaymentViewComponentName;
+                            vmorder.PaymentUrl = model.PaymentUrl;
                             vmorder.PaymentInfo = true;
                             vmorder.paymentBusy = true;
                             vmorder.validPayment = true;
                             document.querySelector(".payment-info-next-step-button").classList.add("disabled");
                             axios({
-                                baseURL: '/Component/Index?Name=' + model.PaymentViewComponentName,
+                                baseURL: model.PaymentUrl,
                                 method: 'get',
                                 data: null,
                                 headers: {
@@ -658,11 +658,11 @@ var vmorder = new Vue({
                             }
                             if (response.data.update_section !== undefined && response.data.update_section.name == 'payment-info') {
                                 var model = response.data.update_section.model;
-                                vm.PaymentViewComponentName = model.PaymentViewComponentName,
+                                vm.PaymentUrl = model.PaymentUrl,
                                     vm.PaymentInfo = true;
 
                                 axios({
-                                    baseURL: '/Component/Form?Name=' + model.PaymentViewComponentName,
+                                    baseURL: model.PaymentUrl,
                                     method: 'post',
                                     data: data,
                                     showLoader: false

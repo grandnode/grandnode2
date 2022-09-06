@@ -392,5 +392,10 @@ namespace Payments.PayPalStandard.Controllers
 
             return RedirectToRoute("HomePage");
         }
+
+        public IActionResult PaymentInfo()
+        {
+            return View();
+        }
     }
 }

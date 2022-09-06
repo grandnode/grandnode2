@@ -7,7 +7,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Payments.BrainTree.Models;
 
-namespace Payments.BrainTree.Controllers
+namespace Payments.BrainTree.Areas.Admin.Controllers
 {
     [AuthorizeAdmin]
     [Area("Admin")]

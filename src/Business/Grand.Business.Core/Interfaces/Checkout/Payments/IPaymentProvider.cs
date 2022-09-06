@@ -102,10 +102,9 @@ namespace Grand.Business.Core.Interfaces.Checkout.Payments
         Task<PaymentTransaction> SavePaymentInfo(IFormCollection form);
 
         /// <summary>
-        /// Gets a view component for displaying plugin in public store ("payment info" checkout step)
+        /// Gets a route url for displaying plugin in public store ("payment info" checkout step)
         /// </summary>
-        /// <param name="viewComponentName">View component name</param>
-        void GetPublicViewComponent(out string viewComponentName);
+        Task<string> GetControllerRouteName();
 
         #endregion
 

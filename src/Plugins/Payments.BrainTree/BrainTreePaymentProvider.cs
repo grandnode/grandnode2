@@ -39,10 +39,11 @@ namespace Payments.BrainTree
             _brainTreePaymentSettings = brainTreePaymentSettings;
         }
 
-        public void GetPublicViewComponent(out string viewComponentName)
+        public Task<string> GetControllerRouteName()
         {
-            viewComponentName = "PaymentBrainTree";
+            return Task.FromResult("Plugin.PaymentBrainTree");
         }
+
         /// <summary>
         /// Init a process a payment transaction
         /// </summary>

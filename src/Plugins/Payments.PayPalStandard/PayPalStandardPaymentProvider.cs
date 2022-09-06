@@ -533,9 +533,9 @@ namespace Payments.PayPalStandard
             return await Task.FromResult(_translationService.GetResource("Plugins.Payments.PayPalStandard.PaymentMethodDescription"));
         }
 
-        public void GetPublicViewComponent(out string viewComponentName)
+        public Task<string> GetControllerRouteName()
         {
-            viewComponentName = "PaymentPayPalStandard";
+            return Task.FromResult("Plugin.PayPalStandard");
         }
 
         public string LogoURL => "/Plugins/Payments.PayPalStandard/logo.jpg";

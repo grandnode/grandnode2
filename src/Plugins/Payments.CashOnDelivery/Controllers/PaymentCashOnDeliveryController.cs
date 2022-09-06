@@ -1,17 +1,17 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Infrastructure;
-using Grand.Web.Common.Components;
+using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Payments.CashOnDelivery.Models;
 
-namespace Payments.CashOnDelivery.Components
+namespace Payments.CashOnDelivery.Controllers
 {
-    public class PaymentCashOnDeliveryViewComponent : BaseViewComponent
+    public class PaymentCashOnDeliveryController : BasePaymentController
     {
         private readonly IWorkContext _workContext;
         private readonly ISettingService _settingService;
 
-        public PaymentCashOnDeliveryViewComponent(
+        public PaymentCashOnDeliveryController(
             IWorkContext workContext,
             ISettingService settingService)
         {
@@ -19,14 +19,15 @@ namespace Payments.CashOnDelivery.Components
             _settingService = settingService;
         }
 
-        public IViewComponentResult Invoke()
+        public IActionResult PaymentInfo()
         {
             var cashOnDeliveryPaymentSettings = _settingService.LoadSetting<CashOnDeliveryPaymentSettings>(_workContext.CurrentStore.Id);
 
             var model = new PaymentInfoModel {
                 DescriptionText = cashOnDeliveryPaymentSettings.DescriptionText
             };
-            return View(this.GetViewPath(), model);
+
+            return View(model);
         }
     }
 }
