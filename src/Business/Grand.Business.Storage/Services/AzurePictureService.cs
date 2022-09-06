@@ -1,5 +1,7 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Data;
 using Grand.Domain.Media;
@@ -19,6 +21,7 @@ namespace Grand.Business.Storage.Services
 
         private static BlobContainerClient container = null;
         private readonly AzureConfig _config;
+        private readonly IMimeMappingService _mimeMappingService;
 
         #endregion
 
@@ -32,7 +35,9 @@ namespace Grand.Business.Storage.Services
             IMediaFileStore mediaFileStore,
             MediaSettings mediaSettings,
             StorageSettings storageSettings,
-            AzureConfig config)
+            AzureConfig config,
+            IMimeMappingService mimeMappingService
+            )
             : base(pictureRepository,
                 logger,
                 mediator,
@@ -43,6 +48,7 @@ namespace Grand.Business.Storage.Services
                 storageSettings)
         {
             _config = config;
+            _mimeMappingService = mimeMappingService;
 
             if (string.IsNullOrEmpty(_config.AzureBlobStorageConnectionString))
                 throw new Exception("Azure connection string for BLOB is not specified");
@@ -107,8 +113,26 @@ namespace Grand.Business.Storage.Services
         /// <param name="binary">Picture binary</param>
         protected override Task SaveThumb(string thumbFileName, byte[] binary)
         {
+                    
             Stream stream = new MemoryStream(binary);
             container.UploadBlob(thumbFileName, stream);
+
+            //Update content type and other properties 
+            string contentType = _mimeMappingService.Map(thumbFileName);
+            var blobClient = container.GetBlobClient(thumbFileName);            
+            BlobProperties properties = blobClient.GetProperties();
+            BlobHttpHeaders blobHttpHeaders = new BlobHttpHeaders {
+                // Set the MIME ContentType every time the properties 
+                // are updated or the field will be cleared
+                ContentType = contentType,
+                // Populate remaining headers with 
+                // the pre-existing properties
+                CacheControl = properties.CacheControl,
+                ContentDisposition = properties.ContentDisposition,
+                ContentEncoding = properties.ContentEncoding,
+                ContentHash = properties.ContentHash
+            };
+            blobClient.SetHttpHeaders(blobHttpHeaders);            
             return Task.CompletedTask;
         }
 
