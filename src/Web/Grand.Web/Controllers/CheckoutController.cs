@@ -996,7 +996,7 @@ namespace Grand.Web.Controllers
                 }
 
                 //error
-                var confirmOrderModel = new CheckoutConfirmModel();
+                var confirmOrderModel = await _mediator.Send(new GetConfirmOrder() { Cart = cart, Customer = _workContext.CurrentCustomer, Language = _workContext.WorkingLanguage, Store = _workContext.CurrentStore });
                 foreach (var error in placeOrderResult.Errors)
                     confirmOrderModel.Warnings.Add(error);
 
