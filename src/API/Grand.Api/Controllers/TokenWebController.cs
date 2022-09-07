@@ -63,7 +63,7 @@ namespace Grand.Api.Controllers
         [AllowAnonymous]
         [IgnoreAntiforgeryToken]
         [HttpPost]
-        public async Task<IActionResult> Login([FromBody] LoginModel model)
+        public async Task<IActionResult> Login([FromBody] LoginWebModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
