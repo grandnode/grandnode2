@@ -452,6 +452,29 @@ namespace Grand.Web.Controllers
 
         #endregion
 
+        #region Related products
+
+        public virtual async Task<IActionResult> RelatedProducts(string productId, int? productThumbPictureSize)
+        {
+            var productIds = (await _productService.GetProductById(productId)).RelatedProducts.OrderBy(x => x.DisplayOrder).Select(x => x.ProductId2).ToArray();
+
+            //load products
+            var products = await _productService.GetProductsByIds(productIds);
+
+            var model = await _mediator.Send(new GetProductOverview() {
+                PreparePictureModel = true,
+                PreparePriceModel = true,
+                PrepareSpecificationAttributes = _catalogSettings.ShowSpecAttributeOnCatalogPages,
+                ProductThumbPictureSize = productThumbPictureSize,
+                Products = products
+            });
+
+            return View(model);
+        }
+
+        #endregion
+
+
         #region Recently added products
 
         public virtual async Task<IActionResult> NewProducts()

@@ -493,10 +493,9 @@ var vm = new Vue({
         getLinkedProductsQV: function (id) {
             var data = { productId: id };
             axios({
-                url: '/Component/Index',
-                method: 'post',
-                params: { "name": "RelatedProducts" },
-                data: JSON.stringify(data),
+                url: '/Product/RelatedProducts',
+                method: 'get',
+                params: { "productId": id },
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
