@@ -1,16 +1,15 @@
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Infrastructure;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using System.Net;
-using Grand.Business.Core.Interfaces.Storage;
 
 namespace Grand.Business.Catalog.Services.Products
 {
@@ -22,7 +21,6 @@ namespace Grand.Business.Catalog.Services.Products
         private readonly IWorkContext _workContext;
         private readonly IProductAttributeService _productAttributeService;
         private readonly IProductAttributeParser _productAttributeParser;
-        private readonly ICurrencyService _currencyService;
         private readonly ITranslationService _translationService;
         private readonly ITaxService _taxService;
         private readonly IPriceFormatter _priceFormatter;
@@ -33,7 +31,6 @@ namespace Grand.Business.Catalog.Services.Products
         public ProductAttributeFormatter(IWorkContext workContext,
             IProductAttributeService productAttributeService,
             IProductAttributeParser productAttributeParser,
-            ICurrencyService currencyService,
             ITranslationService translationService,
             ITaxService taxService,
             IPriceFormatter priceFormatter,
@@ -44,7 +41,6 @@ namespace Grand.Business.Catalog.Services.Products
             _workContext = workContext;
             _productAttributeService = productAttributeService;
             _productAttributeParser = productAttributeParser;
-            _currencyService = currencyService;
             _translationService = translationService;
             _taxService = taxService;
             _priceFormatter = priceFormatter;
@@ -269,7 +265,7 @@ namespace Grand.Business.Catalog.Services.Products
                                         formattedAttribute += string.Format(" [-{0}]", priceAdjustmentStr);
                                     }
                                 }
-                                
+
                             }
                             else
                             {
