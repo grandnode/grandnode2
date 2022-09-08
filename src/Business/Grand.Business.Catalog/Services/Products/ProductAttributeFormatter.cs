@@ -198,23 +198,17 @@ namespace Grand.Business.Catalog.Services.Products
                         else if (attribute.AttributeControlTypeId == AttributeControlType.FileUpload)
                         {
                             //file upload
-                            _ = Guid.TryParse(valueStr, out var downloadGuid);
-                            var attributeName = productAttribute.GetTranslation(a => a.Name, langId);
-                            var attributeText = "";
-                            if (allowHyperlinks)
+                            if (Guid.TryParse(valueStr, out var downloadGuid))
                             {
-                                var downloadLink = string.Format("{0}/download/getfileupload/?downloadId={1}", _workContext.CurrentHost.Url.TrimEnd('/'), downloadGuid);
-                                attributeText = string.Format("<a href=\"{0}\" class=\"fileuploadattribute\">{1}</a>", downloadLink, attributeName);
+                                var attributeText = string.Empty;
+                                var attributeName = productAttribute.GetTranslation(a => a.Name, langId);
+                                if (allowHyperlinks)
+                                {
+                                    var downloadLink = string.Format("{0}/download/getfileupload/?downloadId={1}", _workContext.CurrentHost.Url.TrimEnd('/'), downloadGuid);
+                                    attributeText = string.Format("<a href=\"{0}\" class=\"fileuploadattribute\">{1}</a>", downloadLink, attribute.GetTranslation(a => a.TextPrompt, langId));
+                                }
+                                formattedAttribute = string.Format("{0}: {1}", attributeName, attributeText);
                             }
-                            else
-                            {
-                                //hyperlinks aren't allowed
-                                attributeText = attributeName;
-                            }
-                            //encode
-                            if (htmlEncode)
-                                attributeName = WebUtility.HtmlEncode(attributeName);
-                            formattedAttribute = string.Format("{0}: {1}", attributeName, attributeText);
                         }
                         else
                         {

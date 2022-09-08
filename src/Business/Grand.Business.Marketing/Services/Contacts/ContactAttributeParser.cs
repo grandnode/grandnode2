@@ -1,7 +1,5 @@
 using Grand.Business.Core.Extensions;
-using Grand.Business.Marketing.Extensions;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
-using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -19,17 +17,14 @@ namespace Grand.Business.Marketing.Services.Contacts
     public partial class ContactAttributeParser : IContactAttributeParser
     {
         private readonly IContactAttributeService _contactAttributeService;
-        private readonly IDownloadService _downloadService;
         private readonly IWorkContext _workContext;
 
         public ContactAttributeParser(
             IContactAttributeService contactAttributeService,
-            IDownloadService downloadService,
             IWorkContext workContext
             )
         {
             _contactAttributeService = contactAttributeService;
-            _downloadService = downloadService;
             _workContext = workContext;
         }
 
@@ -212,33 +207,15 @@ namespace Grand.Business.Marketing.Services.Contacts
                         else if (attribute.AttributeControlType == AttributeControlType.FileUpload)
                         {
                             //file upload
-                            Guid downloadGuid;
-                            Guid.TryParse(valueStr, out downloadGuid);
-                            var download = await _downloadService.GetDownloadByGuid(downloadGuid);
-                            if (download != null)
+                            if (Guid.TryParse(valueStr, out var downloadGuid))
                             {
-                                string attributeText = "";
-                                var fileName = string.Format("{0}{1}",
-                                    download.Filename ?? download.DownloadGuid.ToString(),
-                                    download.Extension);
-                                //encode (if required)
-                                if (htmlEncode)
-                                    fileName = WebUtility.HtmlEncode(fileName);
+                                var attributeText = string.Empty;
+                                var attributeName = attribute.GetTranslation(a => a.Name, language.Id);
                                 if (allowHyperlinks)
                                 {
-                                    //hyperlinks are allowed
-                                    var downloadLink = string.Format("{0}/download/getfileupload/?downloadId={1}", _workContext.CurrentHost.Url.TrimEnd('/'), download.DownloadGuid);
-                                    attributeText = string.Format("<a href=\"{0}\" class=\"fileuploadattribute\">{1}</a>", downloadLink, fileName);
+                                    var downloadLink = string.Format("{0}/download/getfileupload/?downloadId={1}", _workContext.CurrentHost.Url.TrimEnd('/'), downloadGuid);
+                                    attributeText = string.Format("<a href=\"{0}\" class=\"fileuploadattribute\">{1}</a>", downloadLink, attribute.GetTranslation(a => a.TextPrompt, language.Id));
                                 }
-                                else
-                                {
-                                    //hyperlinks aren't allowed
-                                    attributeText = fileName;
-                                }
-                                var attributeName = attribute.GetTranslation(a => a.Name, language.Id);
-                                //encode (if required)
-                                if (htmlEncode)
-                                    attributeName = WebUtility.HtmlEncode(attributeName);
                                 formattedAttribute = string.Format("{0}: {1}", attributeName, attributeText);
                             }
                         }

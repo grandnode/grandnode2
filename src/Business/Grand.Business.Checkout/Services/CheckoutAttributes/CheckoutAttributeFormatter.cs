@@ -1,9 +1,8 @@
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -23,21 +22,18 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
         private readonly ICurrencyService _currencyService;
         private readonly ITaxService _taxService;
         private readonly IPriceFormatter _priceFormatter;
-        private readonly IDownloadService _downloadService;
 
         public CheckoutAttributeFormatter(IWorkContext workContext,
             ICheckoutAttributeParser checkoutAttributeParser,
             ICurrencyService currencyService,
             ITaxService taxService,
-            IPriceFormatter priceFormatter,
-            IDownloadService downloadService)
+            IPriceFormatter priceFormatter)
         {
             _workContext = workContext;
             _checkoutAttributeParser = checkoutAttributeParser;
             _currencyService = currencyService;
             _taxService = taxService;
             _priceFormatter = priceFormatter;
-            _downloadService = downloadService;
         }
 
         /// <summary>
@@ -87,33 +83,16 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
                         else if (attribute.AttributeControlTypeId == AttributeControlType.FileUpload)
                         {
                             //file upload
-                            Guid downloadGuid;
-                            Guid.TryParse(valueStr, out downloadGuid);
-                            var download = await _downloadService.GetDownloadByGuid(downloadGuid);
-                            if (download != null)
+                            if (Guid.TryParse(valueStr, out var downloadGuid))
                             {
-                                string attributeText = "";
-                                var fileName = string.Format("{0}{1}",
-                                    download.Filename ?? download.DownloadGuid.ToString(),
-                                    download.Extension);
-                                //encode (if required)
-                                if (htmlEncode)
-                                    fileName = WebUtility.HtmlEncode(fileName);
+                                var attributeText = string.Empty;
+                                var attributeName = attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id);
                                 if (allowHyperlinks)
                                 {
                                     //hyperlinks are allowed
-                                    var downloadLink = string.Format("{0}/download/getfileupload/?downloadId={1}", _workContext.CurrentHost.Url.TrimEnd('/'), download.DownloadGuid);
-                                    attributeText = string.Format("<a href=\"{0}\" class=\"fileuploadattribute\">{1}</a>", downloadLink, fileName);
+                                    var downloadLink = string.Format("{0}/download/getfileupload/?downloadId={1}", _workContext.CurrentHost.Url.TrimEnd('/'), downloadGuid);
+                                    attributeText = string.Format("<a href=\"{0}\" class=\"fileuploadattribute\">{1}</a>", downloadLink, attribute.GetTranslation(a => a.TextPrompt, _workContext.WorkingLanguage.Id));
                                 }
-                                else
-                                {
-                                    //hyperlinks aren't allowed
-                                    attributeText = fileName;
-                                }
-                                var attributeName = attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id);
-                                //encode (if required)
-                                if (htmlEncode)
-                                    attributeName = WebUtility.HtmlEncode(attributeName);
                                 formattedAttribute = string.Format("{0}: {1}", attributeName, attributeText);
                             }
                         }
