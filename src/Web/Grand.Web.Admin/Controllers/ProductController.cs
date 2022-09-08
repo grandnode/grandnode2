@@ -321,7 +321,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Create)]
         [HttpPost]
-        public async Task<IActionResult> CopyProduct(ProductModel model, [FromServices] ICopyProductService copyProductService)
+        public async Task<IActionResult> CopyProduct(ProductModel model, [FromServices] ICopyProductService copyProductService, [FromServices] IPictureService pictureService)
         {
             var copyModel = model.CopyProductModel;
             try
@@ -340,7 +340,10 @@ namespace Grand.Web.Admin.Controllers
                 }
 
                 var newProduct = await copyProductService.CopyProduct(originalProduct,
-                    copyModel.Name, copyModel.Published, copyModel.CopyImages);
+                    copyModel.Name, copyModel.Published);
+
+                if (copyModel.CopyImages) await CopyImages(originalProduct, newProduct, pictureService);
+
                 Success("The product has been copied successfully");
                 return RedirectToAction("Edit", new { id = newProduct.Id });
             }
@@ -348,6 +351,28 @@ namespace Grand.Web.Admin.Controllers
             {
                 Error(exc.Message);
                 return RedirectToAction("Edit", new { id = copyModel.Id });
+            }
+        }
+
+        private async Task CopyImages(Product originalProduct, Product newProduct, IPictureService pictureService)
+        {
+            foreach (var productPicture in originalProduct.ProductPictures)
+            {
+                var picture = await pictureService.GetPictureById(productPicture.PictureId);
+                var pictureCopy = await pictureService.InsertPicture(
+                    await pictureService.LoadPictureBinary(picture),
+                    picture.MimeType,
+                    pictureService.GetPictureSeName(newProduct.Name),
+                    picture.AltAttribute,
+                    picture.TitleAttribute,
+                    false,
+                    Domain.Common.Reference.Product,
+                    newProduct.Id);
+
+                await _productService.InsertProductPicture(new ProductPicture {
+                    PictureId = pictureCopy.Id,
+                    DisplayOrder = productPicture.DisplayOrder
+                }, newProduct.Id);
             }
         }
 

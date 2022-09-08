@@ -1,8 +1,7 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Catalog.Services.Products;
+﻿using Grand.Business.Catalog.Services.Products;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
-using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
 using Grand.Domain.Seo;
@@ -16,8 +15,6 @@ namespace Grand.Business.Catalog.Tests.Service.Products
     {
         private Mock<IProductService> _productServiceMock;
         private Mock<ILanguageService> _langServiceMock;
-        private Mock<IPictureService> _pictureServiceMock;
-        private Mock<IDownloadService> _downloadServiceMock;
         private Mock<ISlugService> _slugServiceMock;
         private SeoSettings _settings;
         private CopyProductService _copyProductService;
@@ -27,12 +24,9 @@ namespace Grand.Business.Catalog.Tests.Service.Products
         {
             _productServiceMock = new Mock<IProductService>();
             _langServiceMock = new Mock<ILanguageService>();
-            _pictureServiceMock = new Mock<IPictureService>();
-            _downloadServiceMock = new Mock<IDownloadService>();
             _slugServiceMock = new Mock<ISlugService>();
             _settings = new SeoSettings();
-            _copyProductService = new CopyProductService(_productServiceMock.Object, _langServiceMock.Object, _pictureServiceMock.Object,
-                _downloadServiceMock.Object, _slugServiceMock.Object, _settings);
+            _copyProductService = new CopyProductService(_productServiceMock.Object, _langServiceMock.Object, _slugServiceMock.Object, _settings);
         }
 
 

@@ -1,10 +1,8 @@
-using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
-using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
-using Grand.Domain.Media;
 using Grand.Domain.Seo;
 
 namespace Grand.Business.Catalog.Services.Products
@@ -18,8 +16,6 @@ namespace Grand.Business.Catalog.Services.Products
 
         private readonly IProductService _productService;
         private readonly ILanguageService _languageService;
-        private readonly IPictureService _pictureService;
-        private readonly IDownloadService _downloadService;
         private readonly ISlugService _slugService;
         private readonly SeoSettings _seoSettings;
         #endregion
@@ -28,15 +24,11 @@ namespace Grand.Business.Catalog.Services.Products
 
         public CopyProductService(IProductService productService,
             ILanguageService languageService,
-            IPictureService pictureService,
-            IDownloadService downloadService,
             ISlugService slugService,
             SeoSettings seoSettings)
         {
             _productService = productService;
             _languageService = languageService;
-            _pictureService = pictureService;
-            _downloadService = downloadService;
             _slugService = slugService;
             _seoSettings = seoSettings;
         }
@@ -51,66 +43,19 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="product">The product to copy</param>
         /// <param name="newName">The name of product duplicate</param>
         /// <param name="isPublished">A value indicating whether the product duplicate should be published</param>
-        /// <param name="copyImages">A value indicating whether the product images should be copied</param>
         /// <param name="copyAssociatedProducts">A value indicating whether the copy associated products</param>
         /// <returns>Product copy</returns>
         public virtual async Task<Product> CopyProduct(Product product, string newName,
-            bool isPublished = true, bool copyImages = true, bool copyAssociatedProducts = true)
+            bool isPublished = true, bool copyAssociatedProducts = true)
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
-            if (String.IsNullOrEmpty(newName))
+            if (string.IsNullOrEmpty(newName))
                 newName = $"{product.Name} - CopyProduct";
 
-            //product download & sample download
-            string downloadId = product.DownloadId;
-            string sampleDownloadId = product.SampleDownloadId;
-            if (product.IsDownload)
-            {
-                var download = await _downloadService.GetDownloadById(product.DownloadId);
-                if (download != null)
-                {
-                    var downloadCopy = new Download
-                    {
-                        DownloadGuid = Guid.NewGuid(),
-                        UseDownloadUrl = download.UseDownloadUrl,
-                        DownloadUrl = download.DownloadUrl,
-                        DownloadBinary = download.DownloadBinary,
-                        ContentType = download.ContentType,
-                        Filename = download.Filename,
-                        Extension = download.Extension,
-                        IsNew = download.IsNew,
-                    };
-                    await _downloadService.InsertDownload(downloadCopy);
-                    downloadId = downloadCopy.Id;
-                }
-
-                if (product.HasSampleDownload)
-                {
-                    var sampleDownload = await _downloadService.GetDownloadById(product.SampleDownloadId);
-                    if (sampleDownload != null)
-                    {
-                        var sampleDownloadCopy = new Download
-                        {
-                            DownloadGuid = Guid.NewGuid(),
-                            UseDownloadUrl = sampleDownload.UseDownloadUrl,
-                            DownloadUrl = sampleDownload.DownloadUrl,
-                            DownloadBinary = sampleDownload.DownloadBinary,
-                            ContentType = sampleDownload.ContentType,
-                            Filename = sampleDownload.Filename,
-                            Extension = sampleDownload.Extension,
-                            IsNew = sampleDownload.IsNew
-                        };
-                        await _downloadService.InsertDownload(sampleDownloadCopy);
-                        sampleDownloadId = sampleDownloadCopy.Id;
-                    }
-                }
-            }
-
             // product
-            var productCopy = new Product
-            {
+            var productCopy = new Product {
                 ProductTypeId = product.ProductTypeId,
                 ParentGroupedProductId = product.ParentGroupedProductId,
                 VisibleIndividually = product.VisibleIndividually,
@@ -139,13 +84,11 @@ namespace Grand.Business.Catalog.Services.Products
                 RequiredProductIds = product.RequiredProductIds,
                 AutoAddRequiredProducts = product.AutoAddRequiredProducts,
                 IsDownload = product.IsDownload,
-                DownloadId = downloadId,
                 UnlimitedDownloads = product.UnlimitedDownloads,
                 MaxNumberOfDownloads = product.MaxNumberOfDownloads,
                 DownloadExpirationDays = product.DownloadExpirationDays,
                 DownloadActivationTypeId = product.DownloadActivationTypeId,
                 HasSampleDownload = product.HasSampleDownload,
-                SampleDownloadId = sampleDownloadId,
                 HasUserAgreement = product.HasUserAgreement,
                 UserAgreementText = product.UserAgreementText,
                 IsRecurring = product.IsRecurring,
@@ -289,38 +232,6 @@ namespace Grand.Business.Catalog.Services.Products
             productCopy.SeName = seName;
             await _productService.UpdateProduct(productCopy);
             await _slugService.SaveSlug(productCopy, seName, "");
-
-            var languages = await _languageService.GetAllLanguages(true);
-
-            //product pictures
-            //variable to store original and new picture identifiers
-            int id = 1;
-            var originalNewPictureIdentifiers = new Dictionary<string, string>();
-            if (copyImages)
-            {
-                foreach (var productPicture in product.ProductPictures)
-                {
-                    var picture = await _pictureService.GetPictureById(productPicture.PictureId);
-                    var pictureCopy = await _pictureService.InsertPicture(
-                        await _pictureService.LoadPictureBinary(picture),
-                        picture.MimeType,
-                        _pictureService.GetPictureSeName(newName),
-                        picture.AltAttribute,
-                        picture.TitleAttribute,
-                        false,
-                        Domain.Common.Reference.Product,
-                        productCopy.Id);
-
-                    await _productService.InsertProductPicture(new ProductPicture
-                    {
-                        PictureId = pictureCopy.Id,
-                        DisplayOrder = productPicture.DisplayOrder
-                    }, productCopy.Id);
-                    id++;
-                    originalNewPictureIdentifiers.Add(picture.Id, pictureCopy.Id);
-                }
-            }
-
 
             return productCopy;
         }
