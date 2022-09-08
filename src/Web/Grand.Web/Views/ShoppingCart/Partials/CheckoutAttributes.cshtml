@@ -84,7 +84,7 @@
             <template v-if="attribute.AttributeControlType == 30">
                 <template>
                     <div :id="'checkout_attribute_' + attribute.Id + 'uploader'">
-                        <b-form-file :accept="attribute.AllowedFileExtensions" type="file" id="qqfile" name="qqfile" :data-url="'/uploadfilecheckoutattribute/' + attribute.Id" onchange="uploadFile(this)" />
+                        <b-form-file :accept="attribute.AllowedFileExtensions" type="file" id="qqfile" name="qqfile" :data-url="'/uploadfilecheckoutattribute/' + attribute.Id" :attribute="attribute.Id"  onchange="uploadFile(this)" />
                     </div>
                 </template>
                 <input class="hidden-upload-input" type="hidden" onchange="checkoutAttributeChange()" :id="'checkout_attribute_' + attribute.Id" :name="'checkout_attribute_' + attribute.Id" v-model="attribute.DefaultValue" :value="attribute.DefaultValue" />
@@ -98,6 +98,8 @@
                         var formData = new FormData();
                         var imagefile = e;
                         var url = imagefile.getAttribute('data-url');
+                        
+                        let attrId = e.getAttribute("attribute");
                         formData.append("image", qqfile.files[0]);
                         axios.post(url, formData, {
                             headers: {
@@ -105,6 +107,7 @@
                             }
                         }).then(function (response) {
                             if (response.data.success) {
+                                vmorder.cart.CheckoutAttributes.find(d => d.Id == attrId).DefaultValue = response.data.downloadGuid;
                                 var message = response.data.message;
                                 var downloadGuid = response.data.downloadGuid;
                                 var downloadUrl = response.data.downloadUrl;
