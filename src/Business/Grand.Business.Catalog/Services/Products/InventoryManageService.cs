@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Commands.Catalog;
 using Grand.Business.Core.Events.Catalog;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;

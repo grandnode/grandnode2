@@ -1,5 +1,3 @@
-using Grand.Domain.Orders;
-
 namespace Grand.Domain.Orders
 {
     /// <summary>

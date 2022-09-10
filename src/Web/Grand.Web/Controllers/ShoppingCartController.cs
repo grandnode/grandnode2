@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Discounts;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
