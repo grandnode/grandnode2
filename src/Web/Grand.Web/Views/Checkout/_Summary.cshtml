@@ -5,7 +5,7 @@
 <div class="order-summary-content mt-3" id="ordersummarypagecart" v-if="vmorder.cart">
     @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_summary_content_before" })
     <div v-if="typeof vmorder.cart.Items !== 'undefined' && vmorder.cart.Items.length > 0">
-        <template v-if="vmorder.cart.OrderReviewData.Display && vmorder.Confirm">
+        <template v-if="vmorder.OrderReviewData && vmorder.Confirm">
             <partial name="_ReviewData" />
         </template>
         <ul v-if="typeof vmorder.cart.Warnings !== 'undefined' && vmorder.cart.Warnings.length > 0" class="px-0 mb-3">

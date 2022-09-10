@@ -63,7 +63,7 @@
                                         </div>
                                         <div class="col-lg-9 col-12">
                                             <validation-provider tag="div" rules="required" name="Password" v-slot="{ errors, classes }">
-                                                <input asp-for="Password" v-model="login.Password" v-bind:class="[classes , 'form-control']" />
+                                                <input asp-for="Password" v-model="login.Password" v-bind:class="[classes , 'form-control']" autocomplete="off" />
                                                 <span class="field-validation-error">{{ errors[0] }}</span>
                                                 <span asp-validation-for="Password"></span>
                                             </validation-provider>

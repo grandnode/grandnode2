@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Captcha;
@@ -27,6 +26,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Grand.Web.Common.Controllers;
+using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.Controllers
 {
@@ -125,6 +125,16 @@ namespace Grand.Web.Controllers
             Response.StatusCode = 403;
             Response.ContentType = "text/html";
             return View();
+        }
+
+        public virtual IActionResult Route(string routeName)
+        {
+            if (string.IsNullOrEmpty(routeName))
+                return Json(new { redirectToUrl = string.Empty });
+
+            var url = Url.RouteUrl(routeName);
+
+            return Json(new { redirectToUrl = url });
         }
 
         //external authentication error
@@ -315,8 +325,6 @@ namespace Grand.Web.Controllers
 
             return Redirect(returnUrl);
         }
-
-
 
         //contact us page
         //available even when a store is closed

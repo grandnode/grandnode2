@@ -482,7 +482,7 @@ namespace Grand.Web.Controllers
                                 await _messageProviderService.SendCustomerWelcomeMessage(_workContext.CurrentCustomer, _workContext.CurrentStore, _workContext.WorkingLanguage.Id);
 
                                 var redirectUrl = Url.RouteUrl("RegisterResult", new { resultId = (int)UserRegistrationType.Standard }, HttpContext.Request.Scheme);
-                                if (!String.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                                 {
                                     redirectUrl = CommonExtensions.ModifyQueryString(redirectUrl, "returnurl", returnUrl);
                                 }

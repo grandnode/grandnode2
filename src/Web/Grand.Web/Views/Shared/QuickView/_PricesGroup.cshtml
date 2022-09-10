@@ -43,7 +43,7 @@
                             <span class="actual-price" v-html="variant.ProductPrice.Price"></span>
                         </template>
                         <template v-else>
-                            <strong>{{Model.Price}}</strong>
+                            <strong>{{variant.ProductPrice.Price}}</strong>
                         </template>
                     </span>
                     <template v-if="variant.ProductPrice.OldPrice !== null">
@@ -56,7 +56,7 @@
             <template v-else>
                 <template v-if="variant.ProductPrice.OldPrice !== null">
                     <div class="old-product-price">
-                        <span class="old-price mx-2">{{Model.OldPrice}}</span>
+                        <span class="old-price mx-2">{{variant.ProductPrice.OldPrice}}</span>
                     </div>
                 </template>
             </template>

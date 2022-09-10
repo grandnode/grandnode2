@@ -46,12 +46,6 @@ namespace Grand.Business.Core.Interfaces.Catalog.Discounts
         Task DeleteDiscount(Discount discount);
 
         /// <summary>
-        /// Deletes the existing discount requirement
-        /// </summary>
-        /// <param name="discountRequirement">Discount requirement</param>
-        Task DeleteDiscountRequirement(DiscountRule discountRequirement);
-
-        /// <summary>
         /// Loads existing discount provider by system name
         /// </summary>
         /// <param name="systemName">System name</param>

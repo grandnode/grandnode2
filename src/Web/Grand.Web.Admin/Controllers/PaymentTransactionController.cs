@@ -199,7 +199,7 @@ namespace Grand.Web.Admin.Controllers
             model.IPAddress = paymentTransaction.IPAddress;
             model.Description = paymentTransaction.Description;
             model.AdditionalInfo = paymentTransaction.AdditionalInfo;
-
+	    model.AuthorizationTransactionId = paymentTransaction.AuthorizationTransactionId;
 
             //payment method buttons
             //model.CanCancelOrder = await _mediator.Send(new CanCancelOrderQuery() { Order = order });

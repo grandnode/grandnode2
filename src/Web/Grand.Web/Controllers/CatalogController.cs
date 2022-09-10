@@ -24,9 +24,8 @@ using Grand.Web.Features.Models.Vendors;
 using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Vendors;
 using MediatR;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Controllers
 {
@@ -93,14 +92,13 @@ namespace Grand.Web.Controllers
         {
             await _userFieldService.SaveField(customer,
                 SystemCustomerFieldNames.LastContinueShoppingPage,
-                HttpContext?.Request?.GetDisplayUrl(),
+                HttpContext.Request.Path,
                 _workContext.CurrentStore.Id);
         }
 
         private VendorReviewOverviewModel PrepareVendorReviewOverviewModel(Vendor vendor)
         {
-            var model = new VendorReviewOverviewModel()
-            {
+            var model = new VendorReviewOverviewModel() {
                 RatingSum = vendor.ApprovedRatingSum,
                 TotalReviews = vendor.ApprovedTotalReviews,
                 VendorId = vendor.Id,
@@ -145,11 +143,10 @@ namespace Grand.Web.Controllers
             _ = _customerActivityService.InsertActivity("PublicStore.ViewCategory", category.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewCategory"), category.Name);
-            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers["Referer"].ToString() : "");
+            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.GetTypedHeaders().Referer?.ToString());
 
             //model
-            var model = await _mediator.Send(new GetCategory()
-            {
+            var model = await _mediator.Send(new GetCategory() {
                 Category = category,
                 Command = command,
                 Currency = _workContext.WorkingCurrency,
@@ -200,11 +197,10 @@ namespace Grand.Web.Controllers
             _ = _customerActivityService.InsertActivity("PublicStore.ViewBrand", brand.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewBrand"), brand.Name);
-            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers[HeaderNames.Referer].ToString() : "");
+            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.GetTypedHeaders().Referer?.ToString());
 
             //model
-            var model = await _mediator.Send(new GetBrand()
-            {
+            var model = await _mediator.Send(new GetBrand() {
                 Command = command,
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,
@@ -221,8 +217,7 @@ namespace Grand.Web.Controllers
 
         public virtual async Task<IActionResult> BrandAll()
         {
-            var model = await _mediator.Send(new GetBrandAll()
-            {
+            var model = await _mediator.Send(new GetBrandAll() {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
@@ -266,11 +261,10 @@ namespace Grand.Web.Controllers
             _ = _customerActivityService.InsertActivity("PublicStore.ViewCollection", collection.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewCollection"), collection.Name);
-            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.Headers[HeaderNames.Referer].ToString() != null ? Request.Headers[HeaderNames.Referer].ToString() : "");
+            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.GetTypedHeaders().Referer?.ToString());
 
             //model
-            var model = await _mediator.Send(new GetCollection()
-            {
+            var model = await _mediator.Send(new GetCollection() {
                 Command = command,
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,
@@ -287,8 +281,7 @@ namespace Grand.Web.Controllers
 
         public virtual async Task<IActionResult> CollectionAll()
         {
-            var model = await _mediator.Send(new GetCollectionAll()
-            {
+            var model = await _mediator.Send(new GetCollectionAll() {
                 Customer = _workContext.CurrentCustomer,
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
@@ -319,8 +312,7 @@ namespace Grand.Web.Controllers
             if (await _permissionService.Authorize(StandardPermission.AccessAdminPanel, customer) && await _permissionService.Authorize(StandardPermission.ManageCollections, customer))
                 DisplayEditLink(Url.Action("Edit", "Vendor", new { id = vendor.Id, area = "Admin" }));
 
-            var model = await _mediator.Send(new GetVendor()
-            {
+            var model = await _mediator.Send(new GetVendor() {
                 Command = command,
                 Vendor = vendor,
                 Language = _workContext.WorkingLanguage,
@@ -372,8 +364,7 @@ namespace Grand.Web.Controllers
 
             //allow reviews only by customer that bought something from this vendor
             if (_vendorSettings.VendorReviewPossibleOnlyAfterPurchasing &&
-                    !(await _mediator.Send(new GetOrderQuery()
-                    {
+                    !(await _mediator.Send(new GetOrderQuery() {
                         CustomerId = _workContext.CurrentCustomer.Id,
                         VendorId = vendor.Id,
                         Os = (int)OrderStatusSystem.Complete,
@@ -381,9 +372,9 @@ namespace Grand.Web.Controllers
                     })).Any())
                 ModelState.AddModelError(string.Empty, _translationService.GetResource("VendorReviews.VendorReviewPossibleOnlyAfterPurchasing"));
 
-            if(ModelState.IsValid && _vendorSettings.VendorReviewPossibleOnlyOnce)
+            if (ModelState.IsValid && _vendorSettings.VendorReviewPossibleOnlyOnce)
             {
-                if((await _vendorService.GetAllVendorReviews(
+                if ((await _vendorService.GetAllVendorReviews(
                     customerId: _workContext.CurrentCustomer.Id,
                     approved: null,
                     vendorId: vendor.Id,
@@ -411,7 +402,7 @@ namespace Grand.Web.Controllers
                 if (!vendorReview.IsApproved)
                     model.AddVendorReview.Result = _translationService.GetResource("VendorReviews.SeeAfterApproving");
                 else
-                { 
+                {
                     model.AddVendorReview.Result = _translationService.GetResource("VendorReviews.SuccessfullyAdded");
                     model.VendorReviewOverview = PrepareVendorReviewOverviewModel(vendor);
                 }
@@ -459,8 +450,7 @@ namespace Grand.Web.Controllers
                 });
             }
 
-            vendorReview = await _mediator.Send(new SetVendorReviewHelpfulnessCommand()
-            {
+            vendorReview = await _mediator.Send(new SetVendorReviewHelpfulnessCommand() {
                 Customer = _workContext.CurrentCustomer,
                 Vendor = vendor,
                 Review = vendorReview,
@@ -485,8 +475,7 @@ namespace Grand.Web.Controllers
             if (productTag == null)
                 return InvokeHttp404();
 
-            var model = await _mediator.Send(new GetProductsByTag()
-            {
+            var model = await _mediator.Send(new GetProductsByTag() {
                 Command = command,
                 Language = _workContext.WorkingLanguage,
                 ProductTag = productTag,
@@ -501,8 +490,7 @@ namespace Grand.Web.Controllers
             if (productTag == null)
                 return InvokeHttp404();
 
-            var model = await _mediator.Send(new GetProductsByTag()
-            {
+            var model = await _mediator.Send(new GetProductsByTag() {
                 Command = command,
                 Language = _workContext.WorkingLanguage,
                 ProductTag = productTag,
@@ -514,8 +502,7 @@ namespace Grand.Web.Controllers
 
         public virtual async Task<IActionResult> ProductTagsAll()
         {
-            var model = await _mediator.Send(new GetProductTagsAll()
-            {
+            var model = await _mediator.Send(new GetProductTagsAll() {
                 Language = _workContext.WorkingLanguage,
                 Store = _workContext.CurrentStore
             });
@@ -537,8 +524,7 @@ namespace Grand.Web.Controllers
             }
             //Prepare model
             var isSearchTermSpecified = HttpContext?.Request?.Query.ContainsKey("q");
-            var searchmodel = await _mediator.Send(new GetSearch()
-            {
+            var searchmodel = await _mediator.Send(new GetSearch() {
                 Command = command,
                 Currency = _workContext.WorkingCurrency,
                 Customer = _workContext.CurrentCustomer,
@@ -555,8 +541,7 @@ namespace Grand.Web.Controllers
             if (String.IsNullOrWhiteSpace(term) || term.Length < catalogSettings.ProductSearchTermMinimumLength)
                 return Content("");
 
-            var result = await _mediator.Send(new GetSearchAutoComplete()
-            {
+            var result = await _mediator.Send(new GetSearchAutoComplete() {
                 CategoryId = categoryId,
                 Term = term.Trim(),
                 Customer = _workContext.CurrentCustomer,

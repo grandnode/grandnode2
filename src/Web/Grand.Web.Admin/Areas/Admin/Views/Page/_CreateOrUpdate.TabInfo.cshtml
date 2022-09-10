@@ -87,7 +87,7 @@ function togglePassword() {
         <div class="form-group" id="pnlPasswordEnabled">
             <admin-label asp-for="Password" />
             <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="Password" />
+                <admin-input asp-for="Password" autocomplete="off" />
                 <span asp-validation-for="Password"></span>
             </div>
         </div>

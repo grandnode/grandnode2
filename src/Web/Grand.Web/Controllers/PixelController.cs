@@ -2,6 +2,7 @@
 using Grand.Infrastructure;
 using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 
@@ -17,7 +18,7 @@ namespace Grand.Web.Controllers
         {
             if (!string.IsNullOrEmpty(emailId))
             {
-                if (!Request.Headers[HeaderNames.Referer].ToString().ToLowerInvariant().Contains("admin/queuedemail/edit/".ToLowerInvariant()))
+                if (!(Request.GetTypedHeaders().Referer?.ToString() is { } referer && referer.ToLowerInvariant().Contains("admin/queuedemail/edit/".ToLowerInvariant())))
                 {
                     var eueuedEmail = await queuedEmailService.GetQueuedEmailById(emailId);
                     if (eueuedEmail != null && !eueuedEmail.ReadOnUtc.HasValue)

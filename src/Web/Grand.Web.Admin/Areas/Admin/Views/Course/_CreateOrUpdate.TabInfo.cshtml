@@ -113,7 +113,7 @@
             <div class="col-md-9 col-sm-9">
                 <input asp-for="ProductId" type="hidden" />
                 <label class="control-label" id="purchased-with-product-name">
-                    @if (!string.IsNullOrEmpty(Model.ProductId))
+                    @if (!string.IsNullOrEmpty(Model.ProductId) && !string.IsNullOrEmpty(Model.ProductName))
                     {
                         @Html.ActionLink(Model.ProductName, "Edit", "Product", new { id = Model.ProductId })
                     }

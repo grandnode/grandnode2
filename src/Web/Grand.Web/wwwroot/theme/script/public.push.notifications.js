@@ -35,11 +35,11 @@
 
         const messaging = firebase.messaging();
         var url = this.url;
+        let success = false;
+        let value = "";
 
         messaging.requestPermission()
             .then(function () {
-                let success = false;
-                let value = "";
 
                 messaging.getToken()
                     .then(function (currentToken) {

@@ -7,6 +7,7 @@ using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.Roslyn;
 using Grand.Infrastructure.TypeConverters;
 using Grand.Infrastructure.TypeSearchers;
+using Grand.Infrastructure.Validators;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using MassTransit;
@@ -17,7 +18,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Wkhtmltopdf.NetCore;
 
 namespace Grand.Infrastructure
 {
@@ -178,9 +178,6 @@ namespace Grand.Infrastructure
         {
             //add accessor to HttpContext
             services.AddHttpContextAccessor();
-            //add wkhtmltopdf
-            services.AddWkhtmltopdf();
-
             //add AppConfig configuration parameters
             services.StartupConfig<AppConfig>(configuration.GetSection("Application"));
             var performanceConfig = services.StartupConfig<PerformanceConfig>(configuration.GetSection("Performance"));
@@ -213,7 +210,11 @@ namespace Grand.Infrastructure
             CommonHelper.IgnoreAcl = performanceConfig.IgnoreAcl;
             CommonHelper.IgnoreStoreLimitations = performanceConfig.IgnoreStoreLimitations;
 
-            var mvcCoreBuilder = services.AddMvcCore();
+            services.AddTransient<FluentValidationFilter>();
+            var mvcCoreBuilder = services.AddMvcCore(options =>
+            {
+                options.Filters.AddService<FluentValidationFilter>();
+            });
 
             return mvcCoreBuilder;
         }

@@ -511,7 +511,7 @@
                 <span asp-validation-for="VisibleIndividually"></span>
             </div>
         </div>
-        @if (!string.IsNullOrEmpty(Model.Id) && !string.IsNullOrEmpty(Model.AssociatedToProductId))
+        @if (!string.IsNullOrEmpty(Model.Id) && !string.IsNullOrEmpty(Model.AssociatedToProductId) && !string.IsNullOrEmpty(Model.AssociatedToProductName))
         {
             <div class="form-group">
                 <admin-label asp-for="AssociatedToProductId" />

@@ -16,15 +16,12 @@ namespace DiscountRules.Standard.Controllers
     public class ShoppingCartAmountController : BasePluginController
     {
         private readonly IDiscountService _discountService;
-        private readonly ISettingService _settingService;
         private readonly IPermissionService _permissionService;
 
         public ShoppingCartAmountController(IDiscountService discountService,
-            ISettingService settingService,
             IPermissionService permissionService)
         {
             _discountService = discountService;
-            _settingService = settingService;
             _permissionService = permissionService;
         }
 
@@ -37,19 +34,21 @@ namespace DiscountRules.Standard.Controllers
             if (discount == null)
                 throw new ArgumentException("Discount could not be loaded");
 
-            if (!String.IsNullOrEmpty(discountRequirementId))
+            double spentAmountRequirement = 0;
+            if (!string.IsNullOrEmpty(discountRequirementId))
             {
                 var discountRequirement = discount.DiscountRules.FirstOrDefault(dr => dr.Id == discountRequirementId);
                 if (discountRequirement == null)
                     return Content("Failed to load requirement.");
+
+                spentAmountRequirement = Convert.ToDouble(discountRequirement.Metadata);
             }
 
-            var spentAmountRequirement = _settingService.GetSettingByKey<RequirementSpentAmount>(string.Format("DiscountRequirement.ShoppingCart-{0}", !String.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : ""))?.SpentAmount;
-
-            var model = new RequirementModel();
-            model.RequirementId = !String.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "";
-            model.DiscountId = discountId;
-            model.SpentAmount = spentAmountRequirement ?? 0;
+            var model = new RequirementModel {
+                RequirementId = !string.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "",
+                DiscountId = discountId,
+                SpentAmount = spentAmountRequirement
+            };
 
             //add a prefix
             ViewData.TemplateInfo.HtmlFieldPrefix = string.Format("DiscountRulesShoppingCart{0}", !String.IsNullOrEmpty(discountRequirementId) ? discountRequirementId : "");
@@ -69,25 +68,25 @@ namespace DiscountRules.Standard.Controllers
                 throw new ArgumentException("Discount could not be loaded");
 
             DiscountRule discountRequirement = null;
-            if (!String.IsNullOrEmpty(discountRequirementId))
+            if (!string.IsNullOrEmpty(discountRequirementId))
                 discountRequirement = discount.DiscountRules.FirstOrDefault(dr => dr.Id == discountRequirementId);
 
             if (discountRequirement != null)
             {
                 //update existing rule
-                await _settingService.SetSetting(string.Format("DiscountRequirement.ShoppingCart-{0}", discountRequirement.Id), new RequirementSpentAmount() { SpentAmount = spentAmount });
+                discountRequirement.Metadata = spentAmount.ToString();
+                await _discountService.UpdateDiscount(discount);
             }
             else
             {
                 //save new rule
                 discountRequirement = new DiscountRule
                 {
-                    DiscountRequirementRuleSystemName = "DiscountRequirement.ShoppingCart"
+                    DiscountRequirementRuleSystemName = "DiscountRequirement.ShoppingCart",
+                    Metadata = spentAmount.ToString()
                 };
                 discount.DiscountRules.Add(discountRequirement);
                 await _discountService.UpdateDiscount(discount);
-
-                await _settingService.SetSetting(string.Format("DiscountRequirement.ShoppingCart-{0}", discountRequirement.Id), new RequirementSpentAmount() { SpentAmount = spentAmount });
             }
             return Json(new { Result = true, NewRequirementId = discountRequirement.Id });
         }

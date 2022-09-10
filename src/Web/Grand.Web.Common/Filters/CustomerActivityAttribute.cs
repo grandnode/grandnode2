@@ -115,23 +115,21 @@ namespace Grand.Web.Common.Filters
                 if (!pageUrl.Equals(previousPageUrl, StringComparison.OrdinalIgnoreCase))
                     await _userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.LastVisitedPage, pageUrl);
 
-                if (!string.IsNullOrEmpty(context.HttpContext.Request.Headers[HeaderNames.Referer]))
-                    if (!context.HttpContext.Request.Headers[HeaderNames.Referer].ToString().Contains(context.HttpContext.Request.Host.ToString()))
+                if (context.HttpContext.Request?.GetTypedHeaders().Referer?.ToString() is { } referer && !referer.Contains(context.HttpContext.Request.Host.ToString()))
+                {
+                    var previousUrlReferrer = await _workContext.CurrentCustomer.GetUserField<string>(_userFieldService, SystemCustomerFieldNames.LastUrlReferrer);
+                    if (previousUrlReferrer != referer)
                     {
-                        var previousUrlReferrer = _workContext.CurrentCustomer.GetUserField<string>(_userFieldService, SystemCustomerFieldNames.LastUrlReferrer);
-                        var actualUrlReferrer = context.HttpContext.Request.Headers[HeaderNames.Referer];
-                        if (previousUrlReferrer != actualUrlReferrer)
-                        {
-                            await _userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.LastUrlReferrer, actualUrlReferrer);
-                        }
+                        await _userFieldService.SaveField(_workContext.CurrentCustomer, SystemCustomerFieldNames.LastUrlReferrer, referer);
                     }
+                }
 
                 if (_customerSettings.SaveVisitedPage)
                 {
                     if (!_workContext.CurrentCustomer.IsSearchEngineAccount())
                     {
                         //activity
-                        _ = _customerActivityService.InsertActivity("PublicStore.Url", pageUrl, _workContext.CurrentCustomer, 
+                        _ = _customerActivityService.InsertActivity("PublicStore.Url", pageUrl, _workContext.CurrentCustomer,
                             context.HttpContext?.Connection?.RemoteIpAddress?.ToString(), pageUrl);
                         //action
                         await _customerActionEventService.Url(_workContext.CurrentCustomer, context.HttpContext?.Request?.Path.ToString(), context.HttpContext?.Request?.Headers["Referer"]);

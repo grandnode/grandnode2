@@ -1,17 +1,12 @@
-using DiscountRules.Standard.Models;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Utilities.Catalog;
-using Grand.Business.Core.Interfaces.Common.Configuration;
 
 namespace DiscountRules.Provider
 {
     public partial class CustomerGroupDiscountRule : IDiscountRule
     {
-        private readonly ISettingService _settingService;
-
-        public CustomerGroupDiscountRule(ISettingService settingService)
+        public CustomerGroupDiscountRule()
         {
-            _settingService = settingService;
         }
 
         /// <summary>
@@ -30,13 +25,11 @@ namespace DiscountRules.Provider
             if (request.Customer == null)
                 return result;
 
-            var restrictedToCustomerGroupId = _settingService.GetSettingByKey<RequirementCustomerGroup>(string.Format("DiscountRules.Standard.MustBeAssignedToCustomerGroup-{0}-{1}", request.DiscountId, request.DiscountRequirementId));
-
-            if (restrictedToCustomerGroupId == null || String.IsNullOrEmpty(restrictedToCustomerGroupId?.CustomerGroupId))
+            if (string.IsNullOrEmpty(request.DiscountRule.Metadata))
                 return result;
 
             foreach (var customerGroup in request.Customer.Groups.ToList())
-                if (restrictedToCustomerGroupId.CustomerGroupId == customerGroup)
+                if (request.DiscountRule.Metadata == customerGroup)
                 {
                     //valid
                     result.IsValid = true;
@@ -56,7 +49,7 @@ namespace DiscountRules.Provider
         {
             //configured 
             string result = "Admin/CustomerGroups/Configure/?discountId=" + discountId;
-            if (!String.IsNullOrEmpty(discountRequirementId))
+            if (!string.IsNullOrEmpty(discountRequirementId))
                 result += string.Format("&discountRequirementId={0}", discountRequirementId);
             return result;
         }
