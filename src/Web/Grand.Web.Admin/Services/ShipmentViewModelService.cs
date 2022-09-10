@@ -1,8 +1,8 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Directory;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
@@ -30,7 +30,6 @@ namespace Grand.Web.Admin.Services
         private readonly IWarehouseService _warehouseService;
         private readonly IMeasureService _measureService;
         private readonly IDateTimeService _dateTimeService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly ICountryService _countryService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
@@ -51,7 +50,6 @@ namespace Grand.Web.Admin.Services
             IWarehouseService warehouseService,
             IMeasureService measureService,
             IDateTimeService dateTimeService,
-            IProductAttributeParser productAttributeParser,
             ICountryService countryService,
             ICustomerActivityService customerActivityService,
             ITranslationService translationService,
@@ -71,7 +69,6 @@ namespace Grand.Web.Admin.Services
             _warehouseService = warehouseService;
             _measureService = measureService;
             _dateTimeService = dateTimeService;
-            _productAttributeParser = productAttributeParser;
             _countryService = countryService;
             _customerActivityService = customerActivityService;
             _translationService = translationService;
@@ -138,7 +135,7 @@ namespace Grand.Web.Admin.Services
                             OrderItemId = orderItem.Id,
                             ProductId = orderItem.ProductId,
                             ProductName = product.Name,
-                            Sku = product.FormatSku(orderItem.Attributes, _productAttributeParser),
+                            Sku = product.FormatSku(orderItem.Attributes),
                             AttributeInfo = orderItem.AttributeDescription,
                             ShippedFromWarehouse = warehouse != null ? warehouse.Name : null,
                             ShipSeparately = product.ShipSeparately,
@@ -290,7 +287,7 @@ namespace Grand.Web.Admin.Services
 
         public virtual Task LogShipment(string shipmentId, string message)
         {
-            _ = _customerActivityService.InsertActivity("EditShipment", shipmentId, 
+            _ = _customerActivityService.InsertActivity("EditShipment", shipmentId,
                 _workContext.CurrentCustomer, _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString(), message);
             return Task.CompletedTask;
         }
@@ -378,7 +375,7 @@ namespace Grand.Web.Admin.Services
                     ProductId = orderItem.ProductId,
                     ProductName = product.Name,
                     WarehouseId = orderItem.WarehouseId,
-                    Sku = product.FormatSku(orderItem.Attributes, _productAttributeParser),
+                    Sku = product.FormatSku(orderItem.Attributes),
                     AttributeInfo = orderItem.AttributeDescription,
                     ShipSeparately = product.ShipSeparately,
                     ItemWeight = orderItem.ItemWeight.HasValue ? string.Format("{0:F2} [{1}]", orderItem.ItemWeight, baseWeightIn) : "",
@@ -432,7 +429,7 @@ namespace Grand.Web.Admin.Services
                     {
                         //multiple warehouses supported
                         shipmentItemModel.AllowToChooseWarehouse = true;
-                        var comb = _productAttributeParser.FindProductAttributeCombination(product, orderItem.Attributes);
+                        var comb = product.FindProductAttributeCombination(orderItem.Attributes);
                         if (comb != null)
                         {
                             foreach (var pwi in comb.WarehouseInventory
@@ -519,7 +516,7 @@ namespace Grand.Web.Admin.Services
                 }
                 if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
                 {
-                    var combination = _productAttributeParser.FindProductAttributeCombination(product, item.Attributes);
+                    var combination = product.FindProductAttributeCombination(item.Attributes);
                     if (combination == null)
                         return (false, $"Can't find combination for product {product.Name}");
 

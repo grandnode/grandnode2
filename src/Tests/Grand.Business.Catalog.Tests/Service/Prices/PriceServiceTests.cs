@@ -39,7 +39,6 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
         private ICategoryService _categoryService;
         private IBrandService _brandService;
         private ICollectionService _collectionService;
-        private IProductAttributeParser _productAttributeParser;
         private Mock<IProductService> tempProductService;
         private IProductService _productService;
         private ShoppingCartSettings _shoppingCartSettings;
@@ -75,7 +74,6 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
             {
                 _productService = tempProductService.Object;
             }
-            _productAttributeParser = new Mock<IProductAttributeParser>().Object;
             _shoppingCartSettings = new ShoppingCartSettings();
             _catalogSettings = new CatalogSettings();
             var eventPublisher = new Mock<IMediator>();
@@ -120,7 +118,6 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
                 _categoryService,
                 _brandService,
                 _collectionService,
-                _productAttributeParser,
                 _productService,
                 _eventPublisher,
                 _currencyService,

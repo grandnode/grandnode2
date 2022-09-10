@@ -14,6 +14,7 @@ using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.ShoppingCart;
 using MediatR;
+using Grand.Web.Extensions;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart
 {
@@ -28,7 +29,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
         private readonly IOrderCalculationService _orderTotalCalculationService;
         private readonly IPictureService _pictureService;
         private readonly IProductService _productService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IAuctionService _auctionService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly TaxSettings _taxSettings;
@@ -44,7 +44,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             IOrderCalculationService orderTotalCalculationService,
             IPictureService pictureService,
             IProductService productService,
-            IProductAttributeParser productAttributeParser,
             IAuctionService auctionService,
             ShoppingCartSettings shoppingCartSettings,
             TaxSettings taxSettings,
@@ -59,7 +58,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             _orderTotalCalculationService = orderTotalCalculationService;
             _pictureService = pictureService;
             _productService = productService;
-            _productAttributeParser = productAttributeParser;
             _auctionService = auctionService;
             _shoppingCartSettings = shoppingCartSettings;
             _taxSettings = taxSettings;
@@ -175,7 +173,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
         private async Task<PictureModel> PrepareCartItemPicture(GetAddToCart request)
         {
-            var sciPicture = await request.Product.GetProductPicture(request.Attributes, _productService, _pictureService, _productAttributeParser);
+            var sciPicture = await request.Product.GetProductPicture(request.Attributes, _productService, _pictureService);
             return new PictureModel
             {
                 Id = sciPicture?.Id,

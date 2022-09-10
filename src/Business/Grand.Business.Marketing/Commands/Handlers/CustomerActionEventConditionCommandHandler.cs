@@ -1,12 +1,12 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Commands.Marketing;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Commands.Marketing;
-using Grand.Infrastructure;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Logging;
+using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -128,8 +128,8 @@ namespace Grand.Business.Marketing.Commands.Handlers
                             if (_actLogType.Enabled)
                             {
                                 var productCollection = (from p in _activityLogRepository.Table
-                                                           where p.CustomerId == customerId && p.ActivityLogTypeId == _actLogType.Id
-                                                           select p.EntityKeyId).Distinct().ToList();
+                                                         where p.CustomerId == customerId && p.ActivityLogTypeId == _actLogType.Id
+                                                         select p.EntityKeyId).Distinct().ToList();
                                 cond = ConditionCollection(item, productCollection);
                             }
                         }
@@ -284,13 +284,12 @@ namespace Grand.Business.Marketing.Commands.Handlers
         protected bool ConditionProductAttribute(CustomerAction.ActionCondition condition, Product product, IList<CustomAttribute> customAttributes)
         {
             bool cond = false;
-            var productAttributeParser = _serviceProvider.GetRequiredService<IProductAttributeParser>();
             if (condition.ConditionId == CustomerActionConditionEnum.OneOfThem)
             {
-                var attributes = productAttributeParser.ParseProductAttributeMappings(product, customAttributes);
+                var attributes = product.ParseProductAttributeMappings(customAttributes);
                 foreach (var attr in attributes)
                 {
-                    var attributeValuesStr = productAttributeParser.ParseValues(customAttributes, attr.Id);
+                    var attributeValuesStr = ProductExtensions.ParseValues(customAttributes, attr.Id);
                     foreach (var attrV in attributeValuesStr)
                     {
                         var attrsv = attr.ProductAttributeValues.Where(x => x.Id == attrV).FirstOrDefault();
@@ -307,13 +306,13 @@ namespace Grand.Business.Marketing.Commands.Handlers
                 cond = true;
                 foreach (var itemPA in condition.ProductAttribute)
                 {
-                    var attributes = productAttributeParser.ParseProductAttributeMappings(product, customAttributes);
+                    var attributes = product.ParseProductAttributeMappings(customAttributes);
                     if (attributes.Where(x => x.ProductAttributeId == itemPA.ProductAttributeId).Count() > 0)
                     {
                         cond = false;
                         foreach (var attr in attributes.Where(x => x.ProductAttributeId == itemPA.ProductAttributeId))
                         {
-                            var attributeValuesStr = productAttributeParser.ParseValues(customAttributes, attr.Id);
+                            var attributeValuesStr = ProductExtensions.ParseValues(customAttributes, attr.Id);
                             foreach (var attrV in attributeValuesStr)
                             {
                                 var attrsv = attr.ProductAttributeValues.Where(x => x.Id == attrV).FirstOrDefault();

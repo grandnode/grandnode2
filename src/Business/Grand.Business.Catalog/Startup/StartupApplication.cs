@@ -48,7 +48,6 @@ namespace Grand.Business.Catalog.Startup
             serviceCollection.AddScoped<ICollectionService, CollectionService>();
             serviceCollection.AddScoped<IPriceFormatter, PriceFormatter>();
             serviceCollection.AddScoped<IProductAttributeFormatter, ProductAttributeFormatter>();
-            serviceCollection.AddScoped<IProductAttributeParser, ProductAttributeParser>();
             serviceCollection.AddScoped<IProductAttributeService, ProductAttributeService>();
             serviceCollection.AddScoped<IProductService, ProductService>();
             serviceCollection.AddScoped<IProductCategoryService, ProductCategoryService>();

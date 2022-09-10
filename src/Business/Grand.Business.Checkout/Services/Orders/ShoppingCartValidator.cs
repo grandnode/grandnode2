@@ -26,7 +26,6 @@ namespace Grand.Business.Checkout.Services.Orders
         private readonly ICurrencyService _currencyService;
         private readonly IProductService _productService;
         private readonly ITranslationService _translationService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly ICheckoutAttributeService _checkoutAttributeService;
         private readonly ICheckoutAttributeParser _checkoutAttributeParser;
         private readonly IPriceFormatter _priceFormatter;
@@ -45,7 +44,6 @@ namespace Grand.Business.Checkout.Services.Orders
             ICurrencyService currencyService,
             IProductService productService,
             ITranslationService translationService,
-            IProductAttributeParser productAttributeParser,
             ICheckoutAttributeService checkoutAttributeService,
             ICheckoutAttributeParser checkoutAttributeParser,
             IPriceFormatter priceFormatter,
@@ -62,7 +60,6 @@ namespace Grand.Business.Checkout.Services.Orders
             _currencyService = currencyService;
             _productService = productService;
             _translationService = translationService;
-            _productAttributeParser = productAttributeParser;
             _checkoutAttributeService = checkoutAttributeService;
             _checkoutAttributeParser = checkoutAttributeParser;
             _priceFormatter = priceFormatter;
@@ -176,7 +173,7 @@ namespace Grand.Business.Checkout.Services.Orders
             var warnings = new List<string>();
 
             //ensure it's our attributes
-            var attributes1 = _productAttributeParser.ParseProductAttributeMappings(product, shoppingCartItem.Attributes).ToList();
+            var attributes1 = product.ParseProductAttributeMappings(shoppingCartItem.Attributes).ToList();
             if (product.ProductTypeId == ProductType.BundledProduct)
             {
                 foreach (var bundle in product.BundleProducts)
@@ -184,7 +181,7 @@ namespace Grand.Business.Checkout.Services.Orders
                     var p1 = await _productService.GetProductById(bundle.ProductId);
                     if (p1 != null)
                     {
-                        var a1 = _productAttributeParser.ParseProductAttributeMappings(p1, shoppingCartItem.Attributes).ToList();
+                        var a1 = p1.ParseProductAttributeMappings(shoppingCartItem.Attributes).ToList();
                         attributes1.AddRange(a1);
                     }
                 }
@@ -225,7 +222,7 @@ namespace Grand.Business.Checkout.Services.Orders
             //validate conditional attributes only (if specified)
             attributes2 = attributes2.Where(x =>
             {
-                var conditionMet = _productAttributeParser.IsConditionMet(product, x, shoppingCartItem.Attributes);
+                var conditionMet = product.IsConditionMet(x, shoppingCartItem.Attributes);
                 return !conditionMet.HasValue || conditionMet.Value;
             }).ToList();
             foreach (var a2 in attributes2)
@@ -238,7 +235,7 @@ namespace Grand.Business.Checkout.Services.Orders
                     {
                         if (a1.Id == a2.Id)
                         {
-                            var attributeValuesStr = _productAttributeParser.ParseValues(shoppingCartItem.Attributes, a1.Id);
+                            var attributeValuesStr = ProductExtensions.ParseValues(shoppingCartItem.Attributes, a1.Id);
                             foreach (string str1 in attributeValuesStr)
                             {
                                 if (!String.IsNullOrEmpty(str1.Trim()))
@@ -273,7 +270,7 @@ namespace Grand.Business.Checkout.Services.Orders
                         .Select(x => x.Id)
                         .ToArray();
 
-                    var selectedReadOnlyValueIds = _productAttributeParser.ParseProductAttributeValues(product, shoppingCartItem.Attributes)
+                    var selectedReadOnlyValueIds = product.ParseProductAttributeValues(shoppingCartItem.Attributes)
                         //.Where(x => x.ProductAttributeMappingId == a2.Id)
                         .Select(x => x.Id)
                         .ToArray();
@@ -297,7 +294,7 @@ namespace Grand.Business.Checkout.Services.Orders
                     if (pam.AttributeControlTypeId == AttributeControlType.TextBox ||
                         pam.AttributeControlTypeId == AttributeControlType.MultilineTextbox)
                     {
-                        var valuesStr = _productAttributeParser.ParseValues(shoppingCartItem.Attributes, pam.Id);
+                        var valuesStr = ProductExtensions.ParseValues(shoppingCartItem.Attributes, pam.Id);
                         var enteredText = valuesStr.FirstOrDefault();
                         int enteredTextLength = String.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
 
@@ -315,7 +312,7 @@ namespace Grand.Business.Checkout.Services.Orders
                     if (pam.AttributeControlTypeId == AttributeControlType.TextBox ||
                         pam.AttributeControlTypeId == AttributeControlType.MultilineTextbox)
                     {
-                        var valuesStr = _productAttributeParser.ParseValues(shoppingCartItem.Attributes, pam.Id);
+                        var valuesStr = ProductExtensions.ParseValues(shoppingCartItem.Attributes, pam.Id);
                         var enteredText = valuesStr.FirstOrDefault();
                         int enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
 
@@ -332,7 +329,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 return warnings;
 
             //validate bundled products
-            var attributeValues = _productAttributeParser.ParseProductAttributeValues(product, shoppingCartItem.Attributes);
+            var attributeValues = product.ParseProductAttributeValues(shoppingCartItem.Attributes);
             foreach (var attributeValue in attributeValues)
             {
                 var _productAttributeMapping = product.ProductAttributeMappings.Where(x => x.ProductAttributeValues.Any(z => z.Id == attributeValue.Id)).FirstOrDefault();
@@ -385,9 +382,9 @@ namespace Grand.Business.Checkout.Services.Orders
             //gift vouchers
             if (product.IsGiftVoucher)
             {
-                _productAttributeParser.GetGiftVoucherAttribute(attributes,
-                    out string giftVoucherRecipientName, out string giftVoucherRecipientEmail,
-                    out string giftVoucherSenderName, out string giftVoucherSenderEmail, out string giftVoucherMessage);
+                GiftVoucherExtensions.GetGiftVoucherAttribute(attributes,
+                    out var giftVoucherRecipientName, out var giftVoucherRecipientEmail,
+                    out var giftVoucherSenderName, out var giftVoucherSenderEmail, out var _);
 
                 if (string.IsNullOrEmpty(giftVoucherRecipientName))
                     warnings.Add(_translationService.GetResource("ShoppingCart.RecipientNameError"));
@@ -503,7 +500,7 @@ namespace Grand.Business.Checkout.Services.Orders
                                         }
                                         if (p1.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
                                         {
-                                            var combination = _productAttributeParser.FindProductAttributeCombination(p1, shoppingCartItem.Attributes);
+                                            var combination = p1.FindProductAttributeCombination(shoppingCartItem.Attributes);
                                             if (combination != null)
                                             {
                                                 //combination exists - check stock level
@@ -532,7 +529,7 @@ namespace Grand.Business.Checkout.Services.Orders
                         break;
                     case ManageInventoryMethod.ManageStockByAttributes:
                         {
-                            var combination = _productAttributeParser.FindProductAttributeCombination(product, shoppingCartItem.Attributes);
+                            var combination = product.FindProductAttributeCombination(shoppingCartItem.Attributes);
                             if (combination != null)
                             {
                                 //combination exists - check stock level

@@ -17,7 +17,6 @@ namespace Grand.Web.Features.Handlers.Orders
         private readonly IShippingService _shippingService;
         private readonly IShipmentService _shipmentService;
         private readonly IProductService _productService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IMediator _mediator;
 
         private readonly ShippingSettings _shippingSettings;
@@ -27,7 +26,6 @@ namespace Grand.Web.Features.Handlers.Orders
         public GetShipmentDetailsHandler(
             IDateTimeService dateTimeService,
             IProductService productService,
-            IProductAttributeParser productAttributeParser,
             IShippingService shippingService,
             IShipmentService shipmentService,
             IMediator mediator,
@@ -37,7 +35,6 @@ namespace Grand.Web.Features.Handlers.Orders
         {
             _dateTimeService = dateTimeService;
             _productService = productService;
-            _productAttributeParser = productAttributeParser;
             _shippingService = shippingService;
             _shipmentService = shipmentService;
             _mediator = mediator;
@@ -99,10 +96,9 @@ namespace Grand.Web.Features.Handlers.Orders
                 if (orderItem == null)
                     continue;
                 var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
-                var shipmentItemModel = new ShipmentDetailsModel.ShipmentItemModel
-                {
+                var shipmentItemModel = new ShipmentDetailsModel.ShipmentItemModel {
                     Id = shipmentItem.Id,
-                    Sku = product.FormatSku(orderItem.Attributes, _productAttributeParser),
+                    Sku = product.FormatSku(orderItem.Attributes),
                     ProductId = orderItem.ProductId,
                     ProductName = product.GetTranslation(x => x.Name, request.Language.Id),
                     ProductSeName = product.GetSeName(request.Language.Id),
@@ -130,8 +126,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 .OrderByDescending(on => on.CreatedOnUtc)
                 .ToList())
             {
-                notes.Add(new ShipmentDetailsModel.ShipmentNote
-                {
+                notes.Add(new ShipmentDetailsModel.ShipmentNote {
                     Id = shipmentNote.Id,
                     ShipmentId = shipmentNote.ShipmentId,
                     HasDownload = !string.IsNullOrEmpty(shipmentNote.DownloadId),
@@ -153,8 +148,7 @@ namespace Grand.Web.Features.Handlers.Orders
             model.PickUpInStore = order.PickUpInStore;
             if (!order.PickUpInStore)
             {
-                model.ShippingAddress = await _mediator.Send(new GetAddressModel()
-                {
+                model.ShippingAddress = await _mediator.Send(new GetAddressModel() {
                     Language = request.Language,
                     Address = order.ShippingAddress,
                     ExcludeProperties = false,
@@ -166,8 +160,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 {
                     if (order.PickupPoint.Address != null)
                     {
-                        model.PickupAddress = await _mediator.Send(new GetAddressModel()
-                        {
+                        model.PickupAddress = await _mediator.Send(new GetAddressModel() {
                             Language = request.Language,
                             Address = order.PickupPoint.Address,
                             ExcludeProperties = false,

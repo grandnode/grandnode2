@@ -1,6 +1,6 @@
 using Grand.Domain.Orders;
 
-namespace Grand.Business.Core.Extensions
+namespace Grand.Domain.Orders
 {
     /// <summary>
     /// Represents a shopping cart

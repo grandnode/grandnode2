@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Web.Extensions;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart
 {
@@ -34,7 +35,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
     {
         private readonly IProductService _productService;
         private readonly IPictureService _pictureService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly ITranslationService _translationService;
         private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
         private readonly ICurrencyService _currencyService;
@@ -64,7 +64,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
         public GetShoppingCartHandler(
             IProductService productService,
             IPictureService pictureService,
-            IProductAttributeParser productAttributeParser,
             ITranslationService translationService,
             ICheckoutAttributeFormatter checkoutAttributeFormatter,
             ICurrencyService currencyService,
@@ -93,7 +92,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
         {
             _productService = productService;
             _pictureService = pictureService;
-            _productAttributeParser = productAttributeParser;
             _translationService = translationService;
             _checkoutAttributeFormatter = checkoutAttributeFormatter;
             _currencyService = currencyService;
@@ -321,7 +319,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 var sename = product.GetSeName(request.Language.Id);
                 var cartItemModel = new ShoppingCartModel.ShoppingCartItemModel {
                     Id = sci.Id,
-                    Sku = product.FormatSku(sci.Attributes, _productAttributeParser),
+                    Sku = product.FormatSku(sci.Attributes),
                     IsCart = sci.ShoppingCartTypeId == ShoppingCartType.ShoppingCart,
                     ProductId = product.Id,
                     WarehouseId = sci.WarehouseId,
@@ -465,7 +463,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
         private async Task<PictureModel> PrepareCartItemPicture(Product product, IList<CustomAttribute> attributes)
         {
-            var sciPicture = await product.GetProductPicture(attributes, _productService, _pictureService, _productAttributeParser);
+            var sciPicture = await product.GetProductPicture(attributes, _productService, _pictureService);
             return new PictureModel {
                 Id = sciPicture?.Id,
                 ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.CartThumbPictureSize, true),

@@ -48,7 +48,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         private readonly IOrderCalculationService _orderTotalCalculationService;
         private readonly IPricingService _pricingService;
         private readonly IPriceFormatter _priceFormatter;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
         private readonly IGiftVoucherService _giftVoucherService;
         private readonly ICheckoutAttributeFormatter _checkoutAttributeFormatter;
@@ -86,7 +85,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             IOrderCalculationService orderTotalCalculationService,
             IPricingService priceCalculationService,
             IPriceFormatter priceFormatter,
-            IProductAttributeParser productAttributeParser,
             IProductAttributeFormatter productAttributeFormatter,
             IGiftVoucherService giftVoucherService,
             ICheckoutAttributeFormatter checkoutAttributeFormatter,
@@ -123,7 +121,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             _orderTotalCalculationService = orderTotalCalculationService;
             _pricingService = priceCalculationService;
             _priceFormatter = priceFormatter;
-            _productAttributeParser = productAttributeParser;
             _productAttributeFormatter = productAttributeFormatter;
             _giftVoucherService = giftVoucherService;
             _checkoutAttributeFormatter = checkoutAttributeFormatter;
@@ -361,7 +358,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             double attributesTotalWeight = 0;
             if (shoppingCartItem.Attributes != null && shoppingCartItem.Attributes.Any())
             {
-                var attributeValues = _productAttributeParser.ParseProductAttributeValues(product, shoppingCartItem.Attributes);
+                var attributeValues = product.ParseProductAttributeValues(shoppingCartItem.Attributes);
                 foreach (var attributeValue in attributeValues)
                 {
                     switch (attributeValue.AttributeValueTypeId)
@@ -695,7 +692,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             var orderItem = new OrderItem {
                 OrderItemGuid = Guid.NewGuid(),
                 ProductId = sc.ProductId,
-                Sku = product.FormatSku(sc.Attributes, _productAttributeParser),
+                Sku = product.FormatSku(sc.Attributes),
                 VendorId = product.VendorId,
                 WarehouseId = warehouseId,
                 SeId = details.Customer.SeId,
@@ -761,7 +758,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
         protected virtual async Task GenerateGiftVoucher(PlaceOrderContainter details, ShoppingCartItem sc, Order order, OrderItem orderItem, Product product)
         {
-            _productAttributeParser.GetGiftVoucherAttribute(sc.Attributes,
+            GiftVoucherExtensions.GetGiftVoucherAttribute(sc.Attributes,
                         out var giftVoucherRecipientName, out var giftVoucherRecipientEmail,
                         out var giftVoucherSenderName, out var giftVoucherSenderEmail, out var giftVoucherMessage);
 

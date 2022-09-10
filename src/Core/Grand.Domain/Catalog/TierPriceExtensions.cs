@@ -1,7 +1,6 @@
-using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 
-namespace Grand.Business.Core.Extensions
+namespace Grand.Domain.Catalog
 {
     public static class TierPriceExtensions
     {

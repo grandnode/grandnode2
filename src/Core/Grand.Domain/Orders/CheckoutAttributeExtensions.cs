@@ -1,7 +1,6 @@
 using Grand.Domain.Catalog;
-using Grand.Domain.Orders;
 
-namespace Grand.Business.Core.Extensions
+namespace Grand.Domain.Orders
 {
     /// <summary>
     /// Extensions
@@ -23,7 +22,7 @@ namespace Grand.Business.Core.Extensions
                 checkoutAttribute.AttributeControlTypeId == AttributeControlType.Datepicker ||
                 checkoutAttribute.AttributeControlTypeId == AttributeControlType.FileUpload)
                 return false;
-            
+
             return true;
         }
 

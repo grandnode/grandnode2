@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
+using Grand.Domain.Customers;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using MediatR;
@@ -25,8 +26,7 @@ namespace Grand.Web.Features.Handlers.Customers
             var customerAttributes = await _customerAttributeService.GetAllCustomerAttributes();
             foreach (var attribute in customerAttributes)
             {
-                var attributeModel = new CustomerAttributeModel
-                {
+                var attributeModel = new CustomerAttributeModel {
                     Id = attribute.Id,
                     Name = attribute.GetTranslation(x => x.Name, request.Language.Id),
                     IsRequired = attribute.IsRequired,
@@ -40,8 +40,7 @@ namespace Grand.Web.Features.Handlers.Customers
                     var attributeValues = attribute.CustomerAttributeValues;
                     foreach (var attributeValue in attributeValues)
                     {
-                        var valueModel = new CustomerAttributeValueModel
-                        {
+                        var valueModel = new CustomerAttributeValueModel {
                             Id = attributeValue.Id,
                             Name = attributeValue.GetTranslation(x => x.Name, request.Language.Id),
                             IsPreSelected = attributeValue.IsPreSelected

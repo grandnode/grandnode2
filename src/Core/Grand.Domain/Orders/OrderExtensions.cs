@@ -1,8 +1,7 @@
 ﻿using Grand.Domain.Catalog;
-using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 
-namespace Grand.Business.Core.Extensions
+namespace Grand.Domain.Orders
 {
     public static class OrderExtensions
     {

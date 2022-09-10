@@ -2,8 +2,9 @@
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
-using Grand.Web.Common.Security.Captcha;
+using Grand.Domain.Messages;
 using Grand.Web.Commands.Models.Common;
+using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Models.Common;
 using MediatR;
 
@@ -26,8 +27,7 @@ namespace Grand.Web.Commands.Handler.Common
 
         public async Task<ContactUsModel> Handle(ContactUsCommand request, CancellationToken cancellationToken)
         {
-            var model = request.Model ?? new ContactUsModel
-            {
+            var model = request.Model ?? new ContactUsModel {
                 Email = request.Customer.Email,
                 FullName = request.Customer.GetFullName(),
             };
@@ -47,8 +47,7 @@ namespace Grand.Web.Commands.Handler.Common
             var contactAttributes = await _contactAttributeService.GetAllContactAttributes(request.Store.Id);
             foreach (var attribute in contactAttributes)
             {
-                var attributeModel = new ContactUsModel.ContactAttributeModel
-                {
+                var attributeModel = new ContactUsModel.ContactAttributeModel {
                     Id = attribute.Id,
                     Name = attribute.GetTranslation(x => x.Name, request.Language.Id),
                     TextPrompt = attribute.GetTranslation(x => x.TextPrompt, request.Language.Id),
@@ -85,8 +84,7 @@ namespace Grand.Web.Commands.Handler.Common
                     foreach (var attributeValue in attributeValues)
                     {
                         var preSelected = request.Form?[$"contact_attribute_{attribute.Id}"].ToString();
-                        var attributeValueModel = new ContactUsModel.ContactAttributeValueModel
-                        {
+                        var attributeValueModel = new ContactUsModel.ContactAttributeValueModel {
                             Id = attributeValue.Id,
                             Name = attributeValue.GetTranslation(x => x.Name, request.Language.Id),
                             ColorSquaresRgb = attributeValue.ColorSquaresRgb,

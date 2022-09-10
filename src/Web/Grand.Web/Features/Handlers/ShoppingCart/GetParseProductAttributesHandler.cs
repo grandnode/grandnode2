@@ -1,24 +1,22 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Domain.Catalog;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Web.Features.Models.ShoppingCart;
 using MediatR;
+using Grand.Domain.Orders;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart
 {
     public class GetParseProductAttributesHandler : IRequestHandler<GetParseProductAttributes, IList<CustomAttribute>>
     {
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IDownloadService _downloadService;
         private readonly IProductService _productService;
 
         public GetParseProductAttributesHandler(
-            IProductAttributeParser productAttributeParser,
             IDownloadService downloadService,
             IProductService productService)
         {
-            _productAttributeParser = productAttributeParser;
             _downloadService = downloadService;
             _productService = productService;
         }
@@ -53,7 +51,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                             request.Form.TryGetValue(controlId, out var ctrlAttributes);
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
-                                customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
                                     attribute, ctrlAttributes).ToList();
                             }
                         }
@@ -65,8 +63,8 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                             {
                                 foreach (var item in cblAttributes)
                                 {
-                                    if (!String.IsNullOrEmpty(item))
-                                        customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                    if (!string.IsNullOrEmpty(item))
+                                        customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
                                             attribute, item).ToList();
                                 }
                             }
@@ -81,7 +79,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                                 .Select(v => v.Id)
                                 .ToList())
                             {
-                                customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
                                     attribute, selectedAttributeId).ToList();
                             }
                         }
@@ -94,7 +92,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                             if (!string.IsNullOrEmpty(ctrlAttributes))
                             {
                                 var enteredText = ctrlAttributes.ToString().Trim();
-                                customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
                                     attribute, enteredText).ToList();
                             }
                         }
@@ -106,7 +104,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                             var download = await _downloadService.GetDownloadByGuid(downloadGuid);
                             if (download != null)
                             {
-                                customAttributes = _productAttributeParser.AddProductAttribute(customAttributes,
+                                customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
                                         attribute, download.DownloadGuid.ToString()).ToList();
                             }
                         }
@@ -118,10 +116,10 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             //validate conditional attributes (if specified)
             foreach (var attribute in productAttributes)
             {
-                var conditionMet = _productAttributeParser.IsConditionMet(request.Product, attribute, customAttributes);
+                var conditionMet = request.Product.IsConditionMet(attribute, customAttributes);
                 if (conditionMet.HasValue && !conditionMet.Value)
                 {
-                    customAttributes = _productAttributeParser.RemoveProductAttribute(customAttributes, attribute).ToList();
+                    customAttributes = ProductExtensions.RemoveProductAttribute(customAttributes, attribute).ToList();
                 }
             }
 
@@ -165,7 +163,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     }
                 }
 
-                customAttributes = _productAttributeParser.AddGiftVoucherAttribute(customAttributes,
+                customAttributes = GiftVoucherExtensions.AddGiftVoucherAttribute(customAttributes,
                     recipientName, recipientEmail, senderName, senderEmail, giftVoucherMessage).ToList();
             }
 

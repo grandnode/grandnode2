@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Directory;
+using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;

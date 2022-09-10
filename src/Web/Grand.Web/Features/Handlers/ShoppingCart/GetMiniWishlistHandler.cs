@@ -8,6 +8,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
+using Grand.Web.Extensions;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.Media;
 using Grand.Web.Models.ShoppingCart;
@@ -20,7 +21,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
     public class GetMiniWishlistHandler : IRequestHandler<GetMiniWishlist, MiniWishlistModel>
     {
         private readonly IProductService _productService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
         private readonly ITranslationService _translationService;
         private readonly ITaxService _taxService;
@@ -34,7 +34,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
         public GetMiniWishlistHandler(
             IProductService productService,
-            IProductAttributeParser productAttributeParser,
             IProductAttributeFormatter productAttributeFormatter,
             ITranslationService translationService,
             ITaxService taxService,
@@ -47,7 +46,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             MediaSettings mediaSettings)
         {
             _productService = productService;
-            _productAttributeParser = productAttributeParser;
             _productAttributeFormatter = productAttributeFormatter;
             _translationService = translationService;
             _taxService = taxService;
@@ -82,7 +80,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 var sename = product.GetSeName(request.Language.Id);
                 var cartItemModel = new MiniWishlistModel.WishlistItemModel {
                     Id = sci.Id,
-                    Sku = product.FormatSku(sci.Attributes, _productAttributeParser),
+                    Sku = product.FormatSku(sci.Attributes),
                     ProductId = product.Id,
                     ProductName = product.GetTranslation(x => x.Name, request.Language.Id),
                     ProductSeName = sename,
@@ -123,7 +121,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
         private async Task<PictureModel> PrepareCartItemPicture(
             Product product, IList<CustomAttribute> attributes)
         {
-            var sciPicture = await product.GetProductPicture(attributes, _productService, _pictureService, _productAttributeParser);
+            var sciPicture = await product.GetProductPicture(attributes, _productService, _pictureService);
             return new PictureModel {
                 Id = sciPicture?.Id,
                 ImageUrl = await _pictureService.GetPictureUrl(sciPicture, _mediaSettings.MiniCartThumbPictureSize, true),

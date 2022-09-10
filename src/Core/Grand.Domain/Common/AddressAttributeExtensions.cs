@@ -1,7 +1,6 @@
 using Grand.Domain.Catalog;
-using Grand.Domain.Common;
 
-namespace Grand.Business.Core.Extensions
+namespace Grand.Domain.Common
 {
     /// <summary>
     /// Extensions

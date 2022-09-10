@@ -1,6 +1,4 @@
-using Grand.Domain.Catalog;
-
-namespace Grand.Business.Core.Extensions
+namespace Grand.Domain.Catalog
 {
     public static class ProductAttributeExtensions
     {
@@ -45,9 +43,9 @@ namespace Grand.Business.Core.Extensions
 
             return true;
         }
-       
+
         public static bool IsNonCombinable(this ProductAttributeMapping productAttributeMapping)
-        {           
+        {
             if (productAttributeMapping == null)
                 return false;
 

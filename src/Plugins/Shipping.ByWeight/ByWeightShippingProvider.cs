@@ -28,7 +28,6 @@ namespace Shipping.ByWeight
         private readonly IServiceProvider _serviceProvider;
         private readonly ITranslationService _translationService;
         private readonly IProductService _productService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly ICheckoutAttributeParser _checkoutAttributeParser;
         private readonly ICurrencyService _currencyService;
         private readonly ByWeightShippingSettings _byWeightShippingSettings;
@@ -42,7 +41,6 @@ namespace Shipping.ByWeight
             ITranslationService translationService,
             IProductService productService,
             IServiceProvider serviceProvider,
-            IProductAttributeParser productAttributeParser,
             ICheckoutAttributeParser checkoutAttributeParser,
             ICurrencyService currencyService,
             ByWeightShippingSettings byWeightShippingSettings)
@@ -52,7 +50,6 @@ namespace Shipping.ByWeight
             _translationService = translationService;
             _productService = productService;
             _serviceProvider = serviceProvider;
-            _productAttributeParser = productAttributeParser;
             _checkoutAttributeParser = checkoutAttributeParser;
             _currencyService = currencyService;
             _byWeightShippingSettings = byWeightShippingSettings;
@@ -121,7 +118,7 @@ namespace Shipping.ByWeight
             double attributesTotalWeight = 0;
             if (shoppingCartItem.Attributes != null && shoppingCartItem.Attributes.Any())
             {
-                var attributeValues = _productAttributeParser.ParseProductAttributeValues(product, shoppingCartItem.Attributes);
+                var attributeValues = product.ParseProductAttributeValues(shoppingCartItem.Attributes);
                 foreach (var attributeValue in attributeValues)
                 {
                     switch (attributeValue.AttributeValueTypeId)

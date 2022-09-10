@@ -1,7 +1,6 @@
 using Grand.Domain.Catalog;
-using Grand.Domain.Messages;
 
-namespace Grand.Business.Core.Extensions
+namespace Grand.Domain.Messages
 {
     /// <summary>
     /// Extensions
@@ -23,7 +22,7 @@ namespace Grand.Business.Core.Extensions
                 contactAttribute.AttributeControlType == AttributeControlType.Datepicker ||
                 contactAttribute.AttributeControlType == AttributeControlType.FileUpload)
                 return false;
-            
+
             //other attribute controle types support values
             return true;
         }

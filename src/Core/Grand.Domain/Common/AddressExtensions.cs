@@ -1,6 +1,4 @@
-using Grand.Domain.Common;
-
-namespace Grand.Business.Core.Extensions
+namespace Grand.Domain.Common
 {
     public static class AddressExtensions
     {

@@ -1,7 +1,8 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Queries.Checkout.Orders;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Domain.Orders;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using MediatR;
@@ -31,8 +32,7 @@ namespace Grand.Web.Features.Handlers.Customers
         {
             var model = new CustomerDownloadableProductsModel();
 
-            var query = new GetOrderQuery
-            {
+            var query = new GetOrderQuery {
                 StoreId = request.Store.Id
             };
 
@@ -50,8 +50,7 @@ namespace Grand.Web.Features.Handlers.Customers
                     var product = await _productService.GetProductByIdIncludeArch(orderitem.ProductId);
                     if (product != null && product.IsDownload)
                     {
-                        var itemModel = new CustomerDownloadableProductsModel.DownloadableProductsModel
-                        {
+                        var itemModel = new CustomerDownloadableProductsModel.DownloadableProductsModel {
                             OrderItemGuid = orderitem.OrderItemGuid,
                             OrderId = order.Id,
                             OrderNumber = order.OrderNumber,
