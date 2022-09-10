@@ -37,25 +37,22 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     if (request.Activate)
                     {
                         //activate
-                        bool isRecipientNotified = gc.IsRecipientNotified;
                         if (gc.GiftVoucherTypeId == GiftVoucherType.Virtual)
                         {
                             //send email for virtual gift voucher
-                            if (!String.IsNullOrEmpty(gc.RecipientEmail) &&
-                                !String.IsNullOrEmpty(gc.SenderEmail))
+                            if (!string.IsNullOrEmpty(gc.RecipientEmail) &&
+                                !string.IsNullOrEmpty(gc.SenderEmail))
                             {
                                 var customerLang = await _languageService.GetLanguageById(request.Order.CustomerLanguageId);
                                 if (customerLang == null)
                                     customerLang = (await _languageService.GetAllLanguages()).FirstOrDefault();
                                 if (customerLang == null)
                                     throw new Exception("No languages could be loaded");
-                                int queuedEmailId = await _messageProviderService.SendGiftVoucherMessage(gc, request.Order, customerLang.Id);
-                                if (queuedEmailId > 0)
-                                    isRecipientNotified = true;
+                                _ = await _messageProviderService.SendGiftVoucherMessage(gc, request.Order, customerLang.Id);
+                                gc.IsRecipientNotified = true;
                             }
                         }
                         gc.IsGiftVoucherActivated = true;
-                        gc.IsRecipientNotified = isRecipientNotified;
                         await _giftVoucherService.UpdateGiftVoucher(gc);
                     }
                     else
