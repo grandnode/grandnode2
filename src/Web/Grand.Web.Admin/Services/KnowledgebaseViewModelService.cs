@@ -75,7 +75,7 @@ namespace Grand.Web.Admin.Services
         {
             model.Categories.Add(new SelectListItem { Text = "[None]", Value = "" });
             var categories = await _knowledgebaseService.GetKnowledgebaseCategories();
-            foreach (var category in categories)
+            foreach (var category in categories.SortCategoriesForTree())
             {
                 model.Categories.Add(new SelectListItem
                 {
@@ -88,7 +88,7 @@ namespace Grand.Web.Admin.Services
         {
             model.Categories.Add(new SelectListItem { Text = "[None]", Value = "" });
             var categories = await _knowledgebaseService.GetKnowledgebaseCategories();
-            foreach (var category in categories)
+            foreach (var category in categories.SortCategoriesForTree())
             {
                 model.Categories.Add(new SelectListItem
                 {
@@ -104,7 +104,7 @@ namespace Grand.Web.Admin.Services
             List<TreeNode> nodeList = new List<TreeNode>();
 
             List<ITreeNode> list = new List<ITreeNode>();
-            list.AddRange(categories);
+            list.AddRange(categories.SortCategoriesForTree());
             list.AddRange(articles);
 
             foreach (var node in list)

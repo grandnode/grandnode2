@@ -148,7 +148,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
         public virtual async Task<List<KnowledgebaseCategory>> GetKnowledgebaseCategories()
         {
             var categories = _knowledgebaseCategoryRepository.Table.OrderBy(x => x.ParentCategoryId).ThenBy(x => x.DisplayOrder).ToList();
-            return await Task.FromResult(categories.SortCategoriesForTree());
+            return await Task.FromResult(categories);
         }
 
         /// <summary>

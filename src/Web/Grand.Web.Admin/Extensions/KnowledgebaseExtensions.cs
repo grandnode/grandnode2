@@ -1,9 +1,7 @@
-﻿using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Core.Interfaces.Marketing.Knowledgebase;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Domain.Knowledgebase;
-using Grand.Infrastructure;
 
-namespace Grand.Business.Core.Extensions
+namespace Grand.Web.Admin.Extensions
 {
     /// <summary>
     /// Extensions 
@@ -42,9 +40,6 @@ namespace Grand.Business.Core.Extensions
         /// </summary>
         /// <param name="category">Category</param>
         /// <param name="allCategories">All categories</param>
-        /// <param name="aclService">ACL service</param>
-        /// <param name="storeLinkService">Store link service</param>
-        /// <param name="showHidden">A value indicating whether to load hidden records</param>
         /// <returns>Category breadcrumb </returns>
         public static IList<KnowledgebaseCategory> GetCategoryBreadCrumb(this KnowledgebaseCategory category, IList<KnowledgebaseCategory> allCategories)
         {
@@ -70,47 +65,6 @@ namespace Grand.Business.Core.Extensions
             result.Reverse();
             return result;
         }
-
-        /// <summary>
-        /// Get category breadcrumb 
-        /// </summary>
-        /// <param name="category">Category</param>
-        /// <param name="categoryService">Category service</param>
-        /// <param name="aclService">ACL service</param>
-        /// <param name="storeLinkService">Store link service</param>
-        /// <param name="showHidden">A value indicating whether to load hidden records</param>
-        /// <returns>Category breadcrumb </returns>
-        public static async Task<IList<KnowledgebaseCategory>> GetCategoryBreadCrumb(this KnowledgebaseCategory category,
-            IKnowledgebaseService knowledgebaseService,
-            IAclService aclService,
-            IWorkContext workContext,
-            bool showHidden = false)
-        {
-            if (category == null)
-                throw new ArgumentNullException(nameof(category));
-
-            var result = new List<KnowledgebaseCategory>();
-
-            //used to prevent circular references
-            var alreadyProcessedCategoryIds = new List<string>();
-
-            while (category != null && //not null                
-                (showHidden || category.Published) && //published
-                (showHidden || aclService.Authorize(category, workContext.CurrentCustomer)) && //ACL
-                (showHidden || aclService.Authorize(category, workContext.CurrentStore.Id)) && //Store acl
-                !alreadyProcessedCategoryIds.Contains(category.Id)) //prevent circular references
-            {
-                result.Add(category);
-
-                alreadyProcessedCategoryIds.Add(category.Id);
-
-                category = await knowledgebaseService.GetKnowledgebaseCategory(category.ParentCategoryId);
-            }
-
-            result.Reverse();
-            return result;
-        }
-
         public static List<KnowledgebaseCategory> SortCategoriesForTree(this IList<KnowledgebaseCategory> source, string parentId = null,
             bool ignoreCategoriesWithoutExistingParent = false)
         {
