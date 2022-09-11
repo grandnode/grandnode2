@@ -10,7 +10,6 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
