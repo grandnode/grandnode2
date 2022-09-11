@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
@@ -39,7 +38,6 @@ namespace Grand.Web.Common.Filters
             private readonly IWorkContext _workContext;
             private readonly IUserFieldService _userFieldService;
             private readonly ICustomerActivityService _customerActivityService;
-            private readonly ICustomerActionEventService _customerActionEventService;
             private readonly CustomerSettings _customerSettings;
 
             #endregion
@@ -51,14 +49,12 @@ namespace Grand.Web.Common.Filters
                 IWorkContext workContext,
                 IUserFieldService userFieldService,
                 ICustomerActivityService customerActivityService,
-                ICustomerActionEventService customerActionEventService,
                 CustomerSettings customerSettings)
             {
                 _customerService = customerService;
                 _workContext = workContext;
                 _userFieldService = userFieldService;
                 _customerActivityService = customerActivityService;
-                _customerActionEventService = customerActionEventService;
                 _customerSettings = customerSettings;
             }
 
@@ -130,8 +126,6 @@ namespace Grand.Web.Common.Filters
                         //activity
                         _ = _customerActivityService.InsertActivity("PublicStore.Url", pageUrl, _workContext.CurrentCustomer,
                             context.HttpContext?.Connection?.RemoteIpAddress?.ToString(), pageUrl);
-                        //action
-                        await _customerActionEventService.Url(_workContext.CurrentCustomer, context.HttpContext?.Request?.Path.ToString(), context.HttpContext?.Request?.Headers["Referer"]);
                     }
                 }
             }

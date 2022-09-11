@@ -63,10 +63,6 @@
         /// </summary>
         Campaign = 130,
         /// <summary>
-        /// Customer reminder
-        /// </summary>
-        CustomerReminder = 140,
-        /// <summary>
         /// Customer 
         /// </summary>
         Customer = 150,

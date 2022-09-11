@@ -48,13 +48,6 @@ namespace Grand.Business.System.Startup
             serviceCollection.AddScoped<IScheduleTask, ClearCacheScheduleTask>();
             serviceCollection.AddScoped<IScheduleTask, ClearLogScheduleTask>();
             serviceCollection.AddScoped<IScheduleTask, GenerateSitemapXmlTask>();
-            serviceCollection.AddScoped<IScheduleTask, CustomerReminderAbandonedCartScheduleTask>();
-            serviceCollection.AddScoped<IScheduleTask, CustomerReminderBirthdayScheduleTask>();
-            serviceCollection.AddScoped<IScheduleTask, CustomerReminderCompletedOrderScheduleTask>();
-            serviceCollection.AddScoped<IScheduleTask, CustomerReminderLastActivityScheduleTask>();
-            serviceCollection.AddScoped<IScheduleTask, CustomerReminderLastPurchaseScheduleTask>();
-            serviceCollection.AddScoped<IScheduleTask, CustomerReminderRegisteredCustomerScheduleTask>();
-            serviceCollection.AddScoped<IScheduleTask, CustomerReminderUnpaidOrderScheduleTask>();
             serviceCollection.AddScoped<IScheduleTask, DeleteGuestsScheduleTask>();
             serviceCollection.AddScoped<IScheduleTask, UpdateExchangeRateScheduleTask>();
             serviceCollection.AddScoped<IScheduleTask, EndAuctionsTask>();

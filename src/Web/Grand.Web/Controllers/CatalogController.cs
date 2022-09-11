@@ -44,7 +44,6 @@ namespace Grand.Web.Controllers
         private readonly IAclService _aclService;
         private readonly IPermissionService _permissionService;
         private readonly ICustomerActivityService _customerActivityService;
-        private readonly ICustomerActionEventService _customerActionEventService;
         private readonly IMediator _mediator;
 
         private readonly VendorSettings _vendorSettings;
@@ -64,7 +63,6 @@ namespace Grand.Web.Controllers
             IAclService aclService,
             IPermissionService permissionService,
             ICustomerActivityService customerActivityService,
-            ICustomerActionEventService customerActionEventService,
             IMediator mediator,
             VendorSettings vendorSettings)
         {
@@ -79,7 +77,6 @@ namespace Grand.Web.Controllers
             _aclService = aclService;
             _permissionService = permissionService;
             _customerActivityService = customerActivityService;
-            _customerActionEventService = customerActionEventService;
             _mediator = mediator;
             _vendorSettings = vendorSettings;
         }
@@ -143,7 +140,6 @@ namespace Grand.Web.Controllers
             _ = _customerActivityService.InsertActivity("PublicStore.ViewCategory", category.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewCategory"), category.Name);
-            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.GetTypedHeaders().Referer?.ToString());
 
             //model
             var model = await _mediator.Send(new GetCategory() {
@@ -197,7 +193,6 @@ namespace Grand.Web.Controllers
             _ = _customerActivityService.InsertActivity("PublicStore.ViewBrand", brand.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewBrand"), brand.Name);
-            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.GetTypedHeaders().Referer?.ToString());
 
             //model
             var model = await _mediator.Send(new GetBrand() {
@@ -261,7 +256,6 @@ namespace Grand.Web.Controllers
             _ = _customerActivityService.InsertActivity("PublicStore.ViewCollection", collection.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewCollection"), collection.Name);
-            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.GetTypedHeaders().Referer?.ToString());
 
             //model
             var model = await _mediator.Send(new GetCollection() {

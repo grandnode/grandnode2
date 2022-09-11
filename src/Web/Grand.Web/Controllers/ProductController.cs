@@ -40,7 +40,6 @@ namespace Grand.Web.Controllers
         private readonly IAclService _aclService;
         private readonly IPermissionService _permissionService;
         private readonly ICustomerActivityService _customerActivityService;
-        private readonly ICustomerActionEventService _customerActionEventService;
         private readonly IMediator _mediator;
         private readonly CatalogSettings _catalogSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -59,7 +58,6 @@ namespace Grand.Web.Controllers
             IAclService aclService,
             IPermissionService permissionService,
             ICustomerActivityService customerActivityService,
-            ICustomerActionEventService customerActionEventService,
             IMediator mediator,
             CatalogSettings catalogSettings,
             ShoppingCartSettings shoppingCartSettings,
@@ -74,7 +72,6 @@ namespace Grand.Web.Controllers
             _aclService = aclService;
             _permissionService = permissionService;
             _customerActivityService = customerActivityService;
-            _customerActionEventService = customerActionEventService;
             _mediator = mediator;
             _catalogSettings = catalogSettings;
             _shoppingCartSettings = shoppingCartSettings;
@@ -171,7 +168,7 @@ namespace Grand.Web.Controllers
             //activity log
             _ = _customerActivityService.InsertActivity("PublicStore.ViewProduct", product.Id, _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewProduct"), product.Name);
-            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.GetTypedHeaders().Referer?.ToString());
+
             await _productService.UpdateMostView(product);
 
             return View(productLayoutViewPath, model);
@@ -418,7 +415,7 @@ namespace Grand.Web.Controllers
             //activity log
             _ = _customerActivityService.InsertActivity("PublicStore.ViewProduct", product.Id, _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewProduct"), product.Name);
-            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.GetTypedHeaders().Referer?.ToString());
+
             await _productService.UpdateMostView(product);
 
             return Json(new

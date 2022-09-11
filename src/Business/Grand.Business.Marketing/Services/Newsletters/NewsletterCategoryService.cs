@@ -76,7 +76,7 @@ namespace Grand.Business.Marketing.Services.Newsteletters
         /// Gets a newsletter by category
         /// </summary>
         /// <param name="id">newsletter category</param>
-        /// <returns>Banner</returns>
+        /// <returns>NewsletterCategory</returns>
         public virtual Task<NewsletterCategory> GetNewsletterCategoryById(string id)
         {
             return _newsletterCategoryRepository.GetByIdAsync(id);

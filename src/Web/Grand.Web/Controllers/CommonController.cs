@@ -642,19 +642,6 @@ namespace Grand.Web.Controllers
             });
         }
 
-
-        [HttpPost, ActionName("PopupInteractiveForm")]
-        [DenySystemAccount]
-        public virtual async Task<IActionResult> PopupInteractiveForm(IFormCollection formCollection)
-        {
-            var result = await _mediator.Send(new PopupInteractiveCommand() { Form = formCollection });
-            return Json(new
-            {
-                success = !result.Any(),
-                errors = result
-            });
-        }
-
         [HttpPost]
         [ClosedStore(true)]
         [PublicStore(true)]

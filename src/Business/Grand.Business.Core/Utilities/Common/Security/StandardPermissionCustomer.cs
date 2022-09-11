@@ -60,21 +60,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Area = "Admin area",
             Category = CategoryCustomer,
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Delete }
-        };
-        public static readonly Permission ManageActions = new Permission
-        {
-            Name = "Manage Customers Actions",
-            SystemName = PermissionSystemName.Actions,
-            Area = "Admin area",
-            Category = CategoryCustomer
-        };
-        public static readonly Permission ManageReminders = new Permission
-        {
-            Name = "Manage Customers Reminders",
-            SystemName = PermissionSystemName.Reminders,
-            Area = "Admin area",
-            Category = CategoryCustomer
-        };
+        };        
         public static readonly Permission ManageVendors = new Permission
         {
             Name = "Manage Vendors",

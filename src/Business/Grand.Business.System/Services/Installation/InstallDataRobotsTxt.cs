@@ -33,16 +33,12 @@ Disallow: /changecurrency/*
 Disallow: /checkout/*
 Disallow: /compareproducts
 Disallow: /account/*
-Disallow: /common/customeractioneventurl
-Disallow: /common/getactivepopup
-Disallow: /common/removepopup
 Disallow: /emailwishlist
 Disallow: /login/*
 Disallow: /newsletter/subscriptionactivation
 Disallow: /order/*
 Disallow: /orderdetails
 Disallow: /passwordrecovery/confirm
-Disallow: /popupinteractiveform
 Disallow: /register/*
 Disallow: /merchandisereturn
 Disallow: /merchandisereturn/history

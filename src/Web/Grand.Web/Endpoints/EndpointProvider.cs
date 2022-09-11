@@ -328,11 +328,6 @@ namespace Grand.Web.Endpoints
                             pattern + "contactus",
                             new { controller = "Common", action = "ContactUs" });
 
-            //interactive form
-            endpointRouteBuilder.MapControllerRoute("PopupInteractiveForm",
-                            pattern + "popupinteractiveform",
-                            new { controller = "Common", action = "PopupInteractiveForm" });
-
             //change currency 
             endpointRouteBuilder.MapControllerRoute("ChangeCurrency",
                             pattern + "changecurrency/{currencycode}",

@@ -121,31 +121,22 @@ namespace Grand.Business.System.Services.Installation
         private readonly IRepository<MerchandiseReturnReason> _merchandiseReturnReasonRepository;
         private readonly IRepository<MerchandiseReturnAction> _merchandiseReturnActionRepository;
         private readonly IRepository<ContactUs> _contactUsRepository;
-        private readonly IRepository<CustomerAction> _customerAction;
-        private readonly IRepository<CustomerActionType> _customerActionType;
-        private readonly IRepository<CustomerActionHistory> _customerActionHistory;
-        private readonly IRepository<PopupArchive> _popupArchive;
-        private readonly IRepository<CustomerReminderHistory> _customerReminderHistoryRepository;
         private readonly IRepository<RecentlyViewedProduct> _recentlyViewedProductRepository;
         private readonly IRepository<KnowledgebaseArticle> _knowledgebaseArticleRepository;
         private readonly IRepository<KnowledgebaseCategory> _knowledgebaseCategoryRepository;
         private readonly IRepository<OrderTag> _orderTagRepository;
         private readonly IRepository<OrderStatus> _orderStatusRepository;
-        private readonly IRepository<PopupActive> _popupActiveRepository;
         private readonly IRepository<PickupPoint> _pickupPointRepository;
         private readonly IRepository<OutOfStockSubscription> _outOfStockSubscriptionRepository;
         private readonly IRepository<ShipmentNote> _shipmentNoteRepository;
         private readonly IRepository<PaymentTransaction> _paymentTransactionRepository;
         private readonly IRepository<QueuedEmail> _queuedEmailRepository;
         private readonly IRepository<GiftVoucher> _giftVoucherRepository;
-        private readonly IRepository<CustomerReminder> _customerReminderRepository;
         private readonly IRepository<DocumentType> _documentTypeRepository;
         private readonly IRepository<Document> _documentRepository;
         private readonly IRepository<SalesEmployee> _salesRepository;
         private readonly IRepository<VendorReview> _vendorReviewRepository;
         private readonly IRepository<NewsletterCategory> _newsletterCategoryRepository;
-        private readonly IRepository<InteractiveForm> _formRepository;
-        private readonly IRepository<Banner> _bannerRepository;
         private readonly IRepository<Course> _courseRepository;
         private readonly IRepository<CourseLevel> _courseLevelRepository;
         private readonly IRepository<RobotsTxt> _robotsTxtRepository;
@@ -239,31 +230,22 @@ namespace Grand.Business.System.Services.Installation
             IRepository<MerchandiseReturnReason> merchandiseReturnReasonRepository,
             IRepository<MerchandiseReturnAction> merchandiseReturnActionRepository,
             IRepository<ContactUs> contactUsRepository,
-            IRepository<CustomerAction> customerAction,
-            IRepository<CustomerActionType> customerActionType,
-            IRepository<CustomerActionHistory> customerActionHistory,
-            IRepository<PopupArchive> popupArchive,
-            IRepository<CustomerReminderHistory> customerReminderHistoryRepository,
             IRepository<RecentlyViewedProduct> recentlyViewedProductRepository,
             IRepository<KnowledgebaseArticle> knowledgebaseArticleRepository,
             IRepository<KnowledgebaseCategory> knowledgebaseCategoryRepository,
             IRepository<OrderTag> orderTagRepository,
             IRepository<OrderStatus> orderStatusRepository,
-            IRepository<PopupActive> popupActiveRepository,
             IRepository<PickupPoint> pickupPointRepository,
             IRepository<OutOfStockSubscription> outOfStockSubscriptionRepository,
             IRepository<ShipmentNote> shipmentNoteRepository,
             IRepository<PaymentTransaction> paymentTransactionRepository,
             IRepository<QueuedEmail> queuedEmailRepository,
             IRepository<GiftVoucher> giftVoucherRepository,
-            IRepository<CustomerReminder> customerReminderRepository,
             IRepository<DocumentType> documentTypeRepository,
             IRepository<Document> documentRepository,
             IRepository<SalesEmployee> salesRepository,
             IRepository<VendorReview> vendorReviewRepository,
             IRepository<NewsletterCategory> newsletterCategoryRepository,
-            IRepository<InteractiveForm> formRepository,
-            IRepository<Banner> bannerRepository,
             IRepository<Course> courseRepository,
             IRepository<CourseLevel> courseLevelRepository,
             IRepository<RobotsTxt> robotsTxtRepository)
@@ -346,23 +328,16 @@ namespace Grand.Business.System.Services.Installation
             _merchandiseReturnReasonRepository = merchandiseReturnReasonRepository;
             _contactUsRepository = contactUsRepository;
             _merchandiseReturnActionRepository = merchandiseReturnActionRepository;
-            _customerAction = customerAction;
-            _customerActionType = customerActionType;
-            _customerActionHistory = customerActionHistory;
-            _customerReminderHistoryRepository = customerReminderHistoryRepository;
             _knowledgebaseArticleRepository = knowledgebaseArticleRepository;
             _knowledgebaseCategoryRepository = knowledgebaseCategoryRepository;
-            _popupArchive = popupArchive;
             _orderTagRepository = orderTagRepository;
             _orderStatusRepository = orderStatusRepository;
-            _popupActiveRepository = popupActiveRepository;
             _pickupPointRepository = pickupPointRepository;
             _outOfStockSubscriptionRepository = outOfStockSubscriptionRepository;
             _blogCategoryRepository = blogCategoryRepository;
             _paymentTransactionRepository = paymentTransactionRepository;
             _queuedEmailRepository = queuedEmailRepository;
             _giftVoucherRepository = giftVoucherRepository;
-            _customerReminderRepository = customerReminderRepository;
             _documentTypeRepository = documentTypeRepository;
             _documentRepository = documentRepository;
             _salesRepository = salesRepository;
@@ -370,8 +345,6 @@ namespace Grand.Business.System.Services.Installation
             _vendorReviewRepository = vendorReviewRepository;
             _contactAttributeRepository = contactAttributeRepository;
             _newsletterCategoryRepository = newsletterCategoryRepository;
-            _formRepository = formRepository;
-            _bannerRepository = bannerRepository;
             _courseRepository = courseRepository;
             _courseLevelRepository = courseLevelRepository;
             _robotsTxtRepository = robotsTxtRepository;
@@ -466,9 +439,6 @@ namespace Grand.Business.System.Services.Installation
             //customer note
             await dbContext.CreateIndex(_customerNoteRepository, OrderBuilder<CustomerNote>.Create().Ascending(x => x.CustomerId).Descending(x => x.CreatedOnUtc), "CustomerId");
             await dbContext.CreateIndex(_customerNoteRepository, OrderBuilder<CustomerNote>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
-
-            //customer reminder 
-            await dbContext.CreateIndex(_customerReminderRepository, OrderBuilder<CustomerReminder>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
 
             //user api
             await dbContext.CreateIndex(_userapiRepository, OrderBuilder<UserApi>.Create().Ascending(x => x.Email), "Email", true);
@@ -687,17 +657,6 @@ namespace Grand.Business.System.Services.Installation
             await dbContext.CreateIndex(_contactUsRepository, OrderBuilder<ContactUs>.Create().Ascending(x => x.Email), "Email");
             await dbContext.CreateIndex(_contactUsRepository, OrderBuilder<ContactUs>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
 
-            //customer action
-            await dbContext.CreateIndex(_customerAction, OrderBuilder<CustomerAction>.Create().Ascending(x => x.ActionTypeId), "ActionTypeId");
-            await dbContext.CreateIndex(_customerActionHistory, OrderBuilder<CustomerActionHistory>.Create().Ascending(x => x.CustomerId).Ascending(x => x.CustomerActionId), "Customer_Action");
-
-            //banner
-            await dbContext.CreateIndex(_popupArchive, OrderBuilder<PopupArchive>.Create().Ascending(x => x.CustomerActionId), "CustomerActionId");
-            await dbContext.CreateIndex(_popupActiveRepository, OrderBuilder<PopupActive>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
-
-            //customer reminder
-            await dbContext.CreateIndex(_customerReminderHistoryRepository, OrderBuilder<CustomerReminderHistory>.Create().Ascending(x => x.CustomerId).Ascending(x => x.CustomerReminderId), "CustomerId");
-
             //page
             await dbContext.CreateIndex(_pageRepository, OrderBuilder<Page>.Create().Ascending(x => x.DisplayOrder).Ascending(x => x.SystemName), "DisplayOrder_SystemName");
 
@@ -732,12 +691,6 @@ namespace Grand.Business.System.Services.Installation
 
             //newslettercategory
             await dbContext.CreateIndex(_newsletterCategoryRepository, OrderBuilder<NewsletterCategory>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
-
-            //interactive form
-            await dbContext.CreateIndex(_formRepository, OrderBuilder<InteractiveForm>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
-
-            //banner
-            await dbContext.CreateIndex(_bannerRepository, OrderBuilder<Banner>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
 
             //course
             await dbContext.CreateIndex(_courseRepository, OrderBuilder<Course>.Create().Ascending(x => x.CreatedOnUtc), "CreatedOnUtc");
@@ -811,7 +764,6 @@ namespace Grand.Business.System.Services.Installation
             await InstallCustomersAndUsers(defaultUserEmail, defaultUserPassword);
             await InstallEmailAccounts();
             await InstallMessageTemplates();
-            await InstallCustomerAction();
             await InstallSettings(installSampleData);
             await InstallPageLayouts();
             await InstallPages();

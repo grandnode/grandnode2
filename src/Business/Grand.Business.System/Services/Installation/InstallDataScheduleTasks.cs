@@ -59,63 +59,7 @@ namespace Grand.Business.System.Services.Installation
                     Enabled = false,
                     StopOnError = false,
                     TimeInterval = 10080
-                },
-                new ScheduleTask
-                {
-                    ScheduleTaskName = "Customer reminder - AbandonedCart",
-                    Type = "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.CustomerReminderAbandonedCartScheduleTask, Grand.Business.System",
-                    Enabled = false,
-                    StopOnError = false,
-                    TimeInterval = 20
-                },
-                new ScheduleTask
-                {
-                    ScheduleTaskName = "Customer reminder - RegisteredCustomer",
-                    Type = "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.CustomerReminderRegisteredCustomerScheduleTask, Grand.Business.System",
-                    Enabled = false,
-                    StopOnError = false,
-                    TimeInterval = 1440
-                },
-                new ScheduleTask
-                {
-                    ScheduleTaskName = "Customer reminder - LastActivity",
-                    Type = "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.CustomerReminderLastActivityScheduleTask, Grand.Business.System",
-                    Enabled = false,
-                    StopOnError = false,
-                    TimeInterval = 1440
-                },
-                new ScheduleTask
-                {
-                    ScheduleTaskName = "Customer reminder - LastPurchase",
-                    Type = "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.CustomerReminderLastPurchaseScheduleTask, Grand.Business.System",
-                    Enabled = false,
-                    StopOnError = false,
-                    TimeInterval = 1440
-                },
-                new ScheduleTask
-                {
-                    ScheduleTaskName = "Customer reminder - Birthday",
-                    Type = "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.CustomerReminderBirthdayScheduleTask, Grand.Business.System",
-                    Enabled = false,
-                    StopOnError = false,
-                    TimeInterval = 1440
-                },
-                new ScheduleTask
-                {
-                    ScheduleTaskName = "Customer reminder - Completed order",
-                    Type = "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.CustomerReminderCompletedOrderScheduleTask, Grand.Business.System",
-                    Enabled = false,
-                    StopOnError = false,
-                    TimeInterval = 1440
-                },
-                new ScheduleTask
-                {
-                    ScheduleTaskName = "Customer reminder - Unpaid order",
-                    Type = "Grand.Business.System.Services.BackgroundServices.ScheduleTasks.CustomerReminderUnpaidOrderScheduleTask, Grand.Business.System",
-                    Enabled = false,
-                    StopOnError = false,
-                    TimeInterval = 1440
-                },
+                },                
                 new ScheduleTask
                 {
                     ScheduleTaskName = "End of the auctions",

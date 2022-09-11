@@ -24,7 +24,6 @@ namespace Grand.Web.Commands.Handler.Customers
         private readonly IAddressAttributeService _addressAttributeService;
         private readonly ICustomerService _customerService;
         private readonly ICountryService _countryService;
-        private readonly ICustomerActionEventService _customerActionEventService;
 
         private readonly TaxSettings _taxSettings;
         private readonly CustomerSettings _customerSettings;
@@ -39,7 +38,6 @@ namespace Grand.Web.Commands.Handler.Customers
             IAddressAttributeService addressAttributeService,
             ICountryService countryService,
             ICustomerService customerService,
-            ICustomerActionEventService customerActionEventService,
             TaxSettings taxSettings,
             CustomerSettings customerSettings,
             AddressSettings addressSettings,
@@ -52,7 +50,6 @@ namespace Grand.Web.Commands.Handler.Customers
             _addressAttributeService = addressAttributeService;
             _countryService = countryService;
             _customerService = customerService;
-            _customerActionEventService = customerActionEventService;
             _taxSettings = taxSettings;
             _customerSettings = customerSettings;
             _addressSettings = addressSettings;
@@ -193,8 +190,6 @@ namespace Grand.Web.Commands.Handler.Customers
             //New customer has a free shipping for the first order
             if (_customerSettings.RegistrationFreeShipping)
                 await _customerService.UpdateCustomerField(request.Customer, x => x.FreeShipping, true);
-
-            await _customerActionEventService.Registration(request.Customer);
 
             return true;
         }

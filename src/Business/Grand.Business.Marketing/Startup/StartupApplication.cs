@@ -1,13 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Cms;
-using Grand.Business.Core.Interfaces.Marketing.Banners;
-using Grand.Business.Core.Interfaces.Marketing.Campaigns;
+﻿using Grand.Business.Core.Interfaces.Marketing.Campaigns;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Documents;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Business.Core.Interfaces.Marketing.PushNotifications;
-using Grand.Business.Marketing.Services.Banners;
 using Grand.Business.Marketing.Services.Campaigns;
 using Grand.Business.Marketing.Services.Contacts;
 using Grand.Business.Marketing.Services.Courses;
@@ -42,17 +39,11 @@ namespace Grand.Business.Marketing.Startup
         private void RegisterCustomer(IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<ICustomerTagService, CustomerTagService>();
-            serviceCollection.AddScoped<ICustomerActionService, CustomerActionService>();
-            serviceCollection.AddScoped<ICustomerActionEventService, CustomerActionEventService>();
-            serviceCollection.AddScoped<ICustomerReminderService, CustomerReminderService>();
             serviceCollection.AddScoped<ICustomerProductService, CustomerProductService>();
             serviceCollection.AddScoped<ICustomerCoordinatesService, CustomerCoordinatesService>();
         }
         private void RegisterCommon(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<IBannerService, BannerService>();
-            serviceCollection.AddScoped<IPopupService, PopupService>();
-            serviceCollection.AddScoped<IInteractiveFormService, InteractiveFormService>();
             serviceCollection.AddScoped<IContactAttributeParser, ContactAttributeParser>();
             serviceCollection.AddScoped<IContactAttributeService, ContactAttributeService>();
             serviceCollection.AddScoped<IContactUsService, ContactUsService>();
