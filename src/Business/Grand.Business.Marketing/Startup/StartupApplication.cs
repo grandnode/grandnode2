@@ -1,10 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Marketing.Banners;
+﻿using Grand.Business.Core.Interfaces.Cms;
+using Grand.Business.Core.Interfaces.Marketing.Banners;
 using Grand.Business.Core.Interfaces.Marketing.Campaigns;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Interfaces.Marketing.Courses;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Documents;
-using Grand.Business.Core.Interfaces.Marketing.Knowledgebase;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Business.Core.Interfaces.Marketing.PushNotifications;
 using Grand.Business.Marketing.Services.Banners;
@@ -13,7 +13,6 @@ using Grand.Business.Marketing.Services.Contacts;
 using Grand.Business.Marketing.Services.Courses;
 using Grand.Business.Marketing.Services.Customers;
 using Grand.Business.Marketing.Services.Documents;
-using Grand.Business.Marketing.Services.Knowledgebase;
 using Grand.Business.Marketing.Services.Newsteletters;
 using Grand.Business.Marketing.Services.PushNotifications;
 using Grand.Infrastructure;
@@ -30,7 +29,6 @@ namespace Grand.Business.Marketing.Startup
         {
             RegisterCoursesService(services);
             RegisterDocumentsService(services);
-            RegisterKnowledgebaseService(services);
             RegisterCommon(services);
             RegisterCustomer(services);
         }
@@ -79,10 +77,5 @@ namespace Grand.Business.Marketing.Startup
             serviceCollection.AddScoped<IDocumentService, DocumentService>();
 
         }
-        private void RegisterKnowledgebaseService(IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddScoped<IKnowledgebaseService, KnowledgebaseService>();
-        }
-
     }
 }

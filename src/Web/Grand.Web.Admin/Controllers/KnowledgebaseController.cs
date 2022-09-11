@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Business.Core.Interfaces.Marketing.Knowledgebase;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Knowledgebase;
@@ -12,6 +11,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Business.Core.Interfaces.Cms;
 
 namespace Grand.Web.Admin.Controllers
 {

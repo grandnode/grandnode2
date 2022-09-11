@@ -1,7 +1,7 @@
 ﻿using Grand.Domain;
 using Grand.Domain.Knowledgebase;
 
-namespace Grand.Business.Core.Interfaces.Marketing.Knowledgebase
+namespace Grand.Business.Core.Interfaces.Cms
 {
     public interface IKnowledgebaseService
     {

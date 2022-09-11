@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Marketing.Knowledgebase;
+﻿using Grand.Business.Core.Interfaces.Cms;
 using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
@@ -11,7 +10,7 @@ using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using MediatR;
 
-namespace Grand.Business.Marketing.Services.Knowledgebase
+namespace Grand.Business.Cms.Services
 {
     public class KnowledgebaseService : IKnowledgebaseService
     {
@@ -344,7 +343,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
                     //Store acl
                     query = from p in query
                             where !p.LimitedToStores || p.Stores.Contains(_workContext.CurrentStore.Id)
-                            select p; 
+                            select p;
                 }
 
                 return await Task.FromResult(query.FirstOrDefault());
@@ -522,7 +521,7 @@ namespace Grand.Business.Marketing.Services.Knowledgebase
 
                 query = query.Where(p => p.Locales.Any(x => x.LocaleKey == "Name" && x.LocaleValue != null && x.LocaleValue.ToLower().Contains(name.ToLower()))
                     || p.Name.ToLower().Contains(name.ToLower()));
-                
+
             }
 
             query = query.OrderBy(x => x.DisplayOrder);
