@@ -13,5 +13,14 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- script: dotnet build --configuration $(buildConfiguration)
+- task: NuGetCommand@2
+  inputs:
+    command: 'restore'
+    feedsToUse: 'config'
+    nugetConfigPath: 'nuget.config'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    arguments: '--configuration $(buildConfiguration)'
   displayName: 'dotnet build $(buildConfiguration)'
