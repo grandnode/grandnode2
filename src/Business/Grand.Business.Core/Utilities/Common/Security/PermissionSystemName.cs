@@ -22,8 +22,6 @@
         public const string Reports = "ManageReports";
         public const string CustomerGroups = "ManageCustomerGroups";
         public const string SalesEmployees = "ManageSalesEmployees";
-        public const string Actions = "ManageActions";
-        public const string Reminders = "ManageReminders";
         public const string Vendors = "ManageVendors";
         public const string VendorReviews = "ManageVendorReviews";
         public const string CurrentCarts = "ManageCurrentCarts";
@@ -37,8 +35,6 @@
         public const string Affiliates = "ManageAffiliates";
         public const string PushNotifications = "ManagePushNotifications";
         public const string Campaigns = "ManageCampaigns";
-        public const string Banners = "ManageBanners";
-        public const string InteractiveForms = "ManageInteractiveForms";
         public const string Discounts = "ManageDiscounts";
         public const string NewsletterSubscribers = "ManageNewsletterSubscribers";
         public const string NewsletterCategories = "ManageNewsletterCategories";

@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Marketing.Courses;
-using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Courses;
 using Grand.Domain.Customers;
@@ -25,7 +24,6 @@ namespace Grand.Web.Controllers
         private readonly IGroupService _groupService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ITranslationService _translationService;
-        private readonly ICustomerActionEventService _customerActionEventService;
         private readonly ICourseService _courseService;
         private readonly ICourseLessonService _courseLessonService;
         private readonly IDownloadService _downloadService;
@@ -39,7 +37,6 @@ namespace Grand.Web.Controllers
             IGroupService groupService,
             ICustomerActivityService customerActivityService,
             ITranslationService translationService,
-            ICustomerActionEventService customerActionEventService,
             ICourseService courseService,
             ICourseLessonService courseLessonService,
             IDownloadService downloadService,
@@ -52,7 +49,6 @@ namespace Grand.Web.Controllers
             _groupService = groupService;
             _customerActivityService = customerActivityService;
             _translationService = translationService;
-            _customerActionEventService = customerActionEventService;
             _courseService = courseService;
             _courseLessonService = courseLessonService;
             _downloadService = downloadService;
@@ -108,7 +104,6 @@ namespace Grand.Web.Controllers
             _ = _customerActivityService.InsertActivity("PublicStore.ViewCourse", course.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewCourse"), course.Name);
-            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path.ToString(), Request.GetTypedHeaders().Referer?.ToString());
 
             //model
             var model = await _mediator.Send(new GetCourse() {
@@ -142,7 +137,6 @@ namespace Grand.Web.Controllers
             _ = _customerActivityService.InsertActivity("PublicStore.ViewLesson", lesson.Id,
                 _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewLesson"), lesson.Name);
-            await _customerActionEventService.Viewed(customer, HttpContext.Request.Path, Request.GetTypedHeaders().Referer?.ToString());
 
             //model
             var model = await _mediator.Send(new GetLesson() {

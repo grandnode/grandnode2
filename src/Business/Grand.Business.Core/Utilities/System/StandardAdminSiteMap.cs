@@ -313,8 +313,8 @@ namespace Grand.Business.Core.Utilities.System
                     SystemName = "Marketing",
                     ResourceName = "Admin.Marketing",
                     PermissionNames = new List<string> { PermissionSystemName.Affiliates, PermissionSystemName.NewsletterCategories, PermissionSystemName.NewsletterSubscribers,
-                        PermissionSystemName.Campaigns, PermissionSystemName.Discounts, PermissionSystemName.Actions, PermissionSystemName.Reminders, PermissionSystemName.PushNotifications,
-                        PermissionSystemName.Banners, PermissionSystemName.InteractiveForms, PermissionSystemName.Affiliates, PermissionSystemName.Documents, PermissionSystemName.GiftVouchers,
+                        PermissionSystemName.Campaigns, PermissionSystemName.Discounts, PermissionSystemName.PushNotifications,
+                        PermissionSystemName.Affiliates, PermissionSystemName.Documents, PermissionSystemName.GiftVouchers,
                         PermissionSystemName.ContactAttributes},
                     IconClass = "icon-bulb",
                     DisplayOrder = 4,
@@ -336,16 +336,7 @@ namespace Grand.Business.Core.Utilities.System
                             ActionName = "List",
                             DisplayOrder = 1,
                             IconClass = "fa fa-dot-circle-o"
-                        },
-                        new AdminSiteMap {
-                            SystemName = "Customer reminders",
-                            ResourceName = "Admin.Customers.CustomerReminders",
-                            PermissionNames = new List<string> { PermissionSystemName.Reminders },
-                            ControllerName = "CustomerReminder",
-                            ActionName = "List",
-                            DisplayOrder = 2,
-                            IconClass = "fa fa-dot-circle-o"
-                        },
+                        },                        
                         new AdminSiteMap {
                             SystemName = "Affiliates",
                             ResourceName = "Admin.Affiliates",
@@ -400,51 +391,6 @@ namespace Grand.Business.Core.Utilities.System
                                 }
                             }
                         },                      
-                        new AdminSiteMap {
-                            SystemName = "Customer actions",
-                            ResourceName = "Admin.Customers.CustomerActions",
-                            PermissionNames = new List<string> { PermissionSystemName.Actions, PermissionSystemName.Banners, PermissionSystemName.InteractiveForms },
-                            IconClass = "fa fa-dot-circle-o",
-                            DisplayOrder = 6,
-                            ChildNodes = new List<AdminSiteMap>() {
-                                new AdminSiteMap {
-                                    SystemName = "Customer action type",
-                                    ResourceName = "Admin.Customers.Actiontype",
-                                    PermissionNames = new List<string> { PermissionSystemName.Actions },
-                                    ControllerName = "CustomerActionType",
-                                    ActionName = "ListTypes",
-                                    DisplayOrder = 0,
-                                    IconClass = "fa fa-dot-circle-o"
-                                },
-                                new AdminSiteMap {
-                                    SystemName = "Customer actions",
-                                    ResourceName = "Admin.Customers.CustomerActions",
-                                    PermissionNames = new List<string> { PermissionSystemName.Actions },
-                                    ControllerName = "CustomerAction",
-                                    ActionName = "List",
-                                    DisplayOrder = 1,
-                                    IconClass = "fa fa-dot-circle-o"
-                                },
-                                new AdminSiteMap {
-                                    SystemName = "Banners",
-                                    ResourceName = "Admin.Marketing.Banners",
-                                    PermissionNames = new List<string> { PermissionSystemName.Banners },
-                                    ControllerName = "Banner",
-                                    ActionName = "List",
-                                    DisplayOrder = 2,
-                                    IconClass = "fa fa-dot-circle-o"
-                                },
-                                new AdminSiteMap {
-                                    SystemName = "InteractiveForms",
-                                    ResourceName = "Admin.Marketing.InteractiveForms",
-                                    PermissionNames = new List<string> { PermissionSystemName.InteractiveForms },
-                                    ControllerName = "InteractiveForm",
-                                    ActionName = "List",
-                                    DisplayOrder = 3,
-                                    IconClass = "fa fa-dot-circle-o"
-                                }
-                            }
-                        },
                         new AdminSiteMap {
                             SystemName = "PushNotifications",
                             ResourceName = "Admin.PushNotifications",

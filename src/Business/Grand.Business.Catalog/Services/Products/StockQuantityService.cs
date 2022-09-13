@@ -8,14 +8,10 @@ namespace Grand.Business.Catalog.Services.Products
     public class StockQuantityService : IStockQuantityService
     {
         private readonly ITranslationService _translationService;
-        private readonly IProductAttributeParser _productAttributeParser;
-
         public StockQuantityService(
-            ITranslationService translationService,
-            IProductAttributeParser productAttributeParser)
+            ITranslationService translationService)
         {
             _translationService = translationService;
-            _productAttributeParser = productAttributeParser;
         }
 
         public virtual int GetTotalStockQuantity(Product product, bool useReservedQuantity = true,
@@ -154,7 +150,7 @@ namespace Grand.Business.Catalog.Services.Products
                         if (!product.StockAvailability)
                             return stockMessage;
 
-                        var combination = _productAttributeParser.FindProductAttributeCombination(product, attributes);
+                        var combination = product.FindProductAttributeCombination(attributes);
                         if (combination != null)
                         {
                             //combination exists

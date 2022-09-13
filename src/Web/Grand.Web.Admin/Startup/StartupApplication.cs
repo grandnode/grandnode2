@@ -32,11 +32,9 @@ namespace Grand.Web.Admin.Startup
             services.AddScoped<ICountryViewModelService, CountryViewModelService>();
             services.AddScoped<ICourseViewModelService, CourseViewModelService>();
             services.AddScoped<ICurrencyViewModelService, CurrencyViewModelService>();
-            services.AddScoped<ICustomerActionViewModelService, CustomerActionViewModelService>();
             services.AddScoped<ICustomerAttributeViewModelService, CustomerAttributeViewModelService>();
             services.AddScoped<ICustomerViewModelService, CustomerViewModelService>();
             services.AddScoped<ICustomerReportViewModelService, CustomerReportViewModelService>();
-            services.AddScoped<ICustomerReminderViewModelService, CustomerReminderViewModelService>();
             services.AddScoped<ICustomerGroupViewModelService, CustomerGroupViewModelService>();
             services.AddScoped<ICustomerTagViewModelService, CustomerTagViewModelService>();
             services.AddScoped<IDiscountViewModelService, DiscountViewModelService>();

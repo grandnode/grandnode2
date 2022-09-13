@@ -1,10 +1,10 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Categories;
+﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Logging;
+using Grand.Domain.Catalog;
 using Grand.Domain.Logging;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
@@ -120,7 +120,6 @@ namespace Widgets.GoogleAnalytics.Components
 
                 var productService = _serviceProvider.GetRequiredService<IProductService>();
                 var categoryService = _serviceProvider.GetRequiredService<ICategoryService>();
-                var productAttributeParser = _serviceProvider.GetRequiredService<IProductAttributeParser>();
 
                 foreach (var item in order.OrderItems)
                 {
@@ -136,7 +135,7 @@ namespace Widgets.GoogleAnalytics.Components
                     }
                     analyticsEcommerceDetailScript = analyticsEcommerceDetailScript.Replace("{ORDERID}", order.Id.ToString());
                     //The SKU code is a required parameter for every item that is added to the transaction
-                    analyticsEcommerceDetailScript = analyticsEcommerceDetailScript.Replace("{PRODUCTSKU}", FixIllegalJavaScriptChars(product.FormatSku(item.Attributes, productAttributeParser)));
+                    analyticsEcommerceDetailScript = analyticsEcommerceDetailScript.Replace("{PRODUCTSKU}", FixIllegalJavaScriptChars(product.FormatSku(item.Attributes)));
                     analyticsEcommerceDetailScript = analyticsEcommerceDetailScript.Replace("{PRODUCTNAME}", FixIllegalJavaScriptChars(product.Name));
                     analyticsEcommerceDetailScript = analyticsEcommerceDetailScript.Replace("{CATEGORYNAME}", FixIllegalJavaScriptChars(category));
                     var unitPrice = _googleAnalyticsEcommerceSettings.IncludingTax ? item.UnitPriceInclTax : item.UnitPriceExclTax;

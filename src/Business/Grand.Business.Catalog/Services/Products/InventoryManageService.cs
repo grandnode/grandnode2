@@ -18,7 +18,6 @@ namespace Grand.Business.Catalog.Services.Products
 
         private readonly IRepository<Product> _productRepository;
         private readonly IRepository<InventoryJournal> _inventoryJournalRepository;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IStockQuantityService _stockQuantityService;
         private readonly ICacheBase _cacheBase;
         private readonly IMediator _mediator;
@@ -31,7 +30,6 @@ namespace Grand.Business.Catalog.Services.Products
         public InventoryManageService(
             IRepository<Product> productRepository,
             IRepository<InventoryJournal> inventoryJournalRepository,
-            IProductAttributeParser productAttributeParser,
             IStockQuantityService stockQuantityService,
             ICacheBase cacheBase,
             IMediator mediator,
@@ -39,7 +37,6 @@ namespace Grand.Business.Catalog.Services.Products
         {
             _productRepository = productRepository;
             _inventoryJournalRepository = inventoryJournalRepository;
-            _productAttributeParser = productAttributeParser;
             _stockQuantityService = stockQuantityService;
             _cacheBase = cacheBase;
             _mediator = mediator;
@@ -79,7 +76,7 @@ namespace Grand.Business.Catalog.Services.Products
         }
         private async Task ManageStockByAttributesInventory(Product product, Shipment shipment, ShipmentItem shipmentItem)
         {
-            var combination = _productAttributeParser.FindProductAttributeCombination(product, shipmentItem.Attributes);
+            var combination = product.FindProductAttributeCombination(shipmentItem.Attributes);
             if (combination == null)
                 return;
 
@@ -140,7 +137,7 @@ namespace Grand.Business.Catalog.Services.Products
         }
         private async Task ManageAttributesInventory(Product product, Shipment shipment, ShipmentItem shipmentItem)
         {
-            var attributeValues = _productAttributeParser.ParseProductAttributeValues(product, shipmentItem.Attributes);
+            var attributeValues = product.ParseProductAttributeValues(shipmentItem.Attributes);
             foreach (var attributeValue in attributeValues)
             {
                 if (attributeValue.AttributeValueTypeId == AttributeValueType.AssociatedToProduct)
@@ -207,7 +204,7 @@ namespace Grand.Business.Catalog.Services.Products
             //manage stock by attributes
             if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
             {
-                var combination = _productAttributeParser.FindProductAttributeCombination(product, inventoryJournal.Attributes);
+                var combination = product.FindProductAttributeCombination(inventoryJournal.Attributes);
                 if (combination == null)
                     return;
 
@@ -406,7 +403,7 @@ namespace Grand.Business.Catalog.Services.Products
 
             if (attributes != null && product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
             {
-                var combination = _productAttributeParser.FindProductAttributeCombination(product, attributes);
+                var combination = product.FindProductAttributeCombination(attributes);
                 if (combination != null)
                 {
                     if (quantityToChange < 0)
@@ -438,7 +435,7 @@ namespace Grand.Business.Catalog.Services.Products
             }
 
             //bundled products
-            var attributeValues = _productAttributeParser.ParseProductAttributeValues(product, attributes);
+            var attributeValues = product.ParseProductAttributeValues(attributes);
             foreach (var attributeValue in attributeValues)
             {
                 if (attributeValue.AttributeValueTypeId == AttributeValueType.AssociatedToProduct)

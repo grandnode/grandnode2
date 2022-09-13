@@ -21,20 +21,18 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Web.Extensions;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart
 {
     public class GetWishlistHandler : IRequestHandler<GetWishlist, WishlistModel>
     {
         private readonly IPermissionService _permissionService;
-        private readonly IShoppingCartService _shoppingCartService;
         private readonly IProductService _productService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
         private readonly ITranslationService _translationService;
         private readonly ITaxService _taxService;
         private readonly IPricingService _pricingService;
-        private readonly IAclService _aclService;
         private readonly IPriceFormatter _priceFormatter;
         private readonly IPictureService _pictureService;
         private readonly IShoppingCartValidator _shoppingCartValidator;
@@ -46,14 +44,11 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
         public GetWishlistHandler(
             IPermissionService permissionService,
-            IShoppingCartService shoppingCartService,
             IProductService productService,
-            IProductAttributeParser productAttributeParser,
             IProductAttributeFormatter productAttributeFormatter,
             ITranslationService translationService,
             ITaxService taxService,
             IPricingService priceCalculationService,
-            IAclService aclService,
             IPriceFormatter priceFormatter,
             IPictureService pictureService,
             IShoppingCartValidator shoppingCartValidator,
@@ -64,14 +59,11 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             MediaSettings mediaSettings)
         {
             _permissionService = permissionService;
-            _shoppingCartService = shoppingCartService;
             _productService = productService;
-            _productAttributeParser = productAttributeParser;
             _productAttributeFormatter = productAttributeFormatter;
             _translationService = translationService;
             _taxService = taxService;
             _pricingService = priceCalculationService;
-            _aclService = aclService;
             _priceFormatter = priceFormatter;
             _pictureService = pictureService;
             _shoppingCartValidator = shoppingCartValidator;
@@ -120,7 +112,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                 var cartItemModel = new WishlistModel.ShoppingCartItemModel
                 {
                     Id = sci.Id,
-                    Sku = product.FormatSku(sci.Attributes, _productAttributeParser),
+                    Sku = product.FormatSku(sci.Attributes),
                     ProductId = product.Id,
                     ProductName = product.GetTranslation(x => x.Name, request.Language.Id),
                     ProductSeName = sename,
@@ -209,7 +201,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
         private async Task<PictureModel> PrepareCartItemPicture(GetWishlist request,
             Product product, IList<CustomAttribute> attributes)
         {
-            var sciPicture = await product.GetProductPicture(attributes, _productService, _pictureService, _productAttributeParser);
+            var sciPicture = await product.GetProductPicture(attributes, _productService, _pictureService);
             return new PictureModel
             {
                 Id = sciPicture?.Id,

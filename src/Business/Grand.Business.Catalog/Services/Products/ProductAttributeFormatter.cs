@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using System.Net;
@@ -19,7 +20,6 @@ namespace Grand.Business.Catalog.Services.Products
     {
         private readonly IWorkContext _workContext;
         private readonly IProductAttributeService _productAttributeService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly ITranslationService _translationService;
         private readonly ITaxService _taxService;
         private readonly IPriceFormatter _priceFormatter;
@@ -28,7 +28,6 @@ namespace Grand.Business.Catalog.Services.Products
 
         public ProductAttributeFormatter(IWorkContext workContext,
             IProductAttributeService productAttributeService,
-            IProductAttributeParser productAttributeParser,
             ITranslationService translationService,
             ITaxService taxService,
             IPriceFormatter priceFormatter,
@@ -37,7 +36,6 @@ namespace Grand.Business.Catalog.Services.Products
         {
             _workContext = workContext;
             _productAttributeService = productAttributeService;
-            _productAttributeParser = productAttributeParser;
             _translationService = translationService;
             _taxService = taxService;
             _priceFormatter = priceFormatter;
@@ -128,13 +126,8 @@ namespace Grand.Business.Catalog.Services.Products
             {
                 if (product.IsGiftVoucher)
                 {
-                    string giftVoucherRecipientName;
-                    string giftVoucherRecipientEmail;
-                    string giftVoucherSenderName;
-                    string giftVoucherSenderEmail;
-                    string giftVoucherMessage;
-                    _productAttributeParser.GetGiftVoucherAttribute(customAttributes, out giftVoucherRecipientName, out giftVoucherRecipientEmail,
-                        out giftVoucherSenderName, out giftVoucherSenderEmail, out giftVoucherMessage);
+                    GiftVoucherExtensions.GetGiftVoucherAttribute(customAttributes, out var giftVoucherRecipientName, out var giftVoucherRecipientEmail,
+                        out var giftVoucherSenderName, out var giftVoucherSenderEmail, out var giftVoucherMessage);
 
                     //sender
                     var giftVoucherFrom = product.GiftVoucherTypeId == GiftVoucherType.Virtual ?
@@ -169,7 +162,7 @@ namespace Grand.Business.Catalog.Services.Products
             bool allowHyperlinks, bool showInAdmin)
         {
             var result = new StringBuilder();
-            var attributes = _productAttributeParser.ParseProductAttributeMappings(product, customAttributes);
+            var attributes = product.ParseProductAttributeMappings(customAttributes);
             for (int i = 0; i < attributes.Count; i++)
             {
                 var productAttribute = await _productAttributeService.GetProductAttributeById(attributes[i].ProductAttributeId);
@@ -177,7 +170,7 @@ namespace Grand.Business.Catalog.Services.Products
                     continue;
 
                 var attribute = attributes[i];
-                var valuesStr = _productAttributeParser.ParseValues(customAttributes, attribute.Id);
+                var valuesStr = ProductExtensions.ParseValues(customAttributes, attribute.Id);
                 for (int j = 0; j < valuesStr.Count; j++)
                 {
                     string valueStr = valuesStr[j];

@@ -6,14 +6,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
     /// Shipment tracker
     /// </summary>
     public partial interface IShipmentTracker
-    {
-        /// <summary>
-        /// Gets if the current tracker can track the tracking number.
-        /// </summary>
-        /// <param name="trackingNumber">The tracking number to track.</param>
-        /// <returns>True if the tracker can track, otherwise false.</returns>
-        Task<bool> IsMatch(string trackingNumber);
-
+    {        
         /// <summary>
         /// Gets a url for a page to show tracking info (third party tracking page).
         /// </summary>

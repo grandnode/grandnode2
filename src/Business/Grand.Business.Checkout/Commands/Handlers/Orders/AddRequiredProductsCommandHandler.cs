@@ -1,12 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Checkout.Services.Orders;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using MediatR;
-using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Utilities.Checkout;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders
 {
@@ -69,13 +67,12 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                                 productId: rp.Id,
                                 shoppingCartType: shoppingCartType,
                                 storeId: storeId,
-                                automaticallyAddRequiredProductsIfEnabled: false, 
+                                automaticallyAddRequiredProductsIfEnabled: false,
                                 validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false });
 
                             if (rp.RequireOtherProducts && addToCart.warnings.Count == 0)
                             {
-                                await Handle(new AddRequiredProductsCommand
-                                {
+                                await Handle(new AddRequiredProductsCommand {
                                     Customer = customer,
                                     ShoppingCartType = shoppingCartType,
                                     StoreId = storeId,

@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Interfaces.Marketing.Knowledgebase;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Logging;

@@ -903,18 +903,9 @@
 	<Resource Name="ActivityLog.AddNewCustomer" Area="Front">
 		<Value>Added a new customer (ID = {0})</Value>
 	</Resource>
-	<Resource Name="ActivityLog.AddNewCustomerAction" Area="Front">
-		<Value>Added a new customer action (ID = {0})</Value>
-	</Resource>
 	<Resource Name="ActivityLog.AddNewCustomerGroup" Area="Front">
 		<Value>Added a new customer group ('{0}')</Value>
-	</Resource>
-	<Resource Name="activitylog.addnewcustomerreminder" Area="Front">
-		<Value>Add new customer reminder</Value>
-	</Resource>
-	<Resource Name="activitylog.addnewcustomerreminderlevel" Area="Front">
-		<Value>Add new customer reminder Level</Value>
-	</Resource>
+	</Resource>	
 	<Resource Name="ActivityLog.AddNewCustomerTag" Area="Front">
 		<Value>Added a new customer tag ('{0}')</Value>
 	</Resource>
@@ -990,14 +981,8 @@
 	<Resource Name="ActivityLog.DeleteCustomer" Area="Front">
 		<Value>Deleted a customer (ID = {0})</Value>
 	</Resource>
-	<Resource Name="ActivityLog.DeleteCustomerAction" Area="Front">
-		<Value>Deleted a customer action</Value>
-	</Resource>
 	<Resource Name="ActivityLog.DeleteCustomerGroup" Area="Front">
 		<Value>Deleted a customer group ('{0}')</Value>
-	</Resource>
-	<Resource Name="activitylog.deletecustomerreminder" Area="Front">
-		<Value>Delete customer reminder</Value>
 	</Resource>
 	<Resource Name="ActivityLog.DeleteCustomerTag" Area="Front">
 		<Value>Deleted a customer group ('{0}')</Value>
@@ -1068,23 +1053,8 @@
 	<Resource Name="ActivityLog.EditCustomer" Area="Front">
 		<Value>Edited a customer (ID = {0})</Value>
 	</Resource>
-	<Resource Name="ActivityLog.editcustomeraction" Area="Front">
-		<Value>Edit customer action ('{0}')</Value>
-	</Resource>
-	<Resource Name="ActivityLog.editcustomeractioncondition" Area="Front">
-		<Value>Edit customer action condition ('{0}')</Value>
-	</Resource>
 	<Resource Name="ActivityLog.EditCustomerGroup" Area="Front">
 		<Value>Edited a customer group ('{0}')</Value>
-	</Resource>
-	<Resource Name="activitylog.editcustomerreminder" Area="Front">
-		<Value>Edit customer reminder</Value>
-	</Resource>
-	<Resource Name="activitylog.editcustomerremindercondition" Area="Front">
-		<Value>Edit Customer Reminder Condition</Value>
-	</Resource>
-	<Resource Name="activitylog.editcustomerreminderlevel" Area="Front">
-		<Value>Edit Customer Reminder Level</Value>
 	</Resource>
 	<Resource Name="ActivityLog.EditCustomerTag" Area="Front">
 		<Value>Edited a customer group ('{0}')</Value>
@@ -1131,33 +1101,6 @@
 	<Resource Name="ActivityLog.EditWidget" Area="Front">
 		<Value>Edited a widget (ID = {0})</Value>
 	</Resource>
-	<Resource Name="ActivityLog.InteractiveFormAdd" Area="Front">
-		<Value>Add Interactive form - {0}</Value>
-	</Resource>
-	<Resource Name="ActivityLog.InteractiveFormAddAttribute" Area="Front">
-		<Value>Add interactive form attribute - {0}</Value>
-	</Resource>
-	<Resource Name="ActivityLog.InteractiveFormAddAttributeValue" Area="Front">
-		<Value>Add Interactive Form Attribute Value - {0}</Value>
-	</Resource>
-	<Resource Name="ActivityLog.InteractiveFormDeleteAttribute" Area="Front">
-		<Value>Delete Interactive Form Attribute - {0}</Value>
-	</Resource>
-	<Resource Name="ActivityLog.InteractiveFormDeleteAttributeValue" Area="Front">
-		<Value>Delete Interactive Form Attribute Value - {0}</Value>
-	</Resource>
-	<Resource Name="ActivityLog.InteractiveFormDeleted" Area="Front">
-		<Value>Deleted Interactive form - {0}</Value>
-	</Resource>
-	<Resource Name="ActivityLog.InteractiveFormUpdate" Area="Front">
-		<Value>Update Interactive form - {0}</Value>
-	</Resource>
-	<Resource Name="ActivityLog.InteractiveFormUpdateAttribute" Area="Front">
-		<Value>Update Interactive Form Attribute - {0}</Value>
-	</Resource>
-	<Resource Name="ActivityLog.InteractiveFormUpdateAttributeValue" Area="Front">
-		<Value>Update Interactive Form Attribute Value - {0}</Value>
-	</Resource>
 	<Resource Name="Activitylog.lastactivity" Area="Front">
 		<Value>Public store. Last Activity </Value>
 	</Resource>
@@ -1196,9 +1139,6 @@
 	</Resource>
 	<Resource Name="ActivityLog.PublicStore.ContactUs" Area="Front">
 		<Value>Used contact us form</Value>
-	</Resource>
-	<Resource Name="ActivityLog.PublicStore.InteractiveForm" Area="Front">
-		<Value>PublicStore - Sent interactive form - {0}</Value>
 	</Resource>
 	<Resource Name="ActivityLog.PublicStore.Login" Area="Front">
 		<Value>Login</Value>
@@ -6327,9 +6267,6 @@
 	<Resource Name="admin.customers.actiontype.helpText.AllOfThem" Area="Admin">
 		<Value>All of them – All of the conditions must be met.</Value>
 	</Resource>
-	<Resource Name="admin.customers.actiontype.helpText.Banner" Area="Admin">
-		<Value>Banner – Store automatically view banner which is assigned to a particular action.</Value>
-	</Resource>
 	<Resource Name="admin.customers.actiontype.helpText.Customergroup" Area="Admin">
 		<Value>Assign to customer group – Store automatically assign customer to specified customer group.</Value>
 	</Resource>
@@ -6338,9 +6275,6 @@
 	</Resource>
 	<Resource Name="admin.customers.actiontype.helpText.Email" Area="Admin">
 		<Value>Email – Store automatically send email to customer, who made particular action.</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.Actiontype.helptext.interactiveform" Area="Admin">
-		<Value>Interactive form – Store automatically view form which is assigned to a particular action.</Value>
 	</Resource>
 	<Resource Name="admin.customers.actiontype.helpText.OneOfThem" Area="Admin">
 		<Value>One of them – One of condition must be met.</Value>
@@ -6362,228 +6296,6 @@
 	</Resource>
 	<Resource Name="admin.customers.attributes.customer" Area="Admin">
 		<Value>Customer attributes</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.addcustomeractioncondition" Area="Admin">
-		<Value>Add new condition</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.added" Area="Admin">
-		<Value>Action added</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.addnew" Area="Admin">
-		<Value>Add new action</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.backtoaction" Area="Admin">
-		<Value>Back to Action</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.backtolist" Area="Admin">
-		<Value>Back to customer action list</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.conditions" Area="Admin">
-		<Value>Conditions</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.conditions.addnew" Area="Admin">
-		<Value>Add new condition</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.Deleted" Area="Admin">
-		<Value>The customer action has been deleted successfully.</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.editcustomeraction" Area="Admin">
-		<Value>Edit action</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.editcustomeractioncondition" Area="Admin">
-		<Value>Edit condition</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.fields.actionTypeId" Area="Admin">
-		<Value>Action Type</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.fields.active" Area="Admin">
-		<Value>Active</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerAction.Fields.Banner" Area="Admin">
-		<Value>Display banner</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.fields.conditionId" Area="Admin">
-		<Value>Condition</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.fields.conditiontype" Area="Admin">
-		<Value>Condition type</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerAction.Fields.CustomerGroup" Area="Admin">
-		<Value>Customer group</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerAction.Fields.CustomerTag" Area="Admin">
-		<Value>Customer tag</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.fields.endDateTime" Area="Admin">
-		<Value>End datetime</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerAction.Fields.InteractiveForm" Area="Admin">
-		<Value>Interactive forms</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerAction.Fields.MessageTemplate" Area="Admin">
-		<Value>Send email</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.fields.name" Area="Admin">
-		<Value>Name</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.fields.name.required" Area="Admin">
-		<Value>Field name is required</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerAction.Fields.ReactionType" Area="Admin">
-		<Value>Reaction type</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.fields.startDateTime" Area="Admin">
-		<Value>Start DateTime</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.history" Area="Admin">
-		<Value>History</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.history.fields.createdate" Area="Admin">
-		<Value>Create date</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.history.fields.customer" Area="Admin">
-		<Value>Customer</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.info" Area="Admin">
-		<Value>Action Info</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.reaction" Area="Admin">
-		<Value>Reaction</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.saveBeforeEdit" Area="Admin">
-		<Value>You need to save the  before you can add values for this page</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeraction.updated" Area="Admin">
-		<Value>Action updated</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.added" Area="Admin">
-		<Value>Added condition</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.categories" Area="Admin">
-		<Value>Categories</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.category.addnew" Area="Admin">
-		<Value>Add new</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.collections" Area="Admin">
-		<Value>Collections</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.collections.addnew" Area="Admin">
-		<Value>Add new collection</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerActionCondition.customCustomerAttribute" Area="Admin">
-		<Value>Custom Customer Attributes</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.customergroup" Area="Admin">
-		<Value>Customer group</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.customerregister" Area="Admin">
-		<Value>Customer register</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.customertag" Area="Admin">
-		<Value>Customer tag</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.fields.categoryname" Area="Admin">
-		<Value>Add category</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.fields.collection" Area="Admin">
-		<Value>Collection</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.fields.conditionId" Area="Admin">
-		<Value>Condition</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerActionCondition.Fields.CustomCustomerAttributeName" Area="Admin">
-		<Value>Name</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerActionCondition.Fields.CustomCustomerAttributeValue" Area="Admin">
-		<Value>Value</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.fields.customerconditionTypeId" Area="Admin">
-		<Value>Condition Type</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerActionCondition.fields.customerGroupName" Area="Admin">
-		<Value>Customer group</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerActionCondition.fields.customerRegisterName" Area="Admin">
-		<Value>Customer registration - field name</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerActionCondition.fields.customerRegisterValue" Area="Admin">
-		<Value>Customer registration - field value</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerActionCondition.fields.customerTagName" Area="Admin">
-		<Value>Tag name</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.fields.name" Area="Admin">
-		<Value>Condition name</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.fields.name.required" Area="Admin">
-		<Value>Field name is required</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.fields.productattributename" Area="Admin">
-		<Value>Product attribute</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.fields.productattributevaluename" Area="Admin">
-		<Value>Product attribute value</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.fields.productname" Area="Admin">
-		<Value>Product name</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.fields.specificationname" Area="Admin">
-		<Value>Product Specification</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.fields.specificationvaluename" Area="Admin">
-		<Value>Product specification value</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerActionCondition.fields.storeName" Area="Admin">
-		<Value>Store name</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerActionCondition.Fields.UrlCurrentName" Area="Admin">
-		<Value>Current Url</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerActionCondition.Fields.UrlReferrerName" Area="Admin">
-		<Value>Url Referrer</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.fields.vendorname" Area="Admin">
-		<Value>Vendor name</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.info" Area="Admin">
-		<Value>Condition info</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.productattributes" Area="Admin">
-		<Value>Product attributes</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.products" Area="Admin">
-		<Value>Products</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.products.addnew" Area="Admin">
-		<Value>Add new</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.productspecifications" Area="Admin">
-		<Value>Product specifications</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.saveBeforeEdit" Area="Admin">
-		<Value>You need to save the  before you can add values for this page</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerActionCondition.Store" Area="Admin">
-		<Value>Store</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.updated" Area="Admin">
-		<Value>Condition updated</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.urlcurrent" Area="Admin">
-		<Value>Current URL</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.urlreferrer" Area="Admin">
-		<Value>Url referrer</Value>
-	</Resource>
-	<Resource Name="admin.customers.customeractioncondition.vendors" Area="Admin">
-		<Value>Vendors</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerActions" Area="Admin">
-		<Value>Customer actions</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerActionType" Area="Admin">
-		<Value>Customer Action Type</Value>
 	</Resource>
 	<Resource Name="Admin.Customers.CustomerAttributes" Area="Admin">
 		<Value>Custom customer attributes</Value>
@@ -6776,265 +6488,7 @@
 	</Resource>
 	<Resource Name="Admin.Customers.CustomerNotes.Fields.Title" Area="Admin">
 		<Value>Title</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.Customerreminder.Addcondition" Area="Admin">
-		<Value>Add condition</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.added" Area="Admin">
-		<Value>Reminder added</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.Customerreminder.Addlevel" Area="Admin">
-		<Value>Add level</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.Customerreminder.Addnew" Area="Admin">
-		<Value>Add new</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.backtoaction" Area="Admin">
-		<Value>Back to action</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.backtolist" Area="Admin">
-		<Value>Back to customer reminder list</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.added" Area="Admin">
-		<Value>Condition added</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.categories" Area="Admin">
-		<Value>Categories</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.category.addnew" Area="Admin">
-		<Value>Add new</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.collections" Area="Admin">
-		<Value>Collections</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.collections.addnew" Area="Admin">
-		<Value>Add new</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.customcustomerattribute" Area="Admin">
-		<Value>Customer attribute</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.customergroup" Area="Admin">
-		<Value>Customer Group</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.customerregister" Area="Admin">
-		<Value>Customer register</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.customertag" Area="Admin">
-		<Value>Customer tag</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.fields.categoryname" Area="Admin">
-		<Value>Category name</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.fields.collection" Area="Admin">
-		<Value>Collection</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Condition.Fields.ConditionId" Area="Admin">
-		<Value>Condition</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Condition.Fields.ConditionTypeId" Area="Admin">
-		<Value>Condition type</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.fields.customcustomerattributename" Area="Admin">
-		<Value>Customer Attribute Name</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.fields.customcustomerattributevalue" Area="Admin">
-		<Value>Customer Attribute Value</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.fields.customergroupname" Area="Admin">
-		<Value>Customer Group Name</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.fields.customerregistername" Area="Admin">
-		<Value>Customer Register Name</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.fields.customerregistervalue" Area="Admin">
-		<Value>Customer Register Value</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.fields.customertagname" Area="Admin">
-		<Value>Customer Tag Name</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.fields.name" Area="Admin">
-		<Value>Condition name</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.fields.productname" Area="Admin">
-		<Value>Product Name</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.info" Area="Admin">
-		<Value>Condition info</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.Customerreminder.Condition.Products.Addnew" Area="Admin">
-		<Value>Add new</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.condition.savebeforeedit" Area="Admin">
-		<Value>You must save it before edit.</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.conditions" Area="Admin">
-		<Value>Reminder Conditions</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.conditions.addnew" Area="Admin">
-		<Value>Add new</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.deleted" Area="Admin">
-		<Value>Customer Reminder Deleted</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.Customerreminder.Edit" Area="Admin">
-		<Value>Reminder Edit</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.Customerreminder.Editcondition" Area="Admin">
-		<Value>Edit condition</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.editlevel" Area="Admin">
-		<Value>Edit level</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.fields.active" Area="Admin">
-		<Value>Active</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Fields.AllowRenew" Area="Admin">
-		<Value>Allow renew</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Fields.ConditionId" Area="Admin">
-		<Value>Condition</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.fields.conditiontype" Area="Admin">
-		<Value>Condition Type</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Fields.DisplayOrder" Area="Admin">
-		<Value>Display Order</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Fields.EndDate" Area="Admin">
-		<Value>End date</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Fields.LastUpdateDate" Area="Admin">
-		<Value>Activity date for rule</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.fields.level" Area="Admin">
-		<Value>Reminder level</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.fields.name" Area="Admin">
-		<Value>Reminder name</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.fields.name.required" Area="Admin">
-		<Value>Reminder name requires</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Fields.ReminderRule" Area="Admin">
-		<Value>Reminder Rule</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Fields.RenewedDay" Area="Admin">
-		<Value>Renewed Days</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Fields.StartDate" Area="Admin">
-		<Value>Date start</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.history" Area="Admin">
-		<Value>History mailings</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.history.fields.customer" Area="Admin">
-		<Value>Email</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.history.fields.level" Area="Admin">
-		<Value>Level</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.history.fields.order" Area="Admin">
-		<Value>Ordered</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.history.fields.senddate" Area="Admin">
-		<Value>Sent on</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.info" Area="Admin">
-		<Value>Reminder Info</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Level.Fields.AllowedTokens" Area="Admin">
-		<Value>Allowed Tokens</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Level.Fields.BccEmailAddresses" Area="Admin">
-		<Value>BCC</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Level.Fields.Body" Area="Admin">
-		<Value>Body</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.level.fields.body.required" Area="Admin">
-		<Value>Body is required</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.level.fields.DayHourMin.required" Area="Admin">
-		<Value>You must enter Day or Hour or Minutes.</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.level.fields.emailaccountid" Area="Admin">
-		<Value>Email Account</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Level.Fields.Level" Area="Admin">
-		<Value>Level</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Level.Fields.Name" Area="Admin">
-		<Value>Level name</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.level.fields.name.required" Area="Admin">
-		<Value>Level name required</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Level.Fields.SendDay" Area="Admin">
-		<Value>Send after days</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Level.Fields.SendHour" Area="Admin">
-		<Value>Send after hours</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Level.Fields.SendMinutes" Area="Admin">
-		<Value>Send after minutes</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.CustomerReminder.Level.Fields.Subject" Area="Admin">
-		<Value>Subject</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.level.fields.subject.required" Area="Admin">
-		<Value>Subject required</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.levels" Area="Admin">
-		<Value>Reminder Levels</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.levels.addnew" Area="Admin">
-		<Value>Add new</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.run" Area="Admin">
-		<Value>Completed the process of customer reminder</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.savebeforeedit" Area="Admin">
-		<Value>You must save it before edit</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.text1" Area="Admin">
-		<Value>Abandoned cart – You can set custom reminder to customers who left their carts without confirming order. Activity date is counting "from this date".</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.text2" Area="Admin">
-		<Value>Registered customer – You can set custom reminder to customers who just register in your store. Activity date is counting from this date.</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.text3" Area="Admin">
-		<Value>Last purchase – You can set custom reminder to customers who made last purchase to specified date. Activity date is counting "to this date"</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.text4" Area="Admin">
-		<Value>Last activity – You can set custom reminder to customers who made last activity to specified date. Activity date is counting "to this date".</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.text5" Area="Admin">
-		<Value>Birthday – You can set custom reminder related to customers birthday (field Activity date is not used).</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.text6" Area="Admin">
-		<Value>Completed order – You can set custom reminder related to completed order (Activity date is counting from this order date).</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.text7" Area="Admin">
-		<Value>Unpaid order – You can set custom reminder related to unpaid order (Activity date is counting from this order date).</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminder.updated" Area="Admin">
-		<Value>Reminder updated</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerremindercondition.updated" Area="Admin">
-		<Value>Condition updated</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminderlevel.added" Area="Admin">
-		<Value>Level added</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminderlevel.exists" Area="Admin">
-		<Value>This level exist</Value>
-	</Resource>
-	<Resource Name="admin.customers.customerreminderlevel.updated" Area="Admin">
-		<Value>Reminder level updated</Value>
-	</Resource>
-	<Resource Name="Admin.Customers.Customerreminders" Area="Admin">
-		<Value>Customer reminders</Value>
-	</Resource>
+	</Resource>	
 	<Resource Name="Admin.Customers.Customers" Area="Admin">
 		<Value>Customers</Value>
 	</Resource>
@@ -8181,42 +7635,6 @@
 	<Resource Name="Admin.Marketing" Area="Admin">
 		<Value>Marketing</Value>
 	</Resource>
-	<Resource Name="Admin.Marketing.Banners" Area="Admin">
-		<Value>Banners</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.Banners.Added" Area="Admin">
-		<Value>The new banner has been added successfully.</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.Banners.AddNew" Area="Admin">
-		<Value>Add a new banner</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.Banners.BackToList" Area="Admin">
-		<Value>back to banner list</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.Banners.Deleted" Area="Admin">
-		<Value>The banner has been deleted successfully.</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.Banners.EditBannerDetails" Area="Admin">
-		<Value>Edit banner</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.Banners.Fields.Body" Area="Admin">
-		<Value>Body</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.Banners.Fields.Body.Required" Area="Admin">
-		<Value>Body is required</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.Banners.Fields.CreatedOn" Area="Admin">
-		<Value>Created on</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.Banners.Fields.Name" Area="Admin">
-		<Value>Name</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.Banners.Fields.Name.Required" Area="Admin">
-		<Value>Banner name is required</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.Banners.Updated" Area="Admin">
-		<Value>The banner has been updated successfully.</Value>
-	</Resource>
 	<Resource Name="Admin.Marketing.Campaigns" Area="Admin">
 		<Value>Mailing Campaigns</Value>
 	</Resource>
@@ -8588,138 +8006,6 @@
 	</Resource>
 	<Resource Name="Admin.Marketing.Documents" Area="Admin">
 		<Value>Documents</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms" Area="Admin">
-		<Value>Interactive Forms</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.AddAttribute" Area="Admin">
-		<Value>Add Attribute</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Added" Area="Admin">
-		<Value>Interactive Form Added</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.AddNew" Area="Admin">
-		<Value>Add new</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute" Area="Admin">
-		<Value>Attribute</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Added" Area="Admin">
-		<Value>Attribute added</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.AddNew" Area="Admin">
-		<Value>Add new</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Fields.Class" Area="Admin">
-		<Value>Css class</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Fields.DefaultValue" Area="Admin">
-		<Value>Default Value</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Fields.FormControlTypeId" Area="Admin">
-		<Value>Choose Form Control</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Fields.IsRequired" Area="Admin">
-		<Value>Is required</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Fields.Name" Area="Admin">
-		<Value>Name</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Fields.Name.Required" Area="Admin">
-		<Value>Name is required</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Fields.RegexValidation" Area="Admin">
-		<Value>Regex Expression</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Fields.Style" Area="Admin">
-		<Value>CSS style</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Fields.SystemName" Area="Admin">
-		<Value>System Name</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Fields.SystemName.Required" Area="Admin">
-		<Value>System name is required</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Fields.ValidationMaxLength" Area="Admin">
-		<Value>Validation Max. Length</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Fields.ValidationMinLength" Area="Admin">
-		<Value>Validation Min. Length</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Info" Area="Admin">
-		<Value>Info</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.interactiveforms.attribute.updated" Area="Admin">
-		<Value>Attribute has been updated</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Values" Area="Admin">
-		<Value>Values</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Values.AddNew" Area="Admin">
-		<Value>Add new</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Values.EditValue" Area="Admin">
-		<Value>Edit</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Values.Fields.DisplayOrder" Area="Admin">
-		<Value>Display Order</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Values.Fields.IsPreSelected" Area="Admin">
-		<Value>Is pre selected</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Values.Fields.Name" Area="Admin">
-		<Value>Name</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Attribute.Values.Fields.Name.Required" Area="Admin">
-		<Value>Name is required</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.BackToForm" Area="Admin">
-		<Value>Back to form</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.BackToList" Area="Admin">
-		<Value>Back to list</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Deleted" Area="Admin">
-		<Value>Interactive form deleted</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.EditAttribute" Area="Admin">
-		<Value>Edit Attribute</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.EditDetails" Area="Admin">
-		<Value>Edit Details</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Fields.AvailableTokens" Area="Admin">
-		<Value>Available tokens</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Fields.Body" Area="Admin">
-		<Value>Body</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Fields.Body.Required" Area="Admin">
-		<Value>Body is required</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Fields.EmailAccount" Area="Admin">
-		<Value>Email Accounts</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Fields.Name" Area="Admin">
-		<Value>Name</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Fields.Name.Required" Area="Admin">
-		<Value>Name is required</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Fields.SystemName" Area="Admin">
-		<Value>System Name</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Fields.SystemName.Required" Area="Admin">
-		<Value>System name is required</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Info" Area="Admin">
-		<Value>Info</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.SaveBeforeEdit" Area="Admin">
-		<Value>You need to save form before edit</Value>
-	</Resource>
-	<Resource Name="Admin.Marketing.InteractiveForms.Updated" Area="Admin">
-		<Value>Updated</Value>
 	</Resource>
 	<Resource Name="Admin.Marketing.Newsletter" Area="Admin">
 		<Value>Newsletter</Value>
@@ -15325,25 +14611,7 @@
 	</Resource>
 	<Resource Name="Permission.PublicStoreAllowNavigation" Area="Admin">
 		<Value>Public store. Allow navigation</Value>
-	</Resource>
-	<Resource Name="PopupInteractiveForm.EmailForm" Area="Admin">
-		<Value>Message from form {0}</Value>
-	</Resource>
-	<Resource Name="PopupInteractiveForm.Fields.IsRequired" Area="Front">
-		<Value>The value of the field {0} is required</Value>
-	</Resource>
-	<Resource Name="PopupInteractiveForm.Fields.Regex" Area="Front">
-		<Value>The value of the {0} does not meet the requirements</Value>
-	</Resource>
-	<Resource Name="PopupInteractiveForm.Fields.TextboxMaximumLength" Area="Front">
-		<Value>{0} : maximum length is {1} chars</Value>
-	</Resource>
-	<Resource Name="PopupInteractiveForm.Fields.TextboxMinimumLength" Area="Front">
-		<Value>{0} : minimum length is {1} chars</Value>
-	</Resource>
-	<Resource Name="PopupInteractiveForm.Send" Area="Front">
-		<Value>SEND</Value>
-	</Resource>
+	</Resource>	
 	<Resource Name="PrivacyPreference" Area="Front">
 		<Value>Privacy Settings</Value>
 	</Resource>

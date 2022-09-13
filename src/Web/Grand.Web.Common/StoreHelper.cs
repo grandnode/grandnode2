@@ -3,7 +3,6 @@ using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Net.Http.Headers;
 
 namespace Grand.Web.Common
 {
@@ -85,32 +84,31 @@ namespace Grand.Web.Common
         }
 
         public DomainHost DomainHost {
-            get 
+            get {
+                if (_cachedDomainHost == null)
                 {
+                    //try to determine the current HOST header
+                    var host = _httpContextAccessor.HttpContext?.Request?.GetTypedHeaders().Host.ToString();
+                    if (StoreHost != null)
+                    {
+                        _cachedDomainHost = StoreHost.HostValue(host) ?? new DomainHost() {
+                            Id = int.MinValue.ToString(),
+                            Url = StoreHost.SslEnabled ? StoreHost.SecureUrl : StoreHost.Url,
+                            HostName = "temporary-store"
+                        };
+                    }
                     if (_cachedDomainHost == null)
                     {
-                        //try to determine the current HOST header
-                        var host = _httpContextAccessor.HttpContext?.Request?.GetTypedHeaders().Host.ToString();
-                        if (StoreHost != null)
-                        {
-                            _cachedDomainHost = StoreHost.HostValue(host) ?? new DomainHost() {
-                                Id = int.MinValue.ToString(),
-                                Url = StoreHost.SslEnabled ? StoreHost.SecureUrl : StoreHost.Url,
-                                HostName = "temporary-store"
-                            };
-                        }
-                        if (_cachedDomainHost == null)
-                        {
-                            _cachedDomainHost = new DomainHost() {
-                                Id = int.MinValue.ToString(),
-                                Url = host,
-                                HostName = "temporary"
-                            };
-                        }
-                        return _cachedDomainHost;
+                        _cachedDomainHost = new DomainHost() {
+                            Id = int.MinValue.ToString(),
+                            Url = host,
+                            HostName = "temporary"
+                        };
                     }
                     return _cachedDomainHost;
                 }
+                return _cachedDomainHost;
+            }
         }
 
         /// <summary>

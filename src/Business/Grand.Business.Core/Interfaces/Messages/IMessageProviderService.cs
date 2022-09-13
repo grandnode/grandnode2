@@ -464,36 +464,6 @@ namespace Grand.Business.Core.Interfaces.Messages
         Task<int> SendContactVendorMessage(Customer customer, Store store, Vendor vendor, string languageId, string senderEmail, string senderName, string subject, string body, string ipaddress);
 
         /// <summary>
-        /// Sends a customer action event - Add to cart notification to a customer
-        /// </summary>
-        /// <param name="CustomerAction">Customer action</param>
-        /// <param name="ShoppingCartItem">Item</param>
-        /// <param name="languageId">Message language identifier</param>
-        /// <param name="customerId">Customer identifier</param>
-        /// <returns>Queued email identifier</returns>
-        Task<int> SendCustomerActionAddToCartMessage(CustomerAction action, ShoppingCartItem cartItem, string languageId, Customer customer);
-
-
-        /// <summary>
-        /// Sends a customer action event - Add order notification to a customer
-        /// </summary>
-        /// <param name="CustomerAction">Customer action</param>
-        /// <param name="Order">Order</param>
-        /// <param name="languageId">Message language identifier</param>
-        /// <returns>Queued email identifier</returns>
-        Task<int> SendCustomerActionAddToOrderMessage(CustomerAction action, Order order, Customer customer, string languageId);
-
-
-        /// <summary>
-        /// Sends a customer action event 
-        /// </summary>
-        /// <param name="CustomerAction">Customer action</param>
-        /// <param name="languageId">Message language identifier</param>
-        /// <param name="customerId">Customer identifier</param>
-        /// <returns>Queued email identifier</returns>
-        Task<int> SendCustomerActionMessage(CustomerAction action, string languageId, Customer customer);
-
-        /// <summary>
         /// Sends auction ended notification to a customer (winner)
         /// </summary>
         /// <param name="product">Auction</param>

@@ -1,10 +1,10 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
+﻿using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Orders;
 using Grand.Web.Commands.Models.ShoppingCart;
 using MediatR;
 

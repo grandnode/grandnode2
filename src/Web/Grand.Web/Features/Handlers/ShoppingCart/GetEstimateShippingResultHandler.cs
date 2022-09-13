@@ -1,13 +1,12 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Utilities.Catalog;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
-using Grand.Business.Core.Utilities.Checkout;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
+using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
@@ -21,7 +20,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
         private readonly IPickupPointService _pickupPointService;
         private readonly IOrderCalculationService _orderTotalCalculationService;
         private readonly ITaxService _taxService;
-        private readonly ICurrencyService _currencyService;
         private readonly ITranslationService _translationService;
         private readonly IPriceFormatter _priceFormatter;
 
@@ -32,7 +30,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             IPickupPointService pickupPointService,
             IOrderCalculationService orderTotalCalculationService,
             ITaxService taxService,
-            ICurrencyService currencyService,
             ITranslationService translationService,
             IPriceFormatter priceFormatter,
             ShippingSettings shippingSettings)
@@ -41,7 +38,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             _pickupPointService = pickupPointService;
             _orderTotalCalculationService = orderTotalCalculationService;
             _taxService = taxService;
-            _currencyService = currencyService;
             _translationService = translationService;
             _priceFormatter = priceFormatter;
             _shippingSettings = shippingSettings;
@@ -53,8 +49,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
             if (request.Cart.RequiresShipping())
             {
-                var address = new Address
-                {
+                var address = new Address {
                     CountryId = request.CountryId,
                     StateProvinceId = request.StateProvinceId,
                     ZipPostalCode = request.ZipPostalCode,
@@ -72,8 +67,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                     {
                         foreach (var shippingOption in getShippingOptionResponse.ShippingOptions)
                         {
-                            var soModel = new EstimateShippingResultModel.ShippingOptionModel
-                            {
+                            var soModel = new EstimateShippingResultModel.ShippingOptionModel {
                                 Name = shippingOption.Name,
                                 Description = shippingOption.Description,
 
@@ -95,8 +89,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
                             var pickupPoints = await _pickupPointService.GetAllPickupPoints();
                             if (pickupPoints.Count > 0)
                             {
-                                var soModel = new EstimateShippingResultModel.ShippingOptionModel
-                                {
+                                var soModel = new EstimateShippingResultModel.ShippingOptionModel {
                                     Name = _translationService.GetResource("Checkout.PickUpInStore"),
                                     Description = _translationService.GetResource("Checkout.PickUpInStore.Description"),
                                 };

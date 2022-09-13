@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Commands.Messages;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
@@ -7,8 +8,9 @@ using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Commands.Messages;
 using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
+using Grand.Domain.Catalog;
+using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
@@ -24,7 +26,6 @@ namespace Grand.Business.System.Commands.Handlers.Messages
         private readonly IProductService _productService;
         private readonly IVendorService _vendorService;
         private readonly IPriceFormatter _priceFormatter;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly ICountryService _countryService;
         private readonly IAddressAttributeParser _addressAttributeParser;
         private readonly IPaymentService _paymentService;
@@ -39,7 +40,6 @@ namespace Grand.Business.System.Commands.Handlers.Messages
             IProductService productService,
             IVendorService vendorService,
             IPriceFormatter priceFormatter,
-            IProductAttributeParser productAttributeParser,
             ICountryService countryService,
             IAddressAttributeParser addressAttributeParser,
             IPaymentService paymentService,
@@ -52,7 +52,6 @@ namespace Grand.Business.System.Commands.Handlers.Messages
             _productService = productService;
             _vendorService = vendorService;
             _priceFormatter = priceFormatter;
-            _productAttributeParser = productAttributeParser;
             _countryService = countryService;
             _addressAttributeParser = addressAttributeParser;
             _paymentService = paymentService;
@@ -114,7 +113,7 @@ namespace Grand.Business.System.Commands.Handlers.Messages
 
                 string sku = "";
                 if (product != null)
-                    sku = product.FormatSku(item.Attributes, _productAttributeParser);
+                    sku = product.FormatSku(item.Attributes);
 
                 liqitem.ProductSku = WebUtility.HtmlEncode(sku);
                 liquidOrder.OrderItems.Add(liqitem);

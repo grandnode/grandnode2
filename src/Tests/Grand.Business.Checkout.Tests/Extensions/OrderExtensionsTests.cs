@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Domain.Catalog;
+﻿using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

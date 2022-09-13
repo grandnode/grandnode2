@@ -13,25 +13,15 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 
 
 namespace Grand.Data.Tests.MongoDb

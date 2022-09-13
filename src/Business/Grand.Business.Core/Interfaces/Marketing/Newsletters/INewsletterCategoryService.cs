@@ -26,7 +26,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Newsletters
         /// Gets a newsletter by category
         /// </summary>
         /// <param name="Id">newsletter category</param>
-        /// <returns>Banner</returns>
+        /// <returns>NewsletterCategory</returns>
         Task<NewsletterCategory> GetNewsletterCategoryById(string Id);
 
         /// <summary>

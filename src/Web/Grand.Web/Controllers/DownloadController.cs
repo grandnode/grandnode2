@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -8,6 +7,7 @@ using Grand.Business.Core.Interfaces.Marketing.Documents;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Common.Filters;
 using Microsoft.AspNetCore.Mvc;

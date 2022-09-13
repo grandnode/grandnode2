@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using System.Net;

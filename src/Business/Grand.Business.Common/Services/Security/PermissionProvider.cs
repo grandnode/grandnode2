@@ -29,10 +29,6 @@ namespace Grand.Business.Common.Services.Security
                 StandardPermission.ManageSalesEmployees,
                 StandardPermission.ManageAddressAttribute,
                 StandardPermission.ManageCustomerAttribute,
-                StandardPermission.ManageActions,
-                StandardPermission.ManageReminders,
-                StandardPermission.ManageBanners,
-                StandardPermission.ManageInteractiveForm,
                 StandardPermission.ManageVendors,
                 StandardPermission.ManageVendorReviews,
                 StandardPermission.ManageCurrentCarts,
@@ -170,10 +166,6 @@ namespace Grand.Business.Common.Services.Security
                         StandardPermission.EnableWishlist,
                         StandardPermission.PublicStoreAllowNavigation,
                         StandardPermission.AccessClosedStore,
-                        StandardPermission.ManageBanners,
-                        StandardPermission.ManageInteractiveForm,
-                        StandardPermission.ManageActions,
-                        StandardPermission.ManageReminders,
                         StandardPermission.AllowUseApi
                     }
                 },

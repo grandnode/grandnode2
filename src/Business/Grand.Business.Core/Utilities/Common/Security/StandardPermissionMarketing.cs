@@ -29,22 +29,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Area = "Admin area",
             Category = CategoryMarketing, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete, PermissionActionName.Export } 
-        };
-        public static readonly Permission ManageBanners = new Permission 
-        { 
-            Name = "Manage Banners", 
-            SystemName = PermissionSystemName.Banners, 
-            Category = CategoryMarketing, 
-            Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete } 
-        };
-        public static readonly Permission ManageInteractiveForm = new Permission 
-        { 
-            Name = "Manage Interactive Forms", 
-            SystemName = PermissionSystemName.InteractiveForms,
-            Area = "Admin area",
-            Category = CategoryMarketing, 
-            Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete } 
-        };
+        };        
         public static readonly Permission ManageDiscounts = new Permission 
         { 
             Name = "Manage Discounts", 

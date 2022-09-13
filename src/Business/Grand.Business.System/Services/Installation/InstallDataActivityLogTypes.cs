@@ -351,25 +351,7 @@ namespace Grand.Business.System.Services.Installation
                             SystemKeyword = "EditPage",
                             Enabled = true,
                             Name = "Edit a page"
-                        },
-                    new ActivityLogType
-                        {
-                            SystemKeyword = "InteractiveFormDelete",
-                            Enabled = true,
-                            Name = "Delete a interactive form"
-                        },
-                    new ActivityLogType
-                        {
-                            SystemKeyword = "InteractiveFormEdit",
-                            Enabled = true,
-                            Name = "Edit a interactive form"
-                        },
-                    new ActivityLogType
-                        {
-                            SystemKeyword = "InteractiveFormAdd",
-                            Enabled = true,
-                            Name = "Add a interactive form"
-                        },
+                        },                    
                     new ActivityLogType
                         {
                             SystemKeyword = "EditWidget",
@@ -418,13 +400,7 @@ namespace Grand.Business.System.Services.Installation
                             SystemKeyword = "PublicStore.AskQuestion",
                             Enabled = false,
                             Name = "Public store. Ask a question about product"
-                        },
-                    new ActivityLogType
-                        {
-                            SystemKeyword = "PublicStore.InteractiveForm",
-                            Enabled = false,
-                            Name = "Public store. Show interactive form"
-                        },
+                        },                    
                     new ActivityLogType
                         {
                             SystemKeyword = "PublicStore.PlaceOrder",
@@ -508,43 +484,7 @@ namespace Grand.Business.System.Services.Installation
                             SystemKeyword = "PublicStore.DeleteAccount",
                             Enabled = false,
                             Name = "Public store. Delete account"
-                        },
-                    new ActivityLogType
-                        {
-                            SystemKeyword = "CustomerReminder.AbandonedCart",
-                            Enabled = true,
-                            Name = "Send email Customer reminder - AbandonedCart"
-                        },
-                    new ActivityLogType
-                        {
-                            SystemKeyword = "CustomerReminder.RegisteredCustomer",
-                            Enabled = true,
-                            Name = "Send email Customer reminder - RegisteredCustomer"
-                        },
-                    new ActivityLogType
-                        {
-                            SystemKeyword = "CustomerReminder.LastActivity",
-                            Enabled = true,
-                            Name = "Send email Customer reminder - LastActivity"
-                        },
-                    new ActivityLogType
-                        {
-                            SystemKeyword = "CustomerReminder.LastPurchase",
-                            Enabled = true,
-                            Name = "Send email Customer reminder - LastPurchase"
-                        },
-                    new ActivityLogType
-                        {
-                            SystemKeyword = "CustomerReminder.Birthday",
-                            Enabled = true,
-                            Name = "Send email Customer reminder - Birthday"
-                        },
-                    new ActivityLogType
-                        {
-                            SystemKeyword = "CustomerReminder.SendCampaign",
-                            Enabled = true,
-                            Name = "Send Campaign"
-                        },
+                        },                    
                     new ActivityLogType
                         {
                             SystemKeyword = "CustomerAdmin.SendEmail",

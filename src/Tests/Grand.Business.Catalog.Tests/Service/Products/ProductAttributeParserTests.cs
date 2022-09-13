@@ -1,20 +1,17 @@
-﻿using Grand.Business.Catalog.Services.Products;
-using Grand.Domain.Catalog;
+﻿using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Business.Catalog.Tests.Service.Products
 {
     [TestClass()]
-    public class ProductAttributeParserTests
+    public class ProductExtensionsAttributeParserTests
     {
-        private ProductAttributeParser _parrser;
         private List<CustomAttribute> customAtr;
 
         [TestInitialize()]
         public void Init()
         {
-            _parrser = new ProductAttributeParser();
             customAtr = new List<CustomAttribute>()
             {
                 new CustomAttribute(){Key="key1",Value="value1" },
@@ -30,7 +27,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
             var product = new Product();
             product.ProductAttributeMappings.Add(new ProductAttributeMapping() { Id = "key1" });
             product.ProductAttributeMappings.Add(new ProductAttributeMapping() { Id = "key2" });
-            var result = _parrser.ParseProductAttributeMappings(product, customAtr);
+            var result = product.ParseProductAttributeMappings(customAtr);
 
             Assert.IsTrue(result.Any(c => c.Id.Equals("key1")));
             Assert.IsTrue(result.Any(c => c.Id.Equals("key2")));
@@ -44,7 +41,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
             var product = new Product();
             product.ProductAttributeMappings.Add(new ProductAttributeMapping() { Id = "key10" });
             product.ProductAttributeMappings.Add(new ProductAttributeMapping() { Id = "key12" });
-            var result = _parrser.ParseProductAttributeMappings(product, customAtr);
+            var result = product.ParseProductAttributeMappings(customAtr);
             Assert.IsTrue(result.Count == 0);
         }
 
@@ -58,7 +55,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
             var mapping2 = new ProductAttributeMapping() { Id = "key2" };
             mapping2.ProductAttributeValues.Add(new ProductAttributeValue() { Id = "value2" });
             product.ProductAttributeMappings.Add(mapping2);
-            var result = _parrser.ParseProductAttributeValues(product, customAtr);
+            var result = product.ParseProductAttributeValues(customAtr);
 
             Assert.IsTrue(result.Any(c => c.Id.Equals("value1")));
             Assert.IsTrue(result.Any(c => c.Id.Equals("value2")));
@@ -69,14 +66,14 @@ namespace Grand.Business.Catalog.Tests.Service.Products
         [TestMethod()]
         public void ParseValues_ReturnExpectedValues()
         {
-            var result = _parrser.ParseValues(customAtr, "key1");
+            var result = ProductExtensions.ParseValues(customAtr, "key1");
             Assert.IsTrue(result.Any(c => c.Equals("value1")));
         }
 
         [TestMethod()]
         public void AddProductAttribute_ReturnExpectedValues()
         {
-            var result = _parrser.AddProductAttribute(customAtr, new ProductAttributeMapping() { Id = "key6" }, "value6");
+            var result = ProductExtensions.AddProductAttribute(customAtr, new ProductAttributeMapping() { Id = "key6" }, "value6");
             Assert.IsTrue(result.Count == 5);
             Assert.IsTrue(result.Last().Value.Equals("value6"));
         }
@@ -84,7 +81,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
         [TestMethod()]
         public void RemoveProductAttribute_ReturnExpectedValues()
         {
-            var result = _parrser.RemoveProductAttribute(customAtr, new ProductAttributeMapping() { Id = "key1" });
+            var result = ProductExtensions.RemoveProductAttribute(customAtr, new ProductAttributeMapping() { Id = "key1" });
             Assert.IsTrue(result.Count == 3);
             Assert.IsFalse(result.Any(c => c.Key.Equals("key1")));
         }

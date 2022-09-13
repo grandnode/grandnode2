@@ -31,7 +31,6 @@ namespace Grand.Business.Catalog.Services.Prices
         private readonly ICategoryService _categoryService;
         private readonly IBrandService _brandService;
         private readonly ICollectionService _collectionService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IProductService _productService;
         private readonly IMediator _mediator;
         private readonly ICurrencyService _currencyService;
@@ -47,7 +46,6 @@ namespace Grand.Business.Catalog.Services.Prices
             ICategoryService categoryService,
             IBrandService brandService,
             ICollectionService collectionService,
-            IProductAttributeParser productAttributeParser,
             IProductService productService,
             IMediator mediator,
             ICurrencyService currencyService,
@@ -59,7 +57,6 @@ namespace Grand.Business.Catalog.Services.Prices
             _categoryService = categoryService;
             _brandService = brandService;
             _collectionService = collectionService;
-            _productAttributeParser = productAttributeParser;
             _productService = productService;
             _mediator = mediator;
             _mediator = mediator;
@@ -596,7 +593,7 @@ namespace Grand.Business.Catalog.Services.Prices
 
             if (!finalPrice.HasValue)
             {
-                var combination = _productAttributeParser.FindProductAttributeCombination(product, attributes);
+                var combination = product.FindProductAttributeCombination(attributes);
                 if (combination != null)
                 {
                     if (combination.OverriddenPrice.HasValue)
@@ -619,7 +616,7 @@ namespace Grand.Business.Catalog.Services.Prices
                 double attributesTotalPrice = 0;
                 if (attributes != null && attributes.Any())
                 {
-                    var attributeValues = _productAttributeParser.ParseProductAttributeValues(product, attributes);
+                    var attributeValues = product.ParseProductAttributeValues(attributes);
                     if (attributeValues != null)
                     {
                         foreach (var attributeValue in attributeValues)
@@ -634,7 +631,7 @@ namespace Grand.Business.Catalog.Services.Prices
                             var p1 = await _productService.GetProductById(item.ProductId);
                             if (p1 != null)
                             {
-                                var bundledProductsAttributeValues = _productAttributeParser.ParseProductAttributeValues(p1, attributes);
+                                var bundledProductsAttributeValues = p1.ParseProductAttributeValues(attributes);
                                 if (bundledProductsAttributeValues != null)
                                 {
                                     foreach (var attributeValue in bundledProductsAttributeValues)
@@ -761,7 +758,7 @@ namespace Grand.Business.Catalog.Services.Prices
                 throw new ArgumentNullException(nameof(product));
 
             double cost = product.ProductCost;
-            var attributeValues = _productAttributeParser.ParseProductAttributeValues(product, attributes);
+            var attributeValues = product.ParseProductAttributeValues(attributes);
             foreach (var attributeValue in attributeValues)
             {
                 switch (attributeValue.AttributeValueTypeId)

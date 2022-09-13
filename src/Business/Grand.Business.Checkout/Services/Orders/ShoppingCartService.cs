@@ -27,7 +27,6 @@ namespace Grand.Business.Checkout.Services.Orders
 
         private readonly IWorkContext _workContext;
         private readonly IProductService _productService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly ICheckoutAttributeParser _checkoutAttributeParser;
         private readonly ICustomerService _customerService;
         private readonly IAclService _aclService;
@@ -43,7 +42,6 @@ namespace Grand.Business.Checkout.Services.Orders
         public ShoppingCartService(
             IWorkContext workContext,
             IProductService productService,
-            IProductAttributeParser productAttributeParser,
             ICheckoutAttributeParser checkoutAttributeParser,
             ICustomerService customerService,
             IAclService aclService,
@@ -55,7 +53,6 @@ namespace Grand.Business.Checkout.Services.Orders
         {
             _workContext = workContext;
             _productService = productService;
-            _productAttributeParser = productAttributeParser;
             _checkoutAttributeParser = checkoutAttributeParser;
             _customerService = customerService;
             _aclService = aclService;
@@ -129,7 +126,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 {
                     //attributes
                     var _product = await _productService.GetProductById(sci.ProductId);
-                    bool attributesEqual = _productAttributeParser.AreProductAttributesEqual(_product, sci.Attributes, attributes, false);
+                    bool attributesEqual = ProductExtensions.AreProductAttributesEqual(_product, sci.Attributes, attributes, false);
                     if (_product.ProductTypeId == ProductType.BundledProduct)
                     {
                         foreach (var bundle in _product.BundleProducts)
@@ -137,7 +134,7 @@ namespace Grand.Business.Checkout.Services.Orders
                             var p1 = await _productService.GetProductById(bundle.ProductId);
                             if (p1 != null)
                             {
-                                if (!_productAttributeParser.AreProductAttributesEqual(p1, sci.Attributes, attributes, false))
+                                if (!ProductExtensions.AreProductAttributesEqual(p1, sci.Attributes, attributes, false))
                                     attributesEqual = false;
                             }
                         }
@@ -146,11 +143,11 @@ namespace Grand.Business.Checkout.Services.Orders
                     bool giftVoucherInfoSame = true;
                     if (_product.IsGiftVoucher)
                     {
-                        _productAttributeParser.GetGiftVoucherAttribute(attributes,
+                        GiftVoucherExtensions.GetGiftVoucherAttribute(attributes,
                             out var giftVoucherRecipientName1, out var giftVoucherRecipientEmail1,
                             out var giftVoucherSenderName1, out var giftVoucherSenderEmail1, out var giftVoucherMessage1);
 
-                        _productAttributeParser.GetGiftVoucherAttribute(sci.Attributes,
+                        GiftVoucherExtensions.GetGiftVoucherAttribute(sci.Attributes,
                             out var giftVoucherRecipientName2, out var giftVoucherRecipientEmail2,
                             out var giftVoucherSenderName2, out var giftVoucherSenderEmail2, out var giftVoucherMessage2);
 

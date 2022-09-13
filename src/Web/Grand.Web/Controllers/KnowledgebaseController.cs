@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Interfaces.Marketing.Knowledgebase;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
 using Grand.Domain.Knowledgebase;
@@ -17,6 +16,8 @@ using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Events.Cache;
 using Grand.Web.Models.Knowledgebase;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Web.Extensions;
+using Grand.Business.Core.Interfaces.Cms;
 
 namespace Grand.Web.Controllers
 {

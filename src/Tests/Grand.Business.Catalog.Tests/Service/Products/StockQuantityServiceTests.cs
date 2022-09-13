@@ -22,8 +22,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
                 _translationService = tempLocalizationService.Object;
             }
             _stockQuantityService = new StockQuantityService(
-                tempLocalizationService.Object,
-                new ProductAttributeParser());
+                tempLocalizationService.Object);
         }
 
         [TestMethod()]

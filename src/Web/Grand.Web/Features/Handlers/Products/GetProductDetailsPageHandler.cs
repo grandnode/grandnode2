@@ -50,7 +50,6 @@ namespace Grand.Web.Features.Handlers.Products
         private readonly IMeasureService _measureService;
         private readonly ICacheBase _cacheBase;
         private readonly IPictureService _pictureService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IStockQuantityService _stockQuantityService;
         private readonly IWarehouseService _warehouseService;
         private readonly IDeliveryDateService _deliveryDateService;
@@ -85,7 +84,6 @@ namespace Grand.Web.Features.Handlers.Products
             IMeasureService measureService,
             ICacheBase cacheBase,
             IPictureService pictureService,
-            IProductAttributeParser productAttributeParser,
             IStockQuantityService stockQuantityService,
             IWarehouseService warehouseService,
             IDeliveryDateService deliveryDateService,
@@ -118,7 +116,6 @@ namespace Grand.Web.Features.Handlers.Products
             _measureService = measureService;
             _cacheBase = cacheBase;
             _pictureService = pictureService;
-            _productAttributeParser = productAttributeParser;
             _stockQuantityService = stockQuantityService;
             _warehouseService = warehouseService;
             _deliveryDateService = deliveryDateService;
@@ -770,7 +767,7 @@ namespace Grand.Web.Features.Handlers.Products
                 else
                 {
                     string giftVoucherRecipientName, giftVoucherRecipientEmail, giftVoucherSenderName, giftVoucherSenderEmail, giftVoucherMessage;
-                    _productAttributeParser.GetGiftVoucherAttribute(updatecartitem.Attributes,
+                    GiftVoucherExtensions.GetGiftVoucherAttribute(updatecartitem.Attributes,
                         out giftVoucherRecipientName, out giftVoucherRecipientEmail,
                         out giftVoucherSenderName, out giftVoucherSenderEmail, out giftVoucherMessage);
 
@@ -835,7 +832,7 @@ namespace Grand.Web.Features.Handlers.Products
                             && product.ProductAttributeCombinations.Any()
                             && product.ProductAttributeMappings.Count == 1)
                         {
-                            var customattributes = _productAttributeParser.AddProductAttribute(null, attribute, attributeValue.Id);
+                            var customattributes = Domain.Catalog.ProductExtensions.AddProductAttribute(null, attribute, attributeValue.Id);
                             stockAvailability = _stockQuantityService.FormatStockMessage(product, string.Empty, customattributes);
                         }
                         var valueModel = new ProductDetailsModel.ProductAttributeValueModel {
@@ -912,7 +909,7 @@ namespace Grand.Web.Features.Handlers.Products
                                         item.IsPreSelected = false;
 
                                     //select new values
-                                    var selectedValues = _productAttributeParser.ParseProductAttributeValues(product, updatecartitem.Attributes);
+                                    var selectedValues = product.ParseProductAttributeValues(updatecartitem.Attributes);
                                     foreach (var attributeValue in selectedValues)
                                         foreach (var item in attributeModel.Values)
                                             if (attributeValue.Id == item.Id)
@@ -932,7 +929,7 @@ namespace Grand.Web.Features.Handlers.Products
                             {
                                 if (updatecartitem.Attributes != null && updatecartitem.Attributes.Any())
                                 {
-                                    var enteredText = _productAttributeParser.ParseValues(updatecartitem.Attributes, attribute.Id);
+                                    var enteredText = Domain.Catalog.ProductExtensions.ParseValues(updatecartitem.Attributes, attribute.Id);
                                     if (enteredText.Any())
                                         attributeModel.DefaultValue = enteredText[0];
                                 }
@@ -941,7 +938,7 @@ namespace Grand.Web.Features.Handlers.Products
                         case AttributeControlType.Datepicker:
                             {
                                 //keep in mind my that the code below works only in the current culture
-                                var selectedDateStr = _productAttributeParser.ParseValues(updatecartitem.Attributes, attribute.Id);
+                                var selectedDateStr = Domain.Catalog.ProductExtensions.ParseValues(updatecartitem.Attributes, attribute.Id);
                                 if (selectedDateStr.Any())
                                 {
                                     DateTime selectedDate;
@@ -961,7 +958,7 @@ namespace Grand.Web.Features.Handlers.Products
                             {
                                 if (updatecartitem.Attributes != null && updatecartitem.Attributes.Any())
                                 {
-                                    var downloadGuidStr = _productAttributeParser.ParseValues(updatecartitem.Attributes, attribute.Id).FirstOrDefault();
+                                    var downloadGuidStr = Domain.Catalog.ProductExtensions.ParseValues(updatecartitem.Attributes, attribute.Id).FirstOrDefault();
                                     Guid downloadGuid;
                                     Guid.TryParse(downloadGuidStr, out downloadGuid);
                                     var download = await _downloadService.GetDownloadByGuid(downloadGuid);

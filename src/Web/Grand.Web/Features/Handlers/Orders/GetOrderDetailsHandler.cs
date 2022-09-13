@@ -5,15 +5,16 @@ using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
-using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
+using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Media;
@@ -26,7 +27,6 @@ namespace Grand.Web.Features.Handlers.Orders
     {
         private readonly IDateTimeService _dateTimeService;
         private readonly IProductService _productService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly ITranslationService _translationService;
         private readonly IShipmentService _shipmentService;
         private readonly IPaymentService _paymentService;
@@ -35,7 +35,6 @@ namespace Grand.Web.Features.Handlers.Orders
         private readonly IGiftVoucherService _giftVoucherService;
         private readonly IOrderService _orderService;
         private readonly IPictureService _pictureService;
-        private readonly IDownloadService _downloadService;
         private readonly IOrderStatusService _orderStatusService;
         private readonly IMediator _mediator;
         private readonly CatalogSettings _catalogSettings;
@@ -46,7 +45,6 @@ namespace Grand.Web.Features.Handlers.Orders
         public GetOrderDetailsHandler(
             IDateTimeService dateTimeService,
             IProductService productService,
-            IProductAttributeParser productAttributeParser,
             ITranslationService translationService,
             IShipmentService shipmentService,
             IPaymentService paymentService,
@@ -55,7 +53,6 @@ namespace Grand.Web.Features.Handlers.Orders
             IGiftVoucherService giftVoucherService,
             IOrderService orderService,
             IPictureService pictureService,
-            IDownloadService downloadService,
             IOrderStatusService orderStatusService,
             IMediator mediator,
             CatalogSettings catalogSettings,
@@ -65,7 +62,6 @@ namespace Grand.Web.Features.Handlers.Orders
         {
             _dateTimeService = dateTimeService;
             _productService = productService;
-            _productAttributeParser = productAttributeParser;
             _translationService = translationService;
             _shipmentService = shipmentService;
             _paymentService = paymentService;
@@ -74,7 +70,6 @@ namespace Grand.Web.Features.Handlers.Orders
             _giftVoucherService = giftVoucherService;
             _orderService = orderService;
             _pictureService = pictureService;
-            _downloadService = downloadService;
             _orderStatusService = orderStatusService;
             _mediator = mediator;
             _orderSettings = orderSettings;
@@ -101,8 +96,7 @@ namespace Grand.Web.Features.Handlers.Orders
             await PrepareShippingInfo(request, model);
 
             //billing info
-            model.BillingAddress = await _mediator.Send(new GetAddressModel()
-            {
+            model.BillingAddress = await _mediator.Send(new GetAddressModel() {
                 Language = request.Language,
                 Model = null,
                 Address = request.Order.BillingAddress,
@@ -159,8 +153,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 model.PickUpInStore = request.Order.PickUpInStore;
                 if (!request.Order.PickUpInStore)
                 {
-                    model.ShippingAddress = await _mediator.Send(new GetAddressModel()
-                    {
+                    model.ShippingAddress = await _mediator.Send(new GetAddressModel() {
                         Language = request.Language,
                         Model = null,
                         Address = request.Order.ShippingAddress,
@@ -173,8 +166,7 @@ namespace Grand.Web.Features.Handlers.Orders
                     {
                         if (request.Order.PickupPoint.Address != null)
                         {
-                            model.PickupAddress = await _mediator.Send(new GetAddressModel()
-                            {
+                            model.PickupAddress = await _mediator.Send(new GetAddressModel() {
                                 Language = request.Language,
                                 Address = request.Order.PickupPoint.Address,
                                 ExcludeProperties = false,
@@ -188,8 +180,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 var shipments = (await _shipmentService.GetShipmentsByOrder(request.Order.Id)).Where(x => x.ShippedDateUtc.HasValue).OrderBy(x => x.CreatedOnUtc).ToList();
                 foreach (var shipment in shipments)
                 {
-                    var shipmentModel = new OrderDetailsModel.ShipmentBriefModel
-                    {
+                    var shipmentModel = new OrderDetailsModel.ShipmentBriefModel {
                         Id = shipment.Id,
                         ShipmentNumber = shipment.ShipmentNumber,
                         TrackingNumber = shipment.TrackingNumber,
@@ -287,8 +278,7 @@ namespace Grand.Web.Features.Handlers.Orders
 
                     foreach (var tr in request.Order.OrderTaxes)
                     {
-                        model.TaxRates.Add(new OrderDetailsModel.TaxRate
-                        {
+                        model.TaxRates.Add(new OrderDetailsModel.TaxRate {
                             Rate = _priceFormatter.FormatTaxRate(tr.Percent),
                             Value = await _priceFormatter.FormatPrice(tr.Amount, request.Order.CustomerCurrencyCode, false, request.Language),
                         });
@@ -312,8 +302,7 @@ namespace Grand.Web.Features.Handlers.Orders
             foreach (var gcuh in await _giftVoucherService.GetAllGiftVoucherUsageHistory(request.Order.Id))
             {
                 var giftVoucher = await _giftVoucherService.GetGiftVoucherById(gcuh.GiftVoucherId);
-                model.GiftVouchers.Add(new OrderDetailsModel.GiftVoucher
-                {
+                model.GiftVouchers.Add(new OrderDetailsModel.GiftVoucher {
                     CouponCode = giftVoucher.Code,
                     Amount = await _priceFormatter.FormatPrice(-gcuh.UsedValue, request.Order.CustomerCurrencyCode, false, request.Language),
                 });
@@ -338,8 +327,7 @@ namespace Grand.Web.Features.Handlers.Orders
                 .OrderByDescending(on => on.CreatedOnUtc)
                 .ToList())
             {
-                model.OrderNotes.Add(new OrderDetailsModel.OrderNote
-                {
+                model.OrderNotes.Add(new OrderDetailsModel.OrderNote {
                     Id = orderNote.Id,
                     OrderId = orderNote.OrderId,
                     HasDownload = !string.IsNullOrEmpty(orderNote.DownloadId),
@@ -356,11 +344,10 @@ namespace Grand.Web.Features.Handlers.Orders
             foreach (var orderItem in request.Order.OrderItems)
             {
                 var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
-                var orderItemModel = new OrderDetailsModel.OrderItemModel
-                {
+                var orderItemModel = new OrderDetailsModel.OrderItemModel {
                     Id = orderItem.Id,
                     OrderItemGuid = orderItem.OrderItemGuid,
-                    Sku = product.FormatSku(orderItem.Attributes, _productAttributeParser),
+                    Sku = product.FormatSku(orderItem.Attributes),
                     ProductId = product.Id,
                     ProductName = product.GetTranslation(x => x.Name, request.Language.Id),
                     ProductSeName = product.SeName,
@@ -415,9 +402,8 @@ namespace Grand.Web.Features.Handlers.Orders
 
         private async Task<PictureModel> PrepareOrderItemPicture(Product product, IList<CustomAttribute> attributes, string productName)
         {
-            var sciPicture = await product.GetProductPicture(attributes, _productService, _pictureService, _productAttributeParser);
-            return new PictureModel
-            {
+            var sciPicture = await product.GetProductPicture(attributes, _productService, _pictureService);
+            return new PictureModel {
                 Id = sciPicture?.Id,
                 ImageUrl = await _pictureService.GetPictureUrl(sciPicture, 80),
                 Title = string.Format(_translationService.GetResource("Media.Product.ImageLinkTitleFormat"), productName),

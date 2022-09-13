@@ -20,6 +20,7 @@ using Grand.Web.Models.ShoppingCart;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Grand.Web.Extensions;
 
 namespace Grand.Web.Features.Handlers.ShoppingCart
 {
@@ -32,7 +33,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
         private readonly ICheckoutAttributeService _checkoutAttributeService;
         private readonly IProductService _productService;
         private readonly IProductAttributeFormatter _productAttributeFormatter;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly ITranslationService _translationService;
         private readonly IPricingService _pricingService;
         private readonly IPictureService _pictureService;
@@ -53,7 +53,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             ICheckoutAttributeService checkoutAttributeService,
             IProductService productService,
             IProductAttributeFormatter productAttributeFormatter,
-            IProductAttributeParser productAttributeParser,
             ITranslationService translationService,
             IPricingService priceCalculationService,
             IGroupService groupService,
@@ -73,7 +72,6 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
             _checkoutAttributeService = checkoutAttributeService;
             _productService = productService;
             _productAttributeFormatter = productAttributeFormatter;
-            _productAttributeParser = productAttributeParser;
             _translationService = translationService;
             _pricingService = priceCalculationService;
             _groupService = groupService;
@@ -204,7 +202,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
         private async Task<PictureModel> PrepareCartItemPicture(Product product, IList<CustomAttribute> attributes)
         {
-            var sciPicture = await product.GetProductPicture(attributes, _productService, _pictureService, _productAttributeParser);
+            var sciPicture = await product.GetProductPicture(attributes, _productService, _pictureService);
             return new PictureModel
             {
                 Id = sciPicture?.Id,

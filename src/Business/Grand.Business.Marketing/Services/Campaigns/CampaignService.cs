@@ -354,10 +354,6 @@ namespace Grand.Business.Marketing.Services.Campaigns
                 await _queuedEmailService.InsertQueuedEmail(email);
                 await InsertCampaignHistory(new CampaignHistory() { CampaignId = campaign.Id, CustomerId = subscription.CustomerId, Email = subscription.Email, CreatedDateUtc = DateTime.UtcNow, StoreId = campaign.StoreId });
 
-                //activity log
-                if (customer != null)
-                    _ = _customerActivityService.InsertActivity("CustomerReminder.SendCampaign", campaign.Id, customer, "", _translationService.GetResource("ActivityLog.SendCampaign"), campaign.Name);
-
                 totalEmailsSent++;
             }
             return totalEmailsSent;

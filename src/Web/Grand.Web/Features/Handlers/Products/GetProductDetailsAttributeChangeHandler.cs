@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Utilities.Catalog;
@@ -23,7 +22,6 @@ namespace Grand.Web.Features.Handlers.Products
     public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProductDetailsAttributeChange, ProductDetailsAttributeChangeModel>
     {
         private readonly IMediator _mediator;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IStockQuantityService _stockQuantityService;
         private readonly IPermissionService _permissionService;
         private readonly IPricingService _pricingService;
@@ -37,7 +35,6 @@ namespace Grand.Web.Features.Handlers.Products
 
         public GetProductDetailsAttributeChangeHandler(
             IMediator mediator,
-            IProductAttributeParser productAttributeParser,
             IStockQuantityService stockQuantityService,
             IPermissionService permissionService,
             IPricingService priceCalculationService,
@@ -50,7 +47,6 @@ namespace Grand.Web.Features.Handlers.Products
             MediaSettings mediaSettings)
         {
             _mediator = mediator;
-            _productAttributeParser = productAttributeParser;
             _stockQuantityService = stockQuantityService;
             _permissionService = permissionService;
             _pricingService = priceCalculationService;
@@ -82,9 +78,9 @@ namespace Grand.Web.Features.Handlers.Products
                 request.Product.ParseReservationDates(request.Form, out rentalStartDate, out rentalEndDate);
             }
 
-            model.Sku = request.Product.FormatSku(customAttributes, _productAttributeParser);
-            model.Mpn = request.Product.FormatMpn(customAttributes, _productAttributeParser);
-            model.Gtin = request.Product.FormatGtin(customAttributes, _productAttributeParser);
+            model.Sku = request.Product.FormatSku(customAttributes);
+            model.Mpn = request.Product.FormatMpn(customAttributes);
+            model.Gtin = request.Product.FormatGtin(customAttributes);
 
             if (await _permissionService.Authorize(StandardPermission.DisplayPrices) && !request.Product.EnteredPrice && request.Product.ProductTypeId != ProductType.Auction)
             {
@@ -114,7 +110,7 @@ namespace Grand.Web.Features.Handlers.Products
                 request.Product.BackorderModeId == BackorderMode.NoBackorders &&
                 request.Product.AllowOutOfStockSubscriptions)
             {
-                var combination = _productAttributeParser.FindProductAttributeCombination(request.Product, customAttributes);
+                var combination = request.Product.FindProductAttributeCombination(customAttributes);
 
                 if (combination != null)
                     if (_stockQuantityService.GetTotalStockQuantityForCombination(request.Product, combination, warehouseId: warehouseId) <= 0)
@@ -147,7 +143,7 @@ namespace Grand.Web.Features.Handlers.Products
                 var attributes = request.Product.ProductAttributeMappings;
                 foreach (var attribute in attributes)
                 {
-                    var conditionMet = _productAttributeParser.IsConditionMet(request.Product, attribute, customAttributes);
+                    var conditionMet = request.Product.IsConditionMet(attribute, customAttributes);
                     if (conditionMet.HasValue)
                     {
                         if (conditionMet.Value)
@@ -162,10 +158,10 @@ namespace Grand.Web.Features.Handlers.Products
             {
 
                 //first, try to get product attribute combination picture
-                var pictureId = _productAttributeParser.FindProductAttributeCombination(request.Product, customAttributes)?.PictureId;
+                var pictureId = request.Product.FindProductAttributeCombination(customAttributes)?.PictureId;
                 if (string.IsNullOrEmpty(pictureId))
                 {
-                    pictureId = _productAttributeParser.ParseProductAttributeValues(request.Product, customAttributes)
+                    pictureId = request.Product.ParseProductAttributeValues(customAttributes)
                         .FirstOrDefault(attributeValue => !string.IsNullOrEmpty(attributeValue.PictureId))?.PictureId ?? "";
                 }
 
@@ -187,7 +183,7 @@ namespace Grand.Web.Features.Handlers.Products
         {
             var model = new List<string>();
 
-            var combination = _productAttributeParser.FindProductAttributeCombination(request.Product, customAttributes);
+            var combination = request.Product.FindProductAttributeCombination(customAttributes);
             foreach (var customAttribute in customAttributes)
             {
                 //find all combinations with attributes

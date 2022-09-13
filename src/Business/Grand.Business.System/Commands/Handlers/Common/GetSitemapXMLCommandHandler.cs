@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Marketing.Knowledgebase;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Commands.System.Common;
 using Grand.Domain.Blogs;

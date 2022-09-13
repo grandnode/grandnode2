@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Domain.Orders;
+﻿using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Business.Checkout.Tests.Extensions

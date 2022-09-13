@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Interfaces.System.Installation;
 using Grand.Domain.AdminSearch;

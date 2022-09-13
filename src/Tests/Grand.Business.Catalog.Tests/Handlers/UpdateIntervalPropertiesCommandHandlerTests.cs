@@ -3,9 +3,7 @@ using Grand.Business.Core.Commands.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Data.Mongo;
 using Grand.Infrastructure.Caching;
-using Grand.Infrastructure.Events;
 using Grand.SharedKernel.Extensions;
-using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
