@@ -123,14 +123,13 @@ $(document).ajaxStart(function () {
 }).ajaxStop(function () {
     StopPageLoading();
 });
-
 function StartPageLoading(options) {
     if (options && options.animate) {
         $('.page-spinner-bar').remove();
         $('body').append('<div class="page-spinner-bar"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>');
     } else {
         $('.page-loading').remove();
-        $('body').append('<div class="page-loading"><img src="/_content/Grand.Web.Admin/administration/build/images/loading.gif"/>&nbsp;&nbsp;<span>' + (options && options.message ? options.message : 'Loading...') + '</span></div>');
+        $('body').append('<div class="page-loading"><img src="' + wwwrootpath +'/administration/build/images/loading.gif"/>&nbsp;&nbsp;<span>' + (options && options.message ? options.message : 'Loading...') + '</span></div>');
     }
 }
 

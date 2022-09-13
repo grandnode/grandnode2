@@ -4,14 +4,14 @@
     ViewBag.Title = Loc["Admin.System.CustomJs"];
 }
 
-<link rel="stylesheet" type="text/css" asp-src="/_content/Grand.Web.Admin/administration/codemirror/codemirror.css" />
-<link rel="stylesheet" type="text/css" asp-src="/_content/Grand.Web.Admin/administration/codemirror/hint/show-hint.css" />
+<link rel="stylesheet" type="text/css" asp-src="@(Common.WwwRoot)/administration/codemirror/codemirror.css" />
+<link rel="stylesheet" type="text/css" asp-src="@(Common.WwwRoot)/administration/codemirror/hint/show-hint.css" />
 
-<script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/codemirror/codemirror.js"></script>
-<script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/codemirror/mode/javascript/javascript.js"></script>
-<script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/codemirror/hint/show-hint.js"></script>
-<script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/codemirror/hint/javascript-hint.js"></script>
-<script asp-location="Head" asp-src="/_content/Grand.Web.Admin/administration/codemirror/edit/matchbrackets.js"></script>
+<script asp-location="Head" asp-src="@(Common.WwwRoot)/administration/codemirror/codemirror.js"></script>
+<script asp-location="Head" asp-src="@(Common.WwwRoot)/administration/codemirror/mode/javascript/javascript.js"></script>
+<script asp-location="Head" asp-src="@(Common.WwwRoot)/administration/codemirror/hint/show-hint.js"></script>
+<script asp-location="Head" asp-src="@(Common.WwwRoot)/administration/codemirror/hint/javascript-hint.js"></script>
+<script asp-location="Head" asp-src="@(Common.WwwRoot)/administration/codemirror/edit/matchbrackets.js"></script>
 
 <style>
     .CodeMirror {
