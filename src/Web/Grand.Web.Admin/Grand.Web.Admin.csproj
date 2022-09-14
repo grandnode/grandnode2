@@ -4,6 +4,9 @@
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 		<ServerGarbageCollection>false</ServerGarbageCollection>
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
+		<UseAppHost>false</UseAppHost>
+		<!--Set GenerateRuntimeConfigurationFiles as true when Admin panel is supposed to works independent-->
+		<GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
 	</PropertyGroup>
 	<ItemGroup>
 		<Content Include="Areas\**" CopyToPublishDirectory="Never" />
@@ -33,9 +36,5 @@
 		<ProjectReference Include="..\..\Business\Grand.Business.Storage\Grand.Business.Storage.csproj" />
 		<ProjectReference Include="..\..\Business\Grand.Business.System\Grand.Business.System.csproj" />
 		<ProjectReference Include="..\Grand.Web.Common\Grand.Web.Common.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="logs\" />
-	  <Folder Include="Themes\" />
 	</ItemGroup>
 </Project>
