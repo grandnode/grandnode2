@@ -8,14 +8,15 @@ namespace Grand.Web.Common.Themes
         public ThemeList()
         {
             ThemeConfigurations = new List<ThemeConfiguration>();
-            foreach (var themeName in Directory.GetDirectories(CommonPath.ThemePath))
-            {
-                var configuration = CreateThemeConfiguration(themeName);
-                if (configuration != null)
+            if (Directory.Exists(CommonPath.ThemePath))
+                foreach (var themeName in Directory.GetDirectories(CommonPath.ThemePath))
                 {
-                    ThemeConfigurations.Add(configuration);
+                    var configuration = CreateThemeConfiguration(themeName);
+                    if (configuration != null)
+                    {
+                        ThemeConfigurations.Add(configuration);
+                    }
                 }
-            }
         }
 
         public IList<ThemeConfiguration> ThemeConfigurations { get; }

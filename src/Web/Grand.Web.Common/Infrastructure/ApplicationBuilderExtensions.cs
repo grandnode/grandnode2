@@ -121,9 +121,9 @@ namespace Grand.Web.Common.Infrastructure
                         var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger>();
                         //get current customer
                         var workContext = context.HttpContext.RequestServices.GetRequiredService<IWorkContext>();
-                        _ = logger.InsertLog(Domain.Logging.LogLevel.Error, 
+                        _ = logger.InsertLog(Domain.Logging.LogLevel.Error,
                             $"Error 404. The requested page ({context.HttpContext.Request?.GetDisplayUrl()}) was not found",
-                            customer: workContext.CurrentCustomer, 
+                            customer: workContext.CurrentCustomer,
                             ipAddress: context.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
                             pageurl: context.HttpContext?.Request?.GetDisplayUrl(),
                             referrerUrl: context.HttpContext?.Request?.GetTypedHeaders().Referer?.ToString());
@@ -211,32 +211,35 @@ namespace Grand.Web.Common.Infrastructure
 
                 OnPrepareResponse = ctx =>
                 {
-                    if (!String.IsNullOrEmpty(appConfig.StaticFilesCacheControl))
+                    if (!string.IsNullOrEmpty(appConfig.StaticFilesCacheControl))
                         ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, appConfig.StaticFilesCacheControl);
                 }
 
             });
 
             //themes
-            application.UseStaticFiles(new StaticFileOptions {
-                FileProvider = new PhysicalFileProvider(CommonPath.ThemePath),
-                RequestPath = new PathString("/Themes"),
-                OnPrepareResponse = ctx =>
-                {
-                    if (!String.IsNullOrEmpty(appConfig.StaticFilesCacheControl))
-                        ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, appConfig.StaticFilesCacheControl);
-                }
-            });
+            if (Directory.Exists(CommonPath.ThemePath))
+                application.UseStaticFiles(new StaticFileOptions {
+                    FileProvider = new PhysicalFileProvider(CommonPath.ThemePath),
+                    RequestPath = new PathString("/Themes"),
+                    OnPrepareResponse = ctx =>
+                    {
+                        if (!string.IsNullOrEmpty(appConfig.StaticFilesCacheControl))
+                            ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, appConfig.StaticFilesCacheControl);
+                    }
+                });
+
             //plugins
-            application.UseStaticFiles(new StaticFileOptions {
-                FileProvider = new PhysicalFileProvider(CommonPath.PluginsPath),
-                RequestPath = new PathString("/Plugins"),
-                OnPrepareResponse = ctx =>
-                {
-                    if (!string.IsNullOrEmpty(appConfig.StaticFilesCacheControl))
-                        ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, appConfig.StaticFilesCacheControl);
-                }
-            });
+            if (Directory.Exists(CommonPath.PluginsPath))
+                application.UseStaticFiles(new StaticFileOptions {
+                    FileProvider = new PhysicalFileProvider(CommonPath.PluginsPath),
+                    RequestPath = new PathString("/Plugins"),
+                    OnPrepareResponse = ctx =>
+                    {
+                        if (!string.IsNullOrEmpty(appConfig.StaticFilesCacheControl))
+                            ctx.Context.Response.Headers.Append(HeaderNames.CacheControl, appConfig.StaticFilesCacheControl);
+                    }
+                });
 
         }
 
@@ -320,7 +323,7 @@ namespace Grand.Web.Common.Infrastructure
                     builder.AddStyleSrc().From("*").UnsafeEval().UnsafeInline();
                 })
                 .AddPermissionsPolicy(builder =>
-                {                    
+                {
                     builder.AddAutoplay().Self();
                     builder.AddCamera().Self();
                     builder.AddEncryptedMedia().Self();
