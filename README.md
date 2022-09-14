@@ -34,6 +34,7 @@ Advanced personalization, scalability, speed, and high efficiency - these are fe
 <div align="center">
 
 ![Tests on Linux, MacOS and Windows](https://github.com/grandnode/grandnode2/actions/workflows/aspnetcore.yml/badge.svg)
+[![Build Status](https://dev.azure.com/grandnode/grandnode2/_apis/build/status/grandnode.grandnode2?branchName=azure-pipelines)](https://dev.azure.com/grandnode/grandnode2/_build/latest?definitionId=8&branchName=azure-pipelines)
 ![Docker](https://img.shields.io/docker/cloud/build/grandnode/grandnode2)
 ![License](https://img.shields.io/github/license/grandnode/grandnode2)
 <a href="https://docs.grandnode.com/"><img src="https://img.shields.io/badge/Docs-docs.grandnode.com-brightgreen"></a>
