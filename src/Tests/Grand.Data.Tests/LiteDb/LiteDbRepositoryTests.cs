@@ -12,13 +12,13 @@ namespace Grand.Data.Tests.LiteDb
         [TestInitialize()]
         public void Init()
         {
-            _myRepository = new MongoDBRepositoryMock<SampleCollection>();
+            _myRepository = new LiteDBRepositoryMock<SampleCollection>();
 
             CommonPath.BaseDirectory = "";
         }
 
         [TestMethod()]
-        public void Insert_MongoRepository_Success()
+        public void Insert_LiteRepository_Success()
         {
             var product = new SampleCollection();
             _myRepository.Insert(product);
@@ -27,7 +27,7 @@ namespace Grand.Data.Tests.LiteDb
         }
 
         [TestMethod()]
-        public async Task InsertAsync_MongoRepository_Success()
+        public async Task InsertAsync_LiteRepository_Success()
         {
             var product = new SampleCollection();
             await _myRepository.InsertAsync(product);
@@ -35,7 +35,7 @@ namespace Grand.Data.Tests.LiteDb
             Assert.AreEqual(1, _myRepository.Table.Count());
         }
         [TestMethod()]
-        public async Task InsertManyAsync_MongoRepository_Success()
+        public async Task InsertManyAsync_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1" },
@@ -48,7 +48,7 @@ namespace Grand.Data.Tests.LiteDb
             Assert.IsTrue(_myRepository.Table.Count() == 3);
         }
         [TestMethod()]
-        public async Task GetById_MongoRepository_Success()
+        public async Task GetById_LiteRepository_Success()
         {
             var product = new SampleCollection() { Id = "1" };
             await _myRepository.InsertAsync(product);
@@ -59,7 +59,7 @@ namespace Grand.Data.Tests.LiteDb
         }
 
         [TestMethod()]
-        public async Task GetByIdAsync_MongoRepository_Success()
+        public async Task GetByIdAsync_LiteRepository_Success()
         {
             var product = new SampleCollection() { Id = "1" };
             await _myRepository.InsertAsync(product);
@@ -70,7 +70,7 @@ namespace Grand.Data.Tests.LiteDb
         }
 
         [TestMethod()]
-        public async Task ClearAsync_MongoRepository_Success()
+        public async Task ClearAsync_LiteRepository_Success()
         {
             var product = new SampleCollection() { Id = "1" };
             await _myRepository.InsertAsync(product);
@@ -81,7 +81,7 @@ namespace Grand.Data.Tests.LiteDb
         }
 
         [TestMethod()]
-        public async Task AddToSet_MongoRepository_Success()
+        public async Task AddToSet_LiteRepository_Success()
         {
             var product = new SampleCollection() { Id = "1" };
             await _myRepository.InsertAsync(product);
@@ -98,7 +98,7 @@ namespace Grand.Data.Tests.LiteDb
         }
 
         [TestMethod()]
-        public async Task Delete_MongoRepository_Success()
+        public async Task Delete_LiteRepository_Success()
         {
             var product = new SampleCollection() { Id = "1" };
             await _myRepository.InsertAsync(product);
@@ -111,7 +111,7 @@ namespace Grand.Data.Tests.LiteDb
         }
 
         [TestMethod()]
-        public async Task DeleteAsync_MongoRepository_Success()
+        public async Task DeleteAsync_LiteRepository_Success()
         {
             var product = new SampleCollection() { Id = "1" };
             await _myRepository.InsertAsync(product);
@@ -123,7 +123,7 @@ namespace Grand.Data.Tests.LiteDb
             Assert.IsNull(p);
         }
         [TestMethod()]
-        public async Task DeleteManyAsync_MongoRepository_Success()
+        public async Task DeleteManyAsync_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test" },
@@ -139,7 +139,7 @@ namespace Grand.Data.Tests.LiteDb
         }
 
         [TestMethod()]
-        public async Task GetAllAsync_MongoRepository_Success()
+        public async Task GetAllAsync_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test" },
@@ -156,7 +156,7 @@ namespace Grand.Data.Tests.LiteDb
 
 
         [TestMethod()]
-        public async Task Pull_MongoRepository_Success()
+        public async Task Pull_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test",
@@ -177,7 +177,7 @@ namespace Grand.Data.Tests.LiteDb
             Assert.IsTrue(p.Phones.Count() == 2);
         }
         [TestMethod()]
-        public async Task Pull_Many_MongoRepository_Success()
+        public async Task Pull_Many_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test",
@@ -201,14 +201,14 @@ namespace Grand.Data.Tests.LiteDb
         }
 
         [TestMethod()]
-        public async Task PullFilter_1_MongoRepository_Success()
+        public async Task PullFilter_1_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test",
                 UserFields = new List<Domain.Common.UserField>()
                 {
                     new Domain.Common.UserField() { Key = "key", Value = "value", StoreId = "" },
-                    new Domain.Common.UserField() { Key = "key1", Value = "value", StoreId = "" },
+                    new Domain.Common.UserField() { Key = "key1", Value = "value1", StoreId = "" },
                     new Domain.Common.UserField() { Key = "key2", Value = "value2", StoreId = "" }
                 } },
             new SampleCollection(){ Id = "2", Name = "Test2" },
@@ -221,11 +221,11 @@ namespace Grand.Data.Tests.LiteDb
 
             var p1 = _myRepository.GetById("1");
 
-            Assert.IsTrue(p1.UserFields.Count() == 1);
+            Assert.IsTrue(p1.UserFields.Count() == 2);
         }
 
         [TestMethod()]
-        public async Task PullFilter_2_MongoRepository_Success()
+        public async Task PullFilter_2_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test",
@@ -248,7 +248,7 @@ namespace Grand.Data.Tests.LiteDb
             Assert.IsTrue(p1.UserFields.Count() == 1);
         }
         [TestMethod()]
-        public async Task PullFilter_2_Many_MongoRepository_Success()
+        public async Task PullFilter_2_Many_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test",
@@ -281,7 +281,7 @@ namespace Grand.Data.Tests.LiteDb
 
 
         [TestMethod()]
-        public async Task Update_MongoRepository_Success()
+        public async Task Update_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test",
@@ -307,7 +307,7 @@ namespace Grand.Data.Tests.LiteDb
             Assert.IsTrue(p1.Name == "update");
         }
         [TestMethod()]
-        public async Task UpdateAsync_MongoRepository_Success()
+        public async Task UpdateAsync_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test",
@@ -334,7 +334,7 @@ namespace Grand.Data.Tests.LiteDb
         }
 
         [TestMethod()]
-        public async Task UpdateField_MongoRepository_Success()
+        public async Task UpdateField_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test",
@@ -358,7 +358,7 @@ namespace Grand.Data.Tests.LiteDb
         }
 
         [TestMethod()]
-        public async Task UpdateManyAsync_MongoRepository_Success()
+        public async Task UpdateManyAsync_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test",
@@ -382,7 +382,7 @@ namespace Grand.Data.Tests.LiteDb
         }
 
         [TestMethod()]
-        public async Task UpdateOneAsync_MongoRepository_Success()
+        public async Task UpdateOneAsync_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test",
@@ -405,7 +405,7 @@ namespace Grand.Data.Tests.LiteDb
             Assert.IsTrue(pUpdated.Count() == 1);
         }
         [TestMethod()]
-        public async Task UpdateToSet_MongoRepository_Success()
+        public async Task UpdateToSet_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test",
@@ -429,7 +429,7 @@ namespace Grand.Data.Tests.LiteDb
         }
 
         [TestMethod()]
-        public async Task UpdateToSet_2_MongoRepository_Success()
+        public async Task UpdateToSet_2_LiteRepository_Success()
         {
             var products = new List<SampleCollection>() {
             new SampleCollection(){ Id = "1", Name = "Test",
