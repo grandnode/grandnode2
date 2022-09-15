@@ -13,6 +13,16 @@ pool:
 variables:
   buildConfiguration: 'Release'
 
+resources:
+  containers:
+  - container: mongodb
+    image: mongodb
+    ports:
+    - 27017:27017
+
+services:
+  mongodb: mongodb
+
 steps:
 - task: NuGetCommand@2
   inputs:
