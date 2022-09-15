@@ -27,6 +27,12 @@ steps:
     projects: '**/Grand.Web.csproj'
     arguments: '--configuration $(buildConfiguration)'
   displayName: 'dotnet build $(buildConfiguration)'
+  
+- task: DotNetCoreCLI@2
+  displayName: Run Tests
+  inputs:
+    command: 'test'
+    projects: /src/Tests
 
 - task: Docker@2
   inputs:
