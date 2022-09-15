@@ -15,13 +15,13 @@ variables:
 
 resources:
   containers:
-  - container: mongodb
-    image: mongodb
+  - container: mongo
+    image: mongo
     ports:
     - 27017:27017
 
 services:
-  mongodb: mongodb
+  mongo: mongo
 
 steps:
 - task: NuGetCommand@2
