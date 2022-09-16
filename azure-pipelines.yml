@@ -43,7 +43,7 @@ steps:
   inputs:
     command: 'test'   
     projects: '**/Tests/**/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+    arguments: '--configuration $(buildConfiguration)  --collect "Code coverage"'
 
 - task: Docker@2
   inputs:
