@@ -1,17 +1,15 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Campaigns;
-using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Infrastructure.Extensions;
+using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
-using MediatR;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Extensions;
+using MediatR;
 
 namespace Grand.Business.Marketing.Services.Campaigns
 {
@@ -23,11 +21,8 @@ namespace Grand.Business.Marketing.Services.Campaigns
         private readonly IRepository<Customer> _customerRepository;
         private readonly IEmailSender _emailSender;
         private readonly IQueuedEmailService _queuedEmailService;
-        private readonly ICustomerService _customerService;
         private readonly IStoreService _storeService;
         private readonly IMediator _mediator;
-        private readonly ICustomerActivityService _customerActivityService;
-        private readonly ITranslationService _translationService;
         private readonly ILanguageService _languageService;
         private readonly IWorkContext _workContext;
 
@@ -35,12 +30,10 @@ namespace Grand.Business.Marketing.Services.Campaigns
             IRepository<CampaignHistory> campaignHistoryRepository,
             IRepository<NewsLetterSubscription> newsLetterSubscriptionRepository,
             IRepository<Customer> customerRepository,
-            IEmailSender emailSender, 
+            IEmailSender emailSender,
             IQueuedEmailService queuedEmailService,
-            ICustomerService customerService, IStoreService storeService,
+            IStoreService storeService,
             IMediator mediator,
-            ICustomerActivityService customerActivityService,
-            ITranslationService translationService,
             ILanguageService languageService,
             IWorkContext workContext)
         {
@@ -51,10 +44,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
             _emailSender = emailSender;
             _queuedEmailService = queuedEmailService;
             _storeService = storeService;
-            _customerService = customerService;
             _mediator = mediator;
-            _customerActivityService = customerActivityService;
-            _translationService = translationService;
             _languageService = languageService;
             _workContext = workContext;
         }
@@ -169,8 +159,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
                             where o.Active && o.CustomerId != "" && (o.StoreId == campaign.StoreId || String.IsNullOrEmpty(campaign.StoreId))
                             join c in _customerRepository.Table on o.CustomerId equals c.Id into joined
                             from customers in joined
-                            select new CampaignCustomerHelp()
-                            {
+                            select new CampaignCustomerHelp() {
                                 CustomerEmail = customers.Email,
                                 Email = o.Email,
                                 CustomerId = customers.Id,
@@ -304,15 +293,8 @@ namespace Grand.Business.Marketing.Services.Campaigns
             {
                 Customer customer = null;
 
-                if (!String.IsNullOrEmpty(subscription.CustomerId))
-                {
-                    customer = await _customerService.GetCustomerById(subscription.CustomerId);
-                }
-
-                if (customer == null)
-                {
-                    customer = await _customerService.GetCustomerByEmail(subscription.Email);
-                }
+                if (!string.IsNullOrEmpty(subscription.CustomerId)) customer = await _customerRepository.GetByIdAsync(subscription.CustomerId);
+                if (customer == null) customer = _customerRepository.Table.FirstOrDefault(x => x.Email == subscription.Email.ToLowerInvariant());
 
                 //ignore deleted or inactive customers when sending newsletter campaigns
                 if (customer != null && (!customer.Active || customer.Deleted))
@@ -383,7 +365,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
 
             var builder = new LiquidObjectBuilder(_mediator);
             builder.AddStoreTokens(store, language, emailAccount);
-            var customer = await _customerService.GetCustomerByEmail(email);
+            var customer = _customerRepository.Table.FirstOrDefault(x => x.Email == email.ToLowerInvariant());
             if (customer != null)
             {
                 builder.AddCustomerTokens(customer, store, _workContext.CurrentHost, language)
