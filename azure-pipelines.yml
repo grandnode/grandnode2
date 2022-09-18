@@ -24,6 +24,11 @@ services:
   mongo: mongo
 
 steps:
+- task: UseDotNet@2
+  displayName: 'Install .NET Core SDK 6'
+  inputs:
+    version: '6.0.x'
+
 - task: NuGetCommand@2
   inputs:
     command: 'restore'
@@ -37,15 +42,23 @@ steps:
     projects: '**/Grand.Web.csproj'
     arguments: '--configuration $(buildConfiguration)'
   displayName: 'dotnet build $(buildConfiguration)'
-  
+
 - task: DotNetCoreCLI@2
-  displayName: Run Tests
+  displayName: 'dotnet test'
   inputs:
-    command: 'test'   
+    command: 'test'
+    arguments: '--configuration $(buildConfiguration) --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura'
+    publishTestResults: true
     projects: '**/Tests/**/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+  
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish code coverage report'
+  inputs:
+    codeCoverageTool: 'Cobertura'
+    summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
 
 - task: Docker@2
+  displayName: 'Build and push to dockerhub'
   inputs:
     containerRegistry: 'DockerHub'
     repository: 'grandnode/grandnode2'
@@ -53,3 +66,15 @@ steps:
     tags: |
       latest
     Dockerfile: '**/Dockerfile'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: publish
+    publishWebProjects: True
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: True
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)' 
+    artifactName: 'grandnode'
