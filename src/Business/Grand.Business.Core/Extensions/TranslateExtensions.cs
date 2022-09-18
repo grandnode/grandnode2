@@ -109,7 +109,7 @@ namespace Grand.Business.Core.Extensions
 
             //set default value if required
             if (String.IsNullOrEmpty(result))
-                result = CommonHelper.ConvertEnum(enumValue.ToString());
+                result = CommonHelper.ConvertEnum(enumValue);
 
             return result;
         }
