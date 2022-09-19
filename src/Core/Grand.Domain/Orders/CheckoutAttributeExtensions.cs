@@ -45,17 +45,5 @@ namespace Grand.Domain.Orders
 
             return true;
         }
-        /// <summary>
-        /// Remove attributes which require shippable products
-        /// </summary>
-        /// <param name="checkoutAttributes">Checkout attributes</param>
-        /// <returns>Result</returns>
-        public static IList<CheckoutAttribute> RemoveShippableAttributes(this IList<CheckoutAttribute> checkoutAttributes)
-        {
-            if (checkoutAttributes == null)
-                throw new ArgumentNullException(nameof(checkoutAttributes));
-
-            return checkoutAttributes.Where(x => !x.ShippableProductRequired).ToList();
-        }
     }
 }
