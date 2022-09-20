@@ -1,7 +1,6 @@
-﻿using Grand.Domain.Orders;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Checkout.Tests.Extensions
+namespace Grand.Domain.Orders.Tests
 {
     [TestClass]
     public class ShoppingCartExtensionsTests
