@@ -1,5 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Marketing.Contacts;
@@ -8,6 +8,7 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Interfaces.System.ExportImport;
 using Grand.Business.Core.Utilities.System;
+using Grand.Business.System.Utilities.System;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -15,11 +16,9 @@ using Grand.Domain.Directory;
 using Grand.Domain.Logging;
 using Grand.Domain.Messages;
 using Grand.Domain.Orders;
-using Grand.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-using Grand.Business.System.Utilities.System;
 
 namespace Grand.Business.System.Services.ExportImport
 {
@@ -369,8 +368,7 @@ namespace Grand.Business.System.Services.ExportImport
                     {
                         var _tmp = (NewsLetterSubscription)item.Object;
 
-                        var newslettertml = new NewsLetterSubscription()
-                        {
+                        var newslettertml = new NewsLetterSubscription() {
                             Active = _tmp.Active,
                             CreatedOnUtc = item.CreatedOnUtc
                         };
@@ -445,7 +443,7 @@ namespace Grand.Business.System.Services.ExportImport
             }
             return sb.ToString();
         }
-      
+
         /// <summary>
         /// Export objects to XLSX
         /// </summary>
@@ -548,30 +546,30 @@ namespace Grand.Business.System.Services.ExportImport
                     new PropertyByName<Order>("ShippingRateComputationMethodSystemName", p=>p.ShippingRateProviderSystemName),
                     new PropertyByName<Order>("VatNumber", p=>p.VatNumber),
                     new PropertyByName<Order>("CreatedOnUtc", p=>p.CreatedOnUtc.ToOADate()),
-                    new PropertyByName<Order>("BillingFirstName", p=>p.BillingAddress.Return(billingAddress=>billingAddress.FirstName, "")),
-                    new PropertyByName<Order>("BillingLastName", p=>p.BillingAddress.Return(billingAddress=>billingAddress.LastName, "")),
-                    new PropertyByName<Order>("BillingEmail", p=>p.BillingAddress.Return(billingAddress=>billingAddress.Email, "")),
-                    new PropertyByName<Order>("BillingCompany", p=>p.BillingAddress.Return(billingAddress=>billingAddress.Company, "")),
-                    new PropertyByName<Order>("BillingVatNumber", p=>p.BillingAddress.Return(billingAddress=>billingAddress.VatNumber, "")),
-                    new PropertyByName<Order>("BillingCountry",p=>p.BillingAddress.Return(billingAddress=>_serviceProvider.GetRequiredService<ICountryService>().GetCountryById(billingAddress.CountryId).Result, null).Return(country=>country.Name,"")),
-                    new PropertyByName<Order>("BillingCity", p=>p.BillingAddress.Return(billingAddress=>billingAddress.City,"")),
-                    new PropertyByName<Order>("BillingAddress1",p=>p.BillingAddress.Return(billingAddress=>billingAddress.Address1,"")),
-                    new PropertyByName<Order>("BillingAddress2", p=>p.BillingAddress.Return(billingAddress=>billingAddress.Address2,"")),
-                    new PropertyByName<Order>("BillingZipPostalCode", p=>p.BillingAddress.Return(billingAddress=>billingAddress.ZipPostalCode,"")),
-                    new PropertyByName<Order>("BillingPhoneNumber", p=>p.BillingAddress.Return(billingAddress=>billingAddress.PhoneNumber,"")),
-                    new PropertyByName<Order>("BillingFaxNumber", p=>p.BillingAddress.Return(billingAddress=>billingAddress.FaxNumber,"")),
-                    new PropertyByName<Order>("ShippingFirstName", p=>p.ShippingAddress.Return(shippingAddress=>shippingAddress.FirstName,"")),
-                    new PropertyByName<Order>("ShippingLastName", p=>p.ShippingAddress.Return(shippingAddress=>shippingAddress.LastName, "")),
-                    new PropertyByName<Order>("ShippingEmail", p=>p.ShippingAddress.Return(shippingAddress=>shippingAddress.Email, "")),
-                    new PropertyByName<Order>("ShippingCompany", p=>p.ShippingAddress.Return(shippingAddress=>shippingAddress.Company, "")),
-                    new PropertyByName<Order>("ShippingVatNumber", p=>p.ShippingAddress.Return(shippingAddress=>shippingAddress.VatNumber, "")),
-                    new PropertyByName<Order>("ShippingCountry", p=>p.ShippingAddress.Return(shippingAddress=>_serviceProvider.GetRequiredService<ICountryService>().GetCountryById(shippingAddress.CountryId).Result, null).Return(country=>country.Name,"")),
-                    new PropertyByName<Order>("ShippingCity", p=>p.ShippingAddress.Return(shippingAddress=>shippingAddress.City, "")),
-                    new PropertyByName<Order>("ShippingAddress1", p=>p.ShippingAddress.Return(shippingAddress=>shippingAddress.Address1, "")),
-                    new PropertyByName<Order>("ShippingAddress2", p=>p.ShippingAddress.Return(shippingAddress=>shippingAddress.Address2, "")),
-                    new PropertyByName<Order>("ShippingZipPostalCode", p=>p.ShippingAddress.Return(shippingAddress=>shippingAddress.ZipPostalCode, "")),
-                    new PropertyByName<Order>("ShippingPhoneNumber",p=>p.ShippingAddress.Return(shippingAddress=>shippingAddress.PhoneNumber, "")),
-                    new PropertyByName<Order>("ShippingFaxNumber", p=>p.ShippingAddress.Return(shippingAddress=>shippingAddress.FaxNumber, ""))
+                    new PropertyByName<Order>("BillingFirstName", p=>p.BillingAddress?.FirstName),
+                    new PropertyByName<Order>("BillingLastName", p=>p.BillingAddress?.LastName),
+                    new PropertyByName<Order>("BillingEmail", p=>p.BillingAddress?.Email),
+                    new PropertyByName<Order>("BillingCompany", p=>p.BillingAddress?.Company),
+                    new PropertyByName<Order>("BillingVatNumber", p=>p.BillingAddress?.VatNumber),
+                    new PropertyByName<Order>("BillingCountry",p=>p.BillingAddress!=null ? (_serviceProvider.GetRequiredService<ICountryService>().GetCountryById(p.BillingAddress.CountryId)).Result?.Name : ""),
+                    new PropertyByName<Order>("BillingCity", p=>p.BillingAddress?.City),
+                    new PropertyByName<Order>("BillingAddress1",p=>p.BillingAddress?.Address1),
+                    new PropertyByName<Order>("BillingAddress2", p=>p.BillingAddress?.Address2),
+                    new PropertyByName<Order>("BillingZipPostalCode", p=>p.BillingAddress?.ZipPostalCode),
+                    new PropertyByName<Order>("BillingPhoneNumber", p=>p.BillingAddress?.PhoneNumber),
+                    new PropertyByName<Order>("BillingFaxNumber", p=>p.BillingAddress?.FaxNumber),
+                    new PropertyByName<Order>("ShippingFirstName", p=>p.ShippingAddress?.FirstName),
+                    new PropertyByName<Order>("ShippingLastName", p=>p.ShippingAddress?.LastName),
+                    new PropertyByName<Order>("ShippingEmail", p=>p.ShippingAddress?.Email),
+                    new PropertyByName<Order>("ShippingCompany", p=>p.ShippingAddress?.Company),
+                    new PropertyByName<Order>("ShippingVatNumber", p=>p.ShippingAddress?.VatNumber),
+                    new PropertyByName<Order>("ShippingCountry",p=>p.ShippingAddress!=null ? (_serviceProvider.GetRequiredService<ICountryService>().GetCountryById(p.ShippingAddress.CountryId)).Result?.Name : ""),
+                    new PropertyByName<Order>("ShippingCity", p=>p.ShippingAddress?.City),
+                    new PropertyByName<Order>("ShippingAddress1", p=>p.ShippingAddress?.Address1),
+                    new PropertyByName<Order>("ShippingAddress2", p=>p.ShippingAddress?.Address2),
+                    new PropertyByName<Order>("ShippingZipPostalCode", p=>p.ShippingAddress?.ZipPostalCode),
+                    new PropertyByName<Order>("ShippingPhoneNumber",p=>p.ShippingAddress?.PhoneNumber),
+                    new PropertyByName<Order>("ShippingFaxNumber", p=>p.ShippingAddress?.FaxNumber)
             };
             return properties;
         }

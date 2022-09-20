@@ -65,7 +65,7 @@ namespace Grand.Web.Controllers
                 //find by current browser culture
                 if (HttpContext.Request.Headers.TryGetValue("Accept-Language", out var userLanguages))
                 {
-                    var userLanguage = userLanguages.FirstOrDefault().Return(l => l.Split(',')[0], string.Empty);
+                    var userLanguage = userLanguages.FirstOrDefault()?.Split(',')[0];
                     if (!string.IsNullOrEmpty(userLanguage))
                     {
                         return userLanguage;
