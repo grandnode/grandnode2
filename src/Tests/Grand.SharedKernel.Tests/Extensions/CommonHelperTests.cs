@@ -1,5 +1,4 @@
-﻿using Grand.SharedKernel.Extensions;
-using Grand.SharedKernel.Tests;
+﻿using Grand.SharedKernel.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Globalization;
 
@@ -144,7 +143,7 @@ namespace Grand.SharedKernel.Extensions.Tests
         public void ToTest_T()
         {
             object obj = "sample";
-            Assert.IsTrue(obj == CommonHelper.To<string>(obj));
+            Assert.IsTrue(obj.ToString() == CommonHelper.To<string>(obj));
         }
 
         [TestMethod()]
