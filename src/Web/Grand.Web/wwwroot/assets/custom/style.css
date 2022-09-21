@@ -1,1 +1,34 @@
-﻿
+﻿.header-nav {
+    background: url(https://cdn.helmade.com/misc/header-background.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    display: block;
+    z-index: 100;
+}
+
+
+
+.homePageStoryContainer {
+    position: relative;
+    top: -80px;
+}
+    .homePageStoryContainer .homePageIntro {
+        overflow: hidden;
+        height: 1050px;
+        background-color: #000000;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        content: "";
+        position: relative;
+    }
+
+    .homePageStoryContainer .homePageStoryDesktop, .homePageStoryContainer .homePageStoryMobile {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-position: 50% 50%;
+        background-size: cover;
+    }
