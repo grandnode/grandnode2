@@ -51,7 +51,7 @@ namespace Grand.Infrastructure.TypeConverters.Converter.Tests
         {
             var mylist = (List<double>)_doubleconverter.ConvertFrom("1.1, 2");
             Assert.IsNotNull(mylist);
-            Assert.IsTrue(mylist.Count == 0);
+            Assert.IsTrue(mylist.Count == 2);
         }
         [TestMethod()]
         public void ConvertToTest()
