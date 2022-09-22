@@ -36,8 +36,9 @@
 <div class="page home-page custom-container d-flex flex-column mt-0">
     @await Component.InvokeAsync("PushNotificationsRegistration")
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_top" })
-    <partial name="Partials/HomePageStory" />
-    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_categories" })    
+    @await Component.InvokeAsync("PageBlock", new { systemName = "HomePageText" })
+    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_categories" })
+    @await Component.InvokeAsync("HomePageCategories")
     @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_before_products" })
     @await Component.InvokeAsync("PersonalizedProducts")
     @await Component.InvokeAsync("CustomerRecommendedProducts")

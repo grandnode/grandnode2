@@ -60,5 +60,8 @@
 		<Content Update="Plugins\**">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Themes\Default\Views\Shared\Components\" />
 	</ItemGroup>	
 </Project>

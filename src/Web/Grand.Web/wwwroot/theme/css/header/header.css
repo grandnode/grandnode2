@@ -108,7 +108,7 @@
 .menu-toggler span {
     width: 30px;
     height: 3px;
-    background: #000;
+    background: #fff;
 }
 
 @media (min-width: 576px) {
@@ -161,6 +161,16 @@
         justify-content: space-around;
         box-shadow: 0 -3px 6px rgba(0,0,0,0.16), 0 -3px 6px rgba(0,0,0,0.23);
     }
+
+    /*Khi em thi la mau den tren nen trang*/
+    .header-nav .menu-toggler span{
+        background: black;
+    }
+
+    /*Cac menu icon khac cung la mau den*/
+        .header-nav .nav-item svg {
+            color: #343a40 !important;
+        }
 }
 @media (max-width: 575px) {
     .sidebar-cart .item img {

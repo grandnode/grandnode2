@@ -4,6 +4,7 @@
     background-repeat: no-repeat;
     display: block;
     z-index: 100;
+    border-bottom:none !important;
 }
 
 
@@ -31,4 +32,219 @@
         left: 0;
         background-position: 50% 50%;
         background-size: cover;
+        opacity: 0.5;
     }
+
+    .homePageStoryContainer .intro-overlay {
+        top: 50%;
+        margin-top: -235px;
+    }
+
+        .homePageStoryContainer .intro-overlay .intro-headline {
+            background-image: url("https://cdn.helmade.com/home/intro/headline.png");
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: contain;            
+            padding-top: 24.1%;
+            opacity: 1;
+            position: relative;
+            float: left;            
+        }
+
+    .homePageStoryContainer .intro-text {
+        margin-top: 20px;
+        font-family: "HelveticaNeueW01-45Ligh";
+        font-size: 18px;
+        letter-spacing: 0.03em;
+        font-style: normal;
+        font-weight: normal;
+        color: #fff;
+        text-align: center;
+    }
+
+        .homePageStoryContainer .intro-text h1 {
+            line-height: 1.3;
+            font-size: 1rem;
+            font-weight: 400;
+            font-style: normal;
+            line-height: 1.2;
+            text-rendering: optimizeLegibility;
+            text-transform: uppercase;
+        }
+
+.width-limited {
+    max-width: 1280px;
+}
+
+.page-content {
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-bottom: 125px;
+}
+
+.helmet-category-teaser {
+    top: -55px;
+    position: relative;
+}
+
+    .helmet-category-teaser .category-row {
+        position: relative;
+        left: 0;
+        right: 0;
+        margin-top: -35px;
+    }
+        .helmet-category-teaser .category-row .teaser-helmet {
+            z-index: 3;
+        }
+
+        .helmet-category-teaser .category-row .teaser-image {
+            display: block;
+
+        }
+            .helmet-category-teaser .category-row .teaser-image a {
+                color: #383838;
+                font-family: "HelveticaNeueW01-45Ligh";
+                font-size: 18px;
+                letter-spacing: 0.03em;
+                font-style: normal;
+                font-weight: normal;
+                font-size: 28px;
+                position: relative;
+                color: rgb(197, 192, 184);
+            }
+
+                .helmet-category-teaser .category-row .teaser-image a h5 {
+                    position: relative;
+                    z-index: 1;
+                }                
+
+        .helmet-category-teaser .category-row .teaser-headline {
+            z-index: 4;
+            display: block;
+        }
+
+        .helmet-category-teaser .category-row .teaser-link {
+            top: 200px;
+        }
+
+
+.gradient-container {
+    background-color: #ddd;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+}
+
+
+    .gradient-container .color-start {
+        top: -11%;
+        left: -50%;
+        bottom: 50%;
+        -webkit-transform-origin: 100% 100%;
+        -moz-transform-origin: 100% 100%;
+        transform-origin: 100% 100%;
+    }
+
+
+    .gradient-container .color-start, .gradient-container .color-end {
+        z-index: 1;
+        display: block;
+        position: absolute;
+        content: "";
+        -webkit-transform: rotate(-100deg);
+        -moz-transform: rotate(-100deg);
+        -ms-transform: rotate(-100deg);
+        -o-transform: rotate(-100deg);
+        transform: rotate(-100deg);
+        pointer-events: none;
+        -webkit-transition: all 10s cubic-bezier(0, 1, 0, 1);
+        -moz-transition: all 10s cubic-bezier(0, 1, 0, 1) false;
+        -o-transition: all 10s cubic-bezier(0, 1, 0, 1) false;
+        transition: all 10s cubic-bezier(0, 1, 0, 1);
+        right: 50%;
+    }
+
+    .gradient-container .color-container {
+        z-index: 0;
+        -webkit-transform: scale(1) rotate(-100deg);
+        -moz-transform: scale(1) rotate(-100deg);
+        -ms-transform: scale(1) rotate(-100deg);
+        -o-transform: scale(1) rotate(-100deg);
+        transform: scale(1) rotate(-100deg);
+        -webkit-transition: all 10s cubic-bezier(0, 1, 0, 1);
+        -moz-transition: all 10s cubic-bezier(0, 1, 0, 1) false;
+        -o-transition: all 10s cubic-bezier(0, 1, 0, 1) false;
+        transition: all 10s cubic-bezier(0, 1, 0, 1);
+        position: absolute;
+        left: -44%;
+        top: -11%;
+        right: -44%;
+        bottom: -11%;
+    }
+
+    .gradient-container .color-end {
+        top: 50%;
+        left: -50%;
+        bottom: -11%;
+        -webkit-transform-origin: 100% 0%;
+        -moz-transform-origin: 100% 0%;
+        transform-origin: 100% 0%;
+    }
+
+    .content-box {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 2;
+        text-align: center;
+        color: #383838;
+    }
+
+.content-box .product-image {
+    border-color: initial;
+    border: none;
+    margin: 10%;
+    margin-top: 5%;
+    -webkit-transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01);
+    -moz-transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01) false;
+    -o-transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01) false;
+    transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01);
+}
+
+    .content-box .product-image:hover {
+        position: relative;
+        display: block;
+        border: 1px solid #EDEDED;
+    }
+.content-box .product-image img {
+    width: 90%;
+    display: inline-block;
+}
+
+.white-box{
+        background: #fff;
+    background-image: initial;
+    background-position-x: initial;
+    background-position-y: initial;
+    background-size: initial;
+    background-repeat-x: initial;
+    background-repeat-y: initial;
+    background-attachment: initial;
+    background-origin: initial;
+    background-clip: initial;
+    background-color: rgb(255, 255, 255);
+    position: absolute;
+    content: "";
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+}
