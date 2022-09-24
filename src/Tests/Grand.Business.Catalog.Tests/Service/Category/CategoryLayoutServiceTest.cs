@@ -26,9 +26,20 @@ namespace Grand.Business.Catalog.Tests.Service.Category
             _categoryLayoutService = new CategoryLayoutService(_repostioryMock.Object, _cacheMock.Object, _mediatorMock.Object);
         }
 
-
         [TestMethod()]
-        public async Task DeleteCategoryLayout_ValidArguments_InoveMethods()
+        public async Task GetCategoryLayoutById_InvokeMethods()
+        {
+            await _categoryLayoutService.GetCategoryLayoutById("1");
+            _cacheMock.Verify(c => c.GetAsync<CategoryLayout>(It.IsAny<string>(), It.IsAny<Func<Task<CategoryLayout>>>()), Times.Once);
+        }
+        [TestMethod()]
+        public async Task GetAllCategoryLayouts_InvokeMethods()
+        {
+            await _categoryLayoutService.GetAllCategoryLayouts();
+            _cacheMock.Verify(c => c.GetAsync<List<CategoryLayout>>(It.IsAny<string>(), It.IsAny<Func<Task<List<CategoryLayout>>>>()), Times.Once);
+        }
+        [TestMethod()]
+        public async Task DeleteCategoryLayout_ValidArguments_InvokeMethods()
         {
             await _categoryLayoutService.DeleteCategoryLayout(new CategoryLayout());
             _repostioryMock.Verify(c => c.DeleteAsync(It.IsAny<CategoryLayout>()), Times.Once);
@@ -38,7 +49,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
 
 
         [TestMethod()]
-        public async Task InsertCategoryLayout_ValidArguments_InoveMethods()
+        public async Task InsertCategoryLayout_ValidArguments_InvokeMethods()
         {
             await _categoryLayoutService.InsertCategoryLayout(new CategoryLayout());
             _repostioryMock.Verify(c => c.InsertAsync(It.IsAny<CategoryLayout>()), Times.Once);
@@ -47,7 +58,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         }
 
         [TestMethod()]
-        public async Task UpdateCategoryLayout_ValidArguments_InoveMethods()
+        public async Task UpdateCategoryLayout_ValidArguments_InvokeMethods()
         {
             await _categoryLayoutService.UpdateCategoryLayout(new CategoryLayout());
             _repostioryMock.Verify(c => c.UpdateAsync(It.IsAny<CategoryLayout>()), Times.Once);
