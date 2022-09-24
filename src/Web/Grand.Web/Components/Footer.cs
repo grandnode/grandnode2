@@ -79,18 +79,17 @@ namespace Grand.Web.ViewComponents
 
             //model
             var currentstore = _workContext.CurrentStore;
-            var model = new FooterModel
-            {
+            var model = new FooterModel {
                 StoreName = currentstore.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
                 CompanyName = currentstore.CompanyName,
                 CompanyEmail = currentstore.CompanyEmail,
                 CompanyAddress = currentstore.CompanyAddress,
                 CompanyPhone = currentstore.CompanyPhoneNumber,
                 CompanyHours = currentstore.CompanyHours,
-                PrivacyPreference = _storeInformationSettings.DisplayPrivacyPreference,
+                PrivacyPreference = false,
                 WishlistEnabled = await _permissionService.Authorize(StandardPermission.EnableWishlist),
                 ShoppingCartEnabled = await _permissionService.Authorize(StandardPermission.EnableShoppingCart),
-                SitemapEnabled = _commonSettings.SitemapEnabled,
+                SitemapEnabled = false,
                 WorkingLanguageId = _workContext.WorkingLanguage.Id,
                 FacebookLink = _storeInformationSettings.FacebookLink,
                 TwitterLink = _storeInformationSettings.TwitterLink,

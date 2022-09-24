@@ -4,7 +4,7 @@
     background-repeat: no-repeat;
     display: block;
     z-index: 100;
-    border-bottom:none !important;
+    border-bottom: none !important;
 }
 
 
@@ -13,6 +13,7 @@
     position: relative;
     top: -80px;
 }
+
     .homePageStoryContainer .homePageIntro {
         overflow: hidden;
         height: 1050px;
@@ -44,11 +45,11 @@
             background-image: url("https://cdn.helmade.com/home/intro/headline.png");
             background-position: center center;
             background-repeat: no-repeat;
-            background-size: contain;            
+            background-size: contain;
             padding-top: 24.1%;
             opacity: 1;
             position: relative;
-            float: left;            
+            float: left;
         }
 
     .homePageStoryContainer .intro-text {
@@ -96,49 +97,75 @@
         right: 0;
         padding-top: 70%;
     }
-        .helmet-category-teaser .category-row .teaser-helmet {
-            z-index: 3;
-            position: absolute;
+
+.helmet-category-teaser .teaser-image {
+    display: block;
+    position: absolute;
+    top: 310px;
+}
+
+.helmet-category-teaser .teaser-helmet {
+    z-index: 3;
+    position: absolute;
+    display: block;
+    top: 0;
+    padding-top: 37%;
+}
+
+
+
+    .helmet-category-teaser .teaser-image a {
+        color: #383838;
+        font-family: "HelveticaNeueW01-45Ligh";
+        font-size: 18px;
+        letter-spacing: 0.03em;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 28px;
+        position: relative;
+        color: rgb(197, 192, 184);
+    }
+
+        .helmet-category-teaser .teaser-image a h5 {
+            position: relative;
+            z-index: 1;
+        }
+
+.helmet-category-teaser .teaser-headline {
+    z-index: 4;
+    display: block;
+    position: absolute;
+    top: 110px;
+}
+
+.helmet-category-teaser .teaser-link {
+    z-index: 5;
+    top: 265px;
+    position: absolute;
+}
+
+    .helmet-category-teaser .teaser-link a {
+        color: #383838;
+        font-family: "HelveticaNeueW01-45Ligh";
+        font-size: 18px;
+        letter-spacing: 0.03em;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 28px;
+        position: relative;
+    }
+
+        .helmet-category-teaser .teaser-link a::before {
+            z-index: 0;
             display: block;
-            top: 0;
-            padding-top: 37%;
-        }
-
-        .helmet-category-teaser .category-row .teaser-image {
-            display: block;
             position: absolute;
-            top:310px;
+            bottom: -1px;
+            left: 0;
+            content: "";
+            width: 100%;
+            height: 6px;
+            background-color: #3df090;
         }
-            .helmet-category-teaser .category-row .teaser-image a {
-                color: #383838;
-                font-family: "HelveticaNeueW01-45Ligh";
-                font-size: 18px;
-                letter-spacing: 0.03em;
-                font-style: normal;
-                font-weight: normal;
-                font-size: 28px;
-                position: relative;
-                color: rgb(197, 192, 184);
-            }
-
-                .helmet-category-teaser .category-row .teaser-image a h5 {
-                    position: relative;
-                    z-index: 1;
-                }                
-
-        .helmet-category-teaser .category-row .teaser-headline {
-            z-index: 4;
-            display: block;
-            position: absolute;
-            top: 110px;
-        }
-
-        .helmet-category-teaser .category-row .teaser-link {
-            z-index: 5;
-            top: 265px;        
-            position: absolute;
-        }
-
 
 .gradient-container {
     background-color: #ddd;
@@ -247,6 +274,7 @@
     -o-transform: scale3d(1.01887, 1.01887, 1.01887);
     transform: scale3d(1.01887, 1.01887, 1.01887);
 }
+
 .helmet-category-teaser a.item:hover .product-image {
     -webkit-transform: scale3d(1.01887, 1.01887, 1.01887);
     -moz-transform: scale3d(1.01887, 1.01887, 1.01887);
@@ -262,6 +290,237 @@
     -o-transform: scaleY(1.02);
     transform: scaleY(1.02);
 }
+
+
+.content-box {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    text-align: center;
+    color: #383838;
+}
+
+    .content-box .product-info {
+        position: absolute;
+        left: -46px;
+        bottom: 30px;
+        max-width: 300px;
+        text-align: left;
+    }
+
+        .content-box .product-info::before {
+            background-color: #fff;
+            left: 45px;
+            right: auto;
+            width: 29px;
+            top: -2px;
+            bottom: -10px;
+            z-index: 0;
+            -webkit-transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01);
+            -moz-transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01) false;
+            -o-transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01) false;
+            transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01);
+            display: block;
+            position: absolute;
+            content: "";
+        }
+
+        .content-box .product-info .product-name {
+            font-family: HelveticaNeueW01-75Bold;
+            font-style: normal;
+            font-weight: normal;
+            text-transform: none;
+            color: rgb(56, 56, 56);
+            font-size: 34px;
+            z-index: 1;
+            line-height: 1;
+            border-bottom: 6px solid rgb(66, 240, 146);
+            vertical-align: bottom;
+            position: relative;
+        }
+
+        .content-box .product-info .product-price {
+            margin-top: 18px;
+            display: block;
+            font-family: HelveticaNeueW01-45Ligh;
+            letter-spacing: 0.03em;
+            font-style: normal;
+            font-weight: normal;
+            font-size: 28px;
+            z-index: 1;
+            position: relative;
+        }
+
+.product-info .button {
+    border-radius: 3px;
+    padding: 12px 24px;
+    margin-top: 10px;
+    background-color: rgb(0, 234, 59);
+    --darkreader-inline-bgcolor: #00bb2f;
+    color: white;
+    display: inline-block;
+    line-height: 19px;
+    vertical-align: middle;
+    white-space: nowrap;
+    text-align: center;
+}
+
+    .product-info .button::after {
+        background-repeat: repeat-y;
+        background-size: 100%;
+        display: block;
+        content: "";
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        position: absolute;
+    }
+
+.content-box .product-image {
+    border-color: initial;
+    border: none;
+    margin: 10%;
+    margin-top: 5%;
+    -webkit-transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01);
+    -moz-transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01) false;
+    -o-transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01) false;
+    transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01);
+}
+
+    .content-box .product-image:hover {
+        position: relative;
+        display: block;
+    }
+
+    .content-box .product-image img {
+        width: 90%;
+        display: inline-block;
+        max-width: 100%;
+        width: auto;
+        height: auto;
+    }
+
+.white-box {
+    background: #fff;
+    background-image: initial;
+    background-position-x: initial;
+    background-position-y: initial;
+    background-size: initial;
+    background-repeat-x: initial;
+    background-repeat-y: initial;
+    background-attachment: initial;
+    background-origin: initial;
+    background-clip: initial;
+    background-color: rgb(255, 255, 255);
+    position: absolute;
+    content: "";
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    z-index: 2;
+}
+
+
+
+/*Footer*/
+.footer .image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    aspect-ratio: 3 / 2;
+}
+
+/*End Footer*/
+
+
+/*Media Query*/
+
+
+@media only screen and (max-width: 1024px) {
+    .helmet-category-teaser .teaser-helmet {
+        z-index: 4;
+        margin-top: 55%;
+    }
+
+    .helmet-category-teaser .teaser-link.teaser-link {
+        padding-left: 0;
+        z-index: 5;
+        margin-top: 79%;
+        top: 0;
+    }
+
+    .helmet-category-teaser .teaser-image {
+        margin-top: 16%;
+        z-index: 3;
+        top: 0 !important;
+    }
+}
+
+@media only screen and (max-width: 779px) {
+    .helmet-category-teaser .teaser-helmet {
+        z-index: 4;
+        margin-top: 62%;
+    }
+
+    .helmet-category-teaser .teaser-link {
+        padding-left: 0;
+        z-index: 5;
+        margin-top: 145%;
+        text-align: center;
+    }
+
+    .helmet-category-teaser .teaser-image {
+        margin-top: 16%;
+        z-index: 3;
+        top: 0 !important;
+    }
+}
+
+@media only screen and (max-width: 550px) {
+    .helmet-category-teaser .teaser-helmet {
+        padding-top: 120%;
+        margin-top: 100%;
+    }
+
+    .helmet-category-teaser .teaser-link {
+        margin-top: 82px;
+    }
+
+    .helmet-category-teaser .teaser-image {
+        margin: 0;
+        margin-top: 22%;
+        top: 0 !important;
+    }
+}
+
+
+@media only screen and (min-width: 780px) and (max-width: 1024px) {
+    .helmet-category-teaser .category-row {
+        padding-top: 120%;
+    }
+}
+
+@media only screen and (min-width: 551px) and (max-width: 779px) {
+    .helmet-category-teaser .category-row {
+        padding-top: 175%;
+    }
+
+    .helmet-category-teaser .color-container {
+        left: -50% !important;
+        top: -15% !important;
+        right: -50% !important;
+        bottom: -15% !important;
+    }
+}
+
 
 @media only screen and (min-width: 780px) and (max-width: 1024px) {
     .helmet-category-teaser a.item {
@@ -281,58 +540,4 @@
         padding-top: 155%;
     }
 }
-
-    .content-box {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 2;
-        text-align: center;
-        color: #383838;
-    }
-
-.content-box .product-image {
-    border-color: initial;
-    border: none;
-    margin: 10%;
-    margin-top: 5%;
-    -webkit-transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01);
-    -moz-transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01) false;
-    -o-transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01) false;
-    transition: all 0.5s cubic-bezier(0.24, 0, 0.06, 1.01);
-}
-
-    .content-box .product-image:hover {
-        position: relative;
-        display: block;
-    }
-    .content-box .product-image img {
-        width: 90%;
-        display: inline-block;
-        max-width: 100%;
-        width: auto;
-        height: auto;
-    }
-
-.white-box{
-        background: #fff;
-    background-image: initial;
-    background-position-x: initial;
-    background-position-y: initial;
-    background-size: initial;
-    background-repeat-x: initial;
-    background-repeat-y: initial;
-    background-attachment: initial;
-    background-origin: initial;
-    background-clip: initial;
-    background-color: rgb(255, 255, 255);
-    position: absolute;
-    content: "";
-    top: 8px;
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
-    z-index: 2;
-}
+/*End Media Query*/

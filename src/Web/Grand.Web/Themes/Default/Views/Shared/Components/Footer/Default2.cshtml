@@ -1,0 +1,198 @@
+﻿@model FooterModel
+
+<partial name="Partials/NewsletterBox"/>
+
+<footer class="mt-3">
+    <div class="container">
+        <div class="form-row">
+            <div id="footer-block-information" class="footer-block information block col-12">
+                <div class="step-title card mb-1 p-3 d-lg-none">
+                    <span class="h5 text-center mb-0"><strong>@Loc["Footer.Information"]</strong></span>
+                </div>
+                <div class="viewBox">
+                    <div class="list-group">
+                        @if (Model.SitemapEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Sitemap")">@Loc["Sitemap"]</a>
+                        }
+                        @if (Model.PrivacyPreference)
+                        {
+                            <a class="list-group-item list-group-item-action btn btn-link" id="btnPrivacyPreference" @@click="getPrivacyPreference('@Url.RouteUrl("PrivacyPreference")'); return false;">@Loc["PrivacyPreference"]</a>
+                        }
+                        @foreach (var mpage in Model.Pages.Where(x => x.IncludeInFooterRow1).ToList())
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new { SeName = mpage.SeName })">@mpage.Name</a>
+                        }
+                        @if (Model.NewsEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("NewsArchive")">@Loc["News"]</a>
+                        }
+                        @if (Model.BlogEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Blog")">@Loc["Blog"]</a>
+                        }
+                        @if (Model.KnowledgebaseEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Knowledgebase")">@Loc["Knowledgebase"]</a>
+                        }
+                        @if (Model.RecentlyViewedProductsEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("RecentlyViewedProducts")">@Loc["Products.RecentlyViewedProducts"]</a>
+                        }
+                        @if (Model.NewProductsEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("NewProducts")">@Loc["Products.NewProducts"]</a>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div id="footer-block-my-account" class="col-12 footer-block my-account block">
+                <div class="step-title card mb-1 p-3 d-lg-none">
+                    <span class="h5 text-center mb-0"><strong>@Loc["Footer.MyAccount"]</strong></span>
+                </div>
+                <div class="viewBox">
+                    <div class="pl-0 list-group list-pad">
+                        <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("CustomerInfo")">@Loc["Account.MyAccount"]</a>
+                        <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("CustomerOrders")">@Loc["Account.CustomerOrders"]</a>
+                        <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("CustomerAddresses")">@Loc["Account.CustomerAddresses"]</a>
+                        @if (Model.ShoppingCartEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("ShoppingCart")">@Loc["ShoppingCart"]</a>
+                        }
+                        @if (Model.WishlistEnabled)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Wishlist")">@Loc["Wishlist"]</a>
+                        }
+                        @if (Model.AllowCustomersToApplyForVendorAccount)
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("ApplyVendorAccount")">@Loc["Vendors.ApplyAccount"]</a>
+                        }
+                        @foreach (var mpage in Model.Pages.Where(x => x.IncludeInFooterRow2).ToList())
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new { SeName = mpage.SeName })" target="_blank">@mpage.Name</a>
+                        }
+                    </div>
+                </div>
+                <div class="viewBox">
+                    <div class="pl-0 list-group list-pad">
+                        @foreach (var mpage in Model.Pages.Where(x => x.IncludeInFooterRow3).ToList())
+                        {
+                            <a class="list-group-item list-group-item-action" href="@Url.RouteUrl("Page", new { SeName = mpage.SeName })">@mpage.Name</a>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div id="footer-block-about-us" class="col-12 footer-block about-us block">
+                <div class="step-title card mb-1 p-3 d-lg-none">
+                    <span class="h5 text-center mb-0"><strong>@Loc["Footer.AboutUs"]</strong></span>
+                </div>
+                <div class="viewBox">
+                    <div class="list-group bg-light my-3">
+                        @if (!string.IsNullOrEmpty(Model.CompanyName))
+                        {
+                            <div class="list-group-item">
+                                <span>@Loc["Footer.CompanyName.Title"]</span>
+                                <span>@Model.CompanyName</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.CompanyAddress))
+                        {
+                            <div class="list-group-item">
+                                <span>@Loc["Footer.Address.Title"]</span>
+                                <span>@Model.CompanyAddress</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.CompanyEmail))
+                        {
+                            <div class="list-group-item">
+                                <span>@Loc["footer.Email.Title"]</span>
+                                <span>@Model.CompanyEmail</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.CompanyPhone))
+                        {
+                            <div class="list-group-item">
+                                <span>@Loc["Footer.Phone.Title"]</span>
+                                <span>@Model.CompanyPhone</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.CompanyHours))
+                        {
+                            <div class="list-group-item">
+                                <span>@Loc["Footer.Hour.Title"]</span>
+                                <span>@Model.CompanyHours</span>
+                            </div>
+                        }
+                        </div>
+                    </div>
+                </div>
+                <ol class="d-flex flex-row list-group justify-content-center w-100 flex-wrap social-icons list-pad pb-0 mb-3">
+                    @if (!string.IsNullOrEmpty(Model.FacebookLink))
+                    {
+                        <li class="list-group-item facebook">
+                            <a title="facebook" href="@Model.FacebookLink" rel="noopener" target="_blank">
+                                <img height="32" width="32" src="/theme/images/facebook.svg" alt="facebook" />
+                                <span class="sr-only">Facebook</span>
+
+                            </a>
+                        </li>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.TwitterLink))
+                    {
+                        <li class="list-group-item twitter">
+                            <a title="twitter" href="@Model.TwitterLink" rel="noopener" target="_blank">
+                                <img height="32" width="32" src="/theme/images/twitter.svg" alt="twitter" />
+                                <span class="sr-only">twitter</span>
+                            </a>
+                        </li>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.YoutubeLink))
+                    {
+                        <li class="list-group-item youtube">
+                            <a title="youtube" href="@Model.YoutubeLink" rel="noopener" target="_blank">
+                                <img height="32" width="32" src="/theme/images/youtube.svg" alt="youtube" />
+                                <span class="sr-only">youtube</span>
+                            </a>
+                        </li>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.InstagramLink))
+                    {
+                        <li class="list-group-item instagram">
+                            <a href="@Model.InstagramLink" rel="noopener" target="_blank">
+                                <img height="32" width="32" src="/theme/images/instagram.svg" alt="instagram" />
+                                <span class="sr-only">instagram</span>
+                            </a>
+                        </li>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.LinkedInLink))
+                    {
+                        <li class="list-group-item linkedin">
+                            <a href="@Model.LinkedInLink" rel="noopener" target="_blank">
+                                <img height="32" width="32" src="/theme/images/linkedin.svg" alt="linkedin" />
+                                <span class="sr-only">linkedin</span>
+                            </a>
+                        </li>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.PinterestLink))
+                    {
+                        <li class="list-group-item pinterest">
+                            <a href="@Model.PinterestLink" rel="noopener" target="_blank">
+                                <img height="32" width="32" src="/theme/images/pinterest.svg" alt="pinterest" />
+                                <span class="sr-only">pinterest</span>
+                            </a>
+                        </li>
+                    }
+                </ol>
+            </div>
+            <div class="footer-lower small py-3 border-top">
+                <div class="row">
+                    <div class="col-md-6 col-12 pb-1 pt-1 flex-column text-lg-left text-center copyright">
+                        <span class="footer-disclaimer">@Html.Raw(Loc["Content.CopyrightNotice", DateTime.Now.Year, Model.StoreName])</span>
+                    </div>
+                    <div class="col-md-6 col-12 pb-1 pt-1 text-center text-lg-right">
+                        <span>Shopping cart software by </span><a class="pr-1 text-success" href="https://grandnode.com/">GrandNode</a>™
+                    </div>
+                </div>
+            </div>
+        </div>        
+    </footer>
