@@ -94,15 +94,20 @@
         position: relative;
         left: 0;
         right: 0;
-        margin-top: -35px;
+        padding-top: 70%;
     }
         .helmet-category-teaser .category-row .teaser-helmet {
             z-index: 3;
+            position: absolute;
+            display: block;
+            top: 0;
+            padding-top: 37%;
         }
 
         .helmet-category-teaser .category-row .teaser-image {
             display: block;
-
+            position: absolute;
+            top:310px;
         }
             .helmet-category-teaser .category-row .teaser-image a {
                 color: #383838;
@@ -124,10 +129,14 @@
         .helmet-category-teaser .category-row .teaser-headline {
             z-index: 4;
             display: block;
+            position: absolute;
+            top: 110px;
         }
 
         .helmet-category-teaser .category-row .teaser-link {
-            top: 200px;
+            z-index: 5;
+            top: 265px;        
+            position: absolute;
         }
 
 
@@ -197,6 +206,82 @@
         transform-origin: 100% 0%;
     }
 
+    .gradient-container:hover .color-container {
+        -webkit-transform: scale(1) rotate(375deg);
+        -moz-transform: scale(1) rotate(375deg);
+        -ms-transform: scale(1) rotate(375deg);
+        -o-transform: scale(1) rotate(375deg);
+        transform: scale(1) rotate(375deg);
+    }
+
+    .gradient-container:hover .color-start,
+    .gradient-container:hover .color-end {
+        -webkit-transform: rotate(375deg);
+        -moz-transform: rotate(375deg);
+        -ms-transform: rotate(375deg);
+        -o-transform: rotate(375deg);
+        transform: rotate(375deg);
+    }
+
+.helmet-category-teaser a.item:hover .gradient-container .color-start,
+.helmet-category-teaser a.item:hover .gradient-container .color-end {
+    -webkit-transform: rotate(215deg);
+    -moz-transform: rotate(215deg);
+    -ms-transform: rotate(215deg);
+    -o-transform: rotate(215deg);
+    transform: rotate(215deg);
+}
+
+.helmet-category-teaser a.item:hover .white-box {
+    -webkit-transform: scale3d(1.045, 1.03, 1.045);
+    -moz-transform: scale3d(1.045, 1.03, 1.045);
+    -ms-transform: scale3d(1.045, 1.03, 1.045);
+    -o-transform: scale3d(1.045, 1.03, 1.045);
+    transform: scale3d(1.045, 1.03, 1.045);
+}
+
+.helmet-category-teaser a.item:hover .product-image {
+    -webkit-transform: scale3d(1.01887, 1.01887, 1.01887);
+    -moz-transform: scale3d(1.01887, 1.01887, 1.01887);
+    -ms-transform: scale3d(1.01887, 1.01887, 1.01887);
+    -o-transform: scale3d(1.01887, 1.01887, 1.01887);
+    transform: scale3d(1.01887, 1.01887, 1.01887);
+}
+.helmet-category-teaser a.item:hover .product-image {
+    -webkit-transform: scale3d(1.01887, 1.01887, 1.01887);
+    -moz-transform: scale3d(1.01887, 1.01887, 1.01887);
+    -ms-transform: scale3d(1.01887, 1.01887, 1.01887);
+    -o-transform: scale3d(1.01887, 1.01887, 1.01887);
+    transform: scale3d(1.01887, 1.01887, 1.01887);
+}
+
+.helmet-category-teaser a.item:hover .content-box .product-info:before {
+    -webkit-transform: scaleY(1.02);
+    -moz-transform: scaleY(1.02);
+    -ms-transform: scaleY(1.02);
+    -o-transform: scaleY(1.02);
+    transform: scaleY(1.02);
+}
+
+@media only screen and (min-width: 780px) and (max-width: 1024px) {
+    .helmet-category-teaser a.item {
+        padding-top: 52%;
+    }
+}
+
+@media only screen and (min-width: 551px) and (max-width: 779px) {
+    .helmet-category-teaser a.item {
+        padding-top: 125%;
+        margin-bottom: 90px;
+    }
+}
+
+@media only screen and (max-width: 550px) {
+    .helmet-category-teaser a.item {
+        padding-top: 155%;
+    }
+}
+
     .content-box {
         position: absolute;
         top: 0;
@@ -222,12 +307,14 @@
     .content-box .product-image:hover {
         position: relative;
         display: block;
-        border: 1px solid #EDEDED;
     }
-.content-box .product-image img {
-    width: 90%;
-    display: inline-block;
-}
+    .content-box .product-image img {
+        width: 90%;
+        display: inline-block;
+        max-width: 100%;
+        width: auto;
+        height: auto;
+    }
 
 .white-box{
         background: #fff;
@@ -247,4 +334,5 @@
     left: 8px;
     right: 8px;
     bottom: 8px;
+    z-index: 2;
 }
