@@ -435,7 +435,8 @@
     background-size: cover;
     background-repeat: no-repeat;
     background-position: 50%;
-    aspect-ratio: 3 / 2;
+    aspect-ratio: 2 / 1;
+    opacity: 0.8;
 }
 
 /*End Footer*/
@@ -450,7 +451,7 @@
         margin-top: 55%;
     }
 
-    .helmet-category-teaser .teaser-link.teaser-link {
+    .helmet-category-teaser .teaser-link {
         padding-left: 0;
         z-index: 5;
         margin-top: 79%;
@@ -461,6 +462,10 @@
         margin-top: 16%;
         z-index: 3;
         top: 0 !important;
+    }
+
+    .content-box .product-info {
+        bottom: unset !important;
     }
 }
 
@@ -482,16 +487,20 @@
         z-index: 3;
         top: 0 !important;
     }
+
+    .content-box .product-info {
+        bottom: unset !important;
+    }
 }
 
-@media only screen and (max-width: 550px) {
+@media only screen and (max-width: 579px) {
     .helmet-category-teaser .teaser-helmet {
         padding-top: 120%;
         margin-top: 100%;
     }
 
     .helmet-category-teaser .teaser-link {
-        margin-top: 82px;
+        margin-top: 40px;
     }
 
     .helmet-category-teaser .teaser-image {
@@ -499,8 +508,19 @@
         margin-top: 22%;
         top: 0 !important;
     }
+
+    .content-box .product-info {
+        bottom: unset!important;
+        left: 150px !important;
+    }
 }
 
+
+@media only screen and (max-width: 579px) {
+    .content-box .product-info{
+        left: 100px !important;
+    }
+}
 
 @media only screen and (min-width: 780px) and (max-width: 1024px) {
     .helmet-category-teaser .category-row {
@@ -510,7 +530,7 @@
 
 @media only screen and (min-width: 551px) and (max-width: 779px) {
     .helmet-category-teaser .category-row {
-        padding-top: 175%;
+        padding-top: 131%;
     }
 
     .helmet-category-teaser .color-container {
@@ -530,14 +550,14 @@
 
 @media only screen and (min-width: 551px) and (max-width: 779px) {
     .helmet-category-teaser a.item {
-        padding-top: 125%;
+        padding-top: 81%;
         margin-bottom: 90px;
     }
 }
 
-@media only screen and (max-width: 550px) {
+@media only screen and (max-width: 574px) {
     .helmet-category-teaser a.item {
-        padding-top: 155%;
+        padding-top: 140%;
     }
 }
 /*End Media Query*/
