@@ -3,12 +3,138 @@
 <partial name="Partials/NewsletterBox" />
 
 
-<div id="footer" class="footer">
+<div id="footer" class="footer position-relative">
     <div class="site-footer -bg">
-        <div class="image -desktop" style='background-image:url("images/footer1.jpg")'></div>
-    </div class="site-footer -content">
-    
-    
+        <div class="image -desktop" style='background-image:url("images/peakpx_roated.jpg")'>
+        </div>
+    </div>
+    <div class="site-footer -content position-absolute w-100">
+        <div class="footer-logo">
+            <partial name="Partials/Logo" />
+        </div>
 
+        <div class="row content-container">
+            <div class="left-container col-lg-8 col-sm-12">
+                <div class="row">
+                    <div class="company-address-satisfaction-logo col-lg-8 col-sm-12">
+                        <div class="row">
+                            <div class="company-address col-sm-8 col-12">
+                                @if (!string.IsNullOrEmpty(Model.CompanyName))
+                                {
+                                    <div>
+                                        <span class="company-name font-weight-bold">@Model.CompanyName</span>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.CompanyAddress))
+                                {
+                                    <div>
+                                        <span>@Model.CompanyAddress</span>
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrEmpty(Model.CompanyHours))
+                                {
+                                    <div>
+                                        <span>@Model.CompanyHours</span>
+                                    </div>
+                                }
+                                <br />
+
+                                @if (!string.IsNullOrEmpty(Model.CompanyPhone))
+                                {
+                                    <div>
+                                        <span>@Model.CompanyPhone</span>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.CompanyEmail))
+                                {
+                                    <div>
+                                        <span>@Model.CompanyEmail</span>
+                                    </div>
+                                }
+                            </div>
+                            <div class="satisfaction-logo col-sm-4 col-12">
+                                <img title="satisfaction log" src="/images/footer-satisfaction--enus.svg" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="links col-lg-4 col-sm-12">
+                        @if (Model.SitemapEnabled)
+                        {
+                            <div>
+                                <a href="@Url.RouteUrl("Sitemap")">@Loc["Sitemap"]</a>
+                            </div>
+                        }
+                        @if (Model.PrivacyPreference)
+                        {
+                            <div>
+                                <a class=" btn btn-link" id="btnPrivacyPreference" @@click="getPrivacyPreference('@Url.RouteUrl("PrivacyPreference")'); return false;">@Loc["PrivacyPreference"]</a>
+                            </div>
+                        }
+                        @foreach (var mpage in Model.Pages.Where(x => x.IncludeInFooterRow1).ToList())
+                        {
+                            <div>
+                                <a class="" href="@Url.RouteUrl("Page", new { SeName = mpage.SeName })">@mpage.Name</a>
+                            </div>
+                        }
+                        <div>
+                            <a class="" href="@Url.RouteUrl("ContactUs")">@Loc["ContactUs"]</a>
+                        </div>
+                        <div>
+                            <a class="" href="@Url.RouteUrl("ProductSearch")">@Loc["Search"]</a>
+                        </div>
+
+                        @if (Model.NewsEnabled)
+                        {
+                            <div>
+                                <a class="" href="@Url.RouteUrl("NewsArchive")">@Loc["News"]</a>
+                            </div>
+
+                        }
+                        @if (Model.BlogEnabled)
+                        {
+                            <div>
+                                <a class="" href="@Url.RouteUrl("Blog")">@Loc["Blog"]</a>
+                            </div>
+
+                        }
+                        @if (Model.KnowledgebaseEnabled)
+                        {
+                            <div>
+                                <a class="" href="@Url.RouteUrl("Knowledgebase")">@Loc["Knowledgebase"]</a>
+                            </div>
+
+                        }
+                        @if (Model.RecentlyViewedProductsEnabled)
+                        {
+                            <div>
+                                <a class="" href="@Url.RouteUrl("RecentlyViewedProducts")">@Loc["Products.RecentlyViewedProducts"]</a>
+                            </div>
+
+                        }
+                        @if (Model.NewProductsEnabled)
+                        {
+                            <div>
+                                <a class="" href="@Url.RouteUrl("NewProducts")">@Loc["Products.NewProducts"]</a>
+                            </div>
+
+                        }
+                    </div>
+
+                </div>
+            </div>
+            <div class="right-container col-lg-4 col-sm-12">
+                @*@await Component.InvokeAsync("PageBlock", new { systemName = "FooterRightText" })*@
+                Chúng tôi cho ra đời những sản phẩm mới lạ mang hơi hướng của EasyRiders Japan + TT&CO và có chút cải biến để đáp ứng cho mọi phong cách mà vẫn không hề giảm về độ an toàn và chất lượng của sản phẩm
+            </div>
+        </div>
+
+        <div class="white-line">
+            White Line
+        </div>
+
+        <div class="social-media">
+
+        </div>
     </div>
 </div>
