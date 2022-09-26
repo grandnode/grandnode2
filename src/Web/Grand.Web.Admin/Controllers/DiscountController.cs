@@ -298,7 +298,7 @@ namespace Grand.Web.Admin.Controllers
             if (discount == null)
                 throw new ArgumentException("Discount could not be loaded");
 
-            var singleRequirement = discountPlugin.GetRequirementRules().FirstOrDefault(x => x.SystemName.Equals(systemName, StringComparison.OrdinalIgnoreCase));
+            var singleRequirement = discountPlugin.GetRequirementRules().FirstOrDefault(x => x.SystemName.Equals(rulesystemName, StringComparison.OrdinalIgnoreCase));
             string url = _discountViewModelService.GetRequirementUrlInternal(singleRequirement, discount, discountRequirementId);
             return Json(new { url = url });
         }
