@@ -289,7 +289,7 @@ namespace Grand.Web.Admin.Controllers
             if (String.IsNullOrEmpty(systemName))
                 throw new ArgumentNullException("systemName");
 
-            var discountPlugin = _discountService.LoadDiscountProviderBySystemName(systemName);
+            var discountPlugin = _discountService.LoadDiscountProviderByRuleSystemName(systemName);
 
             if (discountPlugin == null)
                 throw new ArgumentException("Discount requirement rule could not be loaded");
@@ -298,7 +298,7 @@ namespace Grand.Web.Admin.Controllers
             if (discount == null)
                 throw new ArgumentException("Discount could not be loaded");
 
-            var singleRequirement = discountPlugin.GetRequirementRules().Single(x => x.SystemName == systemName);
+            var singleRequirement = discountPlugin.GetRequirementRules().FirstOrDefault(x => x.SystemName.Equals(systemName, StringComparison.OrdinalIgnoreCase));
             string url = _discountViewModelService.GetRequirementUrlInternal(singleRequirement, discount, discountRequirementId);
             return Json(new { url = url });
         }
@@ -314,7 +314,7 @@ namespace Grand.Web.Admin.Controllers
             if (discountRequirement == null)
                 throw new ArgumentException("Discount requirement could not be loaded");
 
-            var discountPlugin = _discountService.LoadDiscountProviderBySystemName(discountRequirement.DiscountRequirementRuleSystemName);
+            var discountPlugin = _discountService.LoadDiscountProviderByRuleSystemName(discountRequirement.DiscountRequirementRuleSystemName);
             if (discountPlugin == null)
                 throw new ArgumentException("Discount requirement rule could not be loaded");
 

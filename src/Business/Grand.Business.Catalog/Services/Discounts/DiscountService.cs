@@ -185,20 +185,20 @@ namespace Grand.Business.Catalog.Services.Discounts
             //event notification
             await _mediator.EntityDeleted(discount);
         }
-       
+
         /// <summary>
-        /// Load discount by system name
+        /// Load discount provider by rule system name
         /// </summary>
-        /// <param name="systemName">System name</param>
+        /// <param name="rulesystemName">Rule system name</param>
         /// <returns>Found discount</returns>
-        public virtual IDiscountProvider LoadDiscountProviderBySystemName(string systemName)
+        public virtual IDiscountProvider LoadDiscountProviderByRuleSystemName(string rulesystemName)
         {
             var discountPlugins = LoadAllDiscountProviders();
             foreach (var discountPlugin in discountPlugins)
             {
                 var rules = discountPlugin.GetRequirementRules();
 
-                if (!rules.Any(x => x.SystemName == systemName))
+                if (!rules.Any(x => x.SystemName.Equals(rulesystemName, StringComparison.OrdinalIgnoreCase)))
                     continue;
                 return discountPlugin;
             }
@@ -523,7 +523,7 @@ namespace Grand.Business.Catalog.Services.Discounts
             foreach (var rule in discountRules)
             {
                 //load a plugin
-                var discountRequirementPlugin = LoadDiscountProviderBySystemName(rule.DiscountRequirementRuleSystemName);
+                var discountRequirementPlugin = LoadDiscountProviderByRuleSystemName(rule.DiscountRequirementRuleSystemName);
 
                 if (discountRequirementPlugin == null)
                     continue;
@@ -538,8 +538,7 @@ namespace Grand.Business.Catalog.Services.Discounts
                     Customer = customer,
                     Store = _workContext.CurrentStore
                 };
-
-                var singleRequirementRule = discountRequirementPlugin.GetRequirementRules().Single(x => x.SystemName == rule.DiscountRequirementRuleSystemName);
+                var singleRequirementRule = discountRequirementPlugin.GetRequirementRules().FirstOrDefault(x => x.SystemName.Equals(rule.DiscountRequirementRuleSystemName, StringComparison.OrdinalIgnoreCase));
                 var ruleResult = await singleRequirementRule.CheckRequirement(ruleRequest);
                 if (!ruleResult.IsValid)
                 {

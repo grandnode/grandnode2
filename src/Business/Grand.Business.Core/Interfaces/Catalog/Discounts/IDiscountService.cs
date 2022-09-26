@@ -46,11 +46,11 @@ namespace Grand.Business.Core.Interfaces.Catalog.Discounts
         Task DeleteDiscount(Discount discount);
 
         /// <summary>
-        /// Loads existing discount provider by system name
+        /// Loads existing discount provider by rule system name
         /// </summary>
-        /// <param name="systemName">System name</param>
+        /// <param name="rulesystemName">Rule system name</param>
         /// <returns>Discount provider</returns>
-        IDiscountProvider LoadDiscountProviderBySystemName(string systemName);
+        IDiscountProvider LoadDiscountProviderByRuleSystemName(string rulesystemName);
 
         /// <summary>
         /// Loads all available discount providers
