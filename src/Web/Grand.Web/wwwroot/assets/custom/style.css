@@ -478,17 +478,52 @@
                 color: white;
             }
 
+            .footer .-content .white-line{
+                height: 0.5px;
+                width : 100%;
+                background-color: antiquewhite
+            }
+
+
+    .footer .footer-icon{
+        height: 30px;
+        width: 30px;
+    }
+
+    .footer .fill-white{
+        fill: white;
+    }
+
+    .footer .social-media{
+        padding-top: 20px;
+    }
+
+    .footer .social-media li {
+        padding-left: 10px;
+    }
+
+    @media only screen and (max-width: 992px) {
+        .footer{
+        min-height: 880px;
+    }
+
+        .footer .-content .content-container .links {
+            padding-top: 30px;
+            padding-left: 15px;
+        }
+
+        .footer .-content .content-container .right-container{
+            padding-top: 30px;
+        }
+}
+
 @media (min-width: 768px) {
     .footer .-content {
         padding: 40px 40px;
     }
 
-        .footer .-content .content-container .links {
-            padding-left: 40px;
-        }
+      
 }
-
-
 
 /*End Footer*/
 
@@ -519,6 +554,7 @@
         bottom: unset !important;
     }
 }
+
 
 @media only screen and (max-width: 779px) {
     .helmet-category-teaser .teaser-helmet {
