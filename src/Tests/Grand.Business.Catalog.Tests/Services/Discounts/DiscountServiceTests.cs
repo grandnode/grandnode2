@@ -147,23 +147,22 @@ namespace Grand.Business.Catalog.Services.Discounts.Tests
             Assert.IsNull(_repository.Table.FirstOrDefault(x => x.Name == "test"));
         }
 
-        //TODO
-        //[TestMethod()]
-        //public void LoadDiscountProviderBySystemNameTest_NotNull()
-        //{
-        //    //Act
-        //    var provider = _dicountService.LoadDiscountProviderBySystemName("SampleDiscountProvider");
-        //    //Assert
-        //    Assert.IsNotNull(provider);
-        //}
-        //[TestMethod()]
-        //public void LoadDiscountProviderBySystemNameTest_Null()
-        //{
-        //    //Act
-        //    var provider = _dicountService.LoadDiscountProviderBySystemName("SampleDiscountProvider2");
-        //    //Assert
-        //    Assert.IsNull(provider);
-        //}
+        [TestMethod()]
+        public void LoadDiscountProviderBySystemNameTest_NotNull()
+        {
+            //Act
+            var provider = _dicountService.LoadDiscountProviderByRuleSystemName("RuleSystemName");
+            //Assert
+            Assert.IsNotNull(provider);
+        }
+        [TestMethod()]
+        public void LoadDiscountProviderBySystemNameTest_Null()
+        {
+            //Act
+            var provider = _dicountService.LoadDiscountProviderByRuleSystemName("RuleSystemName2");
+            //Assert
+            Assert.IsNull(provider);
+        }
 
         [TestMethod()]
         public void LoadAllDiscountProvidersTest()

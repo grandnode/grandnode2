@@ -33,7 +33,7 @@ namespace Grand.Business.Catalog.Tests.Services.Discounts
 
     public class DiscountRuleValidTest : IDiscountRule
     {
-        public string SystemName => throw new NotImplementedException();
+        public string SystemName => "RuleSystemName";
 
         public string FriendlyName => throw new NotImplementedException();
 
