@@ -284,12 +284,12 @@ namespace Grand.Web.Admin.Controllers
 
         [AcceptVerbs("GET")]
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
-        public async Task<IActionResult> GetDiscountRequirementConfigurationUrl(string systemName, string discountId, string discountRequirementId)
+        public async Task<IActionResult> GetDiscountRequirementConfigurationUrl(string rulesystemName, string discountId, string discountRequirementId)
         {
-            if (String.IsNullOrEmpty(systemName))
-                throw new ArgumentNullException("systemName");
+            if (string.IsNullOrEmpty(rulesystemName))
+                throw new ArgumentNullException("rulesystemName");
 
-            var discountPlugin = _discountService.LoadDiscountProviderByRuleSystemName(systemName);
+            var discountPlugin = _discountService.LoadDiscountProviderByRuleSystemName(rulesystemName);
 
             if (discountPlugin == null)
                 throw new ArgumentException("Discount requirement rule could not be loaded");
