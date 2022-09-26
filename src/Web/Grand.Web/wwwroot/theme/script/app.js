@@ -18,6 +18,7 @@ var vm = new Vue({
             compareproducts: null,
             compareProductsQty: 0,
             loader: false,
+            isHomePage: false
         }
     },
     props: {
@@ -567,6 +568,9 @@ var vm = new Vue({
                 }
             }
         },
+        setHomePage: function (isInHomePage) {
+            vm.isHomePage = isInHomePage;
+        }
 
     },
 });

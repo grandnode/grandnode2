@@ -7,7 +7,6 @@
     <script asp-location="Head" src="/bundles/chunk-vendors.runtime.bundle.js"></script>
     <link asp-src="/bundles/libs.css" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" asp-src="/assets/custom/style.css">
 
     <environment include="Development">
         @if (supportRtl)
@@ -39,6 +38,7 @@
             <link rel="stylesheet" type="text/css" asp-src="/bundles/style.min.css">
         }
     </environment>
+    <link rel="stylesheet" type="text/css" asp-src="/assets/custom/style.css">
 
     <script asp-location="Footer" asp-src="/theme/script/public.common.js" asp-order="201"></script>
     <script asp-location="Footer" asp-src="/theme/script/public.axios.js" asp-order="202"></script>

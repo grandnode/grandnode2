@@ -478,13 +478,6 @@
                 color: white;
             }
 
-            .footer .-content .white-line{
-                height: 0.5px;
-                width : 100%;
-                background-color: antiquewhite
-            }
-
-
     .footer .footer-icon{
         height: 30px;
         width: 30px;
@@ -527,6 +520,39 @@
 
 /*End Footer*/
 
+
+
+/*Side Navigation*/
+.Menu li:not(.category) {
+    background-color: unset;
+}
+
+.Menu li.category {
+    background-color: unset;
+}
+
+@media (min-width: 576px) {
+    .b-sidebar {
+        width: 400px;
+    }
+}
+
+/*End Side Navigation*/
+
+/*Side wise*/
+.white-line {
+    height: 0.5px;
+    width: 100%;
+    background-color: whitesmoke;
+}
+
+.black-line {
+    height: 0.5px;
+    width: 90%;
+    background-color: black;
+}
+
+/*End Side wise*/
 
 /*Media Query*/
 
