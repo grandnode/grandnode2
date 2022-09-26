@@ -16,12 +16,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 
-namespace Grand.Business.Catalog.Tests.Service.Category
+namespace Grand.Business.Catalog.Tests.Services.Categories
 {
     [TestClass()]
     public class CategoryServiceDbTests
     {
-        private IRepository<Domain.Catalog.Category> _categoryRepository;
+        private IRepository<Category> _categoryRepository;
         private Mock<IWorkContext> _workContextMock;
         private Mock<IMediator> _mediatorMock;
         private IAclService _aclServiceMock;
@@ -34,31 +34,31 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         {
             CommonPath.BaseDirectory = "";
 
-            _categoryRepository = new MongoDBRepositoryTest<Grand.Domain.Catalog.Category>();
+            _categoryRepository = new MongoDBRepositoryTest<Category>();
             _workContextMock = new Mock<IWorkContext>();
             _workContextMock.Setup(c => c.CurrentStore).Returns(() => new Domain.Stores.Store() { Id = "" });
-            _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Domain.Customers.Customer());
+            _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
             _mediatorMock = new Mock<IMediator>();
             _aclServiceMock = new AclService();
             _settings = new CatalogSettings();
             _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object);
             _categoryService = new CategoryService(_cacheBase, _categoryRepository, _workContextMock.Object, _mediatorMock.Object, _aclServiceMock);
         }
-        
+
         [TestMethod()]
         public async Task InsertCategory()
         {
             //Act
-            await _categoryService.InsertCategory(new Domain.Catalog.Category());
+            await _categoryService.InsertCategory(new Category());
             //Assert
             Assert.IsTrue(_categoryRepository.Table.Any());
-        }     
+        }
 
         [TestMethod()]
         public async Task UpdateCategory()
         {
             //Arrange
-            var category = new Domain.Catalog.Category() { Name = "test" };
+            var category = new Category() { Name = "test" };
             await _categoryService.InsertCategory(category);
             category.Name = "test2";
             //Act
@@ -74,10 +74,10 @@ namespace Grand.Business.Catalog.Tests.Service.Category
             var allCategory = GetMockCategoryList();
             allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
             //Act
-            await _categoryService.DeleteCategory(allCategory.FirstOrDefault(x=>x.Id == "1"));
+            await _categoryService.DeleteCategory(allCategory.FirstOrDefault(x => x.Id == "1"));
             //Assert
             Assert.IsTrue(_categoryRepository.Table.Count() == 4);
-            Assert.IsNull(_categoryRepository.Table.FirstOrDefault(x=>x.Id == "1"));
+            Assert.IsNull(_categoryRepository.Table.FirstOrDefault(x => x.Id == "1"));
         }
 
         [TestMethod()]
@@ -85,7 +85,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         {
             var allCategory = GetMockCategoryList();
             allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-            var category = new Grand.Domain.Catalog.Category() { Id = "6", ParentCategoryId = "3", Published = true };
+            var category = new Category() { Id = "6", ParentCategoryId = "3", Published = true };
             await _categoryService.InsertCategory(category);
             var result = await _categoryService.GetCategoryBreadCrumb(category, false);
             Assert.IsTrue(result.Count == 2);
@@ -98,7 +98,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         {
             var allCategory = GetMockCategoryList();
             allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-            var category = new Grand.Domain.Catalog.Category() { ParentCategoryId = "3" };
+            var category = new Category() { ParentCategoryId = "3" };
             var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
             Assert.IsTrue(result.Count == 0);
         }
@@ -173,7 +173,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         {
             var allCategory = GetMockCategoryList();
             allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-            var category = new Grand.Domain.Catalog.Category() { Id = "6", ParentCategoryId = "3", Published = true };
+            var category = new Category() { Id = "6", ParentCategoryId = "3", Published = true };
             await _categoryService.InsertCategory(category);
             var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
             Assert.IsTrue(result.Count == 2);
@@ -186,7 +186,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         {
             var allCategory = GetMockCategoryList();
             allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-            var category = new Grand.Domain.Catalog.Category() { Id = "6", ParentCategoryId = "1", Published = true };
+            var category = new Category() { Id = "6", ParentCategoryId = "1", Published = true };
             var result = _categoryService.GetCategoryBreadCrumb(category, allCategory);
             Assert.IsTrue(result.Count == 3);
             Assert.IsTrue(result.Any(c => c.Id.Equals("6")));
@@ -199,7 +199,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
             var exprectedString = "cat5 >> cat1 >> cat6";
             var allCategory = GetMockCategoryList();
             allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-            var category = new Grand.Domain.Catalog.Category() { Id = "6", Name = "cat6", ParentCategoryId = "1", Published = true };
+            var category = new Category() { Id = "6", Name = "cat6", ParentCategoryId = "1", Published = true };
             var result = await _categoryService.GetFormattedBreadCrumb(category);
             Assert.IsTrue(exprectedString.Equals(result));
         }
@@ -209,7 +209,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
             var exprectedString = "cat5 >> cat1 >> cat6";
             var allCategory = GetMockCategoryList();
             allCategory.ToList().ForEach(x => _categoryService.InsertCategory(x).GetAwaiter().GetResult());
-            var category = new Grand.Domain.Catalog.Category() { Id = "6", Name = "cat6", ParentCategoryId = "1", Published = true };
+            var category = new Category() { Id = "6", Name = "cat6", ParentCategoryId = "1", Published = true };
             var result = _categoryService.GetFormattedBreadCrumb(category, allCategory);
             Assert.IsTrue(exprectedString.Equals(result));
         }
@@ -223,16 +223,16 @@ namespace Grand.Business.Catalog.Tests.Service.Category
             Assert.IsTrue(string.IsNullOrEmpty(result));
         }
 
-        
-        private IList<Grand.Domain.Catalog.Category> GetMockCategoryList()
+
+        private IList<Category> GetMockCategoryList()
         {
-            return new List<Grand.Domain.Catalog.Category>()
+            return new List<Category>()
             {
-                new Grand.Domain.Catalog.Category(){ Id="1" ,Name="cat1",Published=true,ParentCategoryId="5",FeaturedProductsOnHomePage=true},
-                new Grand.Domain.Catalog.Category(){ Id="2" ,Name="cat2",Published=true,IncludeInMenu = true},
-                new Grand.Domain.Catalog.Category(){ Id="3" ,Name="cat3",Published=true,ShowOnHomePage=true,ShowOnSearchBox=true},
-                new Grand.Domain.Catalog.Category(){ Id="4" ,Name="cat4",Published=true,ShowOnHomePage=true,ShowOnSearchBox=true},
-                new Grand.Domain.Catalog.Category(){ Id="5" ,Name="cat5",Published=true,FeaturedProductsOnHomePage=true},
+                new Category(){ Id="1" ,Name="cat1",Published=true,ParentCategoryId="5",FeaturedProductsOnHomePage=true},
+                new Category(){ Id="2" ,Name="cat2",Published=true,IncludeInMenu = true},
+                new Category(){ Id="3" ,Name="cat3",Published=true,ShowOnHomePage=true,ShowOnSearchBox=true},
+                new Category(){ Id="4" ,Name="cat4",Published=true,ShowOnHomePage=true,ShowOnSearchBox=true},
+                new Category(){ Id="5" ,Name="cat5",Published=true,FeaturedProductsOnHomePage=true},
             };
         }
 

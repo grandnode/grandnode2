@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Catalog.Tests.Service.Category
+namespace Grand.Business.Catalog.Tests.Services.Categories
 {
     [TestClass()]
     public class CategoryLayoutServiceTest
@@ -30,13 +30,13 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         public async Task GetCategoryLayoutById_InvokeMethods()
         {
             await _categoryLayoutService.GetCategoryLayoutById("1");
-            _cacheMock.Verify(c => c.GetAsync<CategoryLayout>(It.IsAny<string>(), It.IsAny<Func<Task<CategoryLayout>>>()), Times.Once);
+            _cacheMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<CategoryLayout>>>()), Times.Once);
         }
         [TestMethod()]
         public async Task GetAllCategoryLayouts_InvokeMethods()
         {
             await _categoryLayoutService.GetAllCategoryLayouts();
-            _cacheMock.Verify(c => c.GetAsync<List<CategoryLayout>>(It.IsAny<string>(), It.IsAny<Func<Task<List<CategoryLayout>>>>()), Times.Once);
+            _cacheMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<CategoryLayout>>>>()), Times.Once);
         }
         [TestMethod()]
         public async Task DeleteCategoryLayout_ValidArguments_InvokeMethods()
@@ -44,7 +44,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
             await _categoryLayoutService.DeleteCategoryLayout(new CategoryLayout());
             _repostioryMock.Verify(c => c.DeleteAsync(It.IsAny<CategoryLayout>()), Times.Once);
             _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(1));
-            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<CategoryLayout>>(), default(CancellationToken)), Times.Once);
+            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<CategoryLayout>>(), default), Times.Once);
         }
 
 
@@ -54,7 +54,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
             await _categoryLayoutService.InsertCategoryLayout(new CategoryLayout());
             _repostioryMock.Verify(c => c.InsertAsync(It.IsAny<CategoryLayout>()), Times.Once);
             _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(1));
-            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<CategoryLayout>>(), default(CancellationToken)), Times.Once);
+            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<CategoryLayout>>(), default), Times.Once);
         }
 
         [TestMethod()]
@@ -63,7 +63,7 @@ namespace Grand.Business.Catalog.Tests.Service.Category
             await _categoryLayoutService.UpdateCategoryLayout(new CategoryLayout());
             _repostioryMock.Verify(c => c.UpdateAsync(It.IsAny<CategoryLayout>()), Times.Once);
             _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(1));
-            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<CategoryLayout>>(), default(CancellationToken)), Times.Once);
+            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<CategoryLayout>>(), default), Times.Once);
         }
     }
 }

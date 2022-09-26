@@ -8,12 +8,12 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Catalog.Tests.Service.Category
+namespace Grand.Business.Catalog.Tests.Services.Categories
 {
     [TestClass()]
     public class CategoryLayoutServiceDbTest
     {
-        private IRepository<CategoryLayout> _repostiory;
+        private IRepository<CategoryLayout> _repository;
         private MemoryCacheBase _cacheBase;
         private Mock<IMediator> _mediatorMock;
         private CategoryLayoutService _categoryLayoutService;
@@ -21,11 +21,11 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         [TestInitialize()]
         public void Init()
         {
-            _repostiory = new MongoDBRepositoryTest<CategoryLayout>();
+            _repository = new MongoDBRepositoryTest<CategoryLayout>();
             _mediatorMock = new Mock<IMediator>();
 
             _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object);
-            _categoryLayoutService = new CategoryLayoutService(_repostiory, _cacheBase, _mediatorMock.Object);
+            _categoryLayoutService = new CategoryLayoutService(_repository, _cacheBase, _mediatorMock.Object);
         }
 
         [TestMethod()]
@@ -52,10 +52,10 @@ namespace Grand.Business.Catalog.Tests.Service.Category
             await _categoryLayoutService.InsertCategoryLayout(new CategoryLayout());
             await _categoryLayoutService.InsertCategoryLayout(new CategoryLayout());
 
-            //Assert
+            //Act
             var layouts = await _categoryLayoutService.GetAllCategoryLayouts();
 
-            //Act
+            //Assert
             Assert.AreEqual(3, layouts.Count);
         }
 
@@ -72,12 +72,12 @@ namespace Grand.Business.Catalog.Tests.Service.Category
             };
             await _categoryLayoutService.InsertCategoryLayout(categoryLayout2);
 
-            //Assert
+            //Act
             await _categoryLayoutService.DeleteCategoryLayout(categoryLayout1);
 
-            //Act
-            Assert.IsNull(_repostiory.Table.FirstOrDefault(x => x.Name == "test1"));
-            Assert.AreEqual(1, _repostiory.Table.Count());
+            //Assert
+            Assert.IsNull(_repository.Table.FirstOrDefault(x => x.Name == "test1"));
+            Assert.AreEqual(1, _repository.Table.Count());
 
         }
 
@@ -85,10 +85,10 @@ namespace Grand.Business.Catalog.Tests.Service.Category
         [TestMethod()]
         public async Task InsertCategoryLayout_True()
         {
-            //Assert
-            await _categoryLayoutService.InsertCategoryLayout(new CategoryLayout());
             //Act
-            Assert.IsTrue(_repostiory.Table.Any());
+            await _categoryLayoutService.InsertCategoryLayout(new CategoryLayout());
+            //Assert
+            Assert.IsTrue(_repository.Table.Any());
         }
 
         [TestMethod()]
@@ -101,11 +101,11 @@ namespace Grand.Business.Catalog.Tests.Service.Category
             await _categoryLayoutService.InsertCategoryLayout(categoryLayout);
             categoryLayout.Name = "test2";
 
-            //Assert
+            //Act
             await _categoryLayoutService.UpdateCategoryLayout(categoryLayout);
 
-            //Act
-            Assert.IsNotNull(_repostiory.Table.FirstOrDefault(x => x.Name == "test2"));
+            //Assert
+            Assert.IsNotNull(_repository.Table.FirstOrDefault(x => x.Name == "test2"));
         }
 
         [TestMethod()]
@@ -118,11 +118,11 @@ namespace Grand.Business.Catalog.Tests.Service.Category
             await _categoryLayoutService.InsertCategoryLayout(categoryLayout);
             categoryLayout.Name = "test2";
 
-            //Assert
+            //Act
             await _categoryLayoutService.UpdateCategoryLayout(categoryLayout);
 
-            //Act
-            Assert.IsNull(_repostiory.Table.FirstOrDefault(x => x.Name == "test3"));
+            //Assert
+            Assert.IsNull(_repository.Table.FirstOrDefault(x => x.Name == "test3"));
         }
     }
 }
