@@ -31,6 +31,7 @@ var vm = new Vue({
         UpdatedShoppingCartItemId: null,      
     },
     mounted: function () {
+        
         if (localStorage.fluid == "true") this.fluid = "fluid";
         if (localStorage.fluid == "fluid") this.fluid = "fluid";
         if (localStorage.fluid == "") this.fluid = "false";
@@ -38,6 +39,7 @@ var vm = new Vue({
         this.wishindicator = parseInt(this.$refs.wishlistQty.innerText);
         this.updateCompareProductsQty();
         this.backToTop();
+        if (window.isHomePageJS != undefined) this.isHomePage = isHomePageJS;
     },
     watch: {
         fluid: function (newName) {
@@ -567,10 +569,6 @@ var vm = new Vue({
                     }
                 }
             }
-        },
-        setHomePage: function (isInHomePage) {
-            vm.isHomePage = isInHomePage;
         }
-
     },
 });
