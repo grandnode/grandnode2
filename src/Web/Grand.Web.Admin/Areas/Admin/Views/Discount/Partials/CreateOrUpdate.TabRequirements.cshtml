@@ -79,7 +79,7 @@
                     $.ajax({
                         cache:false,
                         url: "@(Url.Action("GetDiscountRequirementConfigurationUrl", "Discount", new { area = Constants.AreaAdmin }))",
-                        data: { "systemName": ruleSystemName, "discountId": discountId },
+                        data: { "rulesystemName": ruleSystemName, "discountId": discountId },
                         success: function (result) {
                             var configureRuleUrl = result.url;
                             //now load the content

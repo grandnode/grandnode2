@@ -284,12 +284,12 @@ namespace Grand.Web.Admin.Controllers
 
         [AcceptVerbs("GET")]
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
-        public async Task<IActionResult> GetDiscountRequirementConfigurationUrl(string systemName, string discountId, string discountRequirementId)
+        public async Task<IActionResult> GetDiscountRequirementConfigurationUrl(string rulesystemName, string discountId, string discountRequirementId)
         {
-            if (String.IsNullOrEmpty(systemName))
-                throw new ArgumentNullException("systemName");
+            if (string.IsNullOrEmpty(rulesystemName))
+                throw new ArgumentNullException("rulesystemName");
 
-            var discountPlugin = _discountService.LoadDiscountProviderBySystemName(systemName);
+            var discountPlugin = _discountService.LoadDiscountProviderByRuleSystemName(rulesystemName);
 
             if (discountPlugin == null)
                 throw new ArgumentException("Discount requirement rule could not be loaded");
@@ -298,7 +298,7 @@ namespace Grand.Web.Admin.Controllers
             if (discount == null)
                 throw new ArgumentException("Discount could not be loaded");
 
-            var singleRequirement = discountPlugin.GetRequirementRules().Single(x => x.SystemName == systemName);
+            var singleRequirement = discountPlugin.GetRequirementRules().FirstOrDefault(x => x.SystemName.Equals(rulesystemName, StringComparison.OrdinalIgnoreCase));
             string url = _discountViewModelService.GetRequirementUrlInternal(singleRequirement, discount, discountRequirementId);
             return Json(new { url = url });
         }
@@ -314,7 +314,7 @@ namespace Grand.Web.Admin.Controllers
             if (discountRequirement == null)
                 throw new ArgumentException("Discount requirement could not be loaded");
 
-            var discountPlugin = _discountService.LoadDiscountProviderBySystemName(discountRequirement.DiscountRequirementRuleSystemName);
+            var discountPlugin = _discountService.LoadDiscountProviderByRuleSystemName(discountRequirement.DiscountRequirementRuleSystemName);
             if (discountPlugin == null)
                 throw new ArgumentException("Discount requirement rule could not be loaded");
 

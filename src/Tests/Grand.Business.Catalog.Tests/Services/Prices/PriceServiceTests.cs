@@ -23,6 +23,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Grand.Business.Common.Services.Directory;
+using Grand.Domain.Common;
 
 namespace Grand.Business.Catalog.Tests.Service.Prices
 {
@@ -304,6 +305,22 @@ namespace Grand.Business.Catalog.Tests.Service.Prices
             tempDiscountServiceMock.Setup(x => x.GetAllDiscounts(DiscountType.AssignedToAllProducts, "1", _currency.CurrencyCode, "", "", false)).ReturnsAsync(new List<Discount>());
             var subtotal = (await _pricingService.GetSubTotal(shoppingCartItem, product001)).subTotal;
             Assert.AreEqual(110.22, subtotal);
+        }
+        [TestMethod()]
+        public async Task Can_get_product_cost()
+        {
+            var product001 = new Product {
+                Id = "242422",
+                Name = "product name 01",
+                Price = 55.11,
+                EnteredPrice = false,
+                Published = true,
+                ProductCost = 20
+            };
+
+            var productCost = await _pricingService.GetProductCost(product001, new List<CustomAttribute>());
+
+            Assert.AreEqual(20, productCost);
         }
     }
 }
