@@ -79,8 +79,8 @@ namespace Grand.Business.Catalog.Services.Products.Tests
             await _productReviewService.DeleteProductReview(productReview);
 
             //Assert
-            Assert.IsNull(_repository.Table.FirstOrDefault(x => x.ReviewText == "test1"));
-            Assert.AreEqual(1, _repository.Table.Count());
+            Assert.IsNull(_repository.Table.FirstOrDefault(x => x.ReviewText == "test"));
+            Assert.AreEqual(0, _repository.Table.Count());
         }
 
         [TestMethod()]
