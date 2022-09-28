@@ -18,7 +18,8 @@ var vm = new Vue({
             compareproducts: null,
             compareProductsQty: 0,
             loader: false,
-            isHomePage: false
+            isHomePage: false,
+            screenLessThan991: false
         }
     },
     props: {
@@ -40,6 +41,10 @@ var vm = new Vue({
         this.updateCompareProductsQty();
         this.backToTop();
         if (window.isHomePageJS != undefined) this.isHomePage = isHomePageJS;
+
+        window.addEventListener("resize", this.resizeEventHandler);
+        window.removeEventListener("resize", this.resizeEventHandler)
+        console.log(this.isHomePage);
     },
     watch: {
         fluid: function (newName) {
@@ -591,6 +596,10 @@ var vm = new Vue({
                     }
                 }
             }
+        },
+        resizeEventHandler: function () {
+            this.screenLessThan991 = window.innerWidth < 991;
+            console.log(this.screenLessThan991);
         }
     },
 });

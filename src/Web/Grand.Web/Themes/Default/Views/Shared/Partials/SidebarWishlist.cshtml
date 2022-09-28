@@ -7,7 +7,7 @@
     <ul class="sidebar-cart wishlist px-0">
         <li class="nav-item">
             <a href="#" target="_self" class="nav-link">
-                <b-icon icon="heart" variant="white" @@click="updateWishlist('@Url.RouteUrl("SidebarWishlist")')" v-b-toggle.sidebar-wishlist></b-icon>
+                <b-icon icon="heart" :variant="[isHomePage && !screenLessThan991 ? 'white' : 'dark']" @@click="updateWishlist('@Url.RouteUrl("SidebarWishlist")')" v-b-toggle.sidebar-wishlist></b-icon>
                 <span class="qty-indicator wishlist-qty" ref="wishlistQty">
                     @Loc["Wishlist.HeaderQuantity", Model]
                 </span>
