@@ -539,6 +539,81 @@
 
 /*End Side Navigation*/
 
+/*Login*/
+
+.login-page .login-button {
+    background-color: #631FC5;
+}
+
+.login-page .login-title {
+    color: black;
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 1.2;
+}
+
+.login-page .form-control {
+    border: 1px solid #a6a6a6;
+    border-top-color: #949494;
+    border-radius: 26px;
+    box-shadow: 0 1px 0rgba(255,255,255,.5),0 1px 0rgba(0,0,0,.07) inset;
+    outline: 0;
+    height: 45px;
+}
+
+.login-page :is(.username, .email, .password) {
+    padding-left: 40px;
+}
+
+.login-page .remember-me-checkbox {
+    bottom: 4px;
+}
+
+.login-page .a-divider-break {
+    text-align: center;
+    position: relative;
+    top: 2px;
+    padding-top: 1px;
+    margin-bottom: 14px;
+    line-height: 0;
+}
+
+.login-page .a-divider-break {
+    content: "";
+    width: 100%;
+    background-color: transparent;
+    display: block;
+    height: 1px;
+    border-top: 1px solid #e7e7e7;
+    margin-top: -1px;
+    z-index: 1;
+}
+
+    .login-page .a-divider-break span {
+        line-height: 1;
+        font-size: 15px;
+        color: #767676;
+        font-weight: 400;
+        z-index: 2;
+        position: relative;
+        display: inline-block;
+        background-color: #fff;
+        padding: 0 8px 0 7px;
+        top: -10px;
+    }
+
+.login-page .external-authentication .form-control {
+    color: black;
+}
+
+.blue-color {
+    color: #631FC5;
+}
+
+/*End Login*/
+
+
+
 /*Side wise*/
 .white-line {
     height: 0.5px;
@@ -553,6 +628,10 @@
 }
 
 /*End Side wise*/
+
+
+
+
 
 /*Media Query*/
 

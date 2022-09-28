@@ -1,0 +1,41 @@
+﻿<div>
+        <a class="img-container" :href="Model.Url" :title="Model.DefaultPictureModel.Title">
+        <div class="gradient-container">
+            @* 4 mau
+            mau 1 - rgba(21,19,19,1)
+            mau 2 - 151313
+            mau 3 - 9d9e9e
+            rgba(157,158,158,1)*@
+            <div class="color-start" style="background: linear-gradient(0deg, @(Model.ProductAttributeModels.Where(att => att.Name == "3_mau_chinh").Any() ? Model.ProductAttributeModels.Where(att => att.Name == "3_mau_chinh").First().Values.Where(val => val.Name == "mau_1").FirstOrDefault().ColorSquaresRgb : "black") 0%, @(Model.ProductAttributeModels.Where(att => att.Name == "3_mau_chinh").Any() ? Model.ProductAttributeModels.Where(att => att.Name == "3_mau_chinh").First().Values.Where(val => val.Name == "mau_1").FirstOrDefault().ColorSquaresRgb : "black") 85%);"></div>
+            <div class="color-container" style="background: linear-gradient(180deg,  @(Model.ProductAttributeModels.Where(att => att.Name == "3_mau_chinh").Any() ? Model.ProductAttributeModels.Where(att => att.Name == "3_mau_chinh").First().Values.Where(val => val.Name == "mau_2").FirstOrDefault().ColorSquaresRgb : "black") 0% , @(Model.ProductAttributeModels.Where(att => att.Name == "3_mau_chinh").Any() ? Model.ProductAttributeModels.Where(att => att.Name == "3_mau_chinh").First().Values.Where(val => val.Name == "mau_2").FirstOrDefault().ColorSquaresRgb : "white") 100%);"></div>
+            <div class="color-end" style="background: linear-gradient(180deg, @(Model.ProductAttributeModels.Where(att => att.Name == "3_mau_chinh").Any() ? Model.ProductAttributeModels.Where(att => att.Name == "3_mau_chinh").First().Values.Where(val => val.Name == "mau_3").FirstOrDefault().ColorSquaresRgb : "black") 0%, @(Model.ProductAttributeModels.Where(att => att.Name == "3_mau_chinh").Any() ? Model.ProductAttributeModels.Where(att => att.Name == "3_mau_chinh").First().Values.Where(val => val.Name == "mau_3").FirstOrDefault().ColorSquaresRgb : "black") 85%);"></div>
+        </div>
+
+        <div class="white-box"></div>
+        <div class="content-box">
+
+            <div class="customize-badge">Customize</div>
+
+            <div class="product-image tilt-hover-back-layer">
+                <img id="product-collection-image-1595"
+                     src=@Model.DefaultPictureModel.ImageUrl
+                     alt=@Model.Name />
+            </div>
+            <div class="product-info tilt-hover-front-layer">
+                @*Manunfactor - Not have right now*@
+                @*<span class="product-manufacturer">Bell</span>*@
+                <span class="product-name local-color">
+                    <span>@Model.Name</span>
+                </span>
+                <div class="price-and-button">
+                    <span class="product-price">@Model.ProductPrice.Price</span>
+
+                    <div class="buy-button button local-color color-background">
+                        <span>@T("ShoppingCart.AddToCart").Text</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </a>
+
+</div>

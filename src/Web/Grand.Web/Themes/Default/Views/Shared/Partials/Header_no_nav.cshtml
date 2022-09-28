@@ -1,0 +1,12 @@
+﻿@inject IWorkContext workContext
+@{ 
+    var supportRtl = workContext.WorkingLanguage.Rtl;
+}
+
+<div class="header-nav position-relative">
+    <nav class="navbar navbar-light navbar-expand">
+        <b-container id="header-container">           
+            <partial name="Partials/Logo" />          
+        </b-container>
+    </nav>
+</div>
