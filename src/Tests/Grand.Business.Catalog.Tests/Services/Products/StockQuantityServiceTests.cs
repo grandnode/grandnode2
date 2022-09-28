@@ -26,7 +26,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
         }
 
         [TestMethod()]
-        public void Can_calculate_total_quantity_when_we_do_not_use_multiple_warehouses()
+        public void GetTotalStockQuantity_multiple_warehouses()
         {
             //if UseMultipleWarehouses is set to false, it will ignore StockQuantity of attached Warhouses
             var product = new Product {
@@ -43,7 +43,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
         }
 
         [TestMethod()]
-        public void Can_calculate_total_quantity_when_we_do_use_multiple_warehouses_with_reserved()
+        public void GetTotalStockQuantity_multiple_warehouses_with_reserved()
         {
             var product = new Product {
                 ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
@@ -58,16 +58,17 @@ namespace Grand.Business.Catalog.Tests.Service.Products
             product.ProductWarehouseInventory.Add(
                 new ProductWarehouseInventory { WarehouseId = "3", StockQuantity = 4, ReservedQuantity = 444 });
 
+            var stock = _stockQuantityService.GetTotalStockQuantity(product, useReservedQuantity: true, total: true);
             //argument is true, so it will consider borh StockQuantity and ReservedQuantity
             //equation:
             //available quantity = StockQuantity - ReservedQuantity
             //-1320 = 12 - 1332
             //looks like our Warehouse is lacking of stuff in number -1320
-            Assert.AreEqual(-1320, _stockQuantityService.GetTotalStockQuantity(product, useReservedQuantity: true, total: true));
+            Assert.AreEqual(-1320, stock);
         }
 
         [TestMethod()]
-        public void Can_calculate_total_quantity_when_we_do_use_multiple_warehouses_without_reserved()
+        public void GetTotalStockQuantity_multiple_warehouses_without_reserved()
         {
             //if UseMultipleWarehouses is set to true, it will show StockQuantity of attached Warhouses
             var product = new Product {
@@ -82,13 +83,13 @@ namespace Grand.Business.Catalog.Tests.Service.Products
                 new ProductWarehouseInventory { WarehouseId = "2", StockQuantity = 4, ReservedQuantity = 222 });
             product.ProductWarehouseInventory.Add(
                 new ProductWarehouseInventory { WarehouseId = "3", StockQuantity = 4, ReservedQuantity = 111 });
-
+            var stock = _stockQuantityService.GetTotalStockQuantity(product, useReservedQuantity: false, total: true);
             //it will ignore ReservedQuantity.. it is important to sell stuff, not having stuff
-            Assert.AreEqual(12, _stockQuantityService.GetTotalStockQuantity(product, useReservedQuantity: false, total: true));
+            Assert.AreEqual(12, stock);
         }
 
         [TestMethod()]
-        public void Can_calculate_total_quantity_when_we_do_use_multiple_warehouses_with_warehouse_specified()
+        public void GetTotalStockQuantity_multiple_warehouses_with_warehouse_specified()
         {
             //show only specified Warehouse (by WarehouseID) 
             var product = new Product {
@@ -104,9 +105,10 @@ namespace Grand.Business.Catalog.Tests.Service.Products
             product.ProductWarehouseInventory.Add(
                 new ProductWarehouseInventory { WarehouseId = "987", StockQuantity = 0, ReservedQuantity = 0 });
 
+            var stock = _stockQuantityService.GetTotalStockQuantity(product, true, "654");
             //only warehouse with ID = 654,
             //-1 = 1500-1501
-            Assert.AreEqual(-1, _stockQuantityService.GetTotalStockQuantity(product, true, "654"));
+            Assert.AreEqual(-1, stock);
         }
 
 

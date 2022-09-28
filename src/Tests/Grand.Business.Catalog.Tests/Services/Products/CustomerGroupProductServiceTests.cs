@@ -27,7 +27,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
         }
 
         [TestMethod()]
-        public async Task DeleteCustomerGroupProduct_ValidArguments_InoveMethods()
+        public async Task DeleteCustomerGroupProduct_ValidArguments_InvokeMethods()
         {
             await _custometGroupService.DeleteCustomerGroupProduct(new CustomerGroupProduct());
             _repositoryMock.Verify(c => c.DeleteAsync(It.IsAny<CustomerGroupProduct>()), Times.Once);
@@ -37,7 +37,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
 
 
         [TestMethod()]
-        public async Task InsertCustomerGroupProduct_ValidArguments_InoveMethods()
+        public async Task InsertCustomerGroupProduct_ValidArguments_InvokeMethods()
         {
             await _custometGroupService.InsertCustomerGroupProduct(new CustomerGroupProduct());
             _repositoryMock.Verify(c => c.InsertAsync(It.IsAny<CustomerGroupProduct>()), Times.Once);
@@ -46,7 +46,7 @@ namespace Grand.Business.Catalog.Tests.Service.Products
         }
 
         [TestMethod()]
-        public async Task GetCustomerGroupProducts_ValidArguments_InoveMethods()
+        public async Task GetCustomerGroupProducts_ValidArguments_InvokeMethods()
         {
             await _custometGroupService.GetCustomerGroupProducts("id");
             //get by cache 

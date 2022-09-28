@@ -38,7 +38,7 @@ namespace Grand.Business.Catalog.Tests.Service.Collections
 
 
         [TestMethod()]
-        public async Task DeleteCollection_ValidArguments_InoveMethods()
+        public async Task DeleteCollection_ValidArguments_InvokeMethods()
         {
             await _collectionService.DeleteCollection(new Collection());
             _repositoryMock.Verify(c => c.DeleteAsync(It.IsAny<Collection>()), Times.Once);
@@ -48,7 +48,7 @@ namespace Grand.Business.Catalog.Tests.Service.Collections
 
 
         [TestMethod()]
-        public async Task InsertCollection_ValidArguments_InoveMethods()
+        public async Task InsertCollection_ValidArguments_InvokeMethods()
         {
             await _collectionService.InsertCollection(new Collection());
             _repositoryMock.Verify(c => c.InsertAsync(It.IsAny<Collection>()), Times.Once);
@@ -57,7 +57,7 @@ namespace Grand.Business.Catalog.Tests.Service.Collections
         }
 
         [TestMethod()]
-        public async Task UpdateCollection_ValidArguments_InoveMethods()
+        public async Task UpdateCollection_ValidArguments_InvokeMethods()
         {
             await _collectionService.UpdateCollection(new Collection());
             _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<Collection>()), Times.Once);
