@@ -100,18 +100,6 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
 
         #endregion
 
-        #region Predefined product attribute values
-
-        /// <summary>
-        /// Gets predefined product attribute values by product attribute identifier
-        /// </summary>
-        /// <param name="productAttributeId">The product attribute identifier</param>
-        /// <returns>Product attribute mapping collection</returns>
-        Task<IList<PredefinedProductAttributeValue>> GetPredefinedProductAttributeValues(string productAttributeId);
-
-
-        #endregion
-
         #region Product attribute combinations
 
         /// <summary>
