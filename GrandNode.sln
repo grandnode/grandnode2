@@ -120,7 +120,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.SharedKernel.Tests", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Domain.Tests", "src\Tests\Grand.Domain.Tests\Grand.Domain.Tests.csproj", "{EEEE2033-07A4-42BB-AFEE-3F83E0BD3044}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grand.Infrastructure.Tests", "src\Tests\Grand.Infrastructure.Tests\Grand.Infrastructure.Tests.csproj", "{50049A49-D27E-4200-9875-F6C486FD608D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grand.Infrastructure.Tests", "src\Tests\Grand.Infrastructure.Tests\Grand.Infrastructure.Tests.csproj", "{50049A49-D27E-4200-9875-F6C486FD608D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

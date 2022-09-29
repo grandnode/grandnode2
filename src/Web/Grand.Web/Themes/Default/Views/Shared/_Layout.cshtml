@@ -30,11 +30,16 @@
     @await Component.InvokeAsync("Widget", new { widgetZone = "body_start_html_tag_after" })
 
     <div id="app" :dark-theme="darkMode" v-cloak>
+           
         <div class="page-loader-container">
             <div class="page-loader"></div>
         </div>
         <vc:get-coordinate></vc:get-coordinate>
         <partial name="Partials/Header" />
+            @if (IsSectionDefined("top"))
+            {
+                @RenderSection("top", required: false)
+            }
         <b-container fluid class="p-0">
             @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
             @if (IsSectionDefined("Breadcrumb"))
