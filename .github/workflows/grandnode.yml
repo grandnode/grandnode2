@@ -19,14 +19,42 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+    - name: Create mongoDB Docker container      
+      run: sudo docker run -d -p 27017:27017 mongo:latest
     - name: Restore
       run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
     - name: Build sln
       run: dotnet build "GrandNode.sln"
     - name: Build
       run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
-    - name: Test
-      run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
+    - name: Grand.Business.Authentication Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Authentication.Tests/Grand.Business.Authentication.Tests.csproj
+    - name: Grand.Business.Catalog Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Catalog.Tests/Grand.Business.Catalog.Tests.csproj
+    - name: Grand.Business.Checkout Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Checkout.Tests/Grand.Business.Checkout.Tests.csproj
+    - name: Grand.Business.Cms Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Cms.Tests/Grand.Business.Cms.Tests.csproj
+    - name: Grand.Business.Common Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Common.Tests/Grand.Business.Common.Tests.csproj
+    - name: Grand.Business.Customers Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Customers.Tests/Grand.Business.Customers.Tests.csproj
+    - name: Grand.Business.Marketing Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Marketing.Tests/Grand.Business.Marketing.Tests.csproj
+    - name: Grand.Business.Messages Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Messages.Tests/Grand.Business.Messages.Tests.csproj
+    - name: Grand.Business.Storage Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.Storage.Tests/Grand.Business.Storage.Tests.csproj
+    - name: Grand.Business.System Unit Tests
+      run: dotnet test ./src/Tests/Grand.Business.System.Tests/Grand.Business.System.Tests.csproj
+    - name: Grand.Business.Data Unit Tests
+      run: dotnet test ./src/Tests/Grand.Data.Tests/Grand.Data.Tests.csproj
+    - name: Grand.Domain.Domain.Tests Unit Tests
+      run: dotnet test ./src/Tests/Grand.Domain.Tests/Grand.Domain.Tests.csproj
+    - name: Grand.Infrastructure.Tests Unit Tests
+      run: dotnet test ./src/Tests/Grand.Infrastructure.Tests/Grand.Infrastructure.Tests.csproj
+    - name: Grand.SharedKernel.Tests Unit Tests
+      run: dotnet test ./src/Tests/Grand.SharedKernel.Tests/Grand.SharedKernel.Tests.csproj
     - name: Publish
       run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
     - name: Deploy to Azure WebApp
