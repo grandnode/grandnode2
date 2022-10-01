@@ -1,8 +1,10 @@
-﻿<section class="video-slider-home">
-    <video class="video-slide active" src="/videos/1.mp4" autoplay muted loop></video>
-    <video class="video-slide" src="/videos/2.mp4" autoplay muted loop></video>
-    <video class="video-slide" src="/videos/3.mp4" autoplay muted loop></video>
-    <video class="video-slide" src="/videos/4.mp4" autoplay muted loop></video>
+﻿@*TODO: Convert slider to Plugin *@
+
+<section class="video-slider-home">
+    <video class="video-slide active" src="/videos/1.mp4" autoplay muted></video>
+    <video class="video-slide" src="/videos/2.mp4" autoplay muted></video>
+    <video class="video-slide" src="/videos/3.mp4" autoplay muted></video>
+    <video class="video-slide" src="/videos/4.mp4" autoplay muted></video>
     <div class="content active">
         <h1>Wonderful.<br><span>Island</span></h1>
         <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
@@ -23,61 +25,107 @@
         <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         <a href="#">Read More</a>
     </div>
-    <div class="content">
-        <h1>Feel Nature.<br><span>Relax</span></h1>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-        <a href="#">Read More</a>
-    </div>
+
     <div class="media-icons">
-        <a href="#"><i class="fab fa-facebook-f"></i></a>
-        <a href="#"><i class="fab fa-instagram"></i></a>
-        <a href="#"><i class="fab fa-twitter"></i></a>
+        @*@if (!string.IsNullOrEmpty(Model.FacebookLink))*@
+        @*{*@
+            <a title="facebook" href="#" rel="noopener" target="_blank">
+                <b-icon class="footer-icon" icon="facebook" variant="white"></b-icon>
+                <span class="sr-only">Facebook</span>
+            </a>
+        @*}*@
+        @*@if (!string.IsNullOrEmpty(Model.YoutubeLink))*@
+        @*{*@
+            <a title="youtube" href="#" rel="noopener" target="_blank">
+                <b-icon class="footer-icon" icon="youtube" variant="white"></b-icon>
+                <span class="sr-only">youtube</span>
+            </a>
+        @*}*@
+        @*@if (!string.IsNullOrEmpty(Model.InstagramLink))*@
+        @*{*@
+        <a href="#" rel="noopener" target="_blank">
+                <b-icon class="footer-icon" icon="instagram" variant="white"></b-icon>
+                <span class="sr-only">instagram</span>
+            </a>
+        @*}*@
+        @*TODO: Add a model for Shopee*@
+        <a href="#" rel="noopener" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+                 width="30" height="30"
+                 viewBox="0 0 50 50"
+                 style=" fill:white">
+                <path d="M 25 1 C 19.672869 1 15.604123 5.9531422 15.166016 12 L 5.0585938 12 C 3.9235937 12 2.999376 12.980995 3.0625 14.113281 L 4.7871094 44.285156 C 4.9365844 46.922145 7.1369035 49 9.7773438 49 L 40.222656 49 C 42.863851 49 45.063433 46.921831 45.212891 44.285156 L 46.9375 14.115234 C 47.002643 12.982141 46.076406 12 44.941406 12 L 34.833984 12 C 34.395877 5.9531422 30.327131 1 25 1 z M 25 3 C 29.036936 3 32.408924 6.8867916 32.835938 12 L 17.164062 12 C 17.591075 6.8867916 20.963064 3 25 3 z M 5.0585938 14 L 15.832031 14 A 1.0001 1.0001 0 0 0 16.158203 14 L 33.832031 14 A 1.0001 1.0001 0 0 0 34.158203 14 L 44.941406 14 L 43.216797 44.171875 C 43.126254 45.7692 41.823461 47 40.222656 47 L 9.7773438 47 C 8.177784 47 6.8737281 45.768887 6.7832031 44.171875 L 5.0585938 14.001953 L 5.0585938 14 z M 25.074219 18.001953 C 20.760219 18.001953 17.507812 20.689906 17.507812 24.253906 C 17.507812 28.283906 21.2555 29.653328 24.5625 30.861328 C 28.5665 32.324328 30.998047 33.441516 30.998047 36.603516 C 30.998047 39.045516 28.267156 41.033203 24.910156 41.033203 C 21.155156 41.033203 17.973406 38.291672 17.941406 38.263672 L 16.826172 39.90625 C 17.638172 40.56425 20.921156 43.007812 24.910156 43.007812 C 29.430156 43.007813 32.972703 40.194516 32.970703 36.603516 C 32.970703 31.833516 28.864234 30.330813 25.240234 29.007812 C 21.657234 27.696812 19.480469 26.724906 19.480469 24.253906 C 19.480469 21.775906 21.833219 19.976562 25.074219 19.976562 C 27.235219 19.976562 29.115719 20.794703 30.136719 21.345703 C 30.308719 21.437703 30.761672 21.709906 31.013672 21.878906 L 32.035156 20.216797 C 31.801156 20.064797 28.921219 18.001953 25.074219 18.001953 z"></path>
+            </svg>
+
+            <span class="sr-only">shoppee</span>
+        </a>
+        @*TODO: Add a model for Lazada*@
+        <a href="#" rel="noopener" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+                 width="30" height="30"
+                 viewBox="0 0 100 100"
+                 style=" fill: white;">
+                <path d="M 25.992188 17.001953 C 25.605279 17.001953 25.224109 17.108194 24.890625 17.314453 L 8.4648438 27.421875 C 7.5534844 27.982137 7 28.976035 7 30.044922 L 7 59.128906 C 7 60.190844 7.552998 61.183824 8.4550781 61.744141 L 48.417969 86.548828 C 48.749873 86.75509 49.118262 86.888512 49.5 86.953125 L 49.5 87 L 50 87 L 50.5 87 L 50.5 86.953125 C 50.881738 86.888512 51.250127 86.75509 51.582031 86.548828 L 91.544922 61.744141 C 92.447002 61.183824 92.998047 60.190844 92.998047 59.128906 L 92.998047 30.042969 C 92.998047 28.974082 92.444562 27.982137 91.533203 27.421875 L 75.109375 17.314453 C 74.777357 17.109101 74.394819 17.001953 74.007812 17.001953 C 73.617447 17.001953 73.23202 17.111022 72.900391 17.316406 L 72.898438 17.316406 L 57.544922 26.847656 C 55.276867 28.255608 52.667174 28.998047 49.998047 28.998047 C 47.32892 28.998047 44.72118 28.255608 42.453125 26.847656 L 27.099609 17.316406 C 26.766378 17.109573 26.382552 17.001953 25.992188 17.001953 z M 25.992188 19.001953 C 26.011817 19.001953 26.030152 19.008448 26.044922 19.017578 L 41.398438 28.546875 C 43.982382 30.150924 46.957174 30.998047 49.998047 30.998047 C 53.03892 30.998047 56.015664 30.150924 58.599609 28.546875 L 73.953125 19.017578 C 73.973495 19.004958 73.988173 19.001953 74.007812 19.001953 C 74.028802 19.001953 74.042661 19.005052 74.056641 19.013672 L 74.058594 19.015625 L 90.486328 29.125 C 90.522141 29.147016 90.551166 29.178616 90.583984 29.205078 L 50 51.429688 L 9.4160156 29.205078 C 9.4488802 29.17857 9.4778589 29.147016 9.5136719 29.125 L 25.941406 19.015625 C 25.953926 19.007925 25.973098 19.001953 25.992188 19.001953 z M 74.013672 22.949219 C 73.557725 22.950146 73.103028 23.075242 72.701172 23.324219 L 67.236328 26.716797 A 0.50005 0.50005 0 1 0 67.763672 27.566406 L 73.226562 24.175781 C 73.710851 23.875734 74.320245 23.873693 74.804688 24.171875 L 84.154297 29.925781 A 0.5002983 0.5002983 0 1 0 84.679688 29.074219 L 75.328125 23.320312 C 74.925346 23.072402 74.469619 22.948292 74.013672 22.949219 z M 65.318359 27.996094 A 0.50005 0.50005 0 0 0 65.048828 28.074219 L 63.4375 29.074219 A 0.50081172 0.50081172 0 0 0 63.964844 29.925781 L 65.576172 28.925781 A 0.50005 0.50005 0 0 0 65.318359 27.996094 z M 9 30.119141 L 49.5 52.296875 L 49.5 84.861328 C 49.491356 84.856307 49.481172 84.854901 49.472656 84.849609 L 9.5097656 60.044922 C 9.1818457 59.841238 9 59.514969 9 59.128906 L 9 30.119141 z M 90.998047 30.119141 L 90.998047 59.128906 C 90.998047 59.514969 90.818154 59.841238 90.490234 60.044922 L 50.527344 84.849609 C 50.518828 84.854901 50.508644 84.856307 50.5 84.861328 L 50.5 52.296875 L 90.998047 30.119141 z M 12.492188 34.992188 A 0.50005 0.50005 0 0 0 12 35.5 L 12 56.669922 C 12 57.533887 12.447481 58.33724 13.181641 58.792969 L 29.236328 68.757812 A 0.50005 0.50005 0 1 0 29.763672 67.908203 L 13.708984 57.943359 C 13.267144 57.669088 13 57.189957 13 56.669922 L 13 35.5 A 0.50005 0.50005 0 0 0 12.492188 34.992188 z M 36.478516 72.173828 A 0.50005 0.50005 0 0 0 36.236328 73.103516 L 40.236328 75.585938 A 0.50005 0.50005 0 1 0 40.763672 74.736328 L 36.763672 72.253906 A 0.50005 0.50005 0 0 0 36.478516 72.173828 z M 43.478516 76.519531 A 0.50005 0.50005 0 0 0 43.236328 77.447266 L 44.236328 78.068359 A 0.50005 0.50005 0 1 0 44.763672 77.21875 L 43.763672 76.597656 A 0.50005 0.50005 0 0 0 43.478516 76.519531 z"></path>
+            </svg>
+            <span class="sr-only">lazada</span>
+        </a>
     </div>
     <div class="slider-navigation">
         <div class="nav-btn active"></div>
         <div class="nav-btn"></div>
         <div class="nav-btn"></div>
         <div class="nav-btn"></div>
-        <div class="nav-btn"></div>
     </div>
 </section>
 
-<script asp-location="Footer">
-    //Javacript for responsive navigation menu
-    const menuBtn = document.querySelector(".menu-btn");
-    const navigation = document.querySelector(".navigation");
+<script asp-location="Footer" asp-order=300>
+    // override the variable for icon
+    var wantWhiteIconHeaderJS = true;
 
-    menuBtn.addEventListener("click", () => {
-        menuBtn.classList.toggle("active");
-        navigation.classList.toggle("active");
+    window.addEventListener('DOMContentLoaded', (event) => {
+        // set auto play for the next video
+        var videoElements = document.querySelectorAll("video");
+
+        //Javacript for video slider navigation
+        var btns = document.querySelectorAll(".nav-btn");
+        var slides = document.querySelectorAll(".video-slide");
+        var contents = document.querySelectorAll(".content");
+
+        var sliderNav = function (manual) {
+            btns.forEach((btn) => {
+                btn.classList.remove("active");
+            });
+
+            slides.forEach((slide) => {
+                slide.classList.remove("active");
+            });
+
+            contents.forEach((content) => {
+                content.classList.remove("active");
+            });
+
+            btns[manual].classList.add("active");
+            slides[manual].classList.add("active");
+            contents[manual].classList.add("active");
+        }
+
+        btns.forEach(function (btn, i) {
+            btn.addEventListener("click", function () {
+                sliderNav(i);
+            });
+        });
+
+        videoElements.forEach((videoEle, i) => {
+            videoEle.addEventListener("ended", (event) => {
+                if (i + 1 == videoElements.length) {
+                    // display the first item
+                    i = -1;
+                }
+                btns[i + 1].click();
+            })
+        })
+
+
     });
 
-    //Javacript for video slider navigation
-    const btns = document.querySelectorAll(".nav-btn");
-    const slides = document.querySelectorAll(".video-slide");
-    const contents = document.querySelectorAll(".content");
-
-    var sliderNav = function (manual) {
-        btns.forEach((btn) => {
-            btn.classList.remove("active");
-        });
-
-        slides.forEach((slide) => {
-            slide.classList.remove("active");
-        });
-
-        contents.forEach((content) => {
-            content.classList.remove("active");
-        });
-
-        btns[manual].classList.add("active");
-        slides[manual].classList.add("active");
-        contents[manual].classList.add("active");
-    }
-
-    btns.forEach((btn, i) => {
-        btn.addEventListener("click", () => {
-            sliderNav(i);
-        });
-    });
 </script>

@@ -18,7 +18,7 @@ var vm = new Vue({
             compareproducts: null,
             compareProductsQty: 0,
             loader: false,
-            isHomePage: false,
+            wantWhiteIconHeader: false,
             screenLessThan991: false
         }
     },
@@ -40,11 +40,10 @@ var vm = new Vue({
         this.wishindicator = parseInt(this.$refs.wishlistQty.innerText);
         this.updateCompareProductsQty();
         this.backToTop();
-        if (window.isHomePageJS != undefined) this.isHomePage = isHomePageJS;
+        if (window.wantWhiteIconHeaderJS != undefined) this.wantWhiteIconHeader = wantWhiteIconHeaderJS;
 
         window.addEventListener("resize", this.resizeEventHandler);
         window.removeEventListener("resize", this.resizeEventHandler)
-        console.log(this.isHomePage);
     },
     watch: {
         fluid: function (newName) {

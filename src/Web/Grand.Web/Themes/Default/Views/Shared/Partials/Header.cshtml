@@ -8,7 +8,7 @@
         <b-container id="header-container">
             <div class="menu-container">
                 <template>
-                    <button aria-label="menu-toggler" class="btn menu-toggler" :class="[isHomePage && !screenLessThan991 ? 'white' : 'black']" v-b-toggle.sidebar-menu><span></span><span></span><span></span></button>
+                    <button aria-label="menu-toggler" class="btn menu-toggler" :class="[wantWhiteIconHeader && !screenLessThan991 ? 'white' : 'black']" v-b-toggle.sidebar-menu><span></span><span></span><span></span></button>
                     <b-sidebar id="sidebar-menu"
                                backdrop
                                shadow
@@ -36,7 +36,7 @@
                 </template>*@
                 <li class="nav-item">
                     <a href="#" target="_self" class="nav-link">
-                        <b-icon icon="search" :variant="[isHomePage && !screenLessThan991 ? 'white' : 'dark']" v-b-modal.search-box></b-icon>
+                        <b-icon icon="search" :variant="[wantWhiteIconHeader && !screenLessThan991 ? 'white' : 'dark']" v-b-modal.search-box></b-icon>
                     </a>
                 </li>
                 <b-modal id="search-box" ref="search-box" :dark-theme="darkMode" @@shown="vm.$refs.searchBoxInput.focus()"
@@ -46,7 +46,7 @@
                 <template>
                     <li class="nav-item">
                         <span class="nav-link">
-                            <b-icon icon="person-circle" :variant="[isHomePage && !screenLessThan991 ? 'white' : 'dark']" v-b-toggle.sidebar-right></b-icon>
+                            <b-icon icon="person-circle" :variant="[wantWhiteIconHeader && !screenLessThan991 ? 'white' : 'dark']" v-b-toggle.sidebar-right></b-icon>
                         </span>
                         <template>
                             <b-sidebar id="sidebar-right" body-class="user-panel" title="@Loc["Account.MyAccount"]" @if (!supportRtl) { <text>right</text> } backdrop>

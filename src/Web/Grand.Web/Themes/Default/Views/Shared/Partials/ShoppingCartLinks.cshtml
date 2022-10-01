@@ -48,7 +48,7 @@
         {
             <li class="nav-item">
                 <a href="@Url.RouteUrl("Wishlist")" class="nav-link">
-                    <b-icon icon="heart" :variant="[isHomePage && !screenLessThan991 ? 'white' : 'dark']"></b-icon>
+                    <b-icon icon="heart" :variant="[wantWhiteIconHeader && !screenLessThan991 ? 'white' : 'dark']"></b-icon>
                     <div class="qty-indicator wishlist-qty" ref="wishlistQty">@Loc["Wishlist.HeaderQuantity", wishlistItems]</div>
                 </a>
             </li>
@@ -57,7 +57,7 @@
         {
             <li class="nav-item">
                 <a href="@Url.RouteUrl("ShoppingCart")" class="nav-link">
-                    <b-icon icon="cart" :variant="[isHomePage && !screenLessThan991 ? 'white' : 'dark']"></b-icon>
+                    <b-icon icon="cart" :variant="[wantWhiteIconHeader && !screenLessThan991 ? 'white' : 'dark']"></b-icon>
                     <span class="qty-indicator cart-qty">
                         <template v-if="flycartindicator == null">
                             @Loc["ShoppingCart.HeaderQuantity", shoppingCartItems]
