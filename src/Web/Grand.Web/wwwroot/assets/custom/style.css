@@ -632,8 +632,6 @@
 
 /*Slider video*/
 
-/*End Slider Video*/
-
 section {
     padding: 100px 200px;
 }
@@ -778,6 +776,280 @@ section {
         transition-property: clip-path;
     }
 
+/*End Slider Video*/
+
+
+/*Category Product Card*/
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+
+
+/*Styles for product card*/
+
+.product .product-card {
+    z-index: 1;
+    background: #1D212B;
+    position: relative;
+    width: 300px;
+    height: 400px;
+    margin: 40px;
+    border-radius: 10px;
+}
+
+    .product .product-card:before {
+        content: '';
+        background: rgba(255, 255, 255, 0.1);
+        position: absolute;
+        display: block;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: 100%;
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+    }
+
+    .product .product-card .product-img {
+        z-index: 1;
+        position: absolute;
+        max-width: 350px;
+        top: 30%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .product .product-card .name {
+        z-index: 2;
+        color: #fff;
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        bottom: 130px;
+        font-size: 20px;
+        letter-spacing: 1px;
+    }
+
+    .product .product-card .price {
+        z-index: 2;
+        color: #fff;
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        bottom: 80px;
+        font-size: 30px;
+        font-weight: 300;
+    }
+
+    .product .product-card .popup-btn {
+        z-index: 2;
+        color: #fff;
+        background: #555;
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 14px;
+        text-transform: uppercase;
+        text-decoration: none;
+        letter-spacing: 1px;
+        padding: 10px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+    }
+
+/*Styles for popup view*/
+
+.product .popup-invisible-view {
+    z-index: 999;
+    background: rgba(133, 191, 140, 0.5);
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+    transition: 0.5s;
+}
+
+    .product .popup-invisible-view.active{
+        visibility:visible;
+    }
+
+
+.product .popup-card {
+    z-index: 1000;
+    position: fixed;
+    display: flex;
+    width: 800px;
+    height: 500px;
+    margin: 20px;
+    top: 0;
+    left: 0;
+    transform: translate(calc(50vw - 50%));
+    visibility: hidden;
+}
+
+.product .popup-card.active{
+    visibility: visible;
+}
+
+    .product .popup-card .product-img {
+        z-index: 2;
+        background: #1D212B;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 45%;
+        height: 90%;
+        transform: translateY(25px);
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+    }
+
+        .product .popup-card .product-img img {
+            z-index: 2;
+            position: relative;
+            width: 450px;
+            left: -50px;
+        }
+
+    .product .popup-card .info {
+        z-index: 2;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        width: 55%;
+        height: 100%;
+        box-sizing: border-box;
+        padding: 40px;
+        border-radius: 10px;
+    }
+
+    .product .popup-card .close-btn {
+        color: #555;
+        z-index: 3;
+        position: absolute;
+        right: 0;
+        font-size: 20px;
+        margin: 20px;
+        cursor: pointer;
+    }
+
+    .product .popup-card .info h2 {
+        font-size: 40px;
+        line-height: 20px;
+        margin: 10px;
+    }
+
+        .product .popup-card .info h2 span {
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+    .product .popup-card .info p {
+        font-size: 15px;
+        margin: 10px;
+    }
+
+    .product .popup-card .info .price {
+        font-size: 45px;
+        font-weight: 300;
+        margin: 10px;
+    }
+
+    .product .popup-card .info .add-cart-btn {
+        color: #fff;
+        background: #009DD2;
+        font-size: 16px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        text-transform: uppercase;
+        margin: 10px auto;
+        padding: 10px 50px;
+        border-radius: 20px;
+    }
+
+
+    .product .popup-card .info .add-wish {
+        color: #009DD2;
+        font-size: 16px;
+        text-align: center;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+/*Responsive styles*/
+
+@media (max-width: 900px) {
+    .product .popup-card {
+        flex-direction: column;
+        width: 550px;
+        height: auto;
+    }
+
+        .product .popup-card .product-img {
+            z-index: 3;
+            width: 100%;
+            height: 200px;
+            transform: translateY(0);
+            border-bottom-left-radius: 0;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+            .product .popup-card .product-img img {
+                left: initial;
+                max-width: 100%;
+            }
+
+        .product .popup-card .info {
+            width: 100%;
+            height: auto;
+            padding: 20px;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+
+            .product .popup-card .info h2 {
+                margin: 20px 5px 5px 5px;
+                font-size: 25px;
+            }
+
+                .product .popup-card .info h2 span {
+                    font-size: 10px;
+                }
+
+            .product .popup-card .info p {
+                margin: 5px;
+                font-size: 13px;
+            }
+
+            .product .popup-card .info .price {
+                margin: 5px;
+                font-size: 30px;
+            }
+
+            .product .popup-card .info .add-cart-btn {
+                margin: 5px auto;
+                padding: 5px 40px;
+                font-size: 14px;
+            }
+
+            .product .popup-card .info .add-wish {
+                font-size: 14px;
+            }
+
+        .product .popup-card .close-btn {
+            z-index: 4;
+        }
+}
+/*End Category Product Cart*/
 @media (max-width: 1040px) {
     header {
         padding: 12px 20px;

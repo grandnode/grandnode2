@@ -104,7 +104,8 @@ import {
     BIconFacebook,
     BIconTwitter,
     BIconYoutube,
-    BIconInstagram
+    BIconInstagram,
+    BIconXCircle
 } from 'bootstrap-vue'
 Vue.component('BIcon', BIcon)
 Vue.component('BIconAspectRatio', BIconAspectRatio)
@@ -167,8 +168,7 @@ Vue.component('BIconFacebook', BIconFacebook)
 Vue.component('BIconTwitter', BIconTwitter)
 Vue.component('BIconYoutube', BIconYoutube)
 Vue.component('BIconInstagram', BIconInstagram)
-
-
+Vue.component('BIconXCircle', BIconXCircle)
 
 
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
