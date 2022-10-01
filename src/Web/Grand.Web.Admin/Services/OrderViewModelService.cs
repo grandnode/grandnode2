@@ -589,7 +589,7 @@ namespace Grand.Web.Admin.Services
 
             model.BillingAddress = await order.BillingAddress.ToModel(_countryService);
             model.BillingAddress.FormattedCustomAddressAttributes = await _addressAttributeParser.FormatAttributes(_workContext.WorkingLanguage, order.BillingAddress.Attributes);
-            model.BillingAddress.NameEnabled = true;
+            model.BillingAddress.NameEnabled = _addressSettings.NameEnabled;
             model.BillingAddress.FirstNameEnabled = true;
             model.BillingAddress.FirstNameRequired = true;
             model.BillingAddress.LastNameEnabled = true;
@@ -628,7 +628,7 @@ namespace Grand.Web.Admin.Services
                     {
                         model.ShippingAddress = await order.ShippingAddress.ToModel(_countryService);
                         model.ShippingAddress.FormattedCustomAddressAttributes = await _addressAttributeParser.FormatAttributes(_workContext.WorkingLanguage, order.ShippingAddress.Attributes);
-                        model.ShippingAddress.NameEnabled = true;
+                        model.ShippingAddress.NameEnabled = _addressSettings.NameEnabled;
                         model.ShippingAddress.FirstNameEnabled = true;
                         model.ShippingAddress.FirstNameRequired = true;
                         model.ShippingAddress.LastNameEnabled = true;
@@ -888,7 +888,7 @@ namespace Grand.Web.Admin.Services
                 Address = await address.ToModel(_countryService)
             };
             model.Address.Id = address.Id;
-            model.Address.NameEnabled = true;
+            model.Address.NameEnabled = _addressSettings.NameEnabled;
             model.Address.FirstNameEnabled = true;
             model.Address.FirstNameRequired = true;
             model.Address.LastNameEnabled = true;
