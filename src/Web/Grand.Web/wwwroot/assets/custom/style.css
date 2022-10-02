@@ -664,6 +664,7 @@ section {
         width: 70%;
         margin-top: 50px;
         display: none;
+        position: relative;
     }
 
         .video-slider-home .content.active {

@@ -1,4 +1,5 @@
 import Vue from 'vue'
+Vue.config.devtools = true
 Vue.config.productionTip = true
 
 import 'bootstrap/dist/css/bootstrap.css'
