@@ -7,7 +7,7 @@ namespace Grand.Data.Tests.LiteDb
 {
     public partial class LiteDBRepositoryMock<T> : LiteDBRepository<T>, IRepository<T> where T : BaseEntity
     {
-        public LiteDBRepositoryMock(): base("MemoryStream")
+        public LiteDBRepositoryMock(): base(Guid.NewGuid().ToString())
         {
             _database = new LiteDatabase(new MemoryStream());
             _database.DropCollection(typeof(T).Name);

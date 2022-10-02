@@ -87,9 +87,9 @@ namespace Grand.Business.Catalog.Events.Handlers.Tests
             var collection = new Collection();
             collection.AppliedDiscounts.Add(discount.Id);
             await _collectionRepository.InsertAsync(collection);
-            var collection3 = new Category();
+            var collection3 = new Collection();
             collection3.AppliedDiscounts.Add("1");
-            await _categoryRepository.InsertAsync(collection3);
+            await _collectionRepository.InsertAsync(collection3);
 
             //Act
             await _handler.Handle(new Infrastructure.Events.EntityDeleted<Discount>(discount), CancellationToken.None);
