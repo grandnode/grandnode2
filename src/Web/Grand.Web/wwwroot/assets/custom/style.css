@@ -974,16 +974,21 @@ section {
         margin: 10px auto;
         padding: 10px 50px;
         border-radius: 20px;
+        border: none;
+        max-width: 220px;
+        margin: 5px auto;
+        padding: 5px 40px;
+        font-size: 14px;
+    }
+        
+
+    .product .popup-card .info .add-wishlist-btn {
+        border: none;
+        background: none;
+        color: rgb(158, 4, 31);
     }
 
 
-    .product .popup-card .info .add-wish {
-        color: #009DD2;
-        font-size: 16px;
-        text-align: center;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
 
 /*Responsive styles*/
 
@@ -1034,16 +1039,6 @@ section {
             .product .popup-card .info .price {
                 margin: 5px;
                 font-size: 30px;
-            }
-
-            .product .popup-card .info .add-cart-btn {
-                margin: 5px auto;
-                padding: 5px 40px;
-                font-size: 14px;
-            }
-
-            .product .popup-card .info .add-wish {
-                font-size: 14px;
             }
 
         .product .popup-card .close-btn {

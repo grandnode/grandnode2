@@ -61,6 +61,7 @@ import {
     BIconServer,
     BIconX,
     BIconHeart,
+    BIconHeartFill,
     BIconShuffle,
     BIconTruck,
     BIconQuestionCircle,
@@ -170,6 +171,7 @@ Vue.component('BIconTwitter', BIconTwitter)
 Vue.component('BIconYoutube', BIconYoutube)
 Vue.component('BIconInstagram', BIconInstagram)
 Vue.component('BIconXCircle', BIconXCircle)
+Vue.component('BIconHeartFill', BIconHeartFill)
 
 
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
