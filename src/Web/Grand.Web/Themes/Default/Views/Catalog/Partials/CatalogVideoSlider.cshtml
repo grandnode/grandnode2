@@ -1,18 +1,19 @@
 ﻿@*TODO: Convert slider to Plugin *@
 <section class="video-slider-home">
-    <div v-for="(item, index) in Model">
-        <video :src="item.videoUrl" class="video-slide" :class="[index == currentVideoIndex ? 'active': '']" autoplay
+    <div v-for="(item, index) in videoslider.Model">
+        <video :src="item.videoUrl" class="video-slide" :class="[index == videoslider.currentVideoIndex ? 'active': '']" autoplay
             loop muted :ref="'video_' + index">
         </video>
-        <div class="content" :class="[index == currentVideoIndex ? 'active': '']">
+        
+        <div class="content" :class="[index == videoslider.currentVideoIndex ? 'active': '']">
             <h1>{{item.firstLine}}.<br><span>{{item.bbbbbb}}</span></h1>
             <p>{{item.description}}</p>
             <a href="#">Read More</a>
         </div>
 
     </div>
-    <div class="slider-navigation" @@click="videoSlider.fuckup()">
-            <div v-for="(item, index) in Model" class="nav-btn">
+    <div class="slider-navigation"> 
+            <div v-for="(item, index) in videoslider.Model"  :class="[index == videoslider.currentVideoIndex ? 'active': '']" class="nav-btn" @@click="videoslider.videoNavClick(index)">
         
             </div>
 
@@ -65,8 +66,7 @@
 </section>
 
 <script asp-location="Footer" asp-order=300>
-    var videoSlider = new Vue({
-        el: ".video-slider-home",
+    var videoslider = new Vue({
         data: function () {
             return {
                 Model: [],
@@ -74,15 +74,12 @@
             }
         },
         methods: {
-            fuckup: function(){
-                console.log("fuckup");
-            },
             videoNavClick: function (index) {
-                console.log("click" + index);
                 this.currentVideoIndex = index;
             },
             videoLoop: function(){
                     var self = this;
+                    console.log("loop it");
                     setInterval(function(){ 
                         if (self.currentVideoIndex == self.Model.length - 1) {
                             self.currentVideoIndex = 0;
@@ -122,66 +119,14 @@
                     "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
                 },
             ];
+            this.videoLoop();
         },
         mounted(){
-            this.videoLoop();
+            console.log("mounted");
         }
     });
-
-
 
     // override the variable for icon
     var wantWhiteIconHeaderJS = true;
     
-    window.addEventListener('DOMContentLoaded', (event) => {
-        document.querySelector(".slider-navigation").addEventListener("click", function(){
-
-            console.log("fuckup");
-        });
-    })
-
-@*     
-        // set auto play for the next video
-        var videoElements = document.querySelectorAll("video");
-
-        //Javacript for video slider navigation
-        var btns = document.querySelectorAll(".nav-btn");
-        var slides = document.querySelectorAll(".video-slide");
-        var contents = document.querySelectorAll(".content");
-
-        var sliderNav = function (manual) {
-            btns.forEach((btn) => {
-                btn.classList.remove("active");
-            });
-
-            slides.forEach((slide) => {
-                slide.classList.remove("active");
-            });
-
-            contents.forEach((content) => {
-                content.classList.remove("active");
-            });
-
-            btns[manual].classList.add("active");
-            slides[manual].classList.add("active");
-            contents[manual].classList.add("active");
-        }
-
-        btns.forEach(function (btn, i) {
-            btn.addEventListener("click", function () {
-                sliderNav(i);
-            });
-        });
-
-        videoElements.forEach((videoEle, i) => {
-            videoEle.addEventListener("ended", (event) => {
-                if (i + 1 == videoElements.length) {
-                    // display the first item
-                    i = -1;
-                }
-                btns[i + 1].click();
-            })
-        })
-    *@
-
 </script>

@@ -74,7 +74,7 @@
         </div>
     }
     }
-
+Cardssss
     <div class="width-limited m-auto">
         <div class="page category-page">
             <h1 class="generalTitle h2">@Model.Name</h1>
@@ -139,11 +139,7 @@
                     <template v-if="catalog.Model.PagingFilteringContext.ViewMode == 'grid'">
                         <div class="col-12 product-grid px-0">
                             <div class="form-row">
-                                <template v-for="Model in catalog.Model.Products">
-                                    <div class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-                                        <partial name="Partials/CatalogProductGridView" />
-                                    </div>
-                                </template>
+                                <partial name="Partials/CatalogProductGridView_Cards" model="@Json.Serialize(Model.Products)"/>
                             </div>
                         </div>
                     </template>
