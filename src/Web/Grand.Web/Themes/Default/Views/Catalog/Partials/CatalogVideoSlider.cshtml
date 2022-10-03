@@ -79,7 +79,6 @@
             },
             videoLoop: function(){
                     var self = this;
-                    console.log("loop it");
                     setInterval(function(){ 
                         if (self.currentVideoIndex == self.Model.length - 1) {
                             self.currentVideoIndex = 0;
@@ -87,8 +86,6 @@
                         else {
                             self.currentVideoIndex = self.currentVideoIndex + 1;
                         }
-                        console.log(self.Model.length);
-                        console.log(self.currentVideoIndex);
                     }, 6000);
             }
         },

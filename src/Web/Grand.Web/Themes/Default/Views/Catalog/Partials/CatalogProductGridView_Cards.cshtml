@@ -1,23 +1,24 @@
 ﻿@model object
 <div v-for="(productItem , index) in productcards.productModels" class="col-lg-4 col-sm-6 col-6 product-container mb-2">
-    <div class="product">
-
+   <div class="product">
         <div class="product-card">
             <h2 class="name">
                 {{productItem.Name}}
             </h2>
             <span class="price"> {{productItem.ProductPrice.Price}}</span>
-            <a class="popup-btn">Quick View</a>
+            <a class="popup-btn" @@click="productcards.quickview(index)">Quick View</a>
             <img :src="productItem.DefaultPictureModel.ImageUrl" class="product-img"
                 :alt="productItem.DefaultPictureModel.AlternateText">
         </div>
-        <div class="popup-invisible-view"></div>
-        <div class="popup-card">
+        <div class="popup-invisible-view" :class="[(productcards.curentProductCardIndex >= 0 && index == productcards.curentProductCardIndex) ? 'active' : '']"
+            @@click="productcards.closeQuickView()"> </div>
+        <div class="popup-card" :class="[(productcards.curentProductCardIndex >= 0 && index == productcards.curentProductCardIndex) ? 'active' : '']">
             <a>
-                <b-icon icon="x-circle" variant="dark" class="close-btn"></b-icon>
+                <b-icon icon="x-circle" variant="dark" class="close-btn"
+                @@click="productcards.closeQuickView()"></b-icon>
             </a>
             <div class="product-img">
-                <a class="link-product-detail" :href="product.Url" :title="productItem.DefaultPictureModel.Title">
+                <a class="link-product-detail" :href="productItem.Url" :title="productItem.DefaultPictureModel.Title">
 
                     <img :src="productItem.DefaultPictureModel.ImageUrl" :alt="productItem.DefaultPictureModel.AlternateText">
                 </a>
@@ -26,7 +27,7 @@
                 <h2>
                     {{productItem.Name}}
                     <br>
-                    <template v-if="product.ShowSku && Model.Sku !== null">
+                    <template v-if="productItem.ShowSku & productItem.Sku !== null">
                         <span class="sku">{{productItem.Sku}}</span>
                     </template>
                 </h2>
@@ -37,7 +38,7 @@
                 <a href="#" class="add-cart-btn">Add to Cart</a>
             </div>
         </div>
-    </div>
+    </div> 
 </div>
 <script asp-location="Footer">
 
@@ -45,48 +46,21 @@
         data: function () {
             return {
                 productModels: [],
-                currentVideoIndex: 0,
+                curentProductCardIndex: -1
             }
         },
         created(){
             this.productModels = @Model;
-            console.log(this.productModels);
+        },
+        methods:{
+            quickview: function(index){
+                console.log("click on" + index);
+                this.curentProductCardIndex = index;
+            },
+            closeQuickView: function(){
+                this.curentProductCardIndex = -1;
+            }
         }
     })
 
-
-    // window.addEventListener('DOMContentLoaded', (event) => {
-    //     var popupInvisibleViews = document.querySelectorAll('.popup-invisible-view');
-    //     var popupCards = document.querySelectorAll('.popup-card');
-    //     var popupBtns = document.querySelectorAll('.popup-btn');
-    //     var closeBtns = document.querySelectorAll('.close-btn');
-
-    //     //javascript for quick view button
-    //     var popup = function (popupClick) {
-    //         popupInvisibleViews[popupClick].classList.add('active');
-    //         popupCards[popupClick].classList.add('active');
-    //     }
-
-    //     popupBtns.forEach((popupBtn, i) => {
-    //         popupBtn.addEventListener("click", () => {
-    //             popup(i);
-    //         });
-    //     });
-
-    //     //javascript for close button
-    //     closeBtns.forEach((closeBtn, i) => {
-    //         closeBtn.addEventListener("click", () => {
-    //             popupInvisibleViews[i].classList.remove('active');
-    //             popupCards[i].classList.remove('active');
-    //         });
-    //     });
-
-    //     popupInvisibleViews.forEach((popupInvisibleView, i) => {
-    //         popupInvisibleView.addEventListener("click", (event) => {
-    //             popupInvisibleViews[i].classList.remove('active');
-    //             popupCards[i].classList.remove('active');
-    //         });
-    //     });
-
-    // })
 </script>
