@@ -872,7 +872,7 @@ section {
     justify-content: center;
     align-items: center;
     visibility: hidden;
-    transition: 0.5s;
+    transition: 0.1s;
 }
 
     .product .popup-invisible-view.active{
