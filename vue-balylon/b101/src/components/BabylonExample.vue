@@ -9,11 +9,12 @@
 import { defineComponent } from 'vue';
  import {BasicScene} from '@/BabylonExamples/BasicScene';
 
+
 export default defineComponent({
   name: 'BabylonExamples',
   mounted(){
-    const canvas = this.$refs.canvas;
-    new BasicScene(canvas);
+    console.log(this.$refs.canvas);
+    new BasicScene(this.$refs.canvas as HTMLCanvasElement);
   }
 });
 
