@@ -327,7 +327,7 @@ namespace Grand.Web.Commands.Handler.Common
                     case AttributeControlType.ColorSquares:
                     case AttributeControlType.ImageSquares:
                         {
-                            if (selectedContactAttributes != null || selectedContactAttributes.Any())
+                            if (selectedContactAttributes != null && selectedContactAttributes.Any())
                             {
                                 //clear default selection
                                 foreach (var item in attributeModel.Values)
@@ -352,7 +352,7 @@ namespace Grand.Web.Commands.Handler.Common
                     case AttributeControlType.TextBox:
                     case AttributeControlType.MultilineTextbox:
                         {
-                            if (selectedContactAttributes != null || selectedContactAttributes.Any())
+                            if (selectedContactAttributes != null && selectedContactAttributes.Any())
                             {
                                 var enteredText = selectedContactAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value).ToList(); ;
                                 if (enteredText.Any())
@@ -362,7 +362,7 @@ namespace Grand.Web.Commands.Handler.Common
                         break;
                     case AttributeControlType.Datepicker:
                         {
-                            if (selectedContactAttributes != null || selectedContactAttributes.Any())
+                            if (selectedContactAttributes != null && selectedContactAttributes.Any())
                             {
                                 //keep in mind my that the code below works only in the current culture
                                 var selectedDateStr = selectedContactAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value).ToList();
@@ -383,7 +383,7 @@ namespace Grand.Web.Commands.Handler.Common
                         break;
                     case AttributeControlType.FileUpload:
                         {
-                            if (selectedContactAttributes != null || selectedContactAttributes.Any())
+                            if (selectedContactAttributes != null && selectedContactAttributes.Any())
                             {
                                 var downloadGuidStr = selectedContactAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value).FirstOrDefault();
                                 Guid.TryParse(downloadGuidStr, out Guid downloadGuid);
