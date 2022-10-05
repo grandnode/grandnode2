@@ -5,6 +5,7 @@ using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Grand.Domain.Common;
 
 namespace Grand.Business.Authentication.Services
 {
@@ -12,17 +13,14 @@ namespace Grand.Business.Authentication.Services
     {
         private readonly ICustomerService _customerService;
         private readonly IPermissionService _permissionService;
-        private readonly IUserFieldService _userFieldService;
         private readonly IGroupService _groupService;
         private readonly IRefreshTokenService _refreshTokenService;
         private string _errorMessage;
 
-        public JwtBearerCustomerAuthenticationService(ICustomerService customerService, IPermissionService permissionService
-            , IUserFieldService userFieldService, IGroupService groupService, IRefreshTokenService refreshTokenService)
+        public JwtBearerCustomerAuthenticationService(ICustomerService customerService, IPermissionService permissionService, IGroupService groupService, IRefreshTokenService refreshTokenService)
         {
             _customerService = customerService;
             _permissionService = permissionService;
-            _userFieldService = userFieldService;
             _groupService = groupService;
             _refreshTokenService = refreshTokenService;
         }
@@ -68,7 +66,7 @@ namespace Grand.Business.Authentication.Services
                 return false;
             }
 
-            var customerPasswordtoken = await _userFieldService.GetFieldsForEntity<string>(customer, SystemCustomerFieldNames.PasswordToken);
+            var customerPasswordtoken = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken);
             var isGuest = await _groupService.IsGuest(customer);
             if (!isGuest && (string.IsNullOrEmpty(passwordToken) || !passwordToken.Equals(customerPasswordtoken)))
             {
