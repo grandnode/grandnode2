@@ -238,7 +238,7 @@ namespace Grand.Business.Catalog.Services.Products
                         pwi.ReservedQuantity = 0;
 
                     combination.StockQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
-                    combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
+                    combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
                     product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
                     product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
 
