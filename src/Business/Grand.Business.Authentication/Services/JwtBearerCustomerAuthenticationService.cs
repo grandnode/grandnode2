@@ -47,7 +47,7 @@ namespace Grand.Business.Authentication.Services
                 return false;
             }
 
-            if (customer == null || !customer.Active || customer.Deleted)
+            if (!customer.Active || customer.Deleted)
             {
                 _errorMessage = "Customer not exists/or not active in the customer table";
                 return false;
