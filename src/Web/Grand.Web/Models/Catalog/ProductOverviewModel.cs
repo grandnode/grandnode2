@@ -28,6 +28,7 @@ namespace Grand.Web.Models.Catalog
         public string Flag { get; set; }
         public string Gtin { get; set; }
         public string Mpn { get; set; }
+        public string BrandName { get; set; }
         public bool IsFreeShipping { get; set; }
         public bool ShowSku { get; set; }
         public bool ShowQty { get; set; }

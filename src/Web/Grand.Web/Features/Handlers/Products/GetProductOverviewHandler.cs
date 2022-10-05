@@ -19,6 +19,7 @@ using MediatR;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 
 namespace Grand.Web.Features.Handlers.Products
 {
@@ -28,6 +29,7 @@ namespace Grand.Web.Features.Handlers.Products
         private readonly IWorkContext _workContext;
         private readonly ITranslationService _translationService;
         private readonly IProductService _productService;
+        private readonly IBrandService _brandService;
         private readonly IPricingService _pricingService;
         private readonly ITaxService _taxService;
         private readonly ICurrencyService _currencyService;
@@ -45,6 +47,7 @@ namespace Grand.Web.Features.Handlers.Products
             IWorkContext workContext,
             ITranslationService translationService,
             IProductService productService,
+            IBrandService brandService,
             IPricingService priceCalculationService,
             ITaxService taxService,
             ICurrencyService currencyService,
@@ -61,6 +64,7 @@ namespace Grand.Web.Features.Handlers.Products
             _workContext = workContext;
             _translationService = translationService;
             _productService = productService;
+            _brandService = brandService;
             _pricingService = priceCalculationService;
             _taxService = taxService;
             _currencyService = currencyService;
@@ -107,7 +111,7 @@ namespace Grand.Web.Features.Handlers.Products
         private async Task<ProductOverviewModel> GetProductOverviewModel(Product product, GetProductOverview request,
             bool displayPrices, bool enableShoppingCart, bool enableWishlist, int pictureSize, bool priceIncludesTax, Dictionary<string, string> res)
         {
-            var model = PrepareProductOverviewModel(product);
+            var model = await PrepareProductOverviewModel(product);
             //price
             if (request.PreparePriceModel)
             {
@@ -138,11 +142,10 @@ namespace Grand.Web.Features.Handlers.Products
             return model;
         }
 
-        private ProductOverviewModel PrepareProductOverviewModel(Product product)
+        private async Task<ProductOverviewModel> PrepareProductOverviewModel(Product product)
         {
             var sename = product.GetSeName(_workContext.WorkingLanguage.Id);
-            var model = new ProductOverviewModel
-            {
+            var model = new ProductOverviewModel {
                 Id = product.Id,
                 Name = product.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
                 ShortDescription = product.GetTranslation(x => x.ShortDescription, _workContext.WorkingLanguage.Id),
@@ -154,6 +157,7 @@ namespace Grand.Web.Features.Handlers.Products
                 Gtin = product.Gtin,
                 Flag = product.Flag,
                 Mpn = product.Mpn,
+                BrandName = string.IsNullOrEmpty(product.BrandId) ? "" : (await _brandService.GetBrandById(product.BrandId))?.GetTranslation(x => x.Name, _workContext.WorkingLanguage.Id),
                 IsFreeShipping = product.IsFreeShipping,
                 LowStock = product.LowStock,
                 ShowSku = _catalogSettings.ShowSkuOnCatalogPages,
