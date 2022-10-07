@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "babylonjs-loaders": "^5.27.0"
+  }
+}
