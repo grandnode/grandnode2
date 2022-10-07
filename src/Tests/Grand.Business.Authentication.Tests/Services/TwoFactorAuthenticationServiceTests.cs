@@ -31,12 +31,6 @@ namespace Grand.Business.Authentication.Services.Tests
         }
 
         [TestMethod()]
-        public void AuthenticateTwoFactorTest()
-        {
-            Assert.Fail();
-        }
-
-        [TestMethod()]
         public async Task GenerateCodeSetupTest_AppVerification()
         {
             //Arrange
