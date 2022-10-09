@@ -40,7 +40,7 @@
             {
                 @RenderSection("top", required: false)
             }
-        <div class="width-limited m-auto">
+        <div class="m-auto" :class="[wantWhiteIconHeader ? '' : 'width-limited']">
             <b-container fluid class="p-0">
                     @await Component.InvokeAsync("Widget", new { widgetZone = "content_before" })
                     @if (IsSectionDefined("Breadcrumb"))
