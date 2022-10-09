@@ -1914,7 +1914,7 @@ namespace Grand.Web.Admin.Services
             //insert mapping
             var productAttributeMapping = model.ToEntity();
             //predefined values
-            var predefinedValues = await _productAttributeService.GetPredefinedProductAttributeValues(model.ProductAttributeId);
+            var predefinedValues = (await _productAttributeService.GetProductAttributeById(model.ProductAttributeId)).PredefinedProductAttributeValues;
             foreach (var predefinedValue in predefinedValues)
             {
                 var pav = predefinedValue.ToEntity();

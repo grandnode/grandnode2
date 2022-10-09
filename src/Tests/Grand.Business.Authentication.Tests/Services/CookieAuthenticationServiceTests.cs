@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Security.Claims;
 
-namespace Grand.Business.Authentication.Tests
+namespace Grand.Business.Authentication.Tests.Services
 {
     [TestClass()]
     public class CookieAuthenticationServiceTests
@@ -98,7 +98,7 @@ namespace Grand.Business.Authentication.Tests
               };
             var principals = new ClaimsPrincipal(new ClaimsIdentity(claims, GrandCookieAuthenticationDefaults.AuthenticationScheme));
             _authServiceMock.Setup(c => c.AuthenticateAsync(It.IsAny<HttpContext>(), It.IsAny<string>()))
-                .Returns(() => Task.FromResult<AuthenticateResult>(AuthenticateResult.Success(new AuthenticationTicket(principals, ""))));
+                .Returns(() => Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principals, ""))));
             _customerServiceMock.Setup(c => c.GetCustomerByUsername(It.IsAny<string>())).Returns(() => Task.FromResult(expectedCustomer));
             _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(true));
 
@@ -118,7 +118,7 @@ namespace Grand.Business.Authentication.Tests
               };
             var principals = new ClaimsPrincipal(new ClaimsIdentity(claims, GrandCookieAuthenticationDefaults.AuthenticationScheme));
             _authServiceMock.Setup(c => c.AuthenticateAsync(It.IsAny<HttpContext>(), It.IsAny<string>()))
-                .Returns(() => Task.FromResult<AuthenticateResult>(AuthenticateResult.Success(new AuthenticationTicket(principals, ""))));
+                .Returns(() => Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principals, ""))));
             _customerServiceMock.Setup(c => c.GetCustomerByUsername(It.IsAny<string>())).Returns(() => Task.FromResult(expectedCustomer));
             //guest
             _groupServiceMock.Setup(c => c.IsRegistered(It.IsAny<Customer>())).Returns(() => Task.FromResult(false));

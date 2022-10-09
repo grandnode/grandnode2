@@ -78,7 +78,6 @@ namespace Grand.Business.Catalog.Tests.Services.Categories
             //Assert
             Assert.IsNull(_repository.Table.FirstOrDefault(x => x.Name == "test1"));
             Assert.AreEqual(1, _repository.Table.Count());
-
         }
 
 

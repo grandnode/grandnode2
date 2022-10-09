@@ -324,22 +324,6 @@ namespace Grand.Business.Catalog.Services.Products
 
         #endregion
 
-        #region Predefined product attribute values
-
-        /// <summary>
-        /// Gets predefined product attribute values by product attribute identifier
-        /// </summary>
-        /// <param name="productAttributeId">The product attribute identifier</param>
-        /// <returns>Product attribute mapping collection</returns>
-        public virtual async Task<IList<PredefinedProductAttributeValue>> GetPredefinedProductAttributeValues(string productAttributeId)
-        {
-            var pa = await Task.FromResult(_productAttributeRepository.Table.Where(x => x.Id == productAttributeId).FirstOrDefault());
-            return pa.PredefinedProductAttributeValues.OrderBy(x => x.DisplayOrder).ToList();
-        }
-
-
-        #endregion
-
         #region Product attribute combinations
 
         /// <summary>

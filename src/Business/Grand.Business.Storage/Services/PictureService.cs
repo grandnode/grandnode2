@@ -835,8 +835,8 @@ namespace Grand.Business.Storage.Services
             if (mimetype.Contains("webp"))
                 return SKEncodedImageFormat.Webp;
 
-            if (mimetype.Contains("webp"))
-                return SKEncodedImageFormat.Webp;
+            if (mimetype.Contains("wbmp"))
+                return SKEncodedImageFormat.Wbmp;
 
             if (mimetype.Contains("gif"))
                 return SKEncodedImageFormat.Gif;

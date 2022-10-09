@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Security.Claims;
 
-namespace Grand.Business.Authentication.Tests
+namespace Grand.Business.Authentication.Tests.Services
 {
     [TestClass()]
     public class ApiAuthenticationServiceTests

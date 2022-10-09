@@ -4,9 +4,11 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Domain.Common;
 
 namespace Grand.Business.Catalog.Tests.Service.Products
 {
+    [TestClass()]
     public class StockQuantityServiceTests
     {
         private IStockQuantityService _stockQuantityService;
@@ -17,8 +19,8 @@ namespace Grand.Business.Catalog.Tests.Service.Products
         {
             var tempLocalizationService = new Mock<ITranslationService>();
             {
-                //tempLocalizationService.Setup(x => x.GetResource("Products.InclTaxSuffix", "1", "", false)).Returns("{0} incl tax");
-                //tempLocalizationService.Setup(x => x.GetResource("Products.ExclTaxSuffix", "1", "", false)).Returns("{0} excl tax");
+                tempLocalizationService.Setup(x => x.GetResource("Products.Availability.InStockWithQuantity")).Returns("{0}");
+                tempLocalizationService.Setup(x => x.GetResource("Products.ExclTaxSuffix")).Returns("InStock");
                 _translationService = tempLocalizationService.Object;
             }
             _stockQuantityService = new StockQuantityService(
@@ -110,7 +112,53 @@ namespace Grand.Business.Catalog.Tests.Service.Products
             //-1 = 1500-1501
             Assert.AreEqual(-1, stock);
         }
+        [TestMethod()]
+        public void GetTotalStockQuantityTest()
+        {
+            //Arrange
+            var product = new Product {
+                ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+                StockAvailability = true,
+                StockQuantity = 10,
+                ReservedQuantity = 7,
+                DisplayStockQuantity = true
+            };
+            //Act
+            var result = _stockQuantityService.GetTotalStockQuantity(product);
+            //Assert
+            Assert.AreEqual(3, result);
+        }
 
+        [TestMethod()]
+        public void GetTotalStockQuantityForCombinationTest()
+        {
+            //Arrange
+            var product = new Product {
+                ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes,
+                StockAvailability = true,
+                DisplayStockQuantity = true
+            };
+            //Act
+            var result = _stockQuantityService.GetTotalStockQuantityForCombination(product, new ProductAttributeCombination() { StockQuantity = 10 });
+            //Assert
+            Assert.AreEqual(10, result);
+        }
+
+        [TestMethod()]
+        public void FormatStockMessageTest()
+        {
+            //Arrange
+            var product = new Product {
+                ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+                StockQuantity = 8765,
+                StockAvailability = true,
+                DisplayStockQuantity = true
+            };
+            //Act
+            var result = _stockQuantityService.FormatStockMessage(product, "", new List<CustomAttribute>());
+            //Assert
+            Assert.AreEqual("8765", result);
+        }
 
     }
 }
