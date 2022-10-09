@@ -34,7 +34,7 @@ export class BasicScene{
 
     loadModel(){
         const loader = new AssetsManager(this.scene);
-        const loadHelmetModel = loader.addMeshTask("helmetTask", ["helmet", "lot", "lotcam", "quai", "quainum", "quaisau"], "", "helmet.babylon");
+        const loadHelmetModel = loader.addMeshTask("helmetTask", ["helmet", "lottrong","lotngoai", "lotcam", "quai", "quainum", "quaisau"], "", "helmet.babylon");
         loadHelmetModel.onSuccess= (t)=>{
             this.setEventListener();
             this.engine.runRenderLoop(() =>{
@@ -79,11 +79,21 @@ export class BasicScene{
         window.addEventListener("changeTextureEvent", (event) =>{
             console.log("change texture");
             const texture = new StandardMaterial("materialTexture", this.scene);
-
-            texture.specularTexture = new Texture("sonnhung.jpg", this.scene);
             texture.diffuseTexture = new Texture("sonnhung.jpg", this.scene);
+            texture.reflectionTexture = new Texture("sonnhung.jpg", this.scene);
+            
             const helmet = this.scene.getMeshByName("helmet")!;
             helmet.material = texture;
+
+            const leatherLotNgoaiMaterial = new StandardMaterial("lotngoaitexture", this.scene);
+            leatherLotNgoaiMaterial.diffuseTexture = new Texture("leather.jpg", this.scene);
+            const lotNgoai = this.scene.getMeshByName("lotngoai")!;
+            lotNgoai.material = leatherLotNgoaiMaterial;
+
+            const mutLotTrongMaterial = new StandardMaterial("lottrongmut", this.scene);
+            mutLotTrongMaterial.emissiveColor = new Color3(81/255,21/255,21/255);
+            const lotTrong = this.scene.getMeshByName("lottrong")!;
+            lotTrong.material = mutLotTrongMaterial; 
         })
     }
 
