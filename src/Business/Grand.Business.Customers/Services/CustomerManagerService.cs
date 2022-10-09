@@ -368,8 +368,7 @@ namespace Grand.Business.Customers.Services
                 throw new GrandException("Email cannot be null");
 
             newEmail = newEmail.Trim();
-            string oldEmail = customer.Email;
-
+            
             if (!CommonHelper.IsValidEmail(newEmail))
                 throw new GrandException(_translationService.GetResource("Account.EmailUsernameErrors.NewEmailIsNotValid"));
 
