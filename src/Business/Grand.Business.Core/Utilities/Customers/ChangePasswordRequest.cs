@@ -12,9 +12,9 @@ namespace Grand.Business.Core.Utilities.Customers
         /// </summary>
         public string Email { get; set; }
         /// <summary>
-        /// A value indicating whether we should validate request
+        /// A value indicating whether we should validate password
         /// </summary>
-        public bool ValidateRequest { get; set; }
+        public bool ValidOldPassword { get; set; }
         /// <summary>
         /// Password format
         /// </summary>
@@ -33,18 +33,18 @@ namespace Grand.Business.Core.Utilities.Customers
         /// Ctor
         /// </summary>
         /// <param name="email">Email</param>
-        /// <param name="validateRequest">A value indicating whether we should validate request</param>
+        /// <param name="validOldPassword">A value indicating whether we should validate old password</param>
         /// <param name="newPasswordFormat">Password format</param>
         /// <param name="newPassword">New password</param>
         /// <param name="oldPassword">Old password</param>
-        public ChangePasswordRequest(string email, bool validateRequest, 
+        public ChangePasswordRequest(string email, bool validOldPassword, 
             PasswordFormat newPasswordFormat, string newPassword, string oldPassword = "")
         {
-            this.Email = email;
-            this.ValidateRequest = validateRequest;
-            this.PasswordFormat = newPasswordFormat;
-            this.NewPassword = newPassword;
-            this.OldPassword = oldPassword;
+            Email = email;
+            ValidOldPassword = validOldPassword;
+            PasswordFormat = newPasswordFormat;
+            NewPassword = newPassword;
+            OldPassword = oldPassword;
         }
     }
 }

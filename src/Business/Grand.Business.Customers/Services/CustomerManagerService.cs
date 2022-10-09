@@ -282,7 +282,7 @@ namespace Grand.Business.Customers.Services
                 return result;
             }
 
-            if (request.ValidateRequest)
+            if (request.ValidOldPassword)
             {
                 string oldPwd = "";
                 switch (customer.PasswordFormatId)
