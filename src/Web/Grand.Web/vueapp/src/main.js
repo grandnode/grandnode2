@@ -304,10 +304,12 @@ import VueGallerySlideshow from 'vue-gallery-slideshow'
 
 import axios from 'axios'
 import Pikaday from 'pikaday'
+import BABYLON from 'babylonjs'
 
 window.axios = require('axios').default;
 window.Pikaday = require('pikaday');
 window.VueGallerySlideshow = VueGallerySlideshow;
+window.BABYLON = require('babylonjs');
 
 import vueAwesomeCountdown from 'vue-awesome-countdown'
 Vue.use(vueAwesomeCountdown, 'vac')
