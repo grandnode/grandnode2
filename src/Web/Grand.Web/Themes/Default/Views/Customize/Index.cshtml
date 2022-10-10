@@ -4,52 +4,106 @@
     Layout = "_SingleColumn";
 }
 <div id="customizeContainer">
-    <canvas id="customizeCanvas"></canvas>
-    <button> Change Camera</button>
-    <button> Change Texture</button>
+    <canvas class="w-100" id="customizeCanvas"></canvas>
+    <button @@click="customizeApp.changeCamera"> Change Camera</button>
+    <button @@click="customizeApp.changeMaterial"> Change Texture</button>
 </div>
 
 
-<script asp-location="Footer" asp-order="301">  
-    // Working play ground https://playground.babylonjs.com/#3AQQI8#1
+<script asp-location="Footer" asp-order="301">
+    // Working play ground https://playground.babylonjs.com/#3AQQI8#2
     var customizeApp = new Vue({
+        data:{
+            scene: null,
+            camera: null,
+            canvas: null, 
+            light: null,
+            cameraPositions:{                
+            }
+        },
         methods:{
             bootstrapApp: function(){ 
-                console.log("bootstrapApp");
-                const canvas = document.getElementById("customizeCanvas");
-                const engine = new BABYLON.Engine(canvas, true);
+                
+                this.canvas = document.getElementById("customizeCanvas");
+                this.engine = new BABYLON.Engine(this.canvas, true);
                 // This creates a basic Babylon Scene object (non-mesh)
-                var scene = new BABYLON.Scene(engine);
+                this.scene = new BABYLON.Scene(this.engine);
+                this.camera = new BABYLON.ArcRotateCamera("camera", Math.PI * 0.9, BABYLON.Tools.ToRadians(60), 60, new BABYLON.Vector3(20, 10, -3), this.scene);
+                this.camera.setTarget(new BABYLON.Vector3(0, 20, 0));
+                
+                this.camera.attachControl();
 
-                // This creates and positions a free camera (non-mesh)
-                var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
+                // light
+                this.light = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 40, 0), this.scene);
 
-                // This targets the camera to scene origin
-                camera.setTarget(BABYLON.Vector3.Zero());
+                // load model
+                var loader = new BABYLON.AssetsManager(this.scene);
+                var loadHelmetModel = loader.addMeshTask("helmetTask", ["helmet", "lottrong", "lotngoai", "lotcam", "quai", "quainum", "quaisau"], "https://raw.githubusercontent.com/namhoaingo/grandnode2Forked/Nam/resizeEvent/vue-balylon/b101/public/", "helmet.babylon");
 
-                // This attaches the camera to the canvas
-                camera.attachControl(canvas, true);
+                loadHelmetModel.onSuccess = (t) => {
+                    this.engine.runRenderLoop(() => {
+                        this.scene.render();
+                    })
+                }
+                loader.load();
+            },
+            changeCamera: function(){
+                console.log("Change camera posi");
+                const newPosition = new BABYLON.Vector3(0,0,10);
 
-                // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-                var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+                this.camera.animations = [
+                    this.createAnimation(
+                        "position.x",
+                        this.camera.position.x,
+                        newPosition.x
+                    ),
+                    this.createAnimation(
+                        "position.y",
+                        this.camera.position.y,
+                        newPosition.y
+                    ),
+                    this.createAnimation(
+                        "position.z",
+                        this.camera.position.z,
+                        newPosition.z
+                    )
 
-                // Default intensity is 1. Let's dim the light a small amount
-                light.intensity = 0.7;
+                ]
 
-                // Our built-in 'sphere' shape.
-                var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 2, segments: 32 }, scene);
+                var animationObject = this.scene.beginAnimation(this.camera, 0, 100, false, 4)
+                animationObject.onAnimationEnd = function(){
+                    console.log("Animation End");
+                }
 
-                // Move the sphere upward 1/2 its height
-                sphere.position.y = 1;
 
-                // Our built-in 'ground' shape.
-                var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
+            },
+            changeMaterial: function(){
+                console.log("change material");
+            },
+            createAnimation: function(property, from, to){
+                const ease = new BABYLON.CubicEase();
+                ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
 
-                engine.runRenderLoop(function () {
-                    scene.render();
-                });
-            }
-            
+                const Frame_per_second = 60;
+                const animation = BABYLON.Animation.CreateAnimation(
+                    property,
+                    BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+                    Frame_per_second,
+                    ease
+                );
+
+                animation.setKeys([
+                    {
+                        frame: 0,
+                        value: from
+                    },
+                    {
+                        frame: 100,
+                        value: to
+                    }
+                ])
+                return animation;
+            }            
         },
         created: function () {
             console.log("created");            
