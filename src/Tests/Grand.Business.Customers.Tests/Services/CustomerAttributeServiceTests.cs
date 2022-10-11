@@ -52,5 +52,41 @@ namespace Grand.Business.Customers.Tests.Services
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<CustomerAttribute>>(), default(CancellationToken)), Times.Once);
             _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true));
         }
+
+        [TestMethod()]
+        public async Task InsertCustomerAttributeValue_ValidArguemnts_InvokeRepositoryAndCache()
+        {
+            _repositoryMock.Setup(c => c.GetByIdAsync(It.IsAny<string>())).Returns(() => Task.FromResult(new CustomerAttribute()));
+            await _atrService.InsertCustomerAttributeValue(new CustomerAttributeValue());
+            _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<CustomerAttribute>()), Times.Once);
+            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<CustomerAttributeValue>>(), default(CancellationToken)), Times.Once);
+            _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true));
+        }
+
+        [TestMethod()]
+        public async Task UpdateCustomerAttributeValue_ValidArguemnts_InvokeRepositoryAndCache()
+        {
+            _repositoryMock.Setup(c => c.GetByIdAsync(It.IsAny<string>())).Returns(() => Task.FromResult(new CustomerAttribute()));
+            await _atrService.UpdateCustomerAttributeValue(new CustomerAttributeValue());
+            _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<CustomerAttribute>()), Times.Once);
+            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<CustomerAttributeValue>>(), default(CancellationToken)), Times.Once);
+            _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true));
+        }
+        [TestMethod()]
+        public async Task DeleteCustomerAttributeValue_ValidArguemnts_InvokeRepositoryAndCache()
+        {
+            _repositoryMock.Setup(c => c.GetByIdAsync(It.IsAny<string>())).Returns(() => Task.FromResult(new CustomerAttribute()));
+            await _atrService.DeleteCustomerAttributeValue(new CustomerAttributeValue());
+            _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<CustomerAttribute>()), Times.Once);
+            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<CustomerAttributeValue>>(), default(CancellationToken)), Times.Once);
+            _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true));
+        }
+
+        [TestMethod()]
+        public async Task GetAllCustomerAttributes_InvokeRepositoryAndCache()
+        {
+            await _atrService.GetAllCustomerAttributes();
+            _cacheMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<CustomerAttribute>>>>()), Times.Once);
+        }
     }
 }

@@ -24,7 +24,13 @@ namespace Grand.Business.Customers.Tests.Services
             _mediatorMock = new Mock<IMediator>();
             _vendorService = new VendorService(_repoMock.Object, _vendorReviewRepositoryMock.Object, _mediatorMock.Object);
         }
+        [TestMethod()]
+        public async Task GetVendorByIdTest()
+        {
+            await _vendorService.GetVendorById("");
+            _repoMock.Verify(c => c.GetByIdAsync(It.IsAny<string>()), Times.Once);
 
+        }
         [TestMethod()]
         public async Task InsertVendor_ValidArguments_InvokeRepositoryAndPublishEvent()
         {
