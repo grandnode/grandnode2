@@ -17,9 +17,23 @@
             scene: null,
             camera: null,
             canvas: null, 
-            light: null,
-            cameraPositions:{                
-            }
+            light: null,            
+            cameraInitialSetting:{
+                    alpha: Math.PI * 0.8,
+                    beta: Math.PI * 0.5,
+                    radius: 60,
+                    target: new BABYLON.Vector3(0, 0, 0),             
+            },
+            meshes:[
+                {
+                    name:"helmet",
+                    cameraSetting:{
+                        alpha: Math.PI * 0.8,
+                        beta: Math.PI * 0.39,
+                        radius: 55
+                    }
+                }
+            ],
         },
         methods:{
             bootstrapApp: function(){ 
@@ -28,9 +42,12 @@
                 this.engine = new BABYLON.Engine(this.canvas, true);
                 // This creates a basic Babylon Scene object (non-mesh)
                 this.scene = new BABYLON.Scene(this.engine);
-                const initialAplha_xoayquanhtrucdoc_khongdichuyen = Math.PI;
-                const initialBeta_dichuyenquanhtrucdoc = Math.PI * 0.5;
-                this.camera = new BABYLON.ArcRotateCamera("camera", initialAplha_xoayquanhtrucdoc_khongdichuyen, initialBeta_dichuyenquanhtrucdoc, 60, new BABYLON.Vector3(0, 0, 0), this.scene);
+                this.camera = new BABYLON.ArcRotateCamera("camera"
+                                        , this.cameraInitialSetting.alpha
+                                        , this.cameraInitialSetting.beta
+                                        , this.cameraInitialSetting.radius
+                                        , this.cameraInitialSetting.target
+                                        , this.scene);
                 this.camera.setTarget(new BABYLON.Vector3(0, 0, 0));
                 
                 this.camera.attachControl();
@@ -52,13 +69,22 @@
                 loader.load();
             },
             changeCamera: function(){
-                const newAlpha = Math.PI * 0.8;
 
                 this.camera.animations = [
                     this.createAnimation(
+                        "beta",
+                        this.camera.beta,
+                        this.meshes[0].cameraSetting.beta
+                    ),
+                    this.createAnimation(
                         "alpha",
                         this.camera.alpha,
-                        newAlpha
+                        this.meshes[0].cameraSetting.alpha
+                    ),
+                    this.createAnimation(
+                        "radius",
+                        this.camera.radius,
+                        this.meshes[0].cameraSetting.radius
                     )
                 ]
 
