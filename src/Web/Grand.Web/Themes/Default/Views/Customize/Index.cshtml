@@ -28,8 +28,10 @@
                 this.engine = new BABYLON.Engine(this.canvas, true);
                 // This creates a basic Babylon Scene object (non-mesh)
                 this.scene = new BABYLON.Scene(this.engine);
-                this.camera = new BABYLON.ArcRotateCamera("camera", Math.PI * 0.9, BABYLON.Tools.ToRadians(60), 60, new BABYLON.Vector3(20, 10, -3), this.scene);
-                this.camera.setTarget(new BABYLON.Vector3(0, 20, 0));
+                const initialAplha_xoayquanhtrucdoc_khongdichuyen = Math.PI;
+                const initialBeta_dichuyenquanhtrucdoc = Math.PI * 0.5;
+                this.camera = new BABYLON.ArcRotateCamera("camera", initialAplha_xoayquanhtrucdoc_khongdichuyen, initialBeta_dichuyenquanhtrucdoc, 60, new BABYLON.Vector3(0, 0, 0), this.scene);
+                this.camera.setTarget(new BABYLON.Vector3(0, 0, 0));
                 
                 this.camera.attachControl();
 
@@ -38,7 +40,9 @@
 
                 // load model
                 var loader = new BABYLON.AssetsManager(this.scene);
-                var loadHelmetModel = loader.addMeshTask("helmetTask", ["helmet", "lottrong", "lotngoai", "lotcam", "quai", "quainum", "quaisau"], "https://raw.githubusercontent.com/namhoaingo/grandnode2Forked/Nam/resizeEvent/vue-balylon/b101/public/", "helmet.babylon");
+                var loadHelmetModel = loader.addMeshTask("helmetTask", ["helmet", "lottrong", "lotngoai", "lotcam", "quai", "quainum", "quaisau"], 
+                "https://raw.githubusercontent.com/namhoaingo/grandnode2Forked/Nam/resizeEvent/vue-balylon/b101/public/", 
+                "helmet.babylon");
 
                 loadHelmetModel.onSuccess = (t) => {
                     this.engine.runRenderLoop(() => {
@@ -48,26 +52,14 @@
                 loader.load();
             },
             changeCamera: function(){
-                console.log("Change camera posi");
-                const newPosition = new BABYLON.Vector3(0,0,10);
+                const newAlpha = Math.PI * 0.8;
 
                 this.camera.animations = [
                     this.createAnimation(
-                        "position.x",
-                        this.camera.position.x,
-                        newPosition.x
-                    ),
-                    this.createAnimation(
-                        "position.y",
-                        this.camera.position.y,
-                        newPosition.y
-                    ),
-                    this.createAnimation(
-                        "position.z",
-                        this.camera.position.z,
-                        newPosition.z
+                        "alpha",
+                        this.camera.alpha,
+                        newAlpha
                     )
-
                 ]
 
                 var animationObject = this.scene.beginAnimation(this.camera, 0, 100, false, 4)
@@ -80,16 +72,15 @@
             changeMaterial: function(){
                 console.log("change material");
             },
-            createAnimation: function(property, from, to){
-                const ease = new BABYLON.CubicEase();
-                ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
+            createAnimation: function(property, from, to){       
 
                 const Frame_per_second = 60;
-                const animation = BABYLON.Animation.CreateAnimation(
+                var animation = new BABYLON.Animation(
+                    "myAnimationcamera", 
                     property,
+                    30, 
                     BABYLON.Animation.ANIMATIONTYPE_FLOAT,
-                    Frame_per_second,
-                    ease
+                    BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT,
                 );
 
                 animation.setKeys([

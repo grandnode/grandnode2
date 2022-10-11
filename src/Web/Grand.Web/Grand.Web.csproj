@@ -63,5 +63,10 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="wwwroot\bundles\customize\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Update="wwwroot\assets\3d\helmet.babylon">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>	
 </Project>
