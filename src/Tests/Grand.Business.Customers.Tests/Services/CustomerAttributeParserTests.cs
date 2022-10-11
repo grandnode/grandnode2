@@ -20,8 +20,7 @@ namespace Grand.Business.Customers.Tests.Services
         public void Init()
         {
             _customerAtrServiceMock = new Mock<ICustomerAttributeService>();
-            //_translationServiceMock = new Mock<ITranslationService>();
-            var _translationServiceMock = new Mock<ITranslationService>();
+             var _translationServiceMock = new Mock<ITranslationService>();
             {
                 _translationServiceMock.Setup(x => x.GetResource(It.IsAny<string>())).Returns("Warning{0}");                
             }
@@ -73,8 +72,7 @@ namespace Grand.Business.Customers.Tests.Services
         {
             _customerAtrServiceMock.Setup(c => c.GetCustomerAttributeById(It.IsAny<string>())).Returns((string w) => Task.FromResult(_customerAtr.FirstOrDefault(a => a.Id.Equals(w))));
             var result = await _parser.ParseCustomerAttributeValues(customAtr);
-            Assert.IsTrue(result.Count == 4);
-            Assert.IsTrue(result.Any(c => c.Id.Equals("value1")));
+            Assert.IsTrue(result.Count == 3);            
             Assert.IsTrue(result.Any(c => c.Id.Equals("value2")));
             Assert.IsTrue(result.Any(c => c.Id.Equals("value3")));
             Assert.IsTrue(result.Any(c => c.Id.Equals("value4")));
