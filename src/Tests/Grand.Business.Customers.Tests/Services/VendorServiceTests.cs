@@ -31,6 +31,15 @@ namespace Grand.Business.Customers.Tests.Services
             _repoMock.Verify(c => c.GetByIdAsync(It.IsAny<string>()), Times.Once);
 
         }
+
+        [TestMethod()]
+        public async Task GetVendorNoteById_Test()
+        {
+            await _vendorService.GetVendorNoteById("1", "1");
+            _repoMock.Verify(c => c.GetByIdAsync(It.IsAny<string>()), Times.Once);
+
+        }
+
         [TestMethod()]
         public async Task InsertVendor_ValidArguments_InvokeRepositoryAndPublishEvent()
         {
@@ -66,7 +75,20 @@ namespace Grand.Business.Customers.Tests.Services
             _vendorReviewRepositoryMock.Verify(c => c.InsertAsync(It.IsAny<VendorReview>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<VendorReview>>(), default(CancellationToken)), Times.Once);
         }
-
+        [TestMethod()]
+        public async Task UpdateVendorReview_ValidArguments_InvokeRepositoryAndPublishEvent()
+        {
+            await _vendorService.UpdateVendorReview(new VendorReview());
+            //_vendorReviewRepositoryMock.Verify(c => c.UpdateOneAsync(x=>x.Id == It.IsAny<string>(), It.IsAny<UpdateBuilder<VendorReview>>()), Times.Once);
+            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<VendorReview>>(), default(CancellationToken)), Times.Once);
+        }
+        [TestMethod()]
+        public async Task UpdateVendorReviewTotal_ValidArguments_InvokeRepositoryAndPublishEvent()
+        {
+            await _vendorService.UpdateVendorReviewTotals(new Vendor());
+            //_vendorReviewRepositoryMock.Verify(c => c.UpdateOneAsync(x=>x.Id == It.IsAny<string>(), It.IsAny<UpdateBuilder<VendorReview>>()), Times.Once);
+            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Vendor>>(), default(CancellationToken)), Times.Once);
+        }
         [TestMethod()]
         public async Task DeleteVendorReview_ValidArguments_InvokeRepositoryAndPublishEvent()
         {
@@ -74,5 +96,23 @@ namespace Grand.Business.Customers.Tests.Services
             _vendorReviewRepositoryMock.Verify(c => c.DeleteAsync(It.IsAny<VendorReview>()), Times.Once);
             _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<VendorReview>>(), default(CancellationToken)), Times.Once);
         }
+
+        [TestMethod()]
+        public async Task InsertVendorNote_ValidArguments_InvokeRepositoryAndPublishEvent()
+        {
+            await _vendorService.InsertVendorNote(new VendorNote(), "1");
+            _repoMock.Verify(c => c.AddToSet(It.IsAny<string>(), x=>x.VendorNotes, It.IsAny<VendorNote>()), Times.Once);
+            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<VendorNote>>(), default(CancellationToken)), Times.Once);
+        }
+
+        [TestMethod()]
+        public async Task DeleteVendorNote_ValidArguments_SoftDeleteAndPublishEvent()
+        {
+            await _vendorService.DeleteVendorNote(new VendorNote(), "1");
+            _repoMock.Verify(c => c.PullFilter(It.IsAny<string>(), x => x.VendorNotes, x => x.Id, It.IsAny<string>()), Times.Once);
+            _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<VendorNote>>(), default(CancellationToken)), Times.Once);
+        }
+
+
     }
 }
