@@ -196,7 +196,7 @@ namespace Grand.Business.Storage.Services
                 throw new Exception($"The file '{srcPath}' does not exist.");
             }
             var file = await GetFileInfo(srcPath);
-            var physicalDstPath = GetPhysicalPath(Path.Combine(dstPath, file.Name));
+            var physicalDstPath = GetPhysicalPath(Path.Combine(dstPath));
 
             if (File.Exists(physicalDstPath) || Directory.Exists(physicalDstPath))
             {
