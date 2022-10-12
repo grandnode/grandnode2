@@ -128,11 +128,10 @@ namespace Grand.Business.Storage.Services
             var directoryInfo = new DirectoryInfo(physicalPath);
 
             var newphysicalPath = GetPhysicalPath(Path.Combine(directoryInfo.Parent.FullName, newName));
-            if (Directory.Exists(newphysicalPath))
-            {
-                return Task.FromResult(false);
-            }
-            
+
+            if (!Directory.Exists(newphysicalPath))
+                Directory.CreateDirectory(newphysicalPath);
+
             directoryInfo.MoveTo(newphysicalPath);
 
             return Task.FromResult(true);
