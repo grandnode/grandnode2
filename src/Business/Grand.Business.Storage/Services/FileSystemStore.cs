@@ -73,7 +73,7 @@ namespace Grand.Business.Storage.Services
                         .Select(f =>
                         {
                             var fileSystemInfo = new PhysicalDirectoryInfo(new DirectoryInfo(f));
-                            var fileRelativePath =  f[_fileSystemPath.Length..];
+                            var fileRelativePath = f[_fileSystemPath.Length..];
                             var filePath = this.NormalizePath(fileRelativePath);
                             return new FileSystemStoreEntry(filePath, fileSystemInfo);
                         }));
@@ -115,7 +115,7 @@ namespace Grand.Business.Storage.Services
         public Task<bool> TryRenameDirectory(string path, string newName)
         {
             var physicalPath = GetPhysicalPath(path);
-            
+
             if (File.Exists(physicalPath))
             {
                 throw new Exception($"Cannot create directory because the path '{path}' already exists and is a file.");
@@ -129,9 +129,10 @@ namespace Grand.Business.Storage.Services
 
             var newphysicalPath = GetPhysicalPath(Path.Combine(directoryInfo.Parent.FullName, newName));
 
-            if (!Directory.Exists(newphysicalPath))
-                Directory.CreateDirectory(newphysicalPath);
-
+            if (Directory.Exists(newphysicalPath))
+            {
+                return Task.FromResult(false);
+            }
             directoryInfo.MoveTo(newphysicalPath);
 
             return Task.FromResult(true);
