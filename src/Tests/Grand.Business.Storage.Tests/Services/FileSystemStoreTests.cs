@@ -70,9 +70,9 @@ namespace Grand.Business.Storage.Services.Tests
         {
             //Arrange
             _store.TryCreateDirectory("Test");
-
+            await _store.TryDeleteDirectory("Test2");
             //Act
-            var result = await _store.TryRenameDirectory("Test", Guid.NewGuid().ToString());
+            var result = await _store.TryRenameDirectory("Test", "Test2");
             //Assert
             Assert.IsTrue(result);
         }

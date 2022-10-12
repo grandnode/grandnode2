@@ -77,9 +77,9 @@ namespace Grand.Business.Storage.Services.Tests
         {
             //Arrange
             _defaultMediaFileStore.TryCreateDirectory("Test");
-
+            await _defaultMediaFileStore.TryDeleteDirectory("Test2");
             //Act
-            var result = await _defaultMediaFileStore.TryRenameDirectory("Test", Guid.NewGuid().ToString());
+            var result = await _defaultMediaFileStore.TryRenameDirectory("Test", "Test2");
             //Assert
             Assert.IsTrue(result);
         }
