@@ -4,7 +4,7 @@
     Layout = "_SingleColumn";
 }
 <div id="customizeContainer">
-    <canvas class="w-100" id="customizeCanvas"></canvas>
+    <canvas class="w-100" style="outline:none;" id="customizeCanvas"></canvas>
     <button @@click="customizeApp.changeCamera"> Change Camera</button>
     <button @@click="customizeApp.changeMaterial"> Change Texture</button>
 </div>
@@ -21,8 +21,13 @@
             cameraInitialSetting:{
                     alpha: Math.PI * 0.8,
                     beta: Math.PI * 0.5,
-                    radius: 60,
-                    target: new BABYLON.Vector3(0, 0, 0),             
+                    radius: 50,
+                    target: new BABYLON.Vector3(0, 0, 0),
+                    upperAlphaLimit: 3.1367,
+                    lowerBetaLimit: 0.7026,
+                    upperBetaLimit:1.9971,
+                    lowerRadiusLimit:50,
+                    upperRadiusLimit:50
             },
             meshes:[
                 {
@@ -33,7 +38,13 @@
                         radius: 55
                     }
                 }
+                // Mesh should contain
+                //1. all the mesh
+                // available material or color
+                // camera position
             ],
+
+
         },
         methods:{
             bootstrapApp: function(){ 
@@ -42,19 +53,25 @@
                 this.engine = new BABYLON.Engine(this.canvas, true);
                 // This creates a basic Babylon Scene object (non-mesh)
                 this.scene = new BABYLON.Scene(this.engine);
+                this.scene.clearColor = new BABYLON.Color3(1,1,1);
                 this.camera = new BABYLON.ArcRotateCamera("camera"
                                         , this.cameraInitialSetting.alpha
                                         , this.cameraInitialSetting.beta
                                         , this.cameraInitialSetting.radius
                                         , this.cameraInitialSetting.target
                                         , this.scene);
+                this.camera.upperAlphaLimit = this.cameraInitialSetting.upperAlphaLimit;
+                this.camera.lowerBetaLimit = this.cameraInitialSetting.lowerBetaLimit;
+                this.camera.upperBetaLimit = this.cameraInitialSetting.upperBetaLimit;
+                this.camera.lowerRadiusLimit = this.cameraInitialSetting.lowerRadiusLimit;
+                this.camera.upperRadiusLimit = this.cameraInitialSetting.upperRadiusLimit;
                 this.camera.setTarget(new BABYLON.Vector3(0, 0, 0));
-                
-                this.camera.attachControl();
+                this.camera.attachControl();             
 
                 // light
                 this.light = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 40, 0), this.scene);
 
+                this.createOverlay();
                 // load model
                 var loader = new BABYLON.AssetsManager(this.scene);
                 var loadHelmetModel = loader.addMeshTask("helmetTask", ["helmet", "lottrong", "lotngoai", "lotcam", "quai", "quainum", "quaisau"], 
@@ -120,7 +137,7 @@
                     }
                 ])
                 return animation;
-            }            
+            }
         },
         created: function () {
             console.log("created");            
