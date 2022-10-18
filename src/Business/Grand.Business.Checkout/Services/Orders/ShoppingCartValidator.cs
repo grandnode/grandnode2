@@ -579,6 +579,71 @@ namespace Grand.Business.Checkout.Services.Orders
             if (product.ProductTypeId != ProductType.Reservation)
                 return warnings;
 
+
+            if (!string.IsNullOrEmpty(shoppingCartItem.ReservationId))
+            {
+                var reservations = await _productReservationService.GetCustomerReservationsHelpers(_workContext.CurrentCustomer.Id);
+                if(!customer.ShoppingCartItems.Any(x=>x.Id == shoppingCartItem.Id))
+                {
+                    if (reservations.Where(x => x.ReservationId == shoppingCartItem.ReservationId).Any())
+                        warnings.Add(_translationService.GetResource("ShoppingCart.AlreadyReservation"));
+                }
+            }
+
+            if (shoppingCartItem.RentalStartDateUtc.HasValue && shoppingCartItem.RentalEndDateUtc.HasValue)
+            {
+                var _canBeBook = false;
+                var reservations = await _productReservationService.GetProductReservationsByProductId(product.Id, true, null);
+                var reserved = await _productReservationService.GetCustomerReservationsHelpers(_workContext.CurrentCustomer.Id);
+                foreach (var item in reserved.Where(x => x.ShoppingCartItemId != shoppingCartItem.Id))
+                {
+                    var match = reservations.Where(x => x.Id == item.ReservationId).FirstOrDefault();
+                    if (match != null)
+                    {
+                        reservations.Remove(match);
+                    }
+                }
+
+                var grouped = reservations.GroupBy(x => x.Resource);
+                foreach (var group in grouped)
+                {
+                    bool groupCanBeBooked = true;
+                    if (product.IncBothDate && product.IntervalUnitId == IntervalUnit.Day)
+                    {
+                        for (DateTime iterator = shoppingCartItem.RentalStartDateUtc.Value; iterator <= shoppingCartItem.RentalEndDateUtc.Value; iterator += new TimeSpan(24, 0, 0))
+                        {
+                            if (!group.Select(x => x.Date).Contains(iterator))
+                            {
+                                groupCanBeBooked = false;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (DateTime iterator = shoppingCartItem.RentalStartDateUtc.Value; iterator < shoppingCartItem.RentalEndDateUtc.Value; iterator += new TimeSpan(24, 0, 0))
+                        {
+                            if (!group.Select(x => x.Date).Contains(iterator))
+                            {
+                                groupCanBeBooked = false;
+                                break;
+                            }
+                        }
+                    }
+                    if (groupCanBeBooked)
+                    {
+                        _canBeBook = true;
+                        break;
+                    }
+                }
+
+                if (!_canBeBook)
+                {
+                    warnings.Add(_translationService.GetResource("ShoppingCart.Reservation.NoFreeReservationsInThisPeriod"));
+                    return warnings;
+                }
+            }
+
             if (string.IsNullOrEmpty(shoppingCartItem.ReservationId) && product.IntervalUnitId != IntervalUnit.Day)
             {
                 warnings.Add(_translationService.GetResource("ShoppingCart.Reservation.NoReservationFound"));
@@ -632,7 +697,7 @@ namespace Grand.Business.Checkout.Services.Orders
                     {
                         var reserved = await _productReservationService.GetCustomerReservationsHelperBySciId(shoppingCartItem.Id);
                         if (!reserved.Any())
-                            warnings.Add(_translationService.GetResource("ShoppingCart.Reservation.ReservationDeleted"));
+                            warnings.Add(_translationService.GetResource("ShoppingCart.Reservation.ReservationNotExists"));
                         else
                             foreach (var item in reserved)
                             {
@@ -833,66 +898,6 @@ namespace Grand.Business.Checkout.Services.Orders
                 return warnings;
             }
 
-            if (!string.IsNullOrEmpty(reservationId))
-            {
-                var reservations = await _productReservationService.GetCustomerReservationsHelpers(_workContext.CurrentCustomer.Id);
-                if (reservations.Where(x => x.ReservationId == reservationId).Any())
-                    warnings.Add(_translationService.GetResource("ShoppingCart.AlreadyReservation"));
-            }
-
-            if (rentalStartDate.HasValue && rentalEndDate.HasValue)
-            {
-                var _canBeBook = false;
-                var reservations = await _productReservationService.GetProductReservationsByProductId(product.Id, true, null);
-                var reserved = await _productReservationService.GetCustomerReservationsHelpers(_workContext.CurrentCustomer.Id);
-                foreach (var item in reserved)
-                {
-                    var match = reservations.Where(x => x.Id == item.ReservationId).FirstOrDefault();
-                    if (match != null)
-                    {
-                        reservations.Remove(match);
-                    }
-                }
-
-                var grouped = reservations.GroupBy(x => x.Resource);
-                foreach (var group in grouped)
-                {
-                    bool groupCanBeBooked = true;
-                    if (product.IncBothDate && product.IntervalUnitId == IntervalUnit.Day)
-                    {
-                        for (DateTime iterator = rentalStartDate.Value; iterator <= rentalEndDate.Value; iterator += new TimeSpan(24, 0, 0))
-                        {
-                            if (!group.Select(x => x.Date).Contains(iterator))
-                            {
-                                groupCanBeBooked = false;
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (DateTime iterator = rentalStartDate.Value; iterator < rentalEndDate.Value; iterator += new TimeSpan(24, 0, 0))
-                        {
-                            if (!group.Select(x => x.Date).Contains(iterator))
-                            {
-                                groupCanBeBooked = false;
-                                break;
-                            }
-                        }
-                    }
-                    if (groupCanBeBooked)
-                    {
-                        _canBeBook = true;
-                        break;
-                    }
-                }
-
-                if (!_canBeBook)
-                {
-                    warnings.Add(_translationService.GetResource("ShoppingCart.Reservation.NoFreeReservationsInThisPeriod"));
-                    return warnings;
-                }
-            }
             return warnings;
         }
 
