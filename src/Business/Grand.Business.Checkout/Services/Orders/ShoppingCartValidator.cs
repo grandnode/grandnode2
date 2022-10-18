@@ -1,12 +1,12 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Checkout.Shipping;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -15,7 +15,6 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using MediatR;
-using Grand.Business.Core.Utilities.Checkout;
 
 namespace Grand.Business.Checkout.Services.Orders
 {
@@ -35,7 +34,6 @@ namespace Grand.Business.Checkout.Services.Orders
         private readonly IProductAttributeService _productAttributeService;
         private readonly IProductReservationService _productReservationService;
         private readonly IStockQuantityService _stockQuantityService;
-        private readonly IWarehouseService _warehouseService;
         private readonly ShoppingCartSettings _shoppingCartSettings;
 
 
@@ -53,7 +51,6 @@ namespace Grand.Business.Checkout.Services.Orders
             IProductAttributeService productAttributeService,
             IProductReservationService productReservationService,
             IStockQuantityService stockQuantityService,
-            IWarehouseService warehouseService,
             ShoppingCartSettings shoppingCartSettings)
         {
             _workContext = workContext;
@@ -69,7 +66,6 @@ namespace Grand.Business.Checkout.Services.Orders
             _productAttributeService = productAttributeService;
             _productReservationService = productReservationService;
             _stockQuantityService = stockQuantityService;
-            _warehouseService = warehouseService;
             _shoppingCartSettings = shoppingCartSettings;
         }
 
@@ -438,13 +434,6 @@ namespace Grand.Business.Checkout.Services.Orders
             }
 
             var warehouseId = !string.IsNullOrEmpty(shoppingCartItem.WarehouseId) ? shoppingCartItem.WarehouseId : _workContext.CurrentStore?.DefaultWarehouseId;
-
-            if (!string.IsNullOrEmpty(warehouseId))
-            {
-                var warehouse = await _warehouseService.GetWarehouseById(warehouseId);
-                if (warehouse == null)
-                    warnings.Add(_translationService.GetResource("ShoppingCart.WarehouseNotExists"));
-            }
 
             if (!hasQtyWarnings)
             {

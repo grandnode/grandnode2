@@ -222,15 +222,10 @@ namespace Grand.Business.Checkout.Services.Orders
                 rentalStartDate, rentalEndDate);
 
             var update = shoppingCartItem != null && product.ProductTypeId != ProductType.Reservation
-                && String.IsNullOrEmpty(product.AllowedQuantities);
+                && string.IsNullOrEmpty(product.AllowedQuantities);
 
-            if (update)
-            {
-                shoppingCartItem.Quantity += quantity;
-                warnings.AddRange(await _shoppingCartValidator.GetShoppingCartItemWarnings(customer, shoppingCartItem, product, validator));
-            }
-            else
-            {
+            if (update) shoppingCartItem.Quantity += quantity;
+            else {
                 DateTime now = DateTime.UtcNow;
                 shoppingCartItem = new ShoppingCartItem {
                     ShoppingCartTypeId = shoppingCartType,
@@ -253,23 +248,13 @@ namespace Grand.Business.Checkout.Services.Orders
                     Parameter = parameter,
                     Duration = duration
                 };
-
-                warnings.AddRange(await _shoppingCartValidator.GetShoppingCartItemWarnings
-                    (customer, shoppingCartItem, product, validator));
             }
+            warnings.AddRange(await _shoppingCartValidator.GetShoppingCartItemWarnings(customer, shoppingCartItem, product, validator));
 
             if (!warnings.Any())
             {
-                if (update)
-                {
-                    //update existing shopping cart item
-                    await UpdateExistingShoppingCartItem(shoppingCartItem, customer, attributes);
-                }
-                else
-                {
-                    //insert new item
-                    shoppingCartItem = await InsertNewItem(customer, product, shoppingCartItem, automaticallyAddRequiredProductsIfEnabled);
-                }
+                if (update) await UpdateExistingShoppingCartItem(shoppingCartItem, customer, attributes);
+                else shoppingCartItem = await InsertNewItem(customer, product, shoppingCartItem, automaticallyAddRequiredProductsIfEnabled);
 
                 if (product.ProductTypeId == ProductType.Reservation)
                     await _mediator.Send(new AddCustomerReservationCommand() {
@@ -280,7 +265,6 @@ namespace Grand.Business.Checkout.Services.Orders
                         RentalEndDate = rentalEndDate,
                         ReservationId = reservationId,
                     });
-
                 //reset checkout info
                 await _customerService.ResetCheckoutData(customer, storeId);
             }
