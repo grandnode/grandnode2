@@ -32,12 +32,12 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// <summary>
         /// Validates shopping cart item (gift voucher)
         /// </summary>
-        /// <param name="shoppingCartType">Shopping cart type</param>
+        /// <param name="customer">Customer</param>
         /// <param name="product">Product</param>
-        /// <param name="Attributes">Attributes</param>
+        /// <param name="shoppingCartItem">Shopping cart item</param>
         /// <returns>Warnings</returns>
-        IList<string> GetShoppingCartItemGiftVoucherWarnings(ShoppingCartType shoppingCartType,
-            Product product, IList<CustomAttribute> attributes);
+        Task<IList<string>> GetShoppingCartItemGiftVoucherWarnings(Customer customer,
+            Product product, ShoppingCartItem shoppingCartItem);
 
         /// <summary>
         /// Validate bid
@@ -46,7 +46,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// <param name="product"></param>
         /// <param name="customer"></param>
         /// <returns></returns>
-        IList<string> GetAuctionProductWarning(double bid, Product product, Customer customer);
+        Task<IList<string>> GetAuctionProductWarning(double bid, Product product, Customer customer);
 
         /// <summary>
         /// Validates shopping cart item
@@ -82,7 +82,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// Validates shopping cart item for inventory
         /// </summary>
         /// <param name="customer">Customer</param>
-        /// <param name="Product">product</param>
+        /// <param name="product">product</param>
         /// <param name="shoppingCartItem">ShoppingCartItem</param>
         /// <returns>Warnings</returns>
         Task<IList<string>> GetInventoryProductWarnings(Customer customer, Product product, ShoppingCartItem shoppingCartItem);
@@ -93,7 +93,6 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// <param name="customer">Customer</param>
         /// <param name="currentCart">Current cart</param>
         /// <param name="product">product</param>
-        /// <param name="warnings">warnings</param>
         /// <param name="shoppingCartType">cart type</param>
         /// <param name="rentalStartDate">rental start date</param>
         /// <param name="rentalEndDate">rental end date</param>
@@ -112,7 +111,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// <param name="storeId">Store identifier</param>
         /// <returns>Warnings</returns>
         Task<IList<string>> GetRequiredProductWarnings(Customer customer,
-            ShoppingCartType shoppingCartType, Product product,
+            ShoppingCartItem shoppingCartItem, Product product,
             string storeId);
     }
 }

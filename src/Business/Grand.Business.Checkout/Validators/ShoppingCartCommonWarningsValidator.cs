@@ -1,0 +1,67 @@
+﻿using FluentValidation;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Domain.Catalog;
+using Grand.Domain.Customers;
+using Grand.Domain.Orders;
+using Grand.Domain.Stores;
+
+namespace Grand.Business.Checkout.Validators
+{
+
+    public record ShoppingCartCommonWarningsValidatorRecord(Customer Customer, Store Store, IList<ShoppingCartItem> ShoppingCarts,
+        Product Product, ShoppingCartType ShoppingCartType, DateTime? RentalStartDate, DateTime? RentalEndDate,
+          int Quantity, string ReservationId);
+
+    public class ShoppingCartCommonWarningsValidator : AbstractValidator<ShoppingCartCommonWarningsValidatorRecord>
+    {
+        public ShoppingCartCommonWarningsValidator(ITranslationService translationService, IProductService productService,
+            IPermissionService permissionService, ShoppingCartSettings shoppingCartSettings)
+        {
+
+            RuleFor(x => x).CustomAsync(async (value, context, ct) =>
+            {
+                //maximum items validation
+                switch (value.ShoppingCartType)
+                {
+                    case ShoppingCartType.ShoppingCart:
+                        {
+                            if (value.ShoppingCarts.Count >= shoppingCartSettings.MaximumShoppingCartItems)
+                            {
+                                context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.MaximumShoppingCartItems"), shoppingCartSettings.MaximumShoppingCartItems));
+                            }
+                        }
+                        break;
+                    case ShoppingCartType.Wishlist:
+                        {
+                            if (value.ShoppingCarts.Count >= shoppingCartSettings.MaximumWishlistItems)
+                            {
+                                context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.MaximumWishlistItems"), shoppingCartSettings.MaximumWishlistItems));
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                if (value.ShoppingCartType == ShoppingCartType.ShoppingCart && !await permissionService.Authorize(StandardPermission.EnableShoppingCart, value.Customer))
+                {
+                    context.AddFailure("Shopping cart is disabled");
+                    return;
+                }
+                if (value.ShoppingCartType == ShoppingCartType.Wishlist && !await permissionService.Authorize(StandardPermission.EnableWishlist, value.Customer))
+                {
+                    context.AddFailure("Wishlist is disabled");
+                    return;
+                }
+
+                if (value.Quantity <= 0)
+                {
+                    context.AddFailure(translationService.GetResource("ShoppingCart.QuantityShouldPositive"));
+                }
+            });
+        }
+    }
+}
