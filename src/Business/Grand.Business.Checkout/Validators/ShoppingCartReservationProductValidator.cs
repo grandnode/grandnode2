@@ -125,7 +125,7 @@ namespace Grand.Business.Checkout.Validators
                             }
                         }
 
-                        if (value.ShoppingCartItem.RentalStartDateUtc.Value < DateTime.Now || value.ShoppingCartItem.RentalEndDateUtc.Value < DateTime.Now)
+                        if (value.ShoppingCartItem.RentalStartDateUtc.Value < DateTime.UtcNow || value.ShoppingCartItem.RentalEndDateUtc.Value < DateTime.UtcNow)
                         {
                             context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.ReservationDatesMustBeLaterThanToday"));
                         }

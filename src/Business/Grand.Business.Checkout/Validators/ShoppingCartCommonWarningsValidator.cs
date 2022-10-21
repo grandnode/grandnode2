@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Common.Security;
@@ -17,7 +16,7 @@ namespace Grand.Business.Checkout.Validators
 
     public class ShoppingCartCommonWarningsValidator : AbstractValidator<ShoppingCartCommonWarningsValidatorRecord>
     {
-        public ShoppingCartCommonWarningsValidator(ITranslationService translationService, IProductService productService,
+        public ShoppingCartCommonWarningsValidator(ITranslationService translationService,
             IPermissionService permissionService, ShoppingCartSettings shoppingCartSettings)
         {
 

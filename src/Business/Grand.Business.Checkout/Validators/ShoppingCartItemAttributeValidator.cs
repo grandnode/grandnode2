@@ -156,7 +156,7 @@ namespace Grand.Business.Checkout.Validators
                             var attributeValuesStr = ProductExtensions.ParseValues(value.ShoppingCartItem.Attributes, a1.Id);
                             foreach (string str1 in attributeValuesStr)
                             {
-                                if (!String.IsNullOrEmpty(str1.Trim()))
+                                if (!string.IsNullOrEmpty(str1.Trim()))
                                 {
                                     found = true;
                                     break;
