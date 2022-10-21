@@ -55,8 +55,8 @@ steps:
   displayName: 'Publish code coverage report'
   inputs:
     codeCoverageTool: 'Cobertura'
-    summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
-
+    summaryFileLocation: '$(Pipeline.Workspace)/coverlet/Cobertura.xml'
+           
 - task: Docker@2
   displayName: 'Build and push to dockerhub'
   inputs:
