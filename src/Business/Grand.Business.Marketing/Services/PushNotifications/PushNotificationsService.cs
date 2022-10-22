@@ -66,10 +66,10 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         /// <summary>
         /// Gets push receiver
         /// </summary>
-        /// <param name="CustomerId"></param>
-        public virtual async Task<PushRegistration> GetPushReceiverByCustomerId(string CustomerId)
+        /// <param name="customerId"></param>
+        public virtual async Task<PushRegistration> GetPushReceiverByCustomerId(string customerId)
         {
-            return await Task.FromResult(_pushRegistratiosnRepository.Table.Where(x => x.CustomerId == CustomerId).FirstOrDefault());
+            return await Task.FromResult(_pushRegistratiosnRepository.Table.Where(x => x.CustomerId == customerId).FirstOrDefault());
         }
 
         /// <summary>

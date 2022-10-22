@@ -20,8 +20,8 @@ namespace Grand.Business.Core.Interfaces.Marketing.PushNotifications
         /// <summary>
         /// Gets push receiver
         /// </summary>
-        /// <param name="CustomerId"></param>
-        Task<PushRegistration> GetPushReceiverByCustomerId(string CustomerId);
+        /// <param name="customerId"></param>
+        Task<PushRegistration> GetPushReceiverByCustomerId(string customerId);
 
         /// <summary>
         /// Gets all push receivers

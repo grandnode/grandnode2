@@ -670,7 +670,7 @@ namespace Grand.Web.Controllers
             };
 
             var warnings = (await _shoppingCartValidator.GetStandardWarnings(customer, product, shoppingCartItem)).ToList();
-            warnings.AddRange(_shoppingCartValidator.GetAuctionProductWarning(bid, product, customer));
+            warnings.AddRange(await _shoppingCartValidator.GetAuctionProductWarning(bid, product, customer));
 
             if (warnings.Any())
             {
