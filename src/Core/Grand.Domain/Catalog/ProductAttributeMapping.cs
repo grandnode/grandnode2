@@ -1,5 +1,6 @@
 using Grand.Domain.Common;
 using Grand.Domain.Localization;
+using System.Numerics;
 
 namespace Grand.Domain.Catalog
 {
@@ -80,6 +81,22 @@ namespace Grand.Domain.Catalog
         /// Gets or sets the custom attributes (see "ProductAttribute" entity for more info)
         /// </summary>
         public IList<CustomAttribute> ConditionAttribute { get; set; }
+
+        #region customization
+        public string ObjectPath { get; set; }
+        public decimal InitialCameraAlpha { get; set; }
+        public decimal InitialCameraBeta { get; set; }
+        public decimal InitialCameraRadius { get; set; }
+
+        public decimal UpperAlphaLimit { get; set; }
+        public decimal LowerAlphaLimit { get; set; }
+        public decimal LowerBetaLimit { get; set; }
+        public decimal UpperBetaLimit { get; set; }
+        public decimal LowerRadiusLimit { get; set; }
+        public decimal UpperRadisuLimite { get; set; }
+        
+        public Vector3 Target { get; set; }
+        #endregion
 
         /// <summary>
         /// Gets or sets the collection of locales
