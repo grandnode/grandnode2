@@ -105,11 +105,17 @@
     background-color: transparent !important;
     border: 0 !important;
 }
-.menu-toggler span {
-    width: 30px;
-    height: 3px;
-    background: #fff;
-}
+    .menu-toggler.white span {
+        width: 30px;
+        height: 3px;
+        background: #fff;
+    }
+
+    .menu-toggler.black span {
+        width: 30px;
+        height: 3px;
+        background: black;
+    }
 
 @media (min-width: 576px) {
     .b-sidebar {
@@ -160,12 +166,7 @@
         display: inline-flex;
         justify-content: space-around;
         box-shadow: 0 -3px 6px rgba(0,0,0,0.16), 0 -3px 6px rgba(0,0,0,0.23);
-    }
-
-    /*Khi em thi la mau den tren nen trang*/
-    .header-nav .menu-toggler span{
-        background: black;
-    }
+    }  
 
     /*Cac menu icon khac cung la mau den*/
         .header-nav .nav-item svg {

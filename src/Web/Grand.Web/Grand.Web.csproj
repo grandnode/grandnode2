@@ -60,5 +60,8 @@
 		<Content Update="Plugins\**">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="wwwroot\bundles\customize\" />
 	</ItemGroup>	
 </Project>

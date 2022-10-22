@@ -1,8 +1,9 @@
 ﻿@model ProductDetailsModel.ProductBreadcrumbModel
+
 @if (Model.Enabled)
 {
     var count = 1;
-        <div class="container px-0">
+    <div class="container px-0">
             <ol class="breadcrumb mb-0" itemscope="itemscope" itemtype="http://schema.org/BreadcrumbList">
                 @await Component.InvokeAsync("Widget", new { widgetZone = "productbreadcrumb_before" })
                 <li class="breadcrumb-item" itemprop="itemListElement" itemscope="itemscope" itemtype="http://schema.org/ListItem">

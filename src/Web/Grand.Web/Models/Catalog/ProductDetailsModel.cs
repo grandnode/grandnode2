@@ -273,6 +273,8 @@ namespace Grand.Web.Models.Catalog
             public bool IsPreSelected { get; set; }
             //picture model is used when we want to override a default product picture when some attribute is selected
             public PictureModel PictureModel { get; set; }
+
+
         }
 
         public partial class ProductBundleModel : BaseModel

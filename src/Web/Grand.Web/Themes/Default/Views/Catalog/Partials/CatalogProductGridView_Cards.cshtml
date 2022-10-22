@@ -1,0 +1,82 @@
+﻿@model object
+<div v-for="(productItem , index) in productcards.productModels" class="col-lg-4 col-sm-6 col-6 product-container mb-2">
+    <div class="product">
+        <div class="product-card">
+            <h2 class="name">
+                {{productItem.Name}}
+            </h2>
+            <span class="price"> {{productItem.ProductPrice.Price}}</span>
+            <a class="popup-btn" @@click="productcards.quickview(index)">Quick View</a>
+            <img :src="productItem.DefaultPictureModel.ImageUrl" class="product-img"
+                :alt="productItem.DefaultPictureModel.AlternateText">
+        </div>
+        <div class="popup-invisible-view"
+            :class="[(productcards.curentProductCardIndex >= 0 && index == productcards.curentProductCardIndex) ? 'active' : '']"
+            @@click="productcards.closeQuickView()"> </div>
+        <div class="popup-card"
+            :class="[(productcards.curentProductCardIndex >= 0 && index == productcards.curentProductCardIndex) ? 'active' : '']">
+            <a>
+                <b-icon icon="x-circle" variant="dark" class="close-btn" @@click="productcards.closeQuickView()">
+                </b-icon>
+            </a>
+            <div class="product-img">
+                <a class="link-product-detail" :href="productItem.Url" :title="productItem.DefaultPictureModel.Title">
+
+                    <img :src="productItem.DefaultPictureModel.ImageUrl"
+                        :alt="productItem.DefaultPictureModel.AlternateText">
+                </a>
+            </div>
+            <div class="info">
+                <h2>
+                    {{productItem.Name}}
+                    <br>
+                    <template v-if="productItem.ShowSku & productItem.Sku !== null">
+                        <span class="sku">{{productItem.Sku}}</span>
+                    </template>
+                </h2>
+                <div class="desc" v-html="productItem.ShortDescription"></div>
+                <span class="price">{{productItem.ProductPrice.Price}}</span>
+                <div class="row">
+                    <div class="col-8">
+                        <button class="add-cart-btn float-right"
+                            :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + productItem.Id +'/1?quantity=1`, `' + productItem.ShowQty +'`,`' + productItem.Id + '`);return false;'">
+                            Add to Cart
+                        </button>
+                    </div>
+                    <div class="col-4">
+                        <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToWishlist"]"
+                            class="add-wishlist-btn mt-2"
+                            :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + productItem.Id +'/2?quantity=1`, `' + productItem.ShowQty +'`,`' + productItem.Id + '`);return false;'">
+                            <span class="sr-only">AddToWishlist</span>
+                            <b-icon class="h4" icon="heart-fill"></b-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script asp-location="Footer">
+
+    let productcards = new Vue({
+        data: function () {
+            return {
+                productModels: [],
+                curentProductCardIndex: -1
+            }
+        },
+        created() {
+            this.productModels = @Model;
+        },
+        methods: {
+            quickview: function (index) {
+                console.log("click on" + index);
+                this.curentProductCardIndex = index;
+            },
+            closeQuickView: function () {
+                this.curentProductCardIndex = -1;
+            }
+        }
+    })
+
+</script>

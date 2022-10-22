@@ -1,4 +1,5 @@
 import Vue from 'vue'
+Vue.config.devtools = true
 Vue.config.productionTip = true
 
 import 'bootstrap/dist/css/bootstrap.css'
@@ -60,6 +61,7 @@ import {
     BIconServer,
     BIconX,
     BIconHeart,
+    BIconHeartFill,
     BIconShuffle,
     BIconTruck,
     BIconQuestionCircle,
@@ -104,7 +106,8 @@ import {
     BIconFacebook,
     BIconTwitter,
     BIconYoutube,
-    BIconInstagram
+    BIconInstagram,
+    BIconXCircle
 } from 'bootstrap-vue'
 Vue.component('BIcon', BIcon)
 Vue.component('BIconAspectRatio', BIconAspectRatio)
@@ -167,8 +170,8 @@ Vue.component('BIconFacebook', BIconFacebook)
 Vue.component('BIconTwitter', BIconTwitter)
 Vue.component('BIconYoutube', BIconYoutube)
 Vue.component('BIconInstagram', BIconInstagram)
-
-
+Vue.component('BIconXCircle', BIconXCircle)
+Vue.component('BIconHeartFill', BIconHeartFill)
 
 
 import { ValidationObserver, ValidationProvider } from 'vee-validate';
@@ -301,10 +304,12 @@ import VueGallerySlideshow from 'vue-gallery-slideshow'
 
 import axios from 'axios'
 import Pikaday from 'pikaday'
+import BABYLON from 'babylonjs'
 
 window.axios = require('axios').default;
 window.Pikaday = require('pikaday');
 window.VueGallerySlideshow = VueGallerySlideshow;
+window.BABYLON = require('babylonjs');
 
 import vueAwesomeCountdown from 'vue-awesome-countdown'
 Vue.use(vueAwesomeCountdown, 'vac')

@@ -1,0 +1,133 @@
+﻿@model LoginModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_Layout_simple";
+
+    //title
+    pagebuilder.AddTitleParts("Sign in");
+
+    //register URL with return URL (if specified)
+    var registerUrl = Url.RouteUrl("Register", new { returnUrl = this.Context.Request.Query["returnUrl"] });
+}
+
+<div class="page login-page">
+    <div class="mb-2">
+        <div class="login-title pb-4 text-center">Sign in</div>
+        @*External SignIn*@
+        @*<div class="row flex-md-row justify-content-center text-center my-3">
+
+            <div class="external-authentication col-sm-8 col-md-6 col-lg-5">
+                @await Component.InvokeAsync("ExternalMethods")
+            </div>
+        </div>*@
+
+        <div class="row flex-md-row justify-content-center text-center my-3 pt-4">
+            <div class="col-sm-8 col-md-6 col-lg-5  a-divider a-divider-break">
+                <span>or Sign in with Email</span>
+            </div>
+        </div>
+        <div class="row flex-md-row justify-content-center text-center my-3">
+            @* login main block *@
+            <div class="col-sm-8 col-md-6 col-lg-5">
+                <div>
+                    <form asp-route="Login" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12 form-group mb-0">
+                                    @if (Model.UsernamesEnabled)
+                                    {
+                                        <div class="form-group row">
+                                            <div class="col-lg-12 col-12 d-flex align-items-start justify-content-sm-start">
+                                                <label asp-for="Username" class="fs-5 font-weight-bold m-0">@Loc["Account.Login.Fields.UserName"]:</label>
+                                            </div>
+                                            <div class="col-lg-12 col-12 pt-1">
+                                                <input asp-for="Username" class="form-control username" autofocus="autofocus" />
+                                                <span asp-validation-for="Username"></span>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="form-group row">
+                                            <div class="col-lg-12 col-12 d-flex align-items-start justify-content-start">
+                                                <label asp-for="Email" class="fs-5 font-weight-bold m-0">@Loc["Account.Login.Fields.Email"]:</label>
+                                            </div>
+                                            <div class="col-lg-12 col-12 pt-1">
+                                                <input asp-for="Email" class="form-control email" autofocus="autofocus"
+                                                   placeholder="mail@website.com" />
+                                                <span asp-validation-for="Email"></span>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="form-group row">
+                                        <div class="col-lg-12 col-12 d-flex align-items-center justify-content-start">
+                                            <label asp-for="Password" class="fs-5 font-weight-bold m-0">@Loc["Account.Login.Fields.Password"]:</label>
+                                        </div>
+                                        <div class="col-lg-12 col-12 pt-1">
+                                            <input asp-for="Password" class="form-control password" placeholder="**********" />
+                                            <span asp-validation-for="Password"></span>
+                                        </div>
+                                    </div>
+                                    <div class="inputs d-flex flex-sm-row flex-column justify-content-center">
+                                        <label class="custom-control custom-checkbox pt-1">
+                                            <input class="custom-control-input" asp-for="RememberMe" />
+                                            <input class="custom-control-label" name="RememberMe" type="hidden" value="false">
+                                            <span class="custom-control-label remember-me-checkbox"></span>
+                                            <span class="custom-control-description">@Loc["Account.Login.Fields.RememberMe"]</span>
+                                        </label>
+                                        <span class="ml-3 forgot-password blue-color">
+                                            <a asp-route="PasswordRecovery">@Loc["Account.Login.ForgotPassword"]</a>
+                                        </span>
+                                    </div>
+                                    @if (Model.DisplayCaptcha)
+                                    {
+                                        <div class="captcha-box">
+                                            <captcha />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="buttons pt-4">
+                                <input class="btn btn-info login-button form-control px-5 width-full" type="submit" value="@Loc["Account.Login.LoginButton"]" />
+                            </div>
+                            <div asp-validation-summary="ModelOnly" class="message-error w-100 text-center">
+                            </div>
+
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+        @if (Model.CheckoutAsGuest)
+        {
+            <div class="row flex-md-row justify-content-center text-center my-3">
+                <div class="col-sm-8 col-md-6 col-lg-5 new-wrapper checkout-as-guest-or-register-block mt-2">
+                    <h5 class="pt-1">
+                        <strong>@Loc["Account.Login.CheckoutAsGuestOrRegister"]</strong>
+                    </h5>
+                    <div class="buttons mt-1 areYouGuest">
+                        <input type="button" class="btn btn-secondary checkout-as-guest-button" onclick="location.href='@Url.RouteUrl("Checkout")'" value="@Loc["Account.Login.CheckoutAsGuest"]" />
+                        <input type="button" class="btn btn-secondary register-button" onclick="location.href='@registerUrl'" value="@Loc["Account.Register"]" />
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row flex-md-row justify-content-center text-center my-3 pb-5">
+                <div class="col-sm-8 col-md-6 col-lg-5">
+                    <div>
+                        <div>
+                            Not a customer yet ?
+                            <a class="blue-color" href="@registerUrl">
+                                @Loc["Account.Login.NewCustomer"]
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

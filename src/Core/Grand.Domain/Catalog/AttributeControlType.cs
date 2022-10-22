@@ -49,5 +49,9 @@ namespace Grand.Domain.Catalog
         /// Read-only checkboxes
         /// </summary>
         ReadonlyCheckboxes = 50,
+        /// <summary>
+        /// Customization
+        /// </summary>
+        Customize
     }
 }
