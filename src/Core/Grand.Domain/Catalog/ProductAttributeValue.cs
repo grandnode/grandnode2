@@ -13,7 +13,7 @@ namespace Grand.Domain.Catalog
         }
 
         /// <summary>
-        /// Gets or sets the attribute value type identifier
+        /// Gets or sets the attribute value type Pr
         /// </summary>
         public AttributeValueType AttributeValueTypeId { get; set; }
 
@@ -77,7 +77,6 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public ICollection<Mesh> Meshes { get; set; }
 
-
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
@@ -88,11 +87,12 @@ namespace Grand.Domain.Catalog
     #region customization
     public class Mesh: SubBaseEntity, ITranslationEntity
     {
-
         public string MeshId { get; set; }
         public string CameraAlpha { get; set; }
         public string CameraBeta { get; set; }
         public string CameraRadius { get; set; }
+
+        public ICollection<Material> Materials { get; set; }
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
@@ -100,8 +100,14 @@ namespace Grand.Domain.Catalog
 
     }
 
-    public class Material: SubBaseEntity, ITranslationEntity
+    public class Material: SubBaseEntity, ITranslationEntity 
     {
+        public string Name { get; set; }
+        public string FilePath { get; set; }
+
+        public decimal Cost { get; set; }
+        public decimal Price { get; set; }
+
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>

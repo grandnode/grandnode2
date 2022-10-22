@@ -51,7 +51,9 @@ namespace Grand.Domain.Catalog
         ReadonlyCheckboxes = 50,
         /// <summary>
         /// Customization
+        /// when use this value, will display 
+        /// a link for customer to customize
         /// </summary>
-        Customize
+        Customize = 55
     }
 }
