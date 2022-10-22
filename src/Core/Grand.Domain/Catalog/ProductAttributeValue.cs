@@ -76,6 +76,8 @@ namespace Grand.Domain.Catalog
         /// Gets or sets the collection of locales
         /// </summary>
         public IList<TranslationEntity> Locales { get; set; }
+
+
         
     }
 }
