@@ -87,15 +87,14 @@ namespace Grand.Domain.Catalog
         public decimal InitialCameraAlpha { get; set; }
         public decimal InitialCameraBeta { get; set; }
         public decimal InitialCameraRadius { get; set; }
-
         public decimal UpperAlphaLimit { get; set; }
         public decimal LowerAlphaLimit { get; set; }
         public decimal LowerBetaLimit { get; set; }
         public decimal UpperBetaLimit { get; set; }
         public decimal LowerRadiusLimit { get; set; }
-        public decimal UpperRadisuLimite { get; set; }
+        public decimal UpperRadiusLimit { get; set; }
         
-        public Vector3 Target { get; set; }
+       // public Vector3 Target { get; set; }
         #endregion
 
         /// <summary>

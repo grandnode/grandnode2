@@ -888,6 +888,21 @@ namespace Grand.Web.Admin.Models.Catalog
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.Attributes.Condition")]
             public bool ConditionAllowed { get; set; }
             public string ConditionString { get; set; }
+
+            #region Customization
+            public string ObjectPath { get; set; }
+            public decimal InitialCameraAlpha { get; set; }
+            public decimal InitialCameraBeta { get; set; }
+            public decimal InitialCameraRadius { get; set; }
+            public decimal UpperAlphaLimit { get; set; }
+            public decimal LowerAlphaLimit { get; set; }
+            public decimal LowerBetaLimit { get; set; }
+            public decimal UpperBetaLimit { get; set; }
+            public decimal LowerRadiusLimit { get; set; }
+            public decimal UpperRadiusLimit { get; set; }
+
+            #endregion
+
         }
         public partial class ProductAttributeValueListModel : BaseModel
         {

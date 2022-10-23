@@ -72,8 +72,13 @@
                             <div class="form-group">
                                 <admin-label asp-for="AttributeControlType" />
                                 <div class="col-md-9 col-sm-9">
+                                    @*TODO: If customer select CUSTOMIZE, change the form to take in additional 
+                                    information
+                                    Display all the Attribute control available*@
                                     <admin-select asp-for="AttributeControlTypeId" asp-items="((AttributeControlType)Model.AttributeControlTypeId).ToSelectList(Context, valuesToExclude:
-                                            new[] { (int)AttributeControlType.Hidden })" />
+                                            new[] { (int)AttributeControlType.Hidden })" 
+                                        onchange="attributeControlTypeChange(AttributeControlTypeId)"
+                                    />
                                     <span asp-validation-for="AttributeControlTypeId"></span>
                                 </div>
                             </div>
@@ -94,6 +99,80 @@
                                     <span asp-validation-for="DisplayOrder"></span>
                                 </div>
                             </div>
+                            @*Customization*@
+                            <div class="customization_container invisible">
+                                <div class="form-group">
+                                    <admin-label asp-for="ObjectPath" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="ObjectPath" />
+                                        <span asp-validation-for="ObjectPath"></span>
+                                    </div>
+                                </div>
+                                 <div class="form-group">
+                                    <admin-label asp-for="InitialCameraAlpha" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="InitialCameraAlpha" />
+                                        <span asp-validation-for="InitialCameraAlpha"></span>
+                                    </div>
+                                </div>
+                                 <div class="form-group">
+                                    <admin-label asp-for="InitialCameraBeta" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="InitialCameraBeta" />
+                                        <span asp-validation-for="InitialCameraBeta"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="InitialCameraRadius" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="InitialCameraRadius" />
+                                        <span asp-validation-for="InitialCameraRadius"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="UpperAlphaLimit" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="UpperAlphaLimit" />
+                                        <span asp-validation-for="UpperAlphaLimit"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="LowerAlphaLimit" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="LowerAlphaLimit" />
+                                        <span asp-validation-for="LowerAlphaLimit"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="LowerBetaLimit" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="LowerBetaLimit" />
+                                        <span asp-validation-for="LowerBetaLimit"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="UpperBetaLimit" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="UpperBetaLimit" />
+                                        <span asp-validation-for="UpperBetaLimit"></span>
+                                    </div>
+                                </div>
+                                 <div class="form-group">
+                                    <admin-label asp-for="LowerRadiusLimit" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="LowerRadiusLimit" />
+                                        <span asp-validation-for="LowerRadiusLimit"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <admin-label asp-for="UpperRadiusLimit" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="UpperRadiusLimit" />
+                                        <span asp-validation-for="UpperRadiusLimit"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            @*End Customization*@
                             <div class="form-group">
                                 <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
                                     <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
@@ -135,5 +214,18 @@
                 }
             });
         });
+
+        function attributeControlTypeChange(AttributeControlTypeId){
+            console.log("Click");
+
+            var selectedIndex = $(AttributeControlTypeId).val();
+            // index 10 is customization
+            if(selectedIndex == 10){
+                $(".customization_container").removeClass("invisible");
+            }
+            else{
+                $(".customization_container").addClass("invisible");
+            }
+        }
     </script>
 </form>
