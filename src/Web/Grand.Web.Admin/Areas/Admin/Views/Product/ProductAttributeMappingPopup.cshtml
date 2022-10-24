@@ -100,7 +100,7 @@
                                 </div>
                             </div>
                             @*Customization*@
-                            <div class="customization_container invisible">
+                            <div class="customization_container">
                                 <div class="form-group">
                                     <admin-label asp-for="ObjectPath" />
                                     <div class="col-md-9 col-sm-9">
@@ -217,7 +217,7 @@
 
         $(document).ready(() => {
             if($("#AttributeControlTypeId").val() == 55){
-                $(".customization_container").removeClass("invisible");
+                $(".customization_container").show();
             }
         })
 
@@ -227,10 +227,10 @@
             var selectedVal = $(AttributeControlTypeId).val();
             // index 10 is customization
             if(selectedVal == 55){
-                $(".customization_container").removeClass("invisible");
+                $(".customization_container").show();
             }
             else{
-                $(".customization_container").addClass("invisible");
+                $(".customization_container").hide("");
             }
         }
     </script>

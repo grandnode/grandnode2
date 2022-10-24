@@ -10,6 +10,7 @@ namespace Grand.Domain.Catalog
         public ProductAttributeValue()
         {
             Locales = new List<TranslationEntity>();
+            Materials = new List<Material>();
         }
 
         /// <summary>
@@ -72,46 +73,18 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public string PictureId { get; set; }
 
-        /// <summary>
-        /// Mesh
-        /// </summary>
-        public ICollection<Mesh> Meshes { get; set; }
-
-        /// <summary>
-        /// Gets or sets the collection of locales
-        /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
-
-    }
-
-    #region customization
-    public class Mesh: SubBaseEntity, ITranslationEntity
-    {
+        //Customization
         public string MeshId { get; set; }
         public string CameraAlpha { get; set; }
         public string CameraBeta { get; set; }
         public string CameraRadius { get; set; }
 
         public ICollection<Material> Materials { get; set; }
+        // End Customization
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
         public IList<TranslationEntity> Locales { get; set; }
 
     }
-
-    public class Material: SubBaseEntity, ITranslationEntity 
-    {
-        public string Name { get; set; }
-        public string FilePath { get; set; }
-
-        public decimal Cost { get; set; }
-        public decimal Price { get; set; }
-
-        /// <summary>
-        /// Gets or sets the collection of locales
-        /// </summary>
-        public IList<TranslationEntity> Locales { get; set; }
-    }
-    #endregion
 }

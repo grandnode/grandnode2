@@ -54,14 +54,14 @@
 @{
     Func<int, HelperResult>
               template = @<div class="form-body">
-        <div class="form-group">
-            <admin-label asp-for="@Model.Locales[item].Name" class="col-sm-3 control-label" />
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="@Model.Locales[item].Name" />
-                <span asp-validation-for="@Model.Locales[item].Name"></span>
-            </div>
-        </div>
-        <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
+                <div class="form-group">
+                    <admin-label asp-for="@Model.Locales[item].Name" class="col-sm-3 control-label" />
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="@Model.Locales[item].Name" />
+                        <span asp-validation-for="@Model.Locales[item].Name"></span>
+                    </div>
+                </div>
+                <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
     </div>;
 }
 <!-- #endregion -->
@@ -141,11 +141,7 @@
         @*Start Customization*@
         @if (Model.DisplayCustomizationMesh)
         {
-             foreach(var meshModel in Model.MeshModels){
-               <div class="form-group" id="mesh-@meshModel.MeshId">
-                    @meshModel.MeshId
-               </div>
-            }
+            <div id="customization-mesh-grid"></div>
         }
         else
         {
@@ -235,3 +231,52 @@
     </div>
 
 </div>
+
+
+<script>
+    $(document).ready(function(){
+        $("#customization-mesh-grid").kendoGrid({
+            dataSource:{
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("RatesList", "TaxCountryStateZip"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    update: {
+                        url: "@Html.Raw(Url.Action("RateUpdate", "TaxCountryStateZip"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    destroy: {
+                        url: "@Html.Raw(Url.Action("RateDelete", "TaxCountryStateZip"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        fields: {
+                            MeshId: { editable: true, type: "string" },
+                            CameraAlpha: { editable: true, type: "number" },
+                            CameraBeta: { editable: true, type: "number" },
+                            Zip: { editable: true, type: "string" },
+                            TaxCategoryName: { editable: false, type: "string" },
+                            IsPrimaryDimension: { editable: false, type: "boolean" },
+                            Id: { editable: false, type: "string" }
+                        }
+                    } 
+                }
+            }
+
+
+        })
+    })
+</script>

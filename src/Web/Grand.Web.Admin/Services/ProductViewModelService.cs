@@ -2144,6 +2144,7 @@ namespace Grand.Web.Admin.Services
 
                 // Customization
                 DisplayCustomizationMesh = productAttributeMapping.AttributeControlTypeId == AttributeControlType.Customize, 
+
                 PrimaryStoreCurrencyCode = (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode,
                 //default qantity for associated product
                 Quantity = 1
@@ -2160,17 +2161,6 @@ namespace Grand.Web.Admin.Services
                     DisplayOrder = x.DisplayOrder
                 });
             }
-
-            // TODO: Remove this later
-            model.MeshModels.Add(
-                    new ProductModel.MeshModel() {
-                        Id = Guid.NewGuid().ToString(),
-                        MeshId = "first",
-                        MaterialModels = new List<ProductModel.MaterialModel>(){new ProductModel.MaterialModel() {
-                            Name = "Material 1"
-                        } }
-                    }
-                );
 
             return model;
         }

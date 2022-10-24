@@ -263,7 +263,7 @@ namespace Grand.Web.Models.Catalog
             {
                 ImageSquaresPictureModel = new PictureModel();
                 PictureModel = new PictureModel();
-                MeshModels = new List<MeshModel>();
+                MaterialModels = new List<MaterialModel>();
             }
             public string Name { get; set; }
             public string ColorSquaresRgb { get; set; }
@@ -276,22 +276,15 @@ namespace Grand.Web.Models.Catalog
             //picture model is used when we want to override a default product picture when some attribute is selected
             public PictureModel PictureModel { get; set; }
 
-            //TODOD: This will need to change to control the product detail page
-            public IList<MeshModel> MeshModels { get; set; }
-        }
-
-        public class MeshModel: BaseModel
-        {
-            public MeshModel()
-            {
-                MaterialModels = new List<MaterialModel>();
-            }
+            // Customization
             public string MeshId { get; set; }
             public string CameraAlpha { get; set; }
             public string CameraBeta { get; set; }
             public string CameraRadius { get; set; }
             public List<MaterialModel> MaterialModels { get; set; }
+            // End Customization 
         }
+
 
         public class MaterialModel: BaseModel
         {

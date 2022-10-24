@@ -6,6 +6,7 @@ using Grand.Infrastructure.Models;
 using Grand.Web.Admin.Models.Discounts;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
@@ -921,7 +922,7 @@ namespace Grand.Web.Admin.Models.Catalog
             {
                 ProductPictureModels = new List<ProductPictureModel>();
                 Locales = new List<ProductAttributeValueLocalizedModel>();
-                MeshModels = new List<MeshModel>();
+                MaterialModels = new List<MaterialModel>();
             }
 
             public string ProductAttributeMappingId { get; set; }
@@ -997,23 +998,15 @@ namespace Grand.Web.Admin.Models.Catalog
             // Pass Attribute control type as ready only. To decide the display
             public bool DisplayCustomizationMesh{ get; set; }
 
-            public IList<MeshModel> MeshModels { get; set; }
+            // This represent a mesh with alot of material
+            public string MeshId { get; set; }
+            public decimal CameraAlpha { get; set; }
+            public decimal CameraBeta { get; set; }
+            public decimal CameraRadius { get; set; }
+            public IList<MaterialModel> MaterialModels { get; set; }
             #endregion
         }
-
-        public partial class MeshModel: BaseEntityModel
-        {
-            public MeshModel()
-            {
-                MaterialModels = new List<MaterialModel>();
-            }
-            public string MeshId { get; set; }
-            public string CameraAlpha { get; set; }
-            public string CameraBeta { get; set; }
-            public string CameraRadius { get; set; }
-            public IList<MaterialModel> MaterialModels { get; set; }
-        }
-
+       
         public partial class MaterialModel: BaseEntityModel
         {
             public string Name { get; set; }
