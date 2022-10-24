@@ -5,6 +5,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Web.Models.Media;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Amazon.S3.Model;
 
 namespace Grand.Web.Models.Catalog
 {
@@ -262,6 +263,7 @@ namespace Grand.Web.Models.Catalog
             {
                 ImageSquaresPictureModel = new PictureModel();
                 PictureModel = new PictureModel();
+                MeshModels = new List<MeshModel>();
             }
             public string Name { get; set; }
             public string ColorSquaresRgb { get; set; }
@@ -274,7 +276,29 @@ namespace Grand.Web.Models.Catalog
             //picture model is used when we want to override a default product picture when some attribute is selected
             public PictureModel PictureModel { get; set; }
 
+            //TODOD: This will need to change to control the product detail page
+            public IList<MeshModel> MeshModels { get; set; }
+        }
 
+        public class MeshModel: BaseModel
+        {
+            public MeshModel()
+            {
+                MaterialModels = new List<MaterialModel>();
+            }
+            public string MeshId { get; set; }
+            public string CameraAlpha { get; set; }
+            public string CameraBeta { get; set; }
+            public string CameraRadius { get; set; }
+            public List<MaterialModel> MaterialModels { get; set; }
+        }
+
+        public class MaterialModel: BaseModel
+        {
+            public string Name { get; set; }
+            public string FilePath { get; set; }
+            public decimal Cost { get; set; }
+            public decimal Price { get; set; }
         }
 
         public partial class ProductBundleModel : BaseModel

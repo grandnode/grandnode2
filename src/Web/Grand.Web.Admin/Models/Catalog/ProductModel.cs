@@ -921,6 +921,7 @@ namespace Grand.Web.Admin.Models.Catalog
             {
                 ProductPictureModels = new List<ProductPictureModel>();
                 Locales = new List<ProductAttributeValueLocalizedModel>();
+                MeshModels = new List<MeshModel>();
             }
 
             public string ProductAttributeMappingId { get; set; }
@@ -989,9 +990,38 @@ namespace Grand.Web.Admin.Models.Catalog
                 public string AssociatedToProductId { get; set; }
             }
 
+            #endregion
 
+            #region Customization
+            // TODO: Check the localization for display
+            // Pass Attribute control type as ready only. To decide the display
+            public bool DisplayCustomizationMesh{ get; set; }
+
+            public IList<MeshModel> MeshModels { get; set; }
             #endregion
         }
+
+        public partial class MeshModel: BaseEntityModel
+        {
+            public MeshModel()
+            {
+                MaterialModels = new List<MaterialModel>();
+            }
+            public string MeshId { get; set; }
+            public string CameraAlpha { get; set; }
+            public string CameraBeta { get; set; }
+            public string CameraRadius { get; set; }
+            public IList<MaterialModel> MaterialModels { get; set; }
+        }
+
+        public partial class MaterialModel: BaseEntityModel
+        {
+            public string Name { get; set; }
+            public string FilePath { get; set; }
+            public decimal Cost { get; set; }
+            public decimal Price { get; set; }
+        }
+
         public partial class ActivityLogModel : BaseEntityModel
         {
             [GrandResourceDisplayName("Admin.Catalog.Products.ActivityLog.ActivityLogType")]

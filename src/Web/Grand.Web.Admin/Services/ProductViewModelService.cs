@@ -2141,6 +2141,9 @@ namespace Grand.Web.Admin.Services
                 ColorSquaresRgb = "#000000",
                 //image squares
                 DisplayImageSquaresPicture = productAttributeMapping.AttributeControlTypeId == AttributeControlType.ImageSquares,
+
+                // Customization
+                DisplayCustomizationMesh = productAttributeMapping.AttributeControlTypeId == AttributeControlType.Customize, 
                 PrimaryStoreCurrencyCode = (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode,
                 //default qantity for associated product
                 Quantity = 1
@@ -2157,6 +2160,18 @@ namespace Grand.Web.Admin.Services
                     DisplayOrder = x.DisplayOrder
                 });
             }
+
+            // TODO: Remove this later
+            model.MeshModels.Add(
+                    new ProductModel.MeshModel() {
+                        Id = Guid.NewGuid().ToString(),
+                        MeshId = "first",
+                        MaterialModels = new List<ProductModel.MaterialModel>(){new ProductModel.MaterialModel() {
+                            Name = "Material 1"
+                        } }
+                    }
+                );
+
             return model;
         }
         public virtual async Task<IList<ProductModel.ProductAttributeValueModel>> PrepareProductAttributeValueModels(Product product, ProductAttributeMapping productAttributeMapping)
@@ -2216,6 +2231,7 @@ namespace Grand.Web.Admin.Services
                 DisplayColorSquaresRgb = pa.AttributeControlTypeId == AttributeControlType.ColorSquares,
                 ImageSquaresPictureId = pav.ImageSquaresPictureId,
                 DisplayImageSquaresPicture = pa.AttributeControlTypeId == AttributeControlType.ImageSquares,
+                DisplayCustomizationMesh = pa.AttributeControlTypeId == AttributeControlType.Customize,
                 PriceAdjustment = pav.PriceAdjustment,
                 WeightAdjustment = pav.WeightAdjustment,
                 Cost = pav.Cost,

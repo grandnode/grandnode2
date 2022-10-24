@@ -215,12 +215,18 @@
             });
         });
 
+        $(document).ready(() => {
+            if($("#AttributeControlTypeId").val() == 55){
+                $(".customization_container").removeClass("invisible");
+            }
+        })
+
         function attributeControlTypeChange(AttributeControlTypeId){
             console.log("Click");
 
-            var selectedIndex = $(AttributeControlTypeId).val();
+            var selectedVal = $(AttributeControlTypeId).val();
             // index 10 is customization
-            if(selectedIndex == 10){
+            if(selectedVal == 55){
                 $(".customization_container").removeClass("invisible");
             }
             else{
