@@ -19,6 +19,36 @@
         $("#@Html.IdFor(model => model.AttributeValueTypeId)").change(toggleProductType);
 
         toggleProductType();
+
+        $("#customization-mesh-grid").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("List", "Material", new {productId = Model.ProductId, productAttributeMappingId = Model.ProductAttributeMappingId, productAttributeValueId = Model.Id, area= Constants.AreaAdmin}))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        fields: {
+                            Name: { editable: true, type: "string" },
+                            FilePath: { editable: true, type: "string" },
+                            Cost: { editable: true, type: "number" },
+                            Price: { editable: true, type: "string" },
+                            Id: { editable: false, type: "string" }
+                        }
+                    }
+                }
+            }
+
+
+        })
     });
 
     $('#btnAssociateProductToAttributeValuePopup').magnificPopup({
@@ -108,36 +138,6 @@
     </localized-editor>
 
     <div class="form-body">
-        @if (Model.DisplayColorSquaresRgb)
-        {
-            <div class="form-group">
-                <admin-label asp-for="ColorSquaresRgb" class="col-sm-3 control-label" />
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="ColorSquaresRgb" />
-                    <div id="color-picker"></div>
-                    <script>
-                        $(document).ready(function () {
-                            $('#color-picker').farbtastic('#@Html.IdFor(model => model.ColorSquaresRgb)');
-                        });
-                    </script>
-                    <span asp-validation-for="ColorSquaresRgb"></span>
-                </div>
-            </div>
-        }
-        @if (Model.DisplayImageSquaresPicture)
-        {
-            <div class="form-group">
-                @{
-                    ViewData["Reference"] = "Product";
-                    ViewData["ObjectId"] = Model.ProductId;
-                }
-                <admin-label asp-for="ImageSquaresPictureId" class="col-sm-3 control-label" />
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="ImageSquaresPictureId" />
-                    <span asp-validation-for="ImageSquaresPictureId"></span>
-                </div>
-            </div>
-        }
         @*Start Customization*@
         @if (Model.DisplayCustomizationMesh)
         {
@@ -145,6 +145,37 @@
         }
         else
         {
+            @if (Model.DisplayColorSquaresRgb)
+            {
+                <div class="form-group">
+                    <admin-label asp-for="ColorSquaresRgb" class="col-sm-3 control-label" />
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="ColorSquaresRgb" />
+                        <div id="color-picker"></div>
+                        <script>
+                            $(document).ready(function () {
+                                $('#color-picker').farbtastic('#@Html.IdFor(model => model.ColorSquaresRgb)');
+                            });
+                        </script>
+                        <span asp-validation-for="ColorSquaresRgb"></span>
+                    </div>
+                </div>
+            }
+            @if (Model.DisplayImageSquaresPicture)
+            {
+                <div class="form-group">
+                    @{
+                        ViewData["Reference"] = "Product";
+                        ViewData["ObjectId"] = Model.ProductId;
+                    }
+                    <admin-label asp-for="ImageSquaresPictureId" class="col-sm-3 control-label" />
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="ImageSquaresPictureId" />
+                        <span asp-validation-for="ImageSquaresPictureId"></span>
+                    </div>
+                </div>
+            }
+
             <div class="form-group" id="group-price-adjustment">
                 <admin-label asp-for="PriceAdjustment" class="col-sm-3 control-label" />
                 <div class="col-md-9 col-sm-9">
@@ -166,62 +197,62 @@
                     <span asp-validation-for="Cost"></span>
                 </div>
             </div>
-        }
-        <div class="form-group">
-            <admin-label asp-for="IsPreSelected" class="col-sm-3 control-label" />
-            <div class="col-md-9 col-sm-9">
-                <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
-                    <admin-input asp-for="IsPreSelected" />
-                    <div class="control__indicator"></div>
-                </label>
-                <span asp-validation-for="IsPreSelected"></span>
+
+            <div class="form-group">
+                <admin-label asp-for="IsPreSelected" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <label class="mt-checkbox mt-checkbox-outline control control-checkbox">
+                        <admin-input asp-for="IsPreSelected" />
+                        <div class="control__indicator"></div>
+                    </label>
+                    <span asp-validation-for="IsPreSelected"></span>
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            <admin-label asp-for="DisplayOrder" class="col-sm-3 control-label" />
-            <div class="col-md-9 col-sm-9">
-                <admin-input asp-for="DisplayOrder" />
-                <span asp-validation-for="DisplayOrder"></span>
+            <div class="form-group">
+                <admin-label asp-for="DisplayOrder" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <admin-input asp-for="DisplayOrder" />
+                    <span asp-validation-for="DisplayOrder"></span>
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            <admin-label asp-for="PictureId" class="col-sm-3 control-label" />
-            <div class="col-md-9 col-sm-9">
-                <ul style="list-style: none;">
-                    <li style="float: left; width: 110px;">
-                        <p style="float: left; padding-top: 20px;">
-                            <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="0" id="id_image_0"
+            <div class="form-group">
+                <admin-label asp-for="PictureId" class="col-sm-3 control-label" />
+                <div class="col-md-9 col-sm-9">
+                    <ul style="list-style: none;">
+                        <li style="float: left; width: 110px;">
+                            <p style="float: left; padding-top: 20px;">
+                                <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="0" id="id_image_0"
                                    @if (!String.IsNullOrEmpty(Model.PictureId)) {
                             <text> checked="checked" </text>
                             }>
-                        </p>
-                        <p style="float: left; padding-top: 20px;">
-                            <label for="id_image_0">
-                                @Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Picture.NoPicture"]
-                            </label>
-                        </p>
-                    </li>
-                    @foreach (var picture in Model.ProductPictureModels)
-                    {
-                        <li style="float: left; width: 110px;">
-                            <p style="float: left; padding-top: 20px;">
-                                <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="@picture.PictureId" id="id_image_@picture.PictureId"
-                                   @if (picture.PictureId == Model.PictureId) {
-                            <text> checked="checked" </text>
-                            }>
                             </p>
-                            <p style="float: left;">
-                                <label for="id_image_@picture.PictureId">
-                                    <img src="@picture.PictureUrl" alt="" title="" width="75">
+                            <p style="float: left; padding-top: 20px;">
+                                <label for="id_image_0">
+                                    @Loc["Admin.Catalog.Products.ProductAttributes.Attributes.Values.Fields.Picture.NoPicture"]
                                 </label>
                             </p>
                         </li>
-                    }
-                </ul>
-                <span asp-validation-for="PictureId"></span>
+                        @foreach (var picture in Model.ProductPictureModels)
+                        {
+                            <li style="float: left; width: 110px;">
+                                <p style="float: left; padding-top: 20px;">
+                                    <input type="radio" name="@Html.NameFor(x => x.PictureId)" value="@picture.PictureId" id="id_image_@picture.PictureId"
+                                   @if (picture.PictureId == Model.PictureId) {
+                            <text> checked="checked" </text>
+                            }>
+                                </p>
+                                <p style="float: left;">
+                                    <label for="id_image_@picture.PictureId">
+                                        <img src="@picture.PictureUrl" alt="" title="" width="75">
+                                    </label>
+                                </p>
+                            </li>
+                        }
+                    </ul>
+                    <span asp-validation-for="PictureId"></span>
+                </div>
             </div>
-        </div>
-
+        }
         <div class="form-group">
             <div class="offset-sm-3 offset-md-3 col-md-9 col-sm-9">
                 <button class="btn btn-success" type="submit" name="save"><i class="fa fa-check"></i> @Loc["Admin.Common.Save"] </button>
@@ -231,52 +262,3 @@
     </div>
 
 </div>
-
-
-<script>
-    $(document).ready(function(){
-        $("#customization-mesh-grid").kendoGrid({
-            dataSource:{
-                transport: {
-                    read: {
-                        url: "@Html.Raw(Url.Action("RatesList", "TaxCountryStateZip"))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    },
-                    update: {
-                        url: "@Html.Raw(Url.Action("RateUpdate", "TaxCountryStateZip"))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    },
-                    destroy: {
-                        url: "@Html.Raw(Url.Action("RateDelete", "TaxCountryStateZip"))",
-                        type: "POST",
-                        dataType: "json",
-                        data: addAntiForgeryToken
-                    }
-                },
-                schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors",
-                    model: {
-                        id: "Id",
-                        fields: {
-                            MeshId: { editable: true, type: "string" },
-                            CameraAlpha: { editable: true, type: "number" },
-                            CameraBeta: { editable: true, type: "number" },
-                            Zip: { editable: true, type: "string" },
-                            TaxCategoryName: { editable: false, type: "string" },
-                            IsPrimaryDimension: { editable: false, type: "boolean" },
-                            Id: { editable: false, type: "string" }
-                        }
-                    } 
-                }
-            }
-
-
-        })
-    })
-</script>

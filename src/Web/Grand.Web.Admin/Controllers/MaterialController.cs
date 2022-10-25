@@ -1,36 +1,53 @@
 ﻿using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Common.Security.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.Common.DataSource;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using static Grand.Web.Admin.Models.Catalog.ProductModel;
+using Grand.Web.Common.Filters;
 
 namespace Grand.Web.Admin.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class MaterialController : ControllerBase
+    [AuthorizeAdmin]
+    [Area("Admin")]
+    public class MaterialController : BaseAdminController
     {
-        //private IProductAttributeService _productAttributeService;
-        //public MaterialController(IProductAttributeService productAttributeService)
-        //{
-        //    _productAttributeService = productAttributeService;
-        //}
+        [PermissionAuthorizeAction(PermissionActionName.List)]
+        [HttpPost]
+        public IActionResult List(DataSourceRequest command, string productId, string productAttributeMappingId, string productAttributeValueId)
+        {
+            // Test data
+            var materialsList = new List<MaterialModel>() {
+                new MaterialModel() {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "Material 1",
+                    FilePath = "Material 1 file path",
+                    Cost = 100,
+                    Price = 120
+                },
+                new MaterialModel() {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "Material 2",
+                    FilePath = "Material 2 file path",
+                    Cost = 110,
+                    Price = 130
+                },
+                new MaterialModel() {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "Material 3",
+                    FilePath = "Material 3 file path",
+                    Cost = 120,
+                    Price = 140
+                }
+            };
 
-        //[PermissionAuthorizeAction(PermissionActionName.List)]
-        //[HttpPost]
-        //public async Task<IActionResult> List(DataSourceRequest command, string productAttributeValueId)
-        //{
-        //    var productAttributes = await _productAttributeService
-        //        .GetProductAttributeById(productAttributeValueId);
+            var gridModel = new DataSourceResult {
+                Data = materialsList,
+                Total = materialsList.Count
+            };
 
-        //    var gridModel = new DataSourceResult {
-        //        Data = productAttributes.Select(x => x.ToModel()),
-        //        Total = productAttributes.TotalCount
-        //    };
-
-        //    return Json(gridModel);
-        //}
+            return Json(gridModel);
+        }
 
         ////create
         //[PermissionAuthorizeAction(PermissionActionName.Create)]

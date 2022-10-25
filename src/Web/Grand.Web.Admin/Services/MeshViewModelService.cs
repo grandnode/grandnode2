@@ -1,13 +1,14 @@
-﻿using Grand.Web.Admin.Models.Catalog;
-using static Grand.Web.Admin.Models.Catalog.ProductModel;
+﻿using Grand.Web.Admin.Interfaces;
+using Grand.Web.Admin.Models.Catalog;
 
-namespace Grand.Web.Admin.Services
+namespace Grand.Business.Catalog.Services.Products
 {
-    public class MeshViewModelService
+    public class MeshViewModelService : IMeshViewModelService
     {
-        //public virtual Task<IList<MaterialModel>> PrepareMeshViewModel(ProductAttributeMappingModel model)
-        //{
-
-        //}
+        Task<IList<ProductModel.MaterialModel>> IMeshViewModelService.PrepareMeshViewModel(ProductModel.ProductAttributeMappingModel model)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
+ 

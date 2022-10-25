@@ -922,7 +922,6 @@ namespace Grand.Web.Admin.Models.Catalog
             {
                 ProductPictureModels = new List<ProductPictureModel>();
                 Locales = new List<ProductAttributeValueLocalizedModel>();
-                MaterialModels = new List<MaterialModel>();
             }
 
             public string ProductAttributeMappingId { get; set; }
@@ -1003,7 +1002,6 @@ namespace Grand.Web.Admin.Models.Catalog
             public decimal CameraAlpha { get; set; }
             public decimal CameraBeta { get; set; }
             public decimal CameraRadius { get; set; }
-            public IList<MaterialModel> MaterialModels { get; set; }
             #endregion
         }
        
