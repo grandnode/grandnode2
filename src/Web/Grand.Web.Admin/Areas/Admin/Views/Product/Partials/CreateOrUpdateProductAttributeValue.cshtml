@@ -21,6 +21,8 @@
         toggleProductType();
 
         $("#customization-mesh-grid").kendoGrid({
+            editable: "incell",
+            toolbar: [ "create", "save", "cancel" ],
             dataSource: {
                 transport: {
                     read: {
@@ -28,6 +30,17 @@
                         type: "POST",
                         dataType: "json",
                         data: addAntiForgeryToken
+                    },
+                    update:{
+                        url: "@Html.Raw(Url.Action("Edit", "Material", new {productId = Model.ProductId, productAttributeMappingId = Model.ProductAttributeMappingId, productAttributeValueId = Model.Id, area= Constants.AreaAdmin}))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken
+                    },
+                    complete: function (eve) {                       
+                        //reload grid
+                        var grid = $('#customization-mesh-grid').data('kendoGrid');
+                        grid.dataSource.read();
                     }
                 },
                 schema: {
@@ -44,8 +57,30 @@
                             Id: { editable: false, type: "string" }
                         }
                     }
-                }
-            }
+                }               
+            },
+            columns:[{
+                    field: "Name",
+                    title: "Material Name",
+                    editable: true
+                    },
+                    {
+                    field: "FilePath",
+                    expandable: true,
+                    title: "FilePath",
+                    editable: true
+                    },
+                    {
+                    field: "Cost",
+                    title: "Cost",
+                    editable: true
+                    },
+                    {
+                    field: "Price",
+                    title: "Price",
+                    editable: true
+                    }
+            ]
 
 
         })

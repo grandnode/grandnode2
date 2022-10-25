@@ -2211,6 +2211,7 @@ namespace Grand.Web.Admin.Services
             var associatedProduct = await _productService.GetProductById(pav.AssociatedProductId);
 
             var model = new ProductModel.ProductAttributeValueModel {
+                Id = pav.Id,
                 ProductAttributeMappingId = pa.Id, //TODO - check pav.ProductAttributeMappingId,
                 AttributeValueTypeId = pav.AttributeValueTypeId,
                 AttributeValueTypeName = pav.AttributeValueTypeId.GetTranslationEnum(_translationService, _workContext),

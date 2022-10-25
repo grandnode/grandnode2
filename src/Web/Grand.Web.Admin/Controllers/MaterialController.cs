@@ -49,14 +49,13 @@ namespace Grand.Web.Admin.Controllers
             return Json(gridModel);
         }
 
-        ////create
-        //[PermissionAuthorizeAction(PermissionActionName.Create)]
-        //public async Task<IActionResult> Create()
-        //{
-        //    var model = new ProductAttributeModel();
-        //    //locales
-        //    await AddLocales(_languageService, model.Locales);
-        //    return View(model);
-        //}
+        //create
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [HttpPost]
+        public IActionResult Edit(MaterialModel materialModel, string productId, string productAttributeMappingId, string productAttributeValueId)
+        {
+            
+            return RedirectToAction("List", new { productId = productId, productAttributeMappingId = productAttributeMappingId, productAttributeValueId = productAttributeValueId});
+        }
     }
 }

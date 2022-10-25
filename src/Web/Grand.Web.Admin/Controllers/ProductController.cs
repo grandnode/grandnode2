@@ -2249,6 +2249,10 @@ namespace Grand.Web.Admin.Controllers
             });
             //pictures
             await _productViewModelService.PrepareProductAttributeValueModel(product, model);
+
+            // Populate Product ID and ProductAttribute
+            model.ProductId = productId;
+            model.ProductAttributeMappingId = productAttributeMappingId;
             return View(model);
         }
 
