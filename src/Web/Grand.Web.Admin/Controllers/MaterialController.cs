@@ -5,6 +5,8 @@ using Grand.Web.Common.DataSource;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using static Grand.Web.Admin.Models.Catalog.ProductModel;
 using Grand.Web.Common.Filters;
+using System.ComponentModel.DataAnnotations;
+using Grand.Web.Admin.Interfaces;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -12,38 +14,43 @@ namespace Grand.Web.Admin.Controllers
     [Area("Admin")]
     public class MaterialController : BaseAdminController
     {
+        private IProductService _productService;
+        private IMaterialViewModelService _materialViewModelService;
+
+        public MaterialController(IProductService productService, IMaterialViewModelService materialViewModelService)
+        {
+            _productService = productService;
+            _materialViewModelService = materialViewModelService;
+        }
+
         [PermissionAuthorizeAction(PermissionActionName.List)]
         [HttpPost]
-        public IActionResult List(DataSourceRequest command, string productId, string productAttributeMappingId, string productAttributeValueId)
+        public async Task<IActionResult> List(DataSourceRequest command, [Required] string productId, [Required] string productAttributeMappingId, [Required] string productAttributeValueId)
         {
-            // Test data
-            var materialsList = new List<MaterialModel>() {
-                new MaterialModel() {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = "Material 1",
-                    FilePath = "Material 1 file path",
-                    Cost = 100,
-                    Price = 120
-                },
-                new MaterialModel() {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = "Material 2",
-                    FilePath = "Material 2 file path",
-                    Cost = 110,
-                    Price = 130
-                },
-                new MaterialModel() {
-                    Id = Guid.NewGuid().ToString(),
-                    Name = "Material 3",
-                    FilePath = "Material 3 file path",
-                    Cost = 120,
-                    Price = 140
-                }
-            };
+            var product = await _productService.GetProductById(productId);            
+
+            if(product == null)
+            {
+                return BadRequest("Product Not found");
+            }
+            var pam = product.ProductAttributeMappings.Where(x => x.Id == productAttributeMappingId).FirstOrDefault();
+
+            if (pam is null)
+            {
+                return BadRequest("Product Attribute Mapping not found");
+            }
+            
+            var pav = pam.ProductAttributeValues.Where(x => x.Id == productAttributeValueId).FirstOrDefault();
+            if(pav is null)
+            {
+                return BadRequest("Product Attribute Value not found");
+            }
+
+            IList<MaterialModel> materialModels = _materialViewModelService.PrepareMaterialViewModel(pav.Materials);
 
             var gridModel = new DataSourceResult {
-                Data = materialsList,
-                Total = materialsList.Count
+                Data = materialModels,
+                Total = materialModels.Count
             };
 
             return Json(gridModel);

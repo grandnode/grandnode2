@@ -22,7 +22,7 @@
 
         $("#customization-mesh-grid").kendoGrid({
             editable: "incell",
-            toolbar: [ "create", "save", "cancel" ],
+            toolbar: ["create", "save", "cancel"],
             dataSource: {
                 transport: {
                     read: {
@@ -31,16 +31,17 @@
                         dataType: "json",
                         data: addAntiForgeryToken
                     },
-                    update:{
+                    update: {
                         url: "@Html.Raw(Url.Action("Edit", "Material", new {productId = Model.ProductId, productAttributeMappingId = Model.ProductAttributeMappingId, productAttributeValueId = Model.Id, area= Constants.AreaAdmin}))",
                         type: "POST",
                         dataType: "json",
-                        data: addAntiForgeryToken
-                    },
-                    complete: function (eve) {                       
-                        //reload grid
-                        var grid = $('#customization-mesh-grid').data('kendoGrid');
-                        grid.dataSource.read();
+                        data: addAntiForgeryToken,
+                        complete: function (eve) {
+                            var self = this;
+                            //reload grid
+                            var grid = $('#customization-mesh-grid').data('kendoGrid');
+                            grid.dataSource.read();
+                        }
                     }
                 },
                 schema: {
@@ -57,29 +58,29 @@
                             Id: { editable: false, type: "string" }
                         }
                     }
-                }               
+                }
             },
-            columns:[{
-                    field: "Name",
-                    title: "Material Name",
-                    editable: true
-                    },
-                    {
-                    field: "FilePath",
-                    expandable: true,
-                    title: "FilePath",
-                    editable: true
-                    },
-                    {
-                    field: "Cost",
-                    title: "Cost",
-                    editable: true
-                    },
-                    {
-                    field: "Price",
-                    title: "Price",
-                    editable: true
-                    }
+            columns: [{
+                field: "Name",
+                title: "Material Name",
+                editable: true
+            },
+            {
+                field: "FilePath",
+                expandable: true,
+                title: "FilePath",
+                editable: true
+            },
+            {
+                field: "Cost",
+                title: "Cost",
+                editable: true
+            },
+            {
+                field: "Price",
+                title: "Price",
+                editable: true
+            }
             ]
 
 
@@ -114,19 +115,21 @@
             $('#group-cost').hide();
         }
     }
+
+    //# sourceURL=somename.js
 </script>
 <!-- #region languages template -->
 @{
     Func<int, HelperResult>
-              template = @<div class="form-body">
-                <div class="form-group">
-                    <admin-label asp-for="@Model.Locales[item].Name" class="col-sm-3 control-label" />
-                    <div class="col-md-9 col-sm-9">
-                        <admin-input asp-for="@Model.Locales[item].Name" />
-                        <span asp-validation-for="@Model.Locales[item].Name"></span>
-                    </div>
-                </div>
-                <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
+      template = @<div class="form-body">
+        <div class="form-group">
+            <admin-label asp-for="@Model.Locales[item].Name" class="col-sm-3 control-label" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="@Model.Locales[item].Name" />
+                <span asp-validation-for="@Model.Locales[item].Name"></span>
+            </div>
+        </div>
+        <input asp-for="@Model.Locales[item].LanguageId" type="hidden" />
     </div>;
 }
 <!-- #endregion -->

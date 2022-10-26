@@ -58,6 +58,8 @@ namespace Grand.Web.Admin.Startup
             services.AddScoped<IPictureViewModelService, PictureViewModelService>();
             services.AddScoped<IElFinderViewModelService, ElFinderViewModelService>();
             services.AddScoped<IGoogleAnalyticsViewModelService, GoogleAnalyticsViewModelService>();
+            services.AddScoped<IMaterialViewModelService, MaterialViewModelService>();
+
         }
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {

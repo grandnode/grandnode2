@@ -53,7 +53,7 @@
             },
             // load from database
             productData: {
-                url: "https://raw.githubusercontent.com/namhoaingo/grandnode2Forked/Nam/resizeEvent/vue-balylon/b101/public/",
+                url: "https://raw.githubusercontent.com/namhoaingo/grandnode2Forked/master/vue-balylon/b101/public/",
                 meshes: [
                     {
                         name: "helmet",
@@ -159,7 +159,7 @@
                 this.camera.attachControl();
                 this.light = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 40, 0), this.scene);
 
-                this.createOverlay();
+                //this.createOverlay();
                 // load model
                 var loader = new BABYLON.AssetsManager(this.scene);
                 var meshes = this.productData.meshes.map(mesh => mesh.name);
