@@ -14,17 +14,14 @@ namespace Grand.Business.Checkout.Events.Shipping
     {
         private readonly IOrderService _orderService;
         private readonly IShipmentService _shipmentService;
-        private readonly IProductService _productService;
         private readonly IInventoryManageService _inventoryManageService;
         public ShipmentDeletedEventHandler(
             IOrderService orderService, 
             IShipmentService shipmentService,
-            IProductService productService,
             IInventoryManageService inventoryManageService)
         {
             _orderService = orderService;
             _shipmentService = shipmentService;
-            _productService = productService;
             _inventoryManageService = inventoryManageService;
         }
 
