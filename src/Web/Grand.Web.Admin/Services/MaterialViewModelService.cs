@@ -1,4 +1,5 @@
 ﻿using Grand.Domain.Catalog;
+using Grand.Web.Admin.Extensions.Mapping;
 using Grand.Web.Admin.Interfaces;
 using static Grand.Web.Admin.Models.Catalog.ProductModel;
 
@@ -35,13 +36,7 @@ namespace Grand.Web.Admin.Services
             };
             foreach (var material in materials)
             {
-                materialsList.Add(new MaterialModel() {
-                    Name = material.Name,
-                    FilePath = material.FilePath,
-                    Cost = material.Cost,   
-                    Price = material.Price,
-                    Id = material.Id
-                });
+                materialsList.Add(material.ToModel());
             }
 
             return materialsList;

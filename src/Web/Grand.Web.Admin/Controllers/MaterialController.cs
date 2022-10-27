@@ -7,6 +7,7 @@ using static Grand.Web.Admin.Models.Catalog.ProductModel;
 using Grand.Web.Common.Filters;
 using System.ComponentModel.DataAnnotations;
 using Grand.Web.Admin.Interfaces;
+using Grand.Web.Admin.Extensions.Mapping;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -59,9 +60,30 @@ namespace Grand.Web.Admin.Controllers
         //create
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public IActionResult Edit(MaterialModel materialModel, string productId, string productAttributeMappingId, string productAttributeValueId)
+        public async Task<IActionResult> Edit(MaterialModel materialModel, string productId, string productAttributeMappingId, string productAttributeValueId)
         {
             
+            var product = await _productService.GetProductById(productId);
+            if (product == null)
+            {
+                return BadRequest("Product Not found");
+            }
+            var pam = product.ProductAttributeMappings.Where(x => x.Id == productAttributeMappingId).FirstOrDefault();
+
+            if (pam is null)
+            {
+                return BadRequest("Product Attribute Mapping not found");
+            }
+
+            var pav = pam.ProductAttributeValues.Where(x => x.Id == productAttributeValueId).FirstOrDefault();
+            if (pav is null)
+            {
+                return BadRequest("Product Attribute Value not found");
+            }
+
+            pav.Materials.Add(materialModel.ToEntity());
+
+
             return RedirectToAction("List", new { productId = productId, productAttributeMappingId = productAttributeMappingId, productAttributeValueId = productAttributeValueId});
         }
     }
