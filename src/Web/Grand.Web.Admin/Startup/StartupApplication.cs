@@ -1,5 +1,7 @@
 using elFinder.Net.AspNetCore.Extensions;
 using elFinder.Net.Drivers.FileSystem.Extensions;
+using Grand.Business.Catalog.Services.Products;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Services;
@@ -59,6 +61,8 @@ namespace Grand.Web.Admin.Startup
             services.AddScoped<IElFinderViewModelService, ElFinderViewModelService>();
             services.AddScoped<IGoogleAnalyticsViewModelService, GoogleAnalyticsViewModelService>();
             services.AddScoped<IMaterialViewModelService, MaterialViewModelService>();
+            services.AddScoped<IMaterialService, MaterialService>();
+
 
         }
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)

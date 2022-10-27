@@ -1,5 +1,4 @@
-﻿using AspNetCore;
-using Grand.Domain.Catalog;
+﻿using Grand.Domain.Catalog;
 using static Grand.Web.Admin.Models.Catalog.ProductModel;
 
 namespace Grand.Web.Admin.Extensions.Mapping

@@ -17,11 +17,13 @@ namespace Grand.Web.Admin.Controllers
     {
         private IProductService _productService;
         private IMaterialViewModelService _materialViewModelService;
+        private IMaterialService _materialService;
 
-        public MaterialController(IProductService productService, IMaterialViewModelService materialViewModelService)
+        public MaterialController(IProductService productService, IMaterialViewModelService materialViewModelService, IMaterialService materialService)
         {
             _productService = productService;
             _materialViewModelService = materialViewModelService;
+            _materialService = materialService;
         }
 
         [PermissionAuthorizeAction(PermissionActionName.List)]
@@ -57,34 +59,26 @@ namespace Grand.Web.Admin.Controllers
             return Json(gridModel);
         }
 
-        //create
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
         public async Task<IActionResult> Edit(MaterialModel materialModel, string productId, string productAttributeMappingId, string productAttributeValueId)
         {
-            
-            var product = await _productService.GetProductById(productId);
-            if (product == null)
-            {
-                return BadRequest("Product Not found");
-            }
-            var pam = product.ProductAttributeMappings.Where(x => x.Id == productAttributeMappingId).FirstOrDefault();
 
-            if (pam is null)
-            {
-                return BadRequest("Product Attribute Mapping not found");
-            }
-
-            var pav = pam.ProductAttributeValues.Where(x => x.Id == productAttributeValueId).FirstOrDefault();
-            if (pav is null)
-            {
-                return BadRequest("Product Attribute Value not found");
-            }
-
-            pav.Materials.Add(materialModel.ToEntity());
-
+            var material = await _materialService.UpdateMaterial(materialModel.ToEntity(), productId, productAttributeMappingId, productAttributeValueId);
 
             return RedirectToAction("List", new { productId = productId, productAttributeMappingId = productAttributeMappingId, productAttributeValueId = productAttributeValueId});
+        }
+
+
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [HttpPost]
+        public async Task<IActionResult> Insert(MaterialModel materialModel, string productId, string productAttributeMappingId, string productAttributeValueId)
+        {
+
+            var material = await _materialService.InsertMaterial(materialModel.ToEntity(), productId, productAttributeMappingId, productAttributeValueId);
+
+            return RedirectToAction("List", new { productId = productId, productAttributeMappingId = productAttributeMappingId, productAttributeValueId = productAttributeValueId });
         }
     }
 }

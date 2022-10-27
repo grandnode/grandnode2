@@ -42,6 +42,18 @@
                             var grid = $('#customization-mesh-grid').data('kendoGrid');
                             grid.dataSource.read();
                         }
+                    },
+                    create: {
+                        url: "@Html.Raw(Url.Action("Insert", "Material", new {productId = Model.ProductId, productAttributeMappingId = Model.ProductAttributeMappingId, productAttributeValueId = Model.Id, area= Constants.AreaAdmin}))",
+                        type: "POST",
+                        dataType: "json",
+                        data: addAntiForgeryToken,
+                        complete: function (eve) {
+                            var self = this;
+                            //reload grid
+                            var grid = $('#customization-mesh-grid').data('kendoGrid');
+                            grid.dataSource.read();
+                        }
                     }
                 },
                 schema: {
