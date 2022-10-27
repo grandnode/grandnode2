@@ -1,3 +1,16 @@
-﻿1. Baby - change background color 
-https://doc.babylonjs.com/features/featuresDeepDive/environment/environment_introduction
-2. 
+﻿
+10/27/2022
+
+There are two ways
+1. In Product Card -> Display customization button 
+	--> redirect to Product Detail with Customization page
+	a. Need to return the product attribute on product card
+
+2. In Product Detail Page -> Display customization button
+	--> Expend the section to perform customization
+	a. Work on Vue to display the customization
+	b. Display Babylon JS
+
+-----------------------------------
+1. Baby - change background color 
+https://doc.babylonjs.com/features/featuresDeepDive/environment/environment_introduction 

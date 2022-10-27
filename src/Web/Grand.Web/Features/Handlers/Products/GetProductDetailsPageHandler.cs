@@ -841,6 +841,7 @@ namespace Grand.Web.Features.Handlers.Products
                             ColorSquaresRgb = attributeValue.ColorSquaresRgb, //used with "Color squares" attribute type
                             IsPreSelected = preselected,
                             StockAvailability = stockAvailability,
+                            MaterialModels = attributeValue.Materials.Select(x => x.ToModel()).ToList()
                         };
                         attributeModel.Values.Add(valueModel);
 

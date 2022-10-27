@@ -255,6 +255,8 @@ namespace Grand.Web.Models.Catalog
             public IList<string> AllowedFileExtensions { get; set; }
             public AttributeControlType AttributeControlType { get; set; }
             public IList<ProductAttributeValueModel> Values { get; set; }
+
+
         }
 
         public partial class ProductAttributeValueModel : BaseEntityModel
@@ -286,7 +288,7 @@ namespace Grand.Web.Models.Catalog
         }
 
 
-        public class MaterialModel: BaseModel
+        public class MaterialModel: BaseEntityModel
         {
             public string Name { get; set; }
             public string FilePath { get; set; }
