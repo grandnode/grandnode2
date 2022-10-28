@@ -12,7 +12,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Checkout.Tests.Commands.Orders
+namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
 {
     [TestClass]
     public class CancelOrderCommandHandlerTests
@@ -75,7 +75,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Orders
             _productReservationMock.Verify(c => c.CancelReservationsByOrderId("id"), Times.Once);
             _auctionMock.Verify(c => c.CancelBidByOrder("id"), Times.Once);
             _discountServiceMock.Verify(c => c.CancelDiscount("id"), Times.Once);
-            _mediatorMock.Verify(c => c.Publish<OrderCancelledEvent>(It.IsAny<OrderCancelledEvent>(), default));
+            _mediatorMock.Verify(c => c.Publish(It.IsAny<OrderCancelledEvent>(), default));
         }
     }
 }
