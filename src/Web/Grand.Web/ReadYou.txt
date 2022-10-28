@@ -1,4 +1,17 @@
 ﻿
+
+Product Display
+Product
+
+	--> Product Attribute
+		Customization
+			-->Product Attribute Value 1 (Mesh1)
+			-->Product Attribute Value 2 (Mesh2)
+			-->Product Attribute Value 3 (Mesh3)
+					---> MaterialModel (Material 1)
+					---> MaterialModel (Material 2)
+-----------------------------------
+
 10/27/2022
 
 There are two ways
