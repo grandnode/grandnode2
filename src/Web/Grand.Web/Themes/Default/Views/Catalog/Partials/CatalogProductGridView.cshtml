@@ -181,7 +181,6 @@
                     </button>
                 </template>
             </template>
-            Location Test
             <template v-if="!Model.ProductPrice.DisableBuyButton">
                 <template v-if="!Model.ShowQty">
                     <button class="btn btn-info justify-content-center w-100" :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + Model.Id +'/1?quantity=1`, `' + Model.ShowQty +'`,`' + Model.Id + '`);return false;'">

@@ -409,6 +409,10 @@ namespace Grand.Web.Admin.Models.Catalog
 
         //copy product
         public CopyProductModel CopyProductModel { get; set; }
+    
+        // Customization 
+        public bool CustomizedProductEnable { get; set; }
+        public string CutomizedProductLink { get; set; }
 
         #region Nested classes
 
@@ -446,6 +450,7 @@ namespace Grand.Web.Admin.Models.Catalog
 
             //vendor
             public bool IsLoggedInAsVendor { get; set; }
+
         }
 
 

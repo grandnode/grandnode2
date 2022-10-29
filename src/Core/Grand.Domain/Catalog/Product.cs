@@ -566,7 +566,14 @@ namespace Grand.Domain.Catalog
         /// Gets or sets the collection of locales
         /// </summary>
         public IList<TranslationEntity> Locales { get; set; }
-        
+
+
+        #region Customization Link
+        public bool CustomizedProductEnable { get; set; }
+
+        public string CutomizedProductLink { get; set; }
+        #endregion
+
         /// <summary>
         /// Gets or sets the collection of ProductCategory
         /// </summary>

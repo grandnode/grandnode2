@@ -1115,7 +1115,7 @@ namespace Grand.Web.Admin.Services
                     ProductId = product.Id,
                     CategoryId = x.CategoryId,
                     IsFeaturedProduct = x.IsFeaturedProduct,
-                    DisplayOrder = x.DisplayOrder
+                    DisplayOrder = x.DisplayOrder,
                 });
             }
             return items;
