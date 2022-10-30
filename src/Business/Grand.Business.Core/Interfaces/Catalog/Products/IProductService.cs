@@ -274,21 +274,19 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         #endregion
 
         #region Customized Linked Products
-        #region Cross-sell products
 
         /// <summary>
-        /// Inserts a cross-sell product
+        /// Inserts a customized linked product
         /// </summary>
-        /// <param name="crossSellProduct">Cross-sell product</param>
-        Task InsertCrossSellProduct(CrossSellProduct crossSellProduct);
+        /// <param name="customizedLinkedProduct">Customized linked product</param>
+        Task InsertCustomizedLinkedProduct(CustomizedLinkedProduct customizedLinkedProduct);
 
         /// <summary>
-        /// Deletes a cross-sell product
+        /// Deletes a customized linked product
         /// </summary>
-        /// <param name="crossSellProduct">Cross-sell</param>
-        Task DeleteCrossSellProduct(CrossSellProduct crossSellProduct); 
+        /// <param name="customizedLinkedProduct">Customized Linked</param>
+        Task DeleteCustomizedLinkedProduct(CustomizedLinkedProduct crossSellProduct); 
 
-        #endregion
         #endregion
 
         #region Recommmended products

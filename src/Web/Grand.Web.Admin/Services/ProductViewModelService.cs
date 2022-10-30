@@ -1538,13 +1538,13 @@ namespace Grand.Web.Admin.Services
             }
         }
 
-        public virtual async Task DeleteCrossSellProduct(string productId, string crossSellProductId)
+        public virtual async Task DeleteCustomizedLinkedProduct(string productId, string customizedLinkedId)
         {
-            var crosssell = new CrossSellProduct() {
+            var customizedLinkedProduct = new CustomizedLinkedProduct() {
                 ProductId1 = productId,
-                ProductId2 = crossSellProductId
+                ProductId2 = customizedLinkedId
             };
-            await _productService.DeleteCrossSellProduct(crosssell);
+            await _productService.DeleteCustomizedLinkedProduct(customizedLinkedProduct);
         }
 
         public virtual async Task InsertRecommendedProductModel(ProductModel.AddRecommendedProductModel model)

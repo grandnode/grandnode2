@@ -28,7 +28,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
-using static Grand.Web.Admin.Models.Catalog.ProductModel;
 
 namespace Grand.Web.Admin.Controllers
 {

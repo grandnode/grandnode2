@@ -895,6 +895,45 @@ namespace Grand.Business.Catalog.Services.Products
 
         #endregion
 
+        #region Customized Linked Product
+
+        /// <summary>
+        /// Inserts a customized linked product
+        /// </summary>
+        /// <param name="customizedLinkedProduct">Customized linked product</param>
+        public async Task InsertCustomizedLinkedProduct(CustomizedLinkedProduct customizedLinkedProduct)
+        {
+            if (customizedLinkedProduct == null)
+                throw new ArgumentNullException(nameof(customizedLinkedProduct));
+
+            await _productRepository.AddToSet(customizedLinkedProduct.ProductId1, x => x.CustomizedLinkedProduct, customizedLinkedProduct.ProductId2);
+
+            //cache
+            await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, customizedLinkedProduct.ProductId1));
+
+            //event notification
+            await _mediator.EntityInserted(customizedLinkedProduct);
+        }
+
+        /// <summary>
+        /// Deletes a customized linked product
+        /// </summary>
+        /// <param name="customizedLinkedProduct">Customized Linked</param>
+        public async Task DeleteCustomizedLinkedProduct(CustomizedLinkedProduct customizedLinkedProduct) 
+        {
+            if (customizedLinkedProduct == null)
+                throw new ArgumentNullException(nameof(customizedLinkedProduct));
+
+            await _productRepository.Pull(customizedLinkedProduct.ProductId1, x => x.CustomizedLinkedProduct, customizedLinkedProduct.ProductId2);
+
+            //cache
+            await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, customizedLinkedProduct.ProductId1));
+
+            //event notification
+            await _mediator.EntityDeleted(customizedLinkedProduct);
+        }
+        #endregion
+
         #region Recommmended products
 
         /// <summary>
