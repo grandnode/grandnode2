@@ -2769,12 +2769,15 @@
 	<Resource Name="Admin.Catalog.Products.Copy.Published" Area="Admin">
 		<Value>Published</Value>
 	</Resource>
-	<Resource Name="Admin.Catalog.Products.CrossSells" Area="Admin">
-		<Value>Cross-sells</Value>
-	</Resource>
-	<Resource Name="Admin.Catalog.Products.CrossSells.AddNew" Area="Admin">
-		<Value>Add new cross-sell product</Value>
-	</Resource>
+  <Resource Name="Admin.Catalog.Products.CustomizedLinked.Fields.Product" Area="Admin">
+    <Value>Product</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.CustomizedLinked.SaveBeforeEdit" Area="Admin">
+    <Value>You need to save the product before you can add customized link products for this product page.</Value>
+  </Resource>
+  <Resource Name="Admin.Catalog.Products.CustomizedLinked.AddNew" Area="Admin">
+    <Value>Add New</Value>
+  </Resource>
 	<Resource Name="Admin.Catalog.Products.CrossSells.Fields.Product" Area="Admin">
 		<Value>Product</Value>
 	</Resource>

@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
+using static Grand.Web.Admin.Models.Catalog.ProductModel;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -966,6 +967,101 @@ namespace Grand.Web.Admin.Controllers
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
         public async Task<IActionResult> CrossSellProductAddPopup(ProductModel.AddCrossSellProductModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (model.SelectedProductIds != null)
+                {
+                    await _productViewModelService.InsertCrossSellProductModel(model);
+                }
+                return Content("");
+            }
+            else
+            {
+                Error(ModelState);
+                model = await _productViewModelService.PrepareCrossSellProductModel();
+                model.ProductId = model.ProductId;
+                return View(model);
+            }
+        }
+
+        #endregion
+
+        #region Linked Customized
+
+        [PermissionAuthorizeAction(PermissionActionName.Preview)]
+        [HttpPost]
+        public async Task<IActionResult> CustomizedLinkedProductList(DataSourceRequest command, string productId)
+        {
+            var product = await _productService.GetProductById(productId);
+
+            var permission = await CheckAccessToProduct(product);
+            if (!permission.allow)
+                return ErrorForKendoGridJson(permission.message);
+
+            var customizedLinkedProduct = product.CustomizedLinkedProduct;
+            var customizedLinkedProductModel = new List<ProductModel.CustomizedLinkedProductModel>();
+            foreach (var x in customizedLinkedProduct)
+            {
+                customizedLinkedProductModel.Add(new ProductModel.CustomizedLinkedProductModel {
+                    Id = x,
+                    ProductId = product.Id,
+                    Product2Name = (await _productService.GetProductById(x))?.Name,
+                });
+            }
+            var gridModel = new DataSourceResult {
+                Data = customizedLinkedProductModel,
+                Total = customizedLinkedProductModel.Count
+            };
+
+            return Json(gridModel);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [HttpPost]
+        public async Task<IActionResult> CustomizedLinkedProductDelete(ProductModel.CrossSellProductModel model)
+        {
+            var product = await _productService.GetProductById(model.ProductId);
+            if (product == null)
+            {
+                throw new ArgumentException("Product not exists");
+            }
+            var customizedLinkedProduct = product.CustomizedLinkedProduct.Where(x => x == model.Id).FirstOrDefault();
+            if (string.IsNullOrEmpty(customizedLinkedProduct))
+                throw new ArgumentException("No customized linked product found with the specified id");
+
+            if (ModelState.IsValid)
+            {
+                await _productViewModelService.DeleteCrossSellProduct(product.Id, customizedLinkedProduct);
+                return new JsonResult("");
+            }
+            return ErrorForKendoGridJson(ModelState);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        public async Task<IActionResult> CustomizedLinkedProductAddPopup(string productId)
+        {
+            var model = await _productViewModelService.PrepareCrossSellProductModel();
+            model.ProductId = productId;
+            return View(model);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [HttpPost]
+        public async Task<IActionResult> CustomizedLinkedProductList(DataSourceRequest command, ProductModel.AddCrossSellProductModel model)
+        {
+            var (products, totalCount) = await _productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+            var gridModel = new DataSourceResult {
+                Data = products.ToList(),
+                Total = totalCount
+            };
+
+            return Json(gridModel);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [HttpPost]
+        public async Task<IActionResult> CustomizedLinkedProductAddPopup(ProductModel.AddCrossSellProductModel model)
         {
             if (ModelState.IsValid)
             {

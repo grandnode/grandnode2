@@ -4,23 +4,23 @@
 {
 
     <div class="panel panel-default">
-        <vc:admin-widget widget-zone="product_details_cross_sells_top" additional-data="Model" />
+        <vc:admin-widget widget-zone="product_details_linked_customized_top" additional-data="Model" />
         <div class="panel-heading">
-            @Loc["Admin.Catalog.Products.CrossSells"]
+            @Loc["Admin.Catalog.Products.CustomizedLinked"]
         </div>
         <div class="panel-body">
-            <div id="crosssellproducts-grid"></div>
+            <div id="customizedlinkedproducts-grid"></div>
         </div>
         <div class="panel-footer">
-            <a id="btnAddNewCrossSellProduct" href="@(Url.Action("CrossSellProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCrossSellProducts", formId = "product-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.CrossSells.AddNew"]</a>
-            <input type="submit" id="btnRefreshCrossSellProducts" style="display: none" />
+            <a id="btnAddNewCustomizedLinkedProduct" href="@(Url.Action("CustomizedLinkedProductAddPopup", "Product", new { productId = Model.Id, btnId = "btnRefreshCustomizedLinkedProducts", formId = "product-form", area = Constants.AreaAdmin }))" class="k-button"><i class="fa fa-plus"></i>&nbsp;@Loc["Admin.Catalog.Products.CustomizedLinked.AddNew"]</a>
+            <input type="submit" id="btnRefreshCustomizedLinkedProducts" style="display: none" />
         </div>
-        <vc:admin-widget widget-zone="product_details_cross_sells_bottom" additional-data="Model" />
+        <vc:admin-widget widget-zone="product_details_customized_linked_bottom" additional-data="Model" />
     </div>
 
     <script>
         $(document).ready(function () {
-            $('#btnAddNewCrossSellProduct').magnificPopup({
+            $('#btnAddNewCustomizedLinkedProduct').magnificPopup({
                 type: 'ajax',
                 settings: { cache: false, async: false },
                 midClick: true,
@@ -33,17 +33,17 @@
                     }
                 }
             });
-            $("#crosssellproducts-grid").kendoGrid({
+            $("#customizedlinkedproducts-grid").kendoGrid({
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("CrossSellProductList", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                            url: "@Html.Raw(Url.Action("CustomizedLinkedProductList", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
                         },
                         destroy: {
-                            url: "@Html.Raw(Url.Action("CrossSellProductDelete", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
+                            url: "@Html.Raw(Url.Action("CustomizedLinkedProductDelete", "Product", new { productId = Model.Id, area = Constants.AreaAdmin }))",
                             type: "POST",
                             dataType: "json",
                             data: addAntiForgeryToken
@@ -85,7 +85,7 @@
                 columns: [
                     {
                         field: "Product2Name",
-                        title: "@Loc["Admin.Catalog.Products.CrossSells.Fields.Product"]",
+                        title: "@Loc["Admin.Catalog.Products.CustomizedLinked.Fields.Product"]",
                         template: '<a class="k-link" href="@Url.Action("Edit", "Product", new { id = "", area = Constants.AreaAdmin })/#=Id#">#=kendo.htmlEncode(Product2Name)#</a>',
                     }, {
                         command: { name: "destroy", text: "@Loc["Admin.Common.Delete"]" },
@@ -98,9 +98,9 @@
             
     <script>
         $(document).ready(function () {
-            $('#btnRefreshCrossSellProducts').click(function () {
+            $('#btnRefreshCustomizedLinkedProducts').click(function () {
                 //refresh grid
-                var grid = $("#crosssellproducts-grid").data('kendoGrid');
+                var grid = $("#customizedlinkedproducts-grid").data('kendoGrid');
                 grid.dataSource.read();
 
                 //return false to don't reload a page
@@ -113,6 +113,6 @@
 else
 {
     <div class="note note-info">
-        @Loc["Admin.Catalog.Products.CrossSells.SaveBeforeEdit"]
+        @Loc["Admin.Catalog.Products.CustomizedLinked.SaveBeforeEdit"]
     </div>
 }

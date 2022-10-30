@@ -666,6 +666,21 @@ namespace Grand.Web.Admin.Models.Catalog
             public string[] SelectedProductIds { get; set; }
         }
 
+        public partial class CustomizedLinkedProductModel : BaseEntityModel
+        {
+            public string ProductId { get; set; }
+
+            [GrandResourceDisplayName("Admin.Catalog.Products.CustomizedLinked.Fields.Product")]
+            public string Product2Name { get; set; }
+        }
+
+        public partial class AddCustomizedLinkedProductModel : AddProductModel
+        {
+            public string ProductId { get; set; }
+
+            public string[] SelectedProductIds { get; set; }
+        }
+
         public partial class RecommendedProductModel : BaseEntityModel
         {
             public string ProductId { get; set; }

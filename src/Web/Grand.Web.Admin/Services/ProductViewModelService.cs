@@ -1502,6 +1502,42 @@ namespace Grand.Web.Admin.Services
                 }
             }
         }
+    
+        public virtual async Task DeleteCrossSellProduct(string productId, string crossSellProductId)
+        {
+            var crosssell = new CrossSellProduct() {
+                ProductId1 = productId,
+                ProductId2 = crossSellProductId
+            };
+            await _productService.DeleteCrossSellProduct(crosssell);
+        }
+
+
+        public virtual async Task InsertCustomizedLinkedProductModel(ProductModel.AddCustomizedLinkedProductModel model)
+        {
+            var customizedLinkedProduct = await _productService.GetProductById(model.ProductId, true);
+            foreach (var id in model.SelectedProductIds)
+            {
+                var product = await _productService.GetProductById(id);
+                if (product != null)
+                {
+                    //a vendor should have access only to his products
+                    if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id)
+                        continue;
+
+                    if (customizedLinkedProduct.CustomizedLinkedProduct.Where(x => x == id).Count() == 0)
+                    {
+                        if (model.ProductId != id)
+                            await _productService.InsertCrossSellProduct(
+                                new CrossSellProduct {
+                                    ProductId1 = model.ProductId,
+                                    ProductId2 = id,
+                                });
+                    }
+                }
+            }
+        }
+
         public virtual async Task DeleteCrossSellProduct(string productId, string crossSellProductId)
         {
             var crosssell = new CrossSellProduct() {

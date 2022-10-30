@@ -42,6 +42,8 @@ namespace Grand.Web.Admin.Interfaces
         Task DeleteBundleProductModel(ProductModel.BundleProductModel model);
         Task InsertCrossSellProductModel(ProductModel.AddCrossSellProductModel model);
         Task DeleteCrossSellProduct(string productId, string crossSellProductId);
+        Task InsertCustomizedLinkedProductModel(ProductModel.CustomizedLinkedProductModel model);
+        Task DeleteCustomizedLinkedProduct(string productId, string customizedLinkedProduct);
         Task InsertRecommendedProductModel(ProductModel.AddRecommendedProductModel model);
         Task DeleteRecommendedProduct(string productId, string recommendedProductId);
         Task InsertAssociatedProductModel(ProductModel.AddAssociatedProductModel model);
