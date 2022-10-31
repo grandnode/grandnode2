@@ -52,6 +52,7 @@ namespace Grand.Web.Admin.Interfaces
         Task<ProductModel.AddSimilarProductModel> PrepareSimilarProductModel();
         Task<ProductModel.AddBundleProductModel> PrepareBundleProductModel();
         Task<ProductModel.AddCrossSellProductModel> PrepareCrossSellProductModel();
+        Task<ProductModel.AddCustomizedLinkedProductModel> PrepareCustomizedLinkedProductModel();
         Task<ProductModel.AddRecommendedProductModel> PrepareRecommendedProductModel();
         Task<ProductModel.AddAssociatedProductModel> PrepareAssociatedProductModel();
         Task<BulkEditListModel> PrepareBulkEditListModel();

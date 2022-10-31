@@ -837,6 +837,7 @@ namespace Grand.Web.Admin.Services
                 //if a simple product AND "manage inventory" is "Track inventory", then display
                 if (x.ProductTypeId == ProductType.SimpleProduct && x.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
                     productModel.StockQuantityStr = _stockQuantityService.GetTotalStockQuantity(x, total: true).ToString();
+                productModel.CustomizedEnable = x.CustomizedLinkedProduct.Any();
                 items.Add(productModel);
             }
             return (items, products.TotalCount);
@@ -1502,7 +1503,7 @@ namespace Grand.Web.Admin.Services
                 }
             }
         }
-    
+
         public virtual async Task DeleteCrossSellProduct(string productId, string crossSellProductId)
         {
             var crosssell = new CrossSellProduct() {
@@ -1616,6 +1617,13 @@ namespace Grand.Web.Admin.Services
             var model = await PrepareAddProductModel<ProductModel.AddCrossSellProductModel>();
             return model;
         }
+
+        public virtual async Task<ProductModel.AddCustomizedLinkedProductModel> PrepareCustomizedLinkedProductModel()
+        {
+            var model = await PrepareAddProductModel<ProductModel.AddCustomizedLinkedProductModel>();
+            return model;
+        }
+
         public virtual async Task<ProductModel.AddRecommendedProductModel> PrepareRecommendedProductModel()
         {
             var model = await PrepareAddProductModel<ProductModel.AddRecommendedProductModel>();
