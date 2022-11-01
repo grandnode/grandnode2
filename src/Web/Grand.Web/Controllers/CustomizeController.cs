@@ -13,9 +13,9 @@ namespace Grand.Web.Controllers
             _productService = productService;
         }
 
-        public async Task<IActionResult> Index(string productId)
+        public async Task<IActionResult> Index(string originalProductId, string customizedLinkedProductId)
         {
-            var product = await _productService.GetProductById(productId);
+            var product = await _productService.GetProductById(customizedLinkedProductId);
             if(product == null)
             {
                 return NotFound();

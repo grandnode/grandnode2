@@ -103,6 +103,11 @@ namespace Grand.Web.Models.Catalog
         public bool AuctionEnded { get; set; }
         public bool RenderCaptcha { get; set; }
 
+        #region Customize
+        
+        #endregion End Customize
+
+
         #region Nested Classes
         public partial class ProductBreadcrumbModel : BaseModel
         {
@@ -255,8 +260,6 @@ namespace Grand.Web.Models.Catalog
             public IList<string> AllowedFileExtensions { get; set; }
             public AttributeControlType AttributeControlType { get; set; }
             public IList<ProductAttributeValueModel> Values { get; set; }
-
-
         }
 
         public partial class ProductAttributeValueModel : BaseEntityModel

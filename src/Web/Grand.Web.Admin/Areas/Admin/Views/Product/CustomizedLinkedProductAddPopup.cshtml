@@ -148,7 +148,7 @@
                 dataSource: {
                     transport: {
                         read: {
-                            url: "@Html.Raw(Url.Action("CustomizedLinkedProductAddPopupList", "Product", new { area = Constants.AreaAdmin }))",
+                        url: "@Html.Raw(Url.Action("CustomizedLinkedProductAddPopupList", "Product", new { area = Constants.AreaAdmin, productId= Context.Request.Query["ProductId"]}))",
                             type: "POST",
                             dataType: "json",
                             data: additionalData

@@ -980,7 +980,24 @@ section {
         padding: 5px 40px;
         font-size: 14px;
     }
-        
+
+    .product .popup-card .info .go-to-customize {
+        color: #fff;
+        background: #009DD2;
+        font-size: 16px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        text-transform: uppercase;
+        margin: 10px auto;
+        padding: 10px 50px;
+        border-radius: 20px;
+        border: none;
+        max-width: 220px;
+        margin: 5px auto;
+        padding: 5px 40px;
+        font-size: 14px;
+    }
 
     .product .popup-card .info .add-wishlist-btn {
         border: none;

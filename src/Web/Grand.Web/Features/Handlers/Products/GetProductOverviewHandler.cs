@@ -168,7 +168,10 @@ namespace Grand.Web.Features.Handlers.Products
                 UserFields = product.UserFields,
                 MarkAsNew = product.MarkAsNew &&
                         (!product.MarkAsNewStartDateTimeUtc.HasValue || product.MarkAsNewStartDateTimeUtc.Value < DateTime.UtcNow) &&
-                        (!product.MarkAsNewEndDateTimeUtc.HasValue || product.MarkAsNewEndDateTimeUtc.Value > DateTime.UtcNow)
+                        (!product.MarkAsNewEndDateTimeUtc.HasValue || product.MarkAsNewEndDateTimeUtc.Value > DateTime.UtcNow),
+                CustomizedLinkedToOtherProduct = product.CustomizedLinkedProduct.Any(),
+                IsCustomProduct = product.ProductAttributeMappings.Where(x => x.AttributeControlTypeId == AttributeControlType.Customize).Any()
+
             };
             return model;
         }

@@ -1047,11 +1047,11 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
-        public async Task<IActionResult> CustomizedLinkedProductAddPopupList(DataSourceRequest command, ProductModel.AddCustomizedLinkedProductModel model)
+        public async Task<IActionResult> CustomizedLinkedProductAddPopupList(DataSourceRequest command, ProductModel.AddCustomizedLinkedProductModel model, string productId)
         {
             var (products, totalCount) = await _productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
             // Ignore current product
-            products.Where(x => x.Id != model.ProductId);
+            products = products.Where(x => x.Id != productId).ToList();
             totalCount = products.Count();
             var gridModel = new DataSourceResult {
                 Data = products.ToList(),

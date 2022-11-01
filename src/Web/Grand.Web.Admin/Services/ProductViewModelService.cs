@@ -1529,8 +1529,8 @@ namespace Grand.Web.Admin.Services
                     if (customizedLinkedProduct.CustomizedLinkedProduct.Where(x => x == id).Count() == 0)
                     {
                         if (model.ProductId != id)
-                            await _productService.InsertCrossSellProduct(
-                                new CrossSellProduct {
+                            await _productService.InsertCustomizedLinkedProduct(
+                                new CustomizedLinkedProduct {
                                     ProductId1 = model.ProductId,
                                     ProductId2 = id,
                                 });

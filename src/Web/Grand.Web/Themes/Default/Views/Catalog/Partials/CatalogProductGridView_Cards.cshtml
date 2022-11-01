@@ -36,14 +36,21 @@
                 </h2>
                 <div class="desc" v-html="productItem.ShortDescription"></div>
                 <span class="price">{{productItem.ProductPrice.Price}}</span>
-                <div class="row">
-                    <div class="col-8">
+                <div class="row">                   
+                    <template v-if="productItem.CustomizedLinkedToOtherProduct == true">
+                        <div class="col-5">
+                            <button class="go-to-customize float-right">
+                                Custom
+                            </button>
+                        </div>
+                    </template>
+                    <div :class="[productItem.CustomizedLinkedToOtherProduct == true ? 'col-5': 'col-10' ]">
                         <button class="add-cart-btn float-right"
                             :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + productItem.Id +'/1?quantity=1`, `' + productItem.ShowQty +'`,`' + productItem.Id + '`);return false;'">
-                            Add to Cart
+                            Purchase
                         </button>
                     </div>
-                    <div class="col-4">
+                    <div class="col-2">
                         <button v-b-tooltip.hover.bottom title="@Loc["ShoppingCart.AddToWishlist"]"
                             class="add-wishlist-btn mt-2"
                             :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + productItem.Id +'/2?quantity=1`, `' + productItem.ShowQty +'`,`' + productItem.Id + '`);return false;'">
