@@ -12129,7 +12129,7 @@
 		<Value>No customer account associated to this vendor.</Value>
 	</Resource>
 	<Resource Name="Admin.Vendors.Fields.Commission" Area="Admin">
-		<Value>Commisssion</Value>
+		<Value>Commission</Value>
 	</Resource>
 	<Resource Name="Admin.Vendors.Fields.Commission.IsCommissionValid" Area="Admin">
 		<Value>Commission`s rate is no valid</Value>
