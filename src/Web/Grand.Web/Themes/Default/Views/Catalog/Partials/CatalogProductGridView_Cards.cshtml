@@ -37,14 +37,14 @@
                 <div class="desc" v-html="productItem.ShortDescription"></div>
                 <span class="price">{{productItem.ProductPrice.Price}}</span>
                 <div class="row">                   
-                    <template v-if="productItem.CustomizedLinkedToOtherProduct == true">
+                    <template v-if="productItem.CustomizedLinkedProductLinkUrl != ''">
                         <div class="col-5">
-                            <button class="go-to-customize float-right">
+                            <button class="go-to-customize float-right" :href="productItem.CustomizedLinkedProductLinkUrl">
                                 Custom
                             </button>
                         </div>
                     </template>
-                    <div :class="[productItem.CustomizedLinkedToOtherProduct == true ? 'col-5': 'col-10' ]">
+                    <div :class="[productItem.CustomizedLinkedProductLinkUrl != '' ? 'col-5': 'col-10' ]">
                         <button class="add-cart-btn float-right"
                             :onclick="'AxiosCart.addproducttocart_catalog(`@Url.RouteUrl("AddProductCatalog")/' + productItem.Id +'/1?quantity=1`, `' + productItem.ShowQty +'`,`' + productItem.Id + '`);return false;'">
                             Purchase

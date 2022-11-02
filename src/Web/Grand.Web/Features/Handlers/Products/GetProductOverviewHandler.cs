@@ -169,7 +169,7 @@ namespace Grand.Web.Features.Handlers.Products
                 MarkAsNew = product.MarkAsNew &&
                         (!product.MarkAsNewStartDateTimeUtc.HasValue || product.MarkAsNewStartDateTimeUtc.Value < DateTime.UtcNow) &&
                         (!product.MarkAsNewEndDateTimeUtc.HasValue || product.MarkAsNewEndDateTimeUtc.Value > DateTime.UtcNow),
-                CustomizedLinkedToOtherProduct = product.CustomizedLinkedProduct.Any(),
+                CustomizedLinkedProductLinkUrl = product.CustomizedLinkedProduct.Any() ? _linkGenerator.GetUriByRouteValues(_httpContextAccessor.HttpContext, "Product", new { productId = product.CustomizedLinkedProduct.FirstOrDefault() }) : string.Empty,
                 IsCustomProduct = product.ProductAttributeMappings.Where(x => x.AttributeControlTypeId == AttributeControlType.Customize).Any()
 
             };

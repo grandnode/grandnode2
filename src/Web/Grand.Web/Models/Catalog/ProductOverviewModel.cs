@@ -114,8 +114,9 @@ namespace Grand.Web.Models.Catalog
         #endregion
 
         #region Customized
-        public bool CustomizedLinkedToOtherProduct { get; set; }
         public bool IsCustomProduct { get; set; }
+
+        public string CustomizedLinkedProductLinkUrl { get; set; }
         #endregion
     }
 }
