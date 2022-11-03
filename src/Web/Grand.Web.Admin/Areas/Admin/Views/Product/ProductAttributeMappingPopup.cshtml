@@ -102,6 +102,13 @@
                             @*Customization*@
                             <div class="customization_container">
                                 <div class="form-group">
+                                    <admin-label asp-for="ObjectName" />
+                                    <div class="col-md-9 col-sm-9">
+                                        <admin-input asp-for="ObjectName" />
+                                        <span asp-validation-for="ObjectName"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
                                     <admin-label asp-for="ObjectPath" />
                                     <div class="col-md-9 col-sm-9">
                                         <admin-input asp-for="ObjectPath" />

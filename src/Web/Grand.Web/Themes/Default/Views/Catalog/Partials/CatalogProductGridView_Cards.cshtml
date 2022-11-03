@@ -39,9 +39,9 @@
                 <div class="row">                   
                     <template v-if="productItem.CustomizedLinkedProductLinkUrl != ''">
                         <div class="col-5">
-                            <button class="go-to-customize float-right" :href="productItem.CustomizedLinkedProductLinkUrl">
+                            <a class="go-to-customize float-right" :href="productItem.CustomizedLinkedProductLinkUrl">
                                 Custom
-                            </button>
+                            </a>
                         </div>
                     </template>
                     <div :class="[productItem.CustomizedLinkedProductLinkUrl != '' ? 'col-5': 'col-10' ]">

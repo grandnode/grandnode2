@@ -169,12 +169,13 @@ namespace Grand.Web.Features.Handlers.Products
                 MarkAsNew = product.MarkAsNew &&
                         (!product.MarkAsNewStartDateTimeUtc.HasValue || product.MarkAsNewStartDateTimeUtc.Value < DateTime.UtcNow) &&
                         (!product.MarkAsNewEndDateTimeUtc.HasValue || product.MarkAsNewEndDateTimeUtc.Value > DateTime.UtcNow),
-                CustomizedLinkedProductLinkUrl = product.CustomizedLinkedProduct.Any() ? _linkGenerator.GetUriByRouteValues(_httpContextAccessor.HttpContext, "Product", new { productId = product.CustomizedLinkedProduct.FirstOrDefault() }) : string.Empty,
+                CustomizedLinkedProductLinkUrl = product.CustomizedLinkedProduct.Any() ? _linkGenerator.GetUriByRouteValues(_httpContextAccessor.HttpContext, "Product", new { SeName = (await _productService.GetProductById(product.CustomizedLinkedProduct.FirstOrDefault())).GetSeName(_workContext.WorkingLanguage.Id) }) : string.Empty,
                 IsCustomProduct = product.ProductAttributeMappings.Where(x => x.AttributeControlTypeId == AttributeControlType.Customize).Any()
 
             };
             return model;
         }
+
 
         private async Task<ProductOverviewModel.ProductPriceModel> PreparePriceModel(Product product, Dictionary<string, string> res,
             bool forceRedirectionAfterAddingToCart, bool enableShoppingCart, bool displayPrices, bool enableWishlist,

@@ -83,6 +83,7 @@ namespace Grand.Domain.Catalog
         public IList<CustomAttribute> ConditionAttribute { get; set; }
 
         #region customization
+        public string ObjectName { get; set; }
         public string ObjectPath { get; set; }
         public decimal InitialCameraAlpha { get; set; }
         public decimal InitialCameraBeta { get; set; }

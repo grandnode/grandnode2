@@ -104,7 +104,9 @@ namespace Grand.Web.Models.Catalog
         public bool RenderCaptcha { get; set; }
 
         #region Customize
-        
+        public bool IsCustomProduct { get; set; }
+
+        public string CustomizedLinkedProductLinkUrl { get; set; }
         #endregion End Customize
 
 

@@ -911,6 +911,7 @@ namespace Grand.Web.Admin.Models.Catalog
             public string ConditionString { get; set; }
 
             #region Customization
+            public string ObjectName { get; set; }
             public string ObjectPath { get; set; }
             public decimal InitialCameraAlpha { get; set; }
             public decimal InitialCameraBeta { get; set; }
