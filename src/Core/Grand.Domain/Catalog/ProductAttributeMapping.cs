@@ -94,8 +94,6 @@ namespace Grand.Domain.Catalog
         public decimal UpperBetaLimit { get; set; }
         public decimal LowerRadiusLimit { get; set; }
         public decimal UpperRadiusLimit { get; set; }
-        
-       // public Vector3 Target { get; set; }
         #endregion
 
         /// <summary>

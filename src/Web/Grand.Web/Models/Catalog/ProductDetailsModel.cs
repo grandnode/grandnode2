@@ -262,6 +262,20 @@ namespace Grand.Web.Models.Catalog
             public IList<string> AllowedFileExtensions { get; set; }
             public AttributeControlType AttributeControlType { get; set; }
             public IList<ProductAttributeValueModel> Values { get; set; }
+
+            #region customization
+            public string ObjectName { get; set; }
+            public string ObjectPath { get; set; }
+            public decimal InitialCameraAlpha { get; set; }
+            public decimal InitialCameraBeta { get; set; }
+            public decimal InitialCameraRadius { get; set; }
+            public decimal UpperAlphaLimit { get; set; }
+            public decimal LowerAlphaLimit { get; set; }
+            public decimal LowerBetaLimit { get; set; }
+            public decimal UpperBetaLimit { get; set; }
+            public decimal LowerRadiusLimit { get; set; }
+            public decimal UpperRadiusLimit { get; set; }
+            #endregion
         }
 
         public partial class ProductAttributeValueModel : BaseEntityModel
@@ -285,9 +299,9 @@ namespace Grand.Web.Models.Catalog
 
             // Customization
             public string MeshId { get; set; }
-            public string CameraAlpha { get; set; }
-            public string CameraBeta { get; set; }
-            public string CameraRadius { get; set; }
+            public decimal CameraAlpha { get; set; }
+            public decimal CameraBeta { get; set; }
+            public decimal CameraRadius { get; set; }
             public List<MaterialModel> MaterialModels { get; set; }
             // End Customization 
         }

@@ -75,9 +75,9 @@ namespace Grand.Domain.Catalog
 
         //Customization
         public string MeshId { get; set; }
-        public string CameraAlpha { get; set; }
-        public string CameraBeta { get; set; }
-        public string CameraRadius { get; set; }
+        public decimal CameraAlpha { get; set; }
+        public decimal CameraBeta { get; set; }
+        public decimal CameraRadius { get; set; }
 
         public ICollection<Material> Materials { get; set; }
         // End Customization

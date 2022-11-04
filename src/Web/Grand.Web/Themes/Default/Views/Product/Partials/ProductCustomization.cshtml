@@ -21,119 +21,128 @@
             canvas: null,
             light: null,
             cameraInitialSetting: {
-                alpha: @customizationAttribute.,
-                beta: @mesh.CameraBeta,
-                radius: @mesh.CameraRadius,
+                alpha: @customizationAttribute.InitialCameraAlpha,
+                beta: @customizationAttribute.InitialCameraBeta,
+                radius: @customizationAttribute.InitialCameraRadius,
                 target: new BABYLON.Vector3(0, 0, 0),
-                upperAlphaLimit: @mesh.ca
-                lowerBetaLimit: 0.7026,
-                upperBetaLimit: 1.9971,
-                lowerRadiusLimit: 50,
-                upperRadiusLimit: 50
+                upperAlphaLimit: @customizationAttribute.UpperAlphaLimit,
+                lowerBetaLimit: @customizationAttribute.LowerBetaLimit,
+                upperBetaLimit: @customizationAttribute.UpperRadiusLimit,
+                lowerRadiusLimit: @customizationAttribute.LowerRadiusLimit,
+                upperRadiusLimit: @customizationAttribute.UpperRadiusLimit
             },
-            meshes: [
-                {
-                    name: "helmet",
-                    cameraSetting: {
-                        alpha: Math.PI * 0.8,
-                        beta: Math.PI * 0.39,
-                        radius: 55
-                    }
-                }
-                // Mesh should contain
-                //1. all the mesh
-                // available material or color
-                // camera position
-            ],
-            canvas: null,
-            light: null,
-            cameraInitialSetting: {
-                alpha: Math.PI * 0.8,
-                beta: Math.PI * 0.5,
-                radius: 60,
-                target: new BABYLON.Vector3(0, 0, 0)
-            },
-            // load from database
             productData: {
-                url: "https://raw.githubusercontent.com/namhoaingo/grandnode2Forked/master/vue-balylon/b101/public/",
+                url: "@customizationAttribute.ObjectPath",
+                objectName: "@customizationAttribute.ObjectName,
                 meshes: [
-                    {
-                        name: "helmet",
-                        cameraSetting: {
-                            alpha: Math.PI * 0.8,
-                            beta: Math.PI * 0.39,
-                            radius: 55
+                    @foreach(var mesh in meshes){
+                        <text>
+                         {
+                            name: @mesh.MeshId,
+                            cameraSetting: {
+                                alpha: @mesh.CameraAlpha,
+                                beta: @mesh.CameraBeta,
+                                radius: @mesh.CameraRadius
+                            },
+                            availableMaterials: [
+                                @foreach(var material in mesh.MaterialModels)
+                                    {
+                                     <text>
+                                        {
+                                            name: @material.Name,
+                                            url: @material.FilePath,
+                                            price: @material.Price,
+                                            cost: @material.Cost
+                                        },  
+                                    </text>
+                                    }
+                                ]
                         },
-                        availableMaterials: [
-                            {
-                                name: "sonnhung1",
-                                url: "",
-                                price: 50
-                            },
-                            {
-                                name: "sonnhung2",
-                                url: "",
-                                price: 51
-                            },
-                            {
-                                name: "sonnhung3",
-                                url: "",
-                                price: 52
-                            }
-                        ]
-                    },
-                    {
-                        name: "lottrong",
-                        cameraSetting: {
-                            alpha: Math.PI * 0.8,
-                            beta: Math.PI * 0.39,
-                            radius: 55
-                        }
-                    },
-                    {
-                        name: "lotngoai",
-                        cameraSetting: {
-                            alpha: Math.PI * 0.8,
-                            beta: Math.PI * 0.39,
-                            radius: 55
-                        }
-                    },
-                    {
-                        name: "lotcam",
-                        cameraSetting: {
-                            alpha: Math.PI * 0.8,
-                            beta: Math.PI * 0.39,
-                            radius: 55
-                        }
-                    },
-                    {
-                        name: "quai",
-                        cameraSetting: {
-                            alpha: Math.PI * 0.8,
-                            beta: Math.PI * 0.39,
-                            radius: 55
-                        }
-                    },
-                    {
-                        name: "quainum",
-                        cameraSetting: {
-                            alpha: Math.PI * 0.8,
-                            beta: Math.PI * 0.39,
-                            radius: 55
-                        }
-                    },
-                    {
-                        name: "quaisau",
-                        cameraSetting: {
-                            alpha: Math.PI * 0.8,
-                            beta: Math.PI * 0.39,
-                            radius: 55
-                        }
+                        </text>
                     }
                 ],
-            }
-
-
+            },
+            canvas: null,
+            light: null,
+            //productData: {
+            //    url: @customizationAttribute.ObjectPath,
+            //    objectName: @customizationAttribute.ObjectName,
+            //    meshes: [
+            //        {
+            //            name: "helmet",
+            //            cameraSetting: {
+            //                alpha: Math.PI * 0.8,
+            //                beta: Math.PI * 0.39,
+            //                radius: 55
+            //            },
+            //            availableMaterials: [
+            //                {
+            //                    name: "sonnhung1",
+            //                    url: "",
+            //                    price: 50
+            //                },
+            //                {
+            //                    name: "sonnhung2",
+            //                    url: "",
+            //                    price: 51
+            //                },
+            //                {
+            //                    name: "sonnhung3",
+            //                    url: "",
+            //                    price: 52
+            //                }
+            //            ]
+            //        },
+            //        {
+            //            name: "lottrong",
+            //            cameraSetting: {
+            //                alpha: Math.PI * 0.8,
+            //                beta: Math.PI * 0.39,
+            //                radius: 55
+            //            }
+            //        },
+            //        {
+            //            name: "lotngoai",
+            //            cameraSetting: {
+            //                alpha: Math.PI * 0.8,
+            //                beta: Math.PI * 0.39,
+            //                radius: 55
+            //            }
+            //        },
+            //        {
+            //            name: "lotcam",
+            //            cameraSetting: {
+            //                alpha: Math.PI * 0.8,
+            //                beta: Math.PI * 0.39,
+            //                radius: 55
+            //            }
+            //        },
+            //        {
+            //            name: "quai",
+            //            cameraSetting: {
+            //                alpha: Math.PI * 0.8,
+            //                beta: Math.PI * 0.39,
+            //                radius: 55
+            //            }
+            //        },
+            //        {
+            //            name: "quainum",
+            //            cameraSetting: {
+            //                alpha: Math.PI * 0.8,
+            //                beta: Math.PI * 0.39,
+            //                radius: 55
+            //            }
+            //        },
+            //        {
+            //            name: "quaisau",
+            //            cameraSetting: {
+            //                alpha: Math.PI * 0.8,
+            //                beta: Math.PI * 0.39,
+            //                radius: 55
+            //            }
+            //        }
+            //    ],
+            //}
         },
         methods: {
             bootstrapApp: function () {

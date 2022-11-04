@@ -816,8 +816,20 @@ namespace Grand.Web.Features.Handlers.Products
                     IsRequired = attribute.IsRequired,
                     AttributeControlType = attribute.AttributeControlTypeId,
                     DefaultValue = updatecartitem != null ? null : attribute.DefaultValue,
-                    HasCondition = attribute.ConditionAttribute.Any()
+                    HasCondition = attribute.ConditionAttribute.Any(),
+                    ObjectName = attribute.ObjectName,
+                    ObjectPath = attribute.ObjectPath,
+                    InitialCameraAlpha = attribute.InitialCameraAlpha,
+                    InitialCameraBeta = attribute.InitialCameraBeta,
+                    InitialCameraRadius = attribute.InitialCameraRadius,
+                    UpperAlphaLimit = attribute.UpperAlphaLimit,
+                    LowerAlphaLimit = attribute.LowerAlphaLimit,
+                    LowerBetaLimit = attribute.LowerBetaLimit,
+                    UpperBetaLimit = attribute.UpperBetaLimit,
+                    LowerRadiusLimit = attribute.LowerRadiusLimit,
+                    UpperRadiusLimit = attribute.UpperRadiusLimit,
                 };
+
                 if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
                 {
                     attributeModel.AllowedFileExtensions = attribute.ValidationFileAllowedExtensions
@@ -977,6 +989,11 @@ namespace Grand.Web.Features.Handlers.Products
                                     if (download != null)
                                         attributeModel.DefaultValue = download.DownloadGuid.ToString();
                                 }
+                            }
+                            break;
+                        case AttributeControlType.Customize:
+                            {
+                               
                             }
                             break;
                         default:

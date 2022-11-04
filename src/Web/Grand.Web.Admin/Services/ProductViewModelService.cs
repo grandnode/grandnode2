@@ -2297,6 +2297,10 @@ namespace Grand.Web.Admin.Services
                 IsPreSelected = model.IsPreSelected,
                 DisplayOrder = model.DisplayOrder,
                 PictureId = model.PictureId,
+                MeshId = model.MeshId,
+                CameraAlpha = model.CameraAlpha,
+                CameraBeta = model.CameraBeta,
+                CameraRadius = model.CameraRadius,
             };
             pav.Locales = model.Locales.ToTranslationProperty();
             await _productAttributeService.InsertProductAttributeValue(pav, model.ProductId, model.ProductAttributeMappingId);
@@ -2316,6 +2320,10 @@ namespace Grand.Web.Admin.Services
             pav.DisplayOrder = model.DisplayOrder;
             pav.PictureId = model.PictureId;
             pav.Locales = model.Locales.ToTranslationProperty();
+            pav.MeshId = model.MeshId;
+            pav.CameraAlpha = model.CameraAlpha;
+            pav.CameraBeta = model.CameraBeta;
+            pav.CameraRadius = model.CameraRadius;
 
             await _productAttributeService.UpdateProductAttributeValue(pav, model.ProductId, model.ProductAttributeMappingId);
         }

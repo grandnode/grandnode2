@@ -174,23 +174,58 @@
             </div>
         </div>
     </div>
-
-    <localized-editor localized-template=@template name="productattributevalue-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
-        <div class="form-body">
-            <div class="form-group">
-                <admin-label asp-for="Name" class="col-sm-3 control-label" />
-                <div class="col-md-9 col-sm-9">
-                    <admin-input asp-for="Name" />
-                    <span asp-validation-for="Name"></span>
+     <localized-editor localized-template=@template name="productattributevalue-localized" language-ids=@Model.Locales.Select(c=>c.LanguageId).ToList()>
+                <div class="form-body">
+                    <div class="form-group">
+                        <admin-label asp-for="Name" class="col-sm-3 control-label" />
+                        <div class="col-md-9 col-sm-9">
+                            <admin-input asp-for="Name" />
+                            <span asp-validation-for="Name"></span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </localized-editor>
+     </localized-editor>
 
     <div class="form-body">
         @*Start Customization*@
         @if (Model.DisplayCustomizationMesh)
-        {
+        { 
+            <div class="form-body">
+                <div class="form-group">
+                    <admin-label asp-for="MeshId" class="col-sm-3 control-label" />
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="MeshId" />
+                        <span asp-validation-for="MeshId"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-body">
+                <div class="form-group">
+                    <admin-label asp-for="CameraAlpha" class="col-sm-3 control-label" />
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="CameraAlpha" />
+                        <span asp-validation-for="CameraAlpha"></span>
+                    </div>
+                </div>
+            </div>
+             <div class="form-body">
+                <div class="form-group">
+                    <admin-label asp-for="CameraBeta" class="col-sm-3 control-label" />
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="CameraBeta" />
+                        <span asp-validation-for="CameraBeta"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-body">
+                <div class="form-group">
+                    <admin-label asp-for="CameraRadius" class="col-sm-3 control-label" />
+                    <div class="col-md-9 col-sm-9">
+                        <admin-input asp-for="CameraRadius" />
+                        <span asp-validation-for="CameraRadius"></span>
+                    </div>
+                </div>
+            </div>
             <div id="customization-mesh-grid"></div>
         }
         else
