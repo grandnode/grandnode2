@@ -54,7 +54,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <returns>Countries</returns>
         public virtual async Task<IList<Country>> GetAllCountries(string languageId = "", string storeId = "", bool showHidden = false)
         {
-            string key = string.Format(CacheKey.COUNTRIES_ALL_KEY, languageId, showHidden);
+            string key = string.Format(CacheKey.COUNTRIES_ALL_KEY, languageId, storeId, showHidden);
 
             return await _cacheBase.GetAsync(key, async () =>
             {
@@ -235,9 +235,8 @@ namespace Grand.Business.Common.Services.Directory
         /// </summary>
         /// <param name="countryId">Country identifier</param>
         /// <param name="languageId">Language identifier.</param>
-        /// <param name="showHidden">A value indicating whether to show hidden records</param>
         /// <returns>States</returns>
-        public virtual async Task<IList<StateProvince>> GetStateProvincesByCountryId(string countryId, string languageId = "", bool showHidden = false)
+        public virtual async Task<IList<StateProvince>> GetStateProvincesByCountryId(string countryId, string languageId = "")
         {
             if (string.IsNullOrEmpty(countryId))
                 return new List<StateProvince>();
@@ -307,7 +306,8 @@ namespace Grand.Business.Common.Services.Directory
             if (country == null)
                 throw new ArgumentNullException(nameof(country));
 
-            country.StateProvinces.Remove(stateProvince);
+            var state = country.StateProvinces.FirstOrDefault(x => x.Id == stateProvince.Id);
+            country.StateProvinces.Remove(state);
 
             await UpdateCountry(country);
 

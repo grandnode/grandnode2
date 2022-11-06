@@ -117,9 +117,10 @@
         /// </summary>
         /// <remarks>
         /// {0} : language ID
-        /// {1} : show hidden records?
+        /// {1} : store ID
+        /// {2} : show hidden records?
         /// </remarks>
-        public static string COUNTRIES_ALL_KEY => "Grand.country.all-{0}-{1}";
+        public static string COUNTRIES_ALL_KEY => "Grand.country.all-{0}-{1}-{2}";
 
         /// <summary>
         /// key for caching by country id
