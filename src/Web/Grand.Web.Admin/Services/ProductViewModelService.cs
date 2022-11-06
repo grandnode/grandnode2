@@ -2246,6 +2246,11 @@ namespace Grand.Web.Admin.Services
                     PictureId = x.PictureId,
                     PictureThumbnailUrl = pictureThumbnailUrl,
                     ProductId = product.Id,
+                    MeshId = x.MeshId,
+                    // Save Camera settings as string because it can be null
+                    CameraAlpha = x.CameraAlpha,
+                    CameraBeta = x.CameraBeta,
+                    CameraRadius = x.CameraRadius,
                 });
             }
             return items;
@@ -2274,7 +2279,13 @@ namespace Grand.Web.Admin.Services
                 Quantity = pav.Quantity,
                 IsPreSelected = pav.IsPreSelected,
                 DisplayOrder = pav.DisplayOrder,
-                PictureId = pav.PictureId
+                PictureId = pav.PictureId,
+                MeshId = pav.MeshId,
+                // Save Camera settings as string because it can be null
+                CameraAlpha = pav.CameraAlpha,
+                CameraBeta = pav.CameraBeta,
+                CameraRadius = pav.CameraRadius,
+
             };
             if (model.DisplayColorSquaresRgb && string.IsNullOrEmpty(model.ColorSquaresRgb))
             {
@@ -2298,6 +2309,7 @@ namespace Grand.Web.Admin.Services
                 DisplayOrder = model.DisplayOrder,
                 PictureId = model.PictureId,
                 MeshId = model.MeshId,
+                // Save Camera settings as string because it can be null
                 CameraAlpha = model.CameraAlpha,
                 CameraBeta = model.CameraBeta,
                 CameraRadius = model.CameraRadius,

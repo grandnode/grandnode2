@@ -1266,3 +1266,10 @@ section {
     }
 }
 /*End Media Query*/
+
+
+/*Customization*/
+#customizeContainer{
+    outline: none;
+}
+/*End Customization*/

@@ -7,13 +7,17 @@
 }
 <div id="customizeContainer">
     <canvas class="w-100" id="customizeCanvas"></canvas>
+    <div class="meshOptions" v-if="customizeApp.availableMaterialsAfterClick != null">
+        selection for Material
+    </div>
     <button @@click="customizeApp.changeCamera('helmet')"> Change Camera</button>
     <button @@click="customizeApp.changeMaterial('helmet')"> Change Texture</button>
 </div>
 
 
 <script asp-location="Footer" asp-order="301">
-    // Working play ground https://playground.babylonjs.com/#3AQQI8#2
+    //# sourceURL=customization.js
+    // Working play ground https://playground.babylonjs.com/#3AQQI8#5
     var customizeApp = new Vue({
         data: {
             scene: null,
@@ -33,12 +37,12 @@
             },
             productData: {
                 url: "@customizationAttribute.ObjectPath",
-                objectName: "@customizationAttribute.ObjectName,
+                objectName: "@customizationAttribute.ObjectName",
                 meshes: [
                     @foreach(var mesh in meshes){
                         <text>
-                         {
-                            name: @mesh.MeshId,
+                        {
+                            name: "@mesh.MeshId",
                             cameraSetting: {
                                 alpha: @mesh.CameraAlpha,
                                 beta: @mesh.CameraBeta,
@@ -49,8 +53,8 @@
                                     {
                                      <text>
                                         {
-                                            name: @material.Name,
-                                            url: @material.FilePath,
+                                            name: "@material.Name",
+                                            url: "@material.FilePath",
                                             price: @material.Price,
                                             cost: @material.Cost
                                         },  
@@ -62,8 +66,10 @@
                     }
                 ],
             },
+            // logic for current 
             canvas: null,
             light: null,
+            availableMaterialsAfterClick: null
             //productData: {
             //    url: @customizationAttribute.ObjectPath,
             //    objectName: @customizationAttribute.ObjectName,
@@ -165,13 +171,13 @@
                 this.camera.upperRadiusLimit = this.cameraInitialSetting.upperRadiusLimit;
                 this.camera.setTarget(new BABYLON.Vector3(0, 0, 0));
                 this.camera.attachControl();
-                this.camera.attachControl();
 
                 this.camera.attachControl();
                 this.light = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 40, 0), this.scene);
 
                 //this.createOverlay();
                 // load model
+
                 var loader = new BABYLON.AssetsManager(this.scene);
                 var meshes = this.productData.meshes.map(mesh => mesh.name);
                 var loadHelmetModel = loader.addMeshTask("loadTask"
@@ -183,7 +189,11 @@
                     this.engine.runRenderLoop(() => {
                         this.scene.render();
                     })
+
+                    //setup click 
+                    this.captureClickEventAndPopulateMaterials();
                 }
+
                 loader.load();
             },
 
@@ -241,10 +251,22 @@
                     }
                 ])
                 return animation;
+            },
+            captureClickEventAndPopulateMaterials: function(){
+                var self = this;
+                this.scene.onPointerDown = function(){
+                    console.log("Click");
+                    var ray = self.scene.createPickingRay(self.scene.pointerX, self.scene.pointerY, BABYLON.Matrix.Identity(), self.camera);
+
+                    var hit = self.scene.pickWithRay(ray);
+                    if (hit.pickedMesh) {
+                        var clickedMeshId = hit.pickedMesh.id
+                        var canSelectMaterials = self.productData.meshes.find(mesh => mesh.name == clickedMeshId).availableMaterials;
+                        self.availableMaterialsAfterClick = canSelectMaterials;
+                        console.log(self.availableMaterialsAfterClick);
+                    }
+                }
             }
-        },
-        created: function () {
-            console.log("created");
         }
     })
 

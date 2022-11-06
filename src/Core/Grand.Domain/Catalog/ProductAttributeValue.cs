@@ -1,4 +1,6 @@
 using Grand.Domain.Localization;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Grand.Domain.Catalog
 {
