@@ -105,17 +105,7 @@ namespace Grand.Business.Checkout.Services.Shipping
             var query = from o in _shipmentRepository.Table
                         where shipmentIds.Contains(o.Id)
                         select o;
-            var shipments = await Task.FromResult(query.ToList());
-
-            //sort by passed identifiers
-            var sortedOrders = new List<Shipment>();
-            foreach (string id in shipmentIds)
-            {
-                var shipment = shipments.Find(x => x.Id == id);
-                if (shipment != null)
-                    sortedOrders.Add(shipment);
-            }
-            return sortedOrders;
+            return await Task.FromResult(query.ToList());
         }
 
 

@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Checkout.Tests.Commands.Orders
+namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
 {
     [TestClass]
     public class CheckOrderStatusCommandHandlerTests
@@ -29,7 +29,7 @@ namespace Grand.Business.Checkout.Tests.Commands.Orders
         [TestMethod]
         public async Task Handle_InvokeExpectedMethods()
         {
-            CheckOrderStatusCommand request = new CheckOrderStatusCommand();
+            var request = new CheckOrderStatusCommand();
             request.Order = new Order();
             request.Order.PaymentStatusId = PaymentStatus.Paid;
             request.Order.PaidDateUtc = null;

@@ -9,7 +9,7 @@ using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Business.Checkout.Tests.Commands.Orders
+namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
 {
     [TestClass]
     public class ActivatedValueForPurchasedGiftVouchersCommandHandlerTests

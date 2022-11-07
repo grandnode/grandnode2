@@ -12,10 +12,9 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             if (paymentTransaction == null)
                 throw new ArgumentNullException(nameof(request.PaymentTransaction));
 
-            if (paymentTransaction.TransactionStatus == TransactionStatus.Canceled)
-                return false;
-
-            if (paymentTransaction.TransactionStatus == TransactionStatus.Paid ||                
+            if (
+                paymentTransaction.TransactionStatus == TransactionStatus.Canceled ||
+                paymentTransaction.TransactionStatus == TransactionStatus.Paid ||                
                 paymentTransaction.TransactionStatus == TransactionStatus.Refunded ||
                 paymentTransaction.TransactionStatus == TransactionStatus.PartiallyRefunded ||
                 paymentTransaction.TransactionStatus == TransactionStatus.Voided)

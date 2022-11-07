@@ -3,7 +3,7 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Checkout.Tests.Commands.Orders
+namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders
 {
     [TestClass]
     public class CalculateLoyaltyPointsCommandHandlerTests
