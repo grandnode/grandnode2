@@ -7,8 +7,8 @@
 }
 <div id="customizeContainer">
     <canvas class="w-100" id="customizeCanvas"></canvas>
-    <div class="meshOptions" v-if="customizeApp.availableMaterialsAfterClick != null">
-        selection for Material
+    <div class="meshOptions" v-if="customizeApp.availableMaterialsAfterClick != null && customizeApp.availableMaterialsAfterClick.length > 0">       
+        <div v-for="material in customizeApp.availableMaterialsAfterClick" class="square" :style="{backgroundImage: 'url(' + material.url + ')' }"></div>
     </div>
     <button @@click="customizeApp.changeCamera('helmet')"> Change Camera</button>
     <button @@click="customizeApp.changeMaterial('helmet')"> Change Texture</button>
@@ -170,9 +170,9 @@
                 this.camera.lowerRadiusLimit = this.cameraInitialSetting.lowerRadiusLimit;
                 this.camera.upperRadiusLimit = this.cameraInitialSetting.upperRadiusLimit;
                 this.camera.setTarget(new BABYLON.Vector3(0, 0, 0));
+                // Dont attach control to camera, because I want to rotate it with the mouse
                 this.camera.attachControl();
 
-                this.camera.attachControl();
                 this.light = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 40, 0), this.scene);
 
                 //this.createOverlay();
@@ -196,7 +196,6 @@
 
                 loader.load();
             },
-
             changeCamera: function (meshName) {
                 const edittingMesh = this.productData.meshes.find(mesh => mesh.name == meshName);
                 if (!edittingMesh) {
@@ -226,9 +225,6 @@
                     console.log("Animation End");
                 }
             },
-            changeMaterial: function () {
-                console.log("change material");
-            },
             createAnimation: function (property, from, to) {
 
                 const Frame_per_second = 60;
@@ -252,21 +248,24 @@
                 ])
                 return animation;
             },
+            changeMaterial: function () {
+                console.log("change material");
+            },           
             captureClickEventAndPopulateMaterials: function(){
                 var self = this;
                 this.scene.onPointerDown = function(){
-                    console.log("Click");
                     var ray = self.scene.createPickingRay(self.scene.pointerX, self.scene.pointerY, BABYLON.Matrix.Identity(), self.camera);
 
                     var hit = self.scene.pickWithRay(ray);
                     if (hit.pickedMesh) {
                         var clickedMeshId = hit.pickedMesh.id
+                        console.log("clickMeshId: " + clickedMeshId);
                         var canSelectMaterials = self.productData.meshes.find(mesh => mesh.name == clickedMeshId).availableMaterials;
                         self.availableMaterialsAfterClick = canSelectMaterials;
                         console.log(self.availableMaterialsAfterClick);
                     }
                 }
-            }
+            },            
         }
     })
 

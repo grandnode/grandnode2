@@ -1272,4 +1272,10 @@ section {
 #customizeContainer{
     outline: none;
 }
+
+.square {
+    height: 40px;
+    width: 40px;
+}
+
 /*End Customization*/

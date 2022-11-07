@@ -864,27 +864,13 @@ namespace Grand.Web.Features.Handlers.Products
                             ColorSquaresRgb = attributeValue.ColorSquaresRgb, //used with "Color squares" attribute type
                             IsPreSelected = preselected,
                             StockAvailability = stockAvailability,
-                            MaterialModels = attributeValue.Materials.Select(x => x.ToModel()).ToList(),
                             // Customization
+                            MaterialModels = attributeValue.Materials.Select(x => x.ToModel()).ToList(),
                             MeshId = attributeValue.MeshId,
                             CameraAlpha = attributeValue.CameraAlpha,
                             CameraBeta = attributeValue.CameraBeta,
                             CameraRadius = attributeValue.CameraRadius
-                        };
-                        //Customization Mesh 
-                        if(attribute.AttributeControlTypeId == AttributeControlType.Customize)
-                        {
-                            foreach(var material in attributeValue.Materials)
-                            {
-                                var materialViewModel = new ProductDetailsModel.MaterialModel() {
-                                    Name = material.Name,
-                                    FilePath = material.FilePath,
-                                    Cost = material.Cost,
-                                    Price = material.Price
-                                };
-                                valueModel.MaterialModels.Add(materialViewModel);
-                            }
-                        }
+                        };                   
 
                         attributeModel.Values.Add(valueModel);
 
