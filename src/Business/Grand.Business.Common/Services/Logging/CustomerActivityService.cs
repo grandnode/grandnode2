@@ -22,7 +22,6 @@ namespace Grand.Business.Common.Services.Logging
         private readonly ICacheBase _cacheBase;
         private readonly IRepository<ActivityLog> _activityLogRepository;
         private readonly IRepository<ActivityLogType> _activityLogTypeRepository;
-        private readonly IActivityKeywordsProvider _activityKeywordsProvider;
 
         #endregion
 
@@ -34,13 +33,11 @@ namespace Grand.Business.Common.Services.Logging
         public CustomerActivityService(
             ICacheBase cacheBase,
             IRepository<ActivityLog> activityLogRepository,
-            IRepository<ActivityLogType> activityLogTypeRepository,
-            IActivityKeywordsProvider activityKeywordsProvider)
+            IRepository<ActivityLogType> activityLogTypeRepository)
         {
             _cacheBase = cacheBase;
             _activityLogRepository = activityLogRepository;
             _activityLogTypeRepository = activityLogTypeRepository;
-            _activityKeywordsProvider = activityKeywordsProvider;
         }
 
         #endregion
@@ -122,7 +119,7 @@ namespace Grand.Business.Common.Services.Logging
         /// </summary>
         /// <returns>Activity log type items</returns>
         public virtual async Task<IList<ActivityLogType>> GetAllActivityTypes()
-        {            
+        {
             return await Task.FromResult(ActivityLogTypes().ToList());
         }
 
@@ -282,7 +279,7 @@ namespace Grand.Business.Common.Services.Logging
                 query = query.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
 
             var activityTypes = await GetAllActivityTypesCached();
-            var activityTypeIds = activityTypes.ToList().Where(at => _activityKeywordsProvider.GetCategorySystemKeywords().Contains(at.SystemKeyword)).Select(x => x.Id);
+            var activityTypeIds = activityTypes.ToList().Where(at => GetCategorySystemKeywords().Contains(at.SystemKeyword)).Select(x => x.Id);
 
             query = query.Where(al => activityTypeIds.Contains(al.ActivityLogTypeId));
 
@@ -312,7 +309,7 @@ namespace Grand.Business.Common.Services.Logging
                 query = query.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
 
             var activityTypes = await GetAllActivityTypesCached();
-            var activityTypeIds = activityTypes.ToList().Where(at => _activityKeywordsProvider.GetKnowledgebaseCategorySystemKeywords().Contains(at.SystemKeyword)).Select(x => x.Id);
+            var activityTypeIds = activityTypes.ToList().Where(at => GetKnowledgebaseCategorySystemKeywords().Contains(at.SystemKeyword)).Select(x => x.Id);
 
             query = query.Where(al => activityTypeIds.Contains(al.ActivityLogTypeId));
 
@@ -342,7 +339,7 @@ namespace Grand.Business.Common.Services.Logging
                 query = query.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
 
             var activityTypes = await GetAllActivityTypesCached();
-            var activityTypeIds = activityTypes.ToList().Where(at => _activityKeywordsProvider.GetKnowledgebaseArticleSystemKeywords().Contains(at.SystemKeyword)).Select(x => x.Id);
+            var activityTypeIds = activityTypes.ToList().Where(at => GetKnowledgebaseArticleSystemKeywords().Contains(at.SystemKeyword)).Select(x => x.Id);
 
             query = query.Where(al => activityTypeIds.Contains(al.ActivityLogTypeId));
 
@@ -371,7 +368,7 @@ namespace Grand.Business.Common.Services.Logging
                 query = query.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
 
             var activityTypes = await GetAllActivityTypesCached();
-            var activityTypeIds = activityTypes.ToList().Where(at => _activityKeywordsProvider.GetBrandSystemKeywords().Contains(at.SystemKeyword)).Select(x => x.Id);
+            var activityTypeIds = activityTypes.ToList().Where(at => GetBrandSystemKeywords().Contains(at.SystemKeyword)).Select(x => x.Id);
 
             query = query.Where(al => activityTypeIds.Contains(al.ActivityLogTypeId));
 
@@ -401,7 +398,7 @@ namespace Grand.Business.Common.Services.Logging
                 query = query.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
 
             var activityTypes = await GetAllActivityTypesCached();
-            var activityTypeIds = activityTypes.ToList().Where(at => _activityKeywordsProvider.GetCollectionSystemKeywords().Contains(at.SystemKeyword)).Select(x => x.Id);
+            var activityTypeIds = activityTypes.ToList().Where(at => GetCollectionSystemKeywords().Contains(at.SystemKeyword)).Select(x => x.Id);
 
             query = query.Where(al => activityTypeIds.Contains(al.ActivityLogTypeId));
 
@@ -431,7 +428,7 @@ namespace Grand.Business.Common.Services.Logging
                 query = query.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
 
             var activityTypes = await GetAllActivityTypesCached();
-            var activityTypeIds = activityTypes.ToList().Where(at => _activityKeywordsProvider.GetProductSystemKeywords().Contains(at.SystemKeyword)).Select(x => x.Id);
+            var activityTypeIds = activityTypes.ToList().Where(at => GetProductSystemKeywords().Contains(at.SystemKeyword)).Select(x => x.Id);
 
             query = query.Where(al => activityTypeIds.Contains(al.ActivityLogTypeId));
 
@@ -459,5 +456,74 @@ namespace Grand.Business.Common.Services.Logging
         }
         #endregion
 
+
+        #region Private methods
+
+        private IList<string> GetCategorySystemKeywords()
+        {
+            var tokens = new List<string>
+            {
+                "PublicStore.ViewCategory",
+                "EditCategory",
+                "AddNewCategory",
+            };
+            return tokens;
+        }
+        private IList<string> GetProductSystemKeywords()
+        {
+            var tokens = new List<string>
+            {
+                "PublicStore.ViewProduct",
+                "EditProduct",
+                "AddNewProduct",
+            };
+            return tokens;
+        }
+        private IList<string> GetBrandSystemKeywords()
+        {
+            var tokens = new List<string>
+            {
+                "PublicStore.ViewBrand",
+                "EditBrand",
+                "AddNewBrand"
+            };
+            return tokens;
+        }
+
+        private IList<string> GetCollectionSystemKeywords()
+        {
+            var tokens = new List<string>
+            {
+                "PublicStore.ViewCollection",
+                "EditCollection",
+                "AddNewCollection"
+            };
+            return tokens;
+        }
+
+        private IList<string> GetKnowledgebaseCategorySystemKeywords()
+        {
+            var tokens = new List<string>
+            {
+                "CreateKnowledgebaseCategory",
+                "UpdateKnowledgebaseCategory",
+                "DeleteKnowledgebaseCategory"
+            };
+            return tokens;
+        }
+
+
+        private IList<string> GetKnowledgebaseArticleSystemKeywords()
+        {
+            var tokens = new List<string>
+            {
+                "CreateKnowledgebaseArticle",
+                "UpdateKnowledgebaseArticle",
+                "DeleteKnowledgebaseArticle",
+            };
+            return tokens;
+        }
+
+        #endregion
     }
 }
