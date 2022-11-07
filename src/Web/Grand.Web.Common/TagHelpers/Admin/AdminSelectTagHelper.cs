@@ -36,6 +36,12 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 classValue += forAttribute.Value.ToString();
             }
             output.Attributes.SetAttribute("class", classValue);
+
+            TagHelperAttribute funcAttribute;
+            if(context.AllAttributes.TryGetAttribute("onchange", out funcAttribute))
+            {
+                output.Attributes.SetAttribute("onchange", funcAttribute.Value.ToString());
+            }
         }
     }
 

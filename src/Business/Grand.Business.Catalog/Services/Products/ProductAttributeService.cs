@@ -309,6 +309,10 @@ namespace Grand.Business.Catalog.Services.Products
                         pav.DisplayOrder = productAttributeValue.DisplayOrder;
                         pav.PictureId = productAttributeValue.PictureId;
                         pav.Locales = productAttributeValue.Locales;
+                        pav.MeshId = productAttributeValue.MeshId;
+                        pav.CameraAlpha = productAttributeValue.CameraAlpha;
+                        pav.CameraBeta = productAttributeValue.CameraBeta;
+                        pav.CameraRadius = productAttributeValue.CameraRadius;
 
                         await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id, productAttributeMappingId, pavs);
                     }

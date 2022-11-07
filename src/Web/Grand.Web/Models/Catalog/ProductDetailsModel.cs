@@ -5,6 +5,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Web.Models.Media;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Amazon.S3.Model;
 
 namespace Grand.Web.Models.Catalog
 {
@@ -101,6 +102,13 @@ namespace Grand.Web.Models.Catalog
         public DateTime? EndTimeLocalTime { get; set; }
         public bool AuctionEnded { get; set; }
         public bool RenderCaptcha { get; set; }
+
+        #region Customize
+        public bool IsCustomProduct { get; set; }
+
+        public string CustomizedLinkedProductLinkUrl { get; set; }
+        #endregion End Customize
+
 
         #region Nested Classes
         public partial class ProductBreadcrumbModel : BaseModel
@@ -254,6 +262,20 @@ namespace Grand.Web.Models.Catalog
             public IList<string> AllowedFileExtensions { get; set; }
             public AttributeControlType AttributeControlType { get; set; }
             public IList<ProductAttributeValueModel> Values { get; set; }
+
+            #region customization
+            public string ObjectName { get; set; }
+            public string ObjectPath { get; set; }
+            public decimal InitialCameraAlpha { get; set; }
+            public decimal InitialCameraBeta { get; set; }
+            public decimal InitialCameraRadius { get; set; }
+            public decimal UpperAlphaLimit { get; set; }
+            public decimal LowerAlphaLimit { get; set; }
+            public decimal LowerBetaLimit { get; set; }
+            public decimal UpperBetaLimit { get; set; }
+            public decimal LowerRadiusLimit { get; set; }
+            public decimal UpperRadiusLimit { get; set; }
+            #endregion
         }
 
         public partial class ProductAttributeValueModel : BaseEntityModel
@@ -262,6 +284,7 @@ namespace Grand.Web.Models.Catalog
             {
                 ImageSquaresPictureModel = new PictureModel();
                 PictureModel = new PictureModel();
+                MaterialModels = new List<MaterialModel>();
             }
             public string Name { get; set; }
             public string ColorSquaresRgb { get; set; }
@@ -274,7 +297,22 @@ namespace Grand.Web.Models.Catalog
             //picture model is used when we want to override a default product picture when some attribute is selected
             public PictureModel PictureModel { get; set; }
 
+            // Customization
+            public string MeshId { get; set; }
+            public decimal CameraAlpha { get; set; }
+            public decimal CameraBeta { get; set; }
+            public decimal CameraRadius { get; set; }
+            public List<MaterialModel> MaterialModels { get; set; }
+            // End Customization 
+        }
 
+
+        public class MaterialModel: BaseEntityModel
+        {
+            public string Name { get; set; }
+            public string FilePath { get; set; }
+            public decimal Cost { get; set; }
+            public decimal Price { get; set; }
         }
 
         public partial class ProductBundleModel : BaseModel

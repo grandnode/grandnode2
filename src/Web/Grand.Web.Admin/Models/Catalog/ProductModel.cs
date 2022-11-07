@@ -6,6 +6,7 @@ using Grand.Infrastructure.Models;
 using Grand.Web.Admin.Models.Discounts;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Grand.Web.Admin.Models.Catalog
 {
@@ -409,6 +410,10 @@ namespace Grand.Web.Admin.Models.Catalog
         //copy product
         public CopyProductModel CopyProductModel { get; set; }
 
+        // Customization 
+        public bool CustomizedEnable { get; set; }
+
+
         #region Nested classes
 
         public partial class AddProductModel : BaseModel
@@ -445,6 +450,7 @@ namespace Grand.Web.Admin.Models.Catalog
 
             //vendor
             public bool IsLoggedInAsVendor { get; set; }
+
         }
 
 
@@ -654,6 +660,21 @@ namespace Grand.Web.Admin.Models.Catalog
         }
 
         public partial class AddCrossSellProductModel : AddProductModel
+        {
+            public string ProductId { get; set; }
+
+            public string[] SelectedProductIds { get; set; }
+        }
+
+        public partial class CustomizedLinkedProductModel : BaseEntityModel
+        {
+            public string ProductId { get; set; }
+
+            [GrandResourceDisplayName("Admin.Catalog.Products.CustomizedLinked.Fields.Product")]
+            public string Product2Name { get; set; }
+        }
+
+        public partial class AddCustomizedLinkedProductModel : AddProductModel
         {
             public string ProductId { get; set; }
 
@@ -888,6 +909,22 @@ namespace Grand.Web.Admin.Models.Catalog
             [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.Attributes.Condition")]
             public bool ConditionAllowed { get; set; }
             public string ConditionString { get; set; }
+
+            #region Customization
+            public string ObjectName { get; set; }
+            public string ObjectPath { get; set; }
+            public decimal InitialCameraAlpha { get; set; }
+            public decimal InitialCameraBeta { get; set; }
+            public decimal InitialCameraRadius { get; set; }
+            public decimal UpperAlphaLimit { get; set; }
+            public decimal LowerAlphaLimit { get; set; }
+            public decimal LowerBetaLimit { get; set; }
+            public decimal UpperBetaLimit { get; set; }
+            public decimal LowerRadiusLimit { get; set; }
+            public decimal UpperRadiusLimit { get; set; }
+
+            #endregion
+
         }
         public partial class ProductAttributeValueListModel : BaseModel
         {
@@ -974,9 +1011,29 @@ namespace Grand.Web.Admin.Models.Catalog
                 public string AssociatedToProductId { get; set; }
             }
 
+            #endregion
 
+            #region Customization
+            // TODO: Check the localization for display
+            // Pass Attribute control type as ready only. To decide the display
+            public bool DisplayCustomizationMesh{ get; set; }
+
+            // This represent a mesh with alot of material
+            public string MeshId { get; set; }
+            public decimal CameraAlpha { get; set; }
+            public decimal CameraBeta { get; set; }
+            public decimal CameraRadius { get; set; }
             #endregion
         }
+       
+        public partial class MaterialModel: BaseEntityModel
+        {
+            public string Name { get; set; }
+            public string FilePath { get; set; }
+            public decimal Cost { get; set; }
+            public decimal Price { get; set; }
+        }
+
         public partial class ActivityLogModel : BaseEntityModel
         {
             [GrandResourceDisplayName("Admin.Catalog.Products.ActivityLog.ActivityLogType")]

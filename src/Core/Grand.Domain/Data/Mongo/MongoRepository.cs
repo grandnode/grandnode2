@@ -261,10 +261,16 @@ namespace Grand.Domain.Data.Mongo
         /// <param name="elemFieldMatch">Subdocument field to match</param>
         /// <param name="elemMatch">Subdocument ident value</param>
         /// <param name="value">Subdocument - to update (all values)</param>
-        public virtual async Task UpdateToSet<U, Z>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, Z>> elemFieldMatch, Z elemMatch, U value)
+        public virtual async Task UpdateToSet<U, Z>(
+            string id, 
+            Expression<Func<T, IEnumerable<U>>> field, 
+            Expression<Func<U, Z>> elemFieldMatch, 
+            Z elemMatch, 
+            U value)
         {
             var filter = Builders<T>.Filter.Eq(x => x.Id, id) 
-                & Builders<T>.Filter.ElemMatch(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
+                & Builders<T>.Filter.ElemMatch(field, 
+                                                Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
 
             MemberExpression me = field.Body as MemberExpression;
             MemberInfo minfo = me.Member;
@@ -272,6 +278,33 @@ namespace Grand.Domain.Data.Mongo
 
             await _collection.UpdateOneAsync(filter, update);
         }
+
+        //// T =>
+        ////      U
+        ////      U => Z,
+        ////           Z,
+        ////           Z ==>
+        ////                M
+        ////                M
+        //public virtual async Task UpdateToSet<U, Z, M>(
+        //    string id, 
+        //    Expression<Func<T, IEnumerable<U>>> field1,
+        //    Expression<Func<U, Z>> elemFieldMatch1,
+        //    Z elemMatch,
+        //    Expression<Func<U, IEnumerable<Z>>> field2,
+        //    Expression<Func<Z, M>> elemFieldMatch2, 
+        //    M elemMatch, 
+        //    U value)
+        //{
+        //    var filter = Builders<T>.Filter.Eq(x => x.Id, id)
+        //        & Builders<T>.Filter.ElemMatch(field, Builders<U>.Filter.Eq(elemFieldMatch, elemMatch));
+
+        //    MemberExpression me = field.Body as MemberExpression;
+        //    MemberInfo minfo = me.Member;
+        //    var update = Builders<T>.Update.Set($"{minfo.Name}.$", value);
+
+        //    await _collection.UpdateOneAsync(filter, update);
+        //}
 
         /// <summary>
         /// Update subdocument

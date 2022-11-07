@@ -13,6 +13,11 @@
 		<Content Include="wwwroot\**" CopyToPublishDirectory="PreserveNewest" />
 	</ItemGroup>
 	<ItemGroup>
+	  <None Remove="Areas\Admin\Views\Product\CustomizedLinkedProductAddPopup.cshtml" />
+	  <None Remove="Areas\Admin\Views\Product\Partials\CreateOrUpdate.Customization.cshtml" />
+	  <None Remove="Areas\Admin\Views\Product\Partials\CreateOrUpdate.CustomizeProducts.cshtml" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Include="elFinder.Net.AspNetCore" Version="1.5.0" />
 		<PackageReference Include="elFinder.Net.Core" Version="1.5.0" />
 		<PackageReference Include="elFinder.Net.Drivers.FileSystem" Version="1.5.0" />

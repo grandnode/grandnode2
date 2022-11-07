@@ -4,6 +4,7 @@ using Grand.Infrastructure.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
 
 namespace Grand.Web.Endpoints
 {
@@ -59,6 +60,7 @@ namespace Grand.Web.Endpoints
 
             RegisterInstallRoute(endpointRouteBuilder, pattern);
 
+            RegisterCustomizeRoute(endpointRouteBuilder, pattern);
         }
 
         public int Priority => 0;
@@ -777,6 +779,13 @@ namespace Grand.Web.Endpoints
             //upgrade
             endpointRouteBuilder.MapControllerRoute("Upgrade", "upgrade",
                             new { controller = "Upgrade", action = "Index" });
+        }
+
+        private void RegisterCustomizeRoute(IEndpointRouteBuilder endpointRouteBuilder, string pattern)
+        {
+            endpointRouteBuilder.MapControllerRoute("Customize", "customize/",
+                            new { controller = "Customize", action = "Index"});
+
         }
     }
 }

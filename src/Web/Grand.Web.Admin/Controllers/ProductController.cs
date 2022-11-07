@@ -986,6 +986,104 @@ namespace Grand.Web.Admin.Controllers
 
         #endregion
 
+        #region Linked Customized
+
+        [PermissionAuthorizeAction(PermissionActionName.Preview)]
+        [HttpPost]
+        public async Task<IActionResult> CustomizedLinkedProductList(DataSourceRequest command, string productId)
+        {
+            var product = await _productService.GetProductById(productId);
+
+            var permission = await CheckAccessToProduct(product);
+            if (!permission.allow)
+                return ErrorForKendoGridJson(permission.message);
+
+            var customizedLinkedProduct = product.CustomizedLinkedProduct;
+            var customizedLinkedProductModel = new List<ProductModel.CustomizedLinkedProductModel>();
+            foreach (var x in customizedLinkedProduct)
+            {
+                customizedLinkedProductModel.Add(new ProductModel.CustomizedLinkedProductModel {
+                    Id = x,
+                    ProductId = product.Id,
+                    Product2Name = (await _productService.GetProductById(x))?.Name,
+                });
+            }
+            var gridModel = new DataSourceResult {
+                Data = customizedLinkedProductModel,
+                Total = customizedLinkedProductModel.Count
+            };
+
+            return Json(gridModel);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [HttpPost]
+        public async Task<IActionResult> CustomizedLinkedProductDelete(ProductModel.CustomizedLinkedProductModel model)
+        {
+            var product = await _productService.GetProductById(model.ProductId);
+            if (product == null)
+            {
+                throw new ArgumentException("Product not exists");
+            }
+            var customizedLinkedProduct = product.CustomizedLinkedProduct.Where(x => x == model.Id).FirstOrDefault();
+            if (string.IsNullOrEmpty(customizedLinkedProduct))
+                throw new ArgumentException("No customized linked product found with the specified id");
+
+            if (ModelState.IsValid)
+            {
+                await _productViewModelService.DeleteCustomizedLinkedProduct(product.Id, customizedLinkedProduct);
+                return new JsonResult("");
+            }
+            return ErrorForKendoGridJson(ModelState);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        public async Task<IActionResult> CustomizedLinkedProductAddPopup(string productId)
+        {
+            var model = await _productViewModelService.PrepareCustomizedLinkedProductModel();
+            model.ProductId = productId;
+            return View(model);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [HttpPost]
+        public async Task<IActionResult> CustomizedLinkedProductAddPopupList(DataSourceRequest command, ProductModel.AddCustomizedLinkedProductModel model, string productId)
+        {
+            var (products, totalCount) = await _productViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+            // Ignore current product
+            products = products.Where(x => x.Id != productId).ToList();
+            totalCount = products.Count();
+            var gridModel = new DataSourceResult {
+                Data = products.ToList(),
+                Total = totalCount
+            };
+
+            return Json(gridModel);
+        }
+
+        [PermissionAuthorizeAction(PermissionActionName.Edit)]
+        [HttpPost]
+        public async Task<IActionResult> CustomizedLinkedProductAddPopup(ProductModel.AddCustomizedLinkedProductModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (model.SelectedProductIds != null)
+                {
+                    await _productViewModelService.InsertCustomizedLinkedProductModel(model);
+                }
+                return Content("");
+            }
+            else
+            {
+                Error(ModelState);
+                model = await _productViewModelService.PrepareCustomizedLinkedProductModel();
+                model.ProductId = model.ProductId;
+                return View(model);
+            }
+        }
+
+        #endregion
+
         #region Recommended products
 
         [PermissionAuthorizeAction(PermissionActionName.Preview)]
@@ -2249,6 +2347,10 @@ namespace Grand.Web.Admin.Controllers
             });
             //pictures
             await _productViewModelService.PrepareProductAttributeValueModel(product, model);
+
+            // Populate Product ID and ProductAttribute
+            model.ProductId = productId;
+            model.ProductAttributeMappingId = productAttributeMappingId;
             return View(model);
         }
 

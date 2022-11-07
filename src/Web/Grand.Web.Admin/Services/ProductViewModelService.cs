@@ -837,6 +837,7 @@ namespace Grand.Web.Admin.Services
                 //if a simple product AND "manage inventory" is "Track inventory", then display
                 if (x.ProductTypeId == ProductType.SimpleProduct && x.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
                     productModel.StockQuantityStr = _stockQuantityService.GetTotalStockQuantity(x, total: true).ToString();
+                productModel.CustomizedEnable = x.CustomizedLinkedProduct.Any();
                 items.Add(productModel);
             }
             return (items, products.TotalCount);
@@ -1115,7 +1116,7 @@ namespace Grand.Web.Admin.Services
                     ProductId = product.Id,
                     CategoryId = x.CategoryId,
                     IsFeaturedProduct = x.IsFeaturedProduct,
-                    DisplayOrder = x.DisplayOrder
+                    DisplayOrder = x.DisplayOrder,
                 });
             }
             return items;
@@ -1502,6 +1503,7 @@ namespace Grand.Web.Admin.Services
                 }
             }
         }
+
         public virtual async Task DeleteCrossSellProduct(string productId, string crossSellProductId)
         {
             var crosssell = new CrossSellProduct() {
@@ -1509,6 +1511,41 @@ namespace Grand.Web.Admin.Services
                 ProductId2 = crossSellProductId
             };
             await _productService.DeleteCrossSellProduct(crosssell);
+        }
+
+
+        public virtual async Task InsertCustomizedLinkedProductModel(ProductModel.AddCustomizedLinkedProductModel model)
+        {
+            var customizedLinkedProduct = await _productService.GetProductById(model.ProductId, true);
+            foreach (var id in model.SelectedProductIds)
+            {
+                var product = await _productService.GetProductById(id);
+                if (product != null)
+                {
+                    //a vendor should have access only to his products
+                    if (_workContext.CurrentVendor != null && product.VendorId != _workContext.CurrentVendor.Id)
+                        continue;
+
+                    if (customizedLinkedProduct.CustomizedLinkedProduct.Where(x => x == id).Count() == 0)
+                    {
+                        if (model.ProductId != id)
+                            await _productService.InsertCustomizedLinkedProduct(
+                                new CustomizedLinkedProduct {
+                                    ProductId1 = model.ProductId,
+                                    ProductId2 = id,
+                                });
+                    }
+                }
+            }
+        }
+
+        public virtual async Task DeleteCustomizedLinkedProduct(string productId, string customizedLinkedId)
+        {
+            var customizedLinkedProduct = new CustomizedLinkedProduct() {
+                ProductId1 = productId,
+                ProductId2 = customizedLinkedId
+            };
+            await _productService.DeleteCustomizedLinkedProduct(customizedLinkedProduct);
         }
 
         public virtual async Task InsertRecommendedProductModel(ProductModel.AddRecommendedProductModel model)
@@ -1580,6 +1617,13 @@ namespace Grand.Web.Admin.Services
             var model = await PrepareAddProductModel<ProductModel.AddCrossSellProductModel>();
             return model;
         }
+
+        public virtual async Task<ProductModel.AddCustomizedLinkedProductModel> PrepareCustomizedLinkedProductModel()
+        {
+            var model = await PrepareAddProductModel<ProductModel.AddCustomizedLinkedProductModel>();
+            return model;
+        }
+
         public virtual async Task<ProductModel.AddRecommendedProductModel> PrepareRecommendedProductModel()
         {
             var model = await PrepareAddProductModel<ProductModel.AddRecommendedProductModel>();
@@ -2141,6 +2185,10 @@ namespace Grand.Web.Admin.Services
                 ColorSquaresRgb = "#000000",
                 //image squares
                 DisplayImageSquaresPicture = productAttributeMapping.AttributeControlTypeId == AttributeControlType.ImageSquares,
+
+                // Customization
+                DisplayCustomizationMesh = productAttributeMapping.AttributeControlTypeId == AttributeControlType.Customize, 
+
                 PrimaryStoreCurrencyCode = (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode,
                 //default qantity for associated product
                 Quantity = 1
@@ -2157,6 +2205,7 @@ namespace Grand.Web.Admin.Services
                     DisplayOrder = x.DisplayOrder
                 });
             }
+
             return model;
         }
         public virtual async Task<IList<ProductModel.ProductAttributeValueModel>> PrepareProductAttributeValueModels(Product product, ProductAttributeMapping productAttributeMapping)
@@ -2197,6 +2246,11 @@ namespace Grand.Web.Admin.Services
                     PictureId = x.PictureId,
                     PictureThumbnailUrl = pictureThumbnailUrl,
                     ProductId = product.Id,
+                    MeshId = x.MeshId,
+                    // Save Camera settings as string because it can be null
+                    CameraAlpha = x.CameraAlpha,
+                    CameraBeta = x.CameraBeta,
+                    CameraRadius = x.CameraRadius,
                 });
             }
             return items;
@@ -2206,6 +2260,7 @@ namespace Grand.Web.Admin.Services
             var associatedProduct = await _productService.GetProductById(pav.AssociatedProductId);
 
             var model = new ProductModel.ProductAttributeValueModel {
+                Id = pav.Id,
                 ProductAttributeMappingId = pa.Id, //TODO - check pav.ProductAttributeMappingId,
                 AttributeValueTypeId = pav.AttributeValueTypeId,
                 AttributeValueTypeName = pav.AttributeValueTypeId.GetTranslationEnum(_translationService, _workContext),
@@ -2216,6 +2271,7 @@ namespace Grand.Web.Admin.Services
                 DisplayColorSquaresRgb = pa.AttributeControlTypeId == AttributeControlType.ColorSquares,
                 ImageSquaresPictureId = pav.ImageSquaresPictureId,
                 DisplayImageSquaresPicture = pa.AttributeControlTypeId == AttributeControlType.ImageSquares,
+                DisplayCustomizationMesh = pa.AttributeControlTypeId == AttributeControlType.Customize,
                 PriceAdjustment = pav.PriceAdjustment,
                 WeightAdjustment = pav.WeightAdjustment,
                 Cost = pav.Cost,
@@ -2223,7 +2279,13 @@ namespace Grand.Web.Admin.Services
                 Quantity = pav.Quantity,
                 IsPreSelected = pav.IsPreSelected,
                 DisplayOrder = pav.DisplayOrder,
-                PictureId = pav.PictureId
+                PictureId = pav.PictureId,
+                MeshId = pav.MeshId,
+                // Save Camera settings as string because it can be null
+                CameraAlpha = pav.CameraAlpha,
+                CameraBeta = pav.CameraBeta,
+                CameraRadius = pav.CameraRadius,
+
             };
             if (model.DisplayColorSquaresRgb && string.IsNullOrEmpty(model.ColorSquaresRgb))
             {
@@ -2246,6 +2308,11 @@ namespace Grand.Web.Admin.Services
                 IsPreSelected = model.IsPreSelected,
                 DisplayOrder = model.DisplayOrder,
                 PictureId = model.PictureId,
+                MeshId = model.MeshId,
+                // Save Camera settings as string because it can be null
+                CameraAlpha = model.CameraAlpha,
+                CameraBeta = model.CameraBeta,
+                CameraRadius = model.CameraRadius,
             };
             pav.Locales = model.Locales.ToTranslationProperty();
             await _productAttributeService.InsertProductAttributeValue(pav, model.ProductId, model.ProductAttributeMappingId);
@@ -2265,6 +2332,10 @@ namespace Grand.Web.Admin.Services
             pav.DisplayOrder = model.DisplayOrder;
             pav.PictureId = model.PictureId;
             pav.Locales = model.Locales.ToTranslationProperty();
+            pav.MeshId = model.MeshId;
+            pav.CameraAlpha = model.CameraAlpha;
+            pav.CameraBeta = model.CameraBeta;
+            pav.CameraRadius = model.CameraRadius;
 
             await _productAttributeService.UpdateProductAttributeValue(pav, model.ProductId, model.ProductAttributeMappingId);
         }

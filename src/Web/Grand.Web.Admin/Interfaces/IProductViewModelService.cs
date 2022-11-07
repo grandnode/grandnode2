@@ -42,6 +42,8 @@ namespace Grand.Web.Admin.Interfaces
         Task DeleteBundleProductModel(ProductModel.BundleProductModel model);
         Task InsertCrossSellProductModel(ProductModel.AddCrossSellProductModel model);
         Task DeleteCrossSellProduct(string productId, string crossSellProductId);
+        Task InsertCustomizedLinkedProductModel(ProductModel.AddCustomizedLinkedProductModel model);
+        Task DeleteCustomizedLinkedProduct(string productId, string customizedLinkedProduct);
         Task InsertRecommendedProductModel(ProductModel.AddRecommendedProductModel model);
         Task DeleteRecommendedProduct(string productId, string recommendedProductId);
         Task InsertAssociatedProductModel(ProductModel.AddAssociatedProductModel model);
@@ -50,6 +52,7 @@ namespace Grand.Web.Admin.Interfaces
         Task<ProductModel.AddSimilarProductModel> PrepareSimilarProductModel();
         Task<ProductModel.AddBundleProductModel> PrepareBundleProductModel();
         Task<ProductModel.AddCrossSellProductModel> PrepareCrossSellProductModel();
+        Task<ProductModel.AddCustomizedLinkedProductModel> PrepareCustomizedLinkedProductModel();
         Task<ProductModel.AddRecommendedProductModel> PrepareRecommendedProductModel();
         Task<ProductModel.AddAssociatedProductModel> PrepareAssociatedProductModel();
         Task<BulkEditListModel> PrepareBulkEditListModel();

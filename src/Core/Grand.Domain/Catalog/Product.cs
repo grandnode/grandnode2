@@ -21,6 +21,7 @@ namespace Grand.Domain.Catalog
         private ICollection<string> _appliedDiscounts;
         private ICollection<ProductWarehouseInventory> _productWarehouseInventory;
         private ICollection<string> _crossSellProduct;
+        private ICollection<string> _customizedLinkedProduct;
         private ICollection<string> _recommendedProduct;
         private ICollection<RelatedProduct> _relatedProduct;
         private ICollection<SimilarProduct> _similarProduct;
@@ -566,7 +567,8 @@ namespace Grand.Domain.Catalog
         /// Gets or sets the collection of locales
         /// </summary>
         public IList<TranslationEntity> Locales { get; set; }
-        
+
+
         /// <summary>
         /// Gets or sets the collection of ProductCategory
         /// </summary>
@@ -667,6 +669,11 @@ namespace Grand.Domain.Catalog
         {
             get { return _crossSellProduct ??= new List<string>(); }
             protected set { _crossSellProduct = value; }
+        }
+
+        public virtual ICollection<string> CustomizedLinkedProduct {
+            get { return _customizedLinkedProduct ??= new List<string>(); }
+            protected set { _customizedLinkedProduct = value; }
         }
 
         public virtual ICollection<string> RecommendedProduct 

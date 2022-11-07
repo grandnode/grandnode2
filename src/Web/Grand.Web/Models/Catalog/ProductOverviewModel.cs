@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Utilities.Catalog;
+﻿using Amazon.S3.Model;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.Models;
@@ -110,6 +111,12 @@ namespace Grand.Web.Models.Catalog
             public PictureModel ImageSquaresPictureModel { get; set; }
             public PictureModel PictureModel { get; set; }
         }
+        #endregion
+
+        #region Customized
+        public bool IsCustomProduct { get; set; }
+
+        public string CustomizedLinkedProductLinkUrl { get; set; }
         #endregion
     }
 }

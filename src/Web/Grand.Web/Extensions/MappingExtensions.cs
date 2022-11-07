@@ -249,6 +249,18 @@ namespace Grand.Web.Extensions
             return destination;
         }
 
+        public static Grand.Web.Models.Catalog.ProductDetailsModel.MaterialModel ToModel(this Material material)
+        {
+            var model = new Grand.Web.Models.Catalog.ProductDetailsModel.MaterialModel() {
+                Price = material.Price,
+                Cost = material.Cost,
+                Name = material.Name,
+                FilePath = material.FilePath,
+                Id = material.Id,
+            };
+            return model;            
+        }
+
         public static void ParseReservationDates(this Product product, IFormCollection form,
             out DateTime? startDate, out DateTime? endDate)
         {

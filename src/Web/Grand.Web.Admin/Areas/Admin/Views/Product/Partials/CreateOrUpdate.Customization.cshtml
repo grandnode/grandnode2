@@ -1,0 +1,11 @@
+﻿@model ProductModel
+@inject AdminAreaSettings adminAreaSettings
+<vc:admin-widget widget-zone="product_details_customization_top" additional-data="Model" />
+<div class="form-horizontal portlet bg-inverse form-fit" id="group-prices">
+    <div class="form-body">       
+        <partial name="Partials/CreateOrUpdate.CustomizeProducts" model="Model" />
+
+    </div>
+</div>
+
+<vc:admin-widget widget-zone="product_details_customization_bottom" additional-data="Model" />

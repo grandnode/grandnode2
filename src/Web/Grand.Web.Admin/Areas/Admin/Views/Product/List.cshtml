@@ -241,7 +241,17 @@
                         width: 100,
                         //if not a grouped product, then display
                         template: "# if(ProductTypeId != @((int)ProductType.GroupedProduct)) {# #:Price# #}  #"
-                    }, {
+                    },
+                    {
+                        field: "CustomizedEnable",
+                        title: "CanCustom",
+                        headerAttributes: { style: "text-align:right" },
+                        attributes: { style: "text-align:right" },
+                        minScreenWidth: 750,
+                        width: 80,
+                        template: '# if(CustomizedEnable) {# <i class="fa fa-check" aria-hidden="true" style="color:green"></i> #} else {# <i class="fa fa-times" aria-hidden="true" style="color:red"></i> #} #'
+                    },
+                    {
                         field: "StockQuantityStr",
                         title: "@Loc["Admin.Catalog.Products.Fields.StockQuantity"]",
 						headerAttributes: { style: "text-align:right" },

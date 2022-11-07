@@ -1,4 +1,6 @@
 using Grand.Domain.Localization;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Grand.Domain.Catalog
 {
@@ -10,10 +12,11 @@ namespace Grand.Domain.Catalog
         public ProductAttributeValue()
         {
             Locales = new List<TranslationEntity>();
+            Materials = new List<Material>();
         }
 
         /// <summary>
-        /// Gets or sets the attribute value type identifier
+        /// Gets or sets the attribute value type Pr
         /// </summary>
         public AttributeValueType AttributeValueTypeId { get; set; }
 
@@ -72,12 +75,18 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public string PictureId { get; set; }
 
+        //Customization
+        public string MeshId { get; set; }
+        public decimal CameraAlpha { get; set; }
+        public decimal CameraBeta { get; set; }
+        public decimal CameraRadius { get; set; }
+
+        public ICollection<Material> Materials { get; set; }
+        // End Customization
         /// <summary>
         /// Gets or sets the collection of locales
         /// </summary>
         public IList<TranslationEntity> Locales { get; set; }
 
-
-        
     }
 }

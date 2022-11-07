@@ -34,6 +34,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Globalization;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
+using Microsoft.AspNetCore.Routing;
 
 namespace Grand.Web.Features.Handlers.Products
 {
@@ -64,6 +65,7 @@ namespace Grand.Web.Features.Handlers.Products
         private readonly IProductReservationService _productReservationService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMediator _mediator;
+        private readonly LinkGenerator _linkGenerator;
 
         private readonly MediaSettings _mediaSettings;
         private readonly CatalogSettings _catalogSettings;
@@ -103,7 +105,9 @@ namespace Grand.Web.Features.Handlers.Products
             SeoSettings seoSettings,
             VendorSettings vendorSettings,
             CaptchaSettings captchaSettings,
-            ShoppingCartSettings shoppingCartSettings)
+            ShoppingCartSettings shoppingCartSettings,
+            LinkGenerator linkGenerator
+            )
         {
             _permissionService = permissionService;
             _workContext = workContext;
@@ -136,6 +140,7 @@ namespace Grand.Web.Features.Handlers.Products
             _vendorSettings = vendorSettings;
             _captchaSettings = captchaSettings;
             _shoppingCartSettings = shoppingCartSettings;
+            _linkGenerator = linkGenerator;
         }
 
         public async Task<ProductDetailsModel> Handle(GetProductDetailsPage request, CancellationToken cancellationToken)
@@ -341,6 +346,12 @@ namespace Grand.Web.Features.Handlers.Products
 
             model.AuctionEnded = product.AuctionEnded;
 
+            #endregion
+
+            #region Customization
+            model.CustomizedLinkedProductLinkUrl = product.CustomizedLinkedProduct.Any() ? _linkGenerator.GetUriByRouteValues(_httpContextAccessor.HttpContext, "Product", new { SeName = (await _productService.GetProductById(product.CustomizedLinkedProduct.FirstOrDefault())).GetSeName(_workContext.WorkingLanguage.Id) }) : string.Empty;
+
+            model.IsCustomProduct = product.ProductAttributeMappings.Where(x => x.AttributeControlTypeId == AttributeControlType.Customize).Any();
             #endregion
 
             return model;
@@ -805,8 +816,20 @@ namespace Grand.Web.Features.Handlers.Products
                     IsRequired = attribute.IsRequired,
                     AttributeControlType = attribute.AttributeControlTypeId,
                     DefaultValue = updatecartitem != null ? null : attribute.DefaultValue,
-                    HasCondition = attribute.ConditionAttribute.Any()
+                    HasCondition = attribute.ConditionAttribute.Any(),
+                    ObjectName = attribute.ObjectName,
+                    ObjectPath = attribute.ObjectPath,
+                    InitialCameraAlpha = attribute.InitialCameraAlpha,
+                    InitialCameraBeta = attribute.InitialCameraBeta,
+                    InitialCameraRadius = attribute.InitialCameraRadius,
+                    UpperAlphaLimit = attribute.UpperAlphaLimit,
+                    LowerAlphaLimit = attribute.LowerAlphaLimit,
+                    LowerBetaLimit = attribute.LowerBetaLimit,
+                    UpperBetaLimit = attribute.UpperBetaLimit,
+                    LowerRadiusLimit = attribute.LowerRadiusLimit,
+                    UpperRadiusLimit = attribute.UpperRadiusLimit,
                 };
+
                 if (!string.IsNullOrEmpty(attribute.ValidationFileAllowedExtensions))
                 {
                     attributeModel.AllowedFileExtensions = attribute.ValidationFileAllowedExtensions
@@ -841,7 +864,14 @@ namespace Grand.Web.Features.Handlers.Products
                             ColorSquaresRgb = attributeValue.ColorSquaresRgb, //used with "Color squares" attribute type
                             IsPreSelected = preselected,
                             StockAvailability = stockAvailability,
-                        };
+                            // Customization
+                            MaterialModels = attributeValue.Materials.Select(x => x.ToModel()).ToList(),
+                            MeshId = attributeValue.MeshId,
+                            CameraAlpha = attributeValue.CameraAlpha,
+                            CameraBeta = attributeValue.CameraBeta,
+                            CameraRadius = attributeValue.CameraRadius
+                        };                   
+
                         attributeModel.Values.Add(valueModel);
 
                         //display price if allowed
@@ -965,6 +995,11 @@ namespace Grand.Web.Features.Handlers.Products
                                     if (download != null)
                                         attributeModel.DefaultValue = download.DownloadGuid.ToString();
                                 }
+                            }
+                            break;
+                        case AttributeControlType.Customize:
+                            {
+                               
                             }
                             break;
                         default:

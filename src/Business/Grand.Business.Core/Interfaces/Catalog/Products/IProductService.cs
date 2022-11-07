@@ -273,6 +273,22 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
 
         #endregion
 
+        #region Customized Linked Products
+
+        /// <summary>
+        /// Inserts a customized linked product
+        /// </summary>
+        /// <param name="customizedLinkedProduct">Customized linked product</param>
+        Task InsertCustomizedLinkedProduct(CustomizedLinkedProduct customizedLinkedProduct);
+
+        /// <summary>
+        /// Deletes a customized linked product
+        /// </summary>
+        /// <param name="customizedLinkedProduct">Customized Linked</param>
+        Task DeleteCustomizedLinkedProduct(CustomizedLinkedProduct crossSellProduct); 
+
+        #endregion
+
         #region Recommmended products
 
         /// <summary>
