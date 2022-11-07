@@ -7,11 +7,12 @@
 }
 <div id="customizeContainer">
     <canvas class="w-100" id="customizeCanvas"></canvas>
-    <div class="meshOptions" v-if="customizeApp.availableMaterialsAfterClick != null && customizeApp.availableMaterialsAfterClick.length > 0">       
-        <div v-for="material in customizeApp.availableMaterialsAfterClick" class="square" :style="{backgroundImage: 'url(' + material.url + ')' }"></div>
+    <div class="meshOptions" v-if="customizeApp.selectedAvailableMaterialsAfterClick != null && customizeApp.selectedAvailableMaterialsAfterClick.length > 0">       
+        <div v-for="material in customizeApp.selectedAvailableMaterialsAfterClick" 
+            class="square" 
+            :style="{backgroundImage: 'url(' + material.url + ')' }"
+            :onclick="customizeApp.changeMaterial(material)"></div>
     </div>
-    <button @@click="customizeApp.changeCamera('helmet')"> Change Camera</button>
-    <button @@click="customizeApp.changeMaterial('helmet')"> Change Texture</button>
 </div>
 
 
@@ -42,7 +43,7 @@
                     @foreach(var mesh in meshes){
                         <text>
                         {
-                            name: "@mesh.MeshId",
+                            id: "@mesh.MeshId",
                             cameraSetting: {
                                 alpha: @mesh.CameraAlpha,
                                 beta: @mesh.CameraBeta,
@@ -69,86 +70,8 @@
             // logic for current 
             canvas: null,
             light: null,
-            availableMaterialsAfterClick: null
-            //productData: {
-            //    url: @customizationAttribute.ObjectPath,
-            //    objectName: @customizationAttribute.ObjectName,
-            //    meshes: [
-            //        {
-            //            name: "helmet",
-            //            cameraSetting: {
-            //                alpha: Math.PI * 0.8,
-            //                beta: Math.PI * 0.39,
-            //                radius: 55
-            //            },
-            //            availableMaterials: [
-            //                {
-            //                    name: "sonnhung1",
-            //                    url: "",
-            //                    price: 50
-            //                },
-            //                {
-            //                    name: "sonnhung2",
-            //                    url: "",
-            //                    price: 51
-            //                },
-            //                {
-            //                    name: "sonnhung3",
-            //                    url: "",
-            //                    price: 52
-            //                }
-            //            ]
-            //        },
-            //        {
-            //            name: "lottrong",
-            //            cameraSetting: {
-            //                alpha: Math.PI * 0.8,
-            //                beta: Math.PI * 0.39,
-            //                radius: 55
-            //            }
-            //        },
-            //        {
-            //            name: "lotngoai",
-            //            cameraSetting: {
-            //                alpha: Math.PI * 0.8,
-            //                beta: Math.PI * 0.39,
-            //                radius: 55
-            //            }
-            //        },
-            //        {
-            //            name: "lotcam",
-            //            cameraSetting: {
-            //                alpha: Math.PI * 0.8,
-            //                beta: Math.PI * 0.39,
-            //                radius: 55
-            //            }
-            //        },
-            //        {
-            //            name: "quai",
-            //            cameraSetting: {
-            //                alpha: Math.PI * 0.8,
-            //                beta: Math.PI * 0.39,
-            //                radius: 55
-            //            }
-            //        },
-            //        {
-            //            name: "quainum",
-            //            cameraSetting: {
-            //                alpha: Math.PI * 0.8,
-            //                beta: Math.PI * 0.39,
-            //                radius: 55
-            //            }
-            //        },
-            //        {
-            //            name: "quaisau",
-            //            cameraSetting: {
-            //                alpha: Math.PI * 0.8,
-            //                beta: Math.PI * 0.39,
-            //                radius: 55
-            //            }
-            //        }
-            //    ],
-            //}
+            selectedAvailableMaterialsAfterClick: null,
+            selectedMeshId: null
         },
         methods: {
             bootstrapApp: function () {
@@ -179,7 +102,7 @@
                 // load model
 
                 var loader = new BABYLON.AssetsManager(this.scene);
-                var meshes = this.productData.meshes.map(mesh => mesh.name);
+                var meshes = this.productData.meshes.map(mesh => mesh.id);
                 var loadHelmetModel = loader.addMeshTask("loadTask"
                     , meshes
                     , this.productData.url
@@ -192,6 +115,9 @@
 
                     //setup click 
                     this.captureClickEventAndPopulateMaterials();
+
+                    // setup event listener
+                    this.setUpEventListener();
                 }
 
                 loader.load();
@@ -248,8 +174,19 @@
                 ])
                 return animation;
             },
-            changeMaterial: function () {
-                console.log("change material");
+            changeMaterial: function(material){
+                window.dispatchEvent(new Event("changeMaterial", material));
+            },
+            setUpEventListener: function () {                
+                window.addEventListener("changeMaterial", (event) => {
+                    console.log(event);
+                    //const texture = new BABYLON.StandardMaterial(event.material.name, this.scene);                                    
+                })
+                //texture.diffuseTexture = new BABYLON.Texture(material.url, this.scene);
+                //texture.reflectionTexture = new BABYLON.Texture(material.url, this.scene);
+            
+                //var selectedMeshObj = this.scene.getMeshByName(this.selectedMeshId);
+                //selectedMeshObj.material = texture;
             },           
             captureClickEventAndPopulateMaterials: function(){
                 var self = this;
@@ -258,11 +195,11 @@
 
                     var hit = self.scene.pickWithRay(ray);
                     if (hit.pickedMesh) {
-                        var clickedMeshId = hit.pickedMesh.id
-                        console.log("clickMeshId: " + clickedMeshId);
-                        var canSelectMaterials = self.productData.meshes.find(mesh => mesh.name == clickedMeshId).availableMaterials;
-                        self.availableMaterialsAfterClick = canSelectMaterials;
-                        console.log(self.availableMaterialsAfterClick);
+                        var clickedMeshId = hit.pickedMesh.id;
+                        self.selectedMeshId = clickedMeshId;
+                        console.log(clickedMeshId);
+                        var canSelectMaterials = self.productData.meshes.find(mesh => mesh.id == clickedMeshId).availableMaterials;
+                        self.selectedAvailableMaterialsAfterClick = canSelectMaterials;
                     }
                 }
             },            
