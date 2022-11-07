@@ -129,6 +129,7 @@ namespace Grand.Business.Catalog.Services.Products.Tests
         [TestMethod()]
         public async Task GetProductsByIdsTest()
         {
+            await insertSampleProducts();
             //Act
             var result = await _productService.GetProductsByIds(new[] { "1" });
 
