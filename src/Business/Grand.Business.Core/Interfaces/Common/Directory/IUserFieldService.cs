@@ -8,7 +8,6 @@ namespace Grand.Business.Core.Interfaces.Common.Directory
     public partial interface IUserFieldService
     {
         Task SaveField<TPropType>(BaseEntity entity, string key, TPropType value, string storeId = "");
-        Task SaveField<TPropType>(string entity, string entityId, string key, TPropType value, string storeId = "");
         Task<TPropType> GetFieldsForEntity<TPropType>(BaseEntity entity, string key, string storeId = "");
     }
 }

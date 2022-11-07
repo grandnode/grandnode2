@@ -28,60 +28,6 @@ namespace Grand.Business.Common.Services.Directory
 
         #region Methods
 
-
-        /// <summary>
-        /// Save attribute value
-        /// </summary>
-        /// <typeparam name="TPropType">Property type</typeparam>
-        /// <param name="entity">Entity name (collection name)</param>
-        /// <param name="entityId">EntityId</param>
-        /// <param name="key">Key</param>
-        /// <param name="value">Value</param>
-        /// <param name="storeId">Store identifier; pass 0 if this attribute will be available for all stores</param>
-        public virtual async Task SaveField<TPropType>(string entity, string entityId, string key, TPropType value, string storeId = "")
-        {
-            if (string.IsNullOrEmpty(entity))
-                throw new ArgumentNullException(nameof(entity));
-
-            if (string.IsNullOrEmpty(key))
-                throw new ArgumentNullException(nameof(key));
-
-            _ = _userfieldBaseEntitRepository.SetCollection(entity);
-
-            var basefields = await _userfieldBaseEntitRepository.GetByIdAsync(entityId);
-
-            var props = basefields.UserFields.Where(x => string.IsNullOrEmpty(storeId) || x.StoreId == storeId);
-
-            var prop = props.FirstOrDefault(ga =>
-                ga.Key.Equals(key, StringComparison.OrdinalIgnoreCase)); //should be culture invariant
-
-            var valueStr = CommonHelper.To<string>(value);
-
-            if (prop != null)
-            {
-                if (string.IsNullOrWhiteSpace(valueStr))
-                {
-                    //delete
-                    await _userfieldBaseEntitRepository.PullFilter(entityId, x => x.UserFields, y => y.Key == prop.Key && y.StoreId == storeId);
-
-                }
-                else
-                {
-                    //update
-                    await _userfieldBaseEntitRepository.UpdateToSet(entityId, x => x.UserFields, y => y.Key == prop.Key && y.StoreId == storeId, prop);
-                }
-            }
-            else
-            {
-                prop = new UserField {
-                    Key = key,
-                    Value = valueStr,
-                    StoreId = storeId,
-                };
-                await _userfieldBaseEntitRepository.AddToSet(entityId, x => x.UserFields, prop);
-            }
-        }
-
         /// <summary>
         /// Save attribute value
         /// </summary>
@@ -89,7 +35,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <param name="entity">Entity</param>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
-        /// <param name="storeId">Store identifier; pass 0 if this attribute will be available for all stores</param>
+        /// <param name="storeId">Store identifier; pass "" if this attribute will be available for all stores</param>
         public virtual async Task SaveField<TPropType>(BaseEntity entity, string key, TPropType value, string storeId = "")
         {
             if (entity == null)
