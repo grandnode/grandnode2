@@ -11,7 +11,7 @@
         <div v-for="material in customizeApp.selectedAvailableMaterialsAfterClick" 
             class="square" 
             :style="{backgroundImage: 'url(' + material.url + ')' }"
-            :onclick="customizeApp.changeMaterial(material)"></div>
+            v-on:click="customizeApp.changeMaterial(material)"></div>
     </div>
 </div>
 
@@ -21,7 +21,6 @@
     // Working play ground https://playground.babylonjs.com/#3AQQI8#5
     var customizeApp = new Vue({
         data: {
-            scene: null,
             camera: null,
             canvas: null,
             light: null,
@@ -77,16 +76,16 @@
             bootstrapApp: function () {
 
                 this.canvas = document.getElementById("customizeCanvas");
-                this.engine = new BABYLON.Engine(this.canvas, true);
+                var engine = new BABYLON.Engine(this.canvas, true);
                 // This creates a basic Babylon Scene object (non-mesh)
-                this.scene = new BABYLON.Scene(this.engine);
-                this.scene.clearColor = new BABYLON.Color3(1, 1, 1);
+                scene = new BABYLON.Scene(engine);
+                scene.clearColor = new BABYLON.Color3(1, 1, 1);
                 this.camera = new BABYLON.ArcRotateCamera("camera"
                     , this.cameraInitialSetting.alpha
                     , this.cameraInitialSetting.beta
                     , this.cameraInitialSetting.radius
                     , this.cameraInitialSetting.target
-                    , this.scene);
+                    , scene);
                 this.camera.upperAlphaLimit = this.cameraInitialSetting.upperAlphaLimit;
                 this.camera.lowerBetaLimit = this.cameraInitialSetting.lowerBetaLimit;
                 this.camera.upperBetaLimit = this.cameraInitialSetting.upperBetaLimit;
@@ -96,120 +95,126 @@
                 // Dont attach control to camera, because I want to rotate it with the mouse
                 this.camera.attachControl();
 
-                this.light = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 40, 0), this.scene);
+                this.light = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 40, 0), scene);
 
                 //this.createOverlay();
                 // load model
 
-                var loader = new BABYLON.AssetsManager(this.scene);
+                var loader = new BABYLON.AssetsManager(scene);
                 var meshes = this.productData.meshes.map(mesh => mesh.id);
                 var loadHelmetModel = loader.addMeshTask("loadTask"
                     , meshes
                     , this.productData.url
                     , "helmet.babylon");
 
+                var self=this;
                 loadHelmetModel.onSuccess = (t) => {
-                    this.engine.runRenderLoop(() => {
-                        this.scene.render();
+                    engine.runRenderLoop(() => {
+                        scene.render();
                     })
 
                     //setup click 
-                    this.captureClickEventAndPopulateMaterials();
+                    captureClickEventAndPopulateMaterials(self);
 
                     // setup event listener
-                    this.setUpEventListener();
+                    setUpEventListener(self);
                 }
 
                 loader.load();
-            },
-            changeCamera: function (meshName) {
-                const edittingMesh = this.productData.meshes.find(mesh => mesh.name == meshName);
-                if (!edittingMesh) {
-                    console.log("Cannot find edditint mesh");
-                    return;
+
+
+                var setUpEventListener = function(self){
+                    window.addEventListener("changeMaterial", (event) => {
+                        if(event.detail){
+                        var texture = new BABYLON.StandardMaterial(event.detail.name, scene);
+                        texture.diffuseTexture = new BABYLON.Texture(event.detail.url, scene);
+                        texture.reflectionTexture = new BABYLON.Texture(event.detail.url, scene);
+
+                        scene.getMeshByName(self.selectedMeshId).material = texture
+                        }
+                    })
+                    
                 }
-                this.camera.animations = [
-                    this.createAnimation(
-                        "beta",
-                        this.camera.beta,
-                        edittingMesh.cameraSetting.beta
-                    ),
-                    this.createAnimation(
-                        "alpha",
-                        this.camera.alpha,
-                        edittingMesh.cameraSetting.alpha
-                    ),
-                    this.createAnimation(
-                        "radius",
-                        this.camera.radius,
-                        edittingMesh.cameraSetting.radius
-                    )
-                ]
 
-                var animationObject = this.scene.beginAnimation(this.camera, 0, 100, false, 4);
-                animationObject.onAnimationEnd = function () {
-                    console.log("Animation End");
-                }
-            },
-            createAnimation: function (property, from, to) {
+                var captureClickEventAndPopulateMaterials = function(self){      
+                    scene.onPointerDown = function () {
+                        var ray = scene.createPickingRay(scene.pointerX, scene.pointerY, BABYLON.Matrix.Identity(), self.camera);
 
-                const Frame_per_second = 60;
-                var animation = new BABYLON.Animation(
-                    "myAnimationcamera",
-                    property,
-                    30,
-                    BABYLON.Animation.ANIMATIONTYPE_FLOAT,
-                    BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT,
-                );
-
-                animation.setKeys([
-                    {
-                        frame: 0,
-                        value: from
-                    },
-                    {
-                        frame: 100,
-                        value: to
+                        var hit = scene.pickWithRay(ray);
+                        if (hit.pickedMesh) {
+                            var clickedMeshId = hit.pickedMesh.id;
+                            self.selectedMeshId = clickedMeshId;
+                            console.log(clickedMeshId);
+                            var canSelectMaterials = self.productData.meshes.find(mesh => mesh.id == clickedMeshId).availableMaterials;
+                            self.selectedAvailableMaterialsAfterClick = canSelectMaterials;
+                        }
                     }
-                ])
-                return animation;
+                }
+
             },
+            //changeCamera: function (meshName) {
+            //    const edittingMesh = this.productData.meshes.find(mesh => mesh.name == meshName);
+            //    if (!edittingMesh) {
+            //        console.log("Cannot find edditint mesh");
+            //        return;
+            //    }
+            //    this.camera.animations = [
+            //        this.createAnimation(
+            //            "beta",
+            //            this.camera.beta,
+            //            edittingMesh.cameraSetting.beta
+            //        ),
+            //        this.createAnimation(
+            //            "alpha",
+            //            this.camera.alpha,
+            //            edittingMesh.cameraSetting.alpha
+            //        ),
+            //        this.createAnimation(
+            //            "radius",
+            //            this.camera.radius,
+            //            edittingMesh.cameraSetting.radius
+            //        )
+            //    ]
+
+            //    var animationObject = this.scene.beginAnimation(this.camera, 0, 100, false, 4);
+            //    animationObject.onAnimationEnd = function () {
+            //        console.log("Animation End");
+            //    }
+            //},
+            //createAnimation: function (property, from, to) {
+
+            //    const Frame_per_second = 60;
+            //    var animation = new BABYLON.Animation(
+            //        "myAnimationcamera",
+            //        property,
+            //        30,
+            //        BABYLON.Animation.ANIMATIONTYPE_FLOAT,
+            //        BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT,
+            //    );
+
+            //    animation.setKeys([
+            //        {
+            //            frame: 0,
+            //            value: from
+            //        },
+            //        {
+            //            frame: 100,
+            //            value: to
+            //        }
+            //    ])
+            //    return animation;
+            //},
             changeMaterial: function(material){
-                console.log(material);
-                window.dispatchEvent(new CustomEvent("changeMaterial", {
-                    //cost: material.cost,
-                    //name: material.name,
-                    //price: material.price,
-                    //url: material.url
-                    a:"a"
-                }));
-            },
-            setUpEventListener: function () {                
-                window.addEventListener("changeMaterial", (event) => {
-                    console.log(event);
-                    //const texture = new BABYLON.StandardMaterial(event.material.name, this.scene);                                    
-                })
-                //texture.diffuseTexture = new BABYLON.Texture(material.url, this.scene);
-                //texture.reflectionTexture = new BABYLON.Texture(material.url, this.scene);
-            
-                //var selectedMeshObj = this.scene.getMeshByName(this.selectedMeshId);
-                //selectedMeshObj.material = texture;
-            },           
-            captureClickEventAndPopulateMaterials: function(){
-                var self = this;
-                this.scene.onPointerDown = function(){
-                    var ray = self.scene.createPickingRay(self.scene.pointerX, self.scene.pointerY, BABYLON.Matrix.Identity(), self.camera);
-
-                    var hit = self.scene.pickWithRay(ray);
-                    if (hit.pickedMesh) {
-                        var clickedMeshId = hit.pickedMesh.id;
-                        self.selectedMeshId = clickedMeshId;
-                        console.log(clickedMeshId);
-                        var canSelectMaterials = self.productData.meshes.find(mesh => mesh.id == clickedMeshId).availableMaterials;
-                        self.selectedAvailableMaterialsAfterClick = canSelectMaterials;
+                var eventChangeMaterial = new CustomEvent("changeMaterial", {                    
+                    detail: {
+                        cost: material.cost,
+                        name: material.name,
+                        price: material.price,
+                        url: material.url
                     }
-                }
-            },            
+                });
+                window.dispatchEvent(eventChangeMaterial);
+            }      
         }
     })
 
