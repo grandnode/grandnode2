@@ -1269,8 +1269,40 @@ section {
 
 
 /*Customization*/
-#customizeContainer{
+#customizeCanvas {
     outline: none;
+}
+
+.customize-background::before {
+    content:"";
+    background-color: rgb(229, 200, 74);
+}
+
+.customize-background .loader-line {
+    background-color: rgb(143, 104, 80);
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    content: "";
+    background-color: #42f092;
+    -webkit-transition: -webkit-transform 0.6s false;
+    -moz-transition: -moz-transform 0.6s false false;
+    -o-transition: -o-transform 0.6s false false;
+    transition: transform 0.6s;
+    -webkit-transform-origin: 0% 50%;
+    -moz-transform-origin: 0% 50%;
+    -ms-transform-origin: 0% 50%;
+    -o-transform-origin: 0% 50%;
+    transform-origin: 0% 50%;
+    -webkit-transform: scaleX(0);
+    -moz-transform: scaleX(0);
+    -ms-transform: scaleX(0);
+    -o-transform: scaleX(0);
+    transform: scaleX(0);
+    height: 6px;
 }
 
 .square {
@@ -1278,4 +1310,20 @@ section {
     width: 40px;
 }
 
+.loader {
+    height: 6px;
+    top: 60%;
+    -webkit-transform: rotate(4deg);
+    -moz-transform: rotate(4deg);
+    -ms-transform: rotate(4deg);
+    -o-transform: rotate(4deg);
+    transform: rotate(4deg);
+    position: absolute;
+    left: -10px;
+    right: -10px;
+    -webkit-transition: opacity 1s false;
+    -moz-transition: opacity 1s false false;
+    -o-transition: opacity 1s false false;
+    transition: opacity 1s;
+}
 /*End Customization*/

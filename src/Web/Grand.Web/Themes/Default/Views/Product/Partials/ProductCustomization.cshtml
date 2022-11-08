@@ -6,12 +6,25 @@
     var meshes = customizationAttribute.Values;
 }
 <div id="customizeContainer">
-    <canvas class="w-100" id="customizeCanvas"></canvas>
-    <div class="meshOptions" v-if="customizeApp.selectedAvailableMaterialsAfterClick != null && customizeApp.selectedAvailableMaterialsAfterClick.length > 0">       
-        <div v-for="material in customizeApp.selectedAvailableMaterialsAfterClick" 
-            class="square" 
-            :style="{backgroundImage: 'url(' + material.url + ')' }"
-            v-on:click="customizeApp.changeMaterial(material)"></div>
+    <div class="customize-background row">
+        <div class="loader"><div class="loader-line" style="-webkit-transform: scaleX(1); -moz-transform: scaleX(1); -ms-transform: scaleX(1); -o-transform: scaleX(1);transform: scaleX(1);"></div></div>
+
+        <div class="col-xl-10">
+            <canvas class="w-100" id="customizeCanvas"></canvas>            
+        </div>
+
+        <div class="col-xl-2">
+            <div class="meshOptions" v-if="customizeApp.selectedAvailableMaterialsAfterClick != null && customizeApp.selectedAvailableMaterialsAfterClick.length > 0">       
+                <div v-for="material in customizeApp.selectedAvailableMaterialsAfterClick" 
+                    class="square" 
+                    :style="{backgroundImage: 'url(' + material.url + ')' }"
+                    v-on:click="customizeApp.changeMaterial(material)">
+                </div>
+            </div>
+            <div v-else>
+                Please select a component to customize
+            </div>
+        </div>
     </div>
 </div>
 
@@ -97,7 +110,8 @@
 
                 this.light = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 40, 0), scene);
 
-                //this.createOverlay();
+                //backgroun
+                scene.autoClear = false;
                 // load model
 
                 var loader = new BABYLON.AssetsManager(scene);
@@ -126,6 +140,7 @@
                 var setUpEventListener = function(self){
                     window.addEventListener("changeMaterial", (event) => {
                         if(event.detail){
+                        // TODO: Load this in advance allow the switch to work faster
                         var texture = new BABYLON.StandardMaterial(event.detail.name, scene);
                         texture.diffuseTexture = new BABYLON.Texture(event.detail.url, scene);
                         texture.reflectionTexture = new BABYLON.Texture(event.detail.url, scene);
