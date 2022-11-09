@@ -54,13 +54,6 @@ namespace Grand.Business.Core.Interfaces.Common.Logging
             string referrerUrl = default);
 
         /// <summary>
-        /// Determines whether a log level is enabled
-        /// </summary>
-        /// <param name="level">Log level</param>
-        /// <returns>Result</returns>
-        bool IsEnabled(LogLevel level);
-
-        /// <summary>
         /// Deletes a log item
         /// </summary>
         /// <param name="log">Log item</param>

@@ -134,22 +134,6 @@ namespace Grand.Business.Common.Services.Logging
         }
 
         /// <summary>
-        /// Determines whether a log level is enabled
-        /// </summary>
-        /// <param name="level">Log level</param>
-        /// <returns>Result</returns>
-        public virtual bool IsEnabled(LogLevel level)
-        {
-            switch (level)
-            {
-                case LogLevel.Debug:
-                    return false;
-                default:
-                    return true;
-            }
-        }
-
-        /// <summary>
         /// Deletes a log item
         /// </summary>
         /// <param name="log">Log item</param>
