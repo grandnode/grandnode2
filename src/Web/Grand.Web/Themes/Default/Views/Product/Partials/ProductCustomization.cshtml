@@ -13,7 +13,7 @@
             <canvas class="w-100" id="customizeCanvas"></canvas>            
         </div>
 
-        <div class="col-xl-2">
+        <div class="col-xl-2 customize-options">
             <div class="meshOptions" v-if="customizeApp.selectedAvailableMaterialsAfterClick != null && customizeApp.selectedAvailableMaterialsAfterClick.length > 0">       
                 <div v-for="material in customizeApp.selectedAvailableMaterialsAfterClick" 
                     class="square" 
@@ -89,6 +89,7 @@
             bootstrapApp: function () {
 
                 this.canvas = document.getElementById("customizeCanvas");
+                
                 var engine = new BABYLON.Engine(this.canvas, true);
                 // This creates a basic Babylon Scene object (non-mesh)
                 scene = new BABYLON.Scene(engine);
@@ -99,6 +100,7 @@
                     , this.cameraInitialSetting.radius
                     , this.cameraInitialSetting.target
                     , scene);
+                this.camera.inputs.remove(this.camera.inputs.attached.mousewheel);
                 this.camera.upperAlphaLimit = this.cameraInitialSetting.upperAlphaLimit;
                 this.camera.lowerBetaLimit = this.cameraInitialSetting.lowerBetaLimit;
                 this.camera.upperBetaLimit = this.cameraInitialSetting.upperBetaLimit;
