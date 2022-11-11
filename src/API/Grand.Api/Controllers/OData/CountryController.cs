@@ -28,13 +28,11 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Countries))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Countries)) return Forbid();
 
             //Domain.Directory.Country
             var country = await _mediator.Send(new GetGenericQuery<CountryDto, Domain.Directory.Country>(key));
-            if (!country.Any())
-                return NotFound();
+            if (!country.Any()) return NotFound();
 
             return Ok(country.FirstOrDefault());
         }
@@ -46,8 +44,7 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Countries))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Countries)) return Forbid();
 
             return Ok(await _mediator.Send(new GetGenericQuery<CountryDto, Domain.Directory.Country>()));
         }

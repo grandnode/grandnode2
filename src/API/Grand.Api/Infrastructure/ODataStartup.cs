@@ -44,7 +44,7 @@ namespace Grand.Api.Infrastructure
                 services.AddCors(options =>
                 {
                     options.AddPolicy(Configurations.CorsPolicyName,
-                        builder => builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader());
+                        builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
                 });
                 //Add OData
                 services.AddControllers().AddOData(opt =>
@@ -53,6 +53,9 @@ namespace Grand.Api.Infrastructure
                     opt.AddRouteComponents(Configurations.ODataRoutePrefix, GetEdmModel(apiConfig));
                     opt.Select().Filter().Count().Expand();
                 });
+
+                services.AddScoped<ModelValidationAttribute>();
+
             }
         }
         public int Priority => 505;

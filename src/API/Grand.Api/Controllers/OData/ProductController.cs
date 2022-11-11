@@ -33,12 +33,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             return Ok(product.FirstOrDefault());
         }
@@ -50,8 +48,7 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get()
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             return Ok(await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>()));
         }
@@ -63,15 +60,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Post([FromBody] ProductDto model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            if (ModelState.IsValid)
-            {
-                model = await _mediator.Send(new AddProductCommand() { Model = model });
-                return Ok(model);
-            }
-            return BadRequest(ModelState);
+            model = await _mediator.Send(new AddProductCommand() { Model = model });
+            return Ok(model);
         }
 
         [SwaggerOperation(summary: "Update entity in Product", OperationId = "UpdateProduct")]
@@ -81,15 +73,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Put([FromBody] ProductDto model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
-            if (ModelState.IsValid)
-            {
-                await _mediator.Send(new UpdateProductCommand() { Model = model });
-                return Ok();
-            }
-            return BadRequest(ModelState);
+            await _mediator.Send(new UpdateProductCommand() { Model = model });
+            return Ok();
         }
 
         [SwaggerOperation(summary: "Partially update entity in Product", OperationId = "PartiallyUpdateProduct")]
@@ -100,22 +87,15 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Patch([FromODataUri] string key, [FromBody] JsonPatchDocument<ProductDto> model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var pr = product.FirstOrDefault();
             model.ApplyTo(pr, ModelState);
-
-            if (ModelState.IsValid)
-            {
-                await _mediator.Send(new UpdateProductCommand() { Model = pr });
-                return Ok();
-            }
-            return BadRequest(ModelState);
+            await _mediator.Send(new UpdateProductCommand() { Model = pr });
+            return Ok();
         }
 
         [SwaggerOperation(summary: "Delete entity in Product", OperationId = "DeleteProduct")]
@@ -125,12 +105,10 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Delete(string key)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             await _mediator.Send(new DeleteProductCommand() { Model = product.FirstOrDefault() });
 
@@ -138,7 +116,7 @@ namespace Grand.Api.Controllers.OData
         }
 
         //odata/Product/(id)/UpdateStock
-        //body: { "Stock": 10 }
+        //body: { "WarehouseId": "", "Stock": 10 }
         [SwaggerOperation(summary: "Invoke action UpdateStock", OperationId = "UpdateStock")]
         [Route("({key})/[action]")]
         [HttpPost]
@@ -148,20 +126,16 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UpdateStock(string key, [FromBody] ProductUpdateStock model)
         {
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
-            if (model == null)
-                return BadRequest();
+            if (model == null) return BadRequest();
 
             await _mediator.Send(new UpdateProductStockCommand() { Product = product.FirstOrDefault(), WarehouseId = model.WarehouseId, Stock = model.Stock });
 
             return Ok(true);
-
         }
 
         #region Product category
@@ -175,19 +149,15 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> CreateProductCategory(string key, [FromBody] ProductCategoryDto productCategory)
         {
-            if (productCategory == null)
-                return BadRequest();
+            if (productCategory == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var pc = product.FirstOrDefault().ProductCategories.Where(x => x.CategoryId == productCategory.CategoryId).FirstOrDefault();
-            if (pc != null)
-                ModelState.AddModelError("", "Product category mapping found with the specified categoryid");
+            if (pc != null) ModelState.AddModelError("", "Product category mapping found with the specified categoryid");
 
             if (ModelState.IsValid)
             {
@@ -206,20 +176,15 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UpdateProductCategory(string key, [FromBody] ProductCategoryDto productCategory)
         {
-            if (productCategory == null)
-                return BadRequest();
+            if (productCategory == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
-
+            if (!product.Any()) return NotFound();
 
             var pc = product.FirstOrDefault().ProductCategories.Where(x => x.CategoryId == productCategory.CategoryId).FirstOrDefault();
-            if (pc == null)
-                ModelState.AddModelError("", "No product category mapping found with the specified id");
+            if (pc == null) ModelState.AddModelError("", "No product category mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -238,22 +203,18 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteProductCategory(string key, [FromBody] ProductCategoryDeleteDto model)
         {
-            if (model == null)
-                return BadRequest();
+            if (model == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var categoryId = model.CategoryId;
             if (!string.IsNullOrEmpty(categoryId))
             {
                 var pc = product.FirstOrDefault().ProductCategories.Where(x => x.CategoryId == categoryId.ToString()).FirstOrDefault();
-                if (pc == null)
-                    ModelState.AddModelError("", "No product category mapping found with the specified id");
+                if (pc == null) ModelState.AddModelError("", "No product category mapping found with the specified id");
 
                 if (ModelState.IsValid)
                 {
@@ -278,19 +239,15 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> CreateProductCollection(string key, [FromBody] ProductCollectionDto productCollection)
         {
-            if (productCollection == null)
-                return BadRequest();
+            if (productCollection == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var pm = product.FirstOrDefault().ProductCollections.Where(x => x.CollectionId == productCollection.CollectionId).FirstOrDefault();
-            if (pm != null)
-                ModelState.AddModelError("", "Product collection mapping found with the specified collectionid");
+            if (pm != null) ModelState.AddModelError("", "Product collection mapping found with the specified collectionid");
 
             if (ModelState.IsValid)
             {
@@ -309,19 +266,15 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UpdateProductCollection(string key, [FromBody] ProductCollectionDto productCollection)
         {
-            if (productCollection == null)
-                return BadRequest();
+            if (productCollection == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var pm = product.FirstOrDefault().ProductCollections.Where(x => x.CollectionId == productCollection.CollectionId).FirstOrDefault();
-            if (pm == null)
-                ModelState.AddModelError("", "No product collection mapping found with the specified id");
+            if (pm == null) ModelState.AddModelError("", "No product collection mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -340,22 +293,18 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteProductCollection(string key, [FromBody] ProductCollectionDeleteDto model)
         {
-            if (model == null)
-                return BadRequest();
+            if (model == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var collectionId = model.CollectionId;
             if (!string.IsNullOrEmpty(collectionId))
             {
                 var pm = product.FirstOrDefault().ProductCollections.Where(x => x.CollectionId == collectionId.ToString()).FirstOrDefault();
-                if (pm == null)
-                    ModelState.AddModelError("", "No product collection mapping found with the specified id");
+                if (pm == null) ModelState.AddModelError("", "No product collection mapping found with the specified id");
 
                 if (ModelState.IsValid)
                 {
@@ -380,20 +329,15 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> CreateProductPicture(string key, [FromBody] ProductPictureDto productPicture)
         {
-            if (productPicture == null)
-                return BadRequest();
+            if (productPicture == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
-
+            if (!product.Any()) return NotFound();
 
             var pp = product.FirstOrDefault().ProductPictures.Where(x => x.PictureId == productPicture.PictureId).FirstOrDefault();
-            if (pp != null)
-                ModelState.AddModelError("", "Product picture mapping found with the specified pictureid");
+            if (pp != null) ModelState.AddModelError("", "Product picture mapping found with the specified pictureid");
 
             if (ModelState.IsValid)
             {
@@ -412,20 +356,15 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UpdateProductPicture(string key, [FromBody] ProductPictureDto productPicture)
         {
-            if (productPicture == null)
-                return BadRequest();
+            if (productPicture == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
-
+            if (!product.Any()) return NotFound();
 
             var pp = product.FirstOrDefault().ProductPictures.Where(x => x.PictureId == productPicture.PictureId).FirstOrDefault();
-            if (pp == null)
-                ModelState.AddModelError("", "No product picture mapping found with the specified id");
+            if (pp == null) ModelState.AddModelError("", "No product picture mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -444,22 +383,18 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteProductPicture(string key, [FromBody] ProductPictureDeleteDto model)
         {
-            if (model == null)
-                return BadRequest();
+            if (model == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var pictureId = model.PictureId;
             if (!string.IsNullOrEmpty(pictureId))
             {
                 var pp = product.FirstOrDefault().ProductPictures.Where(x => x.PictureId == pictureId.ToString()).FirstOrDefault();
-                if (pp == null)
-                    ModelState.AddModelError("", "No product picture mapping found with the specified id");
+                if (pp == null) ModelState.AddModelError("", "No product picture mapping found with the specified id");
 
                 if (ModelState.IsValid)
                 {
@@ -484,19 +419,15 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> CreateProductSpecification(string key, [FromBody] ProductSpecificationAttributeDto productSpecification)
         {
-            if (productSpecification == null)
-                return BadRequest();
+            if (productSpecification == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var psa = product.FirstOrDefault().ProductSpecificationAttributes.Where(x => x.Id == productSpecification.Id).FirstOrDefault();
-            if (psa != null)
-                ModelState.AddModelError("", "Product specification mapping found with the specified id");
+            if (psa != null) ModelState.AddModelError("", "Product specification mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -515,19 +446,15 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UpdateProductSpecification(string key, [FromBody] ProductSpecificationAttributeDto productSpecification)
         {
-            if (productSpecification == null)
-                return BadRequest();
+            if (productSpecification == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var psa = product.FirstOrDefault().ProductSpecificationAttributes.Where(x => x.Id == productSpecification.Id).FirstOrDefault();
-            if (psa == null)
-                ModelState.AddModelError("", "No product specification mapping found with the specified id");
+            if (psa == null) ModelState.AddModelError("", "No product specification mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -546,22 +473,18 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteProductSpecification(string key, [FromBody] ProductSpecificationAttributeDeleteDto model)
         {
-            if (model == null)
-                return BadRequest();
+            if (model == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var specificationId = model.Id;
             if (!string.IsNullOrEmpty(specificationId))
             {
                 var psa = product.FirstOrDefault().ProductSpecificationAttributes.Where(x => x.Id == specificationId.ToString()).FirstOrDefault();
-                if (psa == null)
-                    ModelState.AddModelError("", "No product specification mapping found with the specified id");
+                if (psa == null) ModelState.AddModelError("", "No product specification mapping found with the specified id");
 
                 if (ModelState.IsValid)
                 {
@@ -586,19 +509,15 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> CreateProductTierPrice(string key, [FromBody] ProductTierPriceDto productTierPrice)
         {
-            if (productTierPrice == null)
-                return BadRequest();
+            if (productTierPrice == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var pt = product.FirstOrDefault().TierPrices.Where(x => x.Id == productTierPrice.Id).FirstOrDefault();
-            if (pt != null)
-                ModelState.AddModelError("", "Product tier price mapping found with the specified id");
+            if (pt != null) ModelState.AddModelError("", "Product tier price mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -617,19 +536,15 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UpdateProductTierPrice(string key, [FromBody] ProductTierPriceDto productTierPrice)
         {
-            if (productTierPrice == null)
-                return BadRequest();
+            if (productTierPrice == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var pt = product.FirstOrDefault().TierPrices.Where(x => x.Id == productTierPrice.Id).FirstOrDefault();
-            if (pt == null)
-                ModelState.AddModelError("", "No product tier price mapping found with the specified id");
+            if (pt == null) ModelState.AddModelError("", "No product tier price mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -648,22 +563,18 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteProductTierPrice(string key, [FromBody] ProductTierPriceDeleteDto model)
         {
-            if (model == null)
-                return BadRequest();
+            if (model == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var tierPriceId = model.Id;
             if (!string.IsNullOrEmpty(tierPriceId))
             {
                 var pt = product.FirstOrDefault().TierPrices.Where(x => x.Id == tierPriceId.ToString()).FirstOrDefault();
-                if (pt == null)
-                    ModelState.AddModelError("", "No product tier price mapping found with the specified id");
+                if (pt == null) ModelState.AddModelError("", "No product tier price mapping found with the specified id");
 
                 if (ModelState.IsValid)
                 {
@@ -688,19 +599,15 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> CreateProductAttributeMapping(string key, [FromBody] ProductAttributeMappingDto productAttributeMapping)
         {
-            if (productAttributeMapping == null)
-                return BadRequest();
+            if (productAttributeMapping == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var pam = product.FirstOrDefault().ProductAttributeMappings.Where(x => x.Id == productAttributeMapping.Id).FirstOrDefault();
-            if (pam != null)
-                ModelState.AddModelError("", "Product attribute mapping found with the specified id");
+            if (pam != null) ModelState.AddModelError("", "Product attribute mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -719,19 +626,15 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> UpdateProductAttributeMapping(string key, [FromBody] ProductAttributeMappingDto productAttributeMapping)
         {
-            if (productAttributeMapping == null)
-                return BadRequest();
+            if (productAttributeMapping == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var pam = product.FirstOrDefault().ProductAttributeMappings.Where(x => x.Id == productAttributeMapping.Id).FirstOrDefault();
-            if (pam == null)
-                ModelState.AddModelError("", "No product attribute mapping found with the specified id");
+            if (pam == null) ModelState.AddModelError("", "No product attribute mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
@@ -750,22 +653,18 @@ namespace Grand.Api.Controllers.OData
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> DeleteProductAttributeMapping(string key, [FromBody] ProductAttributeMappingDeleteDto model)
         {
-            if (model == null)
-                return BadRequest();
+            if (model == null) return BadRequest();
 
-            if (!await _permissionService.Authorize(PermissionSystemName.Products))
-                return Forbid();
+            if (!await _permissionService.Authorize(PermissionSystemName.Products)) return Forbid();
 
             var product = await _mediator.Send(new GetGenericQuery<ProductDto, Domain.Catalog.Product>(key));
-            if (!product.Any())
-                return NotFound();
+            if (!product.Any()) return NotFound();
 
             var attrId = model.Id;
             if (!string.IsNullOrEmpty(attrId))
             {
                 var pam = product.FirstOrDefault().ProductAttributeMappings.Where(x => x.Id == attrId.ToString()).FirstOrDefault();
-                if (pam == null)
-                    ModelState.AddModelError("", "No product attribute mapping found with the specified id");
+                if (pam == null) ModelState.AddModelError("", "No product attribute mapping found with the specified id");
 
                 if (ModelState.IsValid)
                 {
