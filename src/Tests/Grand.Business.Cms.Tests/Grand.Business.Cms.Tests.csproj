@@ -17,7 +17,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Business\Grand.Business.Cms\Grand.Business.Cms.csproj" />
+    <ProjectReference Include="..\..\Business\Grand.Business.Common\Grand.Business.Common.csproj" />
     <ProjectReference Include="..\..\Business\Grand.Business.Core\Grand.Business.Core.csproj" />
+    <ProjectReference Include="..\Grand.Data.Tests\Grand.Data.Tests.csproj" />
+    <ProjectReference Include="..\Grand.Infrastructure.Tests\Grand.Infrastructure.Tests.csproj" />
   </ItemGroup>
 
 </Project>
