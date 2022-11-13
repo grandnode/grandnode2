@@ -78,6 +78,8 @@ namespace Grand.Infrastructure.Caching.Redis
                     case (int)MessageEventType.ClearCache:
                         await cache.Clear(false);
                         break;
+                    default:
+                        break;
                 }
 
             }

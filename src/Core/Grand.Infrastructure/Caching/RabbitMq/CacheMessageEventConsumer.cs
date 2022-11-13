@@ -27,6 +27,8 @@ namespace Grand.Infrastructure.Caching.RabbitMq
                 case (int)MessageEventType.ClearCache:
                     await _cache.Clear(false);
                     break;
+                default:
+                    break;
             }
         }
     }

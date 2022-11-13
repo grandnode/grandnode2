@@ -476,6 +476,8 @@ namespace Grand.Business.System.Services.ExportImport
                     case "onsale":
                         product.OnSale = property.IntValue;
                         break;
+                    default:
+                        break;
                 }
             }
         }
@@ -654,6 +656,8 @@ namespace Grand.Business.System.Services.ExportImport
                         if (!string.IsNullOrEmpty(property.StringValue) && property.StringValue != "0")
                             category.ParentCategoryId = property.StringValue;
                         break;
+                    default:
+                        break;
                 }
             }
         }
@@ -708,6 +712,8 @@ namespace Grand.Business.System.Services.ExportImport
                     case "externalid":
                         brand.ExternalId = property.StringValue;
                         break;
+                    default:
+                        break;
                 }
             }
         }
@@ -761,6 +767,8 @@ namespace Grand.Business.System.Services.ExportImport
                         break;
                     case "externalid":
                         collection.ExternalId = property.StringValue;
+                        break;
+                    default:
                         break;
                 }
             }

@@ -139,6 +139,8 @@ namespace Shipping.ByWeight
                                 }
                             }
                             break;
+                        default:
+                            break;
                     }
                 }
             }

@@ -184,6 +184,8 @@ namespace Grand.Web.Admin.Services
                                     }
                                 }
                                 break;
+                            default:
+                                break;
                         }
                 }
             }

@@ -379,6 +379,8 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                                 }
                             }
                             break;
+                        default:
+                            break;
                     }
                 }
             }
