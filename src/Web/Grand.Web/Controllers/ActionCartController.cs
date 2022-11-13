@@ -239,7 +239,7 @@ namespace Grand.Web.Controllers
                         {
                             success = true,
                             message = string.Format(_translationService.GetResource("Products.ProductHasBeenAddedToTheWishlist.Link"), Url.RouteUrl("Wishlist")),
-                            updatetopwishlistsectionhtml = updatetopwishlistsectionhtml,
+                            updatetopwishlistsectionhtml,
                             wishlistqty = qty,
                             model = addtoCartModel
                         });
@@ -284,7 +284,7 @@ namespace Grand.Web.Controllers
                         {
                             success = true,
                             message = string.Format(_translationService.GetResource("Products.ProductHasBeenAddedToTheCart.Link"), Url.RouteUrl("ShoppingCart")),
-                            updatetopcartsectionhtml = updatetopcartsectionhtml,
+                            updatetopcartsectionhtml,
                             sidebarshoppingcartmodel = miniShoppingCartmodel,
                             model = addtoCartModel
                         });
@@ -596,7 +596,7 @@ namespace Grand.Web.Controllers
                         {
                             success = true,
                             message = string.Format(_translationService.GetResource("Products.ProductHasBeenAddedToTheCart.Link"), Url.RouteUrl("ShoppingCart")),
-                            updatetopcartsectionhtml = updatetopcartsectionhtml,
+                            updatetopcartsectionhtml,
                             sidebarshoppingcartmodel = miniShoppingCartmodel,
                             refreshreservation = product.ProductTypeId == ProductType.Reservation && product.IntervalUnitId != IntervalUnit.Day,
                             model = addtoCartModel

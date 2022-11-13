@@ -137,7 +137,7 @@ namespace Grand.Web.Admin.Controllers
                 Success(_translationService.GetResource("Admin.Documents.Document.Deleted"));
                 return RedirectToAction("List");
             }
-            return RedirectToAction("EditDocument", new { id = id });
+            return RedirectToAction("EditDocument", new { id });
         }
 
         #region Document type
@@ -239,7 +239,7 @@ namespace Grand.Web.Admin.Controllers
                 Success(_translationService.GetResource("Admin.Documents.Type.Deleted"));
                 return RedirectToAction("Types");
             }
-            return RedirectToAction("Edit", new { id = id });
+            return RedirectToAction("Edit", new { id });
         }
         #endregion
 

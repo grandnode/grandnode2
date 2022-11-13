@@ -251,7 +251,7 @@ namespace Grand.Web.Admin.Controllers
 
             //a vendor does not have access to this functionality
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
@@ -264,13 +264,13 @@ namespace Grand.Web.Admin.Controllers
                 _ = _orderViewModelService.LogEditOrder(order.Id);
 
                 Success("Successfully canceled order");
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
             catch (Exception exc)
             {
                 //error
                 Error(exc, true);
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
         }
 
@@ -321,7 +321,7 @@ namespace Grand.Web.Admin.Controllers
 
             //a vendor does not have access to this functionality
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
@@ -349,7 +349,7 @@ namespace Grand.Web.Admin.Controllers
                 _ = _orderViewModelService.LogEditOrder(order.Id);
                 model = new OrderModel();
                 await _orderViewModelService.PrepareOrderDetailsModel(model, order);
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
             catch (Exception exc)
             {
@@ -357,7 +357,7 @@ namespace Grand.Web.Admin.Controllers
                 model = new OrderModel();
                 await _orderViewModelService.PrepareOrderDetailsModel(model, order);
                 Error(exc, false);
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
         }
 
@@ -401,7 +401,7 @@ namespace Grand.Web.Admin.Controllers
 
             //a vendor or staff does not have access to this functionality
             if (_workContext.CurrentVendor != null || await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
 
             var shipments = (await shipmentService.GetShipmentsByOrder(order.Id));
             if (shipments.Any())
@@ -416,7 +416,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("List");
             }
             Error(ModelState);
-            return RedirectToAction("Edit", "Order", new { id = id });
+            return RedirectToAction("Edit", "Order", new { id });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Delete)]
@@ -559,11 +559,11 @@ namespace Grand.Web.Admin.Controllers
 
             //a vendor does not have access to this functionality
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
 
             order.OrderSubtotalInclTax = model.OrderSubtotalInclTaxValue;
@@ -591,7 +591,7 @@ namespace Grand.Web.Admin.Controllers
 
             _ = _orderViewModelService.LogEditOrder(order.Id);
             await _orderViewModelService.PrepareOrderDetailsModel(model, order);
-            return RedirectToAction("Edit", "Order", new { id = id });
+            return RedirectToAction("Edit", "Order", new { id });
         }
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
         [HttpPost]
@@ -604,11 +604,11 @@ namespace Grand.Web.Admin.Controllers
 
             //a vendor does not have access to this functionality
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
 
             order.ShippingMethod = model.ShippingMethod;
@@ -628,7 +628,7 @@ namespace Grand.Web.Admin.Controllers
             //selected tab
             await SaveSelectedTabIndex(persistForTheNextRequest: true);
 
-            return RedirectToAction("Edit", "Order", new { id = id });
+            return RedirectToAction("Edit", "Order", new { id });
         }
 
         [HttpPost]
@@ -641,11 +641,11 @@ namespace Grand.Web.Admin.Controllers
 
             //a vendor does not have access to this functionality
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
 
             order.UserFields = model.UserFields;
@@ -658,7 +658,7 @@ namespace Grand.Web.Admin.Controllers
             //selected tab
             await SaveSelectedTabIndex(persistForTheNextRequest: true);
 
-            return RedirectToAction("Edit", "Order", new { id = id });
+            return RedirectToAction("Edit", "Order", new { id });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -672,16 +672,16 @@ namespace Grand.Web.Admin.Controllers
 
             //a vendor does not have access to this functionality
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
             if (order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
             {
                 Error("You can't edit position when order is canceled");
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
 
             //get order item identifier
@@ -702,13 +702,13 @@ namespace Grand.Web.Admin.Controllers
             if (quantity == 0 || (orderItem.OpenQty != orderItem.Quantity && orderItem.IsShipEnabled))
             {
                 Error("You can't change quantity");
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
 
             if (orderItem.Quantity == quantity && orderItem.UnitPriceExclTax == unitPriceExclTax)
             {
                 Error("Nothing has been changed");
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
 
             orderItem.Quantity = quantity;
@@ -738,7 +738,7 @@ namespace Grand.Web.Admin.Controllers
             //selected tab
             await SaveSelectedTabIndex(persistForTheNextRequest: true);
 
-            return RedirectToAction("Edit", "Order", new { id = id });
+            return RedirectToAction("Edit", "Order", new { id });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -752,11 +752,11 @@ namespace Grand.Web.Admin.Controllers
 
             //a vendor does not have access to this functionality
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
             //get order item identifier
             string orderItemId = "";
@@ -775,7 +775,7 @@ namespace Grand.Web.Admin.Controllers
             //selected tab
             await SaveSelectedTabIndex(persistForTheNextRequest: true);
 
-            return RedirectToAction("Edit", "Order", new { id = id });
+            return RedirectToAction("Edit", "Order", new { id });
 
         }
 
@@ -790,11 +790,11 @@ namespace Grand.Web.Admin.Controllers
 
             //a vendor does not have access to this functionality
             if (_workContext.CurrentVendor != null && !await _groupService.IsStaff(_workContext.CurrentCustomer))
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
             //get order item identifier
             string orderItemId = "";
@@ -816,7 +816,7 @@ namespace Grand.Web.Admin.Controllers
             //selected tab
             await SaveSelectedTabIndex(persistForTheNextRequest: true);
 
-            return RedirectToAction("Edit", "Order", new { id = id });
+            return RedirectToAction("Edit", "Order", new { id });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -830,7 +830,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
 
             //get order item identifier
@@ -857,7 +857,7 @@ namespace Grand.Web.Admin.Controllers
             //selected tab
             await SaveSelectedTabIndex(persistForTheNextRequest: true);
 
-            return RedirectToAction("Edit", "Order", new { id = id });
+            return RedirectToAction("Edit", "Order", new { id });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -871,7 +871,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
 
             //get order item identifier
@@ -897,7 +897,7 @@ namespace Grand.Web.Admin.Controllers
             //selected tab
             await SaveSelectedTabIndex(persistForTheNextRequest: true);
 
-            return RedirectToAction("Edit", "Order", new { id = id });
+            return RedirectToAction("Edit", "Order", new { id });
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -910,7 +910,7 @@ namespace Grand.Web.Admin.Controllers
 
             if (await _groupService.IsStaff(_workContext.CurrentCustomer) && order.StoreId != _workContext.CurrentCustomer.StaffStoreId)
             {
-                return RedirectToAction("Edit", "Order", new { id = id });
+                return RedirectToAction("Edit", "Order", new { id });
             }
 
             var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);

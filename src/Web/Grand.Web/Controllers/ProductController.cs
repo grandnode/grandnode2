@@ -421,7 +421,7 @@ namespace Grand.Web.Controllers
             {
                 success = true,
                 product = true,
-                model = model,
+                model,
                 layoutPath = productLayoutViewPath
             });
         }

@@ -241,13 +241,13 @@ namespace Grand.Web.Admin.Controllers
                 foreach (var error in errors)
                     Error(error);
 
-                return RedirectToAction("Edit", "PaymentTransaction", new { id = id });
+                return RedirectToAction("Edit", "PaymentTransaction", new { id });
             }
             catch (Exception exc)
             {
                 //error
                 Error(exc, false);
-                return RedirectToAction("Edit", "PaymentTransaction", new { id = id });
+                return RedirectToAction("Edit", "PaymentTransaction", new { id });
             }
 
         }
@@ -268,13 +268,13 @@ namespace Grand.Web.Admin.Controllers
             try
             {
                 await _mediator.Send(new MarkAsPaidCommand() { PaymentTransaction = paymentTransaction });
-                return RedirectToAction("Edit", "PaymentTransaction", new { id = id });
+                return RedirectToAction("Edit", "PaymentTransaction", new { id });
             }
             catch (Exception exc)
             {
                 //error
                 Error(exc, false);
-                return RedirectToAction("Edit", "PaymentTransaction", new { id = id });
+                return RedirectToAction("Edit", "PaymentTransaction", new { id });
             }
         }
 
@@ -297,13 +297,13 @@ namespace Grand.Web.Admin.Controllers
                 foreach (var error in errors)
                     Error(error);
 
-                return RedirectToAction("Edit", "PaymentTransaction", new { id = id });
+                return RedirectToAction("Edit", "PaymentTransaction", new { id });
             }
             catch (Exception exc)
             {
                 //error
                 Error(exc, false);
-                return RedirectToAction("Edit", "PaymentTransaction", new { id = id });
+                return RedirectToAction("Edit", "PaymentTransaction", new { id });
             }
         }
 
@@ -323,13 +323,13 @@ namespace Grand.Web.Admin.Controllers
             try
             {
                 await _mediator.Send(new RefundOfflineCommand() { PaymentTransaction = paymentTransaction });
-                return RedirectToAction("Edit", "PaymentTransaction", new { id = id });
+                return RedirectToAction("Edit", "PaymentTransaction", new { id });
             }
             catch (Exception exc)
             {
                 //error
                 Error(exc, false);
-                return RedirectToAction("Edit", "PaymentTransaction", new { id = id });
+                return RedirectToAction("Edit", "PaymentTransaction", new { id });
             }
         }
 
@@ -352,13 +352,13 @@ namespace Grand.Web.Admin.Controllers
                 foreach (var error in errors)
                     Error(error);
 
-                return RedirectToAction("Edit", "PaymentTransaction", new { id = id });
+                return RedirectToAction("Edit", "PaymentTransaction", new { id });
             }
             catch (Exception exc)
             {
                 //error
                 Error(exc, false);
-                return RedirectToAction("Edit", "PaymentTransaction", new { id = id });
+                return RedirectToAction("Edit", "PaymentTransaction", new { id });
             }
         }
 
@@ -378,13 +378,13 @@ namespace Grand.Web.Admin.Controllers
             try
             {
                 await _mediator.Send(new VoidOfflineCommand() { PaymentTransaction = paymentTransaction });
-                return RedirectToAction("Edit", "PaymentTransaction", new { id = id });
+                return RedirectToAction("Edit", "PaymentTransaction", new { id });
             }
             catch (Exception exc)
             {
                 //error
                 Error(exc, false);
-                return RedirectToAction("Edit", "PaymentTransaction", new { id = id });
+                return RedirectToAction("Edit", "PaymentTransaction", new { id });
             }
         }
 

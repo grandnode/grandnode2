@@ -95,7 +95,7 @@ namespace Grand.Web.Controllers
             if (product.HasUserAgreement)
             {
                 if (!agree)
-                    return RedirectToRoute("DownloadUserAgreement", new { orderItemId = orderItemId });
+                    return RedirectToRoute("DownloadUserAgreement", new { orderItemId });
             }
 
 

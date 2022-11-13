@@ -462,7 +462,7 @@ namespace Grand.Web.Admin.Controllers
                 return RedirectToAction("DeliveryDates");
             }
             Error(ModelState);
-            return RedirectToAction("EditDeliveryDate", new { id = id });
+            return RedirectToAction("EditDeliveryDate", new { id });
         }
 
         #endregion

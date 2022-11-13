@@ -167,7 +167,7 @@ namespace Grand.Web.Admin.Controllers
                     return RedirectToAction("List");
                 }
                 Error(ModelState);
-                return RedirectToAction("Edit", new { id = id });
+                return RedirectToAction("Edit", new { id });
             }
             catch (Exception exc)
             {

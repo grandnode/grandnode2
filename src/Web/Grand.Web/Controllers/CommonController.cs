@@ -469,7 +469,7 @@ namespace Grand.Web.Controllers
             return Json(new
             {
                 html = await this.RenderPartialViewToString("PrivacyPreference", model, true),
-                model = model,
+                model,
             });
         }
 

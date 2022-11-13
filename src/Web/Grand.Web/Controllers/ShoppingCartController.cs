@@ -157,7 +157,7 @@ namespace Grand.Web.Controllers
             {
                 enabledattributeids = enabledAttributeIds.ToArray(),
                 disabledattributeids = disabledAttributeIds.ToArray(),
-                model = model,
+                model,
                 checkoutattributeinfo = await checkoutAttributeFormatter.FormatAttributes(checkoutAttributes, _workContext.CurrentCustomer),
             });
         }
