@@ -121,8 +121,8 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         /// </summary>
         public virtual async Task<IPagedList<PushMessage>> GetPushMessages(int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var allMessages = await Task.FromResult(_pushMessagesRepository.Table.OrderByDescending(x => x.SentOn).ToList());
-            return new PagedList<PushMessage>(allMessages.Skip(pageIndex * pageSize).Take(pageSize).ToList(), pageIndex, pageSize, allMessages.Count);
+            var query = _pushMessagesRepository.Table.OrderByDescending(x => x.SentOn);
+            return await Task.FromResult(new PagedList<PushMessage>(query, pageIndex, pageSize));
         }
 
         /// <summary>
@@ -130,8 +130,8 @@ namespace Grand.Business.Marketing.Services.PushNotifications
         /// </summary>
         public virtual async Task<IPagedList<PushRegistration>> GetPushReceivers(int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var allReceivers = await Task.FromResult(_pushRegistratiosnRepository.Table.OrderByDescending(x => x.RegisteredOn).ToList());
-            return new PagedList<PushRegistration>(allReceivers.Skip(pageIndex * pageSize).Take(pageSize).ToList(), pageIndex, pageSize, allReceivers.Count);
+            var query = _pushRegistratiosnRepository.Table.OrderByDescending(x => x.RegisteredOn);
+            return await Task.FromResult(new PagedList<PushRegistration>(query, pageIndex, pageSize));
         }
 
         /// <summary>
