@@ -141,7 +141,7 @@ namespace Grand.Business.Common.Services.Logging.Tests
         {
             //Arrange
             await InsertActivityType();
-            await _customerActivityService.InsertActivity("test", "1", new Customer(), "", "");
+            await _repository.InsertAsync(new ActivityLog() {  ActivityLogTypeId = "1", EntityKeyId = "1" });
             //Act
             var activityLogs = await _customerActivityService.GetStatsActivities();
             //Assert
