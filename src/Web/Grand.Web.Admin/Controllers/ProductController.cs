@@ -9,7 +9,6 @@ using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
-using Grand.Business.Core.Interfaces.System.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
@@ -29,6 +28,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
 using Grand.Business.Core.Interfaces.ExportImport;
+using Grand.Business.Catalog.Services.ExportImport.Dto;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -46,7 +46,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
         private readonly IExportManager<Product> _exportManager;
-        private readonly IImportManager _importManager;
+        private readonly IImportManager<ProductDto> _importManager;
         private readonly IStoreService _storeService;
         private readonly IProductReservationService _productReservationService;
         private readonly IAuctionService _auctionService;
@@ -68,7 +68,7 @@ namespace Grand.Web.Admin.Controllers
             ILanguageService languageService,
             ITranslationService translationService,
             IExportManager<Product> exportManager,
-            IImportManager importManager,
+            IImportManager<ProductDto> importManager,
             IStoreService storeService,
             IProductReservationService productReservationService,
             IAuctionService auctionService,
@@ -1620,7 +1620,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (importexcelfile != null && importexcelfile.Length > 0)
                 {
-                    await _importManager.ImportProductsFromXlsx(importexcelfile.OpenReadStream());
+                    await _importManager.Import(importexcelfile.OpenReadStream());
                 }
                 else
                 {

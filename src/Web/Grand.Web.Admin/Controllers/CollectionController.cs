@@ -1,10 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
+﻿using Grand.Business.Catalog.Services.ExportImport.Dto;
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Business.Core.Interfaces.System.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
@@ -17,7 +18,6 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Grand.Business.Core.Interfaces.ExportImport;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -34,7 +34,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly ITranslationService _translationService;
         private readonly IGroupService _groupService;
         private readonly IExportManager<Collection> _exportManager;
-        private readonly IImportManager _importManager;
+        private readonly IImportManager<CollectionDto> _importManager;
         private readonly IPictureViewModelService _pictureViewModelService;
 
         #endregion
@@ -50,7 +50,7 @@ namespace Grand.Web.Admin.Controllers
             ITranslationService translationService,
             IGroupService groupService,
             IExportManager<Collection> exportManager,
-            IImportManager importManager,
+            IImportManager<CollectionDto> importManager,
             IPictureViewModelService pictureViewModelService)
         {
             _collectionViewModelService = collectionViewModelService;
@@ -110,8 +110,7 @@ namespace Grand.Web.Admin.Controllers
             }
             var collections = await _collectionService.GetAllCollections(model.SearchCollectionName,
                 model.SearchStoreId, command.Page - 1, command.PageSize, true);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = collections.Select(x => x.ToModel()),
                 Total = collections.TotalCount
             };
@@ -365,7 +364,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (importexcelfile != null && importexcelfile.Length > 0)
                 {
-                    await _importManager.ImportCollectionFromXlsx(importexcelfile.OpenReadStream());
+                    await _importManager.Import(importexcelfile.OpenReadStream());
                 }
                 else
                 {
@@ -396,8 +395,7 @@ namespace Grand.Web.Admin.Controllers
 
             var (collectionProductModels, totalCount) = await _collectionViewModelService.PrepareCollectionProductModel(collectionId, _workContext.CurrentStore.Id, command.Page, command.PageSize);
 
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = collectionProductModels.ToList(),
                 Total = totalCount
             };
@@ -446,8 +444,7 @@ namespace Grand.Web.Admin.Controllers
                 model.SearchStoreId = _workContext.CurrentCustomer.StaffStoreId;
             }
             var products = await _collectionViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = products.products.ToList(),
                 Total = products.totalCount
             };
@@ -488,8 +485,7 @@ namespace Grand.Web.Admin.Controllers
                 return ErrorForKendoGridJson(permission.message);
 
             var (activityLogModels, totalCount) = await _collectionViewModelService.PrepareActivityLogModel(collectionId, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = activityLogModels.ToList(),
                 Total = totalCount
             };

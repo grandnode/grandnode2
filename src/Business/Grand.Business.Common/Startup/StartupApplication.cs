@@ -18,7 +18,6 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.ExportImport;
-using Grand.Domain.Directory;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -103,8 +102,14 @@ namespace Grand.Business.Common.Startup
         private void RegisterExportImportService(IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<ISchemaProperty<CountryStates>, CountrySchemaProperty>();
+
             serviceCollection.AddScoped<IExportProvider, ExcelExportProvider>();
             serviceCollection.AddScoped(typeof(IExportManager<>), typeof(ExportManager<>));
+
+            serviceCollection.AddScoped<IImportDataProvider, ExcelImportProvider>();
+            serviceCollection.AddScoped(typeof(IImportManager<>), typeof(ImportManager<>));
+
+            serviceCollection.AddScoped<IImportDataObject<CountryStates>, CountryImportDataObject>();
         }
     }
 }

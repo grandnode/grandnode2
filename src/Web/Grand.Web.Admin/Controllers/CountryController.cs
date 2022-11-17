@@ -3,7 +3,6 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.ExportImport;
-using Grand.Business.Core.Interfaces.System.ExportImport;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
@@ -27,7 +26,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly ITranslationService _translationService;
         private readonly ILanguageService _languageService;
         private readonly IExportManager<CountryStates> _exportManager;
-        private readonly IImportManager _importManager;
+        private readonly IImportManager<CountryStates> _importManager;
 
         #endregion
 
@@ -38,7 +37,7 @@ namespace Grand.Web.Admin.Controllers
             ITranslationService translationService,
             ILanguageService languageService,
             IExportManager<CountryStates> exportManager,
-            IImportManager importManager)
+            IImportManager<CountryStates> importManager)
         {
             _countryService = countryService;
             _countryViewModelService = countryViewModelService;
@@ -344,7 +343,7 @@ namespace Grand.Web.Admin.Controllers
             var query = from p in countries
                         from s in p.StateProvinces
                         select new CountryStates() {
-                            TwoLetterIsoCode = p.TwoLetterIsoCode,
+                            Country = p.TwoLetterIsoCode,
                             StateProvinceName = s.Name,
                             Abbreviation = s.Abbreviation,
                             DisplayOrder = s.DisplayOrder,
@@ -363,7 +362,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (importexcelfile != null && importexcelfile.Length > 0)
                 {
-                    await _importManager.ImportCountryStatesFromXlsx(importexcelfile.OpenReadStream());
+                    await _importManager.Import(importexcelfile.OpenReadStream());
 
                     Success(_translationService.GetResource("Admin.Configuration.Countries.ImportSuccess"));
                     return RedirectToAction("List");

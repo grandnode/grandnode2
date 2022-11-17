@@ -13,6 +13,7 @@ namespace Grand.Business.Common.Services.ExportImport
             {
                 IWorkbook xlPackage = new XSSFWorkbook();
                 ISheet worksheet = xlPackage.CreateSheet(typeof(T).Name);
+
                 var manager = new PropertyManager<T>(properties);
 
                 WriteCaption(worksheet, properties);
@@ -21,8 +22,7 @@ namespace Grand.Business.Common.Services.ExportImport
 
                 foreach (var items in itemsToExport)
                 {
-                    manager.CurrentObject = items;
-                    WriteToXlsx(manager, properties, worksheet, row++);
+                    WriteToXlsx(properties, worksheet, items, row++);
                 }
                 xlPackage.Write(stream);
                 return stream.ToArray();
@@ -47,15 +47,12 @@ namespace Grand.Business.Common.Services.ExportImport
         /// </summary>
         /// <param name="worksheet">worksheet</param>
         /// <param name="row">Row index</param>
-        private void WriteToXlsx<T>(PropertyManager<T> manager, PropertyByName<T>[] properties, ISheet sheet, int row)
+        private void WriteToXlsx<T>(PropertyByName<T>[] properties, ISheet sheet, T items, int row)
         {
-            if (manager.CurrentObject == null)
-                return;
-
             IRow _row = sheet.CreateRow(row);
             foreach (var prop in properties)
             {
-                var cellValue = (prop.GetProperty(manager.CurrentObject)?.ToString());
+                var cellValue = (prop.GetProperty(items)?.ToString());
                 if (cellValue != null && cellValue.Length >= 32767) // 32767 is the max char size of an excel cell
                 {
                     cellValue = cellValue.Substring(0, 32767); //Truncate the content to max size.

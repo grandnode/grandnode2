@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
-using Grand.Business.Core.Interfaces.System.ExportImport;
 using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
@@ -26,7 +25,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly ITranslationService _translationService;
         private readonly IStoreService _storeService;
         private readonly IGroupService _groupService;
-        private readonly IImportManager _importManager;
         private readonly IWorkContext _workContext;
 
         public NewsLetterSubscriptionController(INewsLetterSubscriptionService newsLetterSubscriptionService,
@@ -35,7 +33,6 @@ namespace Grand.Web.Admin.Controllers
             ITranslationService translationService,
             IStoreService storeService,
             IGroupService groupService,
-            IImportManager importManager,
             IWorkContext workContext)
         {
             _newsLetterSubscriptionService = newsLetterSubscriptionService;
@@ -44,7 +41,6 @@ namespace Grand.Web.Admin.Controllers
             _translationService = translationService;
             _storeService = storeService;
             _groupService = groupService;
-            _importManager = importManager;
             _workContext = workContext;
         }
 
@@ -198,8 +194,8 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (importcsvfile != null && importcsvfile.Length > 0)
                 {
-                    int count = await _importManager.ImportNewsletterSubscribersFromTxt(importcsvfile.OpenReadStream(), _workContext.CurrentStore.Id);
-                    Success(String.Format(_translationService.GetResource("admin.marketing.NewsLetterSubscriptions.ImportEmailsSuccess"), count));
+                    var count = await _newsLetterSubscriptionService.ImportNewsletterSubscribersFromTxt(importcsvfile.OpenReadStream(), _workContext.CurrentStore.Id);
+                    Success(string.Format(_translationService.GetResource("admin.marketing.NewsLetterSubscriptions.ImportEmailsSuccess"), count));
                     return RedirectToAction("List");
                 }
                 Error(_translationService.GetResource("Admin.Common.UploadFile"));

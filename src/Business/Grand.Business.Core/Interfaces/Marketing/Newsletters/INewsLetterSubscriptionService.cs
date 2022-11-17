@@ -78,5 +78,13 @@ namespace Grand.Business.Core.Interfaces.Marketing.Newsletters
         /// <param name="subscriptions">Subscriptions</param>
         /// <returns>Result in TXT (string) format</returns>
         string ExportNewsletterSubscribersToTxt(IList<NewsLetterSubscription> subscriptions);
+
+        /// <summary>
+        /// Import newsletter subscribers from TXT file
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="currentStoreId">Current store ident</param>
+        /// <returns>Number of imported subscribers</returns>
+        Task<int> ImportNewsletterSubscribersFromTxt(Stream stream, string currentStoreId);
     }
 }

@@ -1,10 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Brands;
+﻿using Grand.Business.Catalog.Services.ExportImport.Dto;
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Business.Core.Interfaces.System.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
@@ -17,7 +18,6 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Grand.Business.Core.Interfaces.ExportImport;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -33,7 +33,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly ITranslationService _translationService;
         private readonly IGroupService _groupService;
         private readonly IExportManager<Brand> _exportManager;
-        private readonly IImportManager _importManager;
+        private readonly IImportManager<BrandDto> _importManager;
         private readonly IPictureViewModelService _pictureViewModelService;
         #endregion
 
@@ -48,7 +48,7 @@ namespace Grand.Web.Admin.Controllers
             ITranslationService translationService,
             IGroupService groupService,
             IExportManager<Brand> exportManager,
-            IImportManager importManager,
+            IImportManager<BrandDto> importManager,
             IPictureViewModelService pictureViewModelService)
         {
             _brandViewModelService = brandViewModelService;
@@ -362,7 +362,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (importexcelfile != null && importexcelfile.Length > 0)
                 {
-                    await _importManager.ImportBrandFromXlsx(importexcelfile.OpenReadStream());
+                    await _importManager.Import(importexcelfile.OpenReadStream());
                 }
                 else
                 {

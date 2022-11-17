@@ -1,12 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.System.Admin;
-using Grand.Business.Core.Interfaces.System.ExportImport;
 using Grand.Business.Core.Interfaces.System.Installation;
 using Grand.Business.Core.Interfaces.System.MachineNameProvider;
 using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Business.System.Services.Admin;
 using Grand.Business.System.Services.BackgroundServices.ScheduleTasks;
-using Grand.Business.System.Services.ExportImport;
 using Grand.Business.System.Services.Installation;
 using Grand.Business.System.Services.MachineNameProvider;
 using Grand.Business.System.Services.Migrations;
@@ -29,7 +27,6 @@ namespace Grand.Business.System.Startup
             RegisterReports(services);
             RegisterMachineNameProvider(services, configuration);
             RegisterTask(services);
-            RegisterExportImportService(services);
             RegisterInstallService(services);
             RegisterAdmin(services);
         }
@@ -89,11 +86,6 @@ namespace Grand.Business.System.Startup
             serviceCollection.AddScoped<IMigrationProcess, MigrationProcess>();
         }
 
-        private void RegisterExportImportService(IServiceCollection serviceCollection)
-        {
-            //serviceCollection.AddScoped<IExportManager, ExportManager>();
-            serviceCollection.AddScoped<IImportManager, ImportManager>();
-        }
         private void RegisterAdmin(IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<IAdminSiteMapService, AdminSiteMapService>();

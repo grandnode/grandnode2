@@ -1,11 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+﻿using Grand.Business.Catalog.Services.ExportImport.Dto;
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Utilities.Common.Security;
-using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Interfaces.System.ExportImport;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.Admin.Extensions;
@@ -17,7 +16,6 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Grand.Business.Core.Interfaces.ExportImport;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -28,14 +26,12 @@ namespace Grand.Web.Admin.Controllers
 
         private readonly ICategoryService _categoryService;
         private readonly ICategoryViewModelService _categoryViewModelService;
-        private readonly ICustomerService _customerService;
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
-        private readonly IStoreService _storeService;
         private readonly IExportManager<Category> _exportManager;
+        private readonly IImportManager<CategoryDto> _importManager;
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
-        private readonly IImportManager _importManager;
         private readonly IPictureViewModelService _pictureViewModelService;
         #endregion
 
@@ -44,22 +40,18 @@ namespace Grand.Web.Admin.Controllers
         public CategoryController(
             ICategoryService categoryService,
             ICategoryViewModelService categoryViewModelService,
-            ICustomerService customerService,
             ILanguageService languageService,
             ITranslationService translationService,
-            IStoreService storeService,
             IExportManager<Category> exportManager,
+            IImportManager<CategoryDto> importManager,
             IWorkContext workContext,
             IGroupService groupService,
-            IImportManager importManager,
             IPictureViewModelService pictureViewModelService)
         {
             _categoryService = categoryService;
             _categoryViewModelService = categoryViewModelService;
-            _customerService = customerService;
             _languageService = languageService;
             _translationService = translationService;
-            _storeService = storeService;
             _exportManager = exportManager;
             _workContext = workContext;
             _groupService = groupService;
@@ -107,8 +99,7 @@ namespace Grand.Web.Admin.Controllers
             }
 
             var categories = await _categoryViewModelService.PrepareCategoryListModel(model, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = categories.categoryListModel,
                 Total = categories.totalCount
             };
@@ -332,7 +323,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (importexcelfile != null && importexcelfile.Length > 0)
                 {
-                    await _importManager.ImportCategoryFromXlsx(importexcelfile.OpenReadStream());
+                    await _importManager.Import(importexcelfile.OpenReadStream());
                 }
                 else
                 {
@@ -362,8 +353,7 @@ namespace Grand.Web.Admin.Controllers
                 return ErrorForKendoGridJson(permission.message);
 
             var productCategories = await _categoryViewModelService.PrepareCategoryProductModel(categoryId, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = productCategories.categoryProductModels,
                 Total = productCategories.totalCount
             };
@@ -436,7 +426,7 @@ namespace Grand.Web.Admin.Controllers
                 return View(model);
             }
 
-            
+
         }
 
         #endregion
@@ -454,8 +444,7 @@ namespace Grand.Web.Admin.Controllers
                 return ErrorForKendoGridJson(permission.message);
 
             var activityLog = await _categoryViewModelService.PrepareActivityLogModel(categoryId, command.Page, command.PageSize);
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = activityLog.activityLogModel,
                 Total = activityLog.totalCount
             };
