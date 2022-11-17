@@ -2,9 +2,9 @@
 using Grand.Business.Core.Utilities.Customers;
 using MediatR;
 
-namespace Grand.Business.Customers.Extensions
+namespace Grand.Business.Core.Extensions
 {
-    public static class EventsExtensions
+    public static class CustomerEventsExtensions
     {
         public static async Task CustomerRegistrationEvent<C, R>(this IMediator eventPublisher, C result, R request) 
             where C : RegistrationResult where R : RegistrationRequest

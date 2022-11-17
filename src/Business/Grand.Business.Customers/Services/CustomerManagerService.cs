@@ -1,7 +1,7 @@
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
-using Grand.Business.Customers.Extensions;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Common;
@@ -68,8 +68,7 @@ namespace Grand.Business.Customers.Services
 
         protected bool PasswordMatch(CustomerHistoryPassword customerPassword, ChangePasswordRequest request)
         {
-            string newPwd = request.PasswordFormat switch
-            {
+            string newPwd = request.PasswordFormat switch {
                 PasswordFormat.Clear => request.NewPassword,
                 PasswordFormat.Encrypted => _encryptionService.EncryptText(request.NewPassword, customerPassword.PasswordSalt),
                 PasswordFormat.Hashed => _encryptionService.CreatePasswordHash(request.NewPassword, customerPassword.PasswordSalt, _customerSettings.HashedPasswordFormat),
@@ -103,8 +102,7 @@ namespace Grand.Business.Customers.Services
 
             if (string.IsNullOrEmpty(password))
                 return CustomerLoginResults.WrongPassword;
-            string pwd = customer.PasswordFormatId switch
-            {
+            string pwd = customer.PasswordFormatId switch {
                 PasswordFormat.Clear => password,
                 PasswordFormat.Encrypted => _encryptionService.EncryptText(password, customer.PasswordSalt),
                 PasswordFormat.Hashed => _encryptionService.CreatePasswordHash(password, customer.PasswordSalt, _customerSettings.HashedPasswordFormat),
@@ -153,7 +151,7 @@ namespace Grand.Business.Customers.Services
                 throw new ArgumentException("Can't load current customer");
 
             var result = new RegistrationResult();
-            
+
             if (await _groupService.IsRegistered(request.Customer))
             {
                 result.AddError("Current customer is already registered");
@@ -368,7 +366,7 @@ namespace Grand.Business.Customers.Services
                 throw new GrandException("Email cannot be null");
 
             newEmail = newEmail.Trim();
-            
+
             if (!CommonHelper.IsValidEmail(newEmail))
                 throw new GrandException(_translationService.GetResource("Account.EmailUsernameErrors.NewEmailIsNotValid"));
 
