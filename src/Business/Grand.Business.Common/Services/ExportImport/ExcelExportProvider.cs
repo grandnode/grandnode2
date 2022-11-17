@@ -29,6 +29,33 @@ namespace Grand.Business.Common.Services.ExportImport
             }
         }
 
+        private MemoryStream stream;
+        private IWorkbook xlPackage;
+        public virtual IExportProvider BuilderExportToByte<T>(PropertyByName<T>[] properties, IEnumerable<T> itemsToExport)
+        {
+            if (stream == null)
+                stream = new MemoryStream();
+
+            if (xlPackage == null)
+                xlPackage = new XSSFWorkbook();
+
+            ISheet worksheet = xlPackage.CreateSheet(typeof(T).Name);
+            var manager = new PropertyManager<T>(properties);
+            WriteCaption(worksheet, properties);
+            var row = 1;
+            foreach (var items in itemsToExport)
+            {
+                WriteToXlsx(properties, worksheet, items, row++);
+            }
+
+            return this;
+        }
+        public virtual byte[] BuilderExportToByte()
+        {
+            xlPackage.Write(stream);
+            return stream.ToArray();
+        }
+
         /// <summary>
         /// Write caption (first row) to XLSX worksheet
         /// </summary>

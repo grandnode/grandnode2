@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Customers.Services;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;
@@ -37,6 +38,7 @@ namespace Grand.Business.Customers.Startup
             serviceCollection.AddScoped<IUserApiService, UserApiService>();
             serviceCollection.AddScoped<IAffiliateService, AffiliateService>();
             serviceCollection.AddScoped<ISchemaProperty<Customer>, CustomerSchemaProperty>();
+            serviceCollection.AddScoped<ISchemaProperty<Address>, AddressSchemaProperty>();
         }
     }
 }
