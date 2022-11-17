@@ -246,6 +246,33 @@ namespace Grand.Business.Marketing.Services.Newsteletters
             return await PagedList<NewsLetterSubscription>.Create(query, pageIndex, pageSize);
         }
 
+        /// <summary>
+        /// Export newsletter subscribers to TXT
+        /// </summary>
+        /// <param name="subscriptions">Subscriptions</param>
+        /// <returns>Result in TXT (string) format</returns>
+        public virtual string ExportNewsletterSubscribersToTxt(IList<NewsLetterSubscription> subscriptions)
+        {
+            if (subscriptions == null)
+                throw new ArgumentNullException(nameof(subscriptions));
+
+            const string separator = ",";
+            var sb = new StringBuilder();
+            foreach (var subscription in subscriptions)
+            {
+                sb.Append(subscription.Email);
+                sb.Append(separator);
+                sb.Append(subscription.Active);
+                sb.Append(separator);
+                sb.Append(subscription.CreatedOnUtc.ToString("dd.MM.yyyy HH:mm:ss"));
+                sb.Append(separator);
+                sb.Append(subscription.StoreId);
+                sb.Append(separator);
+                sb.Append(string.Join(';', subscription.Categories));
+                sb.Append(Environment.NewLine);  //new line
+            }
+            return sb.ToString();
+        }
         #endregion
     }
 }

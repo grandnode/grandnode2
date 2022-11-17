@@ -21,6 +21,7 @@ using Grand.Web.Common.Security.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Business.Core.Interfaces.ExportImport;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -36,7 +37,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly IWorkContext _workContext;
         private readonly IPdfService _pdfService;
         private readonly IGroupService _groupService;
-        private readonly IExportManager _exportManager;
+        private readonly IExportManager<Order> _exportManager;
         private readonly IMediator _mediator;
 
         #endregion
@@ -51,7 +52,7 @@ namespace Grand.Web.Admin.Controllers
             IWorkContext workContext,
             IPdfService pdfService,
             IGroupService groupService,
-            IExportManager exportManager,
+            IExportManager<Order> exportManager,
             IMediator mediator)
         {
             _orderViewModelService = orderViewModelService;
@@ -199,7 +200,7 @@ namespace Grand.Web.Admin.Controllers
             var orders = await _orderViewModelService.PrepareOrders(model);
             try
             {
-                byte[] bytes = _exportManager.ExportOrdersToXlsx(orders);
+                byte[] bytes = _exportManager.Export(orders);
                 return File(bytes, "text/xls", "orders.xlsx");
             }
             catch (Exception exc)
@@ -230,7 +231,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 orders = orders.Where(x => x.StoreId == _workContext.CurrentCustomer.StaffStoreId).ToList();
             }
-            byte[] bytes = _exportManager.ExportOrdersToXlsx(orders);
+            byte[] bytes = _exportManager.Export(orders);
             return File(bytes, "text/xls", "orders.xlsx");
         }
 

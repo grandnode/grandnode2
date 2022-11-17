@@ -1,4 +1,4 @@
-﻿namespace Grand.Business.Core.Utilities.System
+﻿namespace Grand.Business.System.Utilities.System
 {
     /// <summary>
     /// A helper class to access the property by name
@@ -42,10 +42,8 @@
         /// <summary>
         /// Converted property value to Int32
         /// </summary>
-        public int IntValue
-        {
-            get
-            {
+        public int IntValue {
+            get {
                 if (PropertyValue == null || !int.TryParse(PropertyValue.ToString(), out var rez))
                     return default;
                 return rez;
@@ -55,10 +53,8 @@
         /// <summary>
         /// Converted property value to bool
         /// </summary>
-        public bool BooleanValue
-        {
-            get
-            {
+        public bool BooleanValue {
+            get {
                 if (PropertyValue == null || !bool.TryParse(PropertyValue.ToString(), out var rez))
                     return default;
                 return rez;
@@ -68,18 +64,15 @@
         /// <summary>
         /// Converted property value to string
         /// </summary>
-        public string StringValue
-        {
+        public string StringValue {
             get { return PropertyValue == null ? string.Empty : Convert.ToString(PropertyValue); }
         }
 
         /// <summary>
         /// Converted property value to double
         /// </summary>
-        public double DecimalValue
-        {
-            get
-            {
+        public double DecimalValue {
+            get {
                 if (PropertyValue == null || !double.TryParse(PropertyValue.ToString(), out var rez))
                     return default;
                 return rez;
@@ -89,10 +82,8 @@
         /// <summary>
         /// Converted property value to double?
         /// </summary>
-        public double? DecimalValueNullable
-        {
-            get
-            {
+        public double? DecimalValueNullable {
+            get {
                 if (PropertyValue == null || !double.TryParse(PropertyValue.ToString(), out var rez))
                     return null;
                 return rez;
@@ -102,10 +93,8 @@
         /// <summary>
         /// Converted property value to double
         /// </summary>
-        public double DoubleValue
-        {
-            get
-            {
+        public double DoubleValue {
+            get {
                 if (PropertyValue == null || !double.TryParse(PropertyValue.ToString(), out var rez))
                     return default;
                 return rez;
@@ -115,8 +104,7 @@
         /// <summary>
         /// Converted property value to DateTime?
         /// </summary>
-        public DateTime? DateTimeNullable
-        {
+        public DateTime? DateTimeNullable {
             get {
                 if (PropertyValue != null && DateTime.TryParse(PropertyValue.ToString(), out DateTime date))
                     return (DateTime?)date;

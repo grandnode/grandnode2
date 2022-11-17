@@ -27,6 +27,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Business.Core.Interfaces.ExportImport;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -46,7 +47,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly ICustomerManagerService _customerManagerService;
         private readonly ITranslationService _translationService;
         private readonly IWorkContext _workContext;
-        private readonly IExportManager _exportManager;
+        private readonly IExportManager<Customer> _exportManager;
         private readonly ICustomerAttributeParser _customerAttributeParser;
         private readonly ICustomerAttributeService _customerAttributeService;
         private readonly IAddressAttributeParser _addressAttributeParser;
@@ -70,7 +71,7 @@ namespace Grand.Web.Admin.Controllers
             ITranslationService translationService,
             IWorkContext workContext,
             IGroupService groupService,
-            IExportManager exportManager,
+            IExportManager<Customer> exportManager,
             ICustomerAttributeParser customerAttributeParser,
             ICustomerAttributeService customerAttributeService,
             IAddressAttributeParser addressAttributeParser,
@@ -1151,7 +1152,7 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                byte[] bytes = _exportManager.ExportCustomersToXlsx(customers);
+                byte[] bytes = _exportManager.Export(customers);
                 return File(bytes, "text/xls", "customers.xlsx");
             }
             catch (Exception exc)
@@ -1175,7 +1176,7 @@ namespace Grand.Web.Admin.Controllers
                 customers.AddRange(await _customerService.GetCustomersByIds(ids));
             }
 
-            byte[] bytes = _exportManager.ExportCustomersToXlsx(customers);
+            byte[] bytes = _exportManager.Export(customers);
             return File(bytes, "text/xls", "customers.xlsx");
         }
 

@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Common.Services.Addresses;
 using Grand.Business.Common.Services.Configuration;
 using Grand.Business.Common.Services.Directory;
+using Grand.Business.Common.Services.ExportImport;
 using Grand.Business.Common.Services.Localization;
 using Grand.Business.Common.Services.Logging;
 using Grand.Business.Common.Services.Pdf;
@@ -16,6 +17,8 @@ using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Interfaces.ExportImport;
+using Grand.Domain.Directory;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -36,6 +39,7 @@ namespace Grand.Business.Common.Startup
             RegisterSecurityService(services);
             RegisterSeoService(services);
             RegisterStoresService(services);
+            RegisterExportImportService(services);
         }
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
@@ -94,6 +98,13 @@ namespace Grand.Business.Common.Startup
         private void RegisterStoresService(IServiceCollection serviceCollection)
         {
             serviceCollection.AddScoped<IStoreService, StoreService>();
+        }
+
+        private void RegisterExportImportService(IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddScoped<ISchemaProperty<CountryStates>, CountrySchemaProperty>();
+            serviceCollection.AddScoped<IExportProvider, ExcelExportProvider>();
+            serviceCollection.AddScoped(typeof(IExportManager<>), typeof(ExportManager<>));
         }
     }
 }

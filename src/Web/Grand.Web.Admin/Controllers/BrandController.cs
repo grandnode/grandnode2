@@ -17,6 +17,7 @@ using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Grand.Business.Core.Interfaces.ExportImport;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -31,7 +32,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
         private readonly IGroupService _groupService;
-        private readonly IExportManager _exportManager;
+        private readonly IExportManager<Brand> _exportManager;
         private readonly IImportManager _importManager;
         private readonly IPictureViewModelService _pictureViewModelService;
         #endregion
@@ -46,7 +47,7 @@ namespace Grand.Web.Admin.Controllers
             ILanguageService languageService,
             ITranslationService translationService,
             IGroupService groupService,
-            IExportManager exportManager,
+            IExportManager<Brand> exportManager,
             IImportManager importManager,
             IPictureViewModelService pictureViewModelService)
         {
@@ -339,7 +340,7 @@ namespace Grand.Web.Admin.Controllers
         {
             try
             {
-                var bytes = _exportManager.ExportBrandsToXlsx(await _brandService.GetAllBrands(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
+                var bytes = _exportManager.Export(await _brandService.GetAllBrands(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
                 return File(bytes, "text/xls", "brands.xlsx");
             }
             catch (Exception exc)

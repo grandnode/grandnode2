@@ -1,9 +1,9 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Business.Core.Interfaces.System.ExportImport;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Admin.Extensions;
@@ -26,7 +26,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly ITranslationService _translationService;
         private readonly IStoreService _storeService;
         private readonly IGroupService _groupService;
-        private readonly IExportManager _exportManager;
         private readonly IImportManager _importManager;
         private readonly IWorkContext _workContext;
 
@@ -36,7 +35,6 @@ namespace Grand.Web.Admin.Controllers
             ITranslationService translationService,
             IStoreService storeService,
             IGroupService groupService,
-            IExportManager exportManager,
             IImportManager importManager,
             IWorkContext workContext)
         {
@@ -46,7 +44,6 @@ namespace Grand.Web.Admin.Controllers
             _translationService = translationService;
             _storeService = storeService;
             _groupService = groupService;
-            _exportManager = exportManager;
             _importManager = importManager;
             _workContext = workContext;
         }
@@ -86,18 +83,15 @@ namespace Grand.Web.Admin.Controllers
                 model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id.ToString() });
 
             //active
-            model.ActiveList.Add(new SelectListItem
-            {
+            model.ActiveList.Add(new SelectListItem {
                 Value = " ",
                 Text = _translationService.GetResource("admin.marketing.NewsLetterSubscriptions.List.SearchActive.All")
             });
-            model.ActiveList.Add(new SelectListItem
-            {
+            model.ActiveList.Add(new SelectListItem {
                 Value = "1",
                 Text = _translationService.GetResource("admin.marketing.NewsLetterSubscriptions.List.SearchActive.ActiveOnly")
             });
-            model.ActiveList.Add(new SelectListItem
-            {
+            model.ActiveList.Add(new SelectListItem {
                 Value = "2",
                 Text = _translationService.GetResource("admin.marketing.NewsLetterSubscriptions.List.SearchActive.NotActiveOnly")
             });
@@ -135,8 +129,7 @@ namespace Grand.Web.Admin.Controllers
                 m.Categories = await GetCategoryNames(x.Categories.ToList());
                 items.Add(m);
             }
-            var gridModel = new DataSourceResult
-            {
+            var gridModel = new DataSourceResult {
                 Data = items,
                 Total = newsletterSubscriptions.TotalCount
             };
@@ -191,7 +184,7 @@ namespace Grand.Web.Admin.Controllers
             var subscriptions = await _newsLetterSubscriptionService.GetAllNewsLetterSubscriptions(model.SearchEmail,
                 model.StoreId, isActive, searchCategoryIds);
 
-            string result = _exportManager.ExportNewsletterSubscribersToTxt(subscriptions);
+            string result = _newsLetterSubscriptionService.ExportNewsletterSubscribersToTxt(subscriptions);
 
             string fileName = String.Format("newsletter_emails_{0}_{1}.txt", DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"), CommonHelper.GenerateRandomDigitCode(4));
             return File(Encoding.UTF8.GetBytes(result), "text/csv", fileName);

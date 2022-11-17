@@ -91,7 +91,7 @@ namespace Grand.Business.System.Startup
 
         private void RegisterExportImportService(IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<IExportManager, ExportManager>();
+            //serviceCollection.AddScoped<IExportManager, ExportManager>();
             serviceCollection.AddScoped<IImportManager, ImportManager>();
         }
         private void RegisterAdmin(IServiceCollection serviceCollection)

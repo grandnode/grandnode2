@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
+using Grand.Business.Core.Interfaces.ExportImport;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -44,7 +45,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly IGroupService _groupService;
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
-        private readonly IExportManager _exportManager;
+        private readonly IExportManager<Product> _exportManager;
         private readonly IImportManager _importManager;
         private readonly IStoreService _storeService;
         private readonly IProductReservationService _productReservationService;
@@ -66,7 +67,7 @@ namespace Grand.Web.Admin.Controllers
             IGroupService groupService,
             ILanguageService languageService,
             ITranslationService translationService,
-            IExportManager exportManager,
+            IExportManager<Product> exportManager,
             IImportManager importManager,
             IStoreService storeService,
             IProductReservationService productReservationService,
@@ -1574,7 +1575,7 @@ namespace Grand.Web.Admin.Controllers
             var products = await _productViewModelService.PrepareProducts(model);
             try
             {
-                byte[] bytes = _exportManager.ExportProductsToXlsx(products);
+                byte[] bytes = _exportManager.Export(products);
                 return File(bytes, "text/xls", "products.xlsx");
             }
             catch (Exception exc)
@@ -1603,7 +1604,7 @@ namespace Grand.Web.Admin.Controllers
                 products = products.Where(p => p.VendorId == _workContext.CurrentVendor.Id).ToList();
             }
 
-            byte[] bytes = _exportManager.ExportProductsToXlsx(products);
+            byte[] bytes = _exportManager.Export(products);
             return File(bytes, "text/xls", "products.xlsx");
         }
 

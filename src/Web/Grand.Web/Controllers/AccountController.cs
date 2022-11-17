@@ -694,8 +694,8 @@ namespace Grand.Web.Controllers
             });
         }
 
-
-        public virtual async Task<IActionResult> Export([FromServices] IExportManager exportManager)
+        //TODO
+        public virtual async Task<IActionResult> Export(/*[FromServices] IExportManager exportManager*/)
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
@@ -704,7 +704,7 @@ namespace Grand.Web.Controllers
                 return Challenge();
 
             var customer = _workContext.CurrentCustomer;
-            byte[] bytes = await exportManager.ExportCustomerToXlsx(customer, _workContext.CurrentStore.Id);
+            byte[] bytes = null; // await exportManager.ExportCustomerToXlsx(customer, _workContext.CurrentStore.Id);
             return File(bytes, "text/xls", "PersonalInfo.xlsx");
 
         }

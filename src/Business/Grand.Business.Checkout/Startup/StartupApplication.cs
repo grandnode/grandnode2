@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Checkout.Services.CheckoutAttributes;
+using Grand.Business.Checkout.Services.ExportImport;
 using Grand.Business.Checkout.Services.GiftVouchers;
 using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Checkout.Services.Payments;
@@ -8,6 +9,8 @@ using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.ExportImport;
+using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -23,6 +26,7 @@ namespace Grand.Business.Checkout.Startup
             RegisterOrdersService(services);
             RegisterPaymentsService(services);
             RegisterShippingService(services);
+            RegisterExportImport(services);
         }
         public void Configure(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
@@ -62,6 +66,11 @@ namespace Grand.Business.Checkout.Startup
             serviceCollection.AddScoped<IDeliveryDateService, DeliveryDateService>();
             serviceCollection.AddScoped<IWarehouseService, WarehouseService>();
             serviceCollection.AddScoped<IShippingMethodService, ShippingMethodService>();
+        }
+
+        private void RegisterExportImport(IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddScoped<ISchemaProperty<Order>, OrderSchemaProperty>();
         }
     }
 }

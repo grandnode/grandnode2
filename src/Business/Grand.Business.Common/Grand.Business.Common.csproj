@@ -2,6 +2,7 @@
   <Import Project="..\..\Build\Grand.Common.props" />
   <ItemGroup>
     <PackageReference Include="HtmlRendererCore.PdfSharp" Version="1.0.5" />
+	<PackageReference Include="NPOI" Version="2.5.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />

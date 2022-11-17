@@ -1,5 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Customers.Services;
+using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,7 +36,7 @@ namespace Grand.Business.Customers.Startup
             serviceCollection.AddScoped<ISalesEmployeeService, SalesEmployeeService>();
             serviceCollection.AddScoped<IUserApiService, UserApiService>();
             serviceCollection.AddScoped<IAffiliateService, AffiliateService>();
-
+            serviceCollection.AddScoped<ISchemaProperty<Customer>, CustomerSchemaProperty>();
         }
     }
 }

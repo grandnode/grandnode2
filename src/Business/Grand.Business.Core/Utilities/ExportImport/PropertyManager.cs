@@ -1,8 +1,4 @@
-﻿using Grand.Business.Core.Utilities.ExportImport;
-using Grand.Business.Core.Utilities.System;
-using NPOI.SS.UserModel;
-
-namespace Grand.Business.System.Utilities.System
+﻿namespace Grand.Business.Core.Utilities.ExportImport
 {
     /// <summary>
     /// Class for working with PropertyByName object list
@@ -62,61 +58,7 @@ namespace Grand.Business.System.Utilities.System
                     : null;
             }
         }
-
-        /// <summary>
-        /// Write object data to XLSX worksheet
-        /// </summary>
-        /// <param name="worksheet">worksheet</param>
-        /// <param name="row">Row index</param>
-        public void WriteToXlsx(ISheet sheet, int row)
-        {
-            if (CurrentObject == null)
-                return;
-
-            IRow _row = sheet.CreateRow(row);
-            foreach (var prop in _properties.Values)
-            {
-                var cellValue = (prop.GetProperty(CurrentObject)?.ToString());
-                if(cellValue != null && cellValue.Length >= 32767) // 32767 is the max char size of an excel cell
-                {
-                    cellValue = cellValue.Substring(0, 32767); //Truncate the content to max size.
-                }
-                _row.CreateCell(prop.PropertyOrderPosition).SetCellValue(cellValue);
-            }
-        }
-
-        /// <summary>
-        /// Read object data from XLSX worksheet
-        /// </summary>
-        /// <param name="ISheet">sheet</param>
-        /// <param name="row">Row index</param>
-        public void ReadFromXlsx(ISheet sheet, int row)
-        {
-            if (sheet == null)
-                return;
-
-            
-            var _row = sheet.GetRow(row);
-            foreach (var prop in _properties.Values)
-            {
-                var cell = _row.GetCell(prop.PropertyOrderPosition);
-                prop.PropertyValue = cell?.ToString();
-            }
-        }
-
-        /// <summary>
-        /// Write caption (first row) to XLSX worksheet
-        /// </summary>
-        /// <param name="ISheet">sheet</param>
-        public void WriteCaption(ISheet sheet)
-        {
-            IRow row = sheet.CreateRow(0);
-            foreach (var caption in _properties.Values)
-            {
-                row.CreateCell(caption.PropertyOrderPosition).SetCellValue(caption.PropertyName);
-            }
-        }
-
+        
         /// <summary>
         /// Count of properties
         /// </summary>

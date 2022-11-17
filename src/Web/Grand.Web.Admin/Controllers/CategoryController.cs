@@ -17,6 +17,7 @@ using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Grand.Business.Core.Interfaces.ExportImport;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -31,7 +32,7 @@ namespace Grand.Web.Admin.Controllers
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
         private readonly IStoreService _storeService;
-        private readonly IExportManager _exportManager;
+        private readonly IExportManager<Category> _exportManager;
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
         private readonly IImportManager _importManager;
@@ -47,7 +48,7 @@ namespace Grand.Web.Admin.Controllers
             ILanguageService languageService,
             ITranslationService translationService,
             IStoreService storeService,
-            IExportManager exportManager,
+            IExportManager<Category> exportManager,
             IWorkContext workContext,
             IGroupService groupService,
             IImportManager importManager,
@@ -309,7 +310,7 @@ namespace Grand.Web.Admin.Controllers
         {
             try
             {
-                var bytes = _exportManager.ExportCategoriesToXlsx(await _categoryService.GetAllCategories(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
+                var bytes = _exportManager.Export(await _categoryService.GetAllCategories(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
                 return File(bytes, "text/xls", "categories.xlsx");
             }
             catch (Exception exc)
