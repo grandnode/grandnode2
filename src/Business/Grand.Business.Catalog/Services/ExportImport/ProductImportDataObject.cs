@@ -141,61 +141,51 @@ namespace Grand.Business.Catalog.Services.ExportImport
         }
         protected async Task<Product> UpdateProductDataDeliveryDate(Product product)
         {
-            if (string.IsNullOrEmpty(product.DeliveryDateId))
-                product.DeliveryDateId = (await _deliveryDateService.GetAllDeliveryDates()).FirstOrDefault().Id;
-            else
+            if (!string.IsNullOrEmpty(product.DeliveryDateId))
             {
                 var deliveryDate = await _deliveryDateService.GetDeliveryDateById(product.DeliveryDateId);
                 if (deliveryDate == null)
-                    product.DeliveryDateId = (await _deliveryDateService.GetAllDeliveryDates()).FirstOrDefault().Id;
+                    product.DeliveryDateId = "";
             }
             return product;
         }
         protected async Task<Product> UpdateProductDataTaxCategory(Product product)
         {
-            if (string.IsNullOrEmpty(product.TaxCategoryId))
-                product.TaxCategoryId = (await _taxService.GetAllTaxCategories()).FirstOrDefault().Id;
-            else
+            if (!string.IsNullOrEmpty(product.TaxCategoryId))
             {
                 var taxCategory = await _taxService.GetTaxCategoryById(product.TaxCategoryId);
                 if (taxCategory == null)
-                    product.TaxCategoryId = (await _taxService.GetAllTaxCategories()).FirstOrDefault().Id;
+                    product.TaxCategoryId = "";
             }
             return product;
         }
         protected async Task<Product> UpdateProductDataWarehouse(Product product)
         {
-            if (string.IsNullOrEmpty(product.WarehouseId))
-                product.WarehouseId = (await _warehouseService.GetAllWarehouses()).FirstOrDefault().Id;
-            else
+            if (!string.IsNullOrEmpty(product.WarehouseId))
             {
                 var warehouse = await _warehouseService.GetWarehouseById(product.WarehouseId);
                 if (warehouse == null)
-                    product.WarehouseId = (await _warehouseService.GetAllWarehouses()).FirstOrDefault().Id;
+                    product.WarehouseId = "";
             }
             return product;
         }
         protected async Task<Product> UpdateProductDataUnit(Product product)
         {
-            if (string.IsNullOrEmpty(product.UnitId))
-                product.UnitId = (await _measureService.GetAllMeasureUnits()).FirstOrDefault().Id;
-            else
-            {
+            if (!string.IsNullOrEmpty(product.UnitId))
+            { 
                 var unit = await _measureService.GetMeasureUnitById(product.UnitId);
                 if (unit == null)
-                    product.UnitId = (await _measureService.GetAllMeasureUnits()).FirstOrDefault().Id;
+                    product.UnitId = "";
             }
             return product;
         }
         protected async Task<Product> UpdateProductDataBrand(Product product)
         {
-            if (string.IsNullOrEmpty(product.BrandId))
-                product.BrandId = (await _brandService.GetAllBrands()).FirstOrDefault().Id;
-            else
-            {
+            if (!string.IsNullOrEmpty(product.BrandId))
+            { 
                 var brand = await _brandService.GetBrandById(product.BrandId);
                 if (brand == null)
-                    product.BrandId = (await _brandService.GetAllBrands()).FirstOrDefault().Id;
+                    product.BrandId = "";
             }
             return product;
         }
