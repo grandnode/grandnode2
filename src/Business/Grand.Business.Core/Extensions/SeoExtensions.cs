@@ -113,7 +113,7 @@ namespace Grand.Business.Core.Extensions
 
             //ensure this sename is not reserved yet
             var entityName = typeof(T).Name;
-            var i = 2;
+            var i = 1;
             var tempSeName = seName;
             while (true)
             {
@@ -128,6 +128,11 @@ namespace Grand.Business.Core.Extensions
 
                 tempSeName = string.Format("{0}-{1}", seName, i);
                 i++;
+                if(i > 4)
+                {
+                    tempSeName = string.Format("{0}-{1}", seName, Guid.NewGuid());
+                    break;
+                }
             }
             seName = tempSeName;
 
