@@ -33,8 +33,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
         private readonly IGroupService _groupService;
-        private readonly IExportManager<Collection> _exportManager;
-        private readonly IImportManager<CollectionDto> _importManager;
         private readonly IPictureViewModelService _pictureViewModelService;
 
         #endregion
@@ -49,8 +47,6 @@ namespace Grand.Web.Admin.Controllers
             ILanguageService languageService,
             ITranslationService translationService,
             IGroupService groupService,
-            IExportManager<Collection> exportManager,
-            IImportManager<CollectionDto> importManager,
             IPictureViewModelService pictureViewModelService)
         {
             _collectionViewModelService = collectionViewModelService;
@@ -60,8 +56,6 @@ namespace Grand.Web.Admin.Controllers
             _languageService = languageService;
             _translationService = translationService;
             _groupService = groupService;
-            _exportManager = exportManager;
-            _importManager = importManager;
             _pictureViewModelService = pictureViewModelService;
         }
 
@@ -338,11 +332,11 @@ namespace Grand.Web.Admin.Controllers
         #region Export / Import
 
         [PermissionAuthorizeAction(PermissionActionName.Export)]
-        public async Task<IActionResult> ExportXlsx()
+        public async Task<IActionResult> ExportXlsx([FromServices] IExportManager<Collection> exportManager)
         {
             try
             {
-                var bytes = _exportManager.Export(await _collectionService.GetAllCollections(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
+                var bytes = exportManager.Export(await _collectionService.GetAllCollections(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
                 return File(bytes, "text/xls", "collections.xlsx");
             }
             catch (Exception exc)
@@ -354,7 +348,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Import)]
         [HttpPost]
-        public async Task<IActionResult> ImportFromXlsx(IFormFile importexcelfile, [FromServices] IWorkContext workContext)
+        public async Task<IActionResult> ImportFromXlsx(IFormFile importexcelfile, [FromServices] IWorkContext workContext, [FromServices] IImportManager<CollectionDto> importManager)
         {
             //a vendor and staff cannot import collections
             if (workContext.CurrentVendor != null || await _groupService.IsStaff(_workContext.CurrentCustomer))
@@ -364,7 +358,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (importexcelfile != null && importexcelfile.Length > 0)
                 {
-                    await _importManager.Import(importexcelfile.OpenReadStream());
+                    await importManager.Import(importexcelfile.OpenReadStream());
                 }
                 else
                 {

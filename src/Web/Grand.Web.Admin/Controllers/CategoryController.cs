@@ -28,8 +28,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly ICategoryViewModelService _categoryViewModelService;
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
-        private readonly IExportManager<Category> _exportManager;
-        private readonly IImportManager<CategoryDto> _importManager;
         private readonly IWorkContext _workContext;
         private readonly IGroupService _groupService;
         private readonly IPictureViewModelService _pictureViewModelService;
@@ -42,8 +40,6 @@ namespace Grand.Web.Admin.Controllers
             ICategoryViewModelService categoryViewModelService,
             ILanguageService languageService,
             ITranslationService translationService,
-            IExportManager<Category> exportManager,
-            IImportManager<CategoryDto> importManager,
             IWorkContext workContext,
             IGroupService groupService,
             IPictureViewModelService pictureViewModelService)
@@ -52,10 +48,8 @@ namespace Grand.Web.Admin.Controllers
             _categoryViewModelService = categoryViewModelService;
             _languageService = languageService;
             _translationService = translationService;
-            _exportManager = exportManager;
             _workContext = workContext;
             _groupService = groupService;
-            _importManager = importManager;
             _pictureViewModelService = pictureViewModelService;
         }
 
@@ -297,11 +291,11 @@ namespace Grand.Web.Admin.Controllers
 
 
         [PermissionAuthorizeAction(PermissionActionName.Export)]
-        public async Task<IActionResult> ExportXlsx()
+        public async Task<IActionResult> ExportXlsx([FromServices] IExportManager<Category> exportManager)
         {
             try
             {
-                var bytes = _exportManager.Export(await _categoryService.GetAllCategories(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
+                var bytes = exportManager.Export(await _categoryService.GetAllCategories(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
                 return File(bytes, "text/xls", "categories.xlsx");
             }
             catch (Exception exc)
@@ -313,7 +307,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Import)]
         [HttpPost]
-        public async Task<IActionResult> ImportFromXlsx(IFormFile importexcelfile)
+        public async Task<IActionResult> ImportFromXlsx(IFormFile importexcelfile, [FromServices] IImportManager<CategoryDto> importManager)
         {
             //a vendor and staff cannot import categories
             if (_workContext.CurrentVendor != null || await _groupService.IsStaff(_workContext.CurrentCustomer))
@@ -323,7 +317,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (importexcelfile != null && importexcelfile.Length > 0)
                 {
-                    await _importManager.Import(importexcelfile.OpenReadStream());
+                    await importManager.Import(importexcelfile.OpenReadStream());
                 }
                 else
                 {

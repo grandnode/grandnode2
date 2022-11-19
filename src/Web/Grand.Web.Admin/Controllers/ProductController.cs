@@ -45,8 +45,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly IGroupService _groupService;
         private readonly ILanguageService _languageService;
         private readonly ITranslationService _translationService;
-        private readonly IExportManager<Product> _exportManager;
-        private readonly IImportManager<ProductDto> _importManager;
         private readonly IStoreService _storeService;
         private readonly IProductReservationService _productReservationService;
         private readonly IAuctionService _auctionService;
@@ -67,8 +65,6 @@ namespace Grand.Web.Admin.Controllers
             IGroupService groupService,
             ILanguageService languageService,
             ITranslationService translationService,
-            IExportManager<Product> exportManager,
-            IImportManager<ProductDto> importManager,
             IStoreService storeService,
             IProductReservationService productReservationService,
             IAuctionService auctionService,
@@ -84,8 +80,6 @@ namespace Grand.Web.Admin.Controllers
             _groupService = groupService;
             _languageService = languageService;
             _translationService = translationService;
-            _exportManager = exportManager;
-            _importManager = importManager;
             _storeService = storeService;
             _productReservationService = productReservationService;
             _auctionService = auctionService;
@@ -1570,12 +1564,12 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Export)]
         [HttpPost]
-        public async Task<IActionResult> ExportExcelAll(ProductListModel model)
+        public async Task<IActionResult> ExportExcelAll(ProductListModel model, [FromServices] IExportManager<Product> exportManager)
         {
             var products = await _productViewModelService.PrepareProducts(model);
             try
             {
-                byte[] bytes = _exportManager.Export(products);
+                byte[] bytes = exportManager.Export(products);
                 return File(bytes, "text/xls", "products.xlsx");
             }
             catch (Exception exc)
@@ -1587,7 +1581,7 @@ namespace Grand.Web.Admin.Controllers
 
         [PermissionAuthorizeAction(PermissionActionName.Export)]
         [HttpPost]
-        public async Task<IActionResult> ExportExcelSelected(string selectedIds)
+        public async Task<IActionResult> ExportExcelSelected(string selectedIds, [FromServices] IExportManager<Product> exportManager)
         {
             var products = new List<Product>();
             if (selectedIds != null)
@@ -1604,13 +1598,13 @@ namespace Grand.Web.Admin.Controllers
                 products = products.Where(p => p.VendorId == _workContext.CurrentVendor.Id).ToList();
             }
 
-            byte[] bytes = _exportManager.Export(products);
+            byte[] bytes = exportManager.Export(products);
             return File(bytes, "text/xls", "products.xlsx");
         }
 
         [PermissionAuthorizeAction(PermissionActionName.Import)]
         [HttpPost]
-        public async Task<IActionResult> ImportExcel(IFormFile importexcelfile)
+        public async Task<IActionResult> ImportExcel(IFormFile importexcelfile, [FromServices] IImportManager<ProductDto> importManager)
         {
             //a vendor ans staff cannot import products
             if (_workContext.CurrentVendor != null || await _groupService.IsStaff(_workContext.CurrentCustomer))
@@ -1620,7 +1614,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 if (importexcelfile != null && importexcelfile.Length > 0)
                 {
-                    await _importManager.Import(importexcelfile.OpenReadStream());
+                    await importManager.Import(importexcelfile.OpenReadStream());
                 }
                 else
                 {
