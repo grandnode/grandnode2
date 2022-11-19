@@ -90,8 +90,35 @@ namespace Grand.Business.Catalog.Services.ExportImport.Mapper
                 .ForMember(x => x.Sold, opt => opt.Condition(z => z.Sold.HasValue))
                 .ForMember(x => x.Viewed, opt => opt.Condition(z => z.Viewed.HasValue))
                 .ForMember(x => x.OnSale, opt => opt.Condition(z => z.OnSale.HasValue))
-                .ForMember(x => x.Published, opt => opt.Condition(z => z.Published.HasValue));
-
+                .ForMember(x => x.Published, opt => opt.Condition(z => z.Published.HasValue))
+                .ForMember(x => x.IsShipEnabled, opt => opt.Condition(z => z.IsShipEnabled.HasValue))
+                .ForMember(x => x.Name, opt => opt.Condition(z => z.Name != null))
+                .ForMember(x => x.ShortDescription, opt => opt.Condition(z => z.ShortDescription != null))
+                .ForMember(x => x.FullDescription, opt => opt.Condition(z => z.FullDescription != null))
+                .ForMember(x => x.ExternalId, opt => opt.Condition(z => z.ExternalId != null))
+                .ForMember(x => x.MetaDescription, opt => opt.Condition(z => z.MetaDescription != null))
+                .ForMember(x => x.MetaKeywords, opt => opt.Condition(z => z.MetaKeywords != null))
+                .ForMember(x => x.MetaTitle, opt => opt.Condition(z => z.MetaTitle != null))
+                .ForMember(x => x.SeName, opt => opt.Condition(z => z.SeName != null))
+                .ForMember(x => x.BrandId, opt => opt.Condition(z => z.BrandId != null))
+                .ForMember(x => x.ProductLayoutId, opt => opt.Condition(z => z.ProductLayoutId != null))
+                .ForMember(x => x.AdminComment, opt => opt.Condition(z => z.AdminComment != null))
+                .ForMember(x => x.VendorId, opt => opt.Condition(z => z.VendorId != null))
+                .ForMember(x => x.Sku, opt => opt.Condition(z => z.Sku != null))
+                .ForMember(x => x.Mpn, opt => opt.Condition(z => z.Mpn != null))
+                .ForMember(x => x.Gtin, opt => opt.Condition(z => z.Gtin != null))
+                .ForMember(x => x.AllowedQuantities, opt => opt.Condition(z => z.AllowedQuantities != null))
+                .ForMember(x => x.BasepriceBaseUnitId, opt => opt.Condition(z => z.BasepriceBaseUnitId != null))
+                .ForMember(x => x.BasepriceUnitId, opt => opt.Condition(z => z.BasepriceUnitId != null))
+                .ForMember(x => x.CourseId, opt => opt.Condition(z => z.CourseId != null))
+                .ForMember(x => x.DeliveryDateId, opt => opt.Condition(z => z.DeliveryDateId != null))
+                .ForMember(x => x.TaxCategoryId, opt => opt.Condition(z => z.TaxCategoryId != null))
+                .ForMember(x => x.WarehouseId, opt => opt.Condition(z => z.WarehouseId != null))
+                .ForMember(x => x.UnitId, opt => opt.Condition(z => z.UnitId != null))
+                .ForMember(x => x.Flag, opt => opt.Condition(z => z.Flag != null))
+                .ForMember(x => x.RequiredProductIds, opt => opt.Condition(z => z.RequiredProductIds != null))
+                .ForMember(x => x.ParentGroupedProductId, opt => opt.Condition(z => z.ParentGroupedProductId != null))
+                .ForMember(x => x.UserAgreementText, opt => opt.Condition(z => z.UserAgreementText != null));
         }
 
         public int Order => 0;

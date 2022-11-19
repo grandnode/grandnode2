@@ -37,13 +37,11 @@ namespace Grand.Business.Catalog.Services.ExportImport.Dto
         public string RequiredProductIds { get; set; }
         public bool? AutoAddRequiredProducts { get; set; }
         public bool? IsDownload { get; set; }
-        public string DownloadId { get; set; }
         public bool? UnlimitedDownloads { get; set; }
         public int? MaxNumberOfDownloads { get; set; }
         public int? DownloadExpirationDays { get; set; }
         public DownloadActivationType? DownloadActivationTypeId { get; set; }
         public bool? HasSampleDownload { get; set; }
-        public string SampleDownloadId { get; set; }
         public bool? HasUserAgreement { get; set; }
         public string UserAgreementText { get; set; }
         public bool? IsRecurring { get; set; }
