@@ -2,6 +2,6 @@
 {
     public interface IImportDataProvider
     {
-        IEnumerable<T> Convert<T>(Stream stream);
+        Task<IEnumerable<T>> Convert<T>(Stream stream);
     }
 }

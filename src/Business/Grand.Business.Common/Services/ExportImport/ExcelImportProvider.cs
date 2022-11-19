@@ -5,9 +5,12 @@ namespace Grand.Business.Common.Services.ExportImport
 {
     public class ExcelImportProvider : IImportDataProvider
     {
-        public IEnumerable<T> Convert<T>(Stream stream)
+        public async Task<IEnumerable<T>> Convert<T>(Stream stream)
         {
-            return new ExcelMapper(stream).Fetch<T>();
+            var excel = new ExcelMapper {
+                SkipBlankCells = false
+            };
+            return await excel.FetchAsync<T>(stream);
         }
     }
 }

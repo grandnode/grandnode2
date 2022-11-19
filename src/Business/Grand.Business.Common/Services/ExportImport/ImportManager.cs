@@ -15,7 +15,7 @@ namespace Grand.Business.Common.Services.ExportImport
 
         public async Task Import(Stream stream)
         {
-            var data = _importDataProvider.Convert<T>(stream);
+            var data = await _importDataProvider.Convert<T>(stream);
             await _importDataObject.Execute(data);
         }
     }
