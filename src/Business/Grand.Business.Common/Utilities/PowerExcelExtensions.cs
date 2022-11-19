@@ -1,14 +1,9 @@
 ﻿using NPOI.SS.UserModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Ganss.Excel
+namespace Grand.Business.Common.Utilities
 {
-    static class Extensions
+    static class PowerExcelExtensions
     {
         internal static IEnumerable<IRow> Rows(this ISheet sheet)
         {
