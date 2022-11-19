@@ -24,7 +24,7 @@ namespace Grand.Business.Common.Services.ExportImport
                 {
                     WriteToXlsx(properties, worksheet, items, row++);
                 }
-                xlPackage.Write(stream);
+                xlPackage.Write(stream, false);
                 return stream.ToArray();
             }
         }
@@ -52,7 +52,7 @@ namespace Grand.Business.Common.Services.ExportImport
         }
         public virtual byte[] BuilderExportToByte()
         {
-            xlPackage.Write(stream);
+            xlPackage.Write(stream, false);
             return stream.ToArray();
         }
 
