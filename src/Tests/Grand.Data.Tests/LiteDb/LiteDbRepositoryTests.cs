@@ -356,7 +356,20 @@ namespace Grand.Data.Tests.LiteDb
 
             Assert.IsTrue(p1.Name == "update");
         }
+        [TestMethod()]
+        public async Task IncField_MongoRepository_Success()
+        {
+            var sample = new SampleCollection() { Id = "1", Name = "Test" };
+            await _myRepository.InsertAsync(sample);
 
+            await _myRepository.IncField("1", x => x.Count, 1);
+            await _myRepository.IncField("1", x => x.Count, 1);
+            await _myRepository.IncField("1", x => x.Count, 1);
+
+            var p1 = _myRepository.GetById("1");
+
+            Assert.IsTrue(p1.Count == 3);
+        }
         [TestMethod()]
         public async Task UpdateManyAsync_LiteRepository_Success()
         {

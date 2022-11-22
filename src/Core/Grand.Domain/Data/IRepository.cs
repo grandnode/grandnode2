@@ -92,6 +92,15 @@ namespace Grand.Domain.Data
         Task UpdateField<U>(string id, Expression<Func<T, U>> expression, U value);
 
         /// <summary>
+        /// Inc field for entity
+        /// </summary>
+        /// <typeparam name="U">Value</typeparam>
+        /// <param name="id">Ident record</param>
+        /// <param name="expression">Linq Expression</param>
+        /// <param name="value">value</param>
+        Task IncField<U>(string id, Expression<Func<T, U>> expression, U value);
+
+        /// <summary>
         /// Updates a single entity
         /// </summary>
         /// <param name="filterexpression"></param>

@@ -206,6 +206,53 @@ namespace Grand.Domain.Data.LiteDb
         }
 
         /// <summary>
+        /// Inc field for entity
+        /// </summary>
+        /// <typeparam name="U">Value</typeparam>
+        /// <param name="id">Ident record</param>
+        /// <param name="expression">Linq Expression</param>
+        /// <param name="value">value</param>
+        public virtual Task IncField<U>(string id, Expression<Func<T, U>> expression, U value)
+        {
+            var entity = _database.GetCollection(typeof(T).Name).FindById(new(id));
+            switch (value)
+            {
+                case int intValue:
+                    var intrawValue = Convert.ToInt32(entity[GetName(expression)].RawValue);
+                    var bsonIntValue = BsonMapper.Global.Serialize<int>(intrawValue + intValue);
+                    entity[GetName(expression)] = bsonIntValue;
+                    _database.GetCollection(typeof(T).Name).Update(entity);
+                    break;
+                case long longValue:
+                    var longrawValue = Convert.ToInt64(entity[GetName(expression)].RawValue);
+                    var bsonLongValue = BsonMapper.Global.Serialize<long>(longrawValue + longValue);
+                    entity[GetName(expression)] = bsonLongValue;
+                    _database.GetCollection(typeof(T).Name).Update(entity);
+                    break;
+                default:
+                    break;
+            }
+
+            //if (typeof(U) == typeof(int))
+            //{
+            //    var rawValue = Convert.ToInt32(entity[GetName(expression)].RawValue);
+            //    var inc = Convert.ToInt32(value);
+            //    var bsonValue = BsonMapper.Global.Serialize<int>(rawValue + inc);
+            //    entity[GetName(expression)] = bsonValue;
+            //    _database.GetCollection(typeof(T).Name).Update(entity);
+            //}
+            //if (typeof(U) == typeof(long))
+            //{
+            //    var rawValue = Convert.ToInt64(entity[GetName(expression)].RawValue);
+            //    var inc = Convert.ToInt64(value);
+            //    var bsonValue = BsonMapper.Global.Serialize<long>(rawValue + inc);
+            //    entity[GetName(expression)] = bsonValue;
+            //    _database.GetCollection(typeof(T).Name).Update(entity);
+            //}
+
+            return Task.CompletedTask;
+        }
+        /// <summary>
         /// Updates a single entity.
         /// </summary>
         /// <param name="filterexpression"></param>

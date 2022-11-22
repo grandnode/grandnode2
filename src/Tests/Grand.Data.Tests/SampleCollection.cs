@@ -11,6 +11,7 @@ namespace Grand.Data.Tests
         }
         public string Name { get; set; }
 
+        public int Count { get; set; }
         public IList<string> Phones { get; set; }
 
         public IList<SampleCategory> Category { get; set; }
