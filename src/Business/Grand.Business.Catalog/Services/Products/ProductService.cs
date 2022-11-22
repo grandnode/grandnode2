@@ -12,6 +12,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using MediatR;
+using System.Linq.Expressions;
 
 namespace Grand.Business.Catalog.Services.Products
 {
@@ -97,7 +98,10 @@ namespace Grand.Business.Catalog.Services.Products
                 return await _productRepository.GetByIdAsync(productId);
 
             var key = string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId);
-            return await _cacheBase.GetAsync(key, () => _productRepository.GetByIdAsync(productId));
+            return await _cacheBase.GetAsync(key, () =>
+            {
+                return _productRepository.GetByIdAsync(productId);
+            });
         }
 
         /// <summary>
@@ -329,6 +333,42 @@ namespace Grand.Business.Catalog.Services.Products
             //event notification
             await _mediator.EntityUpdated(product);
         }
+
+        public virtual async Task UpdateProductField<T>(Product product,
+            Expression<Func<Product, T>> expression, T value)
+        {
+            if (product == null)
+                throw new ArgumentNullException(nameof(product));
+
+            //update field
+            await _productRepository.UpdateField<T>(product.Id, expression, value);
+
+            //cache
+            await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
+
+            //event notification
+            await _mediator.EntityUpdated(product);
+
+        }
+        /// <summary>
+        /// Increases the value of a number field  - this method do not clear cache related with product
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="product"></param>
+        /// <param name="expression"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public virtual async Task IncrementProductField<T>(Product product,
+            Expression<Func<Product, T>> expression, T value)
+        {
+            if (product == null)
+                throw new ArgumentNullException(nameof(product));
+
+            //inc field
+            await _productRepository.IncField<T>(product.Id, expression, value);
+        }
+
         /// <summary>
         /// Delete a product
         /// </summary>
@@ -348,16 +388,7 @@ namespace Grand.Business.Catalog.Services.Products
             await _mediator.EntityDeleted(product);
         }
 
-        public virtual async Task UpdateMostView(Product product)
-        {
-            await _productRepository.UpdateField(product.Id, x => x.Viewed, product.Viewed + 1);
-        }
-
-        public virtual async Task UpdateSold(Product product, int qty)
-        {
-            await _productRepository.UpdateField(product.Id, x => x.Sold, product.Sold + qty);
-        }
-
+       
         public virtual async Task UnpublishProduct(Product product)
         {
             var update = UpdateBuilder<Product>.Create()

@@ -168,7 +168,7 @@ namespace Grand.Web.Controllers
             _ = _customerActivityService.InsertActivity("PublicStore.ViewProduct", product.Id, _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewProduct"), product.Name);
 
-            await _productService.UpdateMostView(product);
+            _ = _productService.IncrementProductField(product, x => x.Viewed, 1);
 
             return View(productLayoutViewPath, model);
         }
@@ -415,7 +415,7 @@ namespace Grand.Web.Controllers
             _ = _customerActivityService.InsertActivity("PublicStore.ViewProduct", product.Id, _workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
                 _translationService.GetResource("ActivityLog.PublicStore.ViewProduct"), product.Name);
 
-            await _productService.UpdateMostView(product);
+            _ = _productService.IncrementProductField(product, x => x.Viewed, 1);
 
             return Json(new
             {

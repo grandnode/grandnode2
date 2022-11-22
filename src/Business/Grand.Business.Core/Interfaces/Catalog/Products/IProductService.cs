@@ -2,6 +2,7 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
+using System.Linq.Expressions;
 
 namespace Grand.Business.Core.Interfaces.Catalog.Products
 {
@@ -73,23 +74,25 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         Task DeleteProduct(Product product);
 
         /// <summary>
-        /// Updates most view on the product
-        /// </summary>
-        /// <param name="product">Product</param>
-        Task UpdateMostView(Product product);
-
-        /// <summary>
-        /// Updates best sellers on the product
-        /// </summary>
-        /// <param name="product">Product</param>
-        /// <param name="qty">Count</param>
-        Task UpdateSold(Product product, int qty);
-
-        /// <summary>
         /// Set product as unpublished
         /// </summary>
         /// <param name="product"></param>
         Task UnpublishProduct(Product product);
+
+        /// <summary>
+        /// Updates the product field
+        /// </summary>
+        /// <param name="product">Product</param>
+        Task UpdateProductField<T>(Product product,
+            Expression<Func<Product, T>> expression, T value);
+
+
+        /// <summary>
+        /// Increment the product field
+        /// </summary>
+        /// <param name="product">Product</param>
+        Task IncrementProductField<T>(Product product,
+            Expression<Func<Product, T>> expression, T value);
 
         /// <summary>
         /// Get (visible) product number in certain category

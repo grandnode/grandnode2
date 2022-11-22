@@ -1,19 +1,19 @@
-﻿using Grand.Business.Core.Commands.Catalog;
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Catalog.Services.ExportImport.Dto;
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Logging;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Common.Stores;
-using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Extensions;
 using Grand.Web.Admin.Extensions;
 using Grand.Web.Admin.Interfaces;
 using Grand.Web.Admin.Models.Catalog;
@@ -22,13 +22,10 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
-using Grand.Business.Core.Interfaces.ExportImport;
-using Grand.Business.Catalog.Services.ExportImport.Dto;
 
 namespace Grand.Web.Admin.Controllers
 {
@@ -50,7 +47,6 @@ namespace Grand.Web.Admin.Controllers
         private readonly IAuctionService _auctionService;
         private readonly IDateTimeService _dateTimeService;
         private readonly IPermissionService _permissionService;
-        private readonly IMediator _mediator;
 
         #endregion
 
@@ -69,8 +65,7 @@ namespace Grand.Web.Admin.Controllers
             IProductReservationService productReservationService,
             IAuctionService auctionService,
             IDateTimeService dateTimeService,
-            IPermissionService permissionService,
-            IMediator mediator)
+            IPermissionService permissionService)
         {
             _productViewModelService = productViewModelService;
             _productService = productService;
@@ -85,7 +80,6 @@ namespace Grand.Web.Admin.Controllers
             _auctionService = auctionService;
             _dateTimeService = dateTimeService;
             _permissionService = permissionService;
-            _mediator = mediator;
         }
 
         #endregion
@@ -1447,7 +1441,7 @@ namespace Grand.Web.Admin.Controllers
 
             Error(ModelState);
             model.AvailableAttributes = await PrepareAvailableAttributes(specificationAttributeService);
-            
+
             return View(model);
         }
         private async Task<List<SelectListItem>> PrepareAvailableAttributes(ISpecificationAttributeService specificationAttributeService)
@@ -2680,12 +2674,6 @@ namespace Grand.Web.Admin.Controllers
                 }
             }
 
-            //update fields on product
-            await _mediator.Send(new UpdateIntervalPropertiesCommand() { Product = product, IncludeBothDates = model.IncBothDate, Interval = model.Interval, IntervalUnit = (IntervalUnit)model.IntervalUnit });
-
-            //event notification
-            await _mediator.EntityUpdated(product);
-
             if (!ModelState.IsValid)
             {
                 Dictionary<string, Dictionary<string, object>> error = (Dictionary<string, Dictionary<string, object>>)ModelState.SerializeErrors();
@@ -2701,6 +2689,11 @@ namespace Grand.Web.Admin.Controllers
 
                 return Json(new { errors = s });
             }
+
+            //update fields on product
+            await _productService.UpdateProductField(product, x => x.Interval, model.Interval);
+            await _productService.UpdateProductField(product, x => x.IntervalUnitId, (IntervalUnit)model.IntervalUnit);
+            await _productService.UpdateProductField(product, x => x.IncBothDate, model.IncBothDate);
 
             int minutesToAdd = 0;
             if ((IntervalUnit)model.IntervalUnit == IntervalUnit.Minute)

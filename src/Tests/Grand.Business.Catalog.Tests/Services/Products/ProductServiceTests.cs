@@ -197,38 +197,6 @@ namespace Grand.Business.Catalog.Services.Products.Tests
         }
 
         [TestMethod()]
-        public async Task UpdateMostViewTest()
-        {
-            //Arrange 
-            var product = new Product() { Id = "101", Viewed = 10 };
-            await _productService.InsertProduct(product);
-
-            //Act
-            await _productService.UpdateMostView(product);
-            var result = await _productService.GetProductById("101");
-
-            //Assert
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.Viewed == 11);
-        }
-
-        [TestMethod()]
-        public async Task UpdateSoldTest()
-        {
-            //Arrange 
-            var product = new Product() { Id = "104", Sold = 10 };
-            await _productService.InsertProduct(product);
-
-            //Act
-            await _productService.UpdateSold(product, 1);
-            var result = await _productService.GetProductById("104");
-
-            //Assert
-            Assert.IsNotNull(result);
-            Assert.IsTrue(result.Sold == 11);
-        }
-
-        [TestMethod()]
         public async Task UnpublishProductTest()
         {
             //Arrange 
@@ -296,7 +264,39 @@ namespace Grand.Business.Catalog.Services.Products.Tests
             //Assert
             Assert.IsNotNull(result);
         }
+        [TestMethod()]
+        public async Task UpdateProductFieldTest()
+        {
+            //Arrange 
+            var product = new Product();
+            await _productService.InsertProduct(product);
+            //Act
+            await _productService.UpdateProductField(product, x => x.Name, "test");
 
+            var result = await _productService.GetProductById(product.Id);
+
+            //Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("test", result.Name);
+        }
+
+        [TestMethod()]
+        public async Task IncrementProductFieldTest()
+        {
+            //Arrange 
+            var product = new Product();
+            await _productService.InsertProduct(product);
+            //Act
+            await _productService.IncrementProductField(product, x => x.Viewed, 1);
+            await _productService.IncrementProductField(product, x => x.Viewed, 1);
+            await _productService.IncrementProductField(product, x => x.Viewed, 1);
+
+            var result = await _productService.GetProductById(product.Id, true);
+
+            //Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(3, result.Viewed);
+        }
         [TestMethod()]
         public async Task UpdateAssociatedProductTest()
         {
