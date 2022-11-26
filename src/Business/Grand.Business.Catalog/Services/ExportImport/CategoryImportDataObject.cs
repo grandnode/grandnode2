@@ -55,10 +55,10 @@ namespace Grand.Business.Catalog.Services.ExportImport
             if (category == null) category = categoryDto.MapTo<CategoryDto, Category>();
             else categoryDto.MapTo(category);
 
+            if (!ValidCategory(category)) return;
+
             if (isNew) await _categoryService.InsertCategory(category);
             else await _categoryService.UpdateCategory(category);
-
-            if (!ValidCategory(category)) return;
 
             await UpdateCategoryData(categoryDto, category);
         }

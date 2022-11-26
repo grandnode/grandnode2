@@ -56,10 +56,10 @@ namespace Grand.Business.Catalog.Services.ExportImport
             if (brand == null) brand = brandDto.MapTo<BrandDto, Brand>();
             else brandDto.MapTo(brand);
 
+            if (!ValidBrand(brand)) return;
+
             if (isNew) await _brandService.InsertBrand(brand);
             else await _brandService.UpdateBrand(brand);
-
-            if (!ValidBrand(brand)) return;
 
             await UpdateBrandData(brandDto, brand);
 

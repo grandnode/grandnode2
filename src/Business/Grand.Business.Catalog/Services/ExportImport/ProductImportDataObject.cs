@@ -91,10 +91,10 @@ namespace Grand.Business.Catalog.Services.ExportImport
             if (product == null) product = productDto.MapTo<ProductDto, Product>();
             else productDto.MapTo(product);
 
+            if (!ValidProduct(product)) return;
+
             if (isNew) await _productService.InsertProduct(product);
             else await _productService.UpdateProduct(product);
-
-            if (!ValidProduct(product)) return;
 
             await UpdateProductData(productDto, product, isNew);
 

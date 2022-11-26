@@ -56,10 +56,10 @@ namespace Grand.Business.Catalog.Services.ExportImport
             if (collection == null) collection = collectionDto.MapTo<CollectionDto, Collection>();
             else collectionDto.MapTo(collection);
 
+            if (!ValidCollection(collection)) return;
+
             if (isNew) await _collectionService.InsertCollection(collection);
             else await _collectionService.UpdateCollection(collection);
-
-            if (!ValidCollection(collection)) return;
 
             await UpdateCollectionData(collectionDto, collection);
         }
