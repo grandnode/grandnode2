@@ -6,6 +6,13 @@
     <vc:admin-widget widget-zone="warehouse_details_top" additional-data="Model" />
     <div class="form-body">
         <div class="form-group">
+            <admin-label asp-for="Code" />
+            <div class="col-md-9 col-sm-9">
+                <admin-input asp-for="Code" />
+                <span asp-validation-for="Code"></span>
+            </div>
+        </div>
+        <div class="form-group">
             <admin-label asp-for="Name" />
             <div class="col-md-9 col-sm-9">
                 <admin-input asp-for="Name" />

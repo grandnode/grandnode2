@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="English">
+	<Resource Name="Admin.Configuration.Shipping.Warehouses.Fields.Code" Area="Admin">
+		<Value>Warehouse code</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.Warehouses.Fields.Code.Required" Area="Admin">
+		<Value>Please provide a warehouse code.</Value>
+	</Resource>
+</Language>

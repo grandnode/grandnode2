@@ -408,6 +408,7 @@ namespace Grand.Web.Features.Handlers.Products
                         ReservedQuantity = productwarehouse?.ReservedQuantity ?? 0,
                         WarehouseId = warehouse.Id,
                         Name = warehouse.Name,
+                        Code = warehouse.Code,
                         Selected = updateCartItem != null && updateCartItem?.WarehouseId == warehouse.Id
                     });
                 }

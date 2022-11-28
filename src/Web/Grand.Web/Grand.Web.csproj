@@ -57,6 +57,7 @@
 		<Compile Remove="Plugins\**" />
 		<EmbeddedResource Remove="Plugins\**" />
 		<None Remove="Plugins\**" />
+		<None Remove="App_Data\Resources\Upgrade\en_210.xml" />
 		<Content Update="Plugins\**">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>

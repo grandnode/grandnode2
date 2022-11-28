@@ -53,6 +53,7 @@ namespace Grand.Web.Models.ShoppingCart
             public string ProductUrl { get; set; }
             public string WarehouseId { get; set; }
             public string WarehouseName { get; set; }
+            public string WarehouseCode { get; set; }
             public string VendorId { get; set; }
             public string VendorName { get; set; }
             public string VendorSeName { get; set; }

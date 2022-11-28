@@ -13,6 +13,7 @@ namespace Grand.Web.Admin.Validators.Shipping
             : base(validators)
         {
             RuleFor(x => x.Name).NotEmpty().WithMessage(translationService.GetResource("Admin.Configuration.Shipping.Warehouses.Fields.Name.Required"));
+            RuleFor(x => x.Code).NotEmpty().WithMessage(translationService.GetResource("Admin.Configuration.Shipping.Warehouses.Fields.Code.Required"));
         }
     }
 }

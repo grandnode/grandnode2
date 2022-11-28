@@ -33,13 +33,15 @@ namespace Grand.Business.System.Services.Installation
             {
                 new Warehouse
                 {
-                    Name = "Warehouse 1 (New York)",
+                    Code = "WHS01",
+                    Name = "Warehouse 1",
                     Address = warehouse1address,
                     DisplayOrder = 0,
                 },
                 new Warehouse
                 {
-                    Name = "Warehouse 2 (Los Angeles)",
+                    Code = "WHS02",
+                    Name = "Warehouse 2",
                     Address = warehouse2address,
                     DisplayOrder = 1,
                 }

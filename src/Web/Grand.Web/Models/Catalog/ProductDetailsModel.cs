@@ -300,6 +300,7 @@ namespace Grand.Web.Models.Catalog
         {
             public bool Use { get; set; }
             public string WarehouseId { get; set; }
+            public string Code { get; set; }
             public string Name { get; set; }
             public int StockQuantity { get; set; }
             public int ReservedQuantity { get; set; }

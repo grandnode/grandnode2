@@ -337,8 +337,11 @@ namespace Grand.Web.Features.Handlers.ShoppingCart
 
                 //warehouse
                 if (!string.IsNullOrEmpty(cartItemModel.WarehouseId))
-                    cartItemModel.WarehouseName = (await _warehouseService.GetWarehouseById(cartItemModel.WarehouseId))?.Name;
-
+                {
+                    var warehouse = await _warehouseService.GetWarehouseById(cartItemModel.WarehouseId);
+                    cartItemModel.WarehouseName = warehouse?.Name;
+                    cartItemModel.WarehouseCode = warehouse?.Code;
+                }
                 //vendor
                 if (!string.IsNullOrEmpty(product.VendorId))
                 {

@@ -5037,6 +5037,12 @@
 	<Resource Name="Admin.Configuration.Shipping.Warehouses.Fields.AdminComment" Area="Admin">
 		<Value>Admin comment</Value>
 	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.Warehouses.Fields.Code" Area="Admin">
+		<Value>Warehouse code</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.Warehouses.Fields.Code.Required" Area="Admin">
+		<Value>Please provide a warehouse code.</Value>
+	</Resource>	
 	<Resource Name="Admin.Configuration.Shipping.Warehouses.Fields.DisplayOrder" Area="Admin">
 		<Value>Display order</Value>
 	</Resource>

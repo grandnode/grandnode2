@@ -402,6 +402,7 @@ namespace Grand.Web.Admin.Services
                                 shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo {
                                     WarehouseId = warehouse.Id,
                                     WarehouseName = warehouse.Name,
+                                    WarehouseCode = warehouse.Code,
                                     StockQuantity = pwi.StockQuantity,
                                     ReservedQuantity = pwi.ReservedQuantity
                                 });
@@ -417,6 +418,7 @@ namespace Grand.Web.Admin.Services
                             shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo {
                                 WarehouseId = warehouse.Id,
                                 WarehouseName = warehouse.Name,
+                                WarehouseCode = warehouse.Code,
                                 StockQuantity = product.StockQuantity
                             });
                         }
@@ -443,6 +445,7 @@ namespace Grand.Web.Admin.Services
                                         WarehouseId = warehouse.Id,
                                         WarehouseName = warehouse.Name,
                                         StockQuantity = pwi.StockQuantity,
+                                        WarehouseCode = warehouse.Code,
                                         ReservedQuantity = pwi.ReservedQuantity
                                     });
                                 }
@@ -458,6 +461,7 @@ namespace Grand.Web.Admin.Services
                             shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo {
                                 WarehouseId = warehouse.Id,
                                 WarehouseName = warehouse.Name,
+                                WarehouseCode = warehouse.Code,
                                 StockQuantity = product.StockQuantity
                             });
                         }
@@ -474,6 +478,7 @@ namespace Grand.Web.Admin.Services
                             shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo {
                                 WarehouseId = warehouse.Id,
                                 WarehouseName = warehouse.Name,
+                                WarehouseCode = warehouse.Code,
                                 StockQuantity = await GetStockQty(product, orderItem.WarehouseId),
                                 ReservedQuantity = await GetReservedQty(product, orderItem.WarehouseId)
                             });
@@ -490,6 +495,7 @@ namespace Grand.Web.Admin.Services
                                 shipmentItemModel.AvailableWarehouses.Add(new ShipmentModel.ShipmentItemModel.WarehouseInfo {
                                     WarehouseId = warehouse.Id,
                                     WarehouseName = warehouse.Name,
+                                    WarehouseCode = warehouse.Code,
                                     StockQuantity = await GetStockQty(product, warehouse.Id),
                                     ReservedQuantity = await GetReservedQty(product, warehouse.Id),
                                 });

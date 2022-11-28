@@ -545,7 +545,8 @@ namespace Grand.Web.Admin.Services
             {
                 var pwiModel = new ProductModel.ProductWarehouseInventoryModel {
                     WarehouseId = warehouse.Id,
-                    WarehouseName = warehouse.Name
+                    WarehouseName = warehouse.Name,
+                    WarehouseCode = warehouse.Code
                 };
                 if (product != null)
                 {
