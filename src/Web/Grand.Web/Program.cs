@@ -68,11 +68,6 @@ if (config.MaxRequestBodySize.HasValue)
 //register task
 builder.Services.RegisterTasks();
 
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
-}
-
 //build app
 var app = builder.Build();
 

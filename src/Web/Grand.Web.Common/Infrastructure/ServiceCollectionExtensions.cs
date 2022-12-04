@@ -210,8 +210,7 @@ namespace Grand.Web.Common.Infrastructure
             var securityConfig = new SecurityConfig();
             configuration.GetSection("Security").Bind(securityConfig);
 
-            var appConfig = new AppConfig();
-            configuration.GetSection("Application").Bind(appConfig);
+            if(securityConfig.EnableRuntimeCompilation) mvcBuilder.AddRazorRuntimeCompilation();
 
             if (securityConfig.UseHsts)
             {
@@ -230,6 +229,10 @@ namespace Grand.Web.Common.Infrastructure
                     options.HttpsPort = securityConfig.HttpsRedirectionHttpsPort;
                 });
             }
+
+            var appConfig = new AppConfig();
+            configuration.GetSection("Application").Bind(appConfig);
+
             //use session-based temp data provider
             if (appConfig.UseSessionStateTempDataProvider)
             {
