@@ -54,5 +54,10 @@
 
         public int HttpsRedirectionRedirect { get; set; }
         public int? HttpsRedirectionHttpsPort { get; set; }
+
+        /// <summary>
+        /// When enabled, allowing Razor files to be updated if they're edited.
+        /// </summary>
+        public bool EnableRuntimeCompilation { get; set; }
     }
 }
