@@ -14,8 +14,7 @@ namespace Grand.Business.Messages.Services
 
         public string Map(string filename)
         {
-            string contentType;
-            if (!_contentTypeProvider.TryGetContentType(filename, out contentType))
+            if (!_contentTypeProvider.TryGetContentType(filename, out var contentType))
             {
                 contentType = "application/octet-stream";
             }

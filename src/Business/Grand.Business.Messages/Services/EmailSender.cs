@@ -40,7 +40,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="attachedDownloads">Attachment download ID (another attachedment)</param>
         public virtual async Task SendEmail(EmailAccount emailAccount, string subject, string body,
             string fromAddress, string fromName, string toAddress, string toName,
-             string replyToAddress = null, string replyToName = null,
+            string replyToAddress = null, string replyToName = null,
             IEnumerable<string> bccAddresses = null, IEnumerable<string> ccAddresses = null,
             string attachmentFilePath = null, string attachmentFileName = null,
             IEnumerable<string> attachedDownloads = null)
@@ -84,13 +84,10 @@ namespace Grand.Business.Messages.Services
             if (!String.IsNullOrEmpty(attachmentFilePath) &&
                 File.Exists(attachmentFilePath))
             {
-
                 // TODO: should probably include a check for the attachmentFileName not being null or white space
-                var attachment = new MimePart(_mimeMappingService.Map(attachmentFileName))
-                {
-                    Content = new MimeContent(File.OpenRead(attachmentFilePath), ContentEncoding.Default),
-                    ContentDisposition = new ContentDisposition(ContentDisposition.Attachment)
-                    {
+                var attachment = new MimePart(_mimeMappingService.Map(attachmentFileName)) {
+                    Content = new MimeContent(File.OpenRead(attachmentFilePath)),
+                    ContentDisposition = new ContentDisposition(ContentDisposition.Attachment) {
                         CreationDate = File.GetCreationTime(attachmentFilePath),
                         ModificationDate = File.GetLastWriteTime(attachmentFilePath),
                         ReadDate = File.GetLastAccessTime(attachmentFilePath)
@@ -99,51 +96,45 @@ namespace Grand.Business.Messages.Services
                     FileName = Path.GetFileName(attachmentFilePath),
                 };
                 builder.Attachments.Add(attachment);
-
             }
+
             //another attachment?
             if (attachedDownloads != null)
             {
                 foreach (var attachedDownloadId in attachedDownloads)
                 {
                     var download = await _downloadService.GetDownloadById(attachedDownloadId);
-                    if (download != null)
-                    {
-                        //we do not support URLs as attachments
-                        if (!download.UseDownloadUrl)
-                        {
-                            string fileName = !String.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id;
-                            fileName += download.Extension;
-                            var ms = new MemoryStream(download.DownloadBinary);
-                            var attachment = new MimePart(download.ContentType ?? _mimeMappingService.Map(fileName))
-                            {
-                                Content = new MimeContent(ms, ContentEncoding.Default),
-                                ContentDisposition = new ContentDisposition(ContentDisposition.Attachment)
-                                {
-                                    CreationDate = DateTime.UtcNow,
-                                    ModificationDate = DateTime.UtcNow,
-                                    ReadDate = DateTime.UtcNow
-                                },
-                                ContentTransferEncoding = ContentEncoding.Base64,
-                                FileName = fileName,
-                            };
-                            builder.Attachments.Add(attachment);
-                        }
-                    }
+                    if (download == null || download.UseDownloadUrl) continue;
+                    var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id;
+                    fileName += download.Extension;
+                    var ms = new MemoryStream(download.DownloadBinary);
+                    var attachment = new MimePart(download.ContentType ?? _mimeMappingService.Map(fileName)) {
+                        Content = new MimeContent(ms),
+                        ContentDisposition = new ContentDisposition(ContentDisposition.Attachment) {
+                            CreationDate = DateTime.UtcNow,
+                            ModificationDate = DateTime.UtcNow,
+                            ReadDate = DateTime.UtcNow
+                        },
+                        ContentTransferEncoding = ContentEncoding.Base64,
+                        FileName = fileName,
+                    };
+                    builder.Attachments.Add(attachment);
                 }
             }
+
             message.Body = builder.ToMessageBody();
 
             //send email
             using (var smtpClient = new SmtpClient())
             {
-                smtpClient.ServerCertificateValidationCallback = (s, c, h, e) => emailAccount.UseServerCertificateValidation;
-                await smtpClient.ConnectAsync(emailAccount.Host, emailAccount.Port, (SecureSocketOptions)emailAccount.SecureSocketOptionsId);
+                smtpClient.ServerCertificateValidationCallback =
+                    (s, c, h, e) => emailAccount.UseServerCertificateValidation;
+                await smtpClient.ConnectAsync(emailAccount.Host, emailAccount.Port,
+                    (SecureSocketOptions)emailAccount.SecureSocketOptionsId);
                 await smtpClient.AuthenticateAsync(emailAccount.Username, emailAccount.Password);
                 await smtpClient.SendAsync(message);
                 await smtpClient.DisconnectAsync(true);
             }
-
         }
     }
 }

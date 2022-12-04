@@ -111,13 +111,13 @@ namespace Grand.Business.Messages.Services
         public virtual async Task<MessageTemplate> GetMessageTemplateByName(string messageTemplateName, string storeId)
         {
             if (string.IsNullOrWhiteSpace(messageTemplateName))
-                throw new ArgumentException("messageTemplateName");
+                throw new ArgumentException(null, nameof(messageTemplateName));
 
-            string key = string.Format(CacheKey.MESSAGETEMPLATES_BY_NAME_KEY, messageTemplateName, storeId);
+            var key = string.Format(CacheKey.MESSAGETEMPLATES_BY_NAME_KEY, messageTemplateName, storeId);
             return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from p in _messageTemplateRepository.Table
-                            select p;
+                    select p;
 
                 query = query.Where(t => t.Name == messageTemplateName);
                 query = query.OrderBy(t => t.Id);
@@ -133,7 +133,6 @@ namespace Grand.Business.Messages.Services
 
                 return templates.FirstOrDefault();
             });
-
         }
 
         /// <summary>
@@ -143,22 +142,23 @@ namespace Grand.Business.Messages.Services
         /// <returns>Message template list</returns>
         public virtual async Task<IList<MessageTemplate>> GetAllMessageTemplates(string storeId)
         {
-            string key = string.Format(CacheKey.MESSAGETEMPLATES_ALL_KEY, storeId);
+            var key = string.Format(CacheKey.MESSAGETEMPLATES_ALL_KEY, storeId);
             return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from p in _messageTemplateRepository.Table
-                            select p;
+                    select p;
 
                 query = query.OrderBy(t => t.Name);
 
                 //Store acl
-                if (!String.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)
-                {
-                    query = from p in query
-                            where !p.LimitedToStores || p.Stores.Contains(storeId)
-                            select p;
-                    query = query.OrderBy(t => t.Name);
-                }
+                if (string.IsNullOrEmpty(storeId) || CommonHelper.IgnoreStoreLimitations)
+                    return await Task.FromResult(query.ToList());
+
+                query = from p in query
+                    where !p.LimitedToStores || p.Stores.Contains(storeId)
+                    select p;
+                query = query.OrderBy(t => t.Name);
+
                 return await Task.FromResult(query.ToList());
             });
         }
@@ -173,8 +173,7 @@ namespace Grand.Business.Messages.Services
             if (messageTemplate == null)
                 throw new ArgumentNullException(nameof(messageTemplate));
 
-            var mtCopy = new MessageTemplate
-            {
+            var mtCopy = new MessageTemplate {
                 Name = messageTemplate.Name,
                 BccEmailAddresses = messageTemplate.BccEmailAddresses,
                 Subject = messageTemplate.Subject,

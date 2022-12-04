@@ -132,11 +132,8 @@ namespace Grand.Business.Messages.Services
         /// <returns>Email account</returns>
         public virtual async Task<EmailAccount> GetEmailAccountById(string emailAccountId)
         {
-            string key = string.Format(CacheKey.EMAILACCOUNT_BY_ID_KEY, emailAccountId);
-            return await _cacheBase.GetAsync(key, () =>
-            {
-                return _emailAccountRepository.GetByIdAsync(emailAccountId);
-            });
+            var key = string.Format(CacheKey.EMAILACCOUNT_BY_ID_KEY, emailAccountId);
+            return await _cacheBase.GetAsync(key, () => _emailAccountRepository.GetByIdAsync(emailAccountId));
 
         }
 

@@ -19,7 +19,7 @@ namespace Grand.Business.Messages.Startup
             services.AddScoped<IMessageProviderService, MessageProviderService>();
             services.AddScoped<IMessageTokenProvider, MessageTokenProvider>();            
             services.AddScoped<IEmailSender, EmailSender>();
-            services.AddScoped<IMimeMappingService, MimeMappingService>(x =>
+            services.AddScoped<IMimeMappingService, MimeMappingService>(_ =>
             {
                 var provider = new FileExtensionContentTypeProvider();
                 return new MimeMappingService(provider);
