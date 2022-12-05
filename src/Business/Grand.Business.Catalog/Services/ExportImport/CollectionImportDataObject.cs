@@ -67,12 +67,12 @@ namespace Grand.Business.Catalog.Services.ExportImport
         protected async Task<Collection> UpdateCollectionData(CollectionDto collectionDto, Collection collection)
         {
             if (string.IsNullOrEmpty(collection.CollectionLayoutId))
-                collection.CollectionLayoutId = (await _collectionLayoutService.GetAllCollectionLayouts()).FirstOrDefault().Id;
+                collection.CollectionLayoutId = (await _collectionLayoutService.GetAllCollectionLayouts()).FirstOrDefault()?.Id;
             else
             {
                 var layout = await _collectionLayoutService.GetCollectionLayoutById(collection.CollectionLayoutId);
                 if (layout == null)
-                    collection.CollectionLayoutId = (await _collectionLayoutService.GetAllCollectionLayouts()).FirstOrDefault().Id;
+                    collection.CollectionLayoutId = (await _collectionLayoutService.GetAllCollectionLayouts()).FirstOrDefault()?.Id;
             }
 
             if (!string.IsNullOrEmpty(collectionDto.Picture))
@@ -94,10 +94,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
 
         protected virtual bool ValidCollection(Collection collection)
         {
-            if (string.IsNullOrEmpty(collection.Name))
-                return false;
-
-            return true;
+            return !string.IsNullOrEmpty(collection.Name);
         }
 
         /// <summary>
@@ -113,7 +110,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
                 return null;
 
             var mimeType = GetMimeTypeFromFilePath(picturePath);
-            var newPictureBinary = File.ReadAllBytes(picturePath);
+            var newPictureBinary = await File.ReadAllBytesAsync(picturePath);
             var pictureAlreadyExists = false;
             if (!string.IsNullOrEmpty(picId))
             {
@@ -138,11 +135,9 @@ namespace Grand.Business.Catalog.Services.ExportImport
         }
         protected virtual string GetMimeTypeFromFilePath(string filePath)
         {
-            new FileExtensionContentTypeProvider().TryGetContentType(filePath, out string mimeType);
+            new FileExtensionContentTypeProvider().TryGetContentType(filePath, out var mimeType);
             //set to jpeg in case mime type cannot be found
-            if (mimeType == null)
-                mimeType = "image/jpeg";
-            return mimeType;
+            return mimeType ??= "image/jpeg";
         }
     }
 }

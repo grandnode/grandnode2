@@ -11,7 +11,7 @@ namespace Grand.Business.Catalog.Services.Collections
     /// <summary>
     /// Collection layout service
     /// </summary>
-    public partial class CollectionLayoutService : ICollectionLayoutService
+    public class CollectionLayoutService : ICollectionLayoutService
     {
         #region Fields
 
@@ -64,7 +64,7 @@ namespace Grand.Business.Catalog.Services.Collections
         /// <returns>Collection layout</returns>
         public virtual Task<CollectionLayout> GetCollectionLayoutById(string collectionLayoutId)
         {
-            string key = string.Format(CacheKey.COLLECTION_LAYOUT_BY_ID_KEY, collectionLayoutId);
+            var key = string.Format(CacheKey.COLLECTION_LAYOUT_BY_ID_KEY, collectionLayoutId);
             return _cacheBase.GetAsync(key, () => _collectionLayoutRepository.GetByIdAsync(collectionLayoutId));
         }
 

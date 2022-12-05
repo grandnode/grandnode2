@@ -219,7 +219,7 @@ namespace Grand.Web.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> UsedByProducts(DataSourceRequest command, string productAttributeId)
         {
-            var orders = await _productService.GetProductsByProductAtributeId(
+            var orders = await _productService.GetProductsByProductAttributeId(
                 productAttributeId: productAttributeId,
                 pageIndex: command.Page - 1,
                 pageSize: command.PageSize);

@@ -43,10 +43,10 @@ namespace Grand.Business.Catalog.Services.Categories
         public virtual async Task<IPagedList<ProductsCategory>> GetProductCategoriesByCategoryId(string categoryId,
             int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
         {
-            if (String.IsNullOrEmpty(categoryId))
+            if (string.IsNullOrEmpty(categoryId))
                 return new PagedList<ProductsCategory>(new List<ProductsCategory>(), pageIndex, pageSize);
 
-            string key = string.Format(CacheKey.PRODUCTCATEGORIES_ALLBYCATEGORYID_KEY, showHidden, categoryId, pageIndex, pageSize, _workContext.CurrentCustomer.Id, _workContext.CurrentStore.Id);
+            var key = string.Format(CacheKey.PRODUCTCATEGORIES_ALLBYCATEGORYID_KEY, showHidden, categoryId, pageIndex, pageSize, _workContext.CurrentCustomer.Id, _workContext.CurrentStore.Id);
             return await _cacheBase.GetAsync(key, () =>
             {
                 var query = _productRepository.Table.Where(x => x.ProductCategories.Any(y => y.CategoryId == categoryId));

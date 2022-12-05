@@ -16,7 +16,7 @@ namespace Grand.Business.Catalog.Services.Products
     /// <summary>
     /// Auction service
     /// </summary>
-    public partial class AuctionService : IAuctionService
+    public class AuctionService : IAuctionService
     {
         private readonly IRepository<Bid> _bidRepository;
         private readonly IRepository<Product> _productRepository;
@@ -34,9 +34,9 @@ namespace Grand.Business.Catalog.Services.Products
             _mediator = mediator;
         }
 
-        public virtual Task<Bid> GetBid(string Id)
+        public virtual Task<Bid> GetBid(string id)
         {
-            return _bidRepository.GetByIdAsync(Id);
+            return _bidRepository.GetByIdAsync(id);
         }
 
         public virtual async Task<Bid> GetLatestBid(string productId)
@@ -88,10 +88,10 @@ namespace Grand.Business.Catalog.Services.Products
 
             var productToUpdate = await _productRepository.GetByIdAsync(bid.ProductId);
             var _bid = await GetBidsByProductId(bid.ProductId);
-            var highestBid = _bid.OrderByDescending(x => x.Amount).FirstOrDefault();
+            var highestBid = _bid.MaxBy(x => x.Amount);
             if (productToUpdate != null)
             {
-                await UpdateHighestBid(productToUpdate, highestBid != null ? highestBid.Amount : 0, highestBid != null ? highestBid.CustomerId : "");
+                await UpdateHighestBid(productToUpdate, highestBid?.Amount ?? 0, highestBid != null ? highestBid.CustomerId : "");
             }
         }
         public virtual async Task UpdateHighestBid(Product product, double bid, string highestBidder)
@@ -127,8 +127,6 @@ namespace Grand.Business.Catalog.Services.Products
 
             await _mediator.EntityUpdated(product);
         }
-
-
         /// <summary>
         /// New bid
         /// </summary>
@@ -170,10 +168,10 @@ namespace Grand.Business.Catalog.Services.Products
         /// <summary>
         /// Cancel bid
         /// </summary>
-        /// <param name="OrderId">OrderId</param>
+        /// <param name="orderId">OrderId</param>
         public virtual async Task CancelBidByOrder(string orderId)
         {
-            var bid = _bidRepository.Table.Where(x => x.OrderId == orderId).FirstOrDefault();
+            var bid = _bidRepository.Table.FirstOrDefault(x => x.OrderId == orderId);
             if (bid != null)
             {
                 await _bidRepository.DeleteAsync(bid);

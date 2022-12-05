@@ -13,7 +13,7 @@ namespace Grand.Business.Catalog.Services.Directory
     /// <summary>
     /// GEO lookup service
     /// </summary>
-    public partial class GeoLookupService : IGeoLookupService
+    public class GeoLookupService : IGeoLookupService
     {
         #region Fields
 
@@ -34,7 +34,7 @@ namespace Grand.Business.Catalog.Services.Directory
 
         protected virtual CountryResponse GetInformation(string ipAddress)
         {
-            if (String.IsNullOrEmpty(ipAddress))
+            if (string.IsNullOrEmpty(ipAddress))
                 return null;
 
             try
@@ -69,10 +69,7 @@ namespace Grand.Business.Catalog.Services.Directory
         public virtual string CountryIsoCode(string ipAddress)
         {
             var response = GetInformation(ipAddress);
-            if (response != null && response.Country != null)
-                return response.Country.IsoCode;
-
-            return "";
+            return response is { Country: { } } ? response.Country.IsoCode : "";
         }
 
         /// <summary>
@@ -83,10 +80,7 @@ namespace Grand.Business.Catalog.Services.Directory
         public virtual string CountryName(string ipAddress)
         {
             var response = GetInformation(ipAddress);
-            if (response != null && response.Country != null)
-                return response.Country.Name;
-
-            return "";
+            return response is { Country: { } } ? response.Country.Name : "";
         }
 
         #endregion

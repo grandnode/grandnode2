@@ -11,7 +11,7 @@ namespace Grand.Business.Catalog.Services.Directory
     /// <summary>
     /// Search term service
     /// </summary>
-    public partial class SearchTermService : ISearchTermService
+    public class SearchTermService : ISearchTermService
     {
         #region Fields
 
@@ -66,7 +66,7 @@ namespace Grand.Business.Catalog.Services.Directory
         /// <returns>Search term</returns>
         public virtual async Task<SearchTerm> GetSearchTermByKeyword(string keyword, string storeId)
         {
-            if (String.IsNullOrEmpty(keyword))
+            if (string.IsNullOrEmpty(keyword))
                 return null;
 
             var query = from st in _searchTermRepository.Table

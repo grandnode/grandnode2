@@ -77,7 +77,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// Set product as unpublished
         /// </summary>
         /// <param name="product"></param>
-        Task UnpublishProduct(Product product);
+        Task UnPublishProduct(Product product);
 
         /// <summary>
         /// Updates the product field
@@ -176,7 +176,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Products</returns>
-        Task<IPagedList<Product>> GetProductsByProductAtributeId(string productAttributeId,
+        Task<IPagedList<Product>> GetProductsByProductAttributeId(string productAttributeId,
             int pageIndex = 0, int pageSize = int.MaxValue);
 
         /// <summary>

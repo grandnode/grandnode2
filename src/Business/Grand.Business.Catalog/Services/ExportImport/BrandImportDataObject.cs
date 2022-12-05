@@ -68,12 +68,12 @@ namespace Grand.Business.Catalog.Services.ExportImport
         protected async Task<Brand> UpdateBrandData(BrandDto brandDto, Brand brand)
         {
             if (string.IsNullOrEmpty(brand.BrandLayoutId))
-                brand.BrandLayoutId = (await _brandLayoutService.GetAllBrandLayouts()).FirstOrDefault().Id;
+                brand.BrandLayoutId = (await _brandLayoutService.GetAllBrandLayouts()).FirstOrDefault()?.Id;
             else
             {
                 var layout = await _brandLayoutService.GetBrandLayoutById(brand.BrandLayoutId);
                 if (layout == null)
-                    brand.BrandLayoutId = (await _brandLayoutService.GetAllBrandLayouts()).FirstOrDefault().Id;
+                    brand.BrandLayoutId = (await _brandLayoutService.GetAllBrandLayouts()).FirstOrDefault()?.Id;
             }
 
             if (!string.IsNullOrEmpty(brandDto.Picture))
@@ -95,10 +95,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
 
         protected virtual bool ValidBrand(Brand brand)
         {
-            if (string.IsNullOrEmpty(brand.Name))
-                return false;
-
-            return true;
+            return !string.IsNullOrEmpty(brand.Name);
         }
 
         /// <summary>
@@ -114,7 +111,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
                 return null;
 
             var mimeType = GetMimeTypeFromFilePath(picturePath);
-            var newPictureBinary = File.ReadAllBytes(picturePath);
+            var newPictureBinary = await File.ReadAllBytesAsync(picturePath);
             var pictureAlreadyExists = false;
             if (!string.IsNullOrEmpty(picId))
             {
@@ -139,11 +136,9 @@ namespace Grand.Business.Catalog.Services.ExportImport
         }
         protected virtual string GetMimeTypeFromFilePath(string filePath)
         {
-            new FileExtensionContentTypeProvider().TryGetContentType(filePath, out string mimeType);
+            new FileExtensionContentTypeProvider().TryGetContentType(filePath, out var mimeType);
             //set to jpeg in case mime type cannot be found
-            if (mimeType == null)
-                mimeType = "image/jpeg";
-            return mimeType;
+            return mimeType ??= "image/jpeg";
         }
     }
 }

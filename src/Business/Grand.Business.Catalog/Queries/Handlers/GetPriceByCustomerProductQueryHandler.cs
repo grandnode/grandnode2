@@ -24,12 +24,8 @@ namespace Grand.Business.Catalog.Queries.Handlers
             var productprice = _cacheBase.Get(key, () =>
             {
                 var pp = _customerProductPriceRepository.Table
-                .Where(x => x.CustomerId == request.CustomerId && x.ProductId == request.ProductId)
-                .FirstOrDefault();
-                if (pp == null)
-                    return (null, false);
-                else
-                    return (pp, true);
+                    .FirstOrDefault(x => x.CustomerId == request.CustomerId && x.ProductId == request.ProductId);
+                return pp == null ? (null, false) : (pp, true);
             });
 
             if (!productprice.Item2)

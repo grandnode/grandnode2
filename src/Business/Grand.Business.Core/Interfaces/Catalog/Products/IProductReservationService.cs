@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
     /// <summary>
     /// Product reservation service interface
     /// </summary>
-    public partial interface IProductReservationService
+    public interface IProductReservationService
     {
         
         /// <summary>
@@ -31,6 +31,10 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// Gets product reservations for product Id
         /// </summary>
         /// <param name="productId">Product Id</param>
+        /// <param name="showVacant">Show vacant</param>
+        /// <param name="date">Date</param>
+        /// <param name="pageIndex">Page index</param>
+        /// <param name="pageSize">Page size</param>
         /// <returns>Product reservations</returns>
         Task<IPagedList<ProductReservation>> GetProductReservationsByProductId(string productId, bool? showVacant, DateTime? date,
             int pageIndex = 0, int pageSize = int.MaxValue);
@@ -63,21 +67,22 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// <summary>
         /// Gets customer reservations helper by id
         /// </summary>
-        /// <param name="Id"></param>
+        /// <param name="id"></param>
         /// <returns>CustomerReservationsHelper</returns>
-        Task<CustomerReservationsHelper> GetCustomerReservationsHelperById(string Id);
+        Task<CustomerReservationsHelper> GetCustomerReservationsHelperById(string id);
 
         /// <summary>
         /// Gets customer reservations helpers
         /// </summary>
         /// <param name="customerId">Customer ident</param>
-        /// <returns>List<CustomerReservationsHelper></returns>
+        /// <returns>List<CustomerReservationsHelper />
+        /// </returns>
         Task<IList<CustomerReservationsHelper>> GetCustomerReservationsHelpers(string customerId);
 
         /// <summary>
         /// Gets customer reservations helper by Shopping Cart Item id
         /// </summary>
-        /// <param name="Id"></param>
+        /// <param name="sciId">Sci ident</param>
         /// <returns>List<CustomerReservationsHelper></returns>
         Task<IList<CustomerReservationsHelper>> GetCustomerReservationsHelperBySciId(string sciId);
     }

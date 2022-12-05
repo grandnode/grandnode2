@@ -900,7 +900,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             }
             if (product.ProductTypeId == ProductType.Auction && _orderSettings.UnpublishAuctionProduct)
             {
-                await _productService.UnpublishProduct(product);
+                await _productService.UnPublishProduct(product);
             }
         }
 

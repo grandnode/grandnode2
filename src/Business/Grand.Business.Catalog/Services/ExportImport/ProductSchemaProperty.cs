@@ -129,7 +129,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
             string picture1 = null;
             string picture2 = null;
             string picture3 = null;
-            int i = 0;
+            var i = 0;
             foreach (var picture in product.ProductPictures.Take(3))
             {
                 var pic = await _pictureService.GetPictureById(picture.PictureId);

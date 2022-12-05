@@ -38,6 +38,10 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="fromUtc">Item creation from; null to load all records</param>
         /// <param name="toUtc">Item item creation to; null to load all records</param>
         /// <param name="message">Search title or review text; null to load all records</param>
+        /// <param name="storeId">Store ident</param>
+        /// <param name="productId">Product ident</param>
+        /// <param name="pageIndex">Page index</param>
+        /// <param name="pageSize">Page size</param>
         /// <returns>Reviews</returns>
         public virtual async Task<IPagedList<ProductReview>> GetAllProductReviews(string customerId, bool? approved,
             DateTime? fromUtc = null, DateTime? toUtc = null,
@@ -48,17 +52,17 @@ namespace Grand.Business.Catalog.Services.Products
 
             if (approved.HasValue)
                 query = query.Where(c => c.IsApproved == approved.Value);
-            if (!String.IsNullOrEmpty(customerId))
+            if (!string.IsNullOrEmpty(customerId))
                 query = query.Where(c => c.CustomerId == customerId);
             if (fromUtc.HasValue)
                 query = query.Where(c => fromUtc.Value <= c.CreatedOnUtc);
             if (toUtc.HasValue)
                 query = query.Where(c => toUtc.Value >= c.CreatedOnUtc);
-            if (!String.IsNullOrEmpty(message))
+            if (!string.IsNullOrEmpty(message))
                 query = query.Where(c => c.Title.Contains(message) || c.ReviewText.Contains(message));
-            if (!String.IsNullOrEmpty(storeId))
+            if (!string.IsNullOrEmpty(storeId))
                 query = query.Where(c => c.StoreId == storeId || c.StoreId == "");
-            if (!String.IsNullOrEmpty(productId))
+            if (!string.IsNullOrEmpty(productId))
                 query = query.Where(c => c.ProductId == productId);
 
             query = query.OrderByDescending(c => c.CreatedOnUtc);

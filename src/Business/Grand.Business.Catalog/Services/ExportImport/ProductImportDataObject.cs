@@ -130,83 +130,69 @@ namespace Grand.Business.Catalog.Services.ExportImport
         protected async Task<Product> UpdateProductDataLayout(Product product)
         {
             if (string.IsNullOrEmpty(product.ProductLayoutId))
-                product.ProductLayoutId = (await _productLayoutService.GetAllProductLayouts()).FirstOrDefault().Id;
+                product.ProductLayoutId = (await _productLayoutService.GetAllProductLayouts()).FirstOrDefault()?.Id;
             else
             {
                 var layout = await _productLayoutService.GetProductLayoutById(product.ProductLayoutId);
                 if (layout == null)
-                    product.ProductLayoutId = (await _productLayoutService.GetAllProductLayouts()).FirstOrDefault().Id;
+                    product.ProductLayoutId = (await _productLayoutService.GetAllProductLayouts()).FirstOrDefault()?.Id;
             }
             return product;
         }
         protected async Task<Product> UpdateProductDataDeliveryDate(Product product)
         {
-            if (!string.IsNullOrEmpty(product.DeliveryDateId))
-            {
-                var deliveryDate = await _deliveryDateService.GetDeliveryDateById(product.DeliveryDateId);
-                if (deliveryDate == null)
-                    product.DeliveryDateId = "";
-            }
+            if (string.IsNullOrEmpty(product.DeliveryDateId)) return product;
+            var deliveryDate = await _deliveryDateService.GetDeliveryDateById(product.DeliveryDateId);
+            if (deliveryDate == null)
+                product.DeliveryDateId = "";
             return product;
         }
         protected async Task<Product> UpdateProductDataTaxCategory(Product product)
         {
-            if (!string.IsNullOrEmpty(product.TaxCategoryId))
-            {
-                var taxCategory = await _taxService.GetTaxCategoryById(product.TaxCategoryId);
-                if (taxCategory == null)
-                    product.TaxCategoryId = "";
-            }
+            if (string.IsNullOrEmpty(product.TaxCategoryId)) return product;
+            var taxCategory = await _taxService.GetTaxCategoryById(product.TaxCategoryId);
+            if (taxCategory == null)
+                product.TaxCategoryId = "";
             return product;
         }
         protected async Task<Product> UpdateProductDataWarehouse(Product product)
         {
-            if (!string.IsNullOrEmpty(product.WarehouseId))
-            {
-                var warehouse = await _warehouseService.GetWarehouseById(product.WarehouseId);
-                if (warehouse == null)
-                    product.WarehouseId = "";
-            }
+            if (string.IsNullOrEmpty(product.WarehouseId)) return product;
+            var warehouse = await _warehouseService.GetWarehouseById(product.WarehouseId);
+            if (warehouse == null)
+                product.WarehouseId = "";
             return product;
         }
         protected async Task<Product> UpdateProductDataUnit(Product product)
         {
-            if (!string.IsNullOrEmpty(product.UnitId))
-            { 
-                var unit = await _measureService.GetMeasureUnitById(product.UnitId);
-                if (unit == null)
-                    product.UnitId = "";
-            }
+            if (string.IsNullOrEmpty(product.UnitId)) return product;
+            var unit = await _measureService.GetMeasureUnitById(product.UnitId);
+            if (unit == null)
+                product.UnitId = "";
             return product;
         }
         protected async Task<Product> UpdateProductDataBrand(Product product)
         {
-            if (!string.IsNullOrEmpty(product.BrandId))
-            { 
-                var brand = await _brandService.GetBrandById(product.BrandId);
-                if (brand == null)
-                    product.BrandId = "";
-            }
+            if (string.IsNullOrEmpty(product.BrandId)) return product;
+            var brand = await _brandService.GetBrandById(product.BrandId);
+            if (brand == null)
+                product.BrandId = "";
             return product;
         }
         protected virtual async Task PrepareProductCategories(Product product, string categoryIds)
         {
             foreach (var id in categoryIds.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()))
             {
-                if (product.ProductCategories.FirstOrDefault(x => x.CategoryId == id) == null)
-                {
-                    //ensure that category exists
-                    var category = await _categoryService.GetCategoryById(id);
-                    if (category != null)
-                    {
-                        var productCategory = new ProductCategory {
-                            CategoryId = category.Id,
-                            IsFeaturedProduct = false,
-                            DisplayOrder = 1
-                        };
-                        await _productCategoryService.InsertProductCategory(productCategory, product.Id);
-                    }
-                }
+                if (product.ProductCategories.FirstOrDefault(x => x.CategoryId == id) != null) continue;
+                //ensure that category exists
+                var category = await _categoryService.GetCategoryById(id);
+                if (category == null) continue;
+                var productCategory = new ProductCategory {
+                    CategoryId = category.Id,
+                    IsFeaturedProduct = false,
+                    DisplayOrder = 1
+                };
+                await _productCategoryService.InsertProductCategory(productCategory, product.Id);
             }
         }
 
@@ -214,20 +200,16 @@ namespace Grand.Business.Catalog.Services.ExportImport
         {
             foreach (var id in collectionIds.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()))
             {
-                if (product.ProductCollections.FirstOrDefault(x => x.CollectionId == id) == null)
-                {
-                    //ensure that collection exists
-                    var collection = await _collectionService.GetCollectionById(id);
-                    if (collection != null)
-                    {
-                        var productCollection = new ProductCollection {
-                            CollectionId = collection.Id,
-                            IsFeaturedProduct = false,
-                            DisplayOrder = 1
-                        };
-                        await _productCollectionService.InsertProductCollection(productCollection, product.Id);
-                    }
-                }
+                if (product.ProductCollections.FirstOrDefault(x => x.CollectionId == id) != null) continue;
+                //ensure that collection exists
+                var collection = await _collectionService.GetCollectionById(id);
+                if (collection == null) continue;
+                var productCollection = new ProductCollection {
+                    CollectionId = collection.Id,
+                    IsFeaturedProduct = false,
+                    DisplayOrder = 1
+                };
+                await _productCollectionService.InsertProductCollection(productCollection, product.Id);
             }
         }
 
@@ -256,39 +238,34 @@ namespace Grand.Business.Catalog.Services.ExportImport
                             var existingBinary = await _pictureService.LoadPictureBinary(pp);
                             //picture binary after validation (like in database)
                             var validatedPictureBinary = _pictureService.ValidatePicture(newPictureBinary, mimeType);
-                            if (existingBinary.SequenceEqual(validatedPictureBinary) || existingBinary.SequenceEqual(newPictureBinary))
-                            {
-                                //the same picture content
-                                pictureAlreadyExists = true;
-                                break;
-                            }
+                            if (!existingBinary.SequenceEqual(validatedPictureBinary) &&
+                                !existingBinary.SequenceEqual(newPictureBinary)) continue;
+                            //the same picture content
+                            pictureAlreadyExists = true;
+                            break;
                         }
                     }
 
-                    if (!pictureAlreadyExists)
-                    {
-                        var picture = await _pictureService.InsertPicture(newPictureBinary, mimeType, _pictureService.GetPictureSeName(product.Name), "", "", false,
-                            Domain.Common.Reference.Product, product.Id);
-                        var productPicture = new ProductPicture {
-                            PictureId = picture.Id,
-                            DisplayOrder = 1,
-                        };
-                        await _productService.InsertProductPicture(productPicture, product.Id);
-                    }
+                    if (pictureAlreadyExists) continue;
+                    var picture = await _pictureService.InsertPicture(newPictureBinary, mimeType, _pictureService.GetPictureSeName(product.Name), "", "", false,
+                        Domain.Common.Reference.Product, product.Id);
+                    var productPicture = new ProductPicture {
+                        PictureId = picture.Id,
+                        DisplayOrder = 1,
+                    };
+                    await _productService.InsertProductPicture(productPicture, product.Id);
                 }
                 else
                 {
-                    byte[] fileBinary = await DownloadUrl.DownloadFile(picturePath);
-                    if (fileBinary != null)
-                    {
-                        var mimeType = GetMimeTypeFromFilePath(picturePath);
-                        var picture = await _pictureService.InsertPicture(fileBinary, mimeType, _pictureService.GetPictureSeName(product.Name), "", "", false, Domain.Common.Reference.Product, product.Id);
-                        var productPicture = new ProductPicture {
-                            PictureId = picture.Id,
-                            DisplayOrder = 1,
-                        };
-                        await _productService.InsertProductPicture(productPicture, product.Id);
-                    }
+                    var fileBinary = await DownloadUrl.DownloadFile(picturePath);
+                    if (fileBinary == null) continue;
+                    var mimeType = GetMimeTypeFromFilePath(picturePath);
+                    var picture = await _pictureService.InsertPicture(fileBinary, mimeType, _pictureService.GetPictureSeName(product.Name), "", "", false, Domain.Common.Reference.Product, product.Id);
+                    var productPicture = new ProductPicture {
+                        PictureId = picture.Id,
+                        DisplayOrder = 1,
+                    };
+                    await _productService.InsertProductPicture(productPicture, product.Id);
                 }
             }
 
@@ -297,10 +274,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
 
         protected virtual bool ValidProduct(Product product)
         {
-            if (string.IsNullOrEmpty(product.Name))
-                return false;
-
-            return true;
+            return !string.IsNullOrEmpty(product.Name);
         }
 
         /// <summary>
@@ -316,7 +290,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
                 return null;
 
             var mimeType = GetMimeTypeFromFilePath(picturePath);
-            var newPictureBinary = File.ReadAllBytes(picturePath);
+            var newPictureBinary = await File.ReadAllBytesAsync(picturePath);
             var pictureAlreadyExists = false;
             if (!string.IsNullOrEmpty(picId))
             {
@@ -341,11 +315,9 @@ namespace Grand.Business.Catalog.Services.ExportImport
         }
         protected virtual string GetMimeTypeFromFilePath(string filePath)
         {
-            new FileExtensionContentTypeProvider().TryGetContentType(filePath, out string mimeType);
+            new FileExtensionContentTypeProvider().TryGetContentType(filePath, out var mimeType);
             //set to jpeg in case mime type cannot be found
-            if (mimeType == null)
-                mimeType = "image/jpeg";
-            return mimeType;
+            return mimeType ??= "image/jpeg";
         }
     }
 }
