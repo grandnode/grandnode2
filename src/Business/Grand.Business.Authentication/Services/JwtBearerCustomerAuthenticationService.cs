@@ -27,6 +27,7 @@ namespace Grand.Business.Authentication.Services
 
         public async Task<bool> Valid(TokenValidatedContext context)
         {
+            if (context.Principal == null) return true;
             var email = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
             var passwordToken = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Token")?.Value;
             var refreshId = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "RefreshId")?.Value;
@@ -35,7 +36,7 @@ namespace Grand.Business.Authentication.Services
             {
                 //guest
                 var id = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Guid")?.Value;
-                customer = await _customerService.GetCustomerByGuid(Guid.Parse(id));
+                if (id != null) customer = await _customerService.GetCustomerByGuid(Guid.Parse(id));
             }
             else
             {
@@ -66,16 +67,12 @@ namespace Grand.Business.Authentication.Services
                 return false;
             }
 
-            var customerPasswordtoken = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken);
+            var customerPasswordToken = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken);
             var isGuest = await _groupService.IsGuest(customer);
-            if (!isGuest && (string.IsNullOrEmpty(passwordToken) || !passwordToken.Equals(customerPasswordtoken)))
-            {
-                _errorMessage = "Invalid password token, create new token";
-                return false;
-            }
-
-
-            return true;
+            if (isGuest || (!string.IsNullOrEmpty(passwordToken) && passwordToken.Equals(customerPasswordToken)))
+                return true;
+            _errorMessage = "Invalid password token, create new token";
+            return false;
         }
 
 

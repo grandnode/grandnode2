@@ -1,4 +1,5 @@
-﻿using Grand.Business.Catalog.Services.ExportImport.Dto;
+﻿using Grand.Business.Catalog.Extensions;
+using Grand.Business.Catalog.Services.ExportImport.Dto;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -9,7 +10,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Mapper;
-using Microsoft.AspNetCore.StaticFiles;
 
 namespace Grand.Business.Catalog.Services.ExportImport
 {
@@ -48,7 +48,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
             }
         }
 
-        protected async Task Import(CollectionDto collectionDto)
+        private async Task Import(CollectionDto collectionDto)
         {
             var collection = await _collectionService.GetCollectionById(collectionDto.Id);
             var isNew = collection == null;
@@ -64,7 +64,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
             await UpdateCollectionData(collectionDto, collection);
         }
 
-        protected async Task<Collection> UpdateCollectionData(CollectionDto collectionDto, Collection collection)
+        private async Task UpdateCollectionData(CollectionDto collectionDto, Collection collection)
         {
             if (string.IsNullOrEmpty(collection.CollectionLayoutId))
                 collection.CollectionLayoutId = (await _collectionLayoutService.GetAllCollectionLayouts()).FirstOrDefault()?.Id;
@@ -77,9 +77,9 @@ namespace Grand.Business.Catalog.Services.ExportImport
 
             if (!string.IsNullOrEmpty(collectionDto.Picture))
             {
-                var _picture = await LoadPicture(collectionDto.Picture, collection.Name, collection.PictureId);
-                if (_picture != null)
-                    collection.PictureId = _picture.Id;
+                var picture = await LoadPicture(collectionDto.Picture, collection.Name, collection.PictureId);
+                if (picture != null)
+                    collection.PictureId = picture.Id;
             }
 
             var sename = collection.SeName ?? collection.Name;
@@ -88,11 +88,9 @@ namespace Grand.Business.Catalog.Services.ExportImport
 
             await _collectionService.UpdateCollection(collection);
             await _slugService.SaveSlug(collection, sename, "");
-
-            return collection;
         }
 
-        protected virtual bool ValidCollection(Collection collection)
+        private bool ValidCollection(Collection collection)
         {
             return !string.IsNullOrEmpty(collection.Name);
         }
@@ -104,12 +102,12 @@ namespace Grand.Business.Catalog.Services.ExportImport
         /// <param name="name">The name of the object</param>
         /// <param name="picId">Image identifier, may be null</param>
         /// <returns>The image or null if the image has not changed</returns>
-        protected virtual async Task<Picture> LoadPicture(string picturePath, string name, string picId = "")
+        private async Task<Picture> LoadPicture(string picturePath, string name, string picId = "")
         {
             if (string.IsNullOrEmpty(picturePath) || !File.Exists(picturePath))
                 return null;
 
-            var mimeType = GetMimeTypeFromFilePath(picturePath);
+            var mimeType = MimeTypeExtensions.GetMimeTypeFromFilePath(picturePath);
             var newPictureBinary = await File.ReadAllBytesAsync(picturePath);
             var pictureAlreadyExists = false;
             if (!string.IsNullOrEmpty(picId))
@@ -132,12 +130,6 @@ namespace Grand.Business.Catalog.Services.ExportImport
             var newPicture = await _pictureService.InsertPicture(newPictureBinary, mimeType,
                 _pictureService.GetPictureSeName(name));
             return newPicture;
-        }
-        protected virtual string GetMimeTypeFromFilePath(string filePath)
-        {
-            new FileExtensionContentTypeProvider().TryGetContentType(filePath, out var mimeType);
-            //set to jpeg in case mime type cannot be found
-            return mimeType ??= "image/jpeg";
         }
     }
 }

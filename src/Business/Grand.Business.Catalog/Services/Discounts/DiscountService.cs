@@ -74,7 +74,7 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// <returns>Discount</returns>
         public virtual Task<Discount> GetDiscountById(string discountId)
         {
-            string key = string.Format(CacheKey.DISCOUNTS_BY_ID_KEY, discountId);
+            var key = string.Format(CacheKey.DISCOUNTS_BY_ID_KEY, discountId);
             return _cacheBase.GetAsync(key, () => _discountRepository.GetByIdAsync(discountId));
         }
 
@@ -107,9 +107,9 @@ namespace Grand.Business.Catalog.Services.Discounts
                 }
                 if (!string.IsNullOrEmpty(couponCode))
                 {
-                    var _coupon = _discountCouponRepository.Table.FirstOrDefault(x => x.CouponCode == couponCode);
-                    if (_coupon != null)
-                        query = query.Where(d => d.Id == _coupon.DiscountId);
+                    var coupon = _discountCouponRepository.Table.FirstOrDefault(x => x.CouponCode == couponCode);
+                    if (coupon != null)
+                        query = query.Where(d => d.Id == coupon.DiscountId);
                 }
                 if (!string.IsNullOrEmpty(discountName))
                 {
@@ -174,9 +174,9 @@ namespace Grand.Business.Catalog.Services.Discounts
             if (discount == null)
                 throw new ArgumentNullException(nameof(discount));
 
-            var usagehistory = await GetAllDiscountUsageHistory(discount.Id);
-            if (usagehistory.Count > 0)
-                throw new ArgumentNullException("discount was used and have a history");
+            var usageHistory = await GetAllDiscountUsageHistory(discount.Id);
+            if (usageHistory.Count > 0)
+                throw new ArgumentNullException("Discount was used and have a history");
 
             await _discountRepository.DeleteAsync(discount);
 
@@ -241,6 +241,7 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// </summary>
         /// <param name="couponCode"></param>
         /// <param name="discountId"></param>
+        /// <param name="used"></param>
         /// <returns></returns>
         public virtual async Task<bool> ExistsCodeInDiscount(string couponCode, string discountId, bool? used)
         {
@@ -390,7 +391,7 @@ namespace Grand.Business.Catalog.Services.Discounts
         {
             if (!string.IsNullOrEmpty(couponCodeToValidate))
             {
-                return await ValidateDiscount(discount, customer, currency, new string[] { couponCodeToValidate });
+                return await ValidateDiscount(discount, customer, currency, new[] { couponCodeToValidate });
             }
 
             return await ValidateDiscount(discount, customer, currency, Array.Empty<string>());
@@ -650,11 +651,11 @@ namespace Grand.Business.Catalog.Services.Discounts
                 throw new ArgumentNullException(nameof(discount));
 
             //calculate discount amount
-            double result = 0;
+            double result;
             if (!discount.CalculateByPlugin)
             {
                 if (discount.UsePercentage)
-                    result = (double)((((float)amount) * ((float)discount.DiscountPercentage)) / 100f);
+                    result = (float)amount * ((float)discount.DiscountPercentage) / 100f;
                 else
                 {
                     result = discount.DiscountAmount;

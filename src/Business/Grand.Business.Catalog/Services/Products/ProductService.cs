@@ -113,8 +113,6 @@ namespace Grand.Business.Catalog.Services.Products
             var product = await GetProductById(productId) ?? await _mediator.Send(new GetProductArchByIdQuery() { Id = productId });
             return product;
         }
-
-
         /// <summary>
         /// Get products by identifiers
         /// </summary>

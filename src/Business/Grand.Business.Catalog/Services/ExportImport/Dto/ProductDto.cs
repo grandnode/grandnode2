@@ -88,11 +88,11 @@ namespace Grand.Business.Catalog.Services.ExportImport.Dto
         public bool? EnteredPrice { get; set; }
         public double? MinEnteredPrice { get; set; }
         public double? MaxEnteredPrice { get; set; }
-        public bool? BasepriceEnabled { get; set; }
-        public double? BasepriceAmount { get; set; }
-        public string BasepriceUnitId { get; set; }
-        public double? BasepriceBaseAmount { get; set; }
-        public string BasepriceBaseUnitId { get; set; }
+        public bool? BasePriceEnabled { get; set; }
+        public double? BasePriceAmount { get; set; }
+        public string BasePriceUnitId { get; set; }
+        public double? BasePriceBaseAmount { get; set; }
+        public string BasePriceBaseUnitId { get; set; }
         public string UnitId { get; set; }
         public string CourseId { get; set; }
         public bool? MarkAsNew { get; set; }

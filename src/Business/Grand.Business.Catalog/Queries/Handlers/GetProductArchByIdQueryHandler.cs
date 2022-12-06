@@ -16,7 +16,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
 
         public async Task<Product> Handle(GetProductArchByIdQuery request, CancellationToken cancellationToken)
         {
-            return await _productDeletedRepository.GetByIdAsync(request.Id) as Product;
+            return await _productDeletedRepository.GetByIdAsync(request.Id);
         }
     }
 }
