@@ -9,7 +9,7 @@ namespace Grand.Business.Common.Services.Logging
     /// <summary>
     /// Default logger
     /// </summary>
-    public partial class DefaultLogger : ILogger
+    public class DefaultLogger : ILogger
     {
         #region Fields
 
@@ -93,14 +93,7 @@ namespace Grand.Business.Common.Services.Logging
                         select l;
 
             var logItems = await Task.FromResult(query.ToList());
-            var sortedLogItems = new List<Log>();
-            foreach (string id in logIds)
-            {
-                var log = logItems.Find(x => x.Id == id);
-                if (log != null)
-                    sortedLogItems.Add(log);
-            }
-            return sortedLogItems;
+            return logIds.Select(id => logItems.Find(x => x.Id == id)).Where(log => log != null).ToList();
         }
 
         /// <summary>
@@ -111,11 +104,11 @@ namespace Grand.Business.Common.Services.Logging
         /// <param name="fullMessage">The full message</param>
         /// <param name="customer">The customer to associate log record with</param>
         /// <param name="ipAddress">Ip address</param>
-        /// <param name="pageurl">Page url</param>
+        /// <param name="pageUrl">Page url</param>
         /// <param name="referrerUrl">Referrer url</param>
         /// <returns>A log item</returns>
         public virtual Task InsertLog(LogLevel logLevel, string shortMessage, string fullMessage = "", Customer customer = null,
-            string ipAddress = default, string pageurl = default, string referrerUrl = default)
+            string ipAddress = default, string pageUrl = default, string referrerUrl = default)
         {
             var log = new Log {
                 LogLevelId = logLevel,
@@ -123,7 +116,7 @@ namespace Grand.Business.Common.Services.Logging
                 FullMessage = fullMessage,
                 IpAddress = ipAddress,
                 CustomerId = customer != null ? customer.Id : "",
-                PageUrl = pageurl,
+                PageUrl = pageUrl,
                 ReferrerUrl = referrerUrl,
                 CreatedOnUtc = DateTime.UtcNow
             };

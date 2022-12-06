@@ -15,10 +15,10 @@ namespace Grand.Business.Core.Interfaces.Common.Security
         /// Create a password hash
         /// </summary>
         /// <param name="password">{assword</param>
-        /// <param name="saltkey">Salk key</param>
+        /// <param name="saltKey">Salk key</param>
         /// <param name="passwordFormat">Hashed Password format (hash algorithm)</param>
         /// <returns>Password hash</returns>
-        string CreatePasswordHash(string password, string saltkey, HashedPasswordFormat passwordFormat = HashedPasswordFormat.SHA1);
+        string CreatePasswordHash(string password, string saltKey, HashedPasswordFormat passwordFormat = HashedPasswordFormat.SHA1);
 
         /// <summary>
         /// Encrypt text

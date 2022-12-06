@@ -43,13 +43,13 @@ namespace Grand.Business.Core.Interfaces.Common.Addresses
         /// </summary>
         /// <param name="language">Language</param>
         /// <param name="customAttributes">Attributes</param>
-        /// <param name="serapator">Serapator</param>
+        /// <param name="separator">Serapator</param>
         /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
         /// <returns>Attributes</returns>
         Task<string> FormatAttributes(
             Language language,
             IList<CustomAttribute> customAttributes,
-            string serapator = "<br />",
+            string separator = "<br />",
             bool htmlEncode = true);
     }
 }

@@ -81,9 +81,9 @@ namespace Grand.Business.Core.Interfaces.Common.Security
         /// Gets a permission actions
         /// </summary>
         /// <param name="systemName">Permission system name</param>
-        /// <param name="customeroleId">Customer group ident</param>
+        /// <param name="customerGroupId">Customer group ident</param>
         /// <returns>Permission action</returns>
-        Task<IList<PermissionAction>> GetPermissionActions(string systemName, string customeroleId);
+        Task<IList<PermissionAction>> GetPermissionActions(string systemName, string customerGroupId);
 
         /// <summary>
         /// Inserts a permission action

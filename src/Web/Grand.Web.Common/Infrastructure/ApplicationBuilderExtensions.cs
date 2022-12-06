@@ -78,7 +78,7 @@ namespace Grand.Web.Common.Infrastructure
                             _ = logger.InsertLog(Domain.Logging.LogLevel.Error, exception.Message, exception.ToString(),
                             customer: workContext.CurrentCustomer,
                             ipAddress: context.Connection?.RemoteIpAddress?.ToString(),
-                            pageurl: context.Request?.GetDisplayUrl(),
+                            pageUrl: context.Request?.GetDisplayUrl(),
                             referrerUrl: context.Request?.GetTypedHeaders().Referer?.ToString());
                             //log error
                             _ = logger.Error(exception.Message, exception, workContext.CurrentCustomer);
@@ -125,7 +125,7 @@ namespace Grand.Web.Common.Infrastructure
                             $"Error 404. The requested page ({context.HttpContext.Request?.GetDisplayUrl()}) was not found",
                             customer: workContext.CurrentCustomer,
                             ipAddress: context.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                            pageurl: context.HttpContext?.Request?.GetDisplayUrl(),
+                            pageUrl: context.HttpContext?.Request?.GetDisplayUrl(),
                             referrerUrl: context.HttpContext?.Request?.GetTypedHeaders().Referer?.ToString());
                     }
                 }
@@ -153,7 +153,7 @@ namespace Grand.Web.Common.Infrastructure
                         var workContext = context.HttpContext.RequestServices.GetRequiredService<IWorkContext>();
                         _ = logger.InsertLog(Domain.Logging.LogLevel.Error, "Error 400. Bad request", null, customer: workContext.CurrentCustomer,
                             ipAddress: context.HttpContext?.Connection?.RemoteIpAddress?.ToString(),
-                            pageurl: context.HttpContext?.Request?.GetDisplayUrl(),
+                            pageUrl: context.HttpContext?.Request?.GetDisplayUrl(),
                             referrerUrl: context.HttpContext?.Request?.GetTypedHeaders().Referer?.ToString());
                     }
                 }

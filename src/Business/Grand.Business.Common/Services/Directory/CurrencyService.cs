@@ -13,7 +13,7 @@ namespace Grand.Business.Common.Services.Directory
     /// <summary>
     /// Currency service
     /// </summary>
-    public partial class CurrencyService : ICurrencyService
+    public class CurrencyService : ICurrencyService
     {
         #region Fields
 
@@ -61,7 +61,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <returns>Currency</returns>
         public virtual Task<Currency> GetCurrencyById(string currencyId)
         {
-            string key = string.Format(CacheKey.CURRENCIES_BY_ID_KEY, currencyId);
+            var key = string.Format(CacheKey.CURRENCIES_BY_ID_KEY, currencyId);
             return _cacheBase.GetAsync(key, () => _currencyRepository.GetByIdAsync(currencyId));
         }
 
@@ -71,10 +71,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <returns>Currency</returns>
         public async Task<Currency> GetPrimaryStoreCurrency()
         {
-            if (_primaryCurrency == null)
-                _primaryCurrency = await GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
-
-            return _primaryCurrency;
+            return _primaryCurrency ??= await GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
         }
 
         /// <summary>
@@ -83,10 +80,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <returns>Currency</returns>
         public async Task<Currency> GetPrimaryExchangeRateCurrency()
         {
-            if (_primaryExchangeRateCurrency == null)
-                _primaryExchangeRateCurrency = await GetCurrencyById(_currencySettings.PrimaryExchangeRateCurrencyId);
-
-            return _primaryExchangeRateCurrency;
+            return _primaryExchangeRateCurrency ??= await GetCurrencyById(_currencySettings.PrimaryExchangeRateCurrencyId);
         }
 
         /// <summary>
@@ -117,7 +111,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <returns>Currencies</returns>
         public virtual async Task<IList<Currency>> GetAllCurrencies(bool showHidden = false, string storeId = "")
         {
-            string key = string.Format(CacheKey.CURRENCIES_ALL_KEY, showHidden);
+            var key = string.Format(CacheKey.CURRENCIES_ALL_KEY, showHidden);
             var currencies = await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from p in _currencyRepository.Table
@@ -244,11 +238,11 @@ namespace Grand.Business.Common.Services.Directory
             if (primaryExchangeRateCurrency == null)
                 throw new Exception("Primary exchange rate currency cannot be loaded");
 
-            double result = amount;
-            double exchangeRate = sourceCurrencyCode.Rate;
+            var result = amount;
+            var exchangeRate = sourceCurrencyCode.Rate;
             if (exchangeRate == 0)
-                throw new GrandException(string.Format("Exchange rate not found for currency [{0}]", sourceCurrencyCode.Name));
-            result = result / exchangeRate;
+                throw new GrandException($"Exchange rate not found for currency [{sourceCurrencyCode.Name}]");
+            result /= exchangeRate;
             return result;
         }
 
@@ -267,13 +261,13 @@ namespace Grand.Business.Common.Services.Directory
             if (primaryExchangeRateCurrency == null)
                 throw new Exception("Primary exchange rate currency cannot be loaded");
 
-            double result = amount;
+            var result = amount;
 
-            double exchangeRate = targetCurrencyCode.Rate;
+            var exchangeRate = targetCurrencyCode.Rate;
             if (exchangeRate == 0)
-                throw new GrandException(string.Format("Exchange rate not found for currency [{0}]", targetCurrencyCode.Name));
+                throw new GrandException($"Exchange rate not found for currency [{targetCurrencyCode.Name}]");
 
-            result = result * exchangeRate;
+            result *= exchangeRate;
 
             return result;
         }

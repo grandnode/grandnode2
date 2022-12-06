@@ -11,7 +11,7 @@ namespace Grand.Business.Common.Services.Localization
     /// <summary>
     /// Language service
     /// </summary>
-    public partial class LanguageService : ILanguageService
+    public class LanguageService : ILanguageService
     {
         #region Fields
 
@@ -51,7 +51,7 @@ namespace Grand.Business.Common.Services.Localization
         /// <returns>Languages</returns>
         public virtual async Task<IList<Language>> GetAllLanguages(bool showHidden = false, string storeId = "")
         {
-            string key = string.Format(CacheKey.LANGUAGES_ALL_KEY, showHidden);
+            var key = string.Format(CacheKey.LANGUAGES_ALL_KEY, showHidden);
             var languages = await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from p in _languageRepository.Table
@@ -80,7 +80,7 @@ namespace Grand.Business.Common.Services.Localization
         /// <returns>Language</returns>
         public virtual Task<Language> GetLanguageById(string languageId)
         {
-            string key = string.Format(CacheKey.LANGUAGES_BY_ID_KEY, languageId);
+            var key = string.Format(CacheKey.LANGUAGES_BY_ID_KEY, languageId);
             return _cacheBase.GetAsync(key, () => _languageRepository.GetByIdAsync(languageId));
         }
 

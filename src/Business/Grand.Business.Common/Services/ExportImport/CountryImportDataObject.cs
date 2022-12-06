@@ -21,7 +21,7 @@ namespace Grand.Business.Common.Services.ExportImport
             }
         }
 
-        protected async Task Import(CountryStates countryStatesDto)
+        private async Task Import(CountryStates countryStatesDto)
         {
             var country = await _countryService.GetCountryByTwoLetterIsoCode(countryStatesDto.Country);
             if (country == null)
@@ -42,7 +42,7 @@ namespace Grand.Business.Common.Services.ExportImport
                     Name = countryStatesDto.StateProvinceName,
                     Abbreviation = countryStatesDto.Abbreviation,
                     Published = countryStatesDto.Published,
-                    DisplayOrder = countryStatesDto.DisplayOrder,
+                    DisplayOrder = countryStatesDto.DisplayOrder
                 };
                 await _countryService.InsertStateProvince(state, country.Id);
             }
