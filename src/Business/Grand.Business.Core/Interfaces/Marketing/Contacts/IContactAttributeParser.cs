@@ -55,7 +55,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Contacts
         /// <param name="language">Language</param>
         /// <param name="customAttributes">Attributes </param>
         /// <param name="customer">Customer</param>
-        /// <param name="serapator">Serapator</param>
+        /// <param name="separator">Serapator</param>
         /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
         /// <param name="allowHyperlinks">A value indicating whether to HTML hyperink tags could be rendered (if required)</param>
         /// <returns>Attributes</returns>
@@ -63,7 +63,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Contacts
             Language language,
             IList<CustomAttribute> customAttributes,
             Customer customer,
-            string serapator = "<br />",
+            string separator = "<br />",
             bool htmlEncode = true,
             bool allowHyperlinks = true);
     }

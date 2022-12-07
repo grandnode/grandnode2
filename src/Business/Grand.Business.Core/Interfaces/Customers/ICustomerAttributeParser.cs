@@ -44,10 +44,10 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// </summary>
         /// <param name="language">Language</param>
         /// <param name="customAttributes">Attributes</param>
-        /// <param name="serapator">Serapator</param>
+        /// <param name="separator">Serapator</param>
         /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
         /// <returns>Attributes</returns>
-        Task<string> FormatAttributes(Language language, IList<CustomAttribute> customAttributes, string serapator = "<br />", bool htmlEncode = true);
+        Task<string> FormatAttributes(Language language, IList<CustomAttribute> customAttributes, string separator = "<br />", bool htmlEncode = true);
 
     }
 }

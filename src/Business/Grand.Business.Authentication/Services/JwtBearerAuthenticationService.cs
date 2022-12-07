@@ -47,14 +47,14 @@ namespace Grand.Business.Authentication.Services
                 return await Task.FromResult(false);
             }
 
-            var userapi = await _userApiService.GetUserByEmail(_email);
-            if (userapi is not { IsActive: true })
+            var userApi = await _userApiService.GetUserByEmail(_email);
+            if (userApi is not { IsActive: true })
             {
                 _errorMessage = "User api not exists/or not active in the user api table";
                 return await Task.FromResult(false);
             }
 
-            if (userapi.Token == token) return await Task.FromResult(true);
+            if (userApi.Token == token) return await Task.FromResult(true);
             _errorMessage = "Wrong token, generate again";
             return await Task.FromResult(false);
 

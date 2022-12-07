@@ -173,7 +173,7 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// Updates the customer in admin panel
         /// </summary>
         /// <param name="customer">Customer</param>
-        Task UpdateCustomerinAdminPanel(Customer customer);
+        Task UpdateCustomerInAdminPanel(Customer customer);
 
         /// <summary>
         /// Reset data required for checkout

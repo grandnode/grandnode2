@@ -13,7 +13,7 @@ using MediatR;
 
 namespace Grand.Business.Marketing.Services.Campaigns
 {
-    public partial class CampaignService : ICampaignService
+    public class CampaignService : ICampaignService
     {
         private readonly IRepository<Campaign> _campaignRepository;
         private readonly IRepository<CampaignHistory> _campaignHistoryRepository;
@@ -67,13 +67,13 @@ namespace Grand.Business.Marketing.Services.Campaigns
         /// <summary>
         /// Inserts a campaign history
         /// </summary>
-        /// <param name="campaign">Campaign</param>        
-        public virtual async Task InsertCampaignHistory(CampaignHistory campaignhistory)
+        /// <param name="campaignHistory">Campaign</param>        
+        public virtual async Task InsertCampaignHistory(CampaignHistory campaignHistory)
         {
-            if (campaignhistory == null)
-                throw new ArgumentNullException(nameof(campaignhistory));
+            if (campaignHistory == null)
+                throw new ArgumentNullException(nameof(campaignHistory));
 
-            await _campaignHistoryRepository.InsertAsync(campaignhistory);
+            await _campaignHistoryRepository.InsertAsync(campaignHistory);
 
         }
 
@@ -147,9 +147,9 @@ namespace Grand.Business.Marketing.Services.Campaigns
             if (campaign == null)
                 throw new ArgumentNullException(nameof(campaign));
 
-            var model = new PagedList<NewsLetterSubscription>();
+            PagedList<NewsLetterSubscription> model;
             if (campaign.CustomerCreatedDateFrom.HasValue || campaign.CustomerCreatedDateTo.HasValue ||
-                campaign.CustomerHasShoppingCart != CampaignCondition.All || campaign.CustomerHasShoppingCart != CampaignCondition.All ||
+                campaign.CustomerHasShoppingCart is not (CampaignCondition.All and CampaignCondition.All) ||
                 campaign.CustomerLastActivityDateFrom.HasValue || campaign.CustomerLastActivityDateTo.HasValue ||
                 campaign.CustomerLastPurchaseDateFrom.HasValue || campaign.CustomerLastPurchaseDateTo.HasValue ||
                 campaign.CustomerTags.Count > 0 || campaign.CustomerGroups.Count > 0)
@@ -284,26 +284,22 @@ namespace Grand.Business.Marketing.Services.Campaigns
             if (emailAccount == null)
                 throw new ArgumentNullException(nameof(emailAccount));
 
-            int totalEmailsSent = 0;
-            var language = await _languageService.GetLanguageById(campaign.LanguageId);
-            if (language == null)
-                language = (await _languageService.GetAllLanguages()).FirstOrDefault();
+            var totalEmailsSent = 0;
+            var language = await _languageService.GetLanguageById(campaign.LanguageId) ?? (await _languageService.GetAllLanguages()).FirstOrDefault();
 
             foreach (var subscription in subscriptions)
             {
                 Customer customer = null;
 
                 if (!string.IsNullOrEmpty(subscription.CustomerId)) customer = await _customerRepository.GetByIdAsync(subscription.CustomerId);
-                if (customer == null) customer = _customerRepository.Table.FirstOrDefault(x => x.Email == subscription.Email.ToLowerInvariant());
+                customer ??= _customerRepository.Table.FirstOrDefault(x => x.Email == subscription.Email.ToLowerInvariant());
 
                 //ignore deleted or inactive customers when sending newsletter campaigns
                 if (customer != null && (!customer.Active || customer.Deleted))
                     continue;
 
                 var builder = new LiquidObjectBuilder(_mediator);
-                var store = await _storeService.GetStoreById(campaign.StoreId);
-                if (store == null)
-                    store = (await _storeService.GetAllStores()).FirstOrDefault();
+                var store = await _storeService.GetStoreById(campaign.StoreId) ?? (await _storeService.GetAllStores()).FirstOrDefault();
 
                 builder.AddStoreTokens(store, language, emailAccount)
                        .AddNewsLetterSubscriptionTokens(subscription, store, _workContext.CurrentHost);
@@ -355,13 +351,9 @@ namespace Grand.Business.Marketing.Services.Campaigns
             if (emailAccount == null)
                 throw new ArgumentNullException(nameof(emailAccount));
 
-            var language = await _languageService.GetLanguageById(campaign.LanguageId);
-            if (language == null)
-                language = (await _languageService.GetAllLanguages()).FirstOrDefault();
+            var language = await _languageService.GetLanguageById(campaign.LanguageId) ?? (await _languageService.GetAllLanguages()).FirstOrDefault();
 
-            var store = await _storeService.GetStoreById(campaign.StoreId);
-            if (store == null)
-                store = (await _storeService.GetAllStores()).FirstOrDefault();
+            var store = await _storeService.GetStoreById(campaign.StoreId) ?? (await _storeService.GetAllStores()).FirstOrDefault();
 
             var builder = new LiquidObjectBuilder(_mediator);
             builder.AddStoreTokens(store, language, emailAccount);

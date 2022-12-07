@@ -61,7 +61,7 @@ namespace Grand.Business.Authentication.Services
                 return false;
             }
 
-            if (!(await _permissionService.Authorize(StandardPermission.AllowUseApi, customer)))
+            if (!await _permissionService.Authorize(StandardPermission.AllowUseApi, customer))
             {
                 _errorMessage = "You do not have permission to use API operation (Customer group)";
                 return false;

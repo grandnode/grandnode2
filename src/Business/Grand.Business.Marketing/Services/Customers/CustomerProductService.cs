@@ -37,7 +37,7 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <summary>
         /// Gets a customer product price
         /// </summary>
-        /// <param name="Id">Identifier</param>
+        /// <param name="id">Identifier</param>
         /// <returns>Customer product price</returns>
         public virtual Task<CustomerProductPrice> GetCustomerProductPriceById(string id)
         {
@@ -53,19 +53,15 @@ namespace Grand.Business.Marketing.Services.Customers
         public virtual async Task<double?> GetPriceByCustomerProduct(string customerId, string productId)
         {
             var key = string.Format(CacheKey.CUSTOMER_PRODUCT_PRICE_KEY_ID, customerId, productId);
-            var productprice = await _cacheBase.GetAsync(key, async () =>
+            var productPrice = await _cacheBase.GetAsync(key, async () =>
             {
-                var pp = await Task.FromResult(_customerProductPriceRepository.Table.Where(x => x.CustomerId == customerId && x.ProductId == productId).FirstOrDefault());
-                if (pp == null)
-                    return (null, false);
-                else
-                    return (pp, true);
+                var pp = await Task.FromResult(_customerProductPriceRepository.Table.FirstOrDefault(x => x.CustomerId == customerId && x.ProductId == productId));
+                return pp == null ? (null, false) : (pp, true);
             });
 
-            if (!productprice.Item2)
+            if (!productPrice.Item2)
                 return null;
-            else
-                return productprice.pp.Price;
+            return productPrice.pp.Price;
         }
 
         /// <summary>

@@ -8,19 +8,19 @@ namespace Grand.Business.Core.Interfaces.Marketing.Newsletters
         /// Inserts a newsletter category
         /// </summary>
         /// <param name="NewsletterCategory">NewsletterCategory</param>        
-        Task InsertNewsletterCategory(NewsletterCategory newslettercategory);
+        Task InsertNewsletterCategory(NewsletterCategory newsletterCategory);
 
         /// <summary>
         /// Updates a newsletter category
         /// </summary>
         /// <param name="NewsletterCategory">NewsletterCategory</param>
-        Task UpdateNewsletterCategory(NewsletterCategory newslettercategory);
+        Task UpdateNewsletterCategory(NewsletterCategory newsletterCategory);
 
         /// <summary>
         /// Deleted a newsletter category
         /// </summary>
         /// <param name="NewsletterCategory">NewsletterCategory</param>
-        Task DeleteNewsletterCategory(NewsletterCategory newslettercategory);
+        Task DeleteNewsletterCategory(NewsletterCategory newsletterCategory);
 
         /// <summary>
         /// Gets a newsletter by category

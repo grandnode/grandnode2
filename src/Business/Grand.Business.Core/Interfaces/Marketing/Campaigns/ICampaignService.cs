@@ -15,7 +15,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Campaigns
         /// Inserts a campaign history
         /// </summary>
         /// <param name="campaign">Campaign</param>        
-        Task InsertCampaignHistory(CampaignHistory campaignhistory);
+        Task InsertCampaignHistory(CampaignHistory campaignHistory);
         /// <summary>
         /// Updates a campaign
         /// </summary>

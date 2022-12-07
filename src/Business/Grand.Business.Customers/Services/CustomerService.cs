@@ -18,7 +18,7 @@ namespace Grand.Business.Customers.Services
     /// <summary>
     /// Customer service
     /// </summary>
-    public partial class CustomerService : ICustomerService
+    public class CustomerService : ICustomerService
     {
         #region Fields
 
@@ -55,19 +55,19 @@ namespace Grand.Business.Customers.Services
         /// <param name="ownerId">Owner identifier</param>
         /// <param name="salesEmployeeId">Sales employee identifier</param>
         /// <param name="customerGroupIds">A list of customer group identifiers to filter by (at least one match); pass null or empty list in order to load all customers; </param>
+        /// <param name="customerTagIds">customer tags ids</param>
         /// <param name="email">Email; null to load all customers</param>
         /// <param name="username">Username; null to load all customers</param>
         /// <param name="firstName">First name; null to load all customers</param>
         /// <param name="lastName">Last name; null to load all customers</param>
-        /// <param name="dayOfBirth">Day of birth; 0 to load all customers</param>
-        /// <param name="monthOfBirth">Month of birth; 0 to load all customers</param>
         /// <param name="company">Company; null to load all customers</param>
         /// <param name="phone">Phone; null to load all customers</param>
         /// <param name="zipPostalCode">Phone; null to load all customers</param>
         /// <param name="loadOnlyWithShoppingCart">Value indicating whether to load customers only with shopping cart</param>
-        /// <param name="sct">Value indicating what shopping cart type to filter; userd when 'loadOnlyWithShoppingCart' param is 'true'</param>
+        /// <param name="sct">Value indicating what shopping cart type to filter; used when 'loadOnlyWithShoppingCart' param is 'true'</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
+        /// <param name="orderBySelector">order by selector</param>
         /// <returns>Customers</returns>
         public virtual async Task<IPagedList<Customer>> GetAllCustomers(DateTime? createdFromUtc = null,
             DateTime? createdToUtc = null, string affiliateId = "", string vendorId = "", string storeId = "", string ownerId = "",
@@ -77,7 +77,7 @@ namespace Grand.Business.Customers.Services
             bool loadOnlyWithShoppingCart = false, ShoppingCartType? sct = null,
             int pageIndex = 0, int pageSize = 2147483647, Expression<Func<Customer, object>> orderBySelector = null)
         {
-            var querymodel = new GetCustomerQuery() {
+            var queryModel = new GetCustomerQuery {
                 CreatedFromUtc = createdFromUtc,
                 CreatedToUtc = createdToUtc,
                 AffiliateId = affiliateId,
@@ -100,7 +100,7 @@ namespace Grand.Business.Customers.Services
                 PageSize = pageSize,
                 OrderBySelector = orderBySelector
             };
-            var query = await _mediator.Send(querymodel);
+            var query = await _mediator.Send(queryModel);
             return await PagedList<Customer>.Create(query, pageIndex, pageSize);
         }       
 
@@ -124,7 +124,7 @@ namespace Grand.Business.Customers.Services
             query = query.Where(c => lastActivityFromUtc <= c.LastActivityDateUtc);
             query = query.Where(c => !c.Deleted);
 
-            if (customerGroupIds != null && customerGroupIds.Length > 0)
+            if (customerGroupIds is { Length: > 0 })
                 query = query.Where(c => c.Groups.Select(cr => cr).Intersect(customerGroupIds).Any());
 
             if (!string.IsNullOrEmpty(storeId))
@@ -169,10 +169,7 @@ namespace Grand.Business.Customers.Services
         /// <returns>A customer</returns>
         public virtual Task<Customer> GetCustomerById(string customerId)
         {
-            if (string.IsNullOrWhiteSpace(customerId))
-                return Task.FromResult<Customer>(null);
-
-            return _customerRepository.GetByIdAsync(customerId);
+            return string.IsNullOrWhiteSpace(customerId) ? Task.FromResult<Customer>(null) : _customerRepository.GetByIdAsync(customerId);
         }
 
         /// <summary>
@@ -190,13 +187,7 @@ namespace Grand.Business.Customers.Services
                         select c;
             var customers = query.ToList();
             //sort by passed identifiers
-            var sortedCustomers = new List<Customer>();
-            foreach (var id in customerIds)
-            {
-                var customer = customers.Find(x => x.Id == id);
-                if (customer != null)
-                    sortedCustomers.Add(customer);
-            }
+            var sortedCustomers = customerIds.Select(id => customers.Find(x => x.Id == id)).Where(customer => customer != null).ToList();
             return await Task.FromResult(sortedCustomers);
         }
 
@@ -207,7 +198,7 @@ namespace Grand.Business.Customers.Services
         /// <returns>A customer</returns>
         public virtual async Task<Customer> GetCustomerByGuid(Guid customerGuid)
         {
-            return await Task.FromResult(_customerRepository.Table.Where(x => x.CustomerGuid == customerGuid).FirstOrDefault());
+            return await Task.FromResult(_customerRepository.Table.FirstOrDefault(x => x.CustomerGuid == customerGuid));
         }
 
         /// <summary>
@@ -220,7 +211,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrWhiteSpace(email))
                 return null;
 
-            return await Task.FromResult(_customerRepository.Table.Where(x => x.Email == email.ToLowerInvariant()).FirstOrDefault());
+            return await Task.FromResult(_customerRepository.Table.FirstOrDefault(x => x.Email == email.ToLowerInvariant()));
         }
 
         /// <summary>
@@ -233,7 +224,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrWhiteSpace(systemName))
                 return null;
 
-            return await Task.FromResult(_customerRepository.Table.Where(x => x.SystemName == systemName).FirstOrDefault());
+            return await Task.FromResult(_customerRepository.Table.FirstOrDefault(x => x.SystemName == systemName));
         }
 
         /// <summary>
@@ -246,7 +237,7 @@ namespace Grand.Business.Customers.Services
             if (string.IsNullOrWhiteSpace(username))
                 return null;
 
-            return await Task.FromResult(_customerRepository.Table.Where(x => x.Username == username.ToLowerInvariant()).FirstOrDefault());
+            return await Task.FromResult(_customerRepository.Table.FirstOrDefault(x => x.Username == username.ToLowerInvariant()));
         }
 
         /// <summary>
@@ -260,11 +251,10 @@ namespace Grand.Business.Customers.Services
                 Active = true,
                 StoreId = store.Id,
                 CreatedOnUtc = DateTime.UtcNow,
-                LastActivityDateUtc = DateTime.UtcNow,
+                LastActivityDateUtc = DateTime.UtcNow
             };
-
             //add to 'Guests' group
-            var guestGroup = await _mediator.Send(new GetGroupBySystemNameQuery() { SystemName = SystemCustomerGroupNames.Guests });
+            var guestGroup = await _mediator.Send(new GetGroupBySystemNameQuery { SystemName = SystemCustomerGroupNames.Guests });
             if (guestGroup == null)
                 throw new GrandException("'Guests' group could not be loaded");
             customer.Groups.Add(guestGroup.Id);
@@ -302,6 +292,8 @@ namespace Grand.Business.Customers.Services
         /// Updates the customer field
         /// </summary>
         /// <param name="customer">Customer</param>
+        /// <param name="expression">expression</param>
+        /// <param name="value">value</param>
         public virtual async Task UpdateCustomerField<T>(Customer customer,
             Expression<Func<Customer, T>> expression, T value)
         {
@@ -316,13 +308,15 @@ namespace Grand.Business.Customers.Services
         /// Updates the customer field
         /// </summary>
         /// <param name="customerId">Customer ident</param>
+        /// <param name="expression">Expression</param>
+        /// <param name="value">value</param>
         public virtual async Task UpdateCustomerField<T>(string customerId,
             Expression<Func<Customer, T>> expression, T value)
         {
             if (string.IsNullOrEmpty(customerId))
                 throw new ArgumentNullException(nameof(customerId));
 
-            await _customerRepository.UpdateField<T>(customerId, expression, value);
+            await _customerRepository.UpdateField(customerId, expression, value);
 
         }
         /// <summary>
@@ -413,7 +407,7 @@ namespace Grand.Business.Customers.Services
 
         }
 
-        public virtual async Task UpdateCustomerinAdminPanel(Customer customer)
+        public virtual async Task UpdateCustomerInAdminPanel(Customer customer)
         {
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
@@ -536,7 +530,7 @@ namespace Grand.Business.Customers.Services
         /// <returns>Number of deleted customers</returns>
         public virtual async Task<int> DeleteGuestCustomers(DateTime? createdFromUtc, DateTime? createdToUtc, bool onlyWithoutShoppingCart)
         {
-            var guestGroup = await _mediator.Send(new GetGroupBySystemNameQuery() { SystemName = SystemCustomerGroupNames.Guests });
+            var guestGroup = await _mediator.Send(new GetGroupBySystemNameQuery { SystemName = SystemCustomerGroupNames.Guests });
             if (guestGroup == null)
                 throw new GrandException("Guests group could not be loaded");
 
@@ -687,7 +681,7 @@ namespace Grand.Business.Customers.Services
                 await _customerRepository.PullFilter(customerId, x => x.ShoppingCartItems, x => x.Id, item.Id);
             }
 
-            if (cart.Any(c => c.ShoppingCartTypeId == ShoppingCartType.ShoppingCart || c.ShoppingCartTypeId == ShoppingCartType.Auctions))
+            if (cart.Any(c => c.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions))
                 await UpdateCustomerField(customerId, x => x.LastUpdateCartDateUtc, DateTime.UtcNow);
             if (cart.Any(c => c.ShoppingCartTypeId == ShoppingCartType.Wishlist))
                 await UpdateCustomerField(customerId, x => x.LastUpdateWishListDateUtc, DateTime.UtcNow);

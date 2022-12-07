@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Grand.Business.Marketing.Services.Newsteletters
 {
-    public partial class NewsletterCategoryService : INewsletterCategoryService
+    public class NewsletterCategoryService : INewsletterCategoryService
     {
         #region Fields
 
@@ -28,47 +28,47 @@ namespace Grand.Business.Marketing.Services.Newsteletters
         /// <summary>
         /// Inserts a newsletter category
         /// </summary>
-        /// <param name="newslettercategory">NewsletterCategory</param>        
-        public virtual async Task InsertNewsletterCategory(NewsletterCategory newslettercategory)
+        /// <param name="newsletterCategory">NewsletterCategory</param>        
+        public virtual async Task InsertNewsletterCategory(NewsletterCategory newsletterCategory)
         {
-            if (newslettercategory == null)
-                throw new ArgumentNullException(nameof(newslettercategory));
+            if (newsletterCategory == null)
+                throw new ArgumentNullException(nameof(newsletterCategory));
 
-            await _newsletterCategoryRepository.InsertAsync(newslettercategory);
+            await _newsletterCategoryRepository.InsertAsync(newsletterCategory);
 
             //event notification
-            await _mediator.EntityInserted(newslettercategory);
+            await _mediator.EntityInserted(newsletterCategory);
         }
 
         /// <summary>
         /// Updates a newsletter category
         /// </summary>
-        /// <param name="newslettercategory">NewsletterCategory</param>
-        public virtual async Task UpdateNewsletterCategory(NewsletterCategory newslettercategory)
+        /// <param name="newsletterCategory">NewsletterCategory</param>
+        public virtual async Task UpdateNewsletterCategory(NewsletterCategory newsletterCategory)
         {
-            if (newslettercategory == null)
-                throw new ArgumentNullException(nameof(newslettercategory));
+            if (newsletterCategory == null)
+                throw new ArgumentNullException(nameof(newsletterCategory));
 
-            await _newsletterCategoryRepository.UpdateAsync(newslettercategory);
+            await _newsletterCategoryRepository.UpdateAsync(newsletterCategory);
 
             //event notification
-            await _mediator.EntityUpdated(newslettercategory);
+            await _mediator.EntityUpdated(newsletterCategory);
 
         }
 
         /// <summary>
         /// Deleted a newsletter category
         /// </summary>
-        /// <param name="newslettercategory">NewsletterCategory</param>
-        public virtual async Task DeleteNewsletterCategory(NewsletterCategory newslettercategory)
+        /// <param name="newsletterCategory">NewsletterCategory</param>
+        public virtual async Task DeleteNewsletterCategory(NewsletterCategory newsletterCategory)
         {
-            if (newslettercategory == null)
-                throw new ArgumentNullException(nameof(newslettercategory));
+            if (newsletterCategory == null)
+                throw new ArgumentNullException(nameof(newsletterCategory));
 
-            await _newsletterCategoryRepository.DeleteAsync(newslettercategory);
+            await _newsletterCategoryRepository.DeleteAsync(newsletterCategory);
 
             //event notification
-            await _mediator.EntityDeleted(newslettercategory);
+            await _mediator.EntityDeleted(newsletterCategory);
 
         }
 

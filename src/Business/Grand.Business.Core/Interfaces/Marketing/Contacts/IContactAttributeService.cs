@@ -20,7 +20,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Contacts
         /// </summary>
         /// <param name="storeId">Store identifier</param>
         /// <returns>Contact attributes</returns>
-        Task<IList<ContactAttribute>> GetAllContactAttributes(string storeId = "", bool ignorAcl = false);
+        Task<IList<ContactAttribute>> GetAllContactAttributes(string storeId = "", bool ignoreAcl = false);
 
         /// <summary>
         /// Gets a Contact attribute 

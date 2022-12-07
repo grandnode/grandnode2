@@ -14,8 +14,8 @@ namespace Grand.Business.Common.Services.Pdf
     /// </summary>
     public class HtmlToPdfService : IPdfService
     {
-        private const string _orderTemaplate = "~/Views/PdfTemplates/OrderPdfTemplate.cshtml";
-        private const string _shipmentsTemaplate = "~/Views/PdfTemplates/ShipmentPdfTemplate.cshtml";
+        private const string OrderTemplate = "~/Views/PdfTemplates/OrderPdfTemplate.cshtml";
+        private const string ShipmentsTemplate = "~/Views/PdfTemplates/ShipmentPdfTemplate.cshtml";
 
         private readonly IViewRenderService _viewRenderService;
         private readonly ILanguageService _languageService;
@@ -49,7 +49,7 @@ namespace Grand.Business.Common.Services.Pdf
             if (orders == null)
                 throw new ArgumentNullException(nameof(orders));
 
-            var html = await _viewRenderService.RenderToStringAsync<(IList<Order>, string)>(_orderTemaplate, new(orders, vendorId));
+            var html = await _viewRenderService.RenderToStringAsync<(IList<Order>, string)>(OrderTemplate, new(orders, vendorId));
             var pdf = PdfGenerator.GeneratePdf(html, PdfConfig());
             pdf.Save(stream);
         }
@@ -62,11 +62,13 @@ namespace Grand.Business.Common.Services.Pdf
             var fileName = $"order_{order.OrderGuid}_{CommonHelper.GenerateRandomDigitCode(4)}.pdf";
 
             var dir = CommonPath.WebMapPath("assets/files/exportimport");
+            if (dir == null)
+                throw new ArgumentNullException(nameof(dir));
+            
             if (!System.IO.Directory.Exists(dir))
             {
                 System.IO.Directory.CreateDirectory(dir);
             }
-
             var filePath = Path.Combine(dir, fileName);
             await using var fileStream = new FileStream(filePath, FileMode.Create);
             var orders = new List<Order>
@@ -89,7 +91,7 @@ namespace Grand.Business.Common.Services.Pdf
             if (lang == null)
                 throw new ArgumentException($"Cannot load language. ID={languageId}");
 
-            var html = await _viewRenderService.RenderToStringAsync<IList<Shipment>>(_shipmentsTemaplate, shipments);
+            var html = await _viewRenderService.RenderToStringAsync<IList<Shipment>>(ShipmentsTemplate, shipments);
             var pdf = PdfGenerator.GeneratePdf(html, PdfConfig());
             pdf.Save(stream);
         }

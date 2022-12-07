@@ -238,7 +238,7 @@ namespace Grand.Business.Customers.Services.Tests
             await _repository.InsertAsync(customer);
             //Act
             customer.AdminComment = "test";
-            await _customerService.UpdateCustomerinAdminPanel(customer);
+            await _customerService.UpdateCustomerInAdminPanel(customer);
             //Assert
             Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == customer.Id).AdminComment);
 

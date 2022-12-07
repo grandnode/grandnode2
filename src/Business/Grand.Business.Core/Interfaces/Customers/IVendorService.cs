@@ -84,8 +84,8 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// <summary>
         /// Update Vendor review 
         /// </summary>
-        /// <param name="Vendorreview">Vendorreview</param>
-        Task UpdateVendorReview(VendorReview Vendorreview);
+        /// <param name="vendorReview">Vendorreview</param>
+        Task UpdateVendorReview(VendorReview vendorReview);
 
         /// <summary>
         /// Insert Vendor review 
