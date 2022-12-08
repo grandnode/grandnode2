@@ -17,13 +17,13 @@ namespace Grand.Business.Storage.Startup
             services.AddScoped<IDownloadService, DownloadService>();
 
             //picture service
-            var azureconfig = new AzureConfig();
-            configuration.GetSection("Azure").Bind(azureconfig);
-            var useAzureBlobStorage = !string.IsNullOrEmpty(azureconfig.AzureBlobStorageConnectionString);
+            var azureConfig = new AzureConfig();
+            configuration.GetSection("Azure").Bind(azureConfig);
+            var useAzureBlobStorage = !string.IsNullOrEmpty(azureConfig.AzureBlobStorageConnectionString);
 
-            var amazonconfig = new AmazonConfig();
-            configuration.GetSection("Amazon").Bind(amazonconfig);
-            var useAmazonBlobStorage = (!string.IsNullOrEmpty(amazonconfig.AmazonAwsAccessKeyId) && !string.IsNullOrEmpty(amazonconfig.AmazonAwsSecretAccessKey) && !string.IsNullOrEmpty(amazonconfig.AmazonBucketName) && !string.IsNullOrEmpty(amazonconfig.AmazonRegion));
+            var amazonConfig = new AmazonConfig();
+            configuration.GetSection("Amazon").Bind(amazonConfig);
+            var useAmazonBlobStorage = !string.IsNullOrEmpty(amazonConfig.AmazonAwsAccessKeyId) && !string.IsNullOrEmpty(amazonConfig.AmazonAwsSecretAccessKey) && !string.IsNullOrEmpty(amazonConfig.AmazonBucketName) && !string.IsNullOrEmpty(amazonConfig.AmazonRegion);
 
             if (useAzureBlobStorage)
             {

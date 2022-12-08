@@ -44,7 +44,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <returns>Delivery date</returns>
         public virtual Task<DeliveryDate> GetDeliveryDateById(string deliveryDateId)
         {
-            string key = string.Format(CacheKey.DELIVERYDATE_BY_ID_KEY, deliveryDateId);
+            var key = string.Format(CacheKey.DELIVERYDATE_BY_ID_KEY, deliveryDateId);
             return _cacheBase.GetAsync(key, () => _deliveryDateRepository.GetByIdAsync(deliveryDateId));
         }
 

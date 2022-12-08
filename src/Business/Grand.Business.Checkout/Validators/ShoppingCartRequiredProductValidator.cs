@@ -33,14 +33,12 @@ namespace Grand.Business.Checkout.Validators
                 foreach (var rp in requiredProducts)
                 {
                     //ensure that product is in the cart
-                    bool alreadyInTheCart = false;
+                    var alreadyInTheCart = false;
                     foreach (var sci in cart)
                     {
-                        if (sci.ProductId == rp.Id)
-                        {
-                            alreadyInTheCart = true;
-                            break;
-                        }
+                        if (sci.ProductId != rp.Id) continue;
+                        alreadyInTheCart = true;
+                        break;
                     }
                     //not in the cart
                     if (!alreadyInTheCart)

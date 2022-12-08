@@ -28,13 +28,11 @@ namespace Grand.Business.System.Commands.Handlers.Security
             foreach (var permission in permissions)
             {
                 var permission1 = await _permissionService.GetPermissionBySystemName(permission.SystemName);
-                if (permission1 != null)
-                {
-                    await _permissionService.DeletePermission(permission1);
+                if (permission1 == null) continue;
+                await _permissionService.DeletePermission(permission1);
 
-                    //delete permission locales
-                    await permission1.DeleteTranslationPermissionName(_translationService, _languageService);
-                }
+                //delete permission locales
+                await permission1.DeleteTranslationPermissionName(_translationService, _languageService);
             }
             return true;
         }

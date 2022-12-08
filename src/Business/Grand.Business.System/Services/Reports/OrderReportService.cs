@@ -66,7 +66,7 @@ namespace Grand.Business.System.Services.Reports
                         select p;
 
             query = query.Where(o => !o.Deleted);
-            if (!String.IsNullOrEmpty(storeId))
+            if (!string.IsNullOrEmpty(storeId))
                 query = query.Where(o => o.StoreId == storeId);
             if (os.HasValue)
                 query = query.Where(o => o.OrderStatusId == os.Value);
@@ -110,10 +110,8 @@ namespace Grand.Business.System.Services.Reports
             DateTime? endTimeUtc = null)
         {
             List<OrderByTimeReportLine> report = new List<OrderByTimeReportLine>();
-            if (!startTimeUtc.HasValue)
-                startTimeUtc = DateTime.MinValue;
-            if (!endTimeUtc.HasValue)
-                endTimeUtc = DateTime.UtcNow;
+            startTimeUtc ??= DateTime.MinValue;
+            endTimeUtc ??= DateTime.UtcNow;
 
             var endTime = new DateTime(endTimeUtc.Value.Year, endTimeUtc.Value.Month, endTimeUtc.Value.Day, 23, 59, 00);
 
@@ -187,6 +185,7 @@ namespace Grand.Business.System.Services.Reports
         /// <param name="startTimeUtc">Start date</param>
         /// <param name="endTimeUtc">End date</param>
         /// <param name="billingEmail">Billing email. Leave empty to load all records.</param>
+        /// <param name="billingLastName"></param>
         /// <param name="ignoreCancelledOrders">A value indicating whether to ignore cancelled orders</param>
         /// <param name="tagid">Tag ident.</param>
         /// <returns>Result</returns>
@@ -348,8 +347,6 @@ namespace Grand.Business.System.Services.Reports
         /// </summary>
         /// <param name="storeId">Store identifier</param>
         /// <param name="vendorId">Vendor identifier</param>
-        /// <param name="categoryId">Category identifier</param>
-        /// <param name="collectionId">Collection identifier</param>
         /// <param name="createdFromUtc">Order created date from (UTC); null to load all records</param>
         /// <param name="createdToUtc">Order created date to (UTC); null to load all records</param>
         /// <param name="os">Order status; null to load all records</param>
@@ -475,11 +472,8 @@ namespace Grand.Business.System.Services.Reports
                 product = product.Take(recordsToReturn);
 
             var report = product.ToList();
-            var ids = new List<string>();
-            foreach (var reportLine in report)
-                ids.Add(reportLine.ProductId);
 
-            return await Task.FromResult(ids.ToArray());
+            return await Task.FromResult(report.Select(reportLine => reportLine.ProductId).ToArray());
         }
 
         /// <summary>
@@ -498,8 +492,8 @@ namespace Grand.Business.System.Services.Reports
             int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
         {
 
-            createdFromUtc = !createdFromUtc.HasValue ? DateTime.MinValue : createdFromUtc;
-            createdToUtc = !createdToUtc.HasValue ? DateTime.MaxValue : createdToUtc;
+            createdFromUtc ??= DateTime.MinValue;
+            createdToUtc ??= DateTime.MaxValue;
 
             var query = ((from order in _orderRepository.Table
                                 where
@@ -521,11 +515,6 @@ namespace Grand.Business.System.Services.Reports
                             select p;
 
             return await PagedList<Product>.Create(qproducts, pageIndex, pageSize);
-        }
-
-        public class UnwindedOrderItem
-        {
-            public OrderItem OrderItems { get; set; }
         }
 
         public class OrderStats

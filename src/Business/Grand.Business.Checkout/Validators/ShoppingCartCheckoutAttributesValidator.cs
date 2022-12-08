@@ -66,7 +66,7 @@ namespace Grand.Business.Checkout.Validators
                         {
                             var valuesStr = value.CheckoutAttributes.Where(x => x.Key == ca.Id).Select(x => x.Value);
                             var enteredText = valuesStr?.FirstOrDefault();
-                            int enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
+                            var enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
 
                             if (ca.ValidationMinLength.Value > enteredTextLength)
                             {
@@ -78,17 +78,15 @@ namespace Grand.Business.Checkout.Validators
                     //maximum length
                     if (ca.ValidationMaxLength.HasValue)
                     {
-                        if (ca.AttributeControlTypeId == AttributeControlType.TextBox ||
-                            ca.AttributeControlTypeId == AttributeControlType.MultilineTextbox)
-                        {
-                            var valuesStr = value.CheckoutAttributes.Where(x => x.Key == ca.Id).Select(x => x.Value);
-                            var enteredText = valuesStr?.FirstOrDefault();
-                            int enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
+                        if (ca.AttributeControlTypeId != AttributeControlType.TextBox &&
+                            ca.AttributeControlTypeId != AttributeControlType.MultilineTextbox) continue;
+                        var valuesStr = value.CheckoutAttributes.Where(x => x.Key == ca.Id).Select(x => x.Value);
+                        var enteredText = valuesStr?.FirstOrDefault();
+                        var enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
 
-                            if (ca.ValidationMaxLength.Value < enteredTextLength)
-                            {
-                                context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.TextboxMaximumLength"), ca.Name, ca.ValidationMaxLength.Value));
-                            }
+                        if (ca.ValidationMaxLength.Value < enteredTextLength)
+                        {
+                            context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.TextboxMaximumLength"), ca.Name, ca.ValidationMaxLength.Value));
                         }
                     }
                 }

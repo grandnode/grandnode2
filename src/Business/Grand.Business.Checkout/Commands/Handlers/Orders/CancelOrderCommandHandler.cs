@@ -105,7 +105,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             await _discountService.CancelDiscount(request.Order.Id);
 
             //cancel payments
-            var payment = await _paymentTransactionService.GetByOrdeGuid(request.Order.OrderGuid);
+            var payment = await _paymentTransactionService.GetOrderByGuid(request.Order.OrderGuid);
             if (payment != null)
                 await _paymentService.CancelPayment(payment);
 

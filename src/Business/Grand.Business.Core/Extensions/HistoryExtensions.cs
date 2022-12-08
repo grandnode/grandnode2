@@ -10,6 +10,7 @@ namespace Grand.Business.Core.Extensions
         /// Save an entity
         /// </summary>
         /// <param name="entity">Entity</param>
+        /// <param name="historyService"></param>
         public static async Task SaveHistory<T>(this BaseEntity entity, IHistoryService historyService) where T : BaseEntity, IHistory
         {
             if (entity == null)

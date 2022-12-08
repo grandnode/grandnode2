@@ -206,7 +206,7 @@ namespace Grand.Web.Controllers
             if (!await order.Access(_workContext.CurrentCustomer, _groupService))
                 return Challenge();
 
-            var paymentTransaction = await _paymentTransactionService.GetByOrdeGuid(order.OrderGuid);
+            var paymentTransaction = await _paymentTransactionService.GetOrderByGuid(order.OrderGuid);
 
             if (paymentTransaction == null || !await _paymentService.CanRePostRedirectPayment(paymentTransaction))
                 return RedirectToRoute("OrderDetails", new { orderId = orderId });

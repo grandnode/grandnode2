@@ -62,7 +62,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Payments
         /// </summary>
         /// <param name="paymentMethod">Payment method</param>
         /// <param name="shippingIds">A list of shipping identifiers</param>
-        Task SaveRestictedShippingIds(IPaymentProvider paymentMethod, List<string> shippingIds);
+        Task SaveRestrictedShippingIds(IPaymentProvider paymentMethod, List<string> shippingIds);
 
         /// <summary>
         /// Process a payment

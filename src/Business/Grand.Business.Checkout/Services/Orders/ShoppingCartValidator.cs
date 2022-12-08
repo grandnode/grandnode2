@@ -73,13 +73,11 @@ namespace Grand.Business.Checkout.Services.Orders
             var warnings = new List<string>();
 
             //gift vouchers
-            if (product.IsGiftVoucher)
-            {
-                var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartGiftVoucherValidatorRecord>>();
-                var result = await validator.ValidateAsync(new ShoppingCartGiftVoucherValidatorRecord(customer, product, shoppingCartItem));
-                if (!result.IsValid)
-                    warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
-            }
+            if (!product.IsGiftVoucher) return warnings;
+            var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartGiftVoucherValidatorRecord>>();
+            var result = await validator.ValidateAsync(new ShoppingCartGiftVoucherValidatorRecord(customer, product, shoppingCartItem));
+            if (!result.IsValid)
+                warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
 
             return warnings;
         }
@@ -100,14 +98,11 @@ namespace Grand.Business.Checkout.Services.Orders
         public virtual async Task<IList<string>> GetAuctionProductWarning(double bid, Product product, Customer customer)
         {
             var warnings = new List<string>();
-            if (product.ProductTypeId == ProductType.Auction)
-            {
-                var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartAuctionValidatorRecord>>();
-                var result = await validator.ValidateAsync(new ShoppingCartAuctionValidatorRecord(customer, product, null, bid));
-                if (!result.IsValid)
-                    warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
-
-            }
+            if (product.ProductTypeId != ProductType.Auction) return warnings;
+            var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartAuctionValidatorRecord>>();
+            var result = await validator.ValidateAsync(new ShoppingCartAuctionValidatorRecord(customer, product, null, bid));
+            if (!result.IsValid)
+                warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
 
             return warnings;
         }
@@ -131,8 +126,7 @@ namespace Grand.Business.Checkout.Services.Orders
             IList<CustomAttribute> checkoutAttributes, bool validateCheckoutAttributes)
         {
             var warnings = new List<string>();
-            if (checkoutAttributes == null)
-                checkoutAttributes = new List<CustomAttribute>();
+            checkoutAttributes ??= new List<CustomAttribute>();
 
             var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartWarningsValidatorRecord>>();
             var result = await validator.ValidateAsync(new ShoppingCartWarningsValidatorRecord(_workContext.CurrentCustomer, _workContext.CurrentStore, shoppingCart));
@@ -219,13 +213,11 @@ namespace Grand.Business.Checkout.Services.Orders
 
             var warnings = new List<string>();
 
-            if (product.RequireOtherProducts)
-            {
-                var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartRequiredProductValidatorRecord>>();
-                var result = await validator.ValidateAsync(new ShoppingCartRequiredProductValidatorRecord(_workContext.CurrentCustomer, _workContext.CurrentStore, product, shoppingCartItem));
-                if (!result.IsValid)
-                    warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
-            }
+            if (!product.RequireOtherProducts) return warnings;
+            var validator = _serviceProvider.GetRequiredService<IValidator<ShoppingCartRequiredProductValidatorRecord>>();
+            var result = await validator.ValidateAsync(new ShoppingCartRequiredProductValidatorRecord(_workContext.CurrentCustomer, _workContext.CurrentStore, product, shoppingCartItem));
+            if (!result.IsValid)
+                warnings.AddRange(result.Errors.Select(x => x.ErrorMessage));
             return warnings;
         }
     }

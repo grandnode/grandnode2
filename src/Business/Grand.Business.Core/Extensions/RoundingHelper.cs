@@ -43,7 +43,7 @@ namespace Grand.Business.Core.Extensions
                 case RoundingType.Rounding005Up:
                 case RoundingType.Rounding005Down:
                     fractionPart = (fractionPart - Math.Truncate(fractionPart)) * 10;
-                    if (fractionPart == 5 || fractionPart == 0)
+                    if (fractionPart is 5 or 0)
                         break;
                     if (roundingType == RoundingType.Rounding005Down)
                         fractionPart = fractionPart > 5 ? 5 - fractionPart : fractionPart * -1;

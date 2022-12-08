@@ -26,7 +26,6 @@ namespace Grand.Business.Checkout.Services.Orders
 
         public virtual async Task<IList<OrderStatus>> GetAll()
         {
-            string key = string.Format(CacheKey.ORDER_STATUS_ALL);
             var orderstatuses = await _cacheBase.GetAsync(CacheKey.ORDER_STATUS_ALL, async () =>
             {
                 var query = from p in _orderStatusRepository.Table

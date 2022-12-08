@@ -16,7 +16,7 @@ namespace Grand.Business.Checkout.Validators
         public ShoppingCartWarningsValidator(ITranslationService translationService, IProductService productService)
         {
 
-            RuleFor(x => x).CustomAsync(async (value, context, ct) =>
+            RuleFor(x => x).CustomAsync(async (value, context, _) =>
             {
                 var hasStandartProducts = false;
                 var hasRecurringProducts = false;

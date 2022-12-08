@@ -3,7 +3,7 @@
 namespace Grand.Business.Core.Utilities.Customers
 {
     /// <summary>
-    /// Change password requst
+    /// Change password request
     /// </summary>
     public class ChangePasswordRequest
     {

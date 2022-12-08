@@ -40,9 +40,9 @@ namespace Grand.Business.Core.Interfaces.Checkout.Payments
         /// <summary>
         /// Gets an payment transactions for order guid
         /// </summary>
-        /// <param name="orderguid">The order guid</param>
+        /// <param name="orderGuid">The order guid</param>
         /// <returns>PaymentTransaction</returns>
-        Task<PaymentTransaction> GetByOrdeGuid(Guid orderguid);
+        Task<PaymentTransaction> GetOrderByGuid(Guid orderGuid);
 
         /// <summary>
         /// Get an payment transactions by authorization transaction ID and payment method system name
@@ -55,7 +55,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Payments
         /// <summary>
         /// Search payment transactions
         /// </summary>
-        /// <param name="orderguid">Order ident by guid</param>
+        /// <param name="orderGuid">Order ident by guid</param>
         /// <param name="storeId">Store ident</param>
         /// <param name="customerEmail">Customer email</param>
         /// <param name="ts">Transaction status</param>
@@ -65,7 +65,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Payments
         /// <param name="createdToUtc">Created date to (UTC); null to load all records</param>        
         /// <returns>Page list payment transaction</returns>
         Task<IPagedList<PaymentTransaction>> SearchPaymentTransactions(
-            Guid? orderguid = null,
+            Guid? orderGuid = null,
             string storeId = "", 
             string customerEmail = "",
             TransactionStatus? ts = null,

@@ -56,7 +56,7 @@ namespace Grand.Business.Core.Extensions
             {
                 //percentage
                 var shoppingCartSubTotal = await orderTotalCalculationService.GetShoppingCartSubTotal(cart, true);
-                result = (double)((((float)shoppingCartSubTotal.subTotalWithDiscount) * ((float)fee)) / 100f);
+                result = (float)shoppingCartSubTotal.subTotalWithDiscount * ((float)fee) / 100f;
             }
             else
             {

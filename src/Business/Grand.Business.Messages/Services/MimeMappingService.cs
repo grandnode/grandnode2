@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace Grand.Business.Messages.Services
 {
-    public partial class MimeMappingService : IMimeMappingService
+    public class MimeMappingService : IMimeMappingService
     {
         private readonly FileExtensionContentTypeProvider _contentTypeProvider;
 

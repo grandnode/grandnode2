@@ -41,14 +41,8 @@ namespace Grand.Business.Core.Utilities.Checkout
         /// </summary>
         public TransactionStatus NewTransactionStatus
         {
-            get
-            {
-                return _newTransactionStatus;
-            }
-            set
-            {
-                _newTransactionStatus = value;
-            }
+            get => _newTransactionStatus;
+            set => _newTransactionStatus = value;
         }
     }
 }

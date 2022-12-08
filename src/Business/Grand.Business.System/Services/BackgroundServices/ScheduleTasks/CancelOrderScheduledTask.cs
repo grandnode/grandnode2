@@ -4,7 +4,7 @@ using Grand.Domain.Common;
 
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
 {
-    public partial class CancelOrderScheduledTask : IScheduleTask
+    public class CancelOrderScheduledTask : IScheduleTask
     {
         private readonly SystemSettings _systemSettings;
         private readonly IOrderService _orderService;

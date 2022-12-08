@@ -144,9 +144,9 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// <summary>
         /// Get ordernote by id
         /// </summary>
-        /// <param name="ordernoteId">Order note identifier</param>
+        /// <param name="orderNoteId">Order note identifier</param>
         /// <returns>OrderNote</returns>
-        Task<OrderNote> GetOrderNote(string ordernoteId);
+        Task<OrderNote> GetOrderNote(string orderNoteId);
 
 
         /// <summary>

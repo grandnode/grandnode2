@@ -18,7 +18,7 @@ namespace Grand.Business.Checkout.Validators
             {
                 GiftVoucherExtensions.GetGiftVoucherAttribute(value.ShoppingCartItem.Attributes,
                     out var giftVoucherRecipientName, out var giftVoucherRecipientEmail,
-                    out var giftVoucherSenderName, out var giftVoucherSenderEmail, out var _);
+                    out var giftVoucherSenderName, out var giftVoucherSenderEmail, out _);
 
                 if (string.IsNullOrEmpty(giftVoucherRecipientName))
                     context.AddFailure(translationService.GetResource("ShoppingCart.RecipientNameError"));
@@ -33,12 +33,10 @@ namespace Grand.Business.Checkout.Validators
                 if (string.IsNullOrEmpty(giftVoucherSenderName))
                     context.AddFailure(translationService.GetResource("ShoppingCart.SenderNameError"));
 
-                if (value.Product.GiftVoucherTypeId == GiftVoucherType.Virtual)
-                {
-                    //validate for virtual gift vouchers only
-                    if (string.IsNullOrEmpty(giftVoucherSenderEmail) || !CommonHelper.IsValidEmail(giftVoucherSenderEmail))
-                        context.AddFailure(translationService.GetResource("ShoppingCart.SenderEmailError"));
-                }
+                if (value.Product.GiftVoucherTypeId != GiftVoucherType.Virtual) return;
+                //validate for virtual gift vouchers only
+                if (string.IsNullOrEmpty(giftVoucherSenderEmail) || !CommonHelper.IsValidEmail(giftVoucherSenderEmail))
+                    context.AddFailure(translationService.GetResource("ShoppingCart.SenderEmailError"));
             });
         }
 

@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Grand.Business.Checkout.Services.Orders
 {
-    public partial class OrderTagService : IOrderTagService
+    public class OrderTagService : IOrderTagService
     {
 
         #region Fields
@@ -41,21 +41,17 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <summary>
         /// Get order's  count for each of existing order tag
         /// </summary>
-        /// <param name="storeId">Store identifier</param>
+        /// <param name="orderTagId">Order tag identifier</param>
         /// <returns>Dictionary of "order's tag ID : order's count"</returns>
         private async Task<Dictionary<string, int>> GetOrderCount(string orderTagId)
         {
-            string key = string.Format(CacheKey.ORDERTAG_COUNT_KEY, orderTagId);
+            var key = string.Format(CacheKey.ORDERTAG_COUNT_KEY, orderTagId);
             return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from ot in _orderTagRepository.Table
                             select ot;
 
-                var dictionary = new Dictionary<string, int>();
-                foreach (var tag in query.ToList())
-                {
-                    dictionary.Add(tag.Id, tag.Count);
-                }
+                var dictionary = query.ToList().ToDictionary(tag => tag.Id, tag => tag.Count);
                 return await Task.FromResult(dictionary);
             });
         }
@@ -159,7 +155,8 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <summary>
         /// Attach a tag to the order
         /// </summary>
-        /// <param name="orderTag">Order's identification</param>
+        /// <param name="orderTagId">Order tag ident</param>
+        /// <param name="orderId">Order's identification</param>
         public virtual async Task AttachOrderTag(string orderTagId, string orderId)
         {
             //assign to product
@@ -177,10 +174,11 @@ namespace Grand.Business.Checkout.Services.Orders
             await _mediator.EntityUpdated(orderTag);
         }
 
-        // <summary>
+        /// <summary>
         /// Detach a tag from the order
         /// </summary>
-        /// <param name="orderTag">Order Tag</param>
+        /// <param name="orderTagId">Order Tag ident</param>
+        /// <param name="orderId">Order ident</param>
         public virtual async Task DetachOrderTag(string orderTagId, string orderId)
         {
             await _orderRepository.Pull(orderId, x => x.OrderTags, orderTagId);
@@ -203,10 +201,7 @@ namespace Grand.Business.Checkout.Services.Orders
         public virtual async Task<int> GetOrderCount(string orderTagId, string storeId)
         {
             var dictionary = await GetOrderCount(orderTagId);
-            if (dictionary.ContainsKey(orderTagId))
-                return dictionary[orderTagId];
-
-            return 0;
+            return dictionary.ContainsKey(orderTagId) ? dictionary[orderTagId] : 0;
         }
 
         #endregion

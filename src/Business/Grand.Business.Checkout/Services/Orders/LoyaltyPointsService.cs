@@ -9,7 +9,7 @@ namespace Grand.Business.Checkout.Services.Orders
     /// <summary>
     /// LoyaltyPoints service interface
     /// </summary>
-    public partial class LoyaltyPointsService : ILoyaltyPointsService
+    public class LoyaltyPointsService : ILoyaltyPointsService
     {
         #region Fields
 
@@ -43,21 +43,21 @@ namespace Grand.Business.Checkout.Services.Orders
         /// Get loyalty points for customer
         /// </summary>
         /// <param name="customerId">Customer Id</param>
+        /// <param name="storeId">Store ident</param>
         /// <returns>PointsBalance</returns>
-
         public virtual async Task<int> GetLoyaltyPointsBalance(string customerId, string storeId)
         {
             var query = from p in _rphRepository.Table
                         select p;
 
-            if (!String.IsNullOrEmpty(customerId))
+            if (!string.IsNullOrEmpty(customerId))
                 query = query.Where(rph => rph.CustomerId == customerId);
             if (!_loyaltyPointsSettings.PointsAccumulatedForAllStores)
                 query = query.Where(rph => rph.StoreId == storeId);
             query = query.OrderByDescending(rph => rph.CreatedOnUtc);
 
             var lastRph = await Task.FromResult(query.FirstOrDefault());
-            return lastRph != null ? lastRph.PointsBalance : 0;
+            return lastRph?.PointsBalance ?? 0;
 
         }
 
@@ -66,11 +66,11 @@ namespace Grand.Business.Checkout.Services.Orders
         /// </summary>
         /// <param name="customerId">Customer Id</param>
         /// <param name="points">Points</param>
+        /// <param name="storeId">Store ident</param>
         /// <param name="message">Message</param>
         /// <param name="usedWithOrderId">Used with OrderId</param>
         /// <param name="usedAmount">Used amount</param>
         /// <returns>LoyaltyPointsHistory</returns>
-
         public virtual async Task<LoyaltyPointsHistory> AddLoyaltyPointsHistory(string customerId, int points, string storeId, string message = "",
            string usedWithOrderId = "", double usedAmount = 0)
         {

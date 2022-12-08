@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Grand.Business.Messages.Services
 {
-    public partial class MessageTemplateService : IMessageTemplateService
+    public class MessageTemplateService : IMessageTemplateService
     {
         #region Fields
 
@@ -124,7 +124,7 @@ namespace Grand.Business.Messages.Services
                 var templates = await Task.FromResult(query.ToList());
 
                 //store acl
-                if (!String.IsNullOrEmpty(storeId))
+                if (!string.IsNullOrEmpty(storeId))
                 {
                     templates = templates
                         .Where(t => _aclService.Authorize(t, storeId))

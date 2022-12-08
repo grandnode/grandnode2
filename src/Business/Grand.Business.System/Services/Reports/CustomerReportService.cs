@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Business.Core.Utilities.System;
 using Grand.Domain;
@@ -14,13 +13,12 @@ namespace Grand.Business.System.Services.Reports
     /// <summary>
     /// Customer report service
     /// </summary>
-    public partial class CustomerReportService : ICustomerReportService
+    public class CustomerReportService : ICustomerReportService
     {
         #region Fields
 
         private readonly IRepository<Customer> _customerRepository;
         private readonly IRepository<Order> _orderRepository;
-        private readonly ICustomerService _customerService;
         private readonly IGroupService _groupService;
         private readonly IDateTimeService _dateTimeService;
 
@@ -33,18 +31,15 @@ namespace Grand.Business.System.Services.Reports
         /// </summary>
         /// <param name="customerRepository">Customer repository</param>
         /// <param name="orderRepository">Order repository</param>
-        /// <param name="customerService">Customer service</param>
         /// <param name="dateTimeService">Date time helper</param>
         /// <param name="groupService">group service</param>
         public CustomerReportService(IRepository<Customer> customerRepository,
             IRepository<Order> orderRepository,
-            ICustomerService customerService,
             IGroupService groupService,
             IDateTimeService dateTimeService)
         {
             _customerRepository = customerRepository;
             _orderRepository = orderRepository;
-            _customerService = customerService;
             _groupService = groupService;
             _dateTimeService = dateTimeService;
         }
@@ -150,6 +145,7 @@ namespace Grand.Business.System.Services.Reports
         /// <summary>
         /// Get "customer by time" report
         /// </summary>
+        /// <param name="storeId">Store ident</param>
         /// <param name="startTimeUtc">Start date</param>
         /// <param name="endTimeUtc">End date</param>
         /// <returns>Result</returns>

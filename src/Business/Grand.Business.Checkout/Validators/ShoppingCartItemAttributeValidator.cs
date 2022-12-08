@@ -147,21 +147,17 @@ namespace Grand.Business.Checkout.Validators
             {
                 if (a2.IsRequired)
                 {
-                    bool found = false;
+                    var found = false;
                     //selected product attributes
                     foreach (var a1 in attributes1)
                     {
-                        if (a1.Id == a2.Id)
+                        if (a1.Id != a2.Id) continue;
+                        var attributeValuesStr = ProductExtensions.ParseValues(value.ShoppingCartItem.Attributes, a1.Id);
+                        foreach (var str1 in attributeValuesStr)
                         {
-                            var attributeValuesStr = ProductExtensions.ParseValues(value.ShoppingCartItem.Attributes, a1.Id);
-                            foreach (string str1 in attributeValuesStr)
-                            {
-                                if (!string.IsNullOrEmpty(str1.Trim()))
-                                {
-                                    found = true;
-                                    break;
-                                }
-                            }
+                            if (string.IsNullOrEmpty(str1.Trim())) continue;
+                            found = true;
+                            break;
                         }
                     }
 
@@ -214,32 +210,27 @@ namespace Grand.Business.Checkout.Validators
                     {
                         var valuesStr = ProductExtensions.ParseValues(value.ShoppingCartItem.Attributes, pam.Id);
                         var enteredText = valuesStr.FirstOrDefault();
-                        int enteredTextLength = String.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
+                        var enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
 
                         if (pam.ValidationMinLength.Value > enteredTextLength)
                         {
-                            var _pam = await _productAttributeService.GetProductAttributeById(pam.ProductAttributeId);
-                            warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.TextboxMinimumLength"), _pam.Name, pam.ValidationMinLength.Value));
+                            var productAttribute = await _productAttributeService.GetProductAttributeById(pam.ProductAttributeId);
+                            warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.TextboxMinimumLength"), productAttribute.Name, pam.ValidationMinLength.Value));
                         }
                     }
                 }
-
                 //maximum length
                 if (pam.ValidationMaxLength.HasValue)
                 {
-                    if (pam.AttributeControlTypeId == AttributeControlType.TextBox ||
-                        pam.AttributeControlTypeId == AttributeControlType.MultilineTextbox)
-                    {
-                        var valuesStr = ProductExtensions.ParseValues(value.ShoppingCartItem.Attributes, pam.Id);
-                        var enteredText = valuesStr.FirstOrDefault();
-                        int enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
+                    if (pam.AttributeControlTypeId != AttributeControlType.TextBox &&
+                        pam.AttributeControlTypeId != AttributeControlType.MultilineTextbox) continue;
+                    var valuesStr = ProductExtensions.ParseValues(value.ShoppingCartItem.Attributes, pam.Id);
+                    var enteredText = valuesStr.FirstOrDefault();
+                    var enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
 
-                        if (pam.ValidationMaxLength.Value < enteredTextLength)
-                        {
-                            var _pam = await _productAttributeService.GetProductAttributeById(pam.ProductAttributeId);
-                            warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.TextboxMaximumLength"), _pam.Name, pam.ValidationMaxLength.Value));
-                        }
-                    }
+                    if (pam.ValidationMaxLength.Value >= enteredTextLength) continue;
+                    var productAttribute = await _productAttributeService.GetProductAttributeById(pam.ProductAttributeId);
+                    warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.TextboxMaximumLength"), productAttribute.Name, pam.ValidationMaxLength.Value));
                 }
             }
             return warnings;

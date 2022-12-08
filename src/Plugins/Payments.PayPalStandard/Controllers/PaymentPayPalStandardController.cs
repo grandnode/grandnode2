@@ -85,7 +85,7 @@ namespace Payments.PayPalStandard.Controllers
                 Order order = await _orderService.GetOrderByGuid(orderNumberGuid);
                 if (order != null)
                 {
-                    var paymentTransaction = await _paymentTransactionService.GetByOrdeGuid(orderNumberGuid);
+                    var paymentTransaction = await _paymentTransactionService.GetOrderByGuid(orderNumberGuid);
 
                     double mc_gross = 0;
                     try
@@ -265,7 +265,7 @@ namespace Payments.PayPalStandard.Controllers
                                     CreatedOnUtc = DateTime.UtcNow,
                                     OrderId = order.Id,
                                 });
-                                var paymentTransaction = await _paymentTransactionService.GetByOrdeGuid(order.OrderGuid);
+                                var paymentTransaction = await _paymentTransactionService.GetOrderByGuid(order.OrderGuid);
 
                                 switch (newPaymentStatus)
                                 {

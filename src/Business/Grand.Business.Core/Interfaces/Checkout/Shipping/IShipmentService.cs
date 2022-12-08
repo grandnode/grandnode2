@@ -92,9 +92,9 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
         /// <summary>
         /// Get shipmentnote by id
         /// </summary>
-        /// <param name="shipmentnoteId">Shipment note identifier</param>
+        /// <param name="shipmentNoteId">Shipment note identifier</param>
         /// <returns>ShipmentNote</returns>
-        Task<ShipmentNote> GetShipmentNote(string shipmentnoteId);
+        Task<ShipmentNote> GetShipmentNote(string shipmentNoteId);
 
         #endregion
 

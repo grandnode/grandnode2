@@ -221,7 +221,7 @@ namespace Grand.Web.Admin.Controllers
                         newShipIds.Add(s.Name);
                     }
                 }
-                await _paymentService.SaveRestictedShippingIds(pm, newShipIds);
+                await _paymentService.SaveRestrictedShippingIds(pm, newShipIds);
             }
 
             Success(_translationService.GetResource("Admin.Configuration.Payment.MethodRestrictions.Updated"));

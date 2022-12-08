@@ -30,17 +30,15 @@ namespace Grand.Business.System.Commands.Handlers.Messages
 
             async Task ProductList()
             {
-                string attributeDescription = string.Empty;
-                string pictureUrl = string.Empty;
+                var attributeDescription = string.Empty;
+                var pictureUrl = string.Empty;
                 foreach (var item in request.Customer.ShoppingCartItems)
                 {
                     var product = await _productService.GetProductById(item.ProductId);
-                    //product name
-                    string productName = product.GetTranslation(x => x.Name, request.Language.Id);
-
+                    
                     if (product.ProductPictures.Any())
                     {
-                        pictureUrl = await _pictureService.GetPictureUrl(product.ProductPictures.OrderBy(x => x.DisplayOrder).FirstOrDefault().PictureId, 100, storeLocation: request.Store.SslEnabled ? request.Store.SecureUrl : request.Store.Url);
+                        pictureUrl = await _pictureService.GetPictureUrl(product.ProductPictures.MinBy(x => x.DisplayOrder)?.PictureId, 100, storeLocation: request.Store.SslEnabled ? request.Store.SecureUrl : request.Store.Url);
                     }
 
                     //attributes

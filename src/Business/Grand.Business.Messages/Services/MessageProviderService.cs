@@ -25,7 +25,7 @@ using System.Net;
 
 namespace Grand.Business.Messages.Services
 {
-    public partial class MessageProviderService : IMessageProviderService
+    public class MessageProviderService : IMessageProviderService
     {
         #region Fields
 
@@ -96,11 +96,8 @@ namespace Grand.Business.Messages.Services
         protected virtual async Task<EmailAccount> GetEmailAccountOfMessageTemplate(MessageTemplate messageTemplate, string languageId)
         {
             var emailAccounId = messageTemplate.GetTranslation(mt => mt.EmailAccountId, languageId);
-            var emailAccount = await _emailAccountService.GetEmailAccountById(emailAccounId);
-            if (emailAccount == null)
-                emailAccount = await _emailAccountService.GetEmailAccountById(_emailAccountSettings.DefaultEmailAccountId);
-            if (emailAccount == null)
-                emailAccount = (await _emailAccountService.GetAllEmailAccounts()).FirstOrDefault();
+            var emailAccount = (await _emailAccountService.GetEmailAccountById(emailAccounId) ?? await _emailAccountService.GetEmailAccountById(_emailAccountSettings.DefaultEmailAccountId)) ??
+                               (await _emailAccountService.GetAllEmailAccounts()).FirstOrDefault();
             return emailAccount;
 
         }
@@ -286,6 +283,7 @@ namespace Grand.Business.Messages.Services
             var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = order.CustomerId });
             return await SendOrderStoreOwnerMessage(MessageTemplateNames.SendOrderRefundedStoreOwnerMessage, order, customer, languageId, refundedAmount);
         }
+
         /// <summary>
         /// Sends an order notification to a store owner
         /// </summary>
@@ -293,6 +291,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="order">Order instance</param>
         /// <param name="customer">Customer instance</param>
         /// <param name="languageId">Message language identifier</param>
+        /// <param name="refundedAmount"></param>
         private async Task<int> SendOrderStoreOwnerMessage(string template, Order order, Customer customer, string languageId, double refundedAmount = 0)
         {
             if (order == null)
@@ -404,6 +403,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="attachmentFilePath">Attachment file path</param>
         /// <param name="attachmentFileName">Attachment file name. If specified, then this file name will be sent to a recipient. Otherwise, "AttachmentFilePath" name will be used.</param>
         /// <param name="attachments">Attachments ident</param>
+        /// <param name="refundedAmount"></param>
         private async Task<int> SendOrderCustomerMessage(string message, Order order, Customer customer, string languageId,
             string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null, double refundedAmount = 0)
         {
@@ -1303,6 +1303,7 @@ namespace Grand.Business.Messages.Services
         /// <summary>
         /// Sends a "quantity below" notification to a store owner
         /// </summary>
+        /// <param name="product"></param>
         /// <param name="combination">Attribute combination</param>
         /// <param name="languageId">Message language identifier</param>
         public virtual async Task<int> SendQuantityBelowStoreOwnerMessage(Product product, ProductAttributeCombination combination, string languageId)
@@ -1691,40 +1692,37 @@ namespace Grand.Business.Messages.Services
                 throw new ArgumentNullException(nameof(product));
 
             var customer = await _mediator.Send(new GetCustomerByIdQuery() { Id = bid.CustomerId });
-            if (customer != null)
+            if (customer == null) return 0;
+            if (string.IsNullOrEmpty(languageId))
             {
-                if (string.IsNullOrEmpty(languageId))
-                {
-                    languageId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId);
-                }
-
-                var store = await GetStore(bid.StoreId);
-                var language = await EnsureLanguageIsActive(languageId, store.Id);
-
-                var messageTemplate = await GetMessageTemplate("AuctionEnded.CustomerNotificationWin", store.Id);
-                if (messageTemplate == null)
-                    return 0;
-
-                var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
-
-                var builder = new LiquidObjectBuilder(_mediator);
-                builder.AddAuctionTokens(product, bid)
-                       .AddCustomerTokens(customer, store, _storeHelper.DomainHost, language)
-                       .AddProductTokens(product, language, store, _storeHelper.DomainHost)
-                       .AddStoreTokens(store, language, emailAccount);
-
-                LiquidObject liquidObject = await builder.BuildAsync();
-                //event notification
-                await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
-
-                var toEmail = customer.Email;
-                var toName = customer.GetFullName();
-                return await SendNotification(messageTemplate, emailAccount,
-                    languageId, liquidObject,
-                    toEmail, toName,
-                    reference: Reference.Customer, objectId: customer.Id);
+                languageId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId);
             }
-            return 0;
+
+            var store = await GetStore(bid.StoreId);
+            var language = await EnsureLanguageIsActive(languageId, store.Id);
+
+            var messageTemplate = await GetMessageTemplate("AuctionEnded.CustomerNotificationWin", store.Id);
+            if (messageTemplate == null)
+                return 0;
+
+            var emailAccount = await GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
+
+            var builder = new LiquidObjectBuilder(_mediator);
+            builder.AddAuctionTokens(product, bid)
+                .AddCustomerTokens(customer, store, _storeHelper.DomainHost, language)
+                .AddProductTokens(product, language, store, _storeHelper.DomainHost)
+                .AddStoreTokens(store, language, emailAccount);
+
+            LiquidObject liquidObject = await builder.BuildAsync();
+            //event notification
+            await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
+
+            var toEmail = customer.Email;
+            var toName = customer.GetFullName();
+            return await SendNotification(messageTemplate, emailAccount,
+                languageId, liquidObject,
+                toEmail, toName,
+                reference: Reference.Customer, objectId: customer.Id);
         }
 
         public virtual async Task<int> SendAuctionEndedLostCustomerMessage(Product product, string languageId, Bid bid)

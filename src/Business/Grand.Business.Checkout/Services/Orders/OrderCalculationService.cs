@@ -534,7 +534,6 @@ namespace Grand.Business.Checkout.Services.Orders
         /// </summary>
         /// <param name="shippingRate">Shipping rate to adjust</param>
         /// <param name="cart">Cart</param>
-        /// <param name="appliedDiscount">Applied discount</param>
         /// <returns>Adjusted shipping rate</returns>
         public virtual async Task<(double shippingRate, List<ApplyDiscount> appliedDiscounts)> AdjustShippingRate(double shippingRate, IList<ShoppingCartItem> cart)
         {
@@ -545,14 +544,13 @@ namespace Grand.Business.Checkout.Services.Orders
                 return (0, appliedDiscounts);
 
             //additional shipping charges
-            double additionalShippingCharge = await GetShoppingCartAdditionalShippingCharge(cart);
+            var additionalShippingCharge = await GetShoppingCartAdditionalShippingCharge(cart);
             var adjustedRate = shippingRate + additionalShippingCharge;
 
             //discount
             var customer = _workContext.CurrentCustomer;
-            var shippingDiscount = await GetShippingDiscount(customer, _workContext.WorkingCurrency, adjustedRate);
-            double discountAmount = shippingDiscount.shippingDiscount;
-            appliedDiscounts = shippingDiscount.appliedDiscounts;
+            var (discountAmount, applyDiscounts) = await GetShippingDiscount(customer, _workContext.WorkingCurrency, adjustedRate);
+            appliedDiscounts = applyDiscounts;
 
             adjustedRate -= discountAmount;
 
@@ -574,7 +572,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <returns>Shipping total</returns>
         public virtual async Task<(double? shoppingCartShippingTotal, double taxRate, List<ApplyDiscount> appliedDiscounts)> GetShoppingCartShippingTotal(IList<ShoppingCartItem> cart)
         {
-            bool includingTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
+            var includingTax = _workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
             return await GetShoppingCartShippingTotal(cart, includingTax);
         }
 
@@ -584,8 +582,6 @@ namespace Grand.Business.Checkout.Services.Orders
         /// </summary>
         /// <param name="cart">Cart</param>
         /// <param name="includingTax">A value indicating whether calculated price should include tax</param>
-        /// <param name="taxRate">Applied tax rate</param>
-        /// <param name="appliedDiscount">Applied discount</param>
         /// <returns>Shipping total</returns>
         public virtual async Task<(double? shoppingCartShippingTotal, double taxRate, List<ApplyDiscount> appliedDiscounts)> GetShoppingCartShippingTotal(IList<ShoppingCartItem> cart, bool includingTax)
         {
@@ -597,7 +593,7 @@ namespace Grand.Business.Checkout.Services.Orders
             var customer = _workContext.CurrentCustomer;
             var currency = await _currencyService.GetPrimaryExchangeRateCurrency();
 
-            bool isFreeShipping = await IsFreeShipping(cart);
+            var isFreeShipping = await IsFreeShipping(cart);
             if (isFreeShipping)
                 return (0, taxRate, appliedDiscounts);
 
@@ -608,9 +604,9 @@ namespace Grand.Business.Checkout.Services.Orders
             if (shippingOption != null)
             {
                 var rate = shippingOption.Rate;
-                var adjustshipingRate = await AdjustShippingRate(rate, cart);
-                shippingTotal = adjustshipingRate.shippingRate;
-                appliedDiscounts = adjustshipingRate.appliedDiscounts;
+                var adjustShipingRate = await AdjustShippingRate(rate, cart);
+                shippingTotal = adjustShipingRate.shippingRate;
+                appliedDiscounts = adjustShipingRate.appliedDiscounts;
             }
             else
             {
@@ -637,9 +633,7 @@ namespace Grand.Business.Checkout.Services.Orders
                     var fixedRateTmp = await shippingRateMethod.GetFixedRate(shippingOptionRequest);
                     if (fixedRateTmp.HasValue)
                     {
-                        if (!fixedRate.HasValue)
-                            fixedRate = 0;
-
+                        fixedRate = 0;
                         fixedRate += fixedRateTmp.Value;
                     }
 
@@ -678,7 +672,6 @@ namespace Grand.Business.Checkout.Services.Orders
         /// Gets tax
         /// </summary>
         /// <param name="cart">Shopping cart</param>
-        /// <param name="taxRates">Tax rates</param>
         /// <param name="usePaymentMethodAdditionalFee">A value indicating whether we should use payment method additional fee when calculating tax</param>
         /// <returns>Tax total</returns>
         public virtual async Task<(double taxtotal, SortedDictionary<double, double> taxRates)> GetTaxTotal(IList<ShoppingCartItem> cart, bool usePaymentMethodAdditionalFee = true)
@@ -689,7 +682,7 @@ namespace Grand.Business.Checkout.Services.Orders
             var taxRates = new SortedDictionary<double, double>();
 
             var customer = _workContext.CurrentCustomer;
-            string paymentMethodSystemName = "";
+            var paymentMethodSystemName = "";
             if (customer != null)
             {
                 paymentMethodSystemName = customer.GetUserFieldFromEntity<string>(
@@ -705,31 +698,25 @@ namespace Grand.Business.Checkout.Services.Orders
 
             foreach (KeyValuePair<double, double> kvp in orderSubTotalTaxRates)
             {
-                double taxRate = kvp.Key;
-                double taxValue = kvp.Value;
+                var taxRate = kvp.Key;
+                var taxValue = kvp.Value;
                 subTotalTaxTotal += taxValue;
 
-                if (taxRate > 0 && taxValue > 0)
-                {
-                    if (!taxRates.ContainsKey(taxRate))
-                        taxRates.Add(taxRate, taxValue);
-                    else
-                        taxRates[taxRate] = taxRates[taxRate] + taxValue;
-                }
+                if (!(taxRate > 0) || !(taxValue > 0)) continue;
+                if (!taxRates.ContainsKey(taxRate))
+                    taxRates.Add(taxRate, taxValue);
+                else
+                    taxRates[taxRate] = taxRates[taxRate] + taxValue;
             }
 
             //shipping
             double shippingTax = 0;
             if (_taxSettings.ShippingIsTaxable)
             {
-                double taxRate;
                 var shippingTotalExcl = await GetShoppingCartShippingTotal(cart, false);
-                double? shippingExclTax = shippingTotalExcl.shoppingCartShippingTotal;
+                var shippingExclTax = shippingTotalExcl.shoppingCartShippingTotal;
 
-                var shippingTotalIncl = await GetShoppingCartShippingTotal(cart, true);
-                double? shippingInclTax = shippingTotalIncl.shoppingCartShippingTotal;
-
-                taxRate = shippingTotalIncl.taxRate;
+                var (shippingInclTax, taxRate, _) = await GetShoppingCartShippingTotal(cart, true);
 
                 if (shippingExclTax.HasValue && shippingInclTax.HasValue)
                 {
@@ -753,16 +740,12 @@ namespace Grand.Business.Checkout.Services.Orders
             double paymentMethodAdditionalFeeTax = 0;
             if (usePaymentMethodAdditionalFee && _taxSettings.PaymentMethodAdditionalFeeIsTaxable)
             {
-                double taxRate;
-                double paymentMethodAdditionalFee = await _paymentService.GetAdditionalHandlingFee(cart, paymentMethodSystemName);
+                var paymentMethodAdditionalFee = await _paymentService.GetAdditionalHandlingFee(cart, paymentMethodSystemName);
 
                 var additionalFeeExclTax = await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, false, customer);
-                double paymentMethodAdditionalFeeExclTax = additionalFeeExclTax.paymentPrice;
+                var paymentMethodAdditionalFeeExclTax = additionalFeeExclTax.paymentPrice;
 
-                var additionalFeeInclTax = await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, true, customer);
-                double paymentMethodAdditionalFeeInclTax = additionalFeeInclTax.paymentPrice;
-
-                taxRate = additionalFeeInclTax.taxRate;
+                var (paymentMethodAdditionalFeeInclTax, taxRate) = await _taxService.GetPaymentMethodAdditionalFee(paymentMethodAdditionalFee, true, customer);
 
                 paymentMethodAdditionalFeeTax = paymentMethodAdditionalFeeInclTax - paymentMethodAdditionalFeeExclTax;
                 //ensure that tax is equal or greater than zero
@@ -784,7 +767,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 taxRates.Add(0, 0);
 
             //summarize taxes
-            double taxTotal = subTotalTaxTotal + shippingTax + paymentMethodAdditionalFeeTax;
+            var taxTotal = subTotalTaxTotal + shippingTax + paymentMethodAdditionalFeeTax;
             //ensure that tax is equal or greater than zero
             if (taxTotal < 0)
                 taxTotal = 0;
@@ -801,7 +784,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// Gets shopping cart total
         /// </summary>
         /// <param name="cart">Cart</param>
-        /// <param name="ignoreLoyaltyPonts">A value indicating whether we should ignore loyalty points</param>
+        /// <param name="useLoyaltyPoints">Use Loyalty Points</param>
         /// <param name="usePaymentMethodAdditionalFee">A value indicating whether we should use payment method additional fee</param>
         /// <returns>Shopping cart total, discount amount, applied discounts, gift vouchers, loyalty point/amount</returns>
         public virtual async Task<(double? shoppingCartTotal, double discountAmount, List<ApplyDiscount> appliedDiscounts, List<AppliedGiftVoucher> appliedGiftVouchers,
@@ -814,7 +797,7 @@ namespace Grand.Business.Checkout.Services.Orders
 
             var customer = _workContext.CurrentCustomer;
 
-            string paymentMethodSystemName = "";
+            var paymentMethodSystemName = "";
             if (customer != null)
             {
                 paymentMethodSystemName = customer.GetUserFieldFromEntity<string>(
@@ -824,14 +807,11 @@ namespace Grand.Business.Checkout.Services.Orders
 
             //subtotal without tax
             var subTotal = await GetShoppingCartSubTotal(cart, false);
-            double subTotalWithDiscountBase = subTotal.subTotalWithDiscount;
-
-            //subtotal with discount
-            double subtotalBase = subTotalWithDiscountBase;
-
+            var subTotalWithDiscountBase = subTotal.subTotalWithDiscount;
+            
             //shipping without tax
             var shippingTotal = await GetShoppingCartShippingTotal(cart, false);
-            double? shoppingCartShipping = shippingTotal.shoppingCartShippingTotal;
+            var shoppingCartShipping = shippingTotal.shoppingCartShippingTotal;
 
             //payment method additional fee without tax
             double paymentMethodAdditionalFeeWithoutTax = 0;
@@ -842,11 +822,11 @@ namespace Grand.Business.Checkout.Services.Orders
             }
 
             //tax
-            double shoppingCartTax = (await GetTaxTotal(cart, usePaymentMethodAdditionalFee)).taxtotal;
+            var shoppingCartTax = (await GetTaxTotal(cart, usePaymentMethodAdditionalFee)).taxtotal;
 
             //order total
             double resultTemp = 0;
-            resultTemp += subtotalBase;
+            resultTemp += subTotalWithDiscountBase;
             if (shoppingCartShipping.HasValue)
             {
                 resultTemp += shoppingCartShipping.Value;
@@ -925,10 +905,10 @@ namespace Grand.Business.Checkout.Services.Orders
 
                 if (useLoyaltyPoints.Value)
                 {
-                    int loyaltyPointsBalance = await _loyaltyPointsService.GetLoyaltyPointsBalance(customer.Id, _workContext.CurrentStore.Id);
+                    var loyaltyPointsBalance = await _loyaltyPointsService.GetLoyaltyPointsBalance(customer?.Id, _workContext.CurrentStore.Id);
                     if (CheckMinimumLoyaltyPointsToUseRequirement(loyaltyPointsBalance))
                     {
-                        double loyaltyPointsBalanceAmount = await ConvertLoyaltyPointsToAmount(loyaltyPointsBalance);
+                        var loyaltyPointsBalanceAmount = await ConvertLoyaltyPointsToAmount(loyaltyPointsBalance);
                         if (orderTotal > 0)
                         {
                             if (orderTotal > loyaltyPointsBalanceAmount)
@@ -980,7 +960,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <returns>Converted value</returns>
         public virtual int ConvertAmountToLoyaltyPoints(double amount)
         {
-            int result = 0;
+            var result = 0;
             if (amount <= 0)
                 return 0;
 

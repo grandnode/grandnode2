@@ -102,7 +102,7 @@ namespace Grand.Business.Core.Extensions
                 if (ensureNotEmpty)
                 {
                     //use entity identifier as sename if empty
-                    seName = entity.Id.ToString();
+                    seName = entity.Id;
                 }
                 else
                 {

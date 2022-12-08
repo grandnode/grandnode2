@@ -71,7 +71,7 @@ namespace Grand.Business.Checkout.Validators
                 }
 
                 //availability dates
-                bool availableStartDateError = false;
+                var availableStartDateError = false;
                 if (value.Product.AvailableStartDateTimeUtc.HasValue)
                 {
                     DateTime now = DateTime.UtcNow;
@@ -82,7 +82,9 @@ namespace Grand.Business.Checkout.Validators
                         availableStartDateError = true;
                     }
                 }
-                if (value.Product.AvailableEndDateTimeUtc.HasValue && !availableStartDateError && value.ShoppingCartItem.ShoppingCartTypeId == ShoppingCartType.ShoppingCart)
+
+                if (!value.Product.AvailableEndDateTimeUtc.HasValue || availableStartDateError ||
+                    value.ShoppingCartItem.ShoppingCartTypeId != ShoppingCartType.ShoppingCart) return;
                 {
                     DateTime now = DateTime.UtcNow;
                     DateTime availableEndDateTime = DateTime.SpecifyKind(value.Product.AvailableEndDateTimeUtc.Value, DateTimeKind.Utc);

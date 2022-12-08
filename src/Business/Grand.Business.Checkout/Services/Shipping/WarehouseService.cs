@@ -44,7 +44,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <returns>Warehouse</returns>
         public virtual Task<Warehouse> GetWarehouseById(string warehouseId)
         {
-            string key = string.Format(CacheKey.WAREHOUSES_BY_ID_KEY, warehouseId);
+            var key = string.Format(CacheKey.WAREHOUSES_BY_ID_KEY, warehouseId);
             return _cacheBase.GetAsync(key, () => _warehouseRepository.GetByIdAsync(warehouseId));
         }
 

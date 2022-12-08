@@ -30,24 +30,22 @@ namespace Grand.Business.System.Commands.Handlers.Security
             foreach (var permission in permissions)
             {
                 var permission1 = await _permissionService.GetPermissionBySystemName(permission.SystemName);
-                if (permission1 == null)
+                if (permission1 != null) continue;
+                //new permission (install it)
+                permission1 = new Permission
                 {
-                    //new permission (install it)
-                    permission1 = new Permission
-                    {
-                        Name = permission.Name,
-                        SystemName = permission.SystemName,
-                        Area = permission.Area,
-                        Category = permission.Category,
-                        Actions = permission.Actions
-                    };
+                    Name = permission.Name,
+                    SystemName = permission.SystemName,
+                    Area = permission.Area,
+                    Category = permission.Category,
+                    Actions = permission.Actions
+                };
 
-                    //save new permission
-                    await _permissionService.InsertPermission(permission1);
+                //save new permission
+                await _permissionService.InsertPermission(permission1);
 
-                    //save localization
-                    await permission1.SaveTranslationPermissionName(_translationService, _languageService);
-                }
+                //save localization
+                await permission1.SaveTranslationPermissionName(_translationService, _languageService);
             }
             return true;
         }

@@ -1,7 +1,7 @@
 ﻿namespace Grand.Business.Core.Utilities.Customers
 {
     /// <summary>
-    /// Customerregistration result
+    /// Customer Registration result
     /// </summary>
     public class RegistrationResult 
     {
