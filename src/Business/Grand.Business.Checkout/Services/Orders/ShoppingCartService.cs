@@ -411,17 +411,15 @@ namespace Grand.Business.Checkout.Services.Orders
 
             //shopping cart items
             var fromCart = fromCustomer.ShoppingCartItems.ToList();
-            for (var i = 0; i < fromCart.Count; i++)
+            foreach (var sci in fromCart)
             {
-                var sci = fromCart[i];
                 await AddToCart(toCustomer, sci.ProductId, sci.ShoppingCartTypeId, sci.StoreId, sci.WarehouseId,
                     sci.Attributes, sci.EnteredPrice,
                     sci.RentalStartDateUtc, sci.RentalEndDateUtc, sci.Quantity, false, sci.ReservationId, sci.Parameter, sci.Duration,
                     new ShoppingCartValidatorOptions());
             }
-            for (var i = 0; i < fromCart.Count; i++)
+            foreach (var sci in fromCart)
             {
-                var sci = fromCart[i];
                 await DeleteShoppingCartItem(fromCustomer, sci);
             }
 

@@ -134,13 +134,7 @@ namespace Grand.Business.Cms.Services
 
             //we load all records and only then filter them by tag
             var blogPostsAll = await GetAllBlogPosts(storeId: storeId, showHidden: showHidden, tag: tag);
-            var taggedBlogPosts = new List<BlogPost>();
-            foreach (var blogPost in blogPostsAll)
-            {
-                var tags = blogPost.ParseTags();
-                if (!string.IsNullOrEmpty(tags.FirstOrDefault(t => t.Equals(tag, StringComparison.OrdinalIgnoreCase))))
-                    taggedBlogPosts.Add(blogPost);
-            }
+            var taggedBlogPosts = (from blogPost in blogPostsAll let tags = blogPost.ParseTags() where !string.IsNullOrEmpty(tags.FirstOrDefault(t => t.Equals(tag, StringComparison.OrdinalIgnoreCase))) select blogPost).ToList();
 
             //server-side paging
             return new PagedList<BlogPost>(taggedBlogPosts, pageIndex, pageSize);
@@ -274,13 +268,7 @@ namespace Grand.Business.Cms.Services
                         select bc;
             var comments = query.ToList();
             //sort by passed identifiers
-            var sortedComments = new List<BlogComment>();
-            foreach (var id in commentIds)
-            {
-                var comment = comments.Find(x => x.Id == id);
-                if (comment != null)
-                    sortedComments.Add(comment);
-            }
+            var sortedComments = commentIds.Select(id => comments.Find(x => x.Id == id)).Where(comment => comment != null).ToList();
             return await Task.FromResult(sortedComments);
         }
 

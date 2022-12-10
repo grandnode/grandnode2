@@ -159,7 +159,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
                             where o.Active && o.CustomerId != "" && (o.StoreId == campaign.StoreId || string.IsNullOrEmpty(campaign.StoreId))
                             join c in _customerRepository.Table on o.CustomerId equals c.Id into joined
                             from customers in joined
-                            select new CampaignCustomerHelp() {
+                            select new CampaignCustomerHelp {
                                 CustomerEmail = customers.Email,
                                 Email = o.Email,
                                 CustomerId = customers.Id,
@@ -227,7 +227,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
                         query = query.Where(x => x.NewsletterCategories.Contains(item));
                     }
                 }
-                model = await PagedList<NewsLetterSubscription>.Create(query.Select(x => new NewsLetterSubscription() { CustomerId = x.CustomerId, Email = x.Email, NewsLetterSubscriptionGuid = x.NewsLetterSubscriptionGuid }), pageIndex, pageSize);
+                model = await PagedList<NewsLetterSubscription>.Create(query.Select(x => new NewsLetterSubscription { CustomerId = x.CustomerId, Email = x.Email, NewsLetterSubscriptionGuid = x.NewsLetterSubscriptionGuid }), pageIndex, pageSize);
             }
             else
             {
@@ -330,7 +330,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
                 email.ObjectId = campaign.Id;
 
                 await _queuedEmailService.InsertQueuedEmail(email);
-                await InsertCampaignHistory(new CampaignHistory() { CampaignId = campaign.Id, CustomerId = subscription.CustomerId, Email = subscription.Email, CreatedDateUtc = DateTime.UtcNow, StoreId = campaign.StoreId });
+                await InsertCampaignHistory(new CampaignHistory { CampaignId = campaign.Id, CustomerId = subscription.CustomerId, Email = subscription.Email, CreatedDateUtc = DateTime.UtcNow, StoreId = campaign.StoreId });
 
                 totalEmailsSent++;
             }
