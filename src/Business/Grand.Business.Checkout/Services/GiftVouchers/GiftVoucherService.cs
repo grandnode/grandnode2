@@ -66,7 +66,7 @@ namespace Grand.Business.Checkout.Services.GiftVouchers
             string recipientName = null,
             int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            var model = new GetGiftVoucherQuery() {
+            var model = new GetGiftVoucherQuery {
                 CreatedFromUtc = createdFromUtc,
                 CreatedToUtc = createdToUtc,
                 Code = giftVoucherCouponCode,

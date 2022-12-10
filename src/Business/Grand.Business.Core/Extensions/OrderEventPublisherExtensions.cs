@@ -7,7 +7,7 @@ namespace Grand.Business.Core.Extensions
 {
     public static class OrderEventPublisherExtensions
     {
-        public static async Task PlaceOrderDetailsEvent<R, O>(this IMediator eventPublisher, R result, O order) where R : PlaceOrderResult where O : PlaceOrderContainter
+        public static async Task PlaceOrderDetailsEvent<R, O>(this IMediator eventPublisher, R result, O order) where R : PlaceOrderResult where O : PlaceOrderContainer
         {
             await eventPublisher.Publish(new PlaceOrderDetailsEvent<R, O>(result, order));
         }

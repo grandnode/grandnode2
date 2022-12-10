@@ -44,12 +44,12 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
             _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
             var expectedResult = new List<string>() { "1", "2", "3", "4" };
             var expectedKey = "PaymentMethodRestictions.systemName";
-            _settingService.Setup(s => s.GetSettingByKey<PaymentRestictedSettings>(It.IsAny<string>(), null, ""))
-                .Returns(() => new PaymentRestictedSettings() { Ids = expectedResult });
+            _settingService.Setup(s => s.GetSettingByKey<PaymentRestrictedSettings>(It.IsAny<string>(), null, ""))
+                .Returns(() => new PaymentRestrictedSettings() { Ids = expectedResult });
 
             var result = _paymentService.GetRestrictedCountryIds(_paymentProviderMock.Object);
             Assert.IsTrue(expectedResult.SequenceEqual(result));
-            _settingService.Verify(s => s.GetSettingByKey<PaymentRestictedSettings>(expectedKey, null, ""), Times.Once);
+            _settingService.Verify(s => s.GetSettingByKey<PaymentRestrictedSettings>(expectedKey, null, ""), Times.Once);
         }
 
         [TestMethod()]
@@ -57,12 +57,12 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
         {
             _paymentProviderMock.Setup(c => c.SystemName).Returns("systemName");
             var expectedKey = "PaymentMethodRestictions.systemName";
-            _settingService.Setup(s => s.GetSettingByKey<PaymentRestictedSettings>(It.IsAny<string>(), null, ""))
+            _settingService.Setup(s => s.GetSettingByKey<PaymentRestrictedSettings>(It.IsAny<string>(), null, ""))
                 .Returns(() => null);
 
             var result = _paymentService.GetRestrictedCountryIds(_paymentProviderMock.Object);
             Assert.IsTrue(result.Count == 0);
-            _settingService.Verify(s => s.GetSettingByKey<PaymentRestictedSettings>(expectedKey, null, ""), Times.Once);
+            _settingService.Verify(s => s.GetSettingByKey<PaymentRestrictedSettings>(expectedKey, null, ""), Times.Once);
         }
 
         [TestMethod()]
@@ -72,8 +72,8 @@ namespace Grand.Business.Checkout.Tests.Services.Payments
             var countryIds = new List<string>() { "1", "2", "3", "4" };
             var expectedKey = "PaymentMethodRestictions.systemName";
 
-            await _paymentService.SaveRestictedCountryIds(_paymentProviderMock.Object, countryIds);
-            _settingService.Verify(s => s.SetSetting(expectedKey, It.IsAny<PaymentRestictedSettings>(), It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
+            await _paymentService.SaveRestrictedCountryIds(_paymentProviderMock.Object, countryIds);
+            _settingService.Verify(s => s.SetSetting(expectedKey, It.IsAny<PaymentRestrictedSettings>(), It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
         }
 
         [TestMethod()]

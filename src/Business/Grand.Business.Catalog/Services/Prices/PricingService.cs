@@ -645,10 +645,10 @@ namespace Grand.Business.Catalog.Services.Prices
 
             double subTotal;
             //unit price
-            var getunitPrice = await GetUnitPrice(shoppingCartItem, product, includeDiscounts);
-            var unitPrice = getunitPrice.unitprice;
-            var discountAmount = getunitPrice.discountAmount;
-            List<ApplyDiscount> appliedDiscounts = getunitPrice.appliedDiscounts;
+            var getUnitPrice = await GetUnitPrice(shoppingCartItem, product, includeDiscounts);
+            var unitPrice = getUnitPrice.unitprice;
+            var discountAmount = getUnitPrice.discountAmount;
+            List<ApplyDiscount> appliedDiscounts = getUnitPrice.appliedDiscounts;
 
             //discount
             if (appliedDiscounts.Any())

@@ -37,10 +37,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             if (request.Order.OrderStatusId == (int)OrderStatusSystem.Pending)
             {
-                if (request.Order.PaymentStatusId == PaymentStatus.Authorized ||
-                    request.Order.PaymentStatusId == PaymentStatus.Paid ||
-                    request.Order.PaymentStatusId == PaymentStatus.PartiallyPaid
-                    )
+                if (request.Order.PaymentStatusId is PaymentStatus.Authorized or PaymentStatus.Paid or PaymentStatus.PartiallyPaid)
                 {
                     await _mediator.Send(new SetOrderStatusCommand
                     {
@@ -48,12 +45,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                         Os = OrderStatusSystem.Processing,
                         NotifyCustomer = false,
                         NotifyStoreOwner = false
-                    });
+                    }, cancellationToken);
                 }
 
-                if (request.Order.ShippingStatusId == ShippingStatus.PartiallyShipped ||
-                    request.Order.ShippingStatusId == ShippingStatus.Shipped ||
-                    request.Order.ShippingStatusId == ShippingStatus.Delivered)
+                if (request.Order.ShippingStatusId is ShippingStatus.PartiallyShipped or ShippingStatus.Shipped or ShippingStatus.Delivered)
                 {
                     await _mediator.Send(new SetOrderStatusCommand
                     {
@@ -61,43 +56,37 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                         Os = OrderStatusSystem.Processing,
                         NotifyCustomer = false,
                         NotifyStoreOwner = false
-                    });
+                    }, cancellationToken);
                 }
             }
 
-            if (request.Order.OrderStatusId != (int)OrderStatusSystem.Cancelled &&
-                request.Order.OrderStatusId != (int)OrderStatusSystem.Complete)
+            if (request.Order.OrderStatusId is (int)OrderStatusSystem.Cancelled or (int)OrderStatusSystem.Complete) return true;
+            if (request.Order.PaymentStatusId != PaymentStatus.Paid) return true;
+            bool completed;
+            if (request.Order.ShippingStatusId == ShippingStatus.ShippingNotRequired)
             {
-                if (request.Order.PaymentStatusId == PaymentStatus.Paid)
+                completed = true;
+            }
+            else
+            {
+                if (_orderSettings.CompleteOrderWhenDelivered)
                 {
-                    bool completed;
-                    if (request.Order.ShippingStatusId == ShippingStatus.ShippingNotRequired)
-                    {
-                        completed = true;
-                    }
-                    else
-                    {
-                        if (_orderSettings.CompleteOrderWhenDelivered)
-                        {
-                            completed = request.Order.ShippingStatusId == ShippingStatus.Delivered;
-                        }
-                        else
-                        {
-                            completed = request.Order.ShippingStatusId == ShippingStatus.Shipped ||
-                                request.Order.ShippingStatusId == ShippingStatus.Delivered;
-                        }
-                    }
-                    if (completed)
-                    {
-                        await _mediator.Send(new SetOrderStatusCommand
-                        {
-                            Order = request.Order,
-                            Os = OrderStatusSystem.Complete,
-                            NotifyCustomer = true,
-                            NotifyStoreOwner = false
-                        });
-                    }
+                    completed = request.Order.ShippingStatusId == ShippingStatus.Delivered;
                 }
+                else
+                {
+                    completed = request.Order.ShippingStatusId is ShippingStatus.Shipped or ShippingStatus.Delivered;
+                }
+            }
+            if (completed)
+            {
+                await _mediator.Send(new SetOrderStatusCommand
+                {
+                    Order = request.Order,
+                    Os = OrderStatusSystem.Complete,
+                    NotifyCustomer = true,
+                    NotifyStoreOwner = false
+                }, cancellationToken);
             }
             return true;
         }

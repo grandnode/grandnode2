@@ -20,9 +20,9 @@ namespace Grand.Business.Checkout.Validators
                 if (!string.IsNullOrEmpty(value.ShoppingCartItem.ReservationId))
                 {
                     var reservations = await productReservationService.GetCustomerReservationsHelpers(value.Customer.Id);
-                    if (!value.Customer.ShoppingCartItems.Any(x => x.Id == value.ShoppingCartItem.Id))
+                    if (value.Customer.ShoppingCartItems.All(x => x.Id != value.ShoppingCartItem.Id))
                     {
-                        if (reservations.Where(x => x.ReservationId == value.ShoppingCartItem.ReservationId).Any())
+                        if (reservations.Any(x => x.ReservationId == value.ShoppingCartItem.ReservationId))
                             context.AddFailure(translationService.GetResource("ShoppingCart.AlreadyReservation"));
                     }
                 }
@@ -63,11 +63,9 @@ namespace Grand.Business.Checkout.Validators
                                 break;
                             }
                         }
-                        if (groupCanBeBooked)
-                        {
-                            canBeBook = true;
-                            break;
-                        }
+                        if (!groupCanBeBooked) continue;
+                        canBeBook = true;
+                        break;
                     }
 
                     if (!canBeBook)
@@ -102,7 +100,7 @@ namespace Grand.Business.Checkout.Validators
                 {
                     if (!(value.ShoppingCartItem.RentalStartDateUtc.HasValue && value.ShoppingCartItem.RentalEndDateUtc.HasValue))
                     {
-                        context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.ChoosebothDates"));
+                        context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.ChooseBothDates"));
                     }
                     else
                     {
@@ -140,11 +138,10 @@ namespace Grand.Business.Checkout.Validators
                                         context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.ReservationDeleted"));
                                         break;
                                     }
-                                    else if (!string.IsNullOrEmpty(reservation.OrderId))
-                                    {
-                                        context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.AlreadyReserved"));
-                                        break;
-                                    }
+
+                                    if (string.IsNullOrEmpty(reservation.OrderId)) continue;
+                                    context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.AlreadyReserved"));
+                                    break;
                                 }
                         }
                     }

@@ -72,7 +72,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         /// <summary>
         /// Gets all shipping methods
         /// </summary>
-        /// <param name="filterByCountryId">The country indentifier to filter by</param>
+        /// <param name="filterByCountryId">The country ident to filter by</param>
         /// <param name="customer"></param>
         /// <returns>Shipping methods</returns>
         public virtual async Task<IList<ShippingMethod>> GetAllShippingMethods(string filterByCountryId = "", Customer customer = null)

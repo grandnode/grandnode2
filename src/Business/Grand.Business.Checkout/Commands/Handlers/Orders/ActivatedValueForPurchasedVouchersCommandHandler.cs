@@ -43,9 +43,8 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                             if (!string.IsNullOrEmpty(gc.RecipientEmail) &&
                                 !string.IsNullOrEmpty(gc.SenderEmail))
                             {
-                                var customerLang = await _languageService.GetLanguageById(request.Order.CustomerLanguageId);
-                                if (customerLang == null)
-                                    customerLang = (await _languageService.GetAllLanguages()).FirstOrDefault();
+                                var customerLang = await _languageService.GetLanguageById(request.Order.CustomerLanguageId) ??
+                                                   (await _languageService.GetAllLanguages()).FirstOrDefault();
                                 if (customerLang == null)
                                     throw new Exception("No languages could be loaded");
                                 _ = await _messageProviderService.SendGiftVoucherMessage(gc, request.Order, customerLang.Id);

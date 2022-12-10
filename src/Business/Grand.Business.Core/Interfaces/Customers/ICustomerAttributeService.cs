@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Customers
     /// <summary>
     /// Customer attribute service
     /// </summary>
-    public partial interface ICustomerAttributeService
+    public interface ICustomerAttributeService
     {
         /// <summary>
         /// Gets all customer attributes

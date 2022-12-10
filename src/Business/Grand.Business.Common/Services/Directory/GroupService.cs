@@ -44,7 +44,7 @@ namespace Grand.Business.Common.Services.Directory
             var result =
                 customer.Groups.Contains(customerGroup.Id)
                 && (!onlyActiveCustomerGroups || customerGroup.Active)
-                && (customerGroup.SystemName == customerGroupSystemName)
+                && customerGroup.SystemName == customerGroupSystemName
                 && (!isSystem.HasValue || customerGroup.IsSystem == isSystem);
 
             return result;

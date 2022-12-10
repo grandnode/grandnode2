@@ -72,7 +72,7 @@ namespace Grand.Business.Storage.Services
         protected override async Task DeletePictureThumbs(Picture picture)
         {
             var filter = $"{picture.Id}";
-            var blobs = _container.GetBlobs(Azure.Storage.Blobs.Models.BlobTraits.All, Azure.Storage.Blobs.Models.BlobStates.All, filter);
+            var blobs = _container.GetBlobs(BlobTraits.All, BlobStates.All, filter);
 
             foreach (var blob in blobs)
             {

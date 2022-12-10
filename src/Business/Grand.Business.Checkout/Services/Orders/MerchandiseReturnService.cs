@@ -16,7 +16,7 @@ namespace Grand.Business.Checkout.Services.Orders
     public class MerchandiseReturnService : IMerchandiseReturnService
     {
         #region Fields
-        private static readonly object Locker = new object();
+        private static readonly object Locker = new();
 
         private readonly IRepository<MerchandiseReturn> _merchandiseReturnRepository;
         private readonly IRepository<MerchandiseReturnAction> _merchandiseReturnActionRepository;
@@ -96,7 +96,7 @@ namespace Grand.Business.Checkout.Services.Orders
             string orderItemId = "", string vendorId = "", string ownerId = "", MerchandiseReturnStatus? rs = null,
             int pageIndex = 0, int pageSize = int.MaxValue, DateTime? createdFromUtc = null, DateTime? createdToUtc = null)
         {
-            var model = new GetMerchandiseReturnQuery()
+            var model = new GetMerchandiseReturnQuery
             {
                 CreatedFromUtc = createdFromUtc,
                 CreatedToUtc = createdToUtc,
@@ -107,7 +107,7 @@ namespace Grand.Business.Checkout.Services.Orders
                 OwnerId = ownerId,
                 StoreId = storeId,
                 OrderItemId = orderItemId,
-                Rs = rs,
+                Rs = rs
             };
 
             var query = await _mediator.Send(model);

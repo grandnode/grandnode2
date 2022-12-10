@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
     /// <summary>
     /// Shipment tracker
     /// </summary>
-    public partial interface IShipmentTracker
+    public interface IShipmentTracker
     {        
         /// <summary>
         /// Gets a url for a page to show tracking info (third party tracking page).

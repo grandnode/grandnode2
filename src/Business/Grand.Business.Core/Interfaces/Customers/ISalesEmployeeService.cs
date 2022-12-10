@@ -32,7 +32,7 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// <summary>
         /// Deletes a sales employee
         /// </summary>
-        /// <param name="warehouse">The sales employee</param>
+        /// <param name="salesEmployee">The sales employee</param>
         Task DeleteSalesEmployee(SalesEmployee salesEmployee);
 
     }

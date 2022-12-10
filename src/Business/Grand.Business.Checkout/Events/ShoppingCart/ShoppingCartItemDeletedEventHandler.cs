@@ -3,7 +3,7 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure.Events;
 using MediatR;
 
-namespace Grand.Business.Checkout.Events.Shipping
+namespace Grand.Business.Checkout.Events.ShoppingCart
 {
     /// <summary>
     /// Update order items 

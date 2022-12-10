@@ -1,10 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.Marketing.Newsletters;
-using Grand.Infrastructure.Extensions;
 using Grand.Domain.Data;
 using Grand.Domain.Messages;
+using Grand.Infrastructure.Extensions;
 using MediatR;
 
-namespace Grand.Business.Marketing.Services.Newsteletters
+namespace Grand.Business.Marketing.Services.Newsletters
 {
     public class NewsletterCategoryService : INewsletterCategoryService
     {

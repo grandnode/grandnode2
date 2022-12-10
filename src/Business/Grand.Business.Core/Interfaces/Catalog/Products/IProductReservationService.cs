@@ -42,9 +42,9 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// <summary>
         /// Gets product reservation for specified Id
         /// </summary>
-        /// <param name="Id">Product Id</param>
+        /// <param name="id">Product Id</param>
         /// <returns>Product reservation</returns>
-        Task<ProductReservation> GetProductReservation(string Id);
+        Task<ProductReservation> GetProductReservation(string id);
 
         /// <summary>
         /// Adds customer reservations helper
@@ -83,7 +83,6 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// Gets customer reservations helper by Shopping Cart Item id
         /// </summary>
         /// <param name="sciId">Sci ident</param>
-        /// <returns>List<CustomerReservationsHelper></returns>
         Task<IList<CustomerReservationsHelper>> GetCustomerReservationsHelperBySciId(string sciId);
     }
 }

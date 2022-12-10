@@ -14,7 +14,7 @@ namespace Grand.Business.Core.Interfaces.Common.Security
         /// <summary>
         /// Create a password hash
         /// </summary>
-        /// <param name="password">{assword</param>
+        /// <param name="password">password</param>
         /// <param name="saltKey">Salk key</param>
         /// <param name="passwordFormat">Hashed Password format (hash algorithm)</param>
         /// <returns>Password hash</returns>

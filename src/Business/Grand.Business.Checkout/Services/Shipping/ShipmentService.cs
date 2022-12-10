@@ -213,7 +213,7 @@ namespace Grand.Business.Checkout.Services.Shipping
         }
 
         /// <summary>
-        /// Get shipmentnote by id
+        /// Get shipment note by id
         /// </summary>
         /// <param name="shipmentNoteId">Shipment note identifier</param>
         /// <returns>shipmentNote</returns>

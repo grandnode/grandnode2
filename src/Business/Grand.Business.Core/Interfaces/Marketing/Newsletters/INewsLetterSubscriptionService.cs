@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Newsletters
     /// <summary>
     /// Newsletter subscription service interface
     /// </summary>
-    public partial interface INewsLetterSubscriptionService
+    public interface INewsLetterSubscriptionService
     {
         /// <summary>
         /// Inserts a newsletter subscription

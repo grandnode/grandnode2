@@ -57,9 +57,9 @@ namespace Grand.Business.Catalog.Services.Products
         }
 
         /// <summary>
-        /// Gets a specification attribute by sename
+        /// Gets a specification attribute by se-name
         /// </summary>
-        /// <param name="sename">Sename</param>
+        /// <param name="sename">Se-name</param>
         /// <returns>Specification attribute</returns>
         public virtual async Task<SpecificationAttribute> GetSpecificationAttributeBySeName(string sename)
         {

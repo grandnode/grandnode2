@@ -11,7 +11,7 @@ namespace Grand.Business.Cms.Services
     /// <summary>
     /// Page layout service
     /// </summary>
-    public partial class PageLayoutService : IPageLayoutService
+    public class PageLayoutService : IPageLayoutService
     {
         #region Fields
 

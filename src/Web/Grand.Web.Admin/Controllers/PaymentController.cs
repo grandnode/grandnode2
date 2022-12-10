@@ -207,7 +207,7 @@ namespace Grand.Web.Admin.Controllers
                         newCountryIds.Add(c.Id);
                     }
                 }
-                await _paymentService.SaveRestictedCountryIds(pm, newCountryIds);
+                await _paymentService.SaveRestrictedCountryIds(pm, newCountryIds);
 
                 formKey = "restrictship_" + pm.SystemName;
                 var shipIdsToRestrict = (form[formKey].ToString() != null ? form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList() : new List<string>())

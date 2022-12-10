@@ -30,12 +30,10 @@ namespace Grand.Business.Checkout.Events.Shipping
                 foreach (var item in notification.Entity.ShipmentItems)
                 {
                     var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
-                    if (orderItem != null)
-                    {
-                        orderItem.ShipQty += item.Quantity;
-                        orderItem.OpenQty -= item.Quantity;
-                        orderItem.Status = orderItem.OpenQty <= 0 ? Domain.Orders.OrderItemStatus.Close : Domain.Orders.OrderItemStatus.Open;
-                    }
+                    if (orderItem == null) continue;
+                    orderItem.ShipQty += item.Quantity;
+                    orderItem.OpenQty -= item.Quantity;
+                    orderItem.Status = orderItem.OpenQty <= 0 ? Domain.Orders.OrderItemStatus.Close : Domain.Orders.OrderItemStatus.Open;
                 }
 
                 if (order.ShippingStatusId == ShippingStatus.Pending)

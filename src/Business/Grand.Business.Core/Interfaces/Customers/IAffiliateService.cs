@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Customers
     /// <summary>
     /// Affiliate service interface
     /// </summary>
-    public partial interface IAffiliateService
+    public interface IAffiliateService
     {
         /// <summary>
         /// Gets an affiliate by identifier

@@ -68,7 +68,7 @@ namespace Grand.Business.Catalog.Services.Brands
             if (!string.IsNullOrWhiteSpace(brandName))
                 query = query.Where(m => m.Name != null && m.Name.ToLower().Contains(brandName.ToLower()));
 
-            if ((!CommonHelper.IgnoreAcl || (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)))
+            if (!CommonHelper.IgnoreAcl || (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations))
             {
                 if (!showHidden && !CommonHelper.IgnoreAcl)
                 {

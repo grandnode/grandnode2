@@ -56,7 +56,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 Note = $"Order item has been canceled - {product.Name} - Qty: {request.OrderItem.OpenQty}",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
-                OrderId = request.Order.Id,
+                OrderId = request.Order.Id
             });
 
             await _inventoryManageService.AdjustReserved(product, request.OrderItem.OpenQty, request.OrderItem.Attributes, request.OrderItem.WarehouseId);
@@ -69,11 +69,11 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             if (request.Order.ShippingStatusId == ShippingStatus.PartiallyShipped)
             {
                 var shipments = await _shipmentService.GetShipmentsByOrder(request.Order.Id);
-                if (!request.Order.HasItemsToAddToShipment() && !shipments.Where(x => x.ShippedDateUtc == null).Any())
+                if (!request.Order.HasItemsToAddToShipment() && shipments.All(x => x.ShippedDateUtc != null))
                 {
                     request.Order.ShippingStatusId = ShippingStatus.Shipped;
                 }
-                if (!request.Order.HasItemsToAddToShipment() && !shipments.Where(x => x.DeliveryDateUtc == null).Any())
+                if (!request.Order.HasItemsToAddToShipment() && shipments.All(x => x.DeliveryDateUtc != null))
                 {
                     request.Order.ShippingStatusId = ShippingStatus.Delivered;
                 }
@@ -82,7 +82,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             await _orderService.UpdateOrder(request.Order);
 
             //check order status
-            await _mediator.Send(new CheckOrderStatusCommand() { Order = request.Order });
+            await _mediator.Send(new CheckOrderStatusCommand { Order = request.Order }, cancellationToken);
 
             return (false, "");
         }

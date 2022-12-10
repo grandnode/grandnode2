@@ -100,17 +100,17 @@ namespace Grand.Business.Checkout.Validators
                                     if (combination != null)
                                     {
                                         //combination exists - check stock level
-                                        var stockquantity = stockQuantityService.GetTotalStockQuantityForCombination(p1, combination, warehouseId: warehouseId);
-                                        if (!combination.AllowOutOfStockOrders && stockquantity < qty)
+                                        var stockQuantity = stockQuantityService.GetTotalStockQuantityForCombination(p1, combination, warehouseId: warehouseId);
+                                        if (!combination.AllowOutOfStockOrders && stockQuantity < qty)
                                         {
-                                            context.AddFailure(stockquantity <= 0
+                                            context.AddFailure(stockQuantity <= 0
                                                 ? string.Format(
                                                     translationService.GetResource(
                                                         "ShoppingCart.OutOfStock.BundleProduct"), p1.Name)
                                                 : string.Format(
                                                     translationService.GetResource(
                                                         "ShoppingCart.QuantityExceedsStock.BundleProduct"), p1.Name,
-                                                    stockquantity));
+                                                    stockQuantity));
                                         }
                                     }
                                     else
@@ -126,14 +126,14 @@ namespace Grand.Business.Checkout.Validators
                                 if (combination != null)
                                 {
                                     //combination exists - check stock level
-                                    var stockquantity = stockQuantityService.GetTotalStockQuantityForCombination(value.Product, combination, warehouseId: warehouseId);
-                                    if (!combination.AllowOutOfStockOrders && stockquantity < value.ShoppingCartItem.Quantity)
+                                    var stockQuantity = stockQuantityService.GetTotalStockQuantityForCombination(value.Product, combination, warehouseId: warehouseId);
+                                    if (!combination.AllowOutOfStockOrders && stockQuantity < value.ShoppingCartItem.Quantity)
                                     {
-                                        context.AddFailure(stockquantity <= 0
+                                        context.AddFailure(stockQuantity <= 0
                                             ? translationService.GetResource("ShoppingCart.OutOfStock")
                                             : string.Format(
                                                 translationService.GetResource("ShoppingCart.QuantityExceedsStock"),
-                                                stockquantity));
+                                                stockQuantity));
                                     }
                                 }
                                 else

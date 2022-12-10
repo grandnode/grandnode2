@@ -44,7 +44,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             if (request.Order == null)
                 throw new ArgumentNullException(nameof(request.Order));
 
-            int prevOrderStatus = request.Order.OrderStatusId;
+            var prevOrderStatus = request.Order.OrderStatusId;
             if (prevOrderStatus == (int)request.Os)
                 return false;
 
@@ -54,7 +54,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             //order notes, notifications
             await _orderService.InsertOrderNote(new OrderNote {
-                Note = string.Format("Order status has been changed to {0}", request.Os.ToString()),
+                Note = $"Order status has been changed to {request.Os.ToString()}",
                 DisplayToCustomer = false,
                 OrderId = request.Order.Id,
                 CreatedOnUtc = DateTime.UtcNow
@@ -104,7 +104,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                         Note = "\"Order cancelled\" by customer.",
                         DisplayToCustomer = true,
                         CreatedOnUtc = DateTime.UtcNow,
-                        OrderId = request.Order.Id,
+                        OrderId = request.Order.Id
                     });
                 }
                 //notification for vendor
@@ -114,46 +114,42 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             //loyalty points
             if (_loyaltyPointsSettings.PointsForPurchases_Awarded == request.Order.OrderStatusId)
             {
-                await _mediator.Send(new AwardLoyaltyPointsCommand() { Order = request.Order });
+                await _mediator.Send(new AwardLoyaltyPointsCommand { Order = request.Order }, cancellationToken);
             }
             if (_loyaltyPointsSettings.ReduceLoyaltyPointsAfterCancelOrder && request.Order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
             {
-                await _mediator.Send(new ReduceLoyaltyPointsCommand() { Order = request.Order });
+                await _mediator.Send(new ReduceLoyaltyPointsCommand { Order = request.Order }, cancellationToken);
             }
 
             //gift vouchers activation
             if (_orderSettings.GiftVouchers_Activated_OrderStatusId > 0 &&
-               _orderSettings.GiftVouchers_Activated_OrderStatusId == (int)request.Order.OrderStatusId)
+               _orderSettings.GiftVouchers_Activated_OrderStatusId == request.Order.OrderStatusId)
             {
-                await _mediator.Send(new ActivatedValueForPurchasedGiftVouchersCommand() { Order = request.Order, Activate = true });
+                await _mediator.Send(new ActivatedValueForPurchasedGiftVouchersCommand { Order = request.Order, Activate = true }, cancellationToken);
             }
 
             //gift vouchers deactivation
             if (_orderSettings.DeactivateGiftVouchersAfterCancelOrder &&
                 request.Order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
             {
-                await _mediator.Send(new ActivatedValueForPurchasedGiftVouchersCommand() { Order = request.Order, Activate = false });
+                await _mediator.Send(new ActivatedValueForPurchasedGiftVouchersCommand { Order = request.Order, Activate = false }, cancellationToken);
             }
 
             return true;
         }
 
-        private async Task<bool> VendorNotification(Order order)
+        private async Task VendorNotification(Order order)
         {
             //notification for vendor
             foreach (var orderItem in order.OrderItems)
             {
-                if (!string.IsNullOrEmpty(orderItem.VendorId))
+                if (string.IsNullOrEmpty(orderItem.VendorId)) continue;
+                var vendor = await _vendorService.GetVendorById(orderItem.VendorId);
+                if (vendor is { Deleted: false, Active: true })
                 {
-                    var vendor = await _vendorService.GetVendorById(orderItem.VendorId);
-                    if (vendor != null && !vendor.Deleted && vendor.Active)
-                    {
-                        await _messageProviderService.SendOrderCancelledVendorMessage(order, vendor, order.CustomerLanguageId);
-                    }
+                    await _messageProviderService.SendOrderCancelledVendorMessage(order, vendor, order.CustomerLanguageId);
                 }
             }
-
-            return true;
         }
     }
 }

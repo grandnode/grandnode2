@@ -237,7 +237,7 @@ namespace Grand.Business.Checkout.Services.Orders
               .ToList();
 
             foreach (var order in orders)
-                await _mediator.Send(new CancelOrderCommand() { Order = order, NotifyCustomer = true });
+                await _mediator.Send(new CancelOrderCommand { Order = order, NotifyCustomer = true });
         }
 
         #endregion

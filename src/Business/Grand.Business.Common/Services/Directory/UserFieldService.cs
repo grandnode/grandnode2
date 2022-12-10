@@ -116,7 +116,7 @@ namespace Grand.Business.Common.Services.Directory
                 ga.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
 
             if (prop == null || string.IsNullOrEmpty(prop.Value))
-                return default(TPropType);
+                return default;
 
             return CommonHelper.To<TPropType>(prop.Value);
         }

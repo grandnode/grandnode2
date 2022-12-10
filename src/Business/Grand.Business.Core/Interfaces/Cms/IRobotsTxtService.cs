@@ -2,7 +2,7 @@
 
 namespace Grand.Business.Core.Interfaces.Cms
 {
-    public partial interface IRobotsTxtService
+    public interface IRobotsTxtService
     {
         /// <summary>
         /// Get a robots txt

@@ -48,7 +48,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Shipping
             await _shipmentService.UpdateShipment(request.Shipment);
 
             var shipments = await _shipmentService.GetShipmentsByOrder(request.Shipment.OrderId);
-            if (!order.HasItemsToAddToShipment() && !shipments.Where(x => x.DeliveryDateUtc == null).Any())
+            if (!order.HasItemsToAddToShipment() && shipments.All(x => x.DeliveryDateUtc != null))
             {
                 order.ShippingStatusId = ShippingStatus.Delivered;
                 await _orderService.UpdateOrder(order);
@@ -59,7 +59,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Shipping
                 Note = $"Shipment #{request.Shipment.ShipmentNumber} has been delivered",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
-                OrderId = order.Id,
+                OrderId = order.Id
             });
             if (request.NotifyCustomer)
             {
@@ -67,7 +67,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Shipping
                 await _messageProviderService.SendShipmentDeliveredCustomerMessage(request.Shipment, order);
             }
             //check order status
-            await _mediator.Send(new CheckOrderStatusCommand() { Order = order });
+            await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
 
             //event
             await _mediator.PublishShipmentDelivered(request.Shipment);

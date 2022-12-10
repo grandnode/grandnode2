@@ -97,7 +97,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
         {
             customAttributes ??= new List<CustomAttribute>();
 
-            customAttributes.Add(new CustomAttribute() { Key = ca.Id, Value = value });
+            customAttributes.Add(new CustomAttribute { Key = ca.Id, Value = value });
             return customAttributes;
         }
 

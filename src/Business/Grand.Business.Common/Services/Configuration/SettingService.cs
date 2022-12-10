@@ -227,8 +227,8 @@ namespace Grand.Business.Common.Services.Configuration
         /// <param name="settings">Setting instance</param>
         public virtual async Task SaveSetting<T>(T settings, string storeId = "") where T : ISettings, new()
         {
-            var dbsettings = GetSettingsByName(typeof(T).Name);
-            var setting = dbsettings.Any() ? dbsettings.FirstOrDefault(x => x.StoreId == storeId) : null;
+            var dbSettings = GetSettingsByName(typeof(T).Name);
+            var setting = dbSettings.Any() ? dbSettings.FirstOrDefault(x => x.StoreId == storeId) : null;
             if (setting != null)
             {
                 //update

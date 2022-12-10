@@ -18,7 +18,7 @@ namespace Grand.Business.Checkout.Validators
 
             RuleFor(x => x).CustomAsync(async (value, context, _) =>
             {
-                var hasStandartProducts = false;
+                var hasStandardProducts = false;
                 var hasRecurringProducts = false;
                 var hasRecurringProductsMix = false;
 
@@ -46,11 +46,11 @@ namespace Grand.Business.Checkout.Validators
                             hasRecurringProductsMix = true;
                     }
                     else
-                        hasStandartProducts = true;
+                        hasStandardProducts = true;
                 }
 
                 //don't mix standard and recurring products
-                if (hasStandartProducts && hasRecurringProducts)
+                if (hasStandardProducts && hasRecurringProducts)
                     context.AddFailure(translationService.GetResource("ShoppingCart.CannotMixStandardAndAutoshipProducts"));
 
                 //don't mix recurring products

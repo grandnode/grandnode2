@@ -7,7 +7,7 @@ namespace Grand.Business.Core.Interfaces.Common.Logging
     /// <summary>
     /// Logger interface
     /// </summary>
-    public partial interface ILogger
+    public interface ILogger
     {
         /// <summary>
         /// Gets all log items

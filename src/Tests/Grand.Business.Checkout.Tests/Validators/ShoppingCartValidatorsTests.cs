@@ -205,7 +205,7 @@ namespace Grand.Business.Checkout.Tests.Validators
         public async Task ShoppingCartItemAttributeValidator_Success()
         {
             //Arrange
-            var shoppingCartItemAttributeValidator = new ShoppingCartItemAttributeValidator(_translationServiceMock.Object, _aclServiceMock.Object,
+            var shoppingCartItemAttributeValidator = new ShoppingCartItemAttributeValidator(_translationServiceMock.Object,
                 _productServiceMock.Object, _productAttributeService.Object);
 
             _productServiceMock.Setup(x => x.GetProductById(It.IsAny<string>(), false))
@@ -236,7 +236,7 @@ namespace Grand.Business.Checkout.Tests.Validators
         public async Task ShoppingCartItemAttributeValidator_Fail()
         {
             //Arrange
-            var shoppingCartItemAttributeValidator = new ShoppingCartItemAttributeValidator(_translationServiceMock.Object, _aclServiceMock.Object,
+            var shoppingCartItemAttributeValidator = new ShoppingCartItemAttributeValidator(_translationServiceMock.Object,
                 _productServiceMock.Object, _productAttributeService.Object);
 
             _productServiceMock.Setup(x => x.GetProductById(It.IsAny<string>(), false))

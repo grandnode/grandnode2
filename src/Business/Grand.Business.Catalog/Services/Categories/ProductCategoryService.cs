@@ -81,7 +81,7 @@ namespace Grand.Business.Catalog.Services.Categories
                                                   DisplayOrder = pc.DisplayOrder,
                                                   Id = pc.Id,
                                                   ProductId = prod.Id,
-                                                  IsFeaturedProduct = pc.IsFeaturedProduct,
+                                                  IsFeaturedProduct = pc.IsFeaturedProduct
                                               };
 
                 query_productCategories = from pm in query_productCategories

@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
     /// <summary>
     /// Order's tag service interface
     /// </summary>
-    public partial interface IOrderTagService
+    public interface IOrderTagService
     {
        
         /// <summary>
@@ -44,16 +44,19 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// </summary>
         /// <param name="orderTag">Order's tag</param>
         Task DeleteOrderTag(OrderTag orderTag);
+
         /// <summary>
         /// Assign a tag to the order
         /// </summary>
-        /// <param name="orderTag">order Tag</param>
+        /// <param name="orderTagId">order Tag</param>
+        /// <param name="orderId"></param>
         Task AttachOrderTag(string orderTagId, string orderId);
 
         /// <summary>
         /// Detach a tag from the order
         /// </summary>
-        /// <param name="orderTag">order Tag</param>
+        /// <param name="orderTagId">order Tag</param>
+        /// <param name="orderId"></param>
         Task DetachOrderTag(string orderTagId, string orderId);
 
         /// <summary>

@@ -8,7 +8,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Contacts
     /// <summary>
     /// Contact attribute parser interface
     /// </summary>
-    public partial interface IContactAttributeParser
+    public interface IContactAttributeParser
     {
         /// <summary>
         /// Gets selected contact attributes
@@ -27,7 +27,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Contacts
         /// <summary>
         /// Adds an attribute
         /// </summary>
-        /// <param name="attributes">Attributes</param>
+        /// <param name="customAttributes">Attributes</param>
         /// <param name="ca">Contact attribute</param>
         /// <param name="value">Value</param>
         /// <returns>Attributes</returns>
@@ -37,14 +37,14 @@ namespace Grand.Business.Core.Interfaces.Marketing.Contacts
         /// Check whether condition of some attribute is met (if specified). Return "null" if not condition is specified
         /// </summary>
         /// <param name="attribute">Contact attribute</param>
-        /// <param name="selectedAttributes">Selected attributes</param>
+        /// <param name="customAttributes">Selected attributes</param>
         /// <returns>Result</returns>
         Task<bool?> IsConditionMet(ContactAttribute attribute, IList<CustomAttribute> customAttributes);
 
         /// <summary>
         /// Remove an attribute
         /// </summary>
-        /// <param name="customattributes">Attributes in XML format</param>
+        /// <param name="customAttributes">Attributes in XML format</param>
         /// <param name="attribute">contact attribute</param>
         /// <returns>Updated result (XML format)</returns>
         IList<CustomAttribute> RemoveContactAttribute(IList<CustomAttribute> customAttributes, ContactAttribute attribute);

@@ -22,7 +22,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 var reserved = await _productReservationService.GetCustomerReservationsHelpers(request.Customer.Id);
                 foreach (var item in reserved)
                 {
-                    var match = reservations.Where(x => x.Id == item.ReservationId).FirstOrDefault();
+                    var match = reservations.FirstOrDefault(x => x.Id == item.ReservationId);
                     if (match != null)
                     {
                         reservations.Remove(match);
@@ -34,34 +34,29 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 var grouped = reservations.GroupBy(x => x.Resource);
                 foreach (var group in grouped)
                 {
-                    bool groupCanBeBooked = true;
+                    var groupCanBeBooked = true;
                     if (request.Product.IncBothDate && request.Product.IntervalUnitId == IntervalUnit.Day)
                     {
                         for (DateTime iterator = request.RentalStartDate.Value; iterator <= request.RentalEndDate.Value; iterator += new TimeSpan(24, 0, 0))
                         {
-                            if (!group.Select(x => x.Date).Contains(iterator))
-                            {
-                                groupCanBeBooked = false;
-                                break;
-                            }
+                            if (group.Select(x => x.Date).Contains(iterator)) continue;
+                            groupCanBeBooked = false;
+                            break;
                         }
                     }
                     else
                     {
                         for (DateTime iterator = request.RentalStartDate.Value; iterator < request.RentalEndDate.Value; iterator += new TimeSpan(24, 0, 0))
                         {
-                            if (!group.Select(x => x.Date).Contains(iterator))
-                            {
-                                groupCanBeBooked = false;
-                                break;
-                            }
+                            if (group.Select(x => x.Date).Contains(iterator)) continue;
+                            groupCanBeBooked = false;
+                            break;
                         }
                     }
-                    if (groupCanBeBooked)
-                    {
-                        groupToBook = group;
-                        break;
-                    }
+
+                    if (!groupCanBeBooked) continue;
+                    groupToBook = group;
+                    break;
                 }
 
                 if (groupToBook != null)
@@ -91,7 +86,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 }
 
             }
-
             if (!string.IsNullOrEmpty(request.ReservationId))
             {
                 await _productReservationService.InsertCustomerReservationsHelper(new CustomerReservationsHelper {

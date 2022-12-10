@@ -41,7 +41,7 @@ namespace Grand.Business.Authentication.Services
             }
 
             var customer = await _customerService.GetCustomerByEmail(_email);
-            if (customer == null || !customer.Active || customer.Deleted)
+            if (customer is not { Active: true } || customer.Deleted)
             {
                 _errorMessage = "Email not exists/or not active in the customer table";
                 return await Task.FromResult(false);

@@ -53,21 +53,21 @@ namespace Grand.Business.Catalog.Services.Prices
             if (targetCurrency == null)
                 return amount.ToString("C");
 
-            string result = "";
-            if (!String.IsNullOrEmpty(targetCurrency.CustomFormatting))
+            var result = "";
+            if (!string.IsNullOrEmpty(targetCurrency.CustomFormatting))
             {
-                var cultureInfo = !String.IsNullOrEmpty(targetCurrency.DisplayLocale) ? new CultureInfo(targetCurrency.DisplayLocale) : null;
+                var cultureInfo = !string.IsNullOrEmpty(targetCurrency.DisplayLocale) ? new CultureInfo(targetCurrency.DisplayLocale) : null;
                 result = amount.ToString(targetCurrency.CustomFormatting, cultureInfo);
             }
             else
             {
-                if (!String.IsNullOrEmpty(targetCurrency.DisplayLocale))
+                if (!string.IsNullOrEmpty(targetCurrency.DisplayLocale))
                 {
                     result = amount.ToString("C", new CultureInfo(targetCurrency.DisplayLocale));
                 }
                 else
                 {
-                    result = String.Format("{0} ({1})", amount.ToString("N"), targetCurrency.CurrencyCode);
+                    result = $"{amount:N} ({targetCurrency.CurrencyCode})";
                     return result;
                 }
             }
@@ -173,13 +173,13 @@ namespace Grand.Business.Catalog.Services.Prices
             if (priceIncludesTax)
             {
                 formatStr = _translationService.GetResource("Products.InclTaxSuffix", language.Id);
-                if (String.IsNullOrEmpty(formatStr))
+                if (string.IsNullOrEmpty(formatStr))
                     formatStr = "{0} incl tax";
             }
             else
             {
                 formatStr = _translationService.GetResource("Products.ExclTaxSuffix", language.Id);
-                if (String.IsNullOrEmpty(formatStr))
+                if (string.IsNullOrEmpty(formatStr))
                     formatStr = "{0} excl tax";
             }
             return string.Format(formatStr, currencyString);

@@ -172,7 +172,7 @@ namespace Grand.Business.Catalog.Services.Products
                 productCopy.ProductCollections.Add(productCollections);
             }
 
-            // product <-> releated products mappings
+            // product <-> related products mappings
             foreach (var relatedProduct in product.RelatedProducts)
             {
                 productCopy.RelatedProducts.Add(relatedProduct);

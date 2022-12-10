@@ -32,6 +32,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// </summary>
         /// <param name="productId">Product Id</param>
         /// <param name="showVacant">Show vacant</param>
+        /// <param name="date">Date</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Product reservations</returns>

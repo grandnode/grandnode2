@@ -87,8 +87,8 @@ namespace Grand.Business.Catalog.Services.Products
             await _mediator.EntityDeleted(bid);
 
             var productToUpdate = await _productRepository.GetByIdAsync(bid.ProductId);
-            var _bid = await GetBidsByProductId(bid.ProductId);
-            var highestBid = _bid.MaxBy(x => x.Amount);
+            var bids = await GetBidsByProductId(bid.ProductId);
+            var highestBid = bids.MaxBy(x => x.Amount);
             if (productToUpdate != null)
             {
                 await UpdateHighestBid(productToUpdate, highestBid?.Amount ?? 0, highestBid != null ? highestBid.CustomerId : "");
@@ -114,11 +114,11 @@ namespace Grand.Business.Catalog.Services.Products
                         !x.AuctionEnded && x.AvailableEndDateTimeUtc < DateTime.UtcNow).ToList());
         }
 
-        public virtual async Task UpdateAuctionEnded(Product product, bool ended, bool enddate = false)
+        public virtual async Task UpdateAuctionEnded(Product product, bool ended, bool endDate = false)
         {
             product.AuctionEnded = ended;
             product.UpdatedOnUtc = DateTime.UtcNow;
-            if (enddate)
+            if (endDate)
                 product.AvailableEndDateTimeUtc = DateTime.UtcNow;
 
             await _productRepository.UpdateAsync(product);
@@ -138,7 +138,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="amount"></param>
         public virtual async Task NewBid(Customer customer, Product product, Store store, Language language, string warehouseId, double amount)
         {
-            var latestbid = await GetLatestBid(product.Id);
+            var latest = await GetLatestBid(product.Id);
             await InsertBid(new Bid
             {
                 Date = DateTime.UtcNow,
@@ -149,14 +149,14 @@ namespace Grand.Business.Catalog.Services.Products
                 WarehouseId = warehouseId,
             });
 
-            if (latestbid != null)
+            if (latest != null)
             {
-                if (latestbid.CustomerId != customer.Id)
+                if (latest.CustomerId != customer.Id)
                 {
                     await _mediator.Send(new SendOutBidCustomerCommand()
                     {
                         Product = product,
-                        Bid = latestbid,
+                        Bid = latest,
                         Language = language
                     });
                 }

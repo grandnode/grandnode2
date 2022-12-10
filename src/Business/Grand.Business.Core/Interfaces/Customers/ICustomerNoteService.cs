@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Customers
     {
         #region Customer note
 
-        // <summary>
+        /// <summary>
         /// Get note for customer
         /// </summary>
         /// <param name="id">Note identifier</param>

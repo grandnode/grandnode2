@@ -19,6 +19,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Contacts
         /// Gets all Contact attributes
         /// </summary>
         /// <param name="storeId">Store identifier</param>
+        /// <param name="ignoreAcl">Ignore acl</param>
         /// <returns>Contact attributes</returns>
         Task<IList<ContactAttribute>> GetAllContactAttributes(string storeId = "", bool ignoreAcl = false);
 

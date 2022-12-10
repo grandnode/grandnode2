@@ -89,7 +89,7 @@ namespace Grand.Business.Catalog.Events.Handlers
                 case DiscountType.AssignedToAllProducts:
                     break;
                 default:
-                    break;;
+                    break;
             }
 
             //remove coupon codes

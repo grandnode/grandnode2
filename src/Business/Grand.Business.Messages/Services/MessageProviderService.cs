@@ -1412,6 +1412,7 @@ namespace Grand.Business.Messages.Services
         /// <summary>
         /// Sends an article comment notification message to a store owner
         /// </summary>
+        /// <param name="article"></param>
         /// <param name="articleComment">Article comment</param>
         /// <param name="languageId">Message language identifier</param>
         public virtual async Task<int> SendArticleCommentMessage(KnowledgebaseArticle article, KnowledgebaseArticleComment articleComment, string languageId)
@@ -1493,7 +1494,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="product">Product</param>
         /// <param name="subscription">Subscription</param>
         /// <param name="languageId">Message language identifier</param>
-        public virtual async Task<int> SendBackinStockMessage(Customer customer, Product product, OutOfStockSubscription subscription, string languageId)
+        public virtual async Task<int> SendBackInStockMessage(Customer customer, Product product, OutOfStockSubscription subscription, string languageId)
         {
             if (subscription == null)
                 throw new ArgumentNullException(nameof(subscription));

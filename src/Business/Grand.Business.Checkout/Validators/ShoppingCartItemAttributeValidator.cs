@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
@@ -15,14 +14,12 @@ namespace Grand.Business.Checkout.Validators
     public class ShoppingCartItemAttributeValidator : AbstractValidator<ShoppingCartItemAttributeValidatorRecord>
     {
         private readonly ITranslationService _translationService;
-        private readonly IAclService _aclService;
         private readonly IProductService _productService;
         private readonly IProductAttributeService _productAttributeService;
 
-        public ShoppingCartItemAttributeValidator(ITranslationService translationService, IAclService aclService, IProductService productService, IProductAttributeService productAttributeService)
+        public ShoppingCartItemAttributeValidator(ITranslationService translationService, IProductService productService, IProductAttributeService productAttributeService)
         {
             _translationService = translationService;
-            _aclService = aclService;
             _productService = productService;
             _productAttributeService = productAttributeService;
 
@@ -31,7 +28,7 @@ namespace Grand.Business.Checkout.Validators
                 var warnings = await GetShoppingCartItemWarnings(value);
                 if (warnings.Any())
                 {
-                    warnings.ToList().ForEach(x => context.AddFailure(x));
+                    warnings.ToList().ForEach(context.AddFailure);
                     return;
                 }
 
@@ -40,11 +37,11 @@ namespace Grand.Business.Checkout.Validators
                 var attributeValues = value.Product.ParseProductAttributeValues(value.ShoppingCartItem.Attributes);
                 foreach (var attributeValue in attributeValues)
                 {
-                    var _productAttributeMapping = value.Product.ProductAttributeMappings.Where(x => x.ProductAttributeValues.Any(z => z.Id == attributeValue.Id)).FirstOrDefault();
-                    //TODO - check value.Product.ProductAttributeMappings.Where(x => x.Id == attributeValue.ProductAttributeMappingId).FirstOrDefault();
-                    if (attributeValue.AttributeValueTypeId == AttributeValueType.AssociatedToProduct && _productAttributeMapping != null)
+                    var productAttributeMapping = value.Product.ProductAttributeMappings.FirstOrDefault(x => x.ProductAttributeValues.Any(z => z.Id == attributeValue.Id));
+                    if (attributeValue.AttributeValueTypeId != AttributeValueType.AssociatedToProduct ||
+                        productAttributeMapping == null) continue;
                     {
-                        if (value.IgnoreNonCombinableAttributes && _productAttributeMapping.IsNonCombinable())
+                        if (value.IgnoreNonCombinableAttributes && productAttributeMapping.IsNonCombinable())
                             continue;
 
                         //associated product (bundle)
@@ -62,7 +59,7 @@ namespace Grand.Business.Checkout.Validators
                                 }, value.IgnoreNonCombinableAttributes));
                             foreach (var associatedProductWarning in associatedProductWarnings)
                             {
-                                var productAttribute = await productAttributeService.GetProductAttributeById(_productAttributeMapping.ProductAttributeId);
+                                var productAttribute = await productAttributeService.GetProductAttributeById(productAttributeMapping.ProductAttributeId);
                                 var attributeName = productAttribute.Name;
                                 var attributeValueName = attributeValue.Name;
                                 warnings.Add(string.Format(
@@ -72,14 +69,12 @@ namespace Grand.Business.Checkout.Validators
                         }
                         else
                         {
-                            warnings.Add(string.Format("Associated product cannot be loaded - {0}", attributeValue.AssociatedProductId));
+                            warnings.Add($"Associated product cannot be loaded - {attributeValue.AssociatedProductId}");
                         }
 
-                        if (warnings.Any())
-                        {
-                            warnings.ToList().ForEach(x => context.AddFailure(x));
-                            return;
-                        }
+                        if (!warnings.Any()) continue;
+                        warnings.ToList().ForEach(x => context.AddFailure(x));
+                        return;
                     }
                 }
             });

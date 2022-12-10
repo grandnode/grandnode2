@@ -119,22 +119,19 @@ namespace Grand.Business.Common.Services.Directory
         /// </summary>
         public virtual TimeZoneInfo CurrentTimeZone {
             get {
-                if (_timeZoneInfo == null)
+                if (_timeZoneInfo != null) return _timeZoneInfo;
+                try
                 {
-                    try
-                    {
-                        if (!string.IsNullOrEmpty(_dateTimeSettings.DefaultStoreTimeZoneId))
-                            _timeZoneInfo = FindTimeZoneById(_dateTimeSettings.DefaultStoreTimeZoneId);
-                    }
-                    catch (Exception exc)
-                    {
-                        Debug.Write(exc.ToString());
-                    }
-
-                    return _timeZoneInfo ??= TimeZoneInfo.Local;
+                    if (!string.IsNullOrEmpty(_dateTimeSettings.DefaultStoreTimeZoneId))
+                        _timeZoneInfo = FindTimeZoneById(_dateTimeSettings.DefaultStoreTimeZoneId);
+                }
+                catch (Exception exc)
+                {
+                    Debug.Write(exc.ToString());
                 }
 
-                return _timeZoneInfo;
+                return _timeZoneInfo ??= TimeZoneInfo.Local;
+
             }
         }
     }

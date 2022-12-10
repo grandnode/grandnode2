@@ -27,7 +27,7 @@ namespace Grand.Business.Checkout.Events.Shipping
 
         public async Task Handle(EntityDeleted<Shipment> notification, CancellationToken cancellationToken)
         {
-            //reverse booked invetory
+            //reverse booked inventory
             foreach (var shipmentItem in notification.Entity.ShipmentItems)
             {
                 await _inventoryManageService.ReverseBookedInventory(notification.Entity, shipmentItem);
@@ -40,15 +40,13 @@ namespace Grand.Business.Checkout.Events.Shipping
                 foreach (var item in notification.Entity.ShipmentItems)
                 {
                     var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
-                    if (orderItem != null)
-                    {
-                        orderItem.ShipQty -= item.Quantity;
-                        orderItem.OpenQty += item.Quantity;
-                        orderItem.Status = orderItem.OpenQty <= 0 ? Domain.Orders.OrderItemStatus.Close : Domain.Orders.OrderItemStatus.Open;
-                    }
+                    if (orderItem == null) continue;
+                    orderItem.ShipQty -= item.Quantity;
+                    orderItem.OpenQty += item.Quantity;
+                    orderItem.Status = orderItem.OpenQty <= 0 ? Domain.Orders.OrderItemStatus.Close : Domain.Orders.OrderItemStatus.Open;
                 }
 
-                if (!order.OrderItems.Where(x => x.ShipQty > 0).Any())
+                if (!order.OrderItems.Any(x => x.ShipQty > 0))
                 {
                     order.ShippingStatusId = ShippingStatus.Pending;
                 }
@@ -61,9 +59,9 @@ namespace Grand.Business.Checkout.Events.Shipping
                         var shipments = await _shipmentService.GetShipmentsByOrder(order.Id);
                         if (shipments.Any())
                         {
-                            if (shipments.Where(x => x.ShippedDateUtc == null).Any())
+                            if (shipments.Any(x => x.ShippedDateUtc == null))
                                 order.ShippingStatusId = ShippingStatus.PreparedToShipped;
-                            if (shipments.Where(x => x.ShippedDateUtc != null).Any())
+                            if (shipments.Any(x => x.ShippedDateUtc != null))
                                 order.ShippingStatusId = ShippingStatus.PartiallyShipped;
                         }
                     }

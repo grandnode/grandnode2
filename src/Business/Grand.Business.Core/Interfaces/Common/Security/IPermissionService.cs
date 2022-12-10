@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Common.Security
     /// <summary>
     /// Permission service interface
     /// </summary>
-    public partial interface IPermissionService
+    public interface IPermissionService
     {
        
         /// <summary>
@@ -65,14 +65,14 @@ namespace Grand.Business.Core.Interfaces.Common.Security
         /// <summary>
         /// Authorize permission
         /// </summary>
-        /// <param name="permissionRecordSystemName">Permission system name</param>
+        /// <param name="permissionSystemName">Permission system name</param>
         /// <returns>true - authorized; otherwise, false</returns>
         Task<bool> Authorize(string permissionSystemName);
 
         /// <summary>
         /// Authorize permission
         /// </summary>
-        /// <param name="permissionRecordSystemName">Permission system name</param>
+        /// <param name="permissionSystemName">Permission system name</param>
         /// <param name="customer">Customer</param>
         /// <returns>true - authorized; otherwise, false</returns>
         Task<bool> Authorize(string permissionSystemName, Customer customer);
@@ -88,19 +88,19 @@ namespace Grand.Business.Core.Interfaces.Common.Security
         /// <summary>
         /// Inserts a permission action
         /// </summary>
-        /// <param name="permission">Permission</param>
+        /// <param name="permissionAction">Permission</param>
         Task InsertPermissionAction(PermissionAction permissionAction);
 
         /// <summary>
         /// Inserts a permission action record
         /// </summary>
-        /// <param name="permission">Permission</param>
+        /// <param name="permissionAction">Permission</param>
         Task DeletePermissionAction(PermissionAction permissionAction);
 
         /// <summary>
         /// Authorize permission for action
         /// </summary>
-        /// <param name="permissionRecordSystemName">Permission record system name</param>
+        /// <param name="permissionSystemName">Permission record system name</param>
         /// <param name="permissionActionName">Permission action name</param>
         /// <returns>true - authorized; otherwise, false</returns>
         Task<bool> AuthorizeAction(string permissionSystemName, string permissionActionName);

@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Customers
     /// <summary>
     /// Customer manager interface
     /// </summary>
-    public partial interface ICustomerManagerService
+    public interface ICustomerManagerService
     {
         /// <summary>
         /// Login customer

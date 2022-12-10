@@ -16,7 +16,8 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
         /// <summary>
         /// Gets all shipping methods
         /// </summary>
-        /// <param name="filterByCountryId">The country indentifier to filter by</param>
+        /// <param name="filterByCountryId">The country identifier to filter by</param>
+        /// <param name="customer"></param>
         /// <returns>Shipping methods</returns>
         Task<IList<ShippingMethod>> GetAllShippingMethods(string filterByCountryId = "", Customer customer = null);
 

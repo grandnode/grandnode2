@@ -333,8 +333,6 @@ namespace Grand.Business.Marketing.Services.Newsteletters
                         {
                             // ignored
                         }
-
-                        ;
                         break;
                     default:
                         throw new GrandException("Wrong file format");

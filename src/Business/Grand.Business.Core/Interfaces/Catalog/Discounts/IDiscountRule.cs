@@ -2,7 +2,7 @@
 
 namespace Grand.Business.Core.Interfaces.Catalog.Discounts
 {
-    public partial interface IDiscountRule
+    public interface IDiscountRule
     {
         /// <summary>
         /// Check discount requirements

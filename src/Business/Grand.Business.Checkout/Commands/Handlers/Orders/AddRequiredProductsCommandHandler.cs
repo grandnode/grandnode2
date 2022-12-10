@@ -33,9 +33,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 .LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, storeId)
                 .ToList();
 
-            var warnings = new List<string>();
-
-            if (product.RequireOtherProducts)
+            if (!product.RequireOtherProducts) return true;
             {
                 var requiredProducts = new List<Product>();
                 foreach (var id in product.ParseRequiredProductIds())
@@ -48,38 +46,25 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 foreach (var rp in requiredProducts)
                 {
                     //ensure that product is in the cart
-                    bool alreadyInTheCart = false;
-                    foreach (var sci in cart)
-                    {
-                        if (sci.ProductId == rp.Id)
-                        {
-                            alreadyInTheCart = true;
-                            break;
-                        }
-                    }
+                    var alreadyInTheCart = cart.Any(sci => sci.ProductId == rp.Id);
                     //not in the cart
-                    if (!alreadyInTheCart)
+                    if (alreadyInTheCart) continue;
+                    if (!product.AutoAddRequiredProducts) continue;
+                    var addToCart = await _shoppingCartService.AddToCart(customer: customer,
+                        productId: rp.Id,
+                        shoppingCartType: shoppingCartType,
+                        storeId: storeId,
+                        automaticallyAddRequiredProductsIfEnabled: false,
+                        validator: new ShoppingCartValidatorOptions { GetRequiredProductWarnings = false });
+
+                    if (rp.RequireOtherProducts && addToCart.warnings.Count == 0)
                     {
-
-                        if (product.AutoAddRequiredProducts)
-                        {
-                            var addToCart = await _shoppingCartService.AddToCart(customer: customer,
-                                productId: rp.Id,
-                                shoppingCartType: shoppingCartType,
-                                storeId: storeId,
-                                automaticallyAddRequiredProductsIfEnabled: false,
-                                validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false });
-
-                            if (rp.RequireOtherProducts && addToCart.warnings.Count == 0)
-                            {
-                                await Handle(new AddRequiredProductsCommand {
-                                    Customer = customer,
-                                    ShoppingCartType = shoppingCartType,
-                                    StoreId = storeId,
-                                    Product = rp
-                                }, cancellationToken);
-                            }
-                        }
+                        await Handle(new AddRequiredProductsCommand {
+                            Customer = customer,
+                            ShoppingCartType = shoppingCartType,
+                            StoreId = storeId,
+                            Product = rp
+                        }, cancellationToken);
                     }
                 }
             }

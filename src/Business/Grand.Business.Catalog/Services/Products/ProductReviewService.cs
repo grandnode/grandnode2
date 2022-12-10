@@ -84,26 +84,26 @@ namespace Grand.Business.Catalog.Services.Products
             //event notification
             await _mediator.EntityInserted(productReview);
         }
-        public virtual async Task UpdateProductReview(ProductReview productreview)
+        public virtual async Task UpdateProductReview(ProductReview productReview)
         {
-            if (productreview == null)
-                throw new ArgumentNullException(nameof(productreview));
+            if (productReview == null)
+                throw new ArgumentNullException(nameof(productReview));
 
             var update = UpdateBuilder<ProductReview>.Create()
-                .Set(x => x.Title, productreview.Title)
-                .Set(x => x.ReviewText, productreview.ReviewText)
-                .Set(x => x.ReplyText, productreview.ReplyText)
-                .Set(x => x.Signature, productreview.Signature)
+                .Set(x => x.Title, productReview.Title)
+                .Set(x => x.ReviewText, productReview.ReviewText)
+                .Set(x => x.ReplyText, productReview.ReplyText)
+                .Set(x => x.Signature, productReview.Signature)
                 .Set(x => x.UpdatedOnUtc, DateTime.UtcNow)
-                .Set(x => x.IsApproved, productreview.IsApproved)
-                .Set(x => x.HelpfulNoTotal, productreview.HelpfulNoTotal)
-                .Set(x => x.HelpfulYesTotal, productreview.HelpfulYesTotal)
-                .Set(x => x.ProductReviewHelpfulnessEntries, productreview.ProductReviewHelpfulnessEntries);
+                .Set(x => x.IsApproved, productReview.IsApproved)
+                .Set(x => x.HelpfulNoTotal, productReview.HelpfulNoTotal)
+                .Set(x => x.HelpfulYesTotal, productReview.HelpfulYesTotal)
+                .Set(x => x.ProductReviewHelpfulnessEntries, productReview.ProductReviewHelpfulnessEntries);
 
-            await _productReviewRepository.UpdateOneAsync(x => x.Id == productreview.Id, update);
+            await _productReviewRepository.UpdateOneAsync(x => x.Id == productReview.Id, update);
 
             //event notification
-            await _mediator.EntityUpdated(productreview);
+            await _mediator.EntityUpdated(productReview);
         }
 
         /// <summary>

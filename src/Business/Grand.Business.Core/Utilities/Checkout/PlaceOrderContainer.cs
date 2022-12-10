@@ -10,9 +10,9 @@ using Grand.Domain.Tax;
 
 namespace Grand.Business.Core.Utilities.Checkout
 {
-    public class PlaceOrderContainter
+    public class PlaceOrderContainer
     {
-        public PlaceOrderContainter()
+        public PlaceOrderContainer()
         {
             Cart = new List<ShoppingCartItem>();
             Taxes = new List<OrderTax>();

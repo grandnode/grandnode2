@@ -23,7 +23,9 @@ namespace Grand.Business.Core.Extensions
         /// Round
         /// </summary>
         /// <param name="value">Value to round</param>
+        /// <param name="doubles">Doubles</param>
         /// <param name="roundingType">The rounding type</param>
+        /// <param name="midpointRounding">Mid point rounding</param>
         /// <returns>Rounded value</returns>
         public static double Round(this double value, int doubles, RoundingType roundingType, MidpointRounding midpointRounding)
         {

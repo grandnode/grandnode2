@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
     /// <summary>
     /// Product layout interface
     /// </summary>
-    public partial interface IProductLayoutService
+    public interface IProductLayoutService
     {
        
         /// <summary>

@@ -38,7 +38,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             request.Order.OrderItems.Add(request.OrderItem);
             request.Order.OrderSubtotalExclTax += request.OrderItem.PriceExclTax;
             request.Order.OrderSubtotalInclTax += request.OrderItem.PriceInclTax;
-            request.Order.OrderTax += (request.OrderItem.PriceInclTax - request.OrderItem.PriceExclTax);
+            request.Order.OrderTax += request.OrderItem.PriceInclTax - request.OrderItem.PriceExclTax;
             request.Order.OrderTotal += request.OrderItem.PriceInclTax;
 
             if (request.Order.ShippingStatusId == ShippingStatus.Delivered
@@ -62,7 +62,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             await _inventoryManageService.AdjustReserved(request.Product, -request.OrderItem.Quantity, request.OrderItem.Attributes, request.OrderItem.WarehouseId);
 
             //check order status
-            await _mediator.Send(new CheckOrderStatusCommand() { Order = request.Order });
+            await _mediator.Send(new CheckOrderStatusCommand { Order = request.Order }, cancellationToken);
 
             //add a note
             await _orderService.InsertOrderNote(new OrderNote
@@ -70,34 +70,32 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 Note = "A new order item has been added",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
-                OrderId = request.Order.Id,
+                OrderId = request.Order.Id
             });
 
             //gift vouchers
-            if (request.Product.IsGiftVoucher)
+            if (!request.Product.IsGiftVoucher) return true;
+            for (var i = 0; i < request.OrderItem.Quantity; i++)
             {
-                for (int i = 0; i < request.OrderItem.Quantity; i++)
+                var gc = new GiftVoucher
                 {
-                    var gc = new GiftVoucher
-                    {
-                        GiftVoucherTypeId = request.Product.GiftVoucherTypeId,
-                        PurchasedWithOrderItem = request.OrderItem,
-                        Amount = request.OrderItem.UnitPriceExclTax,
-                        CurrencyCode = request.Order.CustomerCurrencyCode,
-                        IsGiftVoucherActivated = false,
-                        Code = _giftVoucherService.GenerateGiftVoucherCode(),
+                    GiftVoucherTypeId = request.Product.GiftVoucherTypeId,
+                    PurchasedWithOrderItem = request.OrderItem,
+                    Amount = request.OrderItem.UnitPriceExclTax,
+                    CurrencyCode = request.Order.CustomerCurrencyCode,
+                    IsGiftVoucherActivated = false,
+                    Code = _giftVoucherService.GenerateGiftVoucherCode(),
 
-                        //TODO
-                        //RecipientName = recipientName,
-                        //RecipientEmail = recipientEmail,
-                        //SenderName = senderName,
-                        //SenderEmail = senderEmail,
-                        //Message = giftVoucherMessage,
-                        IsRecipientNotified = false,
-                        CreatedOnUtc = DateTime.UtcNow
-                    };
-                    await _giftVoucherService.InsertGiftVoucher(gc);
-                }
+                    //TODO
+                    //RecipientName = recipientName,
+                    //RecipientEmail = recipientEmail,
+                    //SenderName = senderName,
+                    //SenderEmail = senderEmail,
+                    //Message = giftVoucherMessage,
+                    IsRecipientNotified = false,
+                    CreatedOnUtc = DateTime.UtcNow
+                };
+                await _giftVoucherService.InsertGiftVoucher(gc);
             }
             return true;
         }

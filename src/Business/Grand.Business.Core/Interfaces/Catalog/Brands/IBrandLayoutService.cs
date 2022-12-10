@@ -2,7 +2,7 @@ using Grand.Domain.Catalog;
 
 namespace Grand.Business.Core.Interfaces.Catalog.Brands
 {
-    public partial interface IBrandLayoutService
+    public interface IBrandLayoutService
     {
 
         /// <summary>

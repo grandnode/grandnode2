@@ -413,7 +413,7 @@ namespace Grand.Business.Catalog.Services.Tax
             Product product,
             Customer customer,
             double unitPrice,
-            double unitPricewithoutDisc,
+            double unitPriceWithoutDisc,
             int quantity,
             double subTotal,
             double discountAmount,
@@ -424,7 +424,7 @@ namespace Grand.Business.Catalog.Services.Tax
 
             var productPrice = new TaxProductPrice
             {
-                taxRate = taxrates.taxRate,
+                TaxRate = taxrates.taxRate,
                 Quantity = quantity
             };
 
@@ -432,8 +432,8 @@ namespace Grand.Business.Catalog.Services.Tax
             {
                 if (taxrates.isTaxable)
                 {
-                    productPrice.UnitPriceWihoutDiscInclTax = unitPricewithoutDisc;
-                    productPrice.UnitPriceWihoutDiscExclTax = CalculatePrice(unitPricewithoutDisc, taxrates.taxRate, false);
+                    productPrice.UnitPriceWithoutDiscInclTax = unitPriceWithoutDisc;
+                    productPrice.UnitPriceWithoutDiscExclTax = CalculatePrice(unitPriceWithoutDisc, taxrates.taxRate, false);
 
                     productPrice.UnitPriceInclTax = unitPrice;
                     productPrice.UnitPriceExclTax = CalculatePrice(unitPrice, taxrates.taxRate, false);
@@ -441,13 +441,13 @@ namespace Grand.Business.Catalog.Services.Tax
                     productPrice.SubTotalInclTax = subTotal;
                     productPrice.SubTotalExclTax = CalculatePrice(subTotal, taxrates.taxRate, false);
 
-                    productPrice.discountAmountInclTax = discountAmount;
-                    productPrice.discountAmountExclTax = CalculatePrice(discountAmount, taxrates.taxRate, false);
+                    productPrice.DiscountAmountInclTax = discountAmount;
+                    productPrice.DiscountAmountExclTax = CalculatePrice(discountAmount, taxrates.taxRate, false);
                 }
                 else
                 {
-                    productPrice.UnitPriceWihoutDiscInclTax = CalculatePrice(unitPricewithoutDisc, taxrates.taxRate, false);
-                    productPrice.UnitPriceWihoutDiscExclTax = CalculatePrice(unitPricewithoutDisc, taxrates.taxRate, false);
+                    productPrice.UnitPriceWithoutDiscInclTax = CalculatePrice(unitPriceWithoutDisc, taxrates.taxRate, false);
+                    productPrice.UnitPriceWithoutDiscExclTax = CalculatePrice(unitPriceWithoutDisc, taxrates.taxRate, false);
 
                     productPrice.UnitPriceInclTax = CalculatePrice(unitPrice, taxrates.taxRate, false);
                     productPrice.UnitPriceExclTax = CalculatePrice(unitPrice, taxrates.taxRate, false);
@@ -455,16 +455,16 @@ namespace Grand.Business.Catalog.Services.Tax
                     productPrice.SubTotalInclTax = CalculatePrice(subTotal, taxrates.taxRate, false);
                     productPrice.SubTotalExclTax = CalculatePrice(subTotal, taxrates.taxRate, false);
 
-                    productPrice.discountAmountInclTax = CalculatePrice(discountAmount, taxrates.taxRate, false);
-                    productPrice.discountAmountExclTax = CalculatePrice(discountAmount, taxrates.taxRate, false);
+                    productPrice.DiscountAmountInclTax = CalculatePrice(discountAmount, taxrates.taxRate, false);
+                    productPrice.DiscountAmountExclTax = CalculatePrice(discountAmount, taxrates.taxRate, false);
                 }
             }
             else
             {
                 if (taxrates.isTaxable)
                 {
-                    productPrice.UnitPriceWihoutDiscInclTax = CalculatePrice(unitPricewithoutDisc, taxrates.taxRate, true);
-                    productPrice.UnitPriceWihoutDiscExclTax = unitPricewithoutDisc;
+                    productPrice.UnitPriceWithoutDiscInclTax = CalculatePrice(unitPriceWithoutDisc, taxrates.taxRate, true);
+                    productPrice.UnitPriceWithoutDiscExclTax = unitPriceWithoutDisc;
 
                     productPrice.UnitPriceInclTax = CalculatePrice(unitPrice, taxrates.taxRate, true);
                     productPrice.UnitPriceExclTax = unitPrice;
@@ -472,13 +472,13 @@ namespace Grand.Business.Catalog.Services.Tax
                     productPrice.SubTotalInclTax = CalculatePrice(subTotal, taxrates.taxRate, true);
                     productPrice.SubTotalExclTax = subTotal;
 
-                    productPrice.discountAmountInclTax = CalculatePrice(discountAmount, taxrates.taxRate, true);
-                    productPrice.discountAmountExclTax = discountAmount;
+                    productPrice.DiscountAmountInclTax = CalculatePrice(discountAmount, taxrates.taxRate, true);
+                    productPrice.DiscountAmountExclTax = discountAmount;
                 }
                 else
                 {
-                    productPrice.UnitPriceWihoutDiscInclTax = unitPricewithoutDisc;
-                    productPrice.UnitPriceWihoutDiscExclTax = unitPricewithoutDisc;
+                    productPrice.UnitPriceWithoutDiscInclTax = unitPriceWithoutDisc;
+                    productPrice.UnitPriceWithoutDiscExclTax = unitPriceWithoutDisc;
 
                     productPrice.UnitPriceInclTax = unitPrice;
                     productPrice.UnitPriceExclTax = unitPrice;
@@ -486,8 +486,8 @@ namespace Grand.Business.Catalog.Services.Tax
                     productPrice.SubTotalInclTax = subTotal;
                     productPrice.SubTotalExclTax = subTotal;
 
-                    productPrice.discountAmountInclTax = discountAmount;
-                    productPrice.discountAmountExclTax = discountAmount;
+                    productPrice.DiscountAmountInclTax = discountAmount;
+                    productPrice.DiscountAmountExclTax = discountAmount;
                 }
             }
 

@@ -2,9 +2,9 @@
 
 namespace Grand.Domain.Payments
 {
-    public class PaymentRestictedSettings : ISettings
+    public class PaymentRestrictedSettings : ISettings
     {
-        public PaymentRestictedSettings()
+        public PaymentRestrictedSettings()
         {
             Ids = new List<string>();
         }

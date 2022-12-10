@@ -52,7 +52,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                             : (double?)default,
                             orderItem.RentalStartDateUtc, orderItem.RentalEndDateUtc,
                             orderItem.Quantity, false,
-                            validator: new ShoppingCartValidatorOptions() { GetRequiredProductWarnings = false })).warnings);
+                            validator: new ShoppingCartValidatorOptions { GetRequiredProductWarnings = false })).warnings);
                     }
                 }
                 else

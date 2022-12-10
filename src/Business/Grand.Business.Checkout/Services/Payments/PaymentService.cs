@@ -66,8 +66,8 @@ namespace Grand.Business.Checkout.Services.Payments
             if (selectedShippingOption == null) return await Task.FromResult(pm);
             for (var i = pm.Count - 1; i >= 0; i--)
             {
-                var restictedGroupIds = GetRestrictedShippingIds(pm[i]);
-                if (restictedGroupIds.Contains(selectedShippingOption.Name))
+                var restrictedGroupIds = GetRestrictedShippingIds(pm[i]);
+                if (restrictedGroupIds.Contains(selectedShippingOption.Name))
                 {
                     pm.Remove(pm[i]);
                 }
@@ -99,24 +99,13 @@ namespace Grand.Business.Checkout.Services.Payments
                     x.IsAuthenticateStore(storeId) &&
                     x.IsAuthenticateGroup(customer))
                 .OrderBy(x => x.Priority).ToList();
-            if (string.IsNullOrEmpty(filterByCountryId))
-                return paymentMethods;
-
-            //filter by country
-            var paymentMetodsByCountry = new List<IPaymentProvider>();
-            foreach (var pm in paymentMethods)
-            {
-                var restictedCountryIds = GetRestrictedCountryIds(pm);
-                if (!restictedCountryIds.Contains(filterByCountryId))
-                {
-                    paymentMetodsByCountry.Add(pm);
-                }
-            }
-            return paymentMetodsByCountry;
+            return string.IsNullOrEmpty(filterByCountryId) ? paymentMethods :
+                //filter by country
+                (from pm in paymentMethods let restrictedCountryIds = GetRestrictedCountryIds(pm) where !restrictedCountryIds.Contains(filterByCountryId) select pm).ToList();
         }
 
         /// <summary>
-        /// Gets a list of coutnry identifiers in which a certain payment method is now allowed
+        /// Gets a list of country identifiers in which a certain payment method is now allowed
         /// </summary>
         /// <param name="paymentMethod">Payment method</param>
         /// <returns>A list of country identifiers</returns>
@@ -126,8 +115,8 @@ namespace Grand.Business.Checkout.Services.Payments
                 throw new ArgumentNullException(nameof(paymentMethod));
 
             var settingKey = $"PaymentMethodRestictions.{paymentMethod.SystemName}";
-            var restictedCountryIds = _settingService.GetSettingByKey<PaymentRestictedSettings>(settingKey);
-            return restictedCountryIds == null ? new List<string>() : restictedCountryIds.Ids;
+            var restrictedCountryIds = _settingService.GetSettingByKey<PaymentRestrictedSettings>(settingKey);
+            return restrictedCountryIds == null ? new List<string>() : restrictedCountryIds.Ids;
         }
 
         /// <summary>
@@ -141,21 +130,21 @@ namespace Grand.Business.Checkout.Services.Payments
                 throw new ArgumentNullException(nameof(paymentMethod));
 
             var settingKey = $"PaymentMethodRestictionsShipping.{paymentMethod.SystemName}";
-            var restictedShippingIds = _settingService.GetSettingByKey<PaymentRestictedSettings>(settingKey);
-            return restictedShippingIds == null ? new List<string>() : restictedShippingIds.Ids;
+            var restrictedShippingIds = _settingService.GetSettingByKey<PaymentRestrictedSettings>(settingKey);
+            return restrictedShippingIds == null ? new List<string>() : restrictedShippingIds.Ids;
         }
         /// <summary>
         /// Saves a list of country identifiers in which a certain payment method is now allowed
         /// </summary>
         /// <param name="paymentMethod">Payment method</param>
         /// <param name="countryIds">A list of country identifiers</param>
-        public virtual async Task SaveRestictedCountryIds(IPaymentProvider paymentMethod, List<string> countryIds)
+        public virtual async Task SaveRestrictedCountryIds(IPaymentProvider paymentMethod, List<string> countryIds)
         {
             if (paymentMethod == null)
                 throw new ArgumentNullException(nameof(paymentMethod));
 
             var settingKey = $"PaymentMethodRestictions.{paymentMethod.SystemName}";
-            await _settingService.SetSetting(settingKey, new PaymentRestictedSettings() { Ids = countryIds });
+            await _settingService.SetSetting(settingKey, new PaymentRestrictedSettings { Ids = countryIds });
         }
 
         /// <summary>
@@ -169,7 +158,7 @@ namespace Grand.Business.Checkout.Services.Payments
                 throw new ArgumentNullException(nameof(paymentMethod));
 
             var settingKey = $"PaymentMethodRestictionsGroup.{paymentMethod.SystemName}";
-            await _settingService.SetSetting(settingKey, new PaymentRestictedSettings() { Ids = groupIds });
+            await _settingService.SetSetting(settingKey, new PaymentRestrictedSettings { Ids = groupIds });
         }
 
         /// <summary>
@@ -183,7 +172,7 @@ namespace Grand.Business.Checkout.Services.Payments
                 throw new ArgumentNullException(nameof(paymentMethod));
 
             var settingKey = $"PaymentMethodRestictionsShipping.{paymentMethod.SystemName}";
-            await _settingService.SetSetting(settingKey, new PaymentRestictedSettings() { Ids = shippingIds });
+            await _settingService.SetSetting(settingKey, new PaymentRestrictedSettings { Ids = shippingIds });
         }
 
         /// <summary>

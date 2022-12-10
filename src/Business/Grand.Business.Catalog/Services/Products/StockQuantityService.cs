@@ -31,17 +31,15 @@ namespace Grand.Business.Catalog.Services.Products
                 {
                     return useReservedQuantity ? product.ProductWarehouseInventory.Sum(x => x.StockQuantity - x.ReservedQuantity) : product.ProductWarehouseInventory.Sum(x => x.StockQuantity);
                 }
-                else
+
+                var pwi = product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId);
+                if (pwi == null) return 0;
+                var result = pwi.StockQuantity;
+                if (useReservedQuantity)
                 {
-                    var pwi = product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId);
-                    if (pwi == null) return 0;
-                    var result = pwi.StockQuantity;
-                    if (useReservedQuantity)
-                    {
-                        result -= pwi.ReservedQuantity;
-                    }
-                    return result;
+                    result -= pwi.ReservedQuantity;
                 }
+                return result;
             }
             if (string.IsNullOrEmpty(warehouseId) || string.IsNullOrEmpty(product.WarehouseId))
                 return product.StockQuantity - (useReservedQuantity ? product.ReservedQuantity : 0);

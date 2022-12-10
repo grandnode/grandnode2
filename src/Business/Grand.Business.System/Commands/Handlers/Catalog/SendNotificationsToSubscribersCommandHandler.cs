@@ -38,7 +38,7 @@ namespace Grand.Business.System.Commands.Handlers.Catalog
                 //ensure that customer is registered (simple and fast way)
                 if (customer == null || !CommonHelper.IsValidEmail(customer.Email)) continue;
                 var customerLanguageId = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId, subscription.StoreId);
-                await _messageProviderService.SendBackinStockMessage(customer, request.Product, subscription, customerLanguageId);
+                await _messageProviderService.SendBackInStockMessage(customer, request.Product, subscription, customerLanguageId);
             }
 
             return subscriptions;

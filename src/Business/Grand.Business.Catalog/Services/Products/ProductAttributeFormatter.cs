@@ -178,7 +178,7 @@ namespace Grand.Business.Catalog.Services.Products
                                 if (htmlEncode)
                                     attributeName = WebUtility.HtmlEncode(attributeName);
                                 formattedAttribute = $"{attributeName}: {FormatText.ConvertText(valueStr)}";
-                                //we never encode multiline textbox input
+                                //we never encode multiline text box input
                                 break;
                             }
                             case AttributeControlType.FileUpload:
@@ -202,7 +202,7 @@ namespace Grand.Business.Catalog.Services.Products
                             }
                             default:
                             {
-                                //other attributes (textbox, datepicker)
+                                //other attributes (text box, datepicker)
                                 formattedAttribute =
                                     $"{productAttribute.GetTranslation(a => a.Name, langId)}: {valueStr}";
                                 //encode (if required)

@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Common.Directory
     /// <summary>
     /// Currency service
     /// </summary>
-    public partial interface ICurrencyService
+    public interface ICurrencyService
     {
         /// <summary>
         /// Gets a currency

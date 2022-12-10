@@ -189,16 +189,16 @@ namespace Grand.Business.Catalog.Services.Discounts
         /// <summary>
         /// Load discount provider by rule system name
         /// </summary>
-        /// <param name="rulesystemName">Rule system name</param>
+        /// <param name="ruleSystemName">Rule system name</param>
         /// <returns>Found discount</returns>
-        public virtual IDiscountProvider LoadDiscountProviderByRuleSystemName(string rulesystemName)
+        public virtual IDiscountProvider LoadDiscountProviderByRuleSystemName(string ruleSystemName)
         {
             var discountPlugins = LoadAllDiscountProviders();
             foreach (var discountPlugin in discountPlugins)
             {
                 var rules = discountPlugin.GetRequirementRules();
 
-                if (!rules.Any(x => x.SystemName.Equals(rulesystemName, StringComparison.OrdinalIgnoreCase)))
+                if (!rules.Any(x => x.SystemName.Equals(ruleSystemName, StringComparison.OrdinalIgnoreCase)))
                     continue;
                 return discountPlugin;
             }

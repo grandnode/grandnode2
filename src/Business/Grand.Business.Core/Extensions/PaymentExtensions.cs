@@ -25,12 +25,7 @@ namespace Grand.Business.Core.Extensions
             if (paymentSettings == null)
                 throw new ArgumentNullException(nameof(paymentSettings));
 
-            if (paymentSettings.ActivePaymentProviderSystemNames == null)
-                return false;
-            foreach (var activeMethodSystemName in paymentSettings.ActivePaymentProviderSystemNames)
-                if (paymentMethod.SystemName.Equals(activeMethodSystemName, StringComparison.OrdinalIgnoreCase))
-                    return true;
-            return false;
+            return paymentSettings.ActivePaymentProviderSystemNames != null && paymentSettings.ActivePaymentProviderSystemNames.Any(activeMethodSystemName => paymentMethod.SystemName.Equals(activeMethodSystemName, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>

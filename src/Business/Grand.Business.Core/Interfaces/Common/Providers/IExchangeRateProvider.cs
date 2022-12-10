@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Common.Providers
     /// <summary>
     /// Exchange rate provider interface
     /// </summary>
-    public partial interface IExchangeRateProvider : IProvider
+    public interface IExchangeRateProvider : IProvider
     {
         /// <summary>
         /// Gets currency live rates

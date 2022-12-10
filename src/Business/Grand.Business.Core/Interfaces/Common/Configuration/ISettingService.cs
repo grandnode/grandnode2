@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Common.Configuration
     /// <summary>
     /// Setting service interface
     /// </summary>
-    public partial interface ISettingService
+    public interface ISettingService
     {
 
         /// <summary>

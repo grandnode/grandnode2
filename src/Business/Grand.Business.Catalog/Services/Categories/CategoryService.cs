@@ -80,7 +80,7 @@ namespace Grand.Business.Catalog.Services.Categories
             if (parentId != null)
                 query = query.Where(m => m.ParentCategoryId == parentId);
 
-            if ((!CommonHelper.IgnoreAcl || (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)))
+            if (!CommonHelper.IgnoreAcl || (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations))
             {
                 if (!showHidden && !CommonHelper.IgnoreAcl)
                 {
@@ -120,7 +120,7 @@ namespace Grand.Business.Catalog.Services.Categories
             switch (CommonHelper.IgnoreAcl)
             {
                 case true when
-                    (string.IsNullOrEmpty(_workContext.CurrentStore.Id) || CommonHelper.IgnoreStoreLimitations):
+                    string.IsNullOrEmpty(_workContext.CurrentStore.Id) || CommonHelper.IgnoreStoreLimitations:
                     return await Task.FromResult(query.ToList());
                 case false:
                 {
@@ -187,7 +187,7 @@ namespace Grand.Business.Catalog.Services.Categories
                 //add child levels
                 foreach (var category in categories)
                 {
-                    childCategories.AddRange(await GetAllCategoriesByParentCategoryId(category.Id, showHidden, includeAllLevels));
+                    childCategories.AddRange(await GetAllCategoriesByParentCategoryId(category.Id, showHidden, true));
                 }
                 categories.AddRange(childCategories);
                 return categories;

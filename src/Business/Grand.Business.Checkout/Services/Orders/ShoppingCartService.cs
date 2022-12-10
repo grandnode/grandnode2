@@ -19,7 +19,7 @@ namespace Grand.Business.Checkout.Services.Orders
     /// <summary>
     /// Shopping cart service
     /// </summary>
-    public partial class ShoppingCartService : IShoppingCartService
+    public class ShoppingCartService : IShoppingCartService
     {
         #region Fields
 
@@ -130,15 +130,15 @@ namespace Grand.Business.Checkout.Services.Orders
                 if (product.IsGiftVoucher)
                 {
                     GiftVoucherExtensions.GetGiftVoucherAttribute(attributes,
-                        out var giftVoucherRecipientName1, out var giftVoucherRecipientEmail1,
-                        out var giftVoucherSenderName1, out var giftVoucherSenderEmail1, out var giftVoucherMessage1);
+                        out var giftVoucherRecipientName1, out _,
+                        out var giftVoucherSenderName1, out _, out _);
 
                     GiftVoucherExtensions.GetGiftVoucherAttribute(sci.Attributes,
-                        out var giftVoucherRecipientName2, out var giftVoucherRecipientEmail2,
-                        out var giftVoucherSenderName2, out var giftVoucherSenderEmail2, out var giftVoucherMessage2);
+                        out var giftVoucherRecipientName2, out _,
+                        out var giftVoucherSenderName2, out _, out _);
 
-                    if (giftVoucherRecipientName1.ToLowerInvariant() != giftVoucherRecipientName2.ToLowerInvariant() ||
-                        giftVoucherSenderName1.ToLowerInvariant() != giftVoucherSenderName2.ToLowerInvariant())
+                    if (!string.Equals(giftVoucherRecipientName1, giftVoucherRecipientName2, StringComparison.InvariantCultureIgnoreCase) ||
+                        !string.Equals(giftVoucherSenderName1, giftVoucherSenderName2, StringComparison.InvariantCultureIgnoreCase))
                         giftVoucherInfoSame = false;
                 }
 
@@ -430,13 +430,13 @@ namespace Grand.Business.Checkout.Services.Orders
             {
                 //discount
                 var coupons = fromCustomer.ParseAppliedCouponCodes(SystemCustomerFieldNames.DiscountCoupons);
-                var resultcoupons = toCustomer.ApplyCouponCode(SystemCustomerFieldNames.DiscountCoupons, coupons);
-                await _userFieldService.SaveField(toCustomer, SystemCustomerFieldNames.DiscountCoupons, resultcoupons);
+                var resultCoupons = toCustomer.ApplyCouponCode(SystemCustomerFieldNames.DiscountCoupons, coupons);
+                await _userFieldService.SaveField(toCustomer, SystemCustomerFieldNames.DiscountCoupons, resultCoupons);
 
                 //gift voucher
-                var giftvoucher = fromCustomer.ParseAppliedCouponCodes(SystemCustomerFieldNames.GiftVoucherCoupons);
-                var resultgift = toCustomer.ApplyCouponCode(SystemCustomerFieldNames.GiftVoucherCoupons, giftvoucher);
-                await _userFieldService.SaveField(toCustomer, SystemCustomerFieldNames.GiftVoucherCoupons, resultgift);
+                var giftVoucher = fromCustomer.ParseAppliedCouponCodes(SystemCustomerFieldNames.GiftVoucherCoupons);
+                var resultGift = toCustomer.ApplyCouponCode(SystemCustomerFieldNames.GiftVoucherCoupons, giftVoucher);
+                await _userFieldService.SaveField(toCustomer, SystemCustomerFieldNames.GiftVoucherCoupons, resultGift);
             }
 
             //copy url referer

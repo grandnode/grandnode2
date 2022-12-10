@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Utilities.System
     public partial class OrderByCountryReportLine
     {
         /// <summary>
-        /// Country identifier; null for unknow country
+        /// Country identifier; null for un know country
         /// </summary>
         public string CountryId { get; set; }
 

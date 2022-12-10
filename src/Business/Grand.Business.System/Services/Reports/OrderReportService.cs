@@ -187,7 +187,7 @@ namespace Grand.Business.System.Services.Reports
         /// <param name="billingEmail">Billing email. Leave empty to load all records.</param>
         /// <param name="billingLastName"></param>
         /// <param name="ignoreCancelledOrders">A value indicating whether to ignore cancelled orders</param>
-        /// <param name="tagid">Tag ident.</param>
+        /// <param name="tagId">Tag ident.</param>
         /// <returns>Result</returns>
         public virtual async Task<OrderAverageReportLine> GetOrderAverageReportLine(string storeId = "", string customerId = "",
             string vendorId = "", string salesEmployeeId = "", string billingCountryId = "",
@@ -195,7 +195,7 @@ namespace Grand.Business.System.Services.Reports
             int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
             DateTime? startTimeUtc = null, DateTime? endTimeUtc = null,
             string billingEmail = null, string billingLastName = "", bool ignoreCancelledOrders = false,
-            string tagid = null)
+            string tagId = null)
         {
             var builderquery = from p in _orderRepository.Table
                                select p;
@@ -253,8 +253,8 @@ namespace Grand.Business.System.Services.Reports
                 builderquery = builderquery.Where(o => o.BillingAddress != null && !String.IsNullOrEmpty(o.BillingAddress.LastName) && o.BillingAddress.LastName.Contains(billingLastName));
 
             //tag filtering 
-            if (!string.IsNullOrEmpty(tagid))
-                builderquery = builderquery.Where(o => o.OrderTags.Any(y => y == tagid));
+            if (!string.IsNullOrEmpty(tagId))
+                builderquery = builderquery.Where(o => o.OrderTags.Any(y => y == tagId));
 
             var query = builderquery
                     .GroupBy(x => 1).Select(g => new OrderAverageReportLine {

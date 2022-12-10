@@ -104,9 +104,9 @@ namespace Grand.Business.Catalog.Services.Products
         }
 
         /// <summary>
-        /// Gets product tag by sename
+        /// Gets product tag by se-name
         /// </summary>
-        /// <param name="sename">Product tag sename</param>
+        /// <param name="sename">Product tag se-name</param>
         /// <returns>Product tag</returns>
         public virtual Task<ProductTag> GetProductTagBySeName(string sename)
         {
@@ -143,12 +143,12 @@ namespace Grand.Business.Catalog.Services.Products
             if (productTag == null)
                 throw new ArgumentNullException(nameof(productTag));
 
-            var previouse = await GetProductTagById(productTag.Id);
+            var previous = await GetProductTagById(productTag.Id);
 
             await _productTagRepository.UpdateAsync(productTag);
 
             //update on products
-            await _productRepository.UpdateToSet(x => x.ProductTags, previouse.Name, productTag.Name);
+            await _productRepository.UpdateToSet(x => x.ProductTags, previous.Name, productTag.Name);
 
             //cache
             await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTTAG_PATTERN_KEY);

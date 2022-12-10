@@ -183,17 +183,16 @@ namespace Grand.Business.Checkout.Services.Shipping
                 throw new GrandException("Shipping rate  method could not be loaded");
 
             //request shipping options from each Shipping rate  methods
-            foreach (var srcm in shippingRateMethods)
+            foreach (var shippingRateMethod in shippingRateMethods)
             {
                 //request shipping options (separately for each package-request)
-                IList<ShippingOption> srcmShippingOptions = null;
-
-                var getShippingOptionResponse = await srcm.GetShippingOptions(shippingOptionRequest);
+                IList<ShippingOption> shippingRateMethodOptions = null;
+                var getShippingOptionResponse = await shippingRateMethod.GetShippingOptions(shippingOptionRequest);
 
                 if (getShippingOptionResponse.Success)
                 {
                     //success
-                    srcmShippingOptions = getShippingOptionResponse.ShippingOptions;
+                    shippingRateMethodOptions = getShippingOptionResponse.ShippingOptions;
                 }
                 else
                 {
@@ -201,20 +200,18 @@ namespace Grand.Business.Checkout.Services.Shipping
                     foreach (var error in getShippingOptionResponse.Errors)
                     {
                         result.AddError(error);
-                        _ = _logger.Warning($"Shipping ({srcm.FriendlyName}). {error}");
+                        _ = _logger.Warning($"Shipping ({shippingRateMethod.FriendlyName}). {error}");
                     }
                     //clear the shipping options in this case
                     break;
                 }
-
-
-                // add this scrm's options to the result
-                if (srcmShippingOptions == null) continue;
-                foreach (var so in srcmShippingOptions)
+                // add this scrm s options to the result
+                if (shippingRateMethodOptions == null) continue;
+                foreach (var so in shippingRateMethodOptions)
                 {
                     //set system name if not set yet
                     if (string.IsNullOrEmpty(so.ShippingRateProviderSystemName))
-                        so.ShippingRateProviderSystemName = srcm.SystemName;
+                        so.ShippingRateProviderSystemName = shippingRateMethod.SystemName;
 
                     result.ShippingOptions.Add(so);
                 }
