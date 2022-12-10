@@ -12,7 +12,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
     /// <summary>
     /// Represents a task end auctions
     /// </summary>
-    public partial class EndAuctionsTask : IScheduleTask
+    public class EndAuctionsTask : IScheduleTask
     {
         private readonly IAuctionService _auctionService;
         private readonly IMessageProviderService _messageProviderService;

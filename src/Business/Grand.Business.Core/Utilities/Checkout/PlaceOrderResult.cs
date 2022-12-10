@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Utilities.Checkout
     /// <summary>
     /// Place order result
     /// </summary>
-    public partial class PlaceOrderResult
+    public class PlaceOrderResult
     {
         /// <summary>
         /// Ctor

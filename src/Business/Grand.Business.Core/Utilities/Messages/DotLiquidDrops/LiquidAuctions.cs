@@ -3,7 +3,7 @@ using Grand.Domain.Catalog;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidAuctions : Drop
+    public class LiquidAuctions : Drop
     {
         private readonly Product _product;
         private readonly Bid _bid;

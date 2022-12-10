@@ -6,7 +6,7 @@ using Grand.Domain.Stores;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidProduct : Drop
+    public class LiquidProduct : Drop
     {
         private readonly Product _product;
         private readonly Language _language;

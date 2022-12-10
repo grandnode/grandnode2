@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Contacts
     /// <summary>
     /// Contact attribute service
     /// </summary>
-    public partial interface IContactAttributeService
+    public interface IContactAttributeService
     {
         #region Contact attributes
 

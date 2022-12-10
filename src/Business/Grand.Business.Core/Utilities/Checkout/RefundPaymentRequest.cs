@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Utilities.Checkout
     /// <summary>
     /// Represents a RefundPaymentResult
     /// </summary>
-    public partial class RefundPaymentRequest
+    public class RefundPaymentRequest
     {
         /// <summary>
         /// Gets or sets an payment transaction

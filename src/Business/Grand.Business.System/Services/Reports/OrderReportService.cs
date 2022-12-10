@@ -14,7 +14,7 @@ namespace Grand.Business.System.Services.Reports
     /// <summary>
     /// Order report service
     /// </summary>
-    public partial class OrderReportService : IOrderReportService
+    public class OrderReportService : IOrderReportService
     {
         #region Fields
 

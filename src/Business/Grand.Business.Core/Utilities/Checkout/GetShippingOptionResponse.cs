@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Utilities.Checkout
     /// <summary>
     /// Represents a response of getting shipping rate options
     /// </summary>
-    public partial class GetShippingOptionResponse
+    public class GetShippingOptionResponse
     {
         /// <summary>
         /// Ctor

@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Contacts
     /// <summary>
     /// ContactUs interface
     /// </summary>
-    public partial interface IContactUsService
+    public interface IContactUsService
     {
         /// <summary>
         /// Deletes a contactus item

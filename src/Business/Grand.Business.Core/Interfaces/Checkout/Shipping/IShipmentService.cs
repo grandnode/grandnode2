@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
     /// <summary>
     /// Shipment service interface
     /// </summary>
-    public partial interface IShipmentService
+    public interface IShipmentService
     {
         /// <summary>
         /// Search shipments

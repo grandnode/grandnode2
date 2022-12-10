@@ -7,7 +7,7 @@ namespace Grand.Business.Core.Utilities.Catalog
     /// <summary>
     /// Represents a request for tax calculation
     /// </summary>
-    public partial class TaxRequest
+    public class TaxRequest
     {
         // <summary>
         /// Gets or sets a product

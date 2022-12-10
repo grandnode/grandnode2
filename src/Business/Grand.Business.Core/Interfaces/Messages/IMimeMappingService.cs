@@ -1,6 +1,6 @@
 ﻿namespace Grand.Business.Core.Interfaces.Messages
 {
-    public partial interface IMimeMappingService
+    public interface IMimeMappingService
     {
         string Map(string fName);
     }

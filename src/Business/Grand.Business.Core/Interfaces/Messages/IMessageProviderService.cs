@@ -12,7 +12,7 @@ using Grand.Domain.Vendors;
 
 namespace Grand.Business.Core.Interfaces.Messages
 {
-    public partial interface IMessageProviderService
+    public interface IMessageProviderService
     {
         #region Customer messages
 

@@ -7,7 +7,7 @@ using System.Net;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidShoppingCartItem : Drop
+    public class LiquidShoppingCartItem : Drop
     {
         private readonly Product _product;
         private readonly Language _language;

@@ -2,7 +2,7 @@
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidContactUs : Drop
+    public class LiquidContactUs : Drop
     {
         private readonly string senderEmail;
         private readonly string senderName;

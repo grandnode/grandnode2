@@ -1,6 +1,6 @@
 ﻿namespace Grand.Business.Core.Interfaces.Messages
 {
-    public partial interface IMessageTokenProvider
+    public interface IMessageTokenProvider
     {
         string[] GetListOfCampaignAllowedTokens();
         string[] GetListOfAllowedTokens();

@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Utilities.Checkout
     /// <summary>
     /// Process payment result
     /// </summary>
-    public partial class ProcessPaymentResult
+    public class ProcessPaymentResult
     {
         private TransactionStatus _newPaymentTransactionStatus = TransactionStatus.Pending;
 

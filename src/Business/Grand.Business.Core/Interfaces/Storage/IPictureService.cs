@@ -8,7 +8,7 @@ namespace Grand.Business.Core.Interfaces.Storage
     /// <summary>
     /// Picture service interface
     /// </summary>
-    public partial interface IPictureService
+    public interface IPictureService
     {
         /// <summary>
         /// Gets the loaded picture binary depending on picture storage settings

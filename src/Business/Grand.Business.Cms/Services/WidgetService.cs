@@ -8,7 +8,7 @@ namespace Grand.Business.Cms.Services
     /// <summary>
     /// Widget service
     /// </summary>
-    public partial class WidgetService : IWidgetService
+    public class WidgetService : IWidgetService
     {
         #region Fields
 

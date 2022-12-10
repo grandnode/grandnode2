@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Utilities.Checkout
     /// <summary>
     /// Represents a VoidPaymentResult
     /// </summary>
-    public partial class VoidPaymentResult
+    public class VoidPaymentResult
     {
         private TransactionStatus _newTransactionStatus = TransactionStatus.Pending;
 

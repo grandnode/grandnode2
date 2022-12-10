@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a result of discount requirement validation
     /// </summary>
-    public partial class DiscountRuleValidationResult
+    public class DiscountRuleValidationResult
     {
         /// <summary>
         /// Gets or sets a value that indicates if discount is valid or not

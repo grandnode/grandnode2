@@ -8,7 +8,7 @@ using System.Net;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidCustomer : Drop
+    public class LiquidCustomer : Drop
     {
         private readonly Customer _customer;
         private readonly CustomerNote _customerNote;

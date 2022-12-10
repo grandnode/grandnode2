@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Utilities.Checkout
     /// <summary>
     /// Capture payment result
     /// </summary>
-    public partial class CapturePaymentResult
+    public class CapturePaymentResult
     {
         private TransactionStatus _newTransactionStatus = TransactionStatus.Pending;
 

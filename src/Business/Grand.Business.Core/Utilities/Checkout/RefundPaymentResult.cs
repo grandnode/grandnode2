@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Utilities.Checkout
     /// <summary>
     /// Refund payment result
     /// </summary>
-    public partial class RefundPaymentResult
+    public class RefundPaymentResult
     {
         private TransactionStatus _newTransactionStatus = TransactionStatus.Pending;
 

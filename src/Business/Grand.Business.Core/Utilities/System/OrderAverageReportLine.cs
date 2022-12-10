@@ -3,7 +3,7 @@ namespace Grand.Business.Core.Utilities.System
     /// <summary>
     /// Represents an order average report line
     /// </summary>
-    public partial class OrderAverageReportLine
+    public class OrderAverageReportLine
     {
         /// <summary>
         /// Gets or sets the count

@@ -3,7 +3,7 @@ namespace Grand.Business.Core.Utilities.Catalog
     /// <summary>
     /// Represents a result of tax calculation
     /// </summary>
-    public partial class TaxResult
+    public class TaxResult
     {
         /// <summary>
         /// Ctor

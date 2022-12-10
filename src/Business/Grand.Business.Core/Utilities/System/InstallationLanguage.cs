@@ -3,7 +3,7 @@
     /// <summary>
     /// Language class for installation process
     /// </summary>
-    public partial class InstallationLanguage
+    public class InstallationLanguage
     {
         public InstallationLanguage()
         {
@@ -17,13 +17,13 @@
         public List<InstallationLocaleResource> Resources { get; protected set; }
     }
 
-    public partial class InstallationLocaleResource
+    public class InstallationLocaleResource
     {
         public string Name { get; set; }
         public string Value { get; set; }
     }
 
-    public partial class InstallationCollation
+    public class InstallationCollation
     {
         public string Name { get; set; }
         public string Value { get; set; }
