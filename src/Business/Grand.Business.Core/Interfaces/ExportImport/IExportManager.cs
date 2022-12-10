@@ -1,6 +1,4 @@
-﻿using Grand.Business.Core.Utilities.ExportImport;
-
-namespace Grand.Business.Core.Interfaces.ExportImport
+﻿namespace Grand.Business.Core.Interfaces.ExportImport
 {
     public interface IExportManager<T>
     {

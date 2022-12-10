@@ -9,7 +9,7 @@ namespace Grand.Business.Core.Utilities.Catalog
     /// </summary>
     public class TaxRequest
     {
-        // <summary>
+        /// <summary>
         /// Gets or sets a product
         /// </summary>
         public Product Product { get; set; }

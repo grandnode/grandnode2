@@ -50,13 +50,13 @@ namespace Grand.Business.Checkout.Validators
                         {
                             var totalQty = value.ShoppingCartItem.Quantity * attributeValue.Quantity;
                             var associatedProductWarnings = await GetShoppingCartItemWarnings(
-                                new ShoppingCartItemAttributeValidatorRecord(value.Customer, associatedProduct, new ShoppingCartItem() {
+                                value with { Product = associatedProduct, ShoppingCartItem = new ShoppingCartItem() {
                                     ShoppingCartTypeId = value.ShoppingCartItem.ShoppingCartTypeId,
                                     StoreId = value.ShoppingCartItem.Id,
                                     Quantity = totalQty,
                                     WarehouseId = value.ShoppingCartItem.WarehouseId,
                                     Attributes = value.ShoppingCartItem.Attributes
-                                }, value.IgnoreNonCombinableAttributes));
+                                } });
                             foreach (var associatedProductWarning in associatedProductWarnings)
                             {
                                 var productAttribute = await productAttributeService.GetProductAttributeById(productAttributeMapping.ProductAttributeId);
@@ -73,7 +73,7 @@ namespace Grand.Business.Checkout.Validators
                         }
 
                         if (!warnings.Any()) continue;
-                        warnings.ToList().ForEach(x => context.AddFailure(x));
+                        warnings.ToList().ForEach(context.AddFailure);
                         return;
                     }
                 }
@@ -144,16 +144,12 @@ namespace Grand.Business.Checkout.Validators
                 {
                     var found = false;
                     //selected product attributes
-                    foreach (var a1 in attributes1)
+                    foreach (var attributeValuesStr in from a1 in attributes1 where a1.Id == a2.Id 
+                             select ProductExtensions.ParseValues(value.ShoppingCartItem.Attributes, a1.Id) 
+                             into attributeValuesStr 
+                             where attributeValuesStr.Any(str1 => !string.IsNullOrEmpty(str1.Trim())) select attributeValuesStr)
                     {
-                        if (a1.Id != a2.Id) continue;
-                        var attributeValuesStr = ProductExtensions.ParseValues(value.ShoppingCartItem.Attributes, a1.Id);
-                        foreach (var str1 in attributeValuesStr)
-                        {
-                            if (string.IsNullOrEmpty(str1.Trim())) continue;
-                            found = true;
-                            break;
-                        }
+                        found = true;
                     }
 
                     //if not found
@@ -200,8 +196,7 @@ namespace Grand.Business.Checkout.Validators
                 //minimum length
                 if (pam.ValidationMinLength.HasValue)
                 {
-                    if (pam.AttributeControlTypeId == AttributeControlType.TextBox ||
-                        pam.AttributeControlTypeId == AttributeControlType.MultilineTextbox)
+                    if (pam.AttributeControlTypeId is AttributeControlType.TextBox or AttributeControlType.MultilineTextbox)
                     {
                         var valuesStr = ProductExtensions.ParseValues(value.ShoppingCartItem.Attributes, pam.Id);
                         var enteredText = valuesStr.FirstOrDefault();
@@ -215,7 +210,7 @@ namespace Grand.Business.Checkout.Validators
                     }
                 }
                 //maximum length
-                if (pam.ValidationMaxLength.HasValue)
+                if (!pam.ValidationMaxLength.HasValue) continue;
                 {
                     if (pam.AttributeControlTypeId != AttributeControlType.TextBox &&
                         pam.AttributeControlTypeId != AttributeControlType.MultilineTextbox) continue;

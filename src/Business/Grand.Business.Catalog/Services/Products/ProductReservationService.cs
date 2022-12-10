@@ -43,7 +43,7 @@ namespace Grand.Business.Catalog.Services.Products
 
             if (showVacant.HasValue)
             {
-                query = showVacant.Value ? query.Where(x => (x.OrderId == "" || x.OrderId == null)) : query.Where(x => (x.OrderId != "" && x.OrderId != null));
+                query = showVacant.Value ? query.Where(x => x.OrderId == "" || x.OrderId == null) : query.Where(x => x.OrderId != "" && x.OrderId != null);
             }
 
             if (date.HasValue)

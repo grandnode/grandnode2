@@ -296,7 +296,7 @@ namespace Grand.Domain.Data.LiteDb
             return Task.CompletedTask;
         }
 
-        // <summary>
+        /// <summary>
         /// Add to set - add subdocument
         /// </summary>
         /// <typeparam name="U"></typeparam>
@@ -399,7 +399,7 @@ namespace Grand.Domain.Data.LiteDb
             return Task.CompletedTask;
 
         }
-        // <summary>
+        /// <summary>
         /// Update subdocuments
         /// </summary>
         /// <typeparam name="T">Document</typeparam>

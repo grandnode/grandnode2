@@ -370,7 +370,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                             {
                                 //bundled product
                                 var associatedProduct = await _productService.GetProductById(attributeValue.AssociatedProductId);
-                                if (associatedProduct != null && associatedProduct.IsShipEnabled)
+                                if (associatedProduct is { IsShipEnabled: true })
                                 {
                                     attributesTotalWeight += associatedProduct.Weight * attributeValue.Quantity;
                                 }
@@ -409,13 +409,13 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             if (!string.IsNullOrEmpty(details.Customer.AffiliateId))
             {
                 var affiliate = await _affiliateService.GetAffiliateById(details.Customer.AffiliateId);
-                if (affiliate != null && affiliate.Active)
+                if (affiliate is { Active: true })
                     details.AffiliateId = affiliate.Id;
             }
 
             //customer currency
             var currencyTmp = await _currencyService.GetCurrencyById(details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.CurrencyId, _workContext.CurrentStore.Id));
-            var customerCurrency = (currencyTmp != null && currencyTmp.Published) ? currencyTmp : _workContext.WorkingCurrency;
+            var customerCurrency = currencyTmp is { Published: true } ? currencyTmp : _workContext.WorkingCurrency;
             details.Currency = customerCurrency;
             var primaryStoreCurrency = await _currencyService.GetPrimaryStoreCurrency();
             details.CurrencyRate = Math.Round(customerCurrency.Rate / primaryStoreCurrency.Rate, 6);
@@ -525,7 +525,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             details.OrderSubTotalDiscountExclTax = orderSubTotalDiscountAmount;
 
             //shipping info
-            bool shoppingCartRequiresShipping = details.Cart.RequiresShipping();
+            var shoppingCartRequiresShipping = details.Cart.RequiresShipping();
 
             if (shoppingCartRequiresShipping)
             {
@@ -658,7 +658,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             var commissionRate = await PrepareCommissionRate(product, details);
             var commission = commissionRate.HasValue ?
-                Math.Round((commissionRate.Value * scSubTotal / 100), 2) : 0;
+                Math.Round(commissionRate.Value * scSubTotal / 100, 2) : 0;
 
             //save order item
             var orderItem = new OrderItem {

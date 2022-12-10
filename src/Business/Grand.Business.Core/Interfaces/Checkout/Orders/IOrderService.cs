@@ -136,7 +136,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
 
 
         /// <summary>
-        /// Get ordernotes for order
+        /// Get order notes for order
         /// </summary>
         /// <param name="orderId">Order identifier</param>
         /// <returns>OrderNote</returns>

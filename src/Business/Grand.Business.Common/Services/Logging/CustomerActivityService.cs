@@ -152,7 +152,7 @@ namespace Grand.Business.Common.Services.Logging
 
             var activityTypes = GetAllActivityTypesCachedSync();
             var activityType = activityTypes.FirstOrDefault(at => at.SystemKeyword == systemKeyword);
-            if (activityType == null || !activityType.Enabled)
+            if (activityType is not { Enabled: true })
                 return null;
 
             comment = CommonHelper.EnsureNotNull(comment);

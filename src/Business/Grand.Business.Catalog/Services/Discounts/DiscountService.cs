@@ -655,7 +655,7 @@ namespace Grand.Business.Catalog.Services.Discounts
             if (!discount.CalculateByPlugin)
             {
                 if (discount.UsePercentage)
-                    result = (float)amount * ((float)discount.DiscountPercentage) / 100f;
+                    result = (float)amount * (float)discount.DiscountPercentage / 100f;
                 else
                 {
                     result = discount.DiscountAmount;

@@ -103,7 +103,7 @@ namespace Grand.Business.System.Commands.Handlers.Common
         /// <summary>
         /// Represents sitemap URL 
         /// </summary>
-        class SitemapUrl
+        private class SitemapUrl
         {
             public SitemapUrl(string location, string image, UpdateFrequency frequency, DateTime updatedOn)
             {
@@ -192,7 +192,7 @@ namespace Grand.Business.System.Commands.Handlers.Common
                 sitemapUrls.Add(new SitemapUrl(url, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow));
             }
 
-            //knowledgebase
+            //knowledge base
             if (_knowledgebaseSettings.Enabled)
             {
                 var url = _linkGenerator.GetUriByRouteValues("Knowledgebase", routeValues, GetHttpProtocol(), GetHost());
@@ -403,38 +403,36 @@ namespace Grand.Business.System.Commands.Handlers.Common
                 Async = true
             };
 
-            using (var writer = XmlWriter.Create(stream, xwSettings))
+            await using var writer = XmlWriter.Create(stream, xwSettings);
+            await writer.WriteStartDocumentAsync();
+            writer.WriteStartElement("urlset");
+            await writer.WriteAttributeStringAsync("urlset", "xmlns", null, "http://www.sitemaps.org/schemas/sitemap/0.9");
+
+            if (_commonSettings.SitemapIncludeImage)
+                await writer.WriteAttributeStringAsync("xmlns", "image", null, "http://www.google.com/schemas/sitemap-image/1.1");
+
+            await writer.WriteAttributeStringAsync("xsi", "schemaLocation", null, "http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd");
+
+            foreach (var url in sitemapUrls)
             {
-                await writer.WriteStartDocumentAsync();
-                writer.WriteStartElement("urlset");
-                await writer.WriteAttributeStringAsync("urlset", "xmlns", null, "http://www.sitemaps.org/schemas/sitemap/0.9");
+                writer.WriteStartElement("url");
+                var location = XmlEncode(url.Location);
+                writer.WriteElementString("loc", location);
 
-                if (_commonSettings.SitemapIncludeImage)
-                    await writer.WriteAttributeStringAsync("xmlns", "image", null, "http://www.google.com/schemas/sitemap-image/1.1");
-
-                await writer.WriteAttributeStringAsync("xsi", "schemaLocation", null, "http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd");
-
-                foreach (var url in sitemapUrls)
+                if (_commonSettings.SitemapIncludeImage && !string.IsNullOrEmpty(url.Image))
                 {
-                    writer.WriteStartElement("url");
-                    var location = XmlEncode(url.Location);
-                    writer.WriteElementString("loc", location);
-
-                    if (_commonSettings.SitemapIncludeImage && !string.IsNullOrEmpty(url.Image))
-                    {
-                        writer.WriteStartElement("image", "image", null);
-                        writer.WriteElementString("image", "loc", null, url.Image);
-                        writer.WriteEndElement();
-                    }
-
-                    writer.WriteElementString("changefreq", url.UpdateFrequency.ToString().ToLowerInvariant());
-                    writer.WriteElementString("lastmod", url.UpdatedOn.ToString(DateFormat));
+                    writer.WriteStartElement("image", "image", null);
+                    writer.WriteElementString("image", "loc", null, url.Image);
                     writer.WriteEndElement();
                 }
 
-                await writer.WriteEndElementAsync();
-                await writer.FlushAsync();
+                writer.WriteElementString("changefreq", url.UpdateFrequency.ToString().ToLowerInvariant());
+                writer.WriteElementString("lastmod", url.UpdatedOn.ToString(DateFormat));
+                writer.WriteEndElement();
             }
+
+            await writer.WriteEndElementAsync();
+            await writer.FlushAsync();
         }
 
     }

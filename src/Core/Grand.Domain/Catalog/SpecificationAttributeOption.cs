@@ -22,7 +22,7 @@ namespace Grand.Domain.Catalog
         /// </summary>
         public string SeName { get; set; }
 
-        // <summary>
+        /// <summary>
         /// Gets or sets the color RGB value (used when you want to display "Color squares" instead of text)
         /// </summary>
         public string ColorSquaresRgb { get; set; }

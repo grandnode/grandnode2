@@ -54,7 +54,7 @@ namespace Grand.Business.Customers.Commands.Handlers
             }
 
             //raise event       
-            await _mediator.Publish(new VendorActivationEvent(request.Vendor));
+            await _mediator.Publish(new VendorActivationEvent(request.Vendor), cancellationToken);
 
             return true;
         }

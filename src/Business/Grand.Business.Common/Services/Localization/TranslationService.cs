@@ -282,7 +282,7 @@ namespace Grand.Business.Common.Services.Localization
                     }
                     else
                     {
-                        Enum.TryParse(area, out TranslationResourceArea areaEnum);
+                        _ = Enum.TryParse(area, out TranslationResourceArea areaEnum);
 
                         translateResources.Add(new TranslationResource {
                             LanguageId = language.Id,
@@ -332,7 +332,7 @@ namespace Grand.Business.Common.Services.Localization
                     if (string.IsNullOrEmpty(name))
                         continue;
 
-                    Enum.TryParse(area, out TranslationResourceArea areaEnum);
+                    _ = Enum.TryParse(area, out TranslationResourceArea areaEnum);
 
                     translateResources.Add(
                         new TranslationResource {

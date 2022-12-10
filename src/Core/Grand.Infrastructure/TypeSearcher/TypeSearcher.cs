@@ -70,7 +70,7 @@ namespace Grand.Infrastructure.TypeSearchers
             return result;
         }
 
-        // <summary>
+        /// <summary>
         /// Does type implement generic?
         /// </summary>
         /// <param name="type"></param>

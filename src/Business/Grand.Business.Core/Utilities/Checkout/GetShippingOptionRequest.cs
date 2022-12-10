@@ -90,10 +90,7 @@ namespace Grand.Business.Core.Utilities.Checkout
 
             public int GetQuantity()
             {
-                if (OverriddenQuantity.HasValue)
-                    return OverriddenQuantity.Value;
-
-                return ShoppingCartItem.Quantity;
+                return OverriddenQuantity ?? ShoppingCartItem.Quantity;
             }
         }
 

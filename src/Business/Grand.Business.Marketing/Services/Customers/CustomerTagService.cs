@@ -197,7 +197,7 @@ namespace Grand.Business.Marketing.Services.Customers
             return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from cr in _customerTagProductRepository.Table
-                            where (cr.CustomerTagId == customerTagId)
+                            where cr.CustomerTagId == customerTagId
                             orderby cr.DisplayOrder
                             select cr;
                 return await Task.FromResult(query.ToList());

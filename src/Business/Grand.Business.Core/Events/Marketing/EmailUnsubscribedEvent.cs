@@ -31,7 +31,7 @@ namespace Grand.Business.Core.Events.Marketing
 
         public override int GetHashCode()
         {
-            return (_email != null ? _email.GetHashCode() : 0);
+            return _email != null ? _email.GetHashCode() : 0;
         }
     }
 

@@ -168,10 +168,7 @@ namespace Grand.Business.Core.Interfaces.Storage
         /// </remarks>
         public static string NormalizePath(this IFileStore fileStore, string path)
         {
-            if (path == null)
-                return null;
-
-            return path.Replace('\\', '/').Trim('/', ' ');
+            return path?.Replace('\\', '/').Trim('/', ' ');
         }
     }
 }

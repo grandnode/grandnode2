@@ -156,7 +156,7 @@ namespace Grand.Business.Marketing.Services.Campaigns
             {
 
                 var query = from o in _newsLetterSubscriptionRepository.Table
-                            where o.Active && o.CustomerId != "" && (o.StoreId == campaign.StoreId || String.IsNullOrEmpty(campaign.StoreId))
+                            where o.Active && o.CustomerId != "" && (o.StoreId == campaign.StoreId || string.IsNullOrEmpty(campaign.StoreId))
                             join c in _customerRepository.Table on o.CustomerId equals c.Id into joined
                             from customers in joined
                             select new CampaignCustomerHelp() {

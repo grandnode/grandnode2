@@ -60,7 +60,7 @@ namespace Grand.Business.Checkout.Validators
                 //customer entered price
                 if (value.Product.EnteredPrice)
                 {
-                    var shoppingCartItemEnteredPrice = value.ShoppingCartItem.EnteredPrice.HasValue ? value.ShoppingCartItem.EnteredPrice.Value : 0;
+                    var shoppingCartItemEnteredPrice = value.ShoppingCartItem.EnteredPrice ?? 0;
                     if (shoppingCartItemEnteredPrice < value.Product.MinEnteredPrice ||
                         shoppingCartItemEnteredPrice > value.Product.MaxEnteredPrice)
                     {

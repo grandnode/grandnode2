@@ -440,7 +440,7 @@ namespace Grand.Business.Checkout.Services.Orders
             if (isFreeShipping)
                 return 0;
 
-            return cart.Where(sci => sci.IsShipEnabled && !sci.IsFreeShipping).Sum(sci => _shippingSettings.AdditionalShippingChargeByQty ? (sci.AdditionalShippingChargeProduct * sci.Quantity) : sci.AdditionalShippingChargeProduct);
+            return cart.Where(sci => sci.IsShipEnabled && !sci.IsFreeShipping).Sum(sci => _shippingSettings.AdditionalShippingChargeByQty ? sci.AdditionalShippingChargeProduct * sci.Quantity : sci.AdditionalShippingChargeProduct);
         }
 
         /// <summary>
@@ -649,10 +649,8 @@ namespace Grand.Business.Checkout.Services.Orders
             var shoppingCartSubTotal = await GetShoppingCartSubTotal(cart, false);
             SortedDictionary<double, double> orderSubTotalTaxRates = shoppingCartSubTotal.taxRates;
 
-            foreach (KeyValuePair<double, double> kvp in orderSubTotalTaxRates)
+            foreach (var (taxRate, taxValue) in orderSubTotalTaxRates)
             {
-                var taxRate = kvp.Key;
-                var taxValue = kvp.Value;
                 subTotalTaxTotal += taxValue;
 
                 if (!(taxRate > 0) || !(taxValue > 0)) continue;

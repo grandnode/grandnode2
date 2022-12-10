@@ -282,7 +282,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <summary>
         /// Gets an additional handling fee of a payment method
         /// </summary>
-        /// <param name="cart">Shoping cart</param>
+        /// <param name="cart">Shopping cart</param>
         /// <param name="paymentMethodSystemName">Payment method system name</param>
         /// <returns>Additional handling fee</returns>
         public virtual async Task<double> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart, string paymentMethodSystemName)

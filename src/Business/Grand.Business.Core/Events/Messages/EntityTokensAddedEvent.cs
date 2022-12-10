@@ -22,8 +22,8 @@ namespace Grand.Business.Core.Events.Messages
             _liquidObject = liquidObject;
         }
 
-        public T Entity { get { return _entity; } }
-        public Drop LiquidDrop { get { return _liquidDrop; } }
-        public LiquidObject LiquidObject { get { return _liquidObject; } }
+        public T Entity => _entity;
+        public Drop LiquidDrop => _liquidDrop;
+        public LiquidObject LiquidObject => _liquidObject;
     }
 }

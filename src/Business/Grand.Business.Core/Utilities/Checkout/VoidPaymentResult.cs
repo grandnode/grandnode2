@@ -20,7 +20,7 @@ namespace Grand.Business.Core.Utilities.Checkout
         /// <summary>
         /// Gets a value indicating whether request has been completed successfully
         /// </summary>
-        public bool Success => (Errors.Count == 0);
+        public bool Success => Errors.Count == 0;
 
         /// <summary>
         /// Add error

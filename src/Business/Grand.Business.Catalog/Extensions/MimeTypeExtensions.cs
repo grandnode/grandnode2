@@ -8,6 +8,6 @@ public static class MimeTypeExtensions
     {
         new FileExtensionContentTypeProvider().TryGetContentType(filePath, out var mimeType);
         //set to jpeg in case mime type cannot be found
-        return mimeType ??= "image/jpeg";
+        return mimeType ?? "image/jpeg";
     }
 }

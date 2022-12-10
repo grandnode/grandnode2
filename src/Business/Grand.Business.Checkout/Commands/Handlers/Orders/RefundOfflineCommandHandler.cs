@@ -39,7 +39,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             if (paymentTransaction == null)
                 throw new ArgumentNullException(nameof(request.PaymentTransaction));
 
-            var canRefundOffline = await _mediator.Send(new CanRefundOfflineQuery { PaymentTransaction = paymentTransaction });
+            var canRefundOffline = await _mediator.Send(new CanRefundOfflineQuery { PaymentTransaction = paymentTransaction }, cancellationToken);
             if (!canRefundOffline)
                 throw new GrandException("You can't refund this payment transaction");
 

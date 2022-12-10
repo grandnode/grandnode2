@@ -158,7 +158,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
                             ||
                             (p.FullDescription != null && p.FullDescription.ToLower().Contains(request.Keywords.ToLower()))
                             ||
-                            (p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower())))
+                            p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower()))
                             ||
                             (request.SearchSku && p.Sku != null && p.Sku.ToLower().Contains(request.Keywords.ToLower()))
                             );

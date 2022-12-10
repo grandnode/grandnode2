@@ -21,15 +21,15 @@ namespace Grand.Business.Core.Extensions
             var firstName = affiliate.Address.FirstName;
             var lastName = affiliate.Address.LastName;
 
-            string fullName = "";
-            if (!String.IsNullOrWhiteSpace(firstName) && !String.IsNullOrWhiteSpace(lastName))
-                fullName = string.Format("{0} {1}", firstName, lastName);
+            var fullName = "";
+            if (!string.IsNullOrWhiteSpace(firstName) && !string.IsNullOrWhiteSpace(lastName))
+                fullName = $"{firstName} {lastName}";
             else
             {
-                if (!String.IsNullOrWhiteSpace(firstName))
+                if (!string.IsNullOrWhiteSpace(firstName))
                     fullName = firstName;
 
-                if (!String.IsNullOrWhiteSpace(lastName))
+                if (!string.IsNullOrWhiteSpace(lastName))
                     fullName = lastName;
             }
             return fullName;
@@ -37,11 +37,11 @@ namespace Grand.Business.Core.Extensions
 
 
         /// <summary>
-        /// Generate affilaite URL
+        /// Generate affiliate URL
         /// </summary>
         /// <param name="affiliate">Affiliate</param>
         /// <param name="host">Host</param>
-        /// <returns>Generated affilaite URL</returns>
+        /// <returns>Generated affiliate URL</returns>
         public static string GenerateUrl(this Affiliate affiliate, string host)
         {
             if (affiliate == null)

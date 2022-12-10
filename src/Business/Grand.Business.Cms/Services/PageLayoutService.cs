@@ -66,7 +66,7 @@ namespace Grand.Business.Cms.Services
         /// <returns>Page layout</returns>
         public virtual Task<PageLayout> GetPageLayoutById(string pageLayoutId)
         {
-            string key = string.Format(CacheKey.PAGE_LAYOUT_BY_ID_KEY, pageLayoutId);
+            var key = string.Format(CacheKey.PAGE_LAYOUT_BY_ID_KEY, pageLayoutId);
             return _cacheBase.GetAsync(key, () => _pageLayoutRepository.GetByIdAsync(pageLayoutId));
         }
 

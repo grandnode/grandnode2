@@ -13,10 +13,7 @@ namespace Grand.Business.Core.Extensions
         /// <returns>Rounded value</returns>
         public static double RoundPrice(double value, Currency currency)
         {
-            if (currency != null)
-                return value.Round(currency.NumberDecimal, currency.RoundingTypeId, currency.MidpointRoundId);
-            else
-                return value;
+            return currency != null ? value.Round(currency.NumberDecimal, currency.RoundingTypeId, currency.MidpointRoundId) : value;
         }
 
         /// <summary>

@@ -35,19 +35,19 @@ namespace Grand.Business.System.Services.Reports
         {
             //Track inventory for product
             //simple products
-            var query_simple_products = from p in _productRepository.Table
+            var querySimpleProducts = from p in _productRepository.Table
                                         where p.LowStock &&
-                                        ((p.ProductTypeId == ProductType.SimpleProduct || p.ProductTypeId == ProductType.BundledProduct)
-                                        && p.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
+                                              (p.ProductTypeId == ProductType.SimpleProduct || p.ProductTypeId == ProductType.BundledProduct) 
+                                              && p.ManageInventoryMethodId == ManageInventoryMethod.ManageStock
                                         select p;
 
             if (!string.IsNullOrEmpty(vendorId))
-                query_simple_products = query_simple_products.Where(x => x.VendorId == vendorId);
+                querySimpleProducts = querySimpleProducts.Where(x => x.VendorId == vendorId);
 
             if (!string.IsNullOrEmpty(storeId))
-                query_simple_products = query_simple_products.Where(x => x.Stores.Contains(storeId));
+                querySimpleProducts = querySimpleProducts.Where(x => x.Stores.Contains(storeId));
 
-            var products = query_simple_products.ToList();
+            var products = querySimpleProducts.ToList();
 
             //Track inventory for product by product attributes
             var query2_1 = from p in _productRepository.Table

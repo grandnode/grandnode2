@@ -30,8 +30,7 @@ namespace Grand.Business.Core.Extensions
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            var member = keySelector.Body as MemberExpression;
-            if (member == null)
+            if (keySelector.Body is not MemberExpression member)
                 throw new ArgumentException($"Expression '{keySelector}' refers to a method, not a property.");
 
             var propInfo = member.Member as PropertyInfo;
@@ -60,7 +59,7 @@ namespace Grand.Business.Core.Extensions
             //set default value if required
             if (string.IsNullOrEmpty(resultStr) && returnDefaultValue)
             {
-                result = (string)(propInfo.GetValue(entity));
+                result = (string)propInfo.GetValue(entity);
             }
             return result;
         }
@@ -272,7 +271,7 @@ namespace Grand.Business.Core.Extensions
                 name = name.ToLowerInvariant();
             foreach (var lang in await languageService.GetAllLanguages(true))
             {
-                if (!String.IsNullOrEmpty(languageCulture) && !languageCulture.Equals(lang.LanguageCulture))
+                if (!string.IsNullOrEmpty(languageCulture) && !languageCulture.Equals(lang.LanguageCulture))
                     continue;
 
                 var lsr = await translationService.GetTranslateResourceByName(name, lang.Id);

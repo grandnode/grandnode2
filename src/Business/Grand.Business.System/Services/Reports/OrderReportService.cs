@@ -224,9 +224,7 @@ namespace Grand.Business.System.Services.Reports
 
             if (ignoreCancelledOrders)
             {
-                var cancelledOrderStatusId = OrderStatusSystem.Cancelled;
-                builderquery = builderquery.Where(o => o.OrderStatusId != (int)cancelledOrderStatusId);
-
+                builderquery = builderquery.Where(o => o.OrderStatusId != (int)OrderStatusSystem.Cancelled);
             }
             if (!string.IsNullOrEmpty(paymentMethodSystemName))
                 builderquery = builderquery.Where(o => o.PaymentMethodSystemName == paymentMethodSystemName);
@@ -247,10 +245,10 @@ namespace Grand.Business.System.Services.Reports
                 builderquery = builderquery.Where(o => endTimeUtc.Value >= o.CreatedOnUtc);
 
             if (!string.IsNullOrEmpty(billingEmail))
-                builderquery = builderquery.Where(o => o.BillingAddress != null && !String.IsNullOrEmpty(o.BillingAddress.Email) && o.BillingAddress.Email.Contains(billingEmail));
+                builderquery = builderquery.Where(o => o.BillingAddress != null && !string.IsNullOrEmpty(o.BillingAddress.Email) && o.BillingAddress.Email.Contains(billingEmail));
 
             if (!string.IsNullOrEmpty(billingLastName))
-                builderquery = builderquery.Where(o => o.BillingAddress != null && !String.IsNullOrEmpty(o.BillingAddress.LastName) && o.BillingAddress.LastName.Contains(billingLastName));
+                builderquery = builderquery.Where(o => o.BillingAddress != null && !string.IsNullOrEmpty(o.BillingAddress.LastName) && o.BillingAddress.LastName.Contains(billingLastName));
 
             //tag filtering 
             if (!string.IsNullOrEmpty(tagId))
@@ -495,18 +493,18 @@ namespace Grand.Business.System.Services.Reports
             createdFromUtc ??= DateTime.MinValue;
             createdToUtc ??= DateTime.MaxValue;
 
-            var query = ((from order in _orderRepository.Table
-                                where
-                                (string.IsNullOrEmpty(storeId) || order.StoreId == storeId) &&
-                                (createdFromUtc.Value <= order.CreatedOnUtc) &&
-                                (createdToUtc.Value >= order.CreatedOnUtc) &&
-                                (!order.Deleted)
-                                from orderItem in order.OrderItems
-                                select new { orderItem.ProductId }).ToList()).Distinct().Select(x => x.ProductId);
+            var query = (from order in _orderRepository.Table
+                where
+                    (string.IsNullOrEmpty(storeId) || order.StoreId == storeId) &&
+                    createdFromUtc.Value <= order.CreatedOnUtc &&
+                    createdToUtc.Value >= order.CreatedOnUtc &&
+                    (!order.Deleted)
+                from orderItem in order.OrderItems
+                select new { orderItem.ProductId }).ToList().Distinct().Select(x => x.ProductId);
 
             var qproducts = from p in _productRepository.Table
                             orderby p.Name
-                            where (!query.Contains(p.Id)) &&
+                            where !query.Contains(p.Id) &&
                                   //include only simple products
                                   (p.ProductTypeId == ProductType.SimpleProduct) &&
                                   (vendorId == "" || p.VendorId == vendorId) &&

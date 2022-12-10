@@ -127,7 +127,7 @@ namespace Grand.Business.Core.Interfaces.Cms
         Task<IPagedList<KnowledgebaseArticle>> GetKnowledgebaseArticlesByCategoryId(string id, int pageIndex = 0, int pageSize = int.MaxValue);
 
         /// <summary>
-        /// Gets knowledgebase articles by name
+        /// Gets knowledge base articles by name
         /// </summary>
         /// <param name="name"></param>
         /// <param name="pageIndex"></param>

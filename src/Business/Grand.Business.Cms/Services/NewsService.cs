@@ -155,7 +155,7 @@ namespace Grand.Business.Cms.Services
 
             var query2 = from c in query
                          orderby c.CreatedOnUtc
-                         where (customerId == "" || c.CustomerId == customerId)
+                         where customerId == "" || c.CustomerId == customerId
                          select c;
 
             return await Task.FromResult(query2.ToList());

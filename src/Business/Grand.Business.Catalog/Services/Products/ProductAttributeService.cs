@@ -228,14 +228,11 @@ namespace Grand.Business.Catalog.Services.Products
             if (p != null)
             {
                 var pavs = p.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
-                if (pavs != null)
+                var pav = pavs?.ProductAttributeValues.FirstOrDefault(x => x.Id == productAttributeValue.Id);
+                if (pav != null)
                 {
-                    var pav = pavs.ProductAttributeValues.FirstOrDefault(x => x.Id == productAttributeValue.Id);
-                    if (pav != null)
-                    {
-                        pavs.ProductAttributeValues.Remove(pav);
-                        await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id, productAttributeMappingId, pavs);
-                    }
+                    pavs.ProductAttributeValues.Remove(pav);
+                    await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id, productAttributeMappingId, pavs);
                 }
             }
 

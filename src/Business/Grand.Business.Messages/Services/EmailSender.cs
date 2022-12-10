@@ -128,7 +128,7 @@ namespace Grand.Business.Messages.Services
             //send email
             using var smtpClient = new SmtpClient();
             smtpClient.ServerCertificateValidationCallback =
-                (_, c, h, e) => emailAccount.UseServerCertificateValidation;
+                (_, _, _, _) => emailAccount.UseServerCertificateValidation;
             await smtpClient.ConnectAsync(emailAccount.Host, emailAccount.Port,
                 (SecureSocketOptions)emailAccount.SecureSocketOptionsId);
             await smtpClient.AuthenticateAsync(emailAccount.Username, emailAccount.Password);

@@ -205,7 +205,6 @@ namespace Grand.Business.Checkout.Services.Shipping
                     //clear the shipping options in this case
                     break;
                 }
-                // add this scrm s options to the result
                 if (shippingRateMethodOptions == null) continue;
                 foreach (var so in shippingRateMethodOptions)
                 {

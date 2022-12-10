@@ -83,14 +83,14 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
 
 
         /// <summary>
-        /// Get shipmentnotes for shipment
+        /// Get shipment notes for shipment
         /// </summary>
         /// <param name="shipmentId">Shipment identifier</param>
         /// <returns>ShipmentNote</returns>
         Task<IList<ShipmentNote>> GetShipmentNotes(string shipmentId);
 
         /// <summary>
-        /// Get shipmentnote by id
+        /// Get shipment note by id
         /// </summary>
         /// <param name="shipmentNoteId">Shipment note identifier</param>
         /// <returns>ShipmentNote</returns>

@@ -2,7 +2,7 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Commands.Messages;
+using Grand.Business.Core.Commands.Messages.Tokens;
 using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using MediatR;
 

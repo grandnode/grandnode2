@@ -66,7 +66,7 @@ namespace Grand.Business.Core.Interfaces.Common.Configuration
         /// Load settings
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
-        /// <param name="storeId">Store identifier for which settigns should be loaded</param>
+        /// <param name="storeId">Store identifier for which settings should be loaded</param>
         T LoadSetting<T>(string storeId = "") where T : ISettings, new();
 
         /// <summary>

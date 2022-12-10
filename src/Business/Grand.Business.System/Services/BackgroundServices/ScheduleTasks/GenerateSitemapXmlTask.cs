@@ -46,7 +46,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
                     var siteMap = await _mediator.Send(new GetSitemapXmlCommand()
                     {
                         Language = lang,
-                        Store = store,
+                        Store = store
                     });
 
                     if (!(stores.Count == 1 && languages.Count == 1))

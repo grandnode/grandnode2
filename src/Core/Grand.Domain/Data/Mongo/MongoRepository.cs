@@ -250,7 +250,7 @@ namespace Grand.Domain.Data.Mongo
             await _collection.UpdateManyAsync(filterexpression, update);
         }
 
-        // <summary>
+        /// <summary>
         /// Add to set - add subdocument
         /// </summary>
         /// <typeparam name="U"></typeparam>
@@ -318,7 +318,7 @@ namespace Grand.Domain.Data.Mongo
             }
 
         }
-        // <summary>
+        /// <summary>
         /// Update subdocuments
         /// </summary>
         /// <typeparam name="T">Document</typeparam>

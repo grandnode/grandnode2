@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Commands.Messages;
+using Grand.Business.Core.Commands.Messages.Common;
 using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Messages;
@@ -87,10 +88,7 @@ namespace Grand.Business.Messages.Services
 
             //ensure it's active
             var isActive = messageTemplate.IsActive;
-            if (!isActive)
-                return null;
-
-            return messageTemplate;
+            return !isActive ? null : messageTemplate;
         }
 
         protected virtual async Task<EmailAccount> GetEmailAccountOfMessageTemplate(MessageTemplate messageTemplate, string languageId)
@@ -107,12 +105,12 @@ namespace Grand.Business.Messages.Services
             //load language by specified ID
             var language = await _languageService.GetLanguageById(languageId);
 
-            if (language == null || !language.Published)
+            if (language is not { Published: true })
             {
                 //load any language from the specified store
                 language = (await _languageService.GetAllLanguages(storeId: storeId)).FirstOrDefault();
             }
-            if (language == null || !language.Published)
+            if (language is not { Published: true })
             {
                 //load any language
                 language = (await _languageService.GetAllLanguages()).FirstOrDefault();
@@ -1153,9 +1151,9 @@ namespace Grand.Business.Messages.Services
             if (order != null) store = await _storeService.GetStoreById(order.StoreId);
             store ??= (await _storeService.GetAllStores()).FirstOrDefault();
 
-            var language = await EnsureLanguageIsActive(languageId, store.Id);
+            var language = await EnsureLanguageIsActive(languageId, store?.Id);
 
-            var messageTemplate = await GetMessageTemplate("GiftVoucher.Notification", store.Id);
+            var messageTemplate = await GetMessageTemplate("GiftVoucher.Notification", store?.Id);
             if (messageTemplate == null)
                 return 0;
 
@@ -1338,7 +1336,7 @@ namespace Grand.Business.Messages.Services
         }
 
         /// <summary>
-        /// Sends a "new VAT sumitted" notification to a store owner
+        /// Sends a "new VAT" notification to a store owner
         /// </summary>
         /// <param name="customer">Customer</param>
         /// <param name="languageId">Message language identifier</param>
@@ -1881,6 +1879,7 @@ namespace Grand.Business.Messages.Services
         /// </summary>
         /// <param name="languageId">Message language identifier</param>
         /// <param name="product">Product</param>
+        /// <param name="bid"></param>
         public virtual async Task<int> SendOutBidCustomerMessage(Product product, string languageId, Bid bid)
         {
             if (product == null)

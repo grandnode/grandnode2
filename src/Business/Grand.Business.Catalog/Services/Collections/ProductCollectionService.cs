@@ -76,7 +76,7 @@ namespace Grand.Business.Catalog.Services.Collections
 
                 }
 
-                var query_ProductCollection = from prod in query
+                var queryProductCollection = from prod in query
                                               from pm in prod.ProductCollections
                                               select new ProductsCollection {
                                                   Id = pm.Id,
@@ -86,12 +86,12 @@ namespace Grand.Business.Catalog.Services.Collections
                                                   CollectionId = pm.CollectionId
                                               };
 
-                query_ProductCollection = from pm in query_ProductCollection
+                queryProductCollection = from pm in queryProductCollection
                                           where pm.CollectionId == collectionId
                                           orderby pm.DisplayOrder
                                           select pm;
 
-                return Task.FromResult(new PagedList<ProductsCollection>(query_ProductCollection, pageIndex, pageSize));
+                return Task.FromResult(new PagedList<ProductsCollection>(queryProductCollection, pageIndex, pageSize));
             });
         }
 

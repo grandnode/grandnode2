@@ -139,7 +139,7 @@ namespace Grand.Business.Catalog.Services.Tax
             if (_taxSettings.EuVatEnabled)
             {
                 //telecommunications, broadcasting and electronic services?
-                if (product != null && product.IsTele)
+                if (product is { IsTele: true })
                 {
                     //Europe Union consumer?
                     if (await IsEuConsumer(customer))

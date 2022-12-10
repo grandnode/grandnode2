@@ -54,7 +54,7 @@ namespace Grand.Business.Catalog.Services.Products
             //customer
             query = query.Where(x => x.CustomerId == customerId);
             //store
-            if (!String.IsNullOrEmpty(storeId))
+            if (!string.IsNullOrEmpty(storeId))
                 query = query.Where(x => x.StoreId == storeId);
 
             query = query.OrderByDescending(x => x.CreatedOnUtc);

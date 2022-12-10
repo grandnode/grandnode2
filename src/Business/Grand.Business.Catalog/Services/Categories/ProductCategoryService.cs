@@ -73,7 +73,7 @@ namespace Grand.Business.Catalog.Services.Categories
 
 
                 }
-                var query_productCategories = from prod in query
+                var queryProductCategories = from prod in query
                                               from pc in prod.ProductCategories
                                               select new ProductsCategory
                                               {
@@ -84,12 +84,12 @@ namespace Grand.Business.Catalog.Services.Categories
                                                   IsFeaturedProduct = pc.IsFeaturedProduct
                                               };
 
-                query_productCategories = from pm in query_productCategories
+                queryProductCategories = from pm in queryProductCategories
                                           where pm.CategoryId == categoryId
                                           orderby pm.DisplayOrder
                                           select pm;
 
-                return Task.FromResult(new PagedList<ProductsCategory>(query_productCategories, pageIndex, pageSize));
+                return Task.FromResult(new PagedList<ProductsCategory>(queryProductCategories, pageIndex, pageSize));
             });
         }
 

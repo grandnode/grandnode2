@@ -1,7 +1,7 @@
 ﻿using Grand.Domain.Common;
 using MediatR;
 
-namespace Grand.Business.Core.Commands.Messages
+namespace Grand.Business.Core.Commands.Messages.Common
 {
     public class InsertContactUsCommand : IRequest<bool>
     {

@@ -26,13 +26,7 @@ namespace Grand.Business.Core.Utilities.Catalog
         /// <summary>
         /// Gets a value that indicates if request has been completed successfully
         /// </summary>
-        public bool Success
-        {
-            get 
-            { 
-                return Errors.Count == 0; 
-            }
-        }
+        public bool Success => Errors.Count == 0;
 
         /// <summary>
         /// Add error

@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Commands.Messages;
+﻿using Grand.Business.Core.Commands.Messages.Tokens;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -182,8 +182,6 @@ namespace Grand.Business.System.Commands.Handlers.Messages
                 }
                 else
                 {
-                    //exсluding tax
-
                     //subtotal
                     _cusSubTotal = _priceFormatter.FormatPrice(request.Order.OrderSubtotalExclTax, currency, language, false);
                     //discount (applied to order subtotal)

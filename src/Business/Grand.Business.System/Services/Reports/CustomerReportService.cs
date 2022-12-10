@@ -137,7 +137,7 @@ namespace Grand.Business.System.Services.Reports
                         c.CreatedOnUtc >= date
                         //&& c.CreatedOnUtc <= DateTime.UtcNow
                         select c;
-            int count = query.Count();
+            var count = query.Count();
             return count;
         }
 
@@ -154,10 +154,8 @@ namespace Grand.Business.System.Services.Reports
 
         {
             List<CustomerByTimeReportLine> report = new List<CustomerByTimeReportLine>();
-            if (!startTimeUtc.HasValue)
-                startTimeUtc = DateTime.MinValue;
-            if (!endTimeUtc.HasValue)
-                endTimeUtc = DateTime.UtcNow;
+            startTimeUtc ??= DateTime.MinValue;
+            endTimeUtc ??= DateTime.UtcNow;
 
             var endTime = new DateTime(endTimeUtc.Value.Year, endTimeUtc.Value.Month, endTimeUtc.Value.Day, 23, 59, 00);
             var builderquery = from p in _customerRepository.Table
@@ -184,7 +182,7 @@ namespace Grand.Business.System.Services.Reports
                 foreach (var item in query)
                 {
                     report.Add(new CustomerByTimeReportLine() {
-                        Time = item.Year.ToString() + "-" + item.Month.ToString().PadLeft(2, '0'),
+                        Time = item.Year + "-" + item.Month.ToString().PadLeft(2, '0'),
                         Registered = item.Count,
                     });
                 }
@@ -202,7 +200,7 @@ namespace Grand.Business.System.Services.Reports
                 foreach (var item in query)
                 {
                     report.Add(new CustomerByTimeReportLine() {
-                        Time = item.Year.ToString() + "-" + item.Month.ToString().PadLeft(2, '0') + "-" + item.Day.ToString().PadLeft(2, '0'),
+                        Time = item.Year + "-" + item.Month.ToString().PadLeft(2, '0') + "-" + item.Day.ToString().PadLeft(2, '0'),
                         Registered = item.Count,
                     });
                 }

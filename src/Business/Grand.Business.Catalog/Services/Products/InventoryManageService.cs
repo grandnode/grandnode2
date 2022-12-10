@@ -47,7 +47,7 @@ namespace Grand.Business.Catalog.Services.Products
 
         #region Utilities methods
 
-        private async Task ManageStockInventory(Product product, Shipment shipment, ShipmentItem shipmentItem)
+        private async Task ManageStockInventory(Product product, ShipmentItem shipmentItem)
         {
             if (product.UseMultipleWarehouses)
             {
@@ -74,7 +74,7 @@ namespace Grand.Business.Catalog.Services.Products
                 await UpdateStockProduct(product);
             }
         }
-        private async Task ManageStockByAttributesInventory(Product product, Shipment shipment, ShipmentItem shipmentItem)
+        private async Task ManageStockByAttributesInventory(Product product, ShipmentItem shipmentItem)
         {
             var combination = product.FindProductAttributeCombination(shipmentItem.Attributes);
             if (combination == null)
@@ -119,7 +119,7 @@ namespace Grand.Business.Catalog.Services.Products
                 var p1 = await _productRepository.GetByIdAsync(item.ProductId);
                 if (p1 == null || p1.Id == product.Id ||
                     p1.ManageInventoryMethodId == ManageInventoryMethod.DontManageStock) continue;
-                var _shipmentItem = new ShipmentItem() {
+                var shipmentItem1 = new ShipmentItem() {
                     Id = shipmentItem.Id,
                     Attributes = shipmentItem.Attributes,
                     OrderItemId = shipmentItem.OrderItemId,
@@ -127,9 +127,9 @@ namespace Grand.Business.Catalog.Services.Products
                     Quantity = shipmentItem.Quantity * item.Quantity,
                     WarehouseId = shipmentItem.WarehouseId
                 };
-                if (!await CheckExistsInventoryJournal(p1, _shipmentItem))
+                if (!await CheckExistsInventoryJournal(p1, shipmentItem1))
                 {
-                    await BookReservedInventory(p1, shipment, _shipmentItem);
+                    await BookReservedInventory(p1, shipment, shipmentItem1);
                 }
             }
         }
@@ -145,7 +145,7 @@ namespace Grand.Business.Catalog.Services.Products
                     || associatedProduct.Id == product.Id
                     || associatedProduct.ManageInventoryMethodId == ManageInventoryMethod.DontManageStock) continue;
                 if (await CheckExistsInventoryJournal(associatedProduct, shipmentItem)) continue;
-                var _shipmentItem = new ShipmentItem() {
+                var item = new ShipmentItem() {
                     Id = shipmentItem.Id,
                     Attributes = shipmentItem.Attributes,
                     OrderItemId = shipmentItem.OrderItemId,
@@ -153,7 +153,7 @@ namespace Grand.Business.Catalog.Services.Products
                     Quantity = shipmentItem.Quantity * attributeValue.Quantity,
                     WarehouseId = shipmentItem.WarehouseId
                 };
-                await BookReservedInventory(associatedProduct, shipment, _shipmentItem);
+                await BookReservedInventory(associatedProduct, shipment, item);
             }
         }
 
@@ -269,7 +269,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// Adjust reserved inventory
         /// </summary>
         /// <param name="product">Product</param>
-        /// <param name="quantityToChange">Quantity to increase or descrease</param>
+        /// <param name="quantityToChange">Quantity to increase or decrease</param>
         /// <param name="attributes">Attributes</param>
         /// <param name="warehouseId">Warehouse ident</param>
         public virtual async Task AdjustReserved(Product product, int quantityToChange, IList<CustomAttribute> attributes = null, string warehouseId = "")
@@ -419,7 +419,7 @@ namespace Grand.Business.Catalog.Services.Products
                 foreach (var item in product.BundleProducts)
                 {
                     var p1 = await _productRepository.GetByIdAsync(item.ProductId);
-                    if (p1 != null && (p1.ManageInventoryMethodId == ManageInventoryMethod.ManageStock || p1.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes))
+                    if (p1 is { ManageInventoryMethodId: ManageInventoryMethod.ManageStock or ManageInventoryMethod.ManageStockByAttributes })
                     {
                         await AdjustReserved(p1, quantityToChange * item.Quantity, attributes, warehouseId);
                     }
@@ -661,12 +661,12 @@ namespace Grand.Business.Catalog.Services.Products
             //standard manage stock 
             if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
             {
-                await ManageStockInventory(product, shipment, shipmentItem);
+                await ManageStockInventory(product, shipmentItem);
             }
             //manage stock by attributes
             if (shipmentItem.Attributes != null && product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
             {
-                await ManageStockByAttributesInventory(product, shipment, shipmentItem);
+                await ManageStockByAttributesInventory(product, shipmentItem);
             }
 
             //manage stock by bundle products
@@ -738,7 +738,7 @@ namespace Grand.Business.Catalog.Services.Products
             //update
             await _productRepository.UpdateField(product.Id, x => x.StockQuantity, product.StockQuantity);
             await _productRepository.UpdateField(product.Id, x => x.ReservedQuantity, product.ReservedQuantity);
-            await _productRepository.UpdateField(product.Id, x => x.LowStock, ((product.MinStockQuantity > 0 && product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) || product.StockQuantity - product.ReservedQuantity <= 0));
+            await _productRepository.UpdateField(product.Id, x => x.LowStock, (product.MinStockQuantity > 0 && product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) || product.StockQuantity - product.ReservedQuantity <= 0);
             await _productRepository.UpdateField(product.Id, x => x.UpdatedOnUtc, DateTime.UtcNow);
 
 

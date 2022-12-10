@@ -199,20 +199,18 @@ namespace Grand.Business.Marketing.Services.PushNotifications
                     await _logger.InsertLog(Domain.Logging.LogLevel.Error, "Error occured while sending push notification.", responseString);
                     return (false, responseString);
                 }
-                else
-                {
-                    var responseMessage = JsonConvert.DeserializeObject<JsonResponse>(responseString);
-                    if (responseMessage == null) return (false, "PushNotifications.ResponseMessage.Empty");
-                    
-                    await InsertPushMessage(new PushMessage {
-                        NumberOfReceivers = responseMessage.success,
-                        SentOn = DateTime.UtcNow,
-                        Text = text,
-                        Title = title
-                    });
 
-                    return (true, string.Format(_translationService.GetResource("Admin.PushNotifications.MessageSent"), responseMessage.success, responseMessage.failure));
-                }
+                var responseMessage = JsonConvert.DeserializeObject<JsonResponse>(responseString);
+                if (responseMessage == null) return (false, "PushNotifications.ResponseMessage.Empty");
+                    
+                await InsertPushMessage(new PushMessage {
+                    NumberOfReceivers = responseMessage.success,
+                    SentOn = DateTime.UtcNow,
+                    Text = text,
+                    Title = title
+                });
+
+                return (true, string.Format(_translationService.GetResource("Admin.PushNotifications.MessageSent"), responseMessage.success, responseMessage.failure));
             }
             catch (Exception ex)
             {

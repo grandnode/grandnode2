@@ -16,7 +16,7 @@
         /// <summary>
         /// Gets a value indicating whether request has been completed successfully
         /// </summary>
-        public bool Success => (this.Errors.Count == 0);
+        public bool Success => this.Errors.Count == 0;
 
         /// <summary>
         /// Add error

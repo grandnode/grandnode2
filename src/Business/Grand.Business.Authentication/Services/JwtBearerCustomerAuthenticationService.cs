@@ -55,7 +55,7 @@ namespace Grand.Business.Authentication.Services
             }
 
             var refreshToken = await _refreshTokenService.GetCustomerRefreshToken(customer);
-            if (refreshToken is null || string.IsNullOrEmpty(refreshId) || !refreshId.Equals(refreshToken?.RefreshId))
+            if (refreshToken is null || string.IsNullOrEmpty(refreshId) || !refreshId.Equals(refreshToken.RefreshId))
             {
                 _errorMessage = "Invalid token or cancel by refresh token";
                 return false;

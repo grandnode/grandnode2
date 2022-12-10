@@ -18,9 +18,8 @@ namespace Grand.Business.Core.Events.Checkout.ShoppingCart
             _product = product;
         }
 
-        public Customer Customer { get { return _customer; } }
-        public ShoppingCartItem ShoppingCartItem { get { return _shoppingCartItem; } }
-        public Product Product { get { return _product; } }
-
+        public Customer Customer => _customer;
+        public ShoppingCartItem ShoppingCartItem => _shoppingCartItem;
+        public Product Product => _product;
     }
 }

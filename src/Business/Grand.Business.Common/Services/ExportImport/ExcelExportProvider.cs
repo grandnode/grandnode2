@@ -77,7 +77,7 @@ namespace Grand.Business.Common.Services.ExportImport
             IRow row = sheet.CreateRow(id);
             foreach (var prop in properties)
             {
-                var cellValue = (prop.GetProperty(items)?.ToString());
+                var cellValue = prop.GetProperty(items)?.ToString();
                 if (cellValue is { Length: >= 32767 }) // 32767 is the max char size of an excel cell
                 {
                     cellValue = cellValue[..32767]; //Truncate the content to max size.

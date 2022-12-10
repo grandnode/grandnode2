@@ -21,10 +21,7 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             if (canBeRefunded <= 0)
                 return Task.FromResult(false);
 
-            if (amountToRefund > canBeRefunded)
-                return Task.FromResult(false);
-
-            return Task.FromResult(paymentTransaction.TransactionStatus is TransactionStatus.Paid or TransactionStatus.PartialPaid or TransactionStatus.PartiallyRefunded);
+            return amountToRefund > canBeRefunded ? Task.FromResult(false) : Task.FromResult(paymentTransaction.TransactionStatus is TransactionStatus.Paid or TransactionStatus.PartialPaid or TransactionStatus.PartiallyRefunded);
         }
     }
 }

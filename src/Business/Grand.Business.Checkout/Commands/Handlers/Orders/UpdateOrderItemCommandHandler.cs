@@ -43,11 +43,11 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             if (originalOrderItem != null)
             {
                 request.Order.OrderSubtotalExclTax += request.OrderItem.PriceExclTax - originalOrderItem.PriceExclTax;
-                request.Order.OrderSubtotalInclTax += (request.OrderItem.PriceInclTax - originalOrderItem.PriceInclTax);
+                request.Order.OrderSubtotalInclTax += request.OrderItem.PriceInclTax - originalOrderItem.PriceInclTax;
                 request.Order.OrderTax +=
-                    ((request.OrderItem.PriceInclTax - request.OrderItem.PriceExclTax)
-                     - (originalOrderItem.PriceInclTax - originalOrderItem.PriceExclTax));
-                request.Order.OrderTotal += (request.OrderItem.PriceInclTax - originalOrderItem.PriceInclTax);
+                    request.OrderItem.PriceInclTax - request.OrderItem.PriceExclTax
+                                                   - (originalOrderItem.PriceInclTax - originalOrderItem.PriceExclTax);
+                request.Order.OrderTotal += request.OrderItem.PriceInclTax - originalOrderItem.PriceInclTax;
 
                 //TODO 
                 //request.Order.OrderTaxes
@@ -62,7 +62,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
                     if (request.Order.ShippingStatusId == ShippingStatus.PartiallyShipped)
                     {
-                        var shipments = (await _shipmentService.GetShipmentsByOrder(request.Order.Id));
+                        var shipments = await _shipmentService.GetShipmentsByOrder(request.Order.Id);
 
                         if (!request.Order.HasItemsToAddToShipment() && shipments.All(x => x.DeliveryDateUtc != null))
                         {

@@ -344,7 +344,7 @@ namespace Grand.Business.Catalog.Services.Prices
             if (!allowedDiscounts.Any())
                 return (0, null);
 
-            var preferredDiscount = (await _discountService.GetPreferredDiscount(allowedDiscounts, customer, currency, product, productPriceWithoutDiscount));
+            var preferredDiscount = await _discountService.GetPreferredDiscount(allowedDiscounts, customer, currency, product, productPriceWithoutDiscount);
             
             return (preferredDiscount.discountAmount, preferredDiscount.appliedDiscount);
         }
@@ -582,17 +582,12 @@ namespace Grand.Business.Catalog.Services.Prices
                             if (bundledProductsAttributeValues == null) continue;
                             foreach (var attributeValue in bundledProductsAttributeValues)
                             {
-                                attributesTotalPrice += (item.Quantity * await GetProductAttributeValuePriceAdjustment(attributeValue));
+                                attributesTotalPrice += item.Quantity * await GetProductAttributeValuePriceAdjustment(attributeValue);
                             }
                         }
                     }
                 }
-
-                if (product.EnteredPrice)
-                {
-                    finalPrice = customerEnteredPrice;
-                }
-                else
+                if (!product.EnteredPrice)
                 {
                     var qty = 0;
                     if (_shoppingCartSettings.GroupTierPrices)

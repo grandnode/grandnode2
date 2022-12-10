@@ -14,9 +14,8 @@ namespace Grand.Business.Core.Events.Checkout.Orders
             _result = result;
             _container = container;
         }
-        public R Result { get { return _result; } }
-        public C Container { get { return _container; } }
-
+        public R Result => _result;
+        public C Container => _container;
     }
 
 }

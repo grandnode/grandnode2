@@ -128,7 +128,7 @@ namespace Grand.Business.Catalog.Services.Products
             foreach (var id in productIds)
             {
                 var product = await GetProductById(id);
-                if (product != null && (showHidden || (_aclService.Authorize(product, _workContext.CurrentCustomer) && _aclService.Authorize(product, _workContext.CurrentStore.Id) && (product.IsAvailable()))))
+                if (product != null && (showHidden || (_aclService.Authorize(product, _workContext.CurrentCustomer) && _aclService.Authorize(product, _workContext.CurrentStore.Id) && product.IsAvailable())))
                     products.Add(product);
             }
             return products;
@@ -247,7 +247,7 @@ namespace Grand.Business.Catalog.Services.Products
                 .Set(x => x.MetaTitle, product.MetaTitle)
                 .Set(x => x.MinEnteredPrice, product.MinEnteredPrice)
                 .Set(x => x.MinStockQuantity, product.MinStockQuantity)
-                .Set(x => x.LowStock, ((product.MinStockQuantity > 0 && product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) || product.StockQuantity - product.ReservedQuantity <= 0))
+                .Set(x => x.LowStock, (product.MinStockQuantity > 0 && product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) || product.StockQuantity - product.ReservedQuantity <= 0)
                 .Set(x => x.Name, product.Name)
                 .Set(x => x.NotApprovedRatingSum, product.NotApprovedRatingSum)
                 .Set(x => x.NotApprovedTotalReviews, product.NotApprovedTotalReviews)
