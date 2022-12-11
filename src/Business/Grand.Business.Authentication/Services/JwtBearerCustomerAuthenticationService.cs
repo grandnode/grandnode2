@@ -27,7 +27,7 @@ namespace Grand.Business.Authentication.Services
 
         public async Task<bool> Valid(TokenValidatedContext context)
         {
-            if (context.Principal == null) return true;
+            if (context.Principal == null) return false;
             var email = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
             var passwordToken = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Token")?.Value;
             var refreshId = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "RefreshId")?.Value;
@@ -71,6 +71,7 @@ namespace Grand.Business.Authentication.Services
             var isGuest = await _groupService.IsGuest(customer);
             if (isGuest || (!string.IsNullOrEmpty(passwordToken) && passwordToken.Equals(customerPasswordToken)))
                 return true;
+            
             _errorMessage = "Invalid password token, create new token";
             return false;
         }

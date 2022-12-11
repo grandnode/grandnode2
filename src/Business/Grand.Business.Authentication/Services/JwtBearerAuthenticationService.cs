@@ -22,10 +22,11 @@ namespace Grand.Business.Authentication.Services
         /// <summary>
         /// Valid
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">Context</param>
         public virtual async Task<bool> Valid(TokenValidatedContext context)
         {
-            if (context.Principal == null) return await Task.FromResult(true);
+            if (context.Principal == null) return await Task.FromResult(false);
+            
             _email = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
             var token = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Token")?.Value;
             if (string.IsNullOrEmpty(token))
