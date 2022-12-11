@@ -51,7 +51,7 @@ namespace Grand.Business.Marketing.Services.Courses
 
             query = query.Where(c => c.Published);
 
-            if ((!CommonHelper.IgnoreAcl || (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)))
+            if (!CommonHelper.IgnoreAcl || (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations))
             {
                 if (!CommonHelper.IgnoreAcl)
                 {

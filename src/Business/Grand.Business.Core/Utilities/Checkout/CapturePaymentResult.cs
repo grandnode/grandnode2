@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Utilities.Checkout
     /// <summary>
     /// Capture payment result
     /// </summary>
-    public partial class CapturePaymentResult
+    public class CapturePaymentResult
     {
         private TransactionStatus _newTransactionStatus = TransactionStatus.Pending;
 
@@ -20,10 +20,7 @@ namespace Grand.Business.Core.Utilities.Checkout
         /// <summary>
         /// Gets a value indicating whether request has been completed successfully
         /// </summary>
-        public bool Success
-        {
-            get { return (Errors.Count == 0); }
-        }
+        public bool Success => Errors.Count == 0;
 
         /// <summary>
         /// Add error
@@ -54,14 +51,8 @@ namespace Grand.Business.Core.Utilities.Checkout
         /// </summary>
         public TransactionStatus NewPaymentStatus
         {
-            get
-            {
-                return _newTransactionStatus;
-            }
-            set
-            {
-                _newTransactionStatus = value;
-            }
+            get => _newTransactionStatus;
+            set => _newTransactionStatus = value;
         }
     }
 }

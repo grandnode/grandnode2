@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
     /// <summary>
     /// Product tag service interface
     /// </summary>
-    public partial interface IProductTagService
+    public interface IProductTagService
     {
        
         /// <summary>
@@ -29,9 +29,9 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         Task<ProductTag> GetProductTagByName(string name);
 
         /// <summary>
-        /// Gets product tag by sename
+        /// Gets product tag by se-name
         /// </summary>
-        /// <param name="sename">Product tag sename</param>
+        /// <param name="sename">Product tag se-name</param>
         /// <returns>Product tag</returns>
         Task<ProductTag> GetProductTagBySeName(string sename);
 

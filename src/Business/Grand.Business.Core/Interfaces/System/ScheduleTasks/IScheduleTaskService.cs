@@ -2,7 +2,7 @@ using Grand.Domain.Tasks;
 
 namespace Grand.Business.Core.Interfaces.System.ScheduleTasks
 {
-    public partial interface IScheduleTaskService
+    public interface IScheduleTaskService
     {
         /// <summary>
         /// Gets a task

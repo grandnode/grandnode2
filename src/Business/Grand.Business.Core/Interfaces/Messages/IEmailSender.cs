@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Messages
     /// <summary>
     /// Email sender
     /// </summary>
-    public partial interface IEmailSender
+    public interface IEmailSender
     {
         /// <summary>
         /// Sends an email
@@ -23,7 +23,7 @@ namespace Grand.Business.Core.Interfaces.Messages
         /// <param name="cc">CC addresses ist</param>
         /// <param name="attachmentFilePath">Attachment file path</param>
         /// <param name="attachmentFileName">Attachment file name. If specified, then this file name will be sent to a recipient. Otherwise, "AttachmentFilePath" name will be used.</param>
-        /// <param name="attachedDownloads">Attachments download ID (another attachedments)</param>
+        /// <param name="attachedDownloads">Attachments download ID (another attachments)</param>
         Task SendEmail(EmailAccount emailAccount, string subject, string body,
             string fromAddress, string fromName, string toAddress, string toName,
              string replyToAddress = null, string replyToName = null,

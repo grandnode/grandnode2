@@ -200,7 +200,7 @@ namespace Grand.Web.Features.Handlers.Orders
             var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(request.Order.PaymentMethodSystemName);
             model.PaymentMethod = paymentMethod != null ? paymentMethod.FriendlyName : request.Order.PaymentMethodSystemName;
             model.PaymentMethodStatus = request.Order.PaymentStatusId.GetTranslationEnum(_translationService, request.Language.Id);
-            var paymentTransaction = await _paymentTransactionService.GetByOrdeGuid(request.Order.OrderGuid);
+            var paymentTransaction = await _paymentTransactionService.GetOrderByGuid(request.Order.OrderGuid);
             model.CanRePostProcessPayment = paymentTransaction != null ? await _paymentService.CanRePostRedirectPayment(paymentTransaction) : false;
         }
 

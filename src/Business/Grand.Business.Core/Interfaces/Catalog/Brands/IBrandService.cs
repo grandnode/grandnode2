@@ -6,13 +6,13 @@ namespace Grand.Business.Core.Interfaces.Catalog.Brands
     /// <summary>
     /// Brand service
     /// </summary>
-    public partial interface IBrandService
+    public interface IBrandService
     {
-
         /// <summary>
         /// Gets all brands
         /// </summary>
         /// <param name="brandName">Brand name</param>
+        /// <param name="storeId">Store ident</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
@@ -49,7 +49,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Brands
         Task DeleteBrand(Brand brand);
 
         /// <summary>
-        /// Gets all manfucaturers by discount id
+        /// Gets all brands by discount id
         /// </summary>
         /// <param name="discountId">Discount id </param>
         /// <returns>Product brand mapping</returns>

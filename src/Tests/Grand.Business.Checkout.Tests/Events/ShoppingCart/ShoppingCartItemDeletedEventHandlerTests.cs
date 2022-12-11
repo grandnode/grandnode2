@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Grand.Business.Checkout.Events.Shipping;
+using Grand.Business.Checkout.Events.ShoppingCart;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -8,7 +8,7 @@ namespace Grand.Business.Common.Services.Directory
     /// <summary>
     /// Represents a datetime service
     /// </summary>
-    public partial class DateTimeService : IDateTimeService
+    public class DateTimeService : IDateTimeService
     {
         private readonly DateTimeSettings _dateTimeSettings;
         private TimeZoneInfo _timeZoneInfo;
@@ -44,7 +44,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <summary>
         /// Converts the date and time to current user date and time
         /// </summary>
-        /// <param name="dt">The date and time (respesents local system time or UTC time) to convert.</param>
+        /// <param name="dt">The date and time (represents local system time or UTC time) to convert.</param>
         /// <returns>A DateTime value that represents time that corresponds to the dateTime parameter in customer time zone.</returns>
         public virtual DateTime ConvertToUserTime(DateTime dt)
         {
@@ -54,8 +54,8 @@ namespace Grand.Business.Common.Services.Directory
         /// <summary>
         /// Converts the date and time to current user date and time
         /// </summary>
-        /// <param name="dt">The date and time (respesents local system time or UTC time) to convert.</param>
-        /// <param name="sourceDateTimeKind">The source datetimekind</param>
+        /// <param name="dt">The date and time (represents local system time or UTC time) to convert.</param>
+        /// <param name="sourceDateTimeKind">The source datetime kind</param>
         /// <returns>A DateTime value that represents time that corresponds to the dateTime parameter in customer time zone.</returns>
         public virtual DateTime ConvertToUserTime(DateTime dt, DateTimeKind sourceDateTimeKind)
         {
@@ -79,7 +79,7 @@ namespace Grand.Business.Common.Services.Directory
         /// <summary>
         /// Converts the date and time to Coordinated Universal Time (UTC)
         /// </summary>
-        /// <param name="dt">The date and time (respesents local system time or UTC time) to convert.</param>
+        /// <param name="dt">The date and time (represents local system time or UTC time) to convert.</param>
         /// <returns>A DateTime value that represents the Coordinated Universal Time (UTC) that corresponds to the dateTime parameter. The DateTime value's Kind property is always set to DateTimeKind.Utc.</returns>
         public virtual DateTime ConvertToUtcTime(DateTime dt)
         {
@@ -89,8 +89,8 @@ namespace Grand.Business.Common.Services.Directory
         /// <summary>
         /// Converts the date and time to Coordinated Universal Time (UTC)
         /// </summary>
-        /// <param name="dt">The date and time (respesents local system time or UTC time) to convert.</param>
-        /// <param name="sourceDateTimeKind">The source datetimekind</param>
+        /// <param name="dt">The date and time (represents local system time or UTC time) to convert.</param>
+        /// <param name="sourceDateTimeKind">The source datetime kind</param>
         /// <returns>A DateTime value that represents the Coordinated Universal Time (UTC) that corresponds to the dateTime parameter. The DateTime value's Kind property is always set to DateTimeKind.Utc.</returns>
         public virtual DateTime ConvertToUtcTime(DateTime dt, DateTimeKind sourceDateTimeKind)
         {
@@ -111,10 +111,7 @@ namespace Grand.Business.Common.Services.Directory
                 //could not convert
                 return dt;
             }
-            if (dt.Kind == DateTimeKind.Utc)
-                return dt;
-
-            return TimeZoneInfo.ConvertTimeToUtc(dt, sourceTimeZone);
+            return dt.Kind == DateTimeKind.Utc ? dt : TimeZoneInfo.ConvertTimeToUtc(dt, sourceTimeZone);
         }
 
         /// <summary>
@@ -122,25 +119,19 @@ namespace Grand.Business.Common.Services.Directory
         /// </summary>
         public virtual TimeZoneInfo CurrentTimeZone {
             get {
-                if (_timeZoneInfo == null)
+                if (_timeZoneInfo != null) return _timeZoneInfo;
+                try
                 {
-                    try
-                    {
-                        if (!string.IsNullOrEmpty(_dateTimeSettings.DefaultStoreTimeZoneId))
-                            _timeZoneInfo = FindTimeZoneById(_dateTimeSettings.DefaultStoreTimeZoneId);
-                    }
-                    catch (Exception exc)
-                    {
-                        Debug.Write(exc.ToString());
-                    }
-
-                    if (_timeZoneInfo == null)
-                        _timeZoneInfo = TimeZoneInfo.Local;
-
-                    return _timeZoneInfo;
+                    if (!string.IsNullOrEmpty(_dateTimeSettings.DefaultStoreTimeZoneId))
+                        _timeZoneInfo = FindTimeZoneById(_dateTimeSettings.DefaultStoreTimeZoneId);
                 }
-                else
-                    return _timeZoneInfo;
+                catch (Exception exc)
+                {
+                    Debug.Write(exc.ToString());
+                }
+
+                return _timeZoneInfo ??= TimeZoneInfo.Local;
+
             }
         }
     }

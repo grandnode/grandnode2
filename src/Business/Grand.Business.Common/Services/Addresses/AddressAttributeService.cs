@@ -11,7 +11,7 @@ namespace Grand.Business.Common.Services.Addresses
     /// <summary>
     /// Address attribute service
     /// </summary>
-    public partial class AddressAttributeService : IAddressAttributeService
+    public class AddressAttributeService : IAddressAttributeService
     {
         #region Fields
 
@@ -49,7 +49,7 @@ namespace Grand.Business.Common.Services.Addresses
         /// <returns>Address attributes</returns>
         public virtual async Task<IList<AddressAttribute>> GetAllAddressAttributes()
         {
-            string key = CacheKey.ADDRESSATTRIBUTES_ALL_KEY;
+            var key = CacheKey.ADDRESSATTRIBUTES_ALL_KEY;
             return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from aa in _addressAttributeRepository.Table
@@ -66,10 +66,10 @@ namespace Grand.Business.Common.Services.Addresses
         /// <returns>Address attribute</returns>
         public virtual async Task<AddressAttribute> GetAddressAttributeById(string addressAttributeId)
         {
-            if (String.IsNullOrEmpty(addressAttributeId))
+            if (string.IsNullOrEmpty(addressAttributeId))
                 return null;
 
-            string key = string.Format(CacheKey.ADDRESSATTRIBUTES_BY_ID_KEY, addressAttributeId);
+            var key = string.Format(CacheKey.ADDRESSATTRIBUTES_BY_ID_KEY, addressAttributeId);
             return await _cacheBase.GetAsync(key, () => _addressAttributeRepository.GetByIdAsync(addressAttributeId));
         }
 

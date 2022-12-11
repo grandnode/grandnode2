@@ -51,7 +51,7 @@ namespace Grand.Business.Catalog.Events.Handlers
             //delete cross sales product
             await _productRepository.Pull(string.Empty, x => x.CrossSellProduct, notification.Entity.Id);
 
-            //delete recomended product
+            //delete recommended product
             await _productRepository.Pull(string.Empty, x => x.RecommendedProduct, notification.Entity.Id);
 
             //delete review
@@ -75,9 +75,11 @@ namespace Grand.Business.Catalog.Events.Handlers
 
             //insert to deleted products
             var productDeleted = JsonConvert.DeserializeObject<ProductDeleted>(JsonConvert.SerializeObject(notification.Entity));
-            productDeleted.DeletedOnUtc = DateTime.UtcNow;
-            await _productDeletedRepository.InsertAsync(productDeleted);
-
+            if (productDeleted != null)
+            {
+                productDeleted.DeletedOnUtc = DateTime.UtcNow;
+                await _productDeletedRepository.InsertAsync(productDeleted);
+            }
         }
     }
 }

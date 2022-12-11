@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
     /// <summary>
     /// Shipment service interface
     /// </summary>
-    public partial interface IShipmentService
+    public interface IShipmentService
     {
         /// <summary>
         /// Search shipments
@@ -83,18 +83,18 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
 
 
         /// <summary>
-        /// Get shipmentnotes for shipment
+        /// Get shipment notes for shipment
         /// </summary>
         /// <param name="shipmentId">Shipment identifier</param>
         /// <returns>ShipmentNote</returns>
         Task<IList<ShipmentNote>> GetShipmentNotes(string shipmentId);
 
         /// <summary>
-        /// Get shipmentnote by id
+        /// Get shipment note by id
         /// </summary>
-        /// <param name="shipmentnoteId">Shipment note identifier</param>
+        /// <param name="shipmentNoteId">Shipment note identifier</param>
         /// <returns>ShipmentNote</returns>
-        Task<ShipmentNote> GetShipmentNote(string shipmentnoteId);
+        Task<ShipmentNote> GetShipmentNote(string shipmentNoteId);
 
         #endregion
 

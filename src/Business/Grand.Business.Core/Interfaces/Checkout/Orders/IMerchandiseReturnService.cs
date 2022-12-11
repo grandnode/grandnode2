@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
     /// <summary>
     /// Merchandise return service interface
     /// </summary>
-    public partial interface IMerchandiseReturnService
+    public interface IMerchandiseReturnService
     {
         
         /// <summary>
@@ -89,31 +89,31 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         Task UpdateMerchandiseReturnAction(MerchandiseReturnAction merchandiseReturnAction);
 
         /// <summary>
-        /// Gets all merchandise return reaspns
+        /// Gets all merchandise return reasons
         /// </summary>
-        /// <returns>Merchandise return reaspns</returns>
+        /// <returns>Merchandise return reasons</returns>
         Task<IList<MerchandiseReturnReason>> GetAllMerchandiseReturnReasons();
 
         /// <summary>
-        /// Gets a merchandise return reaspn
+        /// Gets a merchandise return reasons
         /// </summary>
         /// <param name="merchandiseReturnReasonId">Merchandise return reason identifier</param>
-        /// <returns>Merchandise return reaspn</returns>
+        /// <returns>Merchandise return reasons</returns>
         Task<MerchandiseReturnReason> GetMerchandiseReturnReasonById(string merchandiseReturnReasonId);
 
         /// <summary>
-        /// Inserts a merchandise return reaspn
+        /// Inserts a merchandise return reasons
         /// </summary>
         /// <param name="merchandiseReturnReason">Merchandise return reason</param>
         Task InsertMerchandiseReturnReason(MerchandiseReturnReason merchandiseReturnReason);
 
         /// <summary>
-        /// Updates the merchandise return reaspn
+        /// Updates the merchandise return reasons
         /// </summary>
         /// <param name="merchandiseReturnReason">Merchandise return reason</param>
         Task UpdateMerchandiseReturnReason(MerchandiseReturnReason merchandiseReturnReason);
         /// <summary>
-        /// Delete a merchandise return reaspn
+        /// Delete a merchandise return reasons
         /// </summary>
         /// <param name="merchandiseReturnReason">Merchandise return reason</param>
         Task DeleteMerchandiseReturnReason(MerchandiseReturnReason merchandiseReturnReason);

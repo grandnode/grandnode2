@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
     /// <summary>
     /// LoyaltyPoints service interface
     /// </summary>
-    public partial interface ILoyaltyPointsService
+    public interface ILoyaltyPointsService
     {
 
         /// <summary>
@@ -19,11 +19,11 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// <summary>
         /// Add loyalty points history record
         /// </summary>
-        /// <param name="customer">Customer</param>
+        /// <param name="customerId">Customer ident</param>
         /// <param name="points">Number of points to add</param>
         /// <param name="storeId">Store identifier</param>
         /// <param name="message">Message</param>
-        /// <param name="usedWithOrder">the order for which points were redeemed as a payment</param>
+        /// <param name="usedWithOrderId">the order for which points were redeemed as a payment</param>
         /// <param name="usedAmount">Used amount</param>
         Task<LoyaltyPointsHistory> AddLoyaltyPointsHistory(string customerId, int points, string storeId, string message = "",
            string usedWithOrderId = "", double usedAmount = 0);

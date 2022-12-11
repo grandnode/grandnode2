@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Tax
     /// <summary>
     /// Provides an interface for creating tax providers
     /// </summary>
-    public partial interface ITaxProvider : IProvider
+    public interface ITaxProvider : IProvider
     {
         /// <summary>
         /// Gets tax rate

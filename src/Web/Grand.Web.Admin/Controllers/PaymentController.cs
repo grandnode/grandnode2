@@ -207,7 +207,7 @@ namespace Grand.Web.Admin.Controllers
                         newCountryIds.Add(c.Id);
                     }
                 }
-                await _paymentService.SaveRestictedCountryIds(pm, newCountryIds);
+                await _paymentService.SaveRestrictedCountryIds(pm, newCountryIds);
 
                 formKey = "restrictship_" + pm.SystemName;
                 var shipIdsToRestrict = (form[formKey].ToString() != null ? form[formKey].ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList() : new List<string>())
@@ -221,7 +221,7 @@ namespace Grand.Web.Admin.Controllers
                         newShipIds.Add(s.Name);
                     }
                 }
-                await _paymentService.SaveRestictedShippingIds(pm, newShipIds);
+                await _paymentService.SaveRestrictedShippingIds(pm, newShipIds);
             }
 
             Success(_translationService.GetResource("Admin.Configuration.Payment.MethodRestrictions.Updated"));

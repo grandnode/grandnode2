@@ -147,12 +147,11 @@ namespace Grand.Domain.Data
         /// <param name="id">Ident of entitie</param>
         /// <param name="field"></param>
         /// <param name="elemFieldMatch">Subdocument field to match</param>
-        /// <param name="elemMatch">Subdocument ident value</param>
         /// <param name="value">Subdocument - to update (all values)</param>
         /// <returns></returns>
         Task UpdateToSet<U>(string id, Expression<Func<T, IEnumerable<U>>> field, Expression<Func<U, bool>> elemFieldMatch, U value);
 
-        // <summary>
+        /// <summary>
         /// Update subdocuments
         /// </summary>
         /// <typeparam name="T">Document</typeparam>

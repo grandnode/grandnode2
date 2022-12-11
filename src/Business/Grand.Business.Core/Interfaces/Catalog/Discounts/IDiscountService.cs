@@ -10,7 +10,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Discounts
     /// <summary>
     /// Discount service interface
     /// </summary>
-    public partial interface IDiscountService
+    public interface IDiscountService
     {
         
         /// <summary>
@@ -48,9 +48,9 @@ namespace Grand.Business.Core.Interfaces.Catalog.Discounts
         /// <summary>
         /// Loads existing discount provider by rule system name
         /// </summary>
-        /// <param name="rulesystemName">Rule system name</param>
+        /// <param name="ruleSystemName">Rule system name</param>
         /// <returns>Discount provider</returns>
-        IDiscountProvider LoadDiscountProviderByRuleSystemName(string rulesystemName);
+        IDiscountProvider LoadDiscountProviderByRuleSystemName(string ruleSystemName);
 
         /// <summary>
         /// Loads all available discount providers
@@ -72,6 +72,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Discounts
         /// </summary>
         /// <param name="couponCode"></param>
         /// <param name="discountId"></param>
+        /// <param name="used"></param>
         /// <returns></returns>
         Task<bool> ExistsCodeInDiscount(string couponCode, string discountId, bool? used);
 
@@ -118,6 +119,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Discounts
         /// <param name="discountId">Discount id; use null to load all existing discounts</param>
         /// <param name="customerId">Customer id; use null to load all existing customers</param>
         /// <param name="orderId">Order id; use null to load all existing orders</param>
+        /// <param name="canceled">Canceled</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Discount usage history records</returns>
@@ -176,7 +178,6 @@ namespace Grand.Business.Core.Interfaces.Catalog.Discounts
         /// Updates discount code - defines it as used or not
         /// </summary>
         /// <param name="couponCode"></param>
-        /// <param name="discountId"></param>
         /// <param name="used"></param>
         Task DiscountCouponSetAsUsed(string couponCode, bool used);
 

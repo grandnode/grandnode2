@@ -3,7 +3,7 @@ using Grand.Domain.Vendors;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidVendor : Drop
+    public class LiquidVendor : Drop
     {
         private readonly Vendor _vendor;
 

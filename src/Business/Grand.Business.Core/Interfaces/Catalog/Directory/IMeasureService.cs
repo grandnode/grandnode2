@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Directory
     /// <summary>
     /// Measure dimension service interface
     /// </summary>
-    public partial interface IMeasureService
+    public interface IMeasureService
     {
        
         /// <summary>

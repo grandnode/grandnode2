@@ -4,7 +4,7 @@ namespace Grand.Business.Core.Utilities.System
     /// <summary>
     /// Represents a best customer report line
     /// </summary>
-    public partial class BestCustomerReportLine
+    public class BestCustomerReportLine
     {
         /// <summary>
         /// Gets or sets the customer identifier

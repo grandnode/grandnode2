@@ -1,6 +1,6 @@
 ﻿namespace Grand.Business.Core.Utilities.System
 {
-    public partial class CustomerByTimeReportLine
+    public class CustomerByTimeReportLine
     {
         public string Time { get; set; }
 

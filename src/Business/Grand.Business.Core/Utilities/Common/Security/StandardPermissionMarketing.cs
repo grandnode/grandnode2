@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
     {
         private static string CategoryMarketing => "Marketing";
 
-        public static readonly Permission ManageAffiliates = new Permission 
+        public static readonly Permission ManageAffiliates = new() 
         { 
             Name = "Manage Affiliates", 
             SystemName = PermissionSystemName.Affiliates,
@@ -14,7 +14,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryMarketing, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete } 
         };
-        public static readonly Permission ManagePushEvents = new Permission 
+        public static readonly Permission ManagePushEvents = new() 
         { 
             Name = "Manage Push Events", 
             SystemName = PermissionSystemName.PushNotifications,
@@ -22,7 +22,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryMarketing, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Delete } 
         };
-        public static readonly Permission ManageCampaigns = new Permission 
+        public static readonly Permission ManageCampaigns = new() 
         { 
             Name = "Manage Campaigns", 
             SystemName = PermissionSystemName.Campaigns,
@@ -30,7 +30,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryMarketing, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete, PermissionActionName.Export } 
         };        
-        public static readonly Permission ManageDiscounts = new Permission 
+        public static readonly Permission ManageDiscounts = new() 
         { 
             Name = "Manage Discounts", 
             SystemName = PermissionSystemName.Discounts,
@@ -38,7 +38,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryMarketing, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Preview, PermissionActionName.Edit, PermissionActionName.Delete } 
         };
-        public static readonly Permission ManageNewsletterSubscribers = new Permission 
+        public static readonly Permission ManageNewsletterSubscribers = new() 
         { 
             Name = "Manage Newsletter Subscribers", 
             SystemName = PermissionSystemName.NewsletterSubscribers,
@@ -46,7 +46,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryMarketing, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Edit, PermissionActionName.Export, PermissionActionName.Import, PermissionActionName.Delete } 
         };
-        public static readonly Permission ManageNewsletterCategories = new Permission 
+        public static readonly Permission ManageNewsletterCategories = new() 
         { 
             Name = "Manage Newsletter Categories", 
             SystemName = PermissionSystemName.NewsletterCategories,
@@ -54,7 +54,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryMarketing, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Preview, PermissionActionName.Edit, PermissionActionName.Delete } 
         };
-        public static readonly Permission ManageDocuments = new Permission
+        public static readonly Permission ManageDocuments = new()
         {
             Name = "Manage Documents",
             SystemName = PermissionSystemName.Documents,

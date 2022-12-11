@@ -22,7 +22,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// <summary>
         /// Gets customer groups product
         /// </summary>
-        /// <param name="Id">id</param>
+        /// <param name="id">id</param>
         /// <returns>Customer group product</returns>
         Task<CustomerGroupProduct> GetCustomerGroupProductById(string id);
 

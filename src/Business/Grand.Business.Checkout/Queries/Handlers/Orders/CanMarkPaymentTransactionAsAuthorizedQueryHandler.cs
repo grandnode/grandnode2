@@ -12,13 +12,7 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             if (paymentTransaction == null)
                 throw new ArgumentNullException(nameof(request.PaymentTransaction));
 
-            if (paymentTransaction.TransactionStatus == TransactionStatus.Canceled)
-                return Task.FromResult(false);
-
-            if (paymentTransaction.TransactionStatus == TransactionStatus.Pending)
-                return Task.FromResult(true);
-
-            return Task.FromResult(false);
+            return paymentTransaction.TransactionStatus == TransactionStatus.Canceled ? Task.FromResult(false) : Task.FromResult(paymentTransaction.TransactionStatus == TransactionStatus.Pending);
         }
     }
 }

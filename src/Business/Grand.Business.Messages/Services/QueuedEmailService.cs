@@ -8,7 +8,7 @@ using Grand.Domain.Common;
 
 namespace Grand.Business.Messages.Services
 {
-    public partial class QueuedEmailService : IQueuedEmailService
+    public class QueuedEmailService : IQueuedEmailService
     {
         private readonly IRepository<QueuedEmail> _queuedEmailRepository;
         private readonly IMediator _mediator;

@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Cms
     /// <summary>
     /// Blog service interface
     /// </summary>
-    public partial interface IBlogService
+    public interface IBlogService
     {
        
         /// <summary>
@@ -25,6 +25,7 @@ namespace Grand.Business.Core.Interfaces.Cms
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <param name="showHidden">A value indicating whether to show hidden records</param>
+        /// <param name="tag">Tag</param>
         /// <param name="blogPostName">Blog post name</param>
         /// <param name="categoryId">Category id</param>
         /// <returns>Blog posts</returns>
@@ -85,19 +86,12 @@ namespace Grand.Business.Core.Interfaces.Cms
         /// <returns>Blog comment</returns>
         Task<BlogComment> GetBlogCommentById(string blogCommentId);
 
-        /// <summary>
-        /// Get blog comments by identifiers
-        /// </summary>
-        /// <param name="commentIds">Blog comment identifiers</param>
-        /// <returns>Blog comments</returns>
-        Task<IList<BlogComment>> GetBlogCommentsByIds(string[] commentIds);
-
         Task<IList<BlogComment>> GetBlogCommentsByBlogPostId(string blogPostId);
 
         /// <summary>
         /// Inserts a blog post comment
         /// </summary>
-        /// <param name="blogPost">Blog post comment</param>
+        /// <param name="blogComment">Blog post comment</param>
         Task InsertBlogComment(BlogComment blogComment);
 
         Task DeleteBlogComment(BlogComment blogComment);
@@ -117,9 +111,9 @@ namespace Grand.Business.Core.Interfaces.Cms
         Task<IList<BlogCategory>> GetBlogCategoryByPostId(string blogPostId);
 
         /// <summary>
-        /// Get category by sename
+        /// Get category by se name
         /// </summary>
-        /// <param name="blogCategorySeName">Blog category sename</param>
+        /// <param name="blogCategorySeName">Blog category se name</param>
         /// <returns></returns>
         Task<BlogCategory> GetBlogCategoryBySeName(string blogCategorySeName);
 

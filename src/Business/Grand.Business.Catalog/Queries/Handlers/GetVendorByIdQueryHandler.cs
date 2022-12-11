@@ -16,10 +16,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
 
         public Task<Vendor> Handle(GetVendorByIdQuery request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.Id))
-                return Task.FromResult<Vendor>(null);
-
-            return _vendorRepository.GetByIdAsync(request.Id);
+            return string.IsNullOrWhiteSpace(request.Id) ? Task.FromResult<Vendor>(null) : _vendorRepository.GetByIdAsync(request.Id);
         }
     }
 }

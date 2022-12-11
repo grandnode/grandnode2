@@ -3,7 +3,7 @@ using Grand.Domain.Catalog;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidAttributeCombination : Drop
+    public class LiquidAttributeCombination : Drop
     {
         private readonly ProductAttributeCombination _combination;
 

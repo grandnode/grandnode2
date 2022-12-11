@@ -15,7 +15,7 @@ namespace Grand.Business.Checkout.Services.Payments
     /// <summary>
     /// Payment service
     /// </summary>
-    public partial class PaymentService : IPaymentService
+    public class PaymentService : IPaymentService
     {
         #region Fields
 
@@ -31,7 +31,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// Ctor
         /// </summary>
         /// <param name="paymentSettings">Payment settings</param>
-        /// <param name="PaymentProviders">Payment providers</param>
+        /// <param name="paymentProviders">Payment providers</param>
         /// <param name="settingService">Setting service</param>
         public PaymentService(PaymentSettings paymentSettings,
             IEnumerable<IPaymentProvider> paymentProviders,
@@ -59,23 +59,18 @@ namespace Grand.Business.Checkout.Services.Payments
                    .Where(provider => _paymentSettings.ActivePaymentProviderSystemNames.Contains(provider.SystemName, StringComparer.OrdinalIgnoreCase))
                    .ToList();
 
-            if (customer != null)
+            if (customer == null) return await Task.FromResult(pm);
+            var selectedShippingOption = customer.GetUserFieldFromEntity<ShippingOption>(
+                SystemCustomerFieldNames.SelectedShippingOption, storeId);
+
+            if (selectedShippingOption == null) return await Task.FromResult(pm);
+            for (var i = pm.Count - 1; i >= 0; i--)
             {
-                var selectedShippingOption = customer.GetUserFieldFromEntity<ShippingOption>(
-                       SystemCustomerFieldNames.SelectedShippingOption, storeId);
-
-                if (selectedShippingOption != null)
+                var restrictedGroupIds = GetRestrictedShippingIds(pm[i]);
+                if (restrictedGroupIds.Contains(selectedShippingOption.Name))
                 {
-                    for (int i = pm.Count - 1; i >= 0; i--)
-                    {
-                        var restictedGroupIds = GetRestrictedShippingIds(pm[i]);
-                        if (restictedGroupIds.Contains(selectedShippingOption.Name))
-                        {
-                            pm.Remove(pm[i]);
-                        }
-                    }
+                    pm.Remove(pm[i]);
                 }
-
             }
             return await Task.FromResult(pm);
         }
@@ -104,24 +99,13 @@ namespace Grand.Business.Checkout.Services.Payments
                     x.IsAuthenticateStore(storeId) &&
                     x.IsAuthenticateGroup(customer))
                 .OrderBy(x => x.Priority).ToList();
-            if (String.IsNullOrEmpty(filterByCountryId))
-                return paymentMethods;
-
-            //filter by country
-            var paymentMetodsByCountry = new List<IPaymentProvider>();
-            foreach (var pm in paymentMethods)
-            {
-                var restictedCountryIds = GetRestrictedCountryIds(pm);
-                if (!restictedCountryIds.Contains(filterByCountryId))
-                {
-                    paymentMetodsByCountry.Add(pm);
-                }
-            }
-            return paymentMetodsByCountry;
+            return string.IsNullOrEmpty(filterByCountryId) ? paymentMethods :
+                //filter by country
+                (from pm in paymentMethods let restrictedCountryIds = GetRestrictedCountryIds(pm) where !restrictedCountryIds.Contains(filterByCountryId) select pm).ToList();
         }
 
         /// <summary>
-        /// Gets a list of coutnry identifiers in which a certain payment method is now allowed
+        /// Gets a list of country identifiers in which a certain payment method is now allowed
         /// </summary>
         /// <param name="paymentMethod">Payment method</param>
         /// <returns>A list of country identifiers</returns>
@@ -130,11 +114,9 @@ namespace Grand.Business.Checkout.Services.Payments
             if (paymentMethod == null)
                 throw new ArgumentNullException(nameof(paymentMethod));
 
-            var settingKey = string.Format("PaymentMethodRestictions.{0}", paymentMethod.SystemName);
-            var restictedCountryIds = _settingService.GetSettingByKey<PaymentRestictedSettings>(settingKey);
-            if (restictedCountryIds == null)
-                return new List<string>();
-            return restictedCountryIds.Ids;
+            var settingKey = $"PaymentMethodRestictions.{paymentMethod.SystemName}";
+            var restrictedCountryIds = _settingService.GetSettingByKey<PaymentRestrictedSettings>(settingKey);
+            return restrictedCountryIds == null ? new List<string>() : restrictedCountryIds.Ids;
         }
 
         /// <summary>
@@ -147,38 +129,36 @@ namespace Grand.Business.Checkout.Services.Payments
             if (paymentMethod == null)
                 throw new ArgumentNullException(nameof(paymentMethod));
 
-            var settingKey = string.Format("PaymentMethodRestictionsShipping.{0}", paymentMethod.SystemName);
-            var restictedShippingIds = _settingService.GetSettingByKey<PaymentRestictedSettings>(settingKey);
-            if (restictedShippingIds == null)
-                return new List<string>();
-            return restictedShippingIds.Ids;
+            var settingKey = $"PaymentMethodRestictionsShipping.{paymentMethod.SystemName}";
+            var restrictedShippingIds = _settingService.GetSettingByKey<PaymentRestrictedSettings>(settingKey);
+            return restrictedShippingIds == null ? new List<string>() : restrictedShippingIds.Ids;
         }
         /// <summary>
         /// Saves a list of country identifiers in which a certain payment method is now allowed
         /// </summary>
         /// <param name="paymentMethod">Payment method</param>
         /// <param name="countryIds">A list of country identifiers</param>
-        public virtual async Task SaveRestictedCountryIds(IPaymentProvider paymentMethod, List<string> countryIds)
+        public virtual async Task SaveRestrictedCountryIds(IPaymentProvider paymentMethod, List<string> countryIds)
         {
             if (paymentMethod == null)
                 throw new ArgumentNullException(nameof(paymentMethod));
 
-            var settingKey = string.Format("PaymentMethodRestictions.{0}", paymentMethod.SystemName);
-            await _settingService.SetSetting(settingKey, new PaymentRestictedSettings() { Ids = countryIds });
+            var settingKey = $"PaymentMethodRestictions.{paymentMethod.SystemName}";
+            await _settingService.SetSetting(settingKey, new PaymentRestrictedSettings { Ids = countryIds });
         }
 
         /// <summary>
         /// Saves a list of role identifiers in which a certain payment method is now allowed
         /// </summary>
         /// <param name="paymentMethod">Payment method</param>
-        /// <param name="countryIds">A list of country identifiers</param>
-        public virtual async Task SaveRestictedGroupIds(IPaymentProvider paymentMethod, List<string> groupIds)
+        /// <param name="groupIds">A list of group identifiers</param>
+        public virtual async Task SaveRestrictedGroupIds(IPaymentProvider paymentMethod, List<string> groupIds)
         {
             if (paymentMethod == null)
                 throw new ArgumentNullException(nameof(paymentMethod));
 
-            var settingKey = string.Format("PaymentMethodRestictionsGroup.{0}", paymentMethod.SystemName);
-            await _settingService.SetSetting(settingKey, new PaymentRestictedSettings() { Ids = groupIds });
+            var settingKey = $"PaymentMethodRestictionsGroup.{paymentMethod.SystemName}";
+            await _settingService.SetSetting(settingKey, new PaymentRestrictedSettings { Ids = groupIds });
         }
 
         /// <summary>
@@ -186,19 +166,19 @@ namespace Grand.Business.Checkout.Services.Payments
         /// </summary>
         /// <param name="paymentMethod">Payment method</param>
         /// <param name="shippingIds">A list of country identifiers</param>
-        public virtual async Task SaveRestictedShippingIds(IPaymentProvider paymentMethod, List<string> shippingIds)
+        public virtual async Task SaveRestrictedShippingIds(IPaymentProvider paymentMethod, List<string> shippingIds)
         {
             if (paymentMethod == null)
                 throw new ArgumentNullException(nameof(paymentMethod));
 
-            var settingKey = string.Format("PaymentMethodRestictionsShipping.{0}", paymentMethod.SystemName);
-            await _settingService.SetSetting(settingKey, new PaymentRestictedSettings() { Ids = shippingIds });
+            var settingKey = $"PaymentMethodRestictionsShipping.{paymentMethod.SystemName}";
+            await _settingService.SetSetting(settingKey, new PaymentRestrictedSettings { Ids = shippingIds });
         }
 
         /// <summary>
         /// Process a payment
         /// </summary>
-        /// <param name="processPaymentRequest">Payment info required for an order processing</param>
+        /// <param name="paymentTransaction">Payment transaction</param>
         /// <returns>Process payment result</returns>
         public virtual async Task<ProcessPaymentResult> ProcessPayment(PaymentTransaction paymentTransaction)
         {
@@ -223,7 +203,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <summary>
         /// Post process payment 
         /// </summary>
-        /// <param name="postProcessPaymentRequest">Payment info required for an order processing</param>
+        /// <param name="paymentTransaction">Payment transaction</param>
         public virtual async Task PostProcessPayment(PaymentTransaction paymentTransaction)
         {
             if (paymentTransaction == null)
@@ -241,7 +221,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <summary>
         /// Post redirect payment (used by payment gateways that redirecting to a another URL)
         /// </summary>
-        /// <param name="postProcessPaymentRequest">Payment info required for an order processing</param>
+        /// <param name="paymentTransaction">Payment Transaction</param>
         public virtual async Task PostRedirectPayment(PaymentTransaction paymentTransaction)
         {
             if (paymentTransaction == null)
@@ -277,7 +257,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <summary>
         /// Gets a value indicating whether customers can complete a payment after order is placed but not completed (for redirection payment methods)
         /// </summary>
-        /// <param name="order">Order</param>
+        /// <param name="paymentTransaction">Payment transaction</param>
         /// <returns>Result</returns>
         public virtual async Task<bool> CanRePostRedirectPayment(PaymentTransaction paymentTransaction)
         {
@@ -288,17 +268,11 @@ namespace Grand.Business.Checkout.Services.Payments
                 return false;
 
             var paymentMethod = LoadPaymentMethodBySystemName(paymentTransaction.PaymentMethodSystemName);
-            if (paymentMethod == null)
+            if (paymentMethod is not { PaymentMethodType: PaymentMethodType.Redirection })
                 return false; //Payment method couldn't be loaded (for example, was uninstalled)
 
-            if (paymentMethod.PaymentMethodType != PaymentMethodType.Redirection)
-                return false;   //this option is available only for redirection payment methods
-
-            if (paymentTransaction.TransactionStatus == TransactionStatus.Canceled)
+            if (paymentTransaction.TransactionStatus is TransactionStatus.Canceled or not TransactionStatus.Pending)
                 return false;  //do not allow for cancelled orders
-
-            if (paymentTransaction.TransactionStatus != TransactionStatus.Pending)
-                return false;  //payment transaction status should be Pending
 
             return await paymentMethod.CanRePostRedirectPayment(paymentTransaction);
         }
@@ -308,19 +282,19 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <summary>
         /// Gets an additional handling fee of a payment method
         /// </summary>
-        /// <param name="cart">Shoping cart</param>
+        /// <param name="cart">Shopping cart</param>
         /// <param name="paymentMethodSystemName">Payment method system name</param>
         /// <returns>Additional handling fee</returns>
         public virtual async Task<double> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart, string paymentMethodSystemName)
         {
-            if (String.IsNullOrEmpty(paymentMethodSystemName))
+            if (string.IsNullOrEmpty(paymentMethodSystemName))
                 return 0;
 
             var paymentMethod = LoadPaymentMethodBySystemName(paymentMethodSystemName);
             if (paymentMethod == null)
                 return 0;
 
-            double result = await paymentMethod.GetAdditionalHandlingFee(cart);
+            var result = await paymentMethod.GetAdditionalHandlingFee(cart);
             if (result < 0)
                 result = 0;
 
@@ -417,7 +391,7 @@ namespace Grand.Business.Checkout.Services.Payments
         /// <summary>
         /// Voids a payment
         /// </summary>
-        /// <param name="voidPaymentRequest">Request</param>
+        /// <param name="paymentTransaction">Payment transaction</param>
         /// <returns>Result</returns>
         public virtual async Task<VoidPaymentResult> Void(PaymentTransaction paymentTransaction)
         {
@@ -439,9 +413,7 @@ namespace Grand.Business.Checkout.Services.Payments
         public virtual PaymentMethodType GetPaymentMethodType(string paymentMethodSystemName)
         {
             var paymentMethod = LoadPaymentMethodBySystemName(paymentMethodSystemName);
-            if (paymentMethod == null)
-                return PaymentMethodType.Other;
-            return paymentMethod.PaymentMethodType;
+            return paymentMethod?.PaymentMethodType ?? PaymentMethodType.Other;
         }
 
         #endregion

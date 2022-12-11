@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
     /// <summary>
     /// Product attribute service interface
     /// </summary>
-    public partial interface IProductAttributeService
+    public interface IProductAttributeService
     {
         #region Product attributes
 

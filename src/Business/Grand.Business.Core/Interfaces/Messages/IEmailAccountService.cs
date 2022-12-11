@@ -2,7 +2,7 @@
 
 namespace Grand.Business.Core.Interfaces.Messages
 {
-    public partial interface IEmailAccountService
+    public interface IEmailAccountService
     {
         /// <summary>
         /// Inserts an email account

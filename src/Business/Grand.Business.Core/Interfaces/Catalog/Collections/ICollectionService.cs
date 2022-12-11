@@ -6,13 +6,13 @@ namespace Grand.Business.Core.Interfaces.Catalog.Collections
     /// <summary>
     /// Collection service
     /// </summary>
-    public partial interface ICollectionService
+    public interface ICollectionService
     {
-
         /// <summary>
         /// Gets all collections
         /// </summary>
         /// <param name="collectionName">Collection name</param>
+        /// <param name="storeId">Store ident</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
@@ -24,7 +24,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Collections
             bool showHidden = false);
 
         /// <summary>
-        /// Gets all collections featired products displayed on the home page
+        /// Gets all collections products displayed on the home page
         /// </summary>
         /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
         /// <returns>Collections</returns>
@@ -56,7 +56,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Collections
         Task DeleteCollection(Collection collection);
 
         /// <summary>
-        /// Gets all manfucaturers by discount id
+        /// Gets all brands by discount id
         /// </summary>
         /// <param name="discountId">Discount id </param>
         /// <returns>Product collection mapping</returns>

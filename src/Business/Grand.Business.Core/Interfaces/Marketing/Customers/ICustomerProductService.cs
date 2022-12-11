@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.Marketing.Customers
     /// <summary>
     /// Customer product service interface
     /// </summary>
-    public partial interface ICustomerProductService
+    public interface ICustomerProductService
     {
         #region Customer Product Price
 
@@ -59,11 +59,12 @@ namespace Grand.Business.Core.Interfaces.Marketing.Customers
         Task DeleteCustomerProductPrice(CustomerProductPrice customerProductPrice);
 
 
-
         /// <summary>
         /// Gets products price for customer
         /// </summary>
         /// <param name="customerId">Customer id</param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
         /// <returns>Customer products price</returns>
         Task<IPagedList<CustomerProductPrice>> GetProductsPriceByCustomer(string customerId, int pageIndex = 0, int pageSize = int.MaxValue);
 

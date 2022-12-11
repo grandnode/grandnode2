@@ -73,7 +73,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// Validates shopping cart item for reservation products
         /// </summary>
         /// <param name="customer">Customer</param>
-        /// <param name="Product">product</param>
+        /// <param name="product">product</param>
         /// <param name="shoppingCartItem">ShoppingCartItem</param>
         /// <returns>Warnings</returns>
         Task<IList<string>> GetReservationProductWarnings(Customer customer, Product product, ShoppingCartItem shoppingCartItem);
@@ -106,7 +106,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// Validates required products (products which require some other products to be added to the cart)
         /// </summary>
         /// <param name="customer">Customer</param>
-        /// <param name="shoppingCartType">Shopping cart type</param>
+        /// <param name="shoppingCartItem">Shopping cart type</param>
         /// <param name="product">Product</param>
         /// <param name="storeId">Store identifier</param>
         /// <returns>Warnings</returns>

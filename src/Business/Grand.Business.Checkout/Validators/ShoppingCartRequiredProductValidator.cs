@@ -16,7 +16,7 @@ namespace Grand.Business.Checkout.Validators
         public ShoppingCartRequiredProductValidator(ITranslationService translationService, IProductService productService, ShoppingCartSettings shoppingCartSettings)
         {
 
-            RuleFor(x => x).CustomAsync(async (value, context, ct) =>
+            RuleFor(x => x).CustomAsync(async (value, context, _) =>
             {
                 var cart = value.Customer.ShoppingCartItems.Where(sci => sci.ShoppingCartTypeId == value.ShoppingCartItem.ShoppingCartTypeId)
                     .LimitPerStore(shoppingCartSettings.SharedCartBetweenStores, value.Store.Id)
@@ -30,23 +30,9 @@ namespace Grand.Business.Checkout.Validators
                         requiredProducts.Add(rp);
                 }
 
-                foreach (var rp in requiredProducts)
+                foreach (var rp in from rp in requiredProducts let alreadyInTheCart = cart.Any(sci => sci.ProductId == rp.Id) where !alreadyInTheCart select rp)
                 {
-                    //ensure that product is in the cart
-                    bool alreadyInTheCart = false;
-                    foreach (var sci in cart)
-                    {
-                        if (sci.ProductId == rp.Id)
-                        {
-                            alreadyInTheCart = true;
-                            break;
-                        }
-                    }
-                    //not in the cart
-                    if (!alreadyInTheCart)
-                    {
-                        context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.RequiredProductWarning"), rp.Name));
-                    }
+                    context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.RequiredProductWarning"), rp.Name));
                 }
             });
         }

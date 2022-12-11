@@ -15,26 +15,26 @@ namespace Grand.Business.Checkout.Validators
         public ShoppingCartReservationProductValidator(ITranslationService translationService, IProductReservationService productReservationService)
         {
 
-            RuleFor(x => x).CustomAsync(async (value, context, ct) =>
+            RuleFor(x => x).CustomAsync(async (value, context, _) =>
             {
                 if (!string.IsNullOrEmpty(value.ShoppingCartItem.ReservationId))
                 {
                     var reservations = await productReservationService.GetCustomerReservationsHelpers(value.Customer.Id);
-                    if (!value.Customer.ShoppingCartItems.Any(x => x.Id == value.ShoppingCartItem.Id))
+                    if (value.Customer.ShoppingCartItems.All(x => x.Id != value.ShoppingCartItem.Id))
                     {
-                        if (reservations.Where(x => x.ReservationId == value.ShoppingCartItem.ReservationId).Any())
+                        if (reservations.Any(x => x.ReservationId == value.ShoppingCartItem.ReservationId))
                             context.AddFailure(translationService.GetResource("ShoppingCart.AlreadyReservation"));
                     }
                 }
 
                 if (value.ShoppingCartItem.RentalStartDateUtc.HasValue && value.ShoppingCartItem.RentalEndDateUtc.HasValue)
                 {
-                    var _canBeBook = false;
+                    var canBeBook = false;
                     var reservations = await productReservationService.GetProductReservationsByProductId(value.Product.Id, true, null);
                     var reserved = await productReservationService.GetCustomerReservationsHelpers(value.Customer.Id);
                     foreach (var item in reserved.Where(x => x.ShoppingCartItemId != value.ShoppingCartItem.Id))
                     {
-                        var match = reservations.Where(x => x.Id == item.ReservationId).FirstOrDefault();
+                        var match = reservations.FirstOrDefault(x => x.Id == item.ReservationId);
                         if (match != null)
                         {
                             reservations.Remove(match);
@@ -44,37 +44,31 @@ namespace Grand.Business.Checkout.Validators
                     var grouped = reservations.GroupBy(x => x.Resource);
                     foreach (var group in grouped)
                     {
-                        bool groupCanBeBooked = true;
+                        var groupCanBeBooked = true;
                         if (value.Product.IncBothDate && value.Product.IntervalUnitId == IntervalUnit.Day)
                         {
                             for (DateTime iterator = value.ShoppingCartItem.RentalStartDateUtc.Value; iterator <= value.ShoppingCartItem.RentalEndDateUtc.Value; iterator += new TimeSpan(24, 0, 0))
                             {
-                                if (!group.Select(x => x.Date).Contains(iterator))
-                                {
-                                    groupCanBeBooked = false;
-                                    break;
-                                }
+                                if (group.Select(x => x.Date).Contains(iterator)) continue;
+                                groupCanBeBooked = false;
+                                break;
                             }
                         }
                         else
                         {
                             for (DateTime iterator = value.ShoppingCartItem.RentalStartDateUtc.Value; iterator < value.ShoppingCartItem.RentalEndDateUtc.Value; iterator += new TimeSpan(24, 0, 0))
                             {
-                                if (!group.Select(x => x.Date).Contains(iterator))
-                                {
-                                    groupCanBeBooked = false;
-                                    break;
-                                }
+                                if (group.Select(x => x.Date).Contains(iterator)) continue;
+                                groupCanBeBooked = false;
+                                break;
                             }
                         }
-                        if (groupCanBeBooked)
-                        {
-                            _canBeBook = true;
-                            break;
-                        }
+                        if (!groupCanBeBooked) continue;
+                        canBeBook = true;
+                        break;
                     }
 
-                    if (!_canBeBook)
+                    if (!canBeBook)
                     {
                         context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.NoFreeReservationsInThisPeriod"));
                         return;
@@ -106,7 +100,7 @@ namespace Grand.Business.Checkout.Validators
                 {
                     if (!(value.ShoppingCartItem.RentalStartDateUtc.HasValue && value.ShoppingCartItem.RentalEndDateUtc.HasValue))
                     {
-                        context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.ChoosebothDates"));
+                        context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.ChooseBothDates"));
                     }
                     else
                     {
@@ -144,11 +138,10 @@ namespace Grand.Business.Checkout.Validators
                                         context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.ReservationDeleted"));
                                         break;
                                     }
-                                    else if (!string.IsNullOrEmpty(reservation.OrderId))
-                                    {
-                                        context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.AlreadyReserved"));
-                                        break;
-                                    }
+
+                                    if (string.IsNullOrEmpty(reservation.OrderId)) continue;
+                                    context.AddFailure(translationService.GetResource("ShoppingCart.Reservation.AlreadyReserved"));
+                                    break;
                                 }
                         }
                     }

@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Common.Stores
     /// <summary>
     /// Store service interface
     /// </summary>
-    public partial interface IStoreService
+    public interface IStoreService
     {
        
         /// <summary>

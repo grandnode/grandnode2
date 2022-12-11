@@ -40,10 +40,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             await _orderService.UpdateOrder(order);
 
             //event notification
-            await _mediator.Publish(new PaymentTransactionMarkAsAuthorizedEvent(paymentTransaction));
+            await _mediator.Publish(new PaymentTransactionMarkAsAuthorizedEvent(paymentTransaction), cancellationToken);
 
             //check order status
-            await _mediator.Send(new CheckOrderStatusCommand() { Order = order });
+            await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
 
             return true;
         }

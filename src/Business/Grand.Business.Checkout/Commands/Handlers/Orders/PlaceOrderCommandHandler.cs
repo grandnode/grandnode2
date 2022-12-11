@@ -187,17 +187,17 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
                     #region Events & notes
 
-                    _ = Task.Run(() => SendNotification(_serviceScopeFactory, result.PlacedOrder, _workContext.CurrentCustomer, _workContext.OriginalCustomerIfImpersonated));
+                    _ = Task.Run(() => SendNotification(_serviceScopeFactory, result.PlacedOrder, _workContext.CurrentCustomer, _workContext.OriginalCustomerIfImpersonated), cancellationToken);
 
                     //check order status
-                    await _mediator.Send(new CheckOrderStatusCommand() { Order = result.PlacedOrder });
+                    await _mediator.Send(new CheckOrderStatusCommand { Order = result.PlacedOrder }, cancellationToken);
 
                     //raise event       
-                    await _mediator.Publish(new OrderPlacedEvent(result.PlacedOrder));
+                    await _mediator.Publish(new OrderPlacedEvent(result.PlacedOrder), cancellationToken);
 
                     if (result.PlacedOrder.PaymentStatusId == PaymentStatus.Paid)
                     {
-                        await _mediator.Send(new ProcessOrderPaidCommand() { Order = result.PlacedOrder });
+                        await _mediator.Send(new ProcessOrderPaidCommand { Order = result.PlacedOrder }, cancellationToken);
                     }
 
                     #endregion
@@ -217,19 +217,18 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             #region Process errors
 
-            string error = "";
-            for (int i = 0; i < result.Errors.Count; i++)
+            var error = "";
+            for (var i = 0; i < result.Errors.Count; i++)
             {
-                error += string.Format("Error {0}: {1}", i + 1, result.Errors[i]);
+                error += $"Error {i + 1}: {result.Errors[i]}";
                 if (i != result.Errors.Count - 1)
                     error += ". ";
             }
-            if (!string.IsNullOrEmpty(error))
-            {
-                //log it
-                string logError = string.Format("Error while placing order. {0}", error);
-                _ = _logger.Error(logError);
-            }
+
+            if (string.IsNullOrEmpty(error)) return result;
+            //log it
+            var logError = $"Error while placing order. {error}";
+            _ = _logger.Error(logError);
 
             #endregion
 
@@ -237,13 +236,13 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         }
 
         protected virtual async Task<(ProcessPaymentResult paymentResult, PaymentTransaction paymentTransaction)>
-           PrepareProcessPayment(PlaceOrderContainter details)
+           PrepareProcessPayment(PlaceOrderContainer details)
         {
             //payment transaction
             var paymentTransaction = await PreparePaymentTransaction(details);
 
             //process payment
-            ProcessPaymentResult processPaymentResult = null;
+            ProcessPaymentResult processPaymentResult;
             //skip payment workflow if order total equals zero
             var skipPaymentWorkflow = details.OrderTotal == 0;
             if (!skipPaymentWorkflow)
@@ -262,9 +261,9 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             else
             {
                 //payment is not required
-                if (processPaymentResult == null)
-                    processPaymentResult = new ProcessPaymentResult();
-                processPaymentResult.NewPaymentTransactionStatus = TransactionStatus.Paid;
+                processPaymentResult = new ProcessPaymentResult {
+                    NewPaymentTransactionStatus = TransactionStatus.Paid
+                };
             }
 
             if (processPaymentResult == null)
@@ -273,10 +272,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             return (processPaymentResult, paymentTransaction);
         }
 
-        protected async Task<PaymentTransaction> PreparePaymentTransaction(PlaceOrderContainter details)
+        private async Task<PaymentTransaction> PreparePaymentTransaction(PlaceOrderContainer details)
         {
             var update = false;
-            var paymentTransaction = new PaymentTransaction() { CreatedOnUtc = DateTime.UtcNow };
+            PaymentTransaction paymentTransaction = new PaymentTransaction { CreatedOnUtc = DateTime.UtcNow };
             var paymentTransactionId = details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PaymentTransaction, _workContext.CurrentStore.Id);
             if (!string.IsNullOrEmpty(paymentTransactionId))
             {
@@ -286,6 +285,8 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     update = true;
                     paymentTransaction.UpdatedOnUtc = DateTime.UtcNow;
                 }
+                else
+                     paymentTransaction = new PaymentTransaction { CreatedOnUtc = DateTime.UtcNow };
             }
 
             paymentTransaction.TransactionStatus = TransactionStatus.Pending;
@@ -309,7 +310,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             return paymentTransaction;
         }
 
-        protected async Task UpdatePaymentTransaction(PaymentTransaction paymentTransaction, Order order, ProcessPaymentResult processPaymentResult)
+        private async Task UpdatePaymentTransaction(PaymentTransaction paymentTransaction, Order order, ProcessPaymentResult processPaymentResult)
         {
             paymentTransaction.TransactionAmount = order.OrderTotal;
             paymentTransaction.PaidAmount = order.PaidAmount;
@@ -318,25 +319,21 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             paymentTransaction.Errors.Clear();
             await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
         }
-        private async Task<double?> PrepareCommissionRate(Product product, PlaceOrderContainter details)
+        private async Task<double?> PrepareCommissionRate(Product product, PlaceOrderContainer details)
         {
             var commissionRate = default(double?);
             if (!string.IsNullOrEmpty(product.VendorId))
             {
                 var vendor = await _vendorService.GetVendorById(product.VendorId);
-                if (vendor != null && vendor.Commission.HasValue)
+                if (vendor is { Commission: { } })
                     commissionRate = vendor.Commission.Value;
             }
 
-            if (!commissionRate.HasValue)
-            {
-                if (!string.IsNullOrEmpty(details.Customer.SeId))
-                {
-                    var salesEmployee = await _salesEmployeeService.GetSalesEmployeeById(details.Customer.SeId);
-                    if (salesEmployee != null && salesEmployee.Active && salesEmployee.Commission.HasValue)
-                        commissionRate = salesEmployee.Commission.Value;
-                }
-            }
+            if (commissionRate.HasValue) return commissionRate;
+            if (string.IsNullOrEmpty(details.Customer.SeId)) return null;
+            var salesEmployee = await _salesEmployeeService.GetSalesEmployeeById(details.Customer.SeId);
+            if (salesEmployee is { Active: true, Commission: { } })
+                commissionRate = salesEmployee.Commission.Value;
 
             return commissionRate;
         }
@@ -373,7 +370,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                             {
                                 //bundled product
                                 var associatedProduct = await _productService.GetProductById(attributeValue.AssociatedProductId);
-                                if (associatedProduct != null && associatedProduct.IsShipEnabled)
+                                if (associatedProduct is { IsShipEnabled: true })
                                 {
                                     attributesTotalWeight += associatedProduct.Weight * attributeValue.Quantity;
                                 }
@@ -388,9 +385,9 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             return weight;
         }
 
-        protected virtual async Task<PlaceOrderContainter> PreparePlaceOrderDetails()
+        protected virtual async Task<PlaceOrderContainer> PreparePlaceOrderDetails()
         {
-            var details = new PlaceOrderContainter {
+            var details = new PlaceOrderContainer {
                 //customer
                 Customer = _workContext.CurrentCustomer
             };
@@ -412,13 +409,13 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             if (!string.IsNullOrEmpty(details.Customer.AffiliateId))
             {
                 var affiliate = await _affiliateService.GetAffiliateById(details.Customer.AffiliateId);
-                if (affiliate != null && affiliate.Active)
+                if (affiliate is { Active: true })
                     details.AffiliateId = affiliate.Id;
             }
 
             //customer currency
             var currencyTmp = await _currencyService.GetCurrencyById(details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.CurrencyId, _workContext.CurrentStore.Id));
-            var customerCurrency = (currencyTmp != null && currencyTmp.Published) ? currencyTmp : _workContext.WorkingCurrency;
+            var customerCurrency = currencyTmp is { Published: true } ? currencyTmp : _workContext.WorkingCurrency;
             details.Currency = customerCurrency;
             var primaryStoreCurrency = await _currencyService.GetPrimaryStoreCurrency();
             details.CurrencyRate = Math.Round(customerCurrency.Rate / primaryStoreCurrency.Rate, 6);
@@ -427,16 +424,14 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             //customer language
             details.Language = await _languageService.GetLanguageById(details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId, _workContext.CurrentStore.Id));
 
-            if (details.Language == null || !details.Language.Published)
+            if (details.Language is not { Published: true })
                 details.Language = _workContext.WorkingLanguage;
 
             details.BillingAddress = details.Customer.BillingAddress;
             if (!string.IsNullOrEmpty(details.BillingAddress.CountryId))
             {
                 var country = await _countryService.GetCountryById(details.BillingAddress.CountryId);
-                if (country != null)
-                    if (!country.AllowsBilling)
-                        throw new GrandException(string.Format("Country '{0}' is not allowed for billing", country.Name));
+                if (country is { AllowsBilling: false }) throw new GrandException($"Country '{country.Name}' is not allowed for billing");
             }
 
             //checkout attributes
@@ -445,7 +440,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             //load and validate customer shopping cart
             details.Cart = details.Customer.ShoppingCartItems
-                .Where(sci => sci.ShoppingCartTypeId == ShoppingCartType.ShoppingCart || sci.ShoppingCartTypeId == ShoppingCartType.Auctions)
+                .Where(sci => sci.ShoppingCartTypeId is ShoppingCartType.ShoppingCart or ShoppingCartType.Auctions)
                 .LimitPerStore(_shoppingCartSettings.SharedCartBetweenStores, _workContext.CurrentStore.Id)
                 .ToList();
 
@@ -457,10 +452,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             if (warnings.Any())
             {
                 var warningsSb = new StringBuilder();
-                foreach (string warning in warnings)
+                foreach (var warning in warnings)
                 {
                     warningsSb.Append(warning);
-                    warningsSb.Append(";");
+                    warningsSb.Append(';');
                 }
                 throw new GrandException(warningsSb.ToString());
             }
@@ -473,31 +468,30 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 if (sciWarnings.Any())
                 {
                     var warningsSb = new StringBuilder();
-                    foreach (string warning in sciWarnings)
+                    foreach (var warning in sciWarnings)
                     {
                         warningsSb.Append(warning);
-                        warningsSb.Append(";");
+                        warningsSb.Append(';');
                     }
                     throw new GrandException(warningsSb.ToString());
                 }
-                if (product.IsRecurring)
-                {
-                    details.IsRecurring = true;
-                    details.RecurringCycleLength = product.RecurringCycleLength;
-                    details.RecurringCyclePeriodId = product.RecurringCyclePeriodId;
-                    details.RecurringTotalCycles = product.RecurringTotalCycles;
-                }
+
+                if (!product.IsRecurring) continue;
+                details.IsRecurring = true;
+                details.RecurringCycleLength = product.RecurringCycleLength;
+                details.RecurringCyclePeriodId = product.RecurringCyclePeriodId;
+                details.RecurringTotalCycles = product.RecurringTotalCycles;
             }
 
             //min totals validation
-            bool minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand() { Customer = _workContext.CurrentCustomer, Cart = details.Cart });
+            var minOrderSubtotalAmountOk = await _mediator.Send(new ValidateMinShoppingCartSubtotalAmountCommand() { Customer = _workContext.CurrentCustomer, Cart = details.Cart });
             if (!minOrderSubtotalAmountOk)
             {
-                double minOrderSubtotalAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(_orderSettings.MinOrderSubtotalAmount, _workContext.WorkingCurrency);
+                var minOrderSubtotalAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(_orderSettings.MinOrderSubtotalAmount, _workContext.WorkingCurrency);
                 throw new GrandException(string.Format(_translationService.GetResource("Checkout.MinOrderSubtotalAmount"), _priceFormatter.FormatPrice(minOrderSubtotalAmount, false)));
             }
 
-            bool minmaxOrderTotalAmountOk = await _mediator.Send(new ValidateShoppingCartTotalAmountCommand() { Customer = details.Customer, Cart = details.Cart });
+            var minmaxOrderTotalAmountOk = await _mediator.Send(new ValidateShoppingCartTotalAmountCommand() { Customer = details.Customer, Cart = details.Cart });
             if (!minmaxOrderTotalAmountOk)
             {
                 throw new GrandException(_translationService.GetResource("Checkout.MinMaxOrderTotalAmount"));
@@ -512,30 +506,26 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             //sub total
             //sub total (incl tax)
             var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(details.Cart, true);
-            double orderSubTotalDiscountAmount = shoppingCartSubTotal.discountAmount;
+            var orderSubTotalDiscountAmount = shoppingCartSubTotal.discountAmount;
             List<ApplyDiscount> orderSubTotalAppliedDiscounts = shoppingCartSubTotal.appliedDiscounts;
-            double subTotalWithoutDiscountBase = shoppingCartSubTotal.subTotalWithoutDiscount;
-            double subTotalWithDiscountBase = shoppingCartSubTotal.subTotalWithDiscount;
+            var subTotalWithoutDiscountBase = shoppingCartSubTotal.subTotalWithoutDiscount;
 
             details.OrderSubTotalInclTax = subTotalWithoutDiscountBase;
             details.OrderSubTotalDiscountInclTax = orderSubTotalDiscountAmount;
 
-            foreach (var disc in orderSubTotalAppliedDiscounts)
-                if (!details.AppliedDiscounts.Where(x => x.DiscountId == disc.DiscountId).Any())
-                    details.AppliedDiscounts.Add(disc);
+            foreach (var disc in orderSubTotalAppliedDiscounts.Where(disc => details.AppliedDiscounts.All(x => x.DiscountId != disc.DiscountId)))
+                details.AppliedDiscounts.Add(disc);
 
             //sub total (excl tax)
             shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(details.Cart, false);
             orderSubTotalDiscountAmount = shoppingCartSubTotal.discountAmount;
-            orderSubTotalAppliedDiscounts = shoppingCartSubTotal.appliedDiscounts;
             subTotalWithoutDiscountBase = shoppingCartSubTotal.subTotalWithoutDiscount;
-            subTotalWithDiscountBase = shoppingCartSubTotal.subTotalWithDiscount;
 
             details.OrderSubTotalExclTax = subTotalWithoutDiscountBase;
             details.OrderSubTotalDiscountExclTax = orderSubTotalDiscountAmount;
 
             //shipping info
-            bool shoppingCartRequiresShipping = shoppingCartRequiresShipping = details.Cart.RequiresShipping();
+            var shoppingCartRequiresShipping = details.Cart.RequiresShipping();
 
             if (shoppingCartRequiresShipping)
             {
@@ -543,7 +533,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 if (_shippingSettings.AllowPickUpInStore && pickupPoint != null)
                 {
                     details.PickUpInStore = true;
-                    details.PickupPoint = await _mediator.Send(new GetPickupPointById() { Id = pickupPoint });
+                    details.PickupPoint = await _mediator.Send(new GetPickupPointById { Id = pickupPoint });
                 }
                 else
                 {
@@ -555,12 +545,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
                     //clone shipping address
                     details.ShippingAddress = details.Customer.ShippingAddress;
-                    if (!String.IsNullOrEmpty(details.ShippingAddress.CountryId))
+                    if (!string.IsNullOrEmpty(details.ShippingAddress.CountryId))
                     {
                         var country = await _countryService.GetCountryById(details.ShippingAddress.CountryId);
-                        if (country != null)
-                            if (!country.AllowsShipping)
-                                throw new GrandException(string.Format("Country '{0}' is not allowed for shipping", country.Name));
+                        if (country is { AllowsShipping: false }) throw new GrandException($"Country '{country.Name}' is not allowed for shipping");
                     }
                 }
                 var shippingOption = details.Customer.GetUserFieldFromEntity<ShippingOption>(SystemCustomerFieldNames.SelectedShippingOption, _workContext.CurrentStore.Id);
@@ -576,104 +564,86 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             //shipping total
 
-            var shoppingCartShippingTotal = await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, true);
-            double tax = shoppingCartShippingTotal.taxRate;
-            List<ApplyDiscount> shippingTotalDiscounts = shoppingCartShippingTotal.appliedDiscounts;
-            var orderShippingTotalInclTax = shoppingCartShippingTotal.shoppingCartShippingTotal;
+            var (orderShippingTotalInclTax, _, shippingTotalDiscounts) = await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, true);
             var orderShippingTotalExclTax = (await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, false)).shoppingCartShippingTotal;
             if (!orderShippingTotalInclTax.HasValue || !orderShippingTotalExclTax.HasValue)
                 throw new GrandException("Shipping total couldn't be calculated");
 
-            foreach (var disc in shippingTotalDiscounts)
+            foreach (var disc in shippingTotalDiscounts.Where(disc => details.AppliedDiscounts.All(x => x.DiscountId != disc.DiscountId)))
             {
-                if (!details.AppliedDiscounts.Where(x => x.DiscountId == disc.DiscountId).Any())
-                    details.AppliedDiscounts.Add(disc);
+                details.AppliedDiscounts.Add(disc);
             }
-
-
             details.OrderShippingTotalInclTax = orderShippingTotalInclTax.Value;
             details.OrderShippingTotalExclTax = orderShippingTotalExclTax.Value;
 
             //payment 
             var paymentMethodSystemName = _workContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.SelectedPaymentMethod, _workContext.CurrentStore.Id);
             details.PaymentMethodSystemName = paymentMethodSystemName;
-            double paymentAdditionalFee = await _paymentService.GetAdditionalHandlingFee(details.Cart, paymentMethodSystemName);
+            var paymentAdditionalFee = await _paymentService.GetAdditionalHandlingFee(details.Cart, paymentMethodSystemName);
             details.PaymentAdditionalFeeInclTax = (await _taxService.GetPaymentMethodAdditionalFee(paymentAdditionalFee, true, details.Customer)).paymentPrice;
             details.PaymentAdditionalFeeExclTax = (await _taxService.GetPaymentMethodAdditionalFee(paymentAdditionalFee, false, details.Customer)).paymentPrice;
 
             //tax total
             //tax amount
-            var (taxtotal, taxRates) = await _orderTotalCalculationService.GetTaxTotal(details.Cart);
-            details.OrderTaxTotal = taxtotal;
+            var (taxTotal, taxRates) = await _orderTotalCalculationService.GetTaxTotal(details.Cart);
+            details.OrderTaxTotal = taxTotal;
 
             //tax rates
             foreach (var kvp in taxRates)
             {
-                details.Taxes.Add(new OrderTax() {
+                details.Taxes.Add(new OrderTax {
                     Percent = Math.Round(kvp.Key, 2),
                     Amount = kvp.Value
                 });
             }
 
             //order total (and applied discounts, gift vouchers, loyalty points)
-            var shoppingCartTotal = await _orderTotalCalculationService.GetShoppingCartTotal(details.Cart);
-            List<AppliedGiftVoucher> appliedGiftVouchers = shoppingCartTotal.appliedGiftVouchers;
-            List<ApplyDiscount> orderAppliedDiscounts = shoppingCartTotal.appliedDiscounts;
-            double orderDiscountAmount = shoppingCartTotal.discountAmount;
-            int redeemedLoyaltyPoints = shoppingCartTotal.redeemedLoyaltyPoints;
-            var orderTotal = shoppingCartTotal.shoppingCartTotal;
+            var (orderTotal, orderDiscountAmount, orderAppliedDiscounts, appliedGiftVouchers, redeemedLoyaltyPoints, redeemedLoyaltyPointsAmount) = await _orderTotalCalculationService.GetShoppingCartTotal(details.Cart);
             if (!orderTotal.HasValue)
                 throw new GrandException("Order total couldn't be calculated");
 
             details.OrderDiscountAmount = orderDiscountAmount;
             details.RedeemedLoyaltyPoints = redeemedLoyaltyPoints;
-            details.RedeemedLoyaltyPointsAmount = shoppingCartTotal.redeemedLoyaltyPointsAmount;
+            details.RedeemedLoyaltyPointsAmount = redeemedLoyaltyPointsAmount;
             details.AppliedGiftVouchers = appliedGiftVouchers;
             details.OrderTotal = orderTotal.Value;
 
             //discount history
-            foreach (var disc in orderAppliedDiscounts)
+            foreach (var disc in orderAppliedDiscounts.Where(disc => details.AppliedDiscounts.All(x => x.DiscountId != disc.DiscountId)))
             {
-                if (!details.AppliedDiscounts.Where(x => x.DiscountId == disc.DiscountId).Any())
-                    details.AppliedDiscounts.Add(disc);
+                details.AppliedDiscounts.Add(disc);
             }
 
             return details;
         }
 
-        protected virtual async Task<OrderItem> PrepareOrderItem(ShoppingCartItem sc, Product product, PlaceOrderContainter details)
+        protected virtual async Task<OrderItem> PrepareOrderItem(ShoppingCartItem sc, Product product, PlaceOrderContainer details)
         {
-            List<ApplyDiscount> scDiscounts;
-            double discountAmount;
-            double scUnitPrice = (await _pricingService.GetUnitPrice(sc, product)).unitprice;
-            double scUnitPriceWithoutDisc = (await _pricingService.GetUnitPrice(sc, product, false)).unitprice;
+            var scUnitPrice = (await _pricingService.GetUnitPrice(sc, product)).unitprice;
+            var scUnitPriceWithoutDisc = (await _pricingService.GetUnitPrice(sc, product, false)).unitprice;
 
-            var subtotal = await _pricingService.GetSubTotal(sc, product, true);
-            double scSubTotal = subtotal.subTotal;
-            discountAmount = subtotal.discountAmount;
-            scDiscounts = subtotal.appliedDiscounts;
+            var (scSubTotal, discountAmount, scDiscounts) = await _pricingService.GetSubTotal(sc, product);
 
             var prices = await _taxService.GetTaxProductPrice(product, details.Customer, scUnitPrice, scUnitPriceWithoutDisc, sc.Quantity, scSubTotal, discountAmount, _taxSettings.PricesIncludeTax);
-            double scUnitPriceWithoutDiscInclTax = prices.UnitPriceWihoutDiscInclTax;
-            double scUnitPriceWithoutDiscExclTax = prices.UnitPriceWihoutDiscExclTax;
-            double scUnitPriceInclTax = prices.UnitPriceInclTax;
-            double scUnitPriceExclTax = prices.UnitPriceExclTax;
-            double scSubTotalInclTax = prices.SubTotalInclTax;
-            double scSubTotalExclTax = prices.SubTotalExclTax;
-            double discountAmountInclTax = prices.discountAmountInclTax;
-            double discountAmountExclTax = prices.discountAmountExclTax;
+            var scUnitPriceWithoutDiscInclTax = prices.UnitPriceWithoutDiscInclTax;
+            var scUnitPriceWithoutDiscExclTax = prices.UnitPriceWithoutDiscExclTax;
+            var scUnitPriceInclTax = prices.UnitPriceInclTax;
+            var scUnitPriceExclTax = prices.UnitPriceExclTax;
+            var scSubTotalInclTax = prices.SubTotalInclTax;
+            var scSubTotalExclTax = prices.SubTotalExclTax;
+            var discountAmountInclTax = prices.DiscountAmountInclTax;
+            var discountAmountExclTax = prices.DiscountAmountExclTax;
 
-            foreach (var disc in scDiscounts)
+            foreach (var disc in scDiscounts.Where(disc => details.AppliedDiscounts.All(x => x.DiscountId != disc.DiscountId)))
             {
-                if (!details.AppliedDiscounts.Where(x => x.DiscountId == disc.DiscountId).Any())
-                    details.AppliedDiscounts.Add(disc);
+                details.AppliedDiscounts.Add(disc);
             }
 
             //attributes
-            string attributeDescription = await _productAttributeFormatter.FormatAttributes(product, sc.Attributes, details.Customer);
+            var attributeDescription = await _productAttributeFormatter.FormatAttributes(product, sc.Attributes, details.Customer);
 
             if (string.IsNullOrEmpty(attributeDescription) && sc.ShoppingCartTypeId == ShoppingCartType.Auctions)
-                attributeDescription = _translationService.GetResource("ShoppingCart.auctionwonon") + " " + product.AvailableEndDateTimeUtc;
+                attributeDescription = _translationService.GetResource("ShoppingCart.AuctionWonOn") + " " + product.AvailableEndDateTimeUtc;
 
             var itemWeight = await GetShoppingCartItemWeight(sc);
 
@@ -687,8 +657,8 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             }
 
             var commissionRate = await PrepareCommissionRate(product, details);
-            var commision = commissionRate.HasValue ?
-                Math.Round((commissionRate.Value * scSubTotal / 100), 2) : 0;
+            var commission = commissionRate.HasValue ?
+                Math.Round(commissionRate.Value * scSubTotal / 100, 2) : 0;
 
             //save order item
             var orderItem = new OrderItem {
@@ -698,7 +668,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 VendorId = product.VendorId,
                 WarehouseId = warehouseId,
                 SeId = details.Customer.SeId,
-                TaxRate = Math.Round(prices.taxRate, 2),
+                TaxRate = Math.Round(prices.TaxRate, 2),
                 UnitPriceWithoutDiscInclTax = Math.Round(scUnitPriceWithoutDiscInclTax, 6),
                 UnitPriceWithoutDiscExclTax = Math.Round(scUnitPriceWithoutDiscExclTax, 6),
                 UnitPriceInclTax = Math.Round(scUnitPriceInclTax, 6),
@@ -720,11 +690,11 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 RentalStartDateUtc = sc.RentalStartDateUtc,
                 RentalEndDateUtc = sc.RentalEndDateUtc,
                 CreatedOnUtc = DateTime.UtcNow,
-                Commission = commision,
+                Commission = commission,
                 cId = sc.cId
             };
 
-            string reservationInfo = "";
+            var reservationInfo = "";
             if (product.ProductTypeId == ProductType.Reservation)
             {
                 if (sc.RentalEndDateUtc == default(DateTime) || sc.RentalEndDateUtc == null)
@@ -744,21 +714,20 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     reservationInfo += "<br>" + _translationService.GetResource("Products.Duration") + ": " + sc.Duration;
                 }
             }
-            if (!string.IsNullOrEmpty(reservationInfo))
+
+            if (string.IsNullOrEmpty(reservationInfo)) return orderItem;
+            if (!string.IsNullOrEmpty(orderItem.AttributeDescription))
             {
-                if (!string.IsNullOrEmpty(orderItem.AttributeDescription))
-                {
-                    orderItem.AttributeDescription += "<br>" + reservationInfo;
-                }
-                else
-                {
-                    orderItem.AttributeDescription = reservationInfo;
-                }
+                orderItem.AttributeDescription += "<br>" + reservationInfo;
+            }
+            else
+            {
+                orderItem.AttributeDescription = reservationInfo;
             }
             return orderItem;
         }
 
-        protected virtual async Task GenerateGiftVoucher(PlaceOrderContainter details, ShoppingCartItem sc, Order order, OrderItem orderItem, Product product)
+        protected virtual async Task GenerateGiftVoucher(PlaceOrderContainer details, ShoppingCartItem sc, Order order, OrderItem orderItem, Product product)
         {
             GiftVoucherExtensions.GetGiftVoucherAttribute(sc.Attributes,
                         out var giftVoucherRecipientName, out var giftVoucherRecipientEmail,
@@ -790,7 +759,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             }
         }
 
-        protected virtual async Task UpdateProductReservation(Order order, PlaceOrderContainter details)
+        protected virtual async Task UpdateProductReservation(Order order, PlaceOrderContainer details)
         {
             var reservationsToUpdate = new List<ProductReservation>();
             foreach (var sc in details.Cart.Where(x => (x.RentalStartDateUtc.HasValue && x.RentalEndDateUtc.HasValue) || !string.IsNullOrEmpty(x.ReservationId)))
@@ -802,69 +771,60 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     reservationsToUpdate.Add(reservation);
                 }
 
-                if (sc.RentalStartDateUtc.HasValue && sc.RentalEndDateUtc.HasValue)
-                {
-                    var reservations = await _productReservationService.GetProductReservationsByProductId(product.Id, true, null);
-                    var grouped = reservations.GroupBy(x => x.Resource);
+                if (!sc.RentalStartDateUtc.HasValue || !sc.RentalEndDateUtc.HasValue) continue;
+                var reservations = await _productReservationService.GetProductReservationsByProductId(product.Id, true, null);
+                var grouped = reservations.GroupBy(x => x.Resource);
 
-                    IGrouping<string, ProductReservation> groupToBook = null;
-                    foreach (var group in grouped)
+                IGrouping<string, ProductReservation> groupToBook = null;
+                foreach (var group in grouped)
+                {
+                    var groupCanBeBooked = true;
+                    if (product.IncBothDate && product.IntervalUnitId == IntervalUnit.Day)
                     {
-                        bool groupCanBeBooked = true;
-                        if (product.IncBothDate && product.IntervalUnitId == IntervalUnit.Day)
+                        for (DateTime iterator = sc.RentalStartDateUtc.Value; iterator <= sc.RentalEndDateUtc.Value; iterator += new TimeSpan(24, 0, 0))
                         {
-                            for (DateTime iterator = sc.RentalStartDateUtc.Value; iterator <= sc.RentalEndDateUtc.Value; iterator += new TimeSpan(24, 0, 0))
-                            {
-                                if (!group.Select(x => x.Date).Contains(iterator))
-                                {
-                                    groupCanBeBooked = false;
-                                    break;
-                                }
-                            }
+                            if (group.Select(x => x.Date).Contains(iterator)) continue;
+                            groupCanBeBooked = false;
+                            break;
                         }
-                        else
+                    }
+                    else
+                    {
+                        for (DateTime iterator = sc.RentalStartDateUtc.Value; iterator < sc.RentalEndDateUtc.Value; iterator += new TimeSpan(24, 0, 0))
                         {
-                            for (DateTime iterator = sc.RentalStartDateUtc.Value; iterator < sc.RentalEndDateUtc.Value; iterator += new TimeSpan(24, 0, 0))
-                            {
-                                if (!group.Select(x => x.Date).Contains(iterator))
-                                {
-                                    groupCanBeBooked = false;
-                                    break;
-                                }
-                            }
-                        }
-                        if (groupCanBeBooked)
-                        {
-                            groupToBook = group;
+                            if (group.Select(x => x.Date).Contains(iterator)) continue;
+                            groupCanBeBooked = false;
                             break;
                         }
                     }
 
-                    if (groupToBook == null)
-                    {
-                        throw new Exception("ShoppingCart.Reservation.Nofreereservationsinthisperiod");
-                    }
-                    else
-                    {
-                        var temp = groupToBook.AsQueryable();
-                        if (product.IncBothDate && product.IntervalUnitId == IntervalUnit.Day)
-                        {
-                            temp = temp.Where(x => x.Date >= sc.RentalStartDateUtc && x.Date <= sc.RentalEndDateUtc);
-                        }
-                        else
-                        {
-                            temp = temp.Where(x => x.Date >= sc.RentalStartDateUtc && x.Date < sc.RentalEndDateUtc);
-                        }
-
-                        foreach (var item in temp)
-                        {
-                            item.OrderId = order.OrderGuid.ToString();
-                            await _productReservationService.UpdateProductReservation(item);
-                        }
-
-                        reservationsToUpdate.AddRange(temp);
-                    }
+                    if (!groupCanBeBooked) continue;
+                    groupToBook = group;
+                    break;
                 }
+
+                if (groupToBook == null)
+                {
+                    throw new Exception("ShoppingCart.Reservation.NoFreeReservationsInThisPeriod");
+                }
+
+                var temp = groupToBook.AsQueryable();
+                if (product.IncBothDate && product.IntervalUnitId == IntervalUnit.Day)
+                {
+                    temp = temp.Where(x => x.Date >= sc.RentalStartDateUtc && x.Date <= sc.RentalEndDateUtc);
+                }
+                else
+                {
+                    temp = temp.Where(x => x.Date >= sc.RentalStartDateUtc && x.Date < sc.RentalEndDateUtc);
+                }
+
+                foreach (var item in temp)
+                {
+                    item.OrderId = order.OrderGuid.ToString();
+                    await _productReservationService.UpdateProductReservation(item);
+                }
+
+                reservationsToUpdate.AddRange(temp);
             }
             var reserved = await _productReservationService.GetCustomerReservationsHelpers(order.CustomerId);
             foreach (var res in reserved)
@@ -900,23 +860,21 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             }
             if (product.ProductTypeId == ProductType.Auction && _orderSettings.UnpublishAuctionProduct)
             {
-                await _productService.UnpublishProduct(product);
+                await _productService.UnPublishProduct(product);
             }
         }
 
-        protected virtual async Task UpdateBids(Order order, PlaceOrderContainter details)
+        protected virtual async Task UpdateBids(Order order, PlaceOrderContainer details)
         {
             foreach (var sc in details.Cart.Where(x => x.ShoppingCartTypeId == ShoppingCartType.Auctions))
             {
-                var bid = (await _auctionService.GetBidsByProductId(sc.Id)).Where(x => x.CustomerId == details.Customer.Id).FirstOrDefault();
-                if (bid != null)
-                {
-                    bid.OrderId = order.Id;
-                    await _auctionService.UpdateBid(bid);
-                }
+                var bid = (await _auctionService.GetBidsByProductId(sc.Id)).FirstOrDefault(x => x.CustomerId == details.Customer.Id);
+                if (bid == null) continue;
+                bid.OrderId = order.Id;
+                await _auctionService.UpdateBid(bid);
             }
         }
-        protected virtual async Task InsertDiscountUsageHistory(Order order, PlaceOrderContainter details)
+        protected virtual async Task InsertDiscountUsageHistory(Order order, PlaceOrderContainer details)
         {
             foreach (var discount in details.AppliedDiscounts)
             {
@@ -931,18 +889,18 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             }
         }
 
-        protected virtual async Task AppliedGiftVouchers(Order order, PlaceOrderContainter details)
+        protected virtual async Task AppliedGiftVouchers(Order order, PlaceOrderContainer details)
         {
             foreach (var agc in details.AppliedGiftVouchers)
             {
-                double amountUsed = agc.AmountCanBeUsed;
-                var gcuh = new GiftVoucherUsageHistory {
+                var amountUsed = agc.AmountCanBeUsed;
+                var giftVoucherUsageHistory = new GiftVoucherUsageHistory {
                     GiftVoucherId = agc.GiftVoucher.Id,
                     UsedWithOrderId = order.Id,
                     UsedValue = amountUsed,
                     CreatedOnUtc = DateTime.UtcNow
                 };
-                agc.GiftVoucher.GiftVoucherUsageHistory.Add(gcuh);
+                agc.GiftVoucher.GiftVoucherUsageHistory.Add(giftVoucherUsageHistory);
                 await _giftVoucherService.UpdateGiftVoucher(agc.GiftVoucher);
             }
         }
@@ -952,7 +910,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         /// </summary>
         /// <returns>Order</returns>
         protected virtual Order PrepareOrderHeader(PaymentTransaction paymentTransaction,
-            ProcessPaymentResult processPaymentResult, PlaceOrderContainter details)
+            ProcessPaymentResult processPaymentResult, PlaceOrderContainer details)
         {
             var paymentStatus = PaymentStatus.Pending;
 
@@ -1036,10 +994,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         /// <summary>
         /// Save order details
         /// </summary>
-        /// <param name="details">Place order containter</param>
+        /// <param name="details">Place order container</param>
         /// <param name="order">Order</param>
         /// <returns>Order</returns>
-        protected virtual async Task<Order> SaveOrderDetails(PlaceOrderContainter details, Order order)
+        protected virtual async Task<Order> SaveOrderDetails(PlaceOrderContainer details, Order order)
         {
             //move shopping cart items to order items
             foreach (var sc in details.Cart)
@@ -1094,7 +1052,10 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
         /// <summary>
         /// Send notification order 
         /// </summary>
+        /// <param name="scopeFactory"></param>
         /// <param name="order">Order</param>
+        /// <param name="customer"></param>
+        /// <param name="originalCustomerIfImpersonated"></param>
         protected virtual async Task SendNotification(IServiceScopeFactory scopeFactory, Order order, Customer customer, Customer originalCustomerIfImpersonated)
         {
             using var scope = scopeFactory.CreateScope();
@@ -1111,7 +1072,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             var languageSettings = scope.ServiceProvider.GetRequiredService<LanguageSettings>();
             var pdfService = scope.ServiceProvider.GetRequiredService<IPdfService>();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-            var logger = scope.ServiceProvider.GetRequiredService<ILogger>();
             try
             {
                 //notes, messages
@@ -1119,8 +1079,8 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 {
                     //this order is placed by a store administrator impersonating a customer
                     await orderService.InsertOrderNote(new OrderNote {
-                        Note = string.Format("Order placed by a store owner ('{0}'. ID = {1}) impersonating the customer.",
-                            originalCustomerIfImpersonated.Email, originalCustomerIfImpersonated.Id),
+                        Note =
+                            $"Order placed by a store owner ('{originalCustomerIfImpersonated.Email}'. ID = {originalCustomerIfImpersonated.Id}) impersonating the customer.",
                         DisplayToCustomer = false,
                         CreatedOnUtc = DateTime.UtcNow,
                         OrderId = order.Id,
@@ -1171,7 +1131,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             }
             catch (Exception e)
             {
-                await _logger.InsertLog(Domain.Logging.LogLevel.Error, "Place order send notifiaction error", e.Message);
+                await _logger.InsertLog(Domain.Logging.LogLevel.Error, "Place order send notification error", e.Message);
             }
 
         }

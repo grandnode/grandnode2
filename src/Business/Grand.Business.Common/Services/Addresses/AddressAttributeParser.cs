@@ -12,7 +12,7 @@ namespace Grand.Business.Common.Services.Addresses
     /// <summary>
     /// Address attribute parser
     /// </summary>
-    public partial class AddressAttributeParser : IAddressAttributeParser
+    public class AddressAttributeParser : IAddressAttributeParser
     {
         private readonly IAddressAttributeService _addressAttributeService;
         private readonly ITranslationService _translationService;
@@ -28,7 +28,7 @@ namespace Grand.Business.Common.Services.Addresses
         /// <summary>
         /// Gets selected address attributes
         /// </summary>
-        /// <param name="attributes">Attributes</param>
+        /// <param name="customAttributes">Attributes</param>
         /// <returns>Selected address attributes</returns>
         public virtual async Task<IList<AddressAttribute>> ParseAddressAttributes(IList<CustomAttribute> customAttributes)
         {
@@ -50,7 +50,7 @@ namespace Grand.Business.Common.Services.Addresses
         /// <summary>
         /// Get address attribute values
         /// </summary>
-        /// <param name="attributes">Attributes</param>
+        /// <param name="customAttributes">Attributes</param>
         /// <returns>Address attribute values</returns>
         public virtual async Task<IList<AddressAttributeValue>> ParseAddressAttributeValues(IList<CustomAttribute> customAttributes)
         {
@@ -65,15 +65,7 @@ namespace Grand.Business.Common.Services.Addresses
                     continue;
 
                 var valuesStr = customAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value);
-                foreach (var valueStr in valuesStr)
-                {
-                    if (!string.IsNullOrEmpty(valueStr))
-                    {
-                        var value = attribute.AddressAttributeValues.FirstOrDefault(x => x.Id == valueStr);
-                        if (value != null)
-                            values.Add(value);
-                    }
-                }
+                values.AddRange(from valueStr in valuesStr where !string.IsNullOrEmpty(valueStr) select attribute.AddressAttributeValues.FirstOrDefault(x => x.Id == valueStr) into value where value != null select value);
             }
             return values;
         }
@@ -81,24 +73,21 @@ namespace Grand.Business.Common.Services.Addresses
         /// <summary>
         /// Adds an attribute
         /// </summary>
-        /// <param name="attributes">Attributes</param>
+        /// <param name="customAttributes">Attributes</param>
         /// <param name="attribute">Address attribute</param>
         /// <param name="value">Value</param>
         /// <returns>Attributes</returns>
         public virtual IList<CustomAttribute> AddAddressAttribute(IList<CustomAttribute> customAttributes, AddressAttribute attribute, string value)
         {
-            if (customAttributes == null)
-                customAttributes = new List<CustomAttribute>();
-
-            customAttributes.Add(new CustomAttribute() { Key = attribute.Id, Value = value });
-
+            customAttributes ??= new List<CustomAttribute>();
+            customAttributes.Add(new CustomAttribute { Key = attribute.Id, Value = value });
             return customAttributes;
         }
 
         /// <summary>
         /// Validates address attributes
         /// </summary>
-        /// <param name="attributes">Attributes</param>
+        /// <param name="customAttributes">Attributes</param>
         /// <returns>Warnings</returns>
         public virtual async Task<IList<string>> GetAttributeWarnings(IList<CustomAttribute> customAttributes)
         {
@@ -111,33 +100,23 @@ namespace Grand.Business.Common.Services.Addresses
             var attributes2 = await _addressAttributeService.GetAllAddressAttributes();
             foreach (var a2 in attributes2)
             {
-                if (a2.IsRequired)
+                if (!a2.IsRequired) continue;
+                var found = false;
+                //selected address attributes
+                foreach (var a1 in attributes1)
                 {
-                    bool found = false;
-                    //selected address attributes
-                    foreach (var a1 in attributes1)
+                    if (a1.Id != a2.Id) continue;
+                    var valuesStr = customAttributes.Where(x => x.Key == a1.Id).Select(x => x.Value);
+                    if (valuesStr.Any(str1 => !string.IsNullOrEmpty(str1.Trim())))
                     {
-                        if (a1.Id == a2.Id)
-                        {
-                            var valuesStr = customAttributes.Where(x => x.Key == a1.Id).Select(x => x.Value);
-                            foreach (var str1 in valuesStr)
-                            {
-                                if (!string.IsNullOrEmpty(str1.Trim()))
-                                {
-                                    found = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    //if not found
-                    if (!found)
-                    {
-                        var notFoundWarning = string.Format(_translationService.GetResource("ShoppingCart.SelectAttribute"), a2.GetTranslation(a => a.Name, ""));
-                        warnings.Add(notFoundWarning);
+                        found = true;
                     }
                 }
+
+                //if not found
+                if (found) continue;
+                var notFoundWarning = string.Format(_translationService.GetResource("ShoppingCart.SelectAttribute"), a2.GetTranslation(a => a.Name, ""));
+                warnings.Add(notFoundWarning);
             }
 
             return warnings;
@@ -147,14 +126,14 @@ namespace Grand.Business.Common.Services.Addresses
         /// Formats attributes
         /// </summary>
         /// <param name="language">Languages</param>
-        /// <param name="attributes">Attributes</param>
-        /// <param name="serapator">Serapator</param>
+        /// <param name="customAttributes">Attributes</param>
+        /// <param name="separator">Separator</param>
         /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
         /// <returns>Attributes</returns>
         public virtual async Task<string> FormatAttributes(
             Language language,
             IList<CustomAttribute> customAttributes,
-            string serapator = "<br />",
+            string separator = "<br />",
             bool htmlEncode = true)
         {
             var result = new StringBuilder();
@@ -162,26 +141,26 @@ namespace Grand.Business.Common.Services.Addresses
                 return result.ToString();
 
             var attributes = await ParseAddressAttributes(customAttributes);
-            for (int i = 0; i < attributes.Count; i++)
+            for (var i = 0; i < attributes.Count; i++)
             {
                 var attribute = attributes[i];
                 var valuesStr = customAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value).ToList();
-                for (int j = 0; j < valuesStr.Count; j++)
+                for (var j = 0; j < valuesStr.Count; j++)
                 {
-                    string valueStr = valuesStr[j];
-                    string formattedAttribute = "";
+                    var valueStr = valuesStr[j];
+                    var formattedAttribute = "";
                     if (!attribute.ShouldHaveValues())
                     {
                         //no values
                         if (attribute.AttributeControlType == AttributeControlType.MultilineTextbox)
                         {
-                            //multiline textbox
+                            //multiline text box
                             var attributeName = attribute.GetTranslation(a => a.Name, language.Id);
                             //encode (if required)
                             if (htmlEncode)
                                 attributeName = WebUtility.HtmlEncode(attributeName);
-                            formattedAttribute = string.Format("{0}: {1}", attributeName, FormatText.ConvertText(valueStr));
-                            //we never encode multiline textbox input
+                            formattedAttribute = $"{attributeName}: {FormatText.ConvertText(valueStr)}";
+                            //we never encode multiline text box input
                         }
                         else if (attribute.AttributeControlType == AttributeControlType.FileUpload)
                         {
@@ -190,8 +169,8 @@ namespace Grand.Business.Common.Services.Addresses
                         }
                         else
                         {
-                            //other attributes (textbox, datepicker)
-                            formattedAttribute = string.Format("{0}: {1}", attribute.GetTranslation(a => a.Name, language.Id), valueStr);
+                            //other attributes (text box, datepicker)
+                            formattedAttribute = $"{attribute.GetTranslation(a => a.Name, language.Id)}: {valueStr}";
                             //encode (if required)
                             if (htmlEncode)
                                 formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
@@ -199,28 +178,25 @@ namespace Grand.Business.Common.Services.Addresses
                     }
                     else
                     {
-                        string attributeValueId = valueStr;
+                        var attributeValueId = valueStr;
                         var attributeValue = attribute.AddressAttributeValues.FirstOrDefault(x => x.Id == attributeValueId);
                         if (attributeValue != null)
                         {
-                            formattedAttribute = string.Format("{0}: {1}", attribute.GetTranslation(a => a.Name, language.Id), attributeValue.GetTranslation(a => a.Name, language.Id));
+                            formattedAttribute =
+                                $"{attribute.GetTranslation(a => a.Name, language.Id)}: {attributeValue.GetTranslation(a => a.Name, language.Id)}";
                         }
                         //encode (if required)
                         if (htmlEncode)
                             formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
                     }
 
-                    if (!string.IsNullOrEmpty(formattedAttribute))
-                    {
-                        if (i != 0 || j != 0)
-                            result.Append(serapator);
-                        result.Append(formattedAttribute);
-                    }
+                    if (string.IsNullOrEmpty(formattedAttribute)) continue;
+                    if (i != 0 || j != 0)
+                        result.Append(separator);
+                    result.Append(formattedAttribute);
                 }
             }
-
             return result.ToString();
         }
-
     }
 }

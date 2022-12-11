@@ -8,7 +8,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
     /// <summary>
     /// Shopping cart service
     /// </summary>
-    public partial interface IShoppingCartService
+    public interface IShoppingCartService
     {
 
         /// <summary>
@@ -24,7 +24,8 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// </summary>
         /// <param name="shoppingCart">Shopping cart</param>
         /// <param name="shoppingCartType">Shopping cart type</param>
-        /// <param name="product">Product</param>
+        /// <param name="productId">Product ident</param>
+        /// <param name="warehouseId">Warehouse ident</param>
         /// <param name="attributes">Attributes</param>
         /// <param name="customerEnteredPrice">Price entered by a customer</param>
         /// <param name="rentalStartDate">Rental start date</param>
@@ -71,12 +72,15 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// </summary>
         /// <param name="customer">Customer</param>
         /// <param name="shoppingCartItemId">Shopping cart item identifier</param>
+        /// <param name="warehouseId">Warehouse ident</param>
         /// <param name="attributes">Attributes</param>
         /// <param name="customerEnteredPrice">New customer entered price</param>
         /// <param name="rentalStartDate">Rental start date</param>
         /// <param name="rentalEndDate">Rental end date</param>
         /// <param name="quantity">New shopping cart item quantity</param>
         /// <param name="resetCheckoutData">A value indicating whether to reset checkout data</param>
+        /// <param name="reservationId">Reservation ident</param>
+        /// <param name="sciId"></param>
         /// <returns>Warnings</returns>
         Task<IList<string>> UpdateShoppingCartItem(Customer customer,
             string shoppingCartItemId, string warehouseId, IList<CustomAttribute> attributes,
@@ -87,6 +91,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders
         /// <summary>
         /// Delete shopping cart item
         /// </summary>
+        /// <param name="customer">Customer</param>
         /// <param name="shoppingCartItem">Shopping cart item</param>
         /// <param name="resetCheckoutData">A value indicating whether to reset checkout data</param>
         /// <param name="ensureOnlyActiveCheckoutAttributes">A value indicating whether to ensure that only active checkout attributes are attached to the current customer</param>

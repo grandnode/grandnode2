@@ -197,14 +197,14 @@ namespace Grand.Business.Catalog.Services.Products.Tests
         }
 
         [TestMethod()]
-        public async Task UnpublishProductTest()
+        public async Task UnPublishProductTest()
         {
             //Arrange 
             var product = new Product() { Id = "100", Published = true };
             await _productService.InsertProduct(product);
 
             //Act
-            await _productService.UnpublishProduct(product);
+            await _productService.UnPublishProduct(product);
             var result = await _productService.GetProductById("100");
 
             //Assert
@@ -235,7 +235,7 @@ namespace Grand.Business.Catalog.Services.Products.Tests
             //Arrange 
             await insertSampleProducts();
             //Act
-            var result = await _productService.GetProductsByProductAtributeId("1");
+            var result = await _productService.GetProductsByProductAttributeId("1");
 
             //Assert
             Assert.IsTrue(result.Count > 0);

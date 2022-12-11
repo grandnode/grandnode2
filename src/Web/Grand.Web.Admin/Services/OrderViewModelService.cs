@@ -576,7 +576,7 @@ namespace Grand.Web.Admin.Services
             model.PaymentMethod = pm != null ? pm.FriendlyName : order.PaymentMethodSystemName;
             model.PaymentStatus = order.PaymentStatusId.GetTranslationEnum(_translationService, _workContext);
             model.PaymentStatusEnum = order.PaymentStatusId;
-            var pt = await _paymentTransactionService.GetByOrdeGuid(order.OrderGuid);
+            var pt = await _paymentTransactionService.GetOrderByGuid(order.OrderGuid);
             if (pt != null)
                 model.PaymentTransactionId = pt.Id;
 

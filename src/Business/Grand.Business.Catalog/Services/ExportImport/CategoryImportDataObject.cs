@@ -1,4 +1,5 @@
-﻿using Grand.Business.Catalog.Services.ExportImport.Dto;
+﻿using Grand.Business.Catalog.Extensions;
+using Grand.Business.Catalog.Services.ExportImport.Dto;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -9,7 +10,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Mapper;
-using Microsoft.AspNetCore.StaticFiles;
 
 namespace Grand.Business.Catalog.Services.ExportImport
 {
@@ -48,7 +48,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
             }
         }
 
-        protected async Task Import(CategoryDto categoryDto)
+        private async Task Import(CategoryDto categoryDto)
         {
             var category = await _categoryService.GetCategoryById(categoryDto.Id);
             var isNew = category == null;
@@ -63,15 +63,15 @@ namespace Grand.Business.Catalog.Services.ExportImport
             await UpdateCategoryData(categoryDto, category);
         }
 
-        protected async Task<Category> UpdateCategoryData(CategoryDto categoryDto, Category category)
+        private async Task UpdateCategoryData(CategoryDto categoryDto, Category category)
         {
             if (string.IsNullOrEmpty(category.CategoryLayoutId))
-                category.CategoryLayoutId = (await _categoryLayoutService.GetAllCategoryLayouts()).FirstOrDefault().Id;
+                category.CategoryLayoutId = (await _categoryLayoutService.GetAllCategoryLayouts()).FirstOrDefault()?.Id;
             else
             {
                 var layout = await _categoryLayoutService.GetCategoryLayoutById(category.CategoryLayoutId);
                 if (layout == null)
-                    category.CategoryLayoutId = (await _categoryLayoutService.GetAllCategoryLayouts()).FirstOrDefault().Id;
+                    category.CategoryLayoutId = (await _categoryLayoutService.GetAllCategoryLayouts()).FirstOrDefault()?.Id;
             }
             if(!string.IsNullOrEmpty(category.ParentCategoryId))
             {
@@ -81,9 +81,9 @@ namespace Grand.Business.Catalog.Services.ExportImport
             }
             if (!string.IsNullOrEmpty(categoryDto.Picture))
             {
-                var _picture = await LoadPicture(categoryDto.Picture, category.Name, category.PictureId);
-                if (_picture != null)
-                    category.PictureId = _picture.Id;
+                var picture = await LoadPicture(categoryDto.Picture, category.Name, category.PictureId);
+                if (picture != null)
+                    category.PictureId = picture.Id;
             }
 
             var sename = category.SeName ?? category.Name;
@@ -91,15 +91,11 @@ namespace Grand.Business.Catalog.Services.ExportImport
             category.SeName = sename;
             await _categoryService.UpdateCategory(category);
             await _slugService.SaveSlug(category, sename, "");
-            return category;
         }
 
-        protected virtual bool ValidCategory(Category category)
+        private bool ValidCategory(Category category)
         {
-            if (string.IsNullOrEmpty(category.Name))
-                return false;
-
-            return true;
+            return !string.IsNullOrEmpty(category.Name);
         }
 
         /// <summary>
@@ -109,13 +105,13 @@ namespace Grand.Business.Catalog.Services.ExportImport
         /// <param name="name">The name of the object</param>
         /// <param name="picId">Image identifier, may be null</param>
         /// <returns>The image or null if the image has not changed</returns>
-        protected virtual async Task<Picture> LoadPicture(string picturePath, string name, string picId = "")
+        private async Task<Picture> LoadPicture(string picturePath, string name, string picId = "")
         {
             if (string.IsNullOrEmpty(picturePath) || !File.Exists(picturePath))
                 return null;
 
-            var mimeType = GetMimeTypeFromFilePath(picturePath);
-            var newPictureBinary = File.ReadAllBytes(picturePath);
+            var mimeType = MimeTypeExtensions.GetMimeTypeFromFilePath(picturePath);
+            var newPictureBinary = await File.ReadAllBytesAsync(picturePath);
             var pictureAlreadyExists = false;
             if (!string.IsNullOrEmpty(picId))
             {
@@ -137,14 +133,6 @@ namespace Grand.Business.Catalog.Services.ExportImport
             var newPicture = await _pictureService.InsertPicture(newPictureBinary, mimeType,
                 _pictureService.GetPictureSeName(name));
             return newPicture;
-        }
-        protected virtual string GetMimeTypeFromFilePath(string filePath)
-        {
-            new FileExtensionContentTypeProvider().TryGetContentType(filePath, out string mimeType);
-            //set to jpeg in case mime type cannot be found
-            if (mimeType == null)
-                mimeType = "image/jpeg";
-            return mimeType;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Grand.Business.Catalog.Services.Tax
     /// <summary>
     /// Tax category service
     /// </summary>
-    public partial class TaxCategoryService : ITaxCategoryService
+    public class TaxCategoryService : ITaxCategoryService
     {
         #region Fields
 
@@ -48,7 +48,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <returns>Tax categories</returns>
         public virtual async Task<IList<TaxCategory>> GetAllTaxCategories()
         {
-            string key = string.Format(CacheKey.TAXCATEGORIES_ALL_KEY);
+            var key = string.Format(CacheKey.TAXCATEGORIES_ALL_KEY);
             return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from tc in _taxCategoryRepository.Table
@@ -65,7 +65,7 @@ namespace Grand.Business.Catalog.Services.Tax
         /// <returns>Tax category</returns>
         public virtual Task<TaxCategory> GetTaxCategoryById(string taxCategoryId)
         {
-            string key = string.Format(CacheKey.TAXCATEGORIES_BY_ID_KEY, taxCategoryId);
+            var key = string.Format(CacheKey.TAXCATEGORIES_BY_ID_KEY, taxCategoryId);
             return _cacheBase.GetAsync(key, () => _taxCategoryRepository.GetByIdAsync(taxCategoryId));
         }
 

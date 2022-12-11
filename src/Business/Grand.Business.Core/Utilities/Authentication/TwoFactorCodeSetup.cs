@@ -1,6 +1,6 @@
 ﻿namespace Grand.Business.Core.Utilities.Authentication
 {
-    public partial class TwoFactorCodeSetup
+    public class TwoFactorCodeSetup
     {
         public TwoFactorCodeSetup()
         {

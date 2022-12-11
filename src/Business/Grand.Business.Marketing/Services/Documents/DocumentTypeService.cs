@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Grand.Business.Marketing.Services.Documents
 {
-    public partial class DocumentTypeService : IDocumentTypeService
+    public class DocumentTypeService : IDocumentTypeService
     {
         private readonly IRepository<DocumentType> _documentTypeRepository;
         private readonly IMediator _mediator;

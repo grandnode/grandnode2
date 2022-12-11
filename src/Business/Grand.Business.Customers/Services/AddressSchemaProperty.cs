@@ -26,7 +26,7 @@ namespace Grand.Business.Customers.Services
                 new PropertyByName<Address>("Address1", p=>p.Address1),
                 new PropertyByName<Address>("Address2", p=>p.Address2),
                 new PropertyByName<Address>("City", p=>p.City),
-                new PropertyByName<Address>("Country", p=> !string.IsNullOrEmpty(p.CountryId) ? _countryService.GetCountryById(p.CountryId).Result?.Name : ""),
+                new PropertyByName<Address>("Country", p=> !string.IsNullOrEmpty(p.CountryId) ? _countryService.GetCountryById(p.CountryId).Result?.Name : "")
             };
             return properties;
         }

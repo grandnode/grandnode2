@@ -10,7 +10,7 @@ namespace Grand.Business.Catalog.Services.Products
     /// <summary>
     /// Copy Product service
     /// </summary>
-    public partial class CopyProductService : ICopyProductService
+    public class CopyProductService : ICopyProductService
     {
         #region Fields
 
@@ -172,7 +172,7 @@ namespace Grand.Business.Catalog.Services.Products
                 productCopy.ProductCollections.Add(productCollections);
             }
 
-            // product <-> releated products mappings
+            // product <-> related products mappings
             foreach (var relatedProduct in product.RelatedProducts)
             {
                 productCopy.RelatedProducts.Add(relatedProduct);
@@ -228,7 +228,7 @@ namespace Grand.Business.Catalog.Services.Products
             await _productService.InsertProduct(productCopy);
 
             //search engine name
-            string seName = await productCopy.ValidateSeName("", productCopy.Name, true, _seoSettings, _slugService, _languageService);
+            var seName = await productCopy.ValidateSeName("", productCopy.Name, true, _seoSettings, _slugService, _languageService);
             productCopy.SeName = seName;
             await _productService.UpdateProduct(productCopy);
             await _slugService.SaveSlug(productCopy, seName, "");

@@ -10,7 +10,7 @@ namespace Grand.Business.Catalog.Services.Products
     /// <summary>
     /// Product reservation service
     /// </summary>
-    public partial class ProductReservationService : IProductReservationService
+    public class ProductReservationService : IProductReservationService
     {
         private readonly IRepository<ProductReservation> _productReservationRepository;
         private readonly IRepository<CustomerReservationsHelper> _customerReservationsHelperRepository;
@@ -26,11 +26,15 @@ namespace Grand.Business.Catalog.Services.Products
             _mediator = mediator;
         }
 
-        
+
         /// <summary>
         /// Gets product reservations for product Id
         /// </summary>
         /// <param name="productId">Product Id</param>
+        /// <param name="showVacant">Show vacant</param>
+        /// <param name="date">Date</param>
+        /// <param name="pageIndex">Page index</param>
+        /// <param name="pageSize">Page size</param>
         /// <returns>Product reservations</returns>
         public virtual async Task<IPagedList<ProductReservation>> GetProductReservationsByProductId(string productId, bool? showVacant, DateTime? date,
             int pageIndex = 0, int pageSize = int.MaxValue)
@@ -39,14 +43,7 @@ namespace Grand.Business.Catalog.Services.Products
 
             if (showVacant.HasValue)
             {
-                if (showVacant.Value)
-                {
-                    query = query.Where(x => (x.OrderId == "" || x.OrderId == null));
-                }
-                else
-                {
-                    query = query.Where(x => (x.OrderId != "" && x.OrderId != null));
-                }
+                query = showVacant.Value ? query.Where(x => x.OrderId == "" || x.OrderId == null) : query.Where(x => x.OrderId != "" && x.OrderId != null);
             }
 
             if (date.HasValue)
@@ -109,11 +106,11 @@ namespace Grand.Business.Catalog.Services.Products
         /// <summary>
         /// Gets product reservation for specified Id
         /// </summary>
-        /// <param name="Id">Product Id</param>
+        /// <param name="id">Product ident</param>
         /// <returns>Product reservation</returns>
-        public virtual Task<ProductReservation> GetProductReservation(string Id)
+        public virtual Task<ProductReservation> GetProductReservation(string id)
         {
-            return _productReservationRepository.GetByIdAsync(Id);
+            return _productReservationRepository.GetByIdAsync(id);
         }
 
         /// <summary>
@@ -163,17 +160,18 @@ namespace Grand.Business.Catalog.Services.Products
         /// <summary>
         /// Gets customer reservations helper by id
         /// </summary>
-        /// <param name="Id"></param>
+        /// <param name="id"></param>
         /// <returns>CustomerReservationsHelper</returns>
-        public virtual Task<CustomerReservationsHelper> GetCustomerReservationsHelperById(string Id)
+        public virtual Task<CustomerReservationsHelper> GetCustomerReservationsHelperById(string id)
         {
-            return _customerReservationsHelperRepository.GetByIdAsync(Id);
+            return _customerReservationsHelperRepository.GetByIdAsync(id);
         }
 
         /// <summary>
         /// Gets customer reservations helpers
         /// </summary>
-        /// <returns>List<CustomerReservationsHelper></returns>
+        /// <returns>List<CustomerReservationsHelper />
+        /// </returns>
         public virtual async Task<IList<CustomerReservationsHelper>> GetCustomerReservationsHelpers(string customerId)
         {
             return await Task.FromResult(_customerReservationsHelperRepository.Table.Where(x => x.CustomerId == customerId).ToList());
@@ -182,8 +180,9 @@ namespace Grand.Business.Catalog.Services.Products
         /// <summary>
         /// Gets customer reservations helper by Shopping Cart Item id
         /// </summary>
-        /// <param name="Id"></param>
-        /// <returns>List<CustomerReservationsHelper></returns>
+        /// <param name="sciId">sci ident</param>
+        /// <returns>IList<CustomerReservationsHelper />
+        /// </returns>
         public virtual async Task<IList<CustomerReservationsHelper>> GetCustomerReservationsHelperBySciId(string sciId)
         {
             return await Task.FromResult(_customerReservationsHelperRepository.Table.Where(x => x.ShoppingCartItemId == sciId).ToList());

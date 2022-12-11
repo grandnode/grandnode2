@@ -9,7 +9,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
     /// <summary>
     /// Provides an interface of Shipping rate  method
     /// </summary>
-    public partial interface IShippingRateCalculationProvider : IProvider
+    public interface IShippingRateCalculationProvider : IProvider
     {
         /// <summary>
         /// Gets a Shipping rate  method type
@@ -26,7 +26,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
         /// <summary>
         /// Returns a value indicating whether shipping methods should be hidden during checkout
         /// </summary>
-        /// <param name="cart">Shoping cart</param>
+        /// <param name="cart">Shopping cart</param>
         /// <returns>true - hide; false - display.</returns>
         Task<bool> HideShipmentMethods(IList<ShoppingCartItem> cart);
 
@@ -48,7 +48,6 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
         /// <summary>
         /// Gets a route name for displaying plugin ("shipping" checkout step)
         /// </summary>
-        /// <param name="viewComponentName">View component name</param>
         Task<string> GetControllerRouteName();
 
     }

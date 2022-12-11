@@ -4,7 +4,7 @@ using Grand.Domain.Localization;
 
 namespace Grand.Business.Core.Interfaces.Catalog.Prices
 {
-    public partial interface IPriceFormatter
+    public interface IPriceFormatter
     {
         /// <summary>
         /// Formats price

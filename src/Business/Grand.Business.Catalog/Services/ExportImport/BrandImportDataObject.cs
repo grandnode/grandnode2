@@ -1,4 +1,5 @@
-﻿using Grand.Business.Catalog.Services.ExportImport.Dto;
+﻿using Grand.Business.Catalog.Extensions;
+using Grand.Business.Catalog.Services.ExportImport.Dto;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -9,7 +10,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Media;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Mapper;
-using Microsoft.AspNetCore.StaticFiles;
 
 namespace Grand.Business.Catalog.Services.ExportImport
 {
@@ -48,7 +48,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
             }
         }
 
-        protected async Task Import(BrandDto brandDto)
+        private async Task Import(BrandDto brandDto)
         {
             var brand = await _brandService.GetBrandById(brandDto.Id);
             var isNew = brand == null;
@@ -65,22 +65,22 @@ namespace Grand.Business.Catalog.Services.ExportImport
 
         }
 
-        protected async Task<Brand> UpdateBrandData(BrandDto brandDto, Brand brand)
+        private async Task UpdateBrandData(BrandDto brandDto, Brand brand)
         {
             if (string.IsNullOrEmpty(brand.BrandLayoutId))
-                brand.BrandLayoutId = (await _brandLayoutService.GetAllBrandLayouts()).FirstOrDefault().Id;
+                brand.BrandLayoutId = (await _brandLayoutService.GetAllBrandLayouts()).FirstOrDefault()?.Id;
             else
             {
                 var layout = await _brandLayoutService.GetBrandLayoutById(brand.BrandLayoutId);
                 if (layout == null)
-                    brand.BrandLayoutId = (await _brandLayoutService.GetAllBrandLayouts()).FirstOrDefault().Id;
+                    brand.BrandLayoutId = (await _brandLayoutService.GetAllBrandLayouts()).FirstOrDefault()?.Id;
             }
 
             if (!string.IsNullOrEmpty(brandDto.Picture))
             {
-                var _picture = await LoadPicture(brandDto.Picture, brand.Name, brand.PictureId);
-                if (_picture != null)
-                    brand.PictureId = _picture.Id;
+                var picture = await LoadPicture(brandDto.Picture, brand.Name, brand.PictureId);
+                if (picture != null)
+                    brand.PictureId = picture.Id;
             }
 
             var sename = brand.SeName ?? brand.Name;
@@ -89,16 +89,11 @@ namespace Grand.Business.Catalog.Services.ExportImport
 
             await _brandService.UpdateBrand(brand);
             await _slugService.SaveSlug(brand, sename, "");
-
-            return brand;
         }
 
-        protected virtual bool ValidBrand(Brand brand)
+        private bool ValidBrand(Brand brand)
         {
-            if (string.IsNullOrEmpty(brand.Name))
-                return false;
-
-            return true;
+            return !string.IsNullOrEmpty(brand.Name);
         }
 
         /// <summary>
@@ -108,13 +103,13 @@ namespace Grand.Business.Catalog.Services.ExportImport
         /// <param name="name">The name of the object</param>
         /// <param name="picId">Image identifier, may be null</param>
         /// <returns>The image or null if the image has not changed</returns>
-        protected virtual async Task<Picture> LoadPicture(string picturePath, string name, string picId = "")
+        private async Task<Picture> LoadPicture(string picturePath, string name, string picId = "")
         {
             if (string.IsNullOrEmpty(picturePath) || !File.Exists(picturePath))
                 return null;
 
-            var mimeType = GetMimeTypeFromFilePath(picturePath);
-            var newPictureBinary = File.ReadAllBytes(picturePath);
+            var mimeType = MimeTypeExtensions.GetMimeTypeFromFilePath(picturePath);
+            var newPictureBinary = await File.ReadAllBytesAsync(picturePath);
             var pictureAlreadyExists = false;
             if (!string.IsNullOrEmpty(picId))
             {
@@ -137,13 +132,6 @@ namespace Grand.Business.Catalog.Services.ExportImport
                 _pictureService.GetPictureSeName(name));
             return newPicture;
         }
-        protected virtual string GetMimeTypeFromFilePath(string filePath)
-        {
-            new FileExtensionContentTypeProvider().TryGetContentType(filePath, out string mimeType);
-            //set to jpeg in case mime type cannot be found
-            if (mimeType == null)
-                mimeType = "image/jpeg";
-            return mimeType;
-        }
+        
     }
 }

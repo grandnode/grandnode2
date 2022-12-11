@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
     {
         private static string CategoryContent => "Content";
 
-        public static readonly Permission ManageNews = new Permission 
+        public static readonly Permission ManageNews = new() 
         { 
             Name = "Manage News", 
             SystemName = PermissionSystemName.News,
@@ -14,7 +14,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryContent, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete } 
         };
-        public static readonly Permission ManageBlog = new Permission 
+        public static readonly Permission ManageBlog = new() 
         { 
             Name = "Manage Blog", 
             SystemName = PermissionSystemName.Blog,
@@ -22,7 +22,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryContent, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete } 
         };
-        public static readonly Permission ManageWidgets = new Permission 
+        public static readonly Permission ManageWidgets = new() 
         { 
             Name = "Manage Widgets", 
             SystemName = PermissionSystemName.Widgets,
@@ -30,7 +30,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryContent, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Edit } 
         };
-        public static readonly Permission ManagePages = new Permission 
+        public static readonly Permission ManagePages = new() 
         { 
             Name = "Manage Pages", 
             SystemName = PermissionSystemName.Pages,
@@ -38,7 +38,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryContent, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete } 
         };
-        public static readonly Permission ManageKnowledgebase = new Permission 
+        public static readonly Permission ManageKnowledgebase = new() 
         { 
             Name = "Manage Knowledgebase", 
             SystemName = PermissionSystemName.Knowledgebase,
@@ -46,7 +46,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryContent, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete } 
         };
-        public static readonly Permission ManageCourses = new Permission 
+        public static readonly Permission ManageCourses = new() 
         { 
             Name = "Manage Courses", 
             SystemName = PermissionSystemName.Courses,
@@ -54,7 +54,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryContent, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete } 
         };
-        public static readonly Permission ManageMessageTemplates = new Permission 
+        public static readonly Permission ManageMessageTemplates = new() 
         { 
             Name = "Manage Message Templates", 
             SystemName = PermissionSystemName.MessageTemplates,

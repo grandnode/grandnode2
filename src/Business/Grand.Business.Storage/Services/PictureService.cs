@@ -19,7 +19,7 @@ namespace Grand.Business.Storage.Services
     /// <summary>
     /// Picture service
     /// </summary>
-    public partial class PictureService : IPictureService
+    public class PictureService : IPictureService
     {
 
         #region Fields
@@ -47,6 +47,7 @@ namespace Grand.Business.Storage.Services
         /// <param name="cacheBase">Cache manager</param>
         /// <param name="mediaFileStore">Media file storage</param>
         /// <param name="mediaSettings">Media settings</param>
+        /// <param name="storageSettings">Storage settings</param>
         public PictureService(IRepository<Picture> pictureRepository,
             ILogger logger,
             IMediator mediator,
@@ -75,13 +76,13 @@ namespace Grand.Business.Storage.Services
         /// </summary>
         /// <param name="mimeType">Mime type</param>
         /// <returns>File extension</returns>
-        protected virtual string GetFileExtensionFromMimeType(string mimeType)
+        private string GetFileExtensionFromMimeType(string mimeType)
         {
             if (mimeType == null)
                 return null;
 
-            string[] parts = mimeType.Split('/');
-            string lastPart = parts[parts.Length - 1];
+            var parts = mimeType.Split('/');
+            var lastPart = parts[^1];
             switch (lastPart)
             {
                 case "pjpeg":
@@ -107,13 +108,13 @@ namespace Grand.Business.Storage.Services
         /// <returns>Picture binary</returns>
         protected virtual async Task<byte[]> LoadPictureFromFile(string pictureId, string mimeType)
         {
-            string lastPart = GetFileExtensionFromMimeType(mimeType);
-            string fileName = string.Format("{0}_0.{1}", pictureId, lastPart);
+            var lastPart = GetFileExtensionFromMimeType(mimeType);
+            var fileName = $"{pictureId}_0.{lastPart}";
             var filePath = await GetPicturePhysicalPath(fileName);
             if (string.IsNullOrEmpty(filePath))
-                return new byte[0];
+                return Array.Empty<byte>();
 
-            return File.ReadAllBytes(filePath);
+            return await File.ReadAllBytesAsync(filePath);
         }
 
 
@@ -123,22 +124,20 @@ namespace Grand.Business.Storage.Services
         /// <param name="picture">Picture</param>
         protected virtual Task DeletePictureThumbs(Picture picture)
         {
-            string filter = string.Format("{0}*.*", picture.Id);
+            var filter = $"{picture.Id}*.*";
             var thumbDirectoryPath = _mediaFileStore.GetDirectoryInfo(CommonPath.ImageThumbPath);
-            if (thumbDirectoryPath != null)
+            if (thumbDirectoryPath == null) return Task.CompletedTask;
+            var currentFiles = Directory.GetFiles(thumbDirectoryPath.PhysicalPath, filter, SearchOption.AllDirectories);
+            foreach (var currentFileName in currentFiles)
             {
-                string[] currentFiles = Directory.GetFiles(thumbDirectoryPath.PhysicalPath, filter, SearchOption.AllDirectories);
-                foreach (string currentFileName in currentFiles)
+                try
                 {
-                    try
-                    {
-                        if (File.Exists(currentFileName))
-                            File.Delete(currentFileName);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.InsertLog(Domain.Logging.LogLevel.Error, ex.Message);
-                    }
+                    if (File.Exists(currentFileName))
+                        File.Delete(currentFileName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.InsertLog(Domain.Logging.LogLevel.Error, ex.Message);
                 }
             }
             return Task.CompletedTask;
@@ -180,8 +179,8 @@ namespace Grand.Business.Storage.Services
         /// <returns>Physical picture path</returns>
         protected virtual async Task<string> GetPicturePhysicalPath(string fileName)
         {
-            var fileinfo = await _mediaFileStore.GetFileInfo(_mediaFileStore.Combine(CommonPath.ImagePath, fileName));
-            return fileinfo?.PhysicalPath;
+            var fileInfo = await _mediaFileStore.GetFileInfo(_mediaFileStore.Combine(CommonPath.ImagePath, fileName));
+            return fileInfo?.PhysicalPath;
         }
 
         /// <summary>
@@ -281,33 +280,28 @@ namespace Grand.Business.Storage.Services
                         _workContext.CurrentStore.SslEnabled ? _workContext.CurrentStore.SecureUrl : _workContext.CurrentStore.Url :
                         _mediaFileStore.Combine(_mediaSettings.StoreLocation, CommonPath.ImagePath, _mediaSettings.DefaultImageName);
             }
-            else
+
+            var fileExtension = Path.GetExtension(filePath);
+            var thumbFileName = $"{Path.GetFileNameWithoutExtension(filePath)}_{targetSize}{fileExtension}";
+
+            var thumbFilePath = await GetThumbPhysicalPath(thumbFileName);
+
+            if (!string.IsNullOrEmpty(thumbFilePath))
+                return GetThumbUrl(thumbFileName, storeLocation);
+
+            using (var mutex = new Mutex(false, thumbFileName))
             {
-                string fileExtension = Path.GetExtension(filePath);
-                string thumbFileName = string.Format("{0}_{1}{2}",
-                    Path.GetFileNameWithoutExtension(filePath),
-                    targetSize,
-                    fileExtension);
-
-                var thumbFilePath = await GetThumbPhysicalPath(thumbFileName);
-
-                if (!string.IsNullOrEmpty(thumbFilePath))
-                    return GetThumbUrl(thumbFileName, storeLocation);
-
-                using (var mutex = new Mutex(false, thumbFileName))
+                mutex.WaitOne();
+                using (var image = SKBitmap.Decode(filePath))
                 {
-                    mutex.WaitOne();
-                    using (var image = SKBitmap.Decode(filePath))
-                    {
-                        var pictureBinary = ApplyResize(image, EncodedImageFormat(fileExtension), targetSize);
-                        if (pictureBinary != null)
-                            await SaveThumb(thumbFileName, pictureBinary);
-                    }
-                    mutex.ReleaseMutex();
+                    var pictureBinary = ApplyResize(image, EncodedImageFormat(fileExtension), targetSize);
+                    if (pictureBinary != null)
+                        await SaveThumb(thumbFileName, pictureBinary);
                 }
-                var url = GetThumbUrl(thumbFileName, storeLocation);
-                return url;
+                mutex.ReleaseMutex();
             }
+            var url = GetThumbUrl(thumbFileName, storeLocation);
+            return url;
         }
 
         /// <summary>
@@ -361,9 +355,8 @@ namespace Grand.Business.Storage.Services
 
             if (targetSize == 0)
             {
-                thumbFileName = !string.IsNullOrEmpty(seoFileName) ?
-                    string.Format("{0}_{1}.{2}", picture.Id, seoFileName, lastPart) :
-                    string.Format("{0}.{1}", picture.Id, lastPart);
+                thumbFileName = !string.IsNullOrEmpty(seoFileName) ? $"{picture.Id}_{seoFileName}.{lastPart}"
+                    : $"{picture.Id}.{lastPart}";
 
                 var thumbFilePath = await GetThumbPhysicalPath(thumbFileName);
 
@@ -372,18 +365,15 @@ namespace Grand.Business.Storage.Services
 
                 var pictureBinary = await LoadPictureBinary(picture);
 
-                using (var mutex = new Mutex(false, thumbFileName))
-                {
-                    mutex.WaitOne();
-                    await SaveThumb(thumbFileName, pictureBinary);
-                    mutex.ReleaseMutex();
-                }
+                using var mutex = new Mutex(false, thumbFileName);
+                mutex.WaitOne();
+                await SaveThumb(thumbFileName, pictureBinary);
+                mutex.ReleaseMutex();
             }
             else
             {
-                thumbFileName = !string.IsNullOrEmpty(seoFileName) ?
-                    string.Format("{0}_{1}_{2}.{3}", picture.Id, seoFileName, targetSize, lastPart) :
-                    string.Format("{0}_{1}.{2}", picture.Id, targetSize, lastPart);
+                thumbFileName = !string.IsNullOrEmpty(seoFileName) ? $"{picture.Id}_{seoFileName}_{targetSize}.{lastPart}"
+                    : $"{picture.Id}_{targetSize}.{lastPart}";
 
                 var thumbFilePath = await GetThumbPhysicalPath(thumbFileName);
 
@@ -392,24 +382,25 @@ namespace Grand.Business.Storage.Services
 
                 var pictureBinary = await LoadPictureBinary(picture);
 
-                using (var mutex = new Mutex(false, thumbFileName))
+                using var mutex = new Mutex(false, thumbFileName);
+                mutex.WaitOne();
+                if (pictureBinary != null)
                 {
-                    mutex.WaitOne();
-                    if (pictureBinary != null)
+                    try
                     {
-                        try
-                        {
-                            using var image = SKBitmap.Decode(pictureBinary);
-                            var resizedbinary = ApplyResize(image, EncodedImageFormat(picture.MimeType), targetSize);
-                            if (resizedbinary != null)
-                                pictureBinary = resizedbinary;
-                        }
-                        catch { }
+                        using var image = SKBitmap.Decode(pictureBinary);
+                        var resizedBinary = ApplyResize(image, EncodedImageFormat(picture.MimeType), targetSize);
+                        if (resizedBinary != null)
+                            pictureBinary = resizedBinary;
                     }
-                    await SaveThumb(thumbFileName, pictureBinary);
-
-                    mutex.ReleaseMutex();
+                    catch
+                    {
+                        // ignored
+                    }
                 }
+                await SaveThumb(thumbFileName, pictureBinary);
+
+                mutex.ReleaseMutex();
             }
             return GetThumbUrl(thumbFileName, storeLocation);
         }
@@ -423,7 +414,7 @@ namespace Grand.Business.Storage.Services
         /// <returns></returns>
         public virtual async Task<string> GetThumbPhysicalPath(Picture picture, int targetSize = 0, bool showDefaultPicture = true)
         {
-            string url = await GetPictureUrl(picture, targetSize, showDefaultPicture);
+            var url = await GetPictureUrl(picture, targetSize, showDefaultPicture);
             if (string.IsNullOrEmpty(url))
                 return string.Empty;
 
@@ -497,7 +488,7 @@ namespace Grand.Business.Storage.Services
                 throw new ArgumentNullException(nameof(picture));
 
             var lastPart = GetFileExtensionFromMimeType(picture.MimeType);
-            var fileName = string.Format("{0}_0.{1}", picture.Id, lastPart);
+            var fileName = $"{picture.Id}_0.{lastPart}";
             var filePath = await GetPicturePhysicalPath(fileName);
             if (!string.IsNullOrEmpty(filePath))
             {
@@ -569,7 +560,7 @@ namespace Grand.Business.Storage.Services
                 pictureBinary = ValidatePicture(pictureBinary, mimeType);
 
             var picture = new Picture {
-                PictureBinary = _storageSettings.PictureStoreInDb ? pictureBinary : new byte[0],
+                PictureBinary = _storageSettings.PictureStoreInDb ? pictureBinary : Array.Empty<byte>(),
                 MimeType = mimeType,
                 SeoFilename = seoFilename,
                 AltAttribute = altAttribute,
@@ -599,13 +590,13 @@ namespace Grand.Business.Storage.Services
         /// <param name="altAttribute">"alt" attribute for "img" HTML element</param>
         /// <param name="titleAttribute">"title" attribute for "img" HTML element</param>
         /// <param name="style">style attribute for "img" HTML element</param>
-        /// <param name="extrafield">Extra field</param>
+        /// <param name="extraField">Extra field</param>
         /// <param name="isNew">A value indicating whether the picture is new</param>
         /// <param name="validateBinary">A value indicating whether to validated provided picture binary</param>
         /// <returns>Picture</returns>
         public virtual async Task<Picture> UpdatePicture(string pictureId, byte[] pictureBinary, string mimeType,
             string seoFilename, string altAttribute = null, string titleAttribute = null,
-            string style = null, string extrafield = null,
+            string style = null, string extraField = null,
             bool isNew = true, bool validateBinary = true)
         {
             mimeType = CommonHelper.EnsureNotNull(mimeType);
@@ -645,7 +636,7 @@ namespace Grand.Business.Storage.Services
             picture.Style = style;
             await _pictureRepository.UpdateField(picture.Id, x => x.Style, picture.Style);
 
-            picture.ExtraField = extrafield;
+            picture.ExtraField = extraField;
             await _pictureRepository.UpdateField(picture.Id, x => x.ExtraField, picture.ExtraField);
 
             picture.IsNew = isNew;
@@ -688,13 +679,15 @@ namespace Grand.Business.Storage.Services
         /// Updates the picture
         /// </summary>
         /// <param name="picture">Picture</param>
+        /// <param name="expression"></param>
+        /// <param name="value"></param>
         /// <returns>Picture</returns>
         public virtual async Task UpdatePictureField<T>(Picture picture, Expression<Func<Picture, T>> expression, T value)
         {
             if (picture == null)
                 throw new ArgumentNullException(nameof(picture));
 
-            await _pictureRepository.UpdateField<T>(picture.Id, expression, value);
+            await _pictureRepository.UpdateField(picture.Id, expression, value);
 
             //event notification
             await _mediator.EntityUpdated(picture);
@@ -713,15 +706,15 @@ namespace Grand.Business.Storage.Services
         public virtual Task SavePictureInFile(string pictureId, byte[] pictureBinary, string mimeType)
         {
             var lastPart = GetFileExtensionFromMimeType(mimeType);
-            var fileName = string.Format("{0}_0.{1}", pictureId, lastPart);
-            var dirpath = _mediaFileStore.GetDirectoryInfo(CommonPath.ImagePath);
-            if (dirpath != null)
+            var fileName = $"{pictureId}_0.{lastPart}";
+            var dirPath = _mediaFileStore.GetDirectoryInfo(CommonPath.ImagePath);
+            if (dirPath != null)
             {
-                var filepath = _mediaFileStore.Combine(dirpath.PhysicalPath, fileName);
+                var filepath = _mediaFileStore.Combine(dirPath.PhysicalPath, fileName);
                 File.WriteAllBytes(filepath, pictureBinary);
             }
             else
-                _ = _logger.Error("Drirectory path not exist.");
+                _ = _logger.Error("Directory path not exist.");
 
             return Task.CompletedTask;
         }
@@ -738,25 +731,23 @@ namespace Grand.Business.Storage.Services
                 throw new ArgumentException("No picture found with the specified id");
 
             //update if it has been changed
-            if (seoFilename != picture.SeoFilename)
-            {
-                //update SeoFilename picture
-                picture.SeoFilename = seoFilename;
-                await UpdatePictureField(picture, p => p.SeoFilename, seoFilename);
+            if (seoFilename == picture.SeoFilename) return picture;
+            //update SeoFilename picture
+            picture.SeoFilename = seoFilename;
+            await UpdatePictureField(picture, p => p.SeoFilename, seoFilename);
 
-                //event notification
-                await _mediator.EntityUpdated(picture);
+            //event notification
+            await _mediator.EntityUpdated(picture);
 
-                //clare cache
-                await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PICTURE_BY_ID, picture.Id));
-            }
+            //clare cache
+            await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PICTURE_BY_ID, picture.Id));
             return picture;
         }
 
         /// <summary>
         /// Validates input picture dimensions
         /// </summary>
-        /// <param name="pictureBinary">Picture binary</param>
+        /// <param name="byteArray">Picture binary</param>
         /// <param name="mimeType">MIME type</param>
         /// <returns>Picture binary or throws an exception</returns>
         public virtual byte[] ValidatePicture(byte[] byteArray, string mimeType)
@@ -764,29 +755,26 @@ namespace Grand.Business.Storage.Services
             try
             {
                 var format = EncodedImageFormat(mimeType);
-                using (var ms = new MemoryStream(byteArray))
+                using (new MemoryStream(byteArray))
                 {
                     using (var image = SKBitmap.Decode(byteArray))
                     {
                         if (image.Width >= image.Height)
                         {
                             //horizontal rectangle or square
-                            if (image.Width > _mediaSettings.MaximumImageSize && image.Height > _mediaSettings.MaximumImageSize)
-                            {
-                                var resizedPicture = ApplyResize(image, format, _mediaSettings.MaximumImageSize);
-                                if (resizedPicture != null)
-                                    byteArray = resizedPicture;
-                            }
+                            if (image.Width <= _mediaSettings.MaximumImageSize ||
+                                image.Height <= _mediaSettings.MaximumImageSize) return byteArray;
+                            var resizedPicture = ApplyResize(image, format, _mediaSettings.MaximumImageSize);
+                            if (resizedPicture != null)
+                                byteArray = resizedPicture;
                         }
                         else if (image.Width < image.Height)
                         {
                             //vertical rectangle
-                            if (image.Width > _mediaSettings.MaximumImageSize)
-                            {
-                                var resizedPicture = ApplyResize(image, format, _mediaSettings.MaximumImageSize);
-                                if (resizedPicture != null)
-                                    byteArray = resizedPicture;
-                            }
+                            if (image.Width <= _mediaSettings.MaximumImageSize) return byteArray;
+                            var resizedPicture = ApplyResize(image, format, _mediaSettings.MaximumImageSize);
+                            if (resizedPicture != null)
+                                byteArray = resizedPicture;
 
                         }
                         return byteArray;
@@ -810,25 +798,30 @@ namespace Grand.Business.Storage.Services
         /// <returns>Picture binary or throws an exception</returns>
         public virtual byte[] ConvertPicture(byte[] pictureBinary, int imageQuality, string format = "Webp")
         {
-            Enum.TryParse(typeof(SKEncodedImageFormat), format, out var skformat);
-            if (skformat == null)
-                skformat = SKEncodedImageFormat.Webp;
+            Enum.TryParse(typeof(SKEncodedImageFormat), format, out var skFormat);
+            skFormat ??= SKEncodedImageFormat.Webp;
 
             using var image = SKBitmap.Decode(pictureBinary);
-            SKData d = SKImage.FromBitmap(image).Encode((SKEncodedImageFormat)skformat, imageQuality);
+            SKData d = SKImage.FromBitmap(image).Encode((SKEncodedImageFormat)skFormat, imageQuality);
             return d.ToArray();
         }
 
 
-        protected SKEncodedImageFormat EncodedImageFormat(string mimetype)
+        private SKEncodedImageFormat EncodedImageFormat(string mimetype)
         {
-            SKEncodedImageFormat defaultFormat = SKEncodedImageFormat.Jpeg;
+            const SKEncodedImageFormat defaultFormat = SKEncodedImageFormat.Jpeg;
             if (string.IsNullOrEmpty(mimetype))
                 return defaultFormat;
 
             mimetype = mimetype.ToLower();
 
-            if (mimetype.Contains("jpeg") || mimetype.Contains("jpg") || mimetype.Contains("pjpeg"))
+            if (mimetype.Contains("jpeg"))
+                return defaultFormat;
+            
+            if (mimetype.Contains("jpg"))
+                return defaultFormat;
+            
+            if (mimetype.Contains("pjpeg"))
                 return defaultFormat;
 
             if (mimetype.Contains("png"))
@@ -847,13 +840,10 @@ namespace Grand.Business.Storage.Services
             if (mimetype.Contains("bmp"))
                 return SKEncodedImageFormat.Png;
 
-            if (mimetype.Contains("ico"))
-                return SKEncodedImageFormat.Ico;
-
-            return defaultFormat;
-
+            return mimetype.Contains("ico") ? SKEncodedImageFormat.Ico : defaultFormat;
         }
-        protected byte[] ApplyResize(SKBitmap image, SKEncodedImageFormat format, int targetSize)
+
+        private byte[] ApplyResize(SKBitmap image, SKEncodedImageFormat format, int targetSize)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image));
@@ -884,14 +874,10 @@ namespace Grand.Business.Storage.Services
 
             try
             {
-                using (var resized = image.Resize(new SKImageInfo((int)width, (int)height), SKFilterQuality.High))
-                {
-                    using (var resimage = SKImage.FromBitmap(resized))
-                    {
-                        var skdata = resimage.Encode(format, _mediaSettings.ImageQuality);
-                        return skdata?.ToArray();
-                    }
-                }
+                using var resized = image.Resize(new SKImageInfo((int)width, (int)height), SKFilterQuality.High);
+                using var resImage = SKImage.FromBitmap(resized);
+                var skData = resImage.Encode(format, _mediaSettings.ImageQuality);
+                return skData?.ToArray();
             }
             catch (Exception ex)
             {

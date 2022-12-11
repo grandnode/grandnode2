@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
     /// <summary>
     /// Copy product service
     /// </summary>
-    public partial interface ICopyProductService
+    public interface ICopyProductService
     {
         /// <summary>
         /// Create a copy of product with all depended data

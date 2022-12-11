@@ -38,28 +38,23 @@ namespace Grand.Business.Customers.Commands.Handlers
             foreach (var item in request.CustomerIds)
             {
                 var customer = await _customerService.GetCustomerById(item);
-                if (customer != null && !customer.Deleted && customer.Active && !customer.IsSystemAccount() &&
-                    !await _groupService.IsAdmin(customer)
-                    )
+                if (customer is not { Deleted: false, Active: true } || customer.IsSystemAccount() ||
+                    await _groupService.IsAdmin(customer)) continue;
+                if (vendorGroup == null) continue;
+                if (request.Active)
                 {
-                    if (vendorGroup != null)
-                    {
-                        if (request.Active)
-                        {
-                            if (!await _groupService.IsVendor(customer))
-                                await _customerService.InsertCustomerGroupInCustomer(vendorGroup, item);
-                        }
-                        else
-                        {
-                            if (await _groupService.IsVendor(customer))
-                                await _customerService.DeleteCustomerGroupInCustomer(vendorGroup, item);
-                        }
-                    }
+                    if (!await _groupService.IsVendor(customer))
+                        await _customerService.InsertCustomerGroupInCustomer(vendorGroup, item);
+                }
+                else
+                {
+                    if (await _groupService.IsVendor(customer))
+                        await _customerService.DeleteCustomerGroupInCustomer(vendorGroup, item);
                 }
             }
 
             //raise event       
-            await _mediator.Publish(new VendorActivationEvent(request.Vendor));
+            await _mediator.Publish(new VendorActivationEvent(request.Vendor), cancellationToken);
 
             return true;
         }

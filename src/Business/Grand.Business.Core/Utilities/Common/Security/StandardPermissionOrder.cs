@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
     {
         private static string CategoryOrder => "Orders";
 
-        public static readonly Permission ManageOrders = new Permission 
+        public static readonly Permission ManageOrders = new() 
         { 
             Name = "Manage Orders", 
             SystemName = PermissionSystemName.Orders,
@@ -14,7 +14,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = "Orders",
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Edit, PermissionActionName.Payments, PermissionActionName.Cancel, PermissionActionName.Preview, PermissionActionName.Delete, PermissionActionName.Export } 
         };
-        public static readonly Permission ManageOrderTags = new Permission 
+        public static readonly Permission ManageOrderTags = new() 
         { 
             Name = "Manage Order Tags", 
             SystemName = PermissionSystemName.OrderTags,
@@ -22,14 +22,14 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryOrder, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete } 
         };
-        public static readonly Permission ManageOrderStatus = new Permission
+        public static readonly Permission ManageOrderStatus = new()
         {
             Name = "Manage Order status",
             SystemName = PermissionSystemName.OrderStatus,
             Area = "Admin area",
             Category = CategoryOrder
         };
-        public static readonly Permission ManageShipments = new Permission 
+        public static readonly Permission ManageShipments = new() 
         { 
             Name = "Manage Shipments", 
             SystemName = PermissionSystemName.Shipments,
@@ -37,7 +37,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryOrder, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete, PermissionActionName.Export } 
         };
-        public static readonly Permission ManageGiftVouchers = new Permission 
+        public static readonly Permission ManageGiftVouchers = new() 
         { 
             Name = "Manage Gift vouchers", 
             SystemName = PermissionSystemName.GiftVouchers,
@@ -45,7 +45,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryOrder, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete } 
         };
-        public static readonly Permission ManageMerchandiseReturns = new Permission 
+        public static readonly Permission ManageMerchandiseReturns = new() 
         { 
             Name = "Manage Merchandise Returns", 
             SystemName = PermissionSystemName.MerchandiseReturns,
@@ -53,7 +53,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryOrder, 
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete } 
         };
-        public static readonly Permission ManagePaymentTransactions = new Permission
+        public static readonly Permission ManagePaymentTransactions = new()
         {
             Name = "Manage Payment Transaction",
             SystemName = PermissionSystemName.PaymentTransactions,
@@ -61,14 +61,14 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryOrder,
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete }
         };
-        public static readonly Permission ManageCurrentCarts = new Permission 
+        public static readonly Permission ManageCurrentCarts = new() 
         { 
             Name = "Manage Current Carts", 
             SystemName = PermissionSystemName.CurrentCarts,
             Area = "Admin area",
             Category = CategoryOrder
         };
-        public static readonly Permission ManageCheckoutAttribute = new Permission
+        public static readonly Permission ManageCheckoutAttribute = new()
         {
             Name = "Manage Checkout Attributes",
             SystemName = PermissionSystemName.CheckoutAttributes,

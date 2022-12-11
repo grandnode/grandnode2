@@ -3,7 +3,7 @@ using Grand.Domain.Customers;
 
 namespace Grand.Business.Core.Interfaces.Customers
 {
-    public partial interface IUserApiService
+    public interface IUserApiService
     {
         /// <summary>
         /// Get user api by id
@@ -14,7 +14,7 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// <summary>
         /// Get user api by email
         /// </summary>
-        /// <param name="id">id</param>
+        /// <param name="email">email</param>
         Task<UserApi> GetUserByEmail(string email);
 
         /// <summary>
@@ -41,7 +41,6 @@ namespace Grand.Business.Core.Interfaces.Customers
         /// <param name="email"></param>
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
-        /// <returns>PagedList<UserApi></returns>
         Task<IPagedList<UserApi>> GetUsers(string email = "", int pageIndex = 0, int pageSize = 2147483647);
     }
 }

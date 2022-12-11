@@ -1,5 +1,5 @@
 ﻿
-namespace Grand.Business.Messages
+namespace Grand.Business.Messages.Services
 {
     public static class MessageTemplateNames
     {

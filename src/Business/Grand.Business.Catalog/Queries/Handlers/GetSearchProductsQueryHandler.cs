@@ -158,7 +158,7 @@ namespace Grand.Business.Catalog.Queries.Handlers
                             ||
                             (p.FullDescription != null && p.FullDescription.ToLower().Contains(request.Keywords.ToLower()))
                             ||
-                            (p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower())))
+                            p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower()))
                             ||
                             (request.SearchSku && p.Sku != null && p.Sku.ToLower().Contains(request.Keywords.ToLower()))
                             );
@@ -205,20 +205,18 @@ namespace Grand.Business.Catalog.Queries.Handlers
             {
                 var spec = new HashSet<string>();
                 Dictionary<string, List<string>> dictionary = new Dictionary<string, List<string>>();
-                foreach (string key in request.FilteredSpecs)
+                foreach (var key in request.FilteredSpecs)
                 {
                     var specification = await _specificationAttributeService.GetSpecificationAttributeByOptionId(key);
-                    if (specification != null)
+                    if (specification == null) continue;
+                    spec.Add(specification.Id);
+                    if (!dictionary.ContainsKey(specification.Id))
                     {
-                        spec.Add(specification.Id);
-                        if (!dictionary.ContainsKey(specification.Id))
-                        {
-                            //add
-                            dictionary.Add(specification.Id, new List<string>());
-                            querySpecification = querySpecification.Where(x => x.ProductSpecificationAttributes.Any(y => y.SpecificationAttributeId == specification.Id && y.AllowFiltering));
-                        }
-                        dictionary[specification.Id].Add(key);
+                        //add
+                        dictionary.Add(specification.Id, new List<string>());
+                        querySpecification = querySpecification.Where(x => x.ProductSpecificationAttributes.Any(y => y.SpecificationAttributeId == specification.Id && y.AllowFiltering));
                     }
+                    dictionary[specification.Id].Add(key);
                 }
 
                 foreach (var item in dictionary)
@@ -233,113 +231,103 @@ namespace Grand.Business.Catalog.Queries.Handlers
                 query = query.Where(x => x.ProductSpecificationAttributes.Any(y => request.SpecificationOptions.Contains(y.SpecificationAttributeOptionId)));
             }
 
-            if (request.OrderBy == ProductSortingEnum.Position && request.CategoryIds != null && request.CategoryIds.Any())
+            switch (request.OrderBy)
             {
-                //category position
-                query = _catalogSettings.SortingByAvailability ?
-                    query.OrderBy(x => x.LowStock).ThenBy(x => x.DisplayOrderCategory) :
-                    query.OrderBy(x => x.DisplayOrderCategory);
-            }
-            else if (request.OrderBy == ProductSortingEnum.Position && !string.IsNullOrEmpty(request.BrandId))
-            {
-                //brand position
-                query = _catalogSettings.SortingByAvailability ?
-                    query.OrderBy(x => x.LowStock).ThenBy(x => x.DisplayOrderBrand) :
-                    query.OrderBy(x => x.DisplayOrderBrand);
-            }
-            else if (request.OrderBy == ProductSortingEnum.Position && !string.IsNullOrEmpty(request.CollectionId))
-            {
-                //collection position
-                query = _catalogSettings.SortingByAvailability ?
-                    query.OrderBy(x => x.LowStock).ThenBy(x => x.DisplayOrderCollection) :
-                    query.OrderBy(x => x.DisplayOrderCollection);
-            }
-            else if (request.OrderBy == ProductSortingEnum.Position)
-            {
-                //otherwise sort by name
-                query = _catalogSettings.SortingByAvailability ?
-                    query.OrderBy(x => x.LowStock).ThenBy(x => x.Name) :
-                    query.OrderBy(x => x.Name);
-            }
-            else if (request.OrderBy == ProductSortingEnum.NameAsc)
-            {
-                //Name: A to Z
-                query = _catalogSettings.SortingByAvailability ?
-                    query.OrderBy(x => x.LowStock).ThenBy(x => x.Name) :
-                    query.OrderBy(x => x.Name);
-            }
-            else if (request.OrderBy == ProductSortingEnum.NameDesc)
-            {
-                //Name: Z to A
-                query = _catalogSettings.SortingByAvailability ?
-                    query.OrderBy(x => x.LowStock).ThenByDescending(x => x.Name) :
-                    query.OrderByDescending(x => x.Name);
-            }
-            else if (request.OrderBy == ProductSortingEnum.PriceAsc)
-            {
-                //Price: Low to High
-                query = _catalogSettings.SortingByAvailability ?
-                    query.OrderBy(x => x.LowStock).ThenBy(x => x.Price) :
-                    query.OrderBy(x => x.Price);
-            }
-            else if (request.OrderBy == ProductSortingEnum.PriceDesc)
-            {
-                //Price: High to Low
-                query = _catalogSettings.SortingByAvailability ?
-                    query.OrderBy(x => x.LowStock).ThenByDescending(x => x.Price) :
-                    query.OrderByDescending(x => x.Price);
-            }
-            else if (request.OrderBy == ProductSortingEnum.CreatedOn)
-            {
-                //creation date
-                query = _catalogSettings.SortingByAvailability ?
-                    query.OrderBy(x => x.LowStock).ThenBy(x => x.CreatedOnUtc) :
-                    query.OrderBy(x => x.CreatedOnUtc);
+                case ProductSortingEnum.Position when request.CategoryIds != null && request.CategoryIds.Any():
+                    //category position
+                    query = _catalogSettings.SortingByAvailability ?
+                        query.OrderBy(x => x.LowStock).ThenBy(x => x.DisplayOrderCategory) :
+                        query.OrderBy(x => x.DisplayOrderCategory);
+                    break;
+                case ProductSortingEnum.Position when !string.IsNullOrEmpty(request.BrandId):
+                    //brand position
+                    query = _catalogSettings.SortingByAvailability ?
+                        query.OrderBy(x => x.LowStock).ThenBy(x => x.DisplayOrderBrand) :
+                        query.OrderBy(x => x.DisplayOrderBrand);
+                    break;
+                case ProductSortingEnum.Position when !string.IsNullOrEmpty(request.CollectionId):
+                    //collection position
+                    query = _catalogSettings.SortingByAvailability ?
+                        query.OrderBy(x => x.LowStock).ThenBy(x => x.DisplayOrderCollection) :
+                        query.OrderBy(x => x.DisplayOrderCollection);
+                    break;
+                case ProductSortingEnum.Position:
+                    //otherwise sort by name
+                    query = _catalogSettings.SortingByAvailability ?
+                        query.OrderBy(x => x.LowStock).ThenBy(x => x.Name) :
+                        query.OrderBy(x => x.Name);
+                    break;
+                case ProductSortingEnum.NameAsc:
+                    //Name: A to Z
+                    query = _catalogSettings.SortingByAvailability ?
+                        query.OrderBy(x => x.LowStock).ThenBy(x => x.Name) :
+                        query.OrderBy(x => x.Name);
+                    break;
+                case ProductSortingEnum.NameDesc:
+                    //Name: Z to A
+                    query = _catalogSettings.SortingByAvailability ?
+                        query.OrderBy(x => x.LowStock).ThenByDescending(x => x.Name) :
+                        query.OrderByDescending(x => x.Name);
+                    break;
+                case ProductSortingEnum.PriceAsc:
+                    //Price: Low to High
+                    query = _catalogSettings.SortingByAvailability ?
+                        query.OrderBy(x => x.LowStock).ThenBy(x => x.Price) :
+                        query.OrderBy(x => x.Price);
+                    break;
+                case ProductSortingEnum.PriceDesc:
+                    //Price: High to Low
+                    query = _catalogSettings.SortingByAvailability ?
+                        query.OrderBy(x => x.LowStock).ThenByDescending(x => x.Price) :
+                        query.OrderByDescending(x => x.Price);
+                    break;
+                case ProductSortingEnum.CreatedOn:
+                    //creation date
+                    query = _catalogSettings.SortingByAvailability ?
+                        query.OrderBy(x => x.LowStock).ThenBy(x => x.CreatedOnUtc) :
+                        query.OrderBy(x => x.CreatedOnUtc);
+                    break;
+                case ProductSortingEnum.OnSale:
+                    //on sale
+                    query = query.OrderBy(x => x.OnSale);
 
-            }
-            else if (request.OrderBy == ProductSortingEnum.OnSale)
-            {
-                //on sale
-                query = query.OrderBy(x => x.OnSale);
+                    query = _catalogSettings.SortingByAvailability ?
+                        query.OrderBy(x => x.LowStock).ThenBy(x => x.OnSale) :
+                        query.OrderBy(x => x.OnSale);
+                    break;
+                case ProductSortingEnum.MostViewed:
+                    //most viewed
+                    query = _catalogSettings.SortingByAvailability ?
+                        query.OrderBy(x => x.LowStock).ThenByDescending(x => x.Viewed) :
+                        query.OrderByDescending(x => x.Viewed);
+                    break;
+                case ProductSortingEnum.BestSellers:
+                    //best seller
+                    query = query.OrderByDescending(x => x.Sold);
 
-                query = _catalogSettings.SortingByAvailability ?
-                    query.OrderBy(x => x.LowStock).ThenBy(x => x.OnSale) :
-                    query.OrderBy(x => x.OnSale);
-            }
-            else if (request.OrderBy == ProductSortingEnum.MostViewed)
-            {
-                //most viewed
-                query = _catalogSettings.SortingByAvailability ?
-                    query.OrderBy(x => x.LowStock).ThenByDescending(x => x.Viewed) :
-                    query.OrderByDescending(x => x.Viewed);
-            }
-            else if (request.OrderBy == ProductSortingEnum.BestSellers)
-            {
-                //best seller
-                query = query.OrderByDescending(x => x.Sold);
-
-                query = _catalogSettings.SortingByAvailability ?
-                    query.OrderBy(x => x.LowStock).ThenByDescending(x => x.Sold) :
-                    query.OrderByDescending(x => x.Sold);
+                    query = _catalogSettings.SortingByAvailability ?
+                        query.OrderBy(x => x.LowStock).ThenByDescending(x => x.Sold) :
+                        query.OrderByDescending(x => x.Sold);
+                    break;
+                default:
+                    break;
             }
 
             var products = await PagedList<Product>.Create(query, request.PageIndex, request.PageSize);
 
 
-            if (request.LoadFilterableSpecificationAttributeOptionIds && !_catalogSettings.IgnoreFilterableSpecAttributeOption)
+            if (!request.LoadFilterableSpecificationAttributeOptionIds ||
+                _catalogSettings.IgnoreFilterableSpecAttributeOption)
+                return (products, filterableSpecificationAttributeOptionIds);
             {
-                IList<string> specyfication = new List<string>();
                 var filterSpecExists = querySpecification.Where(x => x.ProductSpecificationAttributes.Any(x => x.AllowFiltering));
 
                 var qspec = from p in filterSpecExists
-                            from item in p.ProductSpecificationAttributes
-                            select item;
+                    from item in p.ProductSpecificationAttributes
+                    select item;
 
                 var groupQuerySpec = qspec.Where(x => x.AllowFiltering).GroupBy(x => new { SpecificationAttributeOptionId = x.SpecificationAttributeOptionId }).ToList();
-                foreach (var item in groupQuerySpec)
-                {
-                    specyfication.Add(item.Key.SpecificationAttributeOptionId);
-                }
+                IList<string> specyfication = groupQuerySpec.Select(item => item.Key.SpecificationAttributeOptionId).ToList();
 
                 filterableSpecificationAttributeOptionIds = specyfication.ToList();
             }

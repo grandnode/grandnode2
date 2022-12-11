@@ -3,10 +3,10 @@ namespace Grand.Business.Core.Utilities.System
     /// <summary>
     /// Represents an "order by country" report line
     /// </summary>
-    public partial class OrderByCountryReportLine
+    public class OrderByCountryReportLine
     {
         /// <summary>
-        /// Country identifier; null for unknow country
+        /// Country identifier; null for un know country
         /// </summary>
         public string CountryId { get; set; }
 

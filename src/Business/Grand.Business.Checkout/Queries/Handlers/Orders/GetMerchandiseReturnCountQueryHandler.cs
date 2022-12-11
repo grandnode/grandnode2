@@ -17,8 +17,8 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
         public async Task<int> Handle(GetMerchandiseReturnCountQuery request, CancellationToken cancellationToken)
         {
             return await Task.FromResult(
-                _merchandiseReturnRepository.Table.Where(x => x.MerchandiseReturnStatusId == request.RequestStatusId &&
-                (string.IsNullOrEmpty(request.StoreId) || x.StoreId == request.StoreId)).Count());
+                _merchandiseReturnRepository.Table.Count(x => x.MerchandiseReturnStatusId == request.RequestStatusId &&
+                                                              (string.IsNullOrEmpty(request.StoreId) || x.StoreId == request.StoreId)));
         }
     }
 }

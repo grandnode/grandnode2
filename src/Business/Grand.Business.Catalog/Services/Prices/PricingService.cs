@@ -16,13 +16,14 @@ using Grand.Domain.Discounts;
 using Grand.Domain.Orders;
 using MediatR;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
+using System.Globalization;
 
 namespace Grand.Business.Catalog.Services.Prices
 {
     /// <summary>
     /// Pricing service
     /// </summary>
-    public partial class PricingService : IPricingService
+    public class PricingService : IPricingService
     {
         #region Fields
 
@@ -98,24 +99,19 @@ namespace Grand.Business.Catalog.Services.Prices
             if (_catalogSettings.IgnoreDiscounts)
                 return allowedDiscounts;
 
-            if (product.AppliedDiscounts.Any())
+            if (!product.AppliedDiscounts.Any()) return allowedDiscounts;
+            foreach (var appliedDiscount in product.AppliedDiscounts)
             {
-                foreach (var appliedDiscount in product.AppliedDiscounts)
-                {
-                    var discount = await _discountService.GetDiscountById(appliedDiscount);
-                    if (discount != null)
-                    {
-                        var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
-                        if (validDiscount.IsValid &&
-                            discount.DiscountTypeId == DiscountType.AssignedToSkus)
-                            allowedDiscounts.Add(new ApplyDiscount()
-                            {
-                                CouponCode = validDiscount.CouponCode,
-                                DiscountId = discount.Id,
-                                IsCumulative = discount.IsCumulative
-                            });
-                    }
-                }
+                var discount = await _discountService.GetDiscountById(appliedDiscount);
+                if (discount == null) continue;
+                var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                if (validDiscount.IsValid &&
+                    discount.DiscountTypeId == DiscountType.AssignedToSkus)
+                    allowedDiscounts.Add(new ApplyDiscount {
+                        CouponCode = validDiscount.CouponCode,
+                        DiscountId = discount.Id,
+                        IsCumulative = discount.IsCumulative
+                    });
             }
             return allowedDiscounts;
         }
@@ -131,8 +127,7 @@ namespace Grand.Business.Catalog.Services.Prices
             {
                 var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
                 if (validDiscount.IsValid)
-                    allowedDiscounts.Add(new ApplyDiscount()
-                    {
+                    allowedDiscounts.Add(new ApplyDiscount {
                         CouponCode = validDiscount.CouponCode,
                         DiscountId = discount.Id,
                         IsCumulative = discount.IsCumulative
@@ -158,23 +153,18 @@ namespace Grand.Business.Catalog.Services.Prices
             foreach (var productCategory in product.ProductCategories)
             {
                 var category = await _categoryService.GetCategoryById(productCategory.CategoryId);
-                if (category != null && category.AppliedDiscounts.Any())
+                if (category == null || !category.AppliedDiscounts.Any()) continue;
+                foreach (var appliedDiscount in category.AppliedDiscounts)
                 {
-                    foreach (var appliedDiscount in category.AppliedDiscounts)
-                    {
-                        var discount = await _discountService.GetDiscountById(appliedDiscount);
-                        if (discount != null)
-                        {
-                            var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
-                            if (validDiscount.IsValid && discount.DiscountTypeId == DiscountType.AssignedToCategories)
-                                allowedDiscounts.Add(new ApplyDiscount()
-                                {
-                                    CouponCode = validDiscount.CouponCode,
-                                    DiscountId = discount.Id,
-                                    IsCumulative = discount.IsCumulative
-                                });
-                        }
-                    }
+                    var discount = await _discountService.GetDiscountById(appliedDiscount);
+                    if (discount == null) continue;
+                    var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                    if (validDiscount.IsValid && discount.DiscountTypeId == DiscountType.AssignedToCategories)
+                        allowedDiscounts.Add(new ApplyDiscount {
+                            CouponCode = validDiscount.CouponCode,
+                            DiscountId = discount.Id,
+                            IsCumulative = discount.IsCumulative
+                        });
                 }
             }
             return allowedDiscounts;
@@ -192,31 +182,22 @@ namespace Grand.Business.Catalog.Services.Prices
             if (_catalogSettings.IgnoreDiscounts)
                 return allowedDiscounts;
 
-            if (!string.IsNullOrEmpty(product.BrandId))
+            if (string.IsNullOrEmpty(product.BrandId)) return allowedDiscounts;
+            var brand = await _brandService.GetBrandById(product.BrandId);
+            if (brand == null) return allowedDiscounts;
+            if (!brand.AppliedDiscounts.Any()) return allowedDiscounts;
+            foreach (var appliedDiscount in brand.AppliedDiscounts)
             {
-                var brand = await _brandService.GetBrandById(product.BrandId);
-                if (brand != null)
-                {
-                    if (brand.AppliedDiscounts.Any())
-                    {
-                        foreach (var appliedDiscount in brand.AppliedDiscounts)
-                        {
-                            var discount = await _discountService.GetDiscountById(appliedDiscount);
-                            if (discount != null)
-                            {
-                                var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
-                                if (validDiscount.IsValid &&
-                                         discount.DiscountTypeId == DiscountType.AssignedToBrands)
-                                    allowedDiscounts.Add(new ApplyDiscount()
-                                    {
-                                        CouponCode = validDiscount.CouponCode,
-                                        DiscountId = discount.Id,
-                                        IsCumulative = discount.IsCumulative,
-                                    });
-                            }
-                        }
-                    }
-                }
+                var discount = await _discountService.GetDiscountById(appliedDiscount);
+                if (discount == null) continue;
+                var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                if (validDiscount.IsValid &&
+                    discount.DiscountTypeId == DiscountType.AssignedToBrands)
+                    allowedDiscounts.Add(new ApplyDiscount {
+                        CouponCode = validDiscount.CouponCode,
+                        DiscountId = discount.Id,
+                        IsCumulative = discount.IsCumulative,
+                    });
             }
             return allowedDiscounts;
         }
@@ -237,31 +218,26 @@ namespace Grand.Business.Catalog.Services.Prices
             foreach (var productCollection in product.ProductCollections)
             {
                 var collection = await _collectionService.GetCollectionById(productCollection.CollectionId);
-                if (collection != null && collection.AppliedDiscounts.Any())
+                if (collection == null || !collection.AppliedDiscounts.Any()) continue;
+                foreach (var appliedDiscount in collection.AppliedDiscounts)
                 {
-                    foreach (var appliedDiscount in collection.AppliedDiscounts)
-                    {
-                        var discount = await _discountService.GetDiscountById(appliedDiscount);
-                        if (discount != null)
-                        {
-                            var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
-                            if (validDiscount.IsValid &&
-                                     discount.DiscountTypeId == DiscountType.AssignedToCollections)
-                                allowedDiscounts.Add(new ApplyDiscount()
-                                {
-                                    CouponCode = validDiscount.CouponCode,
-                                    DiscountId = discount.Id,
-                                    IsCumulative = discount.IsCumulative
-                                });
-                        }
-                    }
+                    var discount = await _discountService.GetDiscountById(appliedDiscount);
+                    if (discount == null) continue;
+                    var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                    if (validDiscount.IsValid &&
+                        discount.DiscountTypeId == DiscountType.AssignedToCollections)
+                        allowedDiscounts.Add(new ApplyDiscount {
+                            CouponCode = validDiscount.CouponCode,
+                            DiscountId = discount.Id,
+                            IsCumulative = discount.IsCumulative
+                        });
                 }
             }
             return allowedDiscounts;
         }
 
         /// <summary>
-        /// 
+        /// Get allowed discounts applied to vendors
         /// </summary>
         /// <param name="product"></param>
         /// <param name="customer"></param>
@@ -273,31 +249,23 @@ namespace Grand.Business.Catalog.Services.Prices
             if (_catalogSettings.IgnoreDiscounts)
                 return allowedDiscounts;
 
-            if (!string.IsNullOrEmpty(product.VendorId))
+            if (string.IsNullOrEmpty(product.VendorId)) return allowedDiscounts;
+            
+            var vendor = await _mediator.Send(new GetVendorByIdQuery { Id = product.VendorId });
+            if (vendor == null) return allowedDiscounts;
+            if (!vendor.AppliedDiscounts.Any()) return allowedDiscounts;
+            foreach (var appliedDiscount in vendor.AppliedDiscounts)
             {
-                var vendor = await _mediator.Send(new GetVendorByIdQuery() { Id = product.VendorId });
-                if (vendor != null)
-                {
-                    if (vendor.AppliedDiscounts.Any())
-                    {
-                        foreach (var appliedDiscount in vendor.AppliedDiscounts)
-                        {
-                            var discount = await _discountService.GetDiscountById(appliedDiscount);
-                            if (discount != null)
-                            {
-                                var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
-                                if (validDiscount.IsValid &&
-                                         discount.DiscountTypeId == DiscountType.AssignedToVendors)
-                                    allowedDiscounts.Add(new ApplyDiscount()
-                                    {
-                                        CouponCode = validDiscount.CouponCode,
-                                        DiscountId = discount.Id,
-                                        IsCumulative = discount.IsCumulative,
-                                    });
-                            }
-                        }
-                    }
-                }
+                var discount = await _discountService.GetDiscountById(appliedDiscount);
+                if (discount == null) continue;
+                var validDiscount = await _discountService.ValidateDiscount(discount, customer, currency);
+                if (validDiscount.IsValid &&
+                    discount.DiscountTypeId == DiscountType.AssignedToVendors)
+                    allowedDiscounts.Add(new ApplyDiscount {
+                        CouponCode = validDiscount.CouponCode,
+                        DiscountId = discount.Id,
+                        IsCumulative = discount.IsCumulative,
+                    });
             }
             return allowedDiscounts;
         }
@@ -317,32 +285,32 @@ namespace Grand.Business.Catalog.Services.Prices
 
             //discounts applied to products
             foreach (var discount in await GetAllowedDiscountsAppliedToProduct(product, customer, currency))
-                if (!allowedDiscounts.Where(x => x.DiscountId == discount.DiscountId).Any())
+                if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
                     allowedDiscounts.Add(discount);
 
             //discounts applied to all products
             foreach (var discount in await GetAllowedDiscountsAppliedToAllProduct(product, customer, currency))
-                if (!allowedDiscounts.Where(x => x.DiscountId == discount.DiscountId).Any())
+                if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
                     allowedDiscounts.Add(discount);
 
             //discounts applied to categories
             foreach (var discount in await GetAllowedDiscountsAppliedToCategories(product, customer, currency))
-                if (!allowedDiscounts.Where(x => x.DiscountId == discount.DiscountId).Any())
+                if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
                     allowedDiscounts.Add(discount);
 
             //discounts applied to brands
             foreach (var discount in await GetAllowedDiscountsAppliedToBrands(product, customer, currency))
-                if (!allowedDiscounts.Where(x => x.DiscountId == discount.DiscountId).Any())
+                if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
                     allowedDiscounts.Add(discount);
 
             //discounts applied to collections
             foreach (var discount in await GetAllowedDiscountsAppliedToCollections(product, customer, currency))
-                if (!allowedDiscounts.Where(x => x.DiscountId == discount.DiscountId).Any())
+                if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
                     allowedDiscounts.Add(discount);
 
             //discounts applied to vendors
             foreach (var discount in await GetAllowedDiscountsAppliedToVendors(product, customer, currency))
-                if (!allowedDiscounts.Where(x => x.DiscountId == discount.DiscountId).Any())
+                if (allowedDiscounts.All(x => x.DiscountId != discount.DiscountId))
                     allowedDiscounts.Add(discount);
 
             return allowedDiscounts;
@@ -361,28 +329,24 @@ namespace Grand.Business.Catalog.Services.Prices
         {
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
-
-            List<ApplyDiscount> appliedDiscounts = null;
-            double appliedDiscountAmount = 0;
-
+            
             //we don't apply discounts to products with price entered by a customer
             if (product.EnteredPrice)
-                return (appliedDiscountAmount, appliedDiscounts);
+                return (0, null);
 
             //discounts are disabled
             if (_catalogSettings.IgnoreDiscounts)
-                return (appliedDiscountAmount, appliedDiscounts);
+                return (0, null);
 
             var allowedDiscounts = await GetAllowedDiscounts(product, customer, currency);
 
             //no discounts
             if (!allowedDiscounts.Any())
-                return (appliedDiscountAmount, appliedDiscounts);
+                return (0, null);
 
-            var preferredDiscount = (await _discountService.GetPreferredDiscount(allowedDiscounts, customer, currency, product, productPriceWithoutDiscount));
-            appliedDiscounts = preferredDiscount.appliedDiscount;
-            appliedDiscountAmount = preferredDiscount.discountAmount;
-            return (appliedDiscountAmount, appliedDiscounts);
+            var preferredDiscount = await _discountService.GetPreferredDiscount(allowedDiscounts, customer, currency, product, productPriceWithoutDiscount);
+            
+            return (preferredDiscount.discountAmount, preferredDiscount.appliedDiscount);
         }
 
 
@@ -444,7 +408,7 @@ namespace Grand.Business.Catalog.Services.Prices
                 var result = new ProductPrice();
 
                 //initial price
-                double price =
+                var price =
                     product.ProductPrices.FirstOrDefault(x => x.CurrencyCode == currency.CurrencyCode)?.Price ??
                     await _currencyService.ConvertFromPrimaryStoreCurrency(product.Price, currency);
 
@@ -459,7 +423,7 @@ namespace Grand.Business.Catalog.Services.Prices
                 //customer product price
                 if (_catalogSettings.CustomerProductPrice)
                 {
-                    var customerPrice = await _mediator.Send(new GetPriceByCustomerProductQuery() { CustomerId = customer.Id, ProductId = product.Id });
+                    var customerPrice = await _mediator.Send(new GetPriceByCustomerProductQuery { CustomerId = customer.Id, ProductId = product.Id });
                     if (customerPrice.HasValue && customerPrice.Value < await _currencyService.ConvertToPrimaryStoreCurrency(price, currency))
                         price = await _currencyService.ConvertFromPrimaryStoreCurrency(customerPrice.Value, currency);
                 }
@@ -471,24 +435,15 @@ namespace Grand.Business.Catalog.Services.Prices
                 if (product.ProductTypeId == ProductType.Reservation)
                     if (rentalStartDate.HasValue && rentalEndDate.HasValue)
                     {
-                        double d = 0;
-                        if (product.IncBothDate)
-                        {
-                            _ = double.TryParse(((rentalEndDate - rentalStartDate).Value.TotalDays + 1).ToString(), out d);
-                        }
-                        else
-                        {
-                            _ = double.TryParse((rentalEndDate - rentalStartDate).Value.TotalDays.ToString(), out d);
-                        }
+                        _ = product.IncBothDate ? double.TryParse(((rentalEndDate - rentalStartDate).Value.TotalDays + 1).ToString(CultureInfo.InvariantCulture), out var d) : 
+                            double.TryParse((rentalEndDate - rentalStartDate).Value.TotalDays.ToString(CultureInfo.InvariantCulture), out d);
                         price *= d;
                     }
 
                 if (includeDiscounts)
                 {
                     //discount
-                    var discountamount = await GetDiscountAmount(product, customer, currency, price);
-                    double tmpDiscountAmount = discountamount.discountAmount;
-                    List<ApplyDiscount> tmpAppliedDiscounts = discountamount.appliedDiscounts;
+                    var (tmpDiscountAmount, tmpAppliedDiscounts) = await GetDiscountAmount(product, customer, currency, price);
                     price -= tmpDiscountAmount;
 
                     if (tmpAppliedDiscounts != null)
@@ -502,25 +457,19 @@ namespace Grand.Business.Catalog.Services.Prices
                     price = 0;
 
                 //rounding
-                if (_shoppingCartSettings.RoundPrices)
-                {
-                    result.Price = RoundingHelper.RoundPrice(price, currency);
-                }
-                else
-                    result.Price = price;
+                result.Price = _shoppingCartSettings.RoundPrices ? RoundingHelper.RoundPrice(price, currency) : price;
 
                 return result;
             }
 
             var modelprice = await PrepareModel();
 
-            if (includeDiscounts)
+            if (!includeDiscounts)
+                return (modelprice.Price, discountAmount, appliedDiscounts, modelprice.PreferredTierPrice);
+            appliedDiscounts = modelprice.AppliedDiscounts.ToList();
+            if (appliedDiscounts.Any())
             {
-                appliedDiscounts = modelprice.AppliedDiscounts.ToList();
-                if (appliedDiscounts.Any())
-                {
-                    discountAmount = modelprice.AppliedDiscountAmount;
-                }
+                discountAmount = modelprice.AppliedDiscountAmount;
             }
 
             return (modelprice.Price, discountAmount, appliedDiscounts, modelprice.PreferredTierPrice);
@@ -559,7 +508,7 @@ namespace Grand.Business.Catalog.Services.Prices
         /// <param name="currency">The currency</param>
         /// <param name="shoppingCartType">Shopping cart type</param>
         /// <param name="quantity">Quantity</param>
-        /// <param name="attributes">Product atrributes</param>
+        /// <param name="attributes">Product attributes</param>
         /// <param name="customerEnteredPrice">Customer entered price</param>
         /// <param name="rentalStartDate">Rental start date</param>
         /// <param name="rentalEndDate">Rental end date</param>
@@ -629,28 +578,18 @@ namespace Grand.Business.Catalog.Services.Prices
                         foreach (var item in product.BundleProducts)
                         {
                             var p1 = await _productService.GetProductById(item.ProductId);
-                            if (p1 != null)
+                            var bundledProductsAttributeValues = p1?.ParseProductAttributeValues(attributes);
+                            if (bundledProductsAttributeValues == null) continue;
+                            foreach (var attributeValue in bundledProductsAttributeValues)
                             {
-                                var bundledProductsAttributeValues = p1.ParseProductAttributeValues(attributes);
-                                if (bundledProductsAttributeValues != null)
-                                {
-                                    foreach (var attributeValue in bundledProductsAttributeValues)
-                                    {
-                                        attributesTotalPrice += (item.Quantity * await GetProductAttributeValuePriceAdjustment(attributeValue));
-                                    }
-                                }
+                                attributesTotalPrice += item.Quantity * await GetProductAttributeValuePriceAdjustment(attributeValue);
                             }
                         }
                     }
                 }
-
-                if (product.EnteredPrice)
+                if (!product.EnteredPrice)
                 {
-                    finalPrice = customerEnteredPrice;
-                }
-                else
-                {
-                    int qty = 0;
+                    var qty = 0;
                     if (_shoppingCartSettings.GroupTierPrices)
                     {
                         qty = customer.ShoppingCartItems
@@ -676,8 +615,7 @@ namespace Grand.Business.Catalog.Services.Prices
                 }
             }
 
-            if (!finalPrice.HasValue)
-                finalPrice = 0;
+            finalPrice ??= 0;
 
             //rounding
             if (_shoppingCartSettings.RoundPrices)
@@ -702,20 +640,19 @@ namespace Grand.Business.Catalog.Services.Prices
 
             double subTotal;
             //unit price
-            var getunitPrice = await GetUnitPrice(shoppingCartItem, product, includeDiscounts);
-            var unitPrice = getunitPrice.unitprice;
-            double discountAmount = getunitPrice.discountAmount;
-            List<ApplyDiscount> appliedDiscounts = getunitPrice.appliedDiscounts;
+            var getUnitPrice = await GetUnitPrice(shoppingCartItem, product, includeDiscounts);
+            var unitPrice = getUnitPrice.unitprice;
+            var discountAmount = getUnitPrice.discountAmount;
+            List<ApplyDiscount> appliedDiscounts = getUnitPrice.appliedDiscounts;
 
             //discount
             if (appliedDiscounts.Any())
             {
                 Discount oneAndOnlyDiscount = null;
                 if (appliedDiscounts.Count == 1)
-                    oneAndOnlyDiscount = await _discountService.GetDiscountById(appliedDiscounts.FirstOrDefault().DiscountId);
+                    oneAndOnlyDiscount = await _discountService.GetDiscountById(appliedDiscounts.FirstOrDefault()?.DiscountId);
 
-                if (oneAndOnlyDiscount != null &&
-                    oneAndOnlyDiscount.MaximumDiscountedQuantity.HasValue &&
+                if (oneAndOnlyDiscount is { MaximumDiscountedQuantity: { } } &&
                     shoppingCartItem.Quantity > oneAndOnlyDiscount.MaximumDiscountedQuantity.Value)
                 {
                     //we cannot apply discount for all shopping cart items
@@ -757,7 +694,7 @@ namespace Grand.Business.Catalog.Services.Prices
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
-            double cost = product.ProductCost;
+            var cost = product.ProductCost;
             var attributeValues = product.ParseProductAttributeValues(attributes);
             foreach (var attributeValue in attributeValues)
             {
@@ -784,9 +721,6 @@ namespace Grand.Business.Catalog.Services.Prices
 
             return cost;
         }
-
-
-
         /// <summary>
         /// Get a price adjustment of a product attribute value
         /// </summary>

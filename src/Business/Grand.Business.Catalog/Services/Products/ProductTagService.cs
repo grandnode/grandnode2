@@ -11,7 +11,7 @@ namespace Grand.Business.Catalog.Services.Products
     /// <summary>
     /// Product tag service
     /// </summary>
-    public partial class ProductTagService : IProductTagService
+    public class ProductTagService : IProductTagService
     {
         #region Fields
 
@@ -28,6 +28,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// Ctor
         /// </summary>
         /// <param name="productTagRepository">Product tag repository</param>
+        /// <param name="productRepository">Product repository</param>
         /// <param name="cacheBase">Cache manager</param>
         /// <param name="mediator">Mediator</param>
         public ProductTagService(IRepository<ProductTag> productTagRepository,
@@ -43,17 +44,7 @@ namespace Grand.Business.Catalog.Services.Products
         }
 
         #endregion
-
-        #region Nested classes
-
-        private class ProductTagWithCount
-        {
-            public int ProductTagId { get; set; }
-            public int ProductCount { get; set; }
-        }
-
-        #endregion
-
+        
         #region Utilities
 
         /// <summary>
@@ -63,15 +54,13 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Dictionary of "product tag ID : product count"</returns>
         private async Task<Dictionary<string, int>> GetProductCount(string storeId)
         {
-            string key = string.Format(CacheKey.PRODUCTTAG_COUNT_KEY, storeId);
+            var key = string.Format(CacheKey.PRODUCTTAG_COUNT_KEY, storeId);
             return await _cacheBase.GetAsync(key, async () =>
              {
                  var query = from pt in _productTagRepository.Table
                              select pt;
 
-                 var dictionary = new Dictionary<string, int>();
-                 foreach (var item in query.ToList())
-                     dictionary.Add(item.Id, item.Count);
+                 var dictionary = query.ToList().ToDictionary(item => item.Id, item => item.Count);
                  return await Task.FromResult(dictionary);
              });
         }
@@ -87,10 +76,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Product tags</returns>
         public virtual async Task<IList<ProductTag>> GetAllProductTags()
         {
-            return await _cacheBase.GetAsync(CacheKey.PRODUCTTAG_ALL_KEY, async () =>
-            {
-                return await Task.FromResult(_productTagRepository.Table.ToList());
-            });
+            return await _cacheBase.GetAsync(CacheKey.PRODUCTTAG_ALL_KEY, async () => await Task.FromResult(_productTagRepository.Table.ToList()));
         }
 
         /// <summary>
@@ -118,9 +104,9 @@ namespace Grand.Business.Catalog.Services.Products
         }
 
         /// <summary>
-        /// Gets product tag by sename
+        /// Gets product tag by se-name
         /// </summary>
-        /// <param name="sename">Product tag sename</param>
+        /// <param name="sename">Product tag se-name</param>
         /// <returns>Product tag</returns>
         public virtual Task<ProductTag> GetProductTagBySeName(string sename)
         {
@@ -157,12 +143,12 @@ namespace Grand.Business.Catalog.Services.Products
             if (productTag == null)
                 throw new ArgumentNullException(nameof(productTag));
 
-            var previouse = await GetProductTagById(productTag.Id);
+            var previous = await GetProductTagById(productTag.Id);
 
             await _productTagRepository.UpdateAsync(productTag);
 
             //update on products
-            await _productRepository.UpdateToSet(x => x.ProductTags, previouse.Name, productTag.Name);
+            await _productRepository.UpdateToSet(x => x.ProductTags, previous.Name, productTag.Name);
 
             //cache
             await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTTAG_PATTERN_KEY);
@@ -251,10 +237,7 @@ namespace Grand.Business.Catalog.Services.Products
         public virtual async Task<int> GetProductCount(string productTagId, string storeId)
         {
             var dictionary = await GetProductCount(storeId);
-            if (dictionary.ContainsKey(productTagId))
-                return dictionary[productTagId];
-
-            return 0;
+            return dictionary.ContainsKey(productTagId) ? dictionary[productTagId] : 0;
         }
 
         #endregion

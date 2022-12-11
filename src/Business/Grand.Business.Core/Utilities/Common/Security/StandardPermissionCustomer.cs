@@ -6,14 +6,14 @@ namespace Grand.Business.Core.Utilities.Common.Security
     {
         private static string CategoryCustomer => "Customers";
 
-        public static readonly Permission AllowCustomerImpersonation = new Permission
+        public static readonly Permission AllowCustomerImpersonation = new()
         {
             Name = "Allow Customer Impersonation",
             SystemName = PermissionSystemName.AllowCustomerImpersonation,
             Area = "Admin area",
             Category = CategoryCustomer
         };
-        public static readonly Permission ManageCustomers = new Permission
+        public static readonly Permission ManageCustomers = new()
         {
             Name = "Manage Customers",
             SystemName = PermissionSystemName.Customers,
@@ -21,7 +21,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryCustomer,
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete, PermissionActionName.Export }
         };
-        public static readonly Permission ManageAddressAttribute = new Permission
+        public static readonly Permission ManageAddressAttribute = new()
         {
             Name = "Manage Address Attributes",
             SystemName = PermissionSystemName.AddressAttributes,
@@ -29,7 +29,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryCustomer,
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete }
         };
-        public static readonly Permission ManageCustomerAttribute = new Permission
+        public static readonly Permission ManageCustomerAttribute = new()
         {
             Name = "Manage Customer Attributes",
             SystemName = PermissionSystemName.CustomerAttributes,
@@ -37,7 +37,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryCustomer,
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete }
         };
-        public static readonly Permission ManageCustomerGroups = new Permission
+        public static readonly Permission ManageCustomerGroups = new()
         {
             Name = "Manage Customer Groups",
             SystemName = PermissionSystemName.CustomerGroups,
@@ -45,7 +45,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryCustomer,
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete }
         };
-        public static readonly Permission ManageCustomerTags = new Permission
+        public static readonly Permission ManageCustomerTags = new()
         {
             Name = "Manage Customer Tags",
             SystemName = PermissionSystemName.CustomerTags,
@@ -53,7 +53,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryCustomer,
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete }
         };
-        public static readonly Permission ManageSalesEmployees = new Permission
+        public static readonly Permission ManageSalesEmployees = new()
         {
             Name = "Manage Sales Employees",
             SystemName = PermissionSystemName.SalesEmployees,
@@ -61,7 +61,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryCustomer,
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Delete }
         };        
-        public static readonly Permission ManageVendors = new Permission
+        public static readonly Permission ManageVendors = new()
         {
             Name = "Manage Vendors",
             SystemName = PermissionSystemName.Vendors,
@@ -69,7 +69,7 @@ namespace Grand.Business.Core.Utilities.Common.Security
             Category = CategoryCustomer,
             Actions = new List<string> { PermissionActionName.List, PermissionActionName.Create, PermissionActionName.Edit, PermissionActionName.Preview, PermissionActionName.Delete }
         };
-        public static readonly Permission ManageVendorReviews = new Permission
+        public static readonly Permission ManageVendorReviews = new()
         {
             Name = "Manage Vendor Reviews",
             SystemName = PermissionSystemName.VendorReviews,

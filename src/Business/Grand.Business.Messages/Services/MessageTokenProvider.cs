@@ -3,9 +3,8 @@ using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 
 namespace Grand.Business.Messages.Services
 {
-    public partial class MessageTokenProvider : IMessageTokenProvider
+    public class MessageTokenProvider : IMessageTokenProvider
     {
-    
         #region Methods
 
         /// <summary>

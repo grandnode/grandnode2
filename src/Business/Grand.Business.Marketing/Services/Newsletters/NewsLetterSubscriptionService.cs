@@ -112,7 +112,7 @@ namespace Grand.Business.Marketing.Services.Newsteletters
             newsLetterSubscription.Email = CommonHelper.EnsureSubscriberEmailOrThrow(newsLetterSubscription.Email);
 
             //get previous newsLetterSubscription record
-            var prevnewsLetterSubscription = await _subscriptionRepository.GetByIdAsync(newsLetterSubscription.Id);
+            var prevNewsLetterSubscription = await _subscriptionRepository.GetByIdAsync(newsLetterSubscription.Id);
 
             //Persist
             await _subscriptionRepository.UpdateAsync(newsLetterSubscription);
@@ -121,14 +121,17 @@ namespace Grand.Business.Marketing.Services.Newsteletters
             await newsLetterSubscription.SaveHistory<NewsLetterSubscription>(_historyService);
 
             //Publish the un/subscribe event 
-            if (prevnewsLetterSubscription != null)
+            if (prevNewsLetterSubscription != null)
             {
-                if (newsLetterSubscription.Active && !prevnewsLetterSubscription.Active)
-                    await PublishSubscriptionEvent(newsLetterSubscription.Email, true, publishSubscriptionEvents);
-
-                if (!newsLetterSubscription.Active && prevnewsLetterSubscription.Active)
-                    await PublishSubscriptionEvent(newsLetterSubscription.Email, false, publishSubscriptionEvents);
-
+                switch (newsLetterSubscription.Active)
+                {
+                    case true when !prevNewsLetterSubscription.Active:
+                        await PublishSubscriptionEvent(newsLetterSubscription.Email, true, publishSubscriptionEvents);
+                        break;
+                    case false when prevNewsLetterSubscription.Active:
+                        await PublishSubscriptionEvent(newsLetterSubscription.Email, false, publishSubscriptionEvents);
+                        break;
+                }
             }
             //Publish event
             await _mediator.EntityUpdated(newsLetterSubscription);
@@ -206,7 +209,7 @@ namespace Grand.Business.Marketing.Services.Newsteletters
         /// <returns>NewsLetter subscription</returns>
         public virtual async Task<NewsLetterSubscription> GetNewsLetterSubscriptionByCustomerId(string customerId)
         {
-            if (String.IsNullOrEmpty(customerId))
+            if (string.IsNullOrEmpty(customerId))
                 return null;
 
             var newsLetterSubscriptions = from nls in _subscriptionRepository.Table
@@ -221,8 +224,8 @@ namespace Grand.Business.Marketing.Services.Newsteletters
         /// </summary>
         /// <param name="email">Email to search or string. Empty to load all records.</param>
         /// <param name="storeId">Store identifier. "" to load all records.</param>
-        /// <param name="customerGroupId">Customer group identifier. Used to filter subscribers by customer group. "" to load all records.</param>
         /// <param name="isActive">Value indicating whether subscriber record should be active or not; null to load all records</param>
+        /// <param name="categoryIds"></param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>NewsLetterSubscription entities</returns>
@@ -234,13 +237,13 @@ namespace Grand.Business.Marketing.Services.Newsteletters
             var query = from p in _subscriptionRepository.Table
                         select p;
 
-            if (!String.IsNullOrEmpty(email))
+            if (!string.IsNullOrEmpty(email))
                 query = query.Where(nls => nls.Email.ToLower().Contains(email.ToLower()));
-            if (!String.IsNullOrEmpty(storeId))
+            if (!string.IsNullOrEmpty(storeId))
                 query = query.Where(nls => nls.StoreId == storeId);
             if (isActive.HasValue)
                 query = query.Where(nls => nls.Active == isActive.Value);
-            if (categoryIds != null && categoryIds.Length > 0)
+            if (categoryIds is { Length: > 0 })
                 query = query.Where(c => c.Categories.Any(x => categoryIds.Contains(x)));
 
             query = query.OrderBy(nls => nls.Email);
@@ -257,7 +260,7 @@ namespace Grand.Business.Marketing.Services.Newsteletters
             if (subscriptions == null)
                 throw new ArgumentNullException(nameof(subscriptions));
 
-            const string separator = ",";
+            const char separator = ',';
             var sb = new StringBuilder();
             foreach (var subscription in subscriptions)
             {
@@ -283,81 +286,75 @@ namespace Grand.Business.Marketing.Services.Newsteletters
         /// <returns>Number of imported subscribers</returns>
         public virtual async Task<int> ImportNewsletterSubscribersFromTxt(Stream stream, string currentStoreId)
         {
-            int count = 0;
-            using (var reader = new StreamReader(stream))
+            var count = 0;
+            using var reader = new StreamReader(stream);
+            while (!reader.EndOfStream)
             {
-                while (!reader.EndOfStream)
-                {
-                    string line = reader.ReadLine();
-                    if (string.IsNullOrWhiteSpace(line))
-                        continue;
-                    string[] tmp = line.Split(',');
+                var line = await reader.ReadLineAsync();
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+                var tmp = line.Split(',');
 
-                    var email = "";
-                    bool isActive = true;
-                    var categories = new List<string>();
-                    bool iscategories = false;
-                    string storeId = currentStoreId;
+                var email = "";
+                var isActive = true;
+                var categories = new List<string>();
+                var isCategories = false;
+                var storeId = currentStoreId;
+                switch (tmp.Length)
+                {
                     //parse
-                    if (tmp.Length == 1)
-                    {
+                    case 1:
                         //"email" only
                         email = tmp[0].Trim();
-                    }
-                    else if (tmp.Length == 2)
-                    {
+                        break;
+                    case 2:
                         //"email" and "active" fields specified
                         email = tmp[0].Trim();
-                        isActive = Boolean.Parse(tmp[1].Trim());
-                    }
-                    else if (tmp.Length == 3)
-                    {
+                        isActive = bool.Parse(tmp[1].Trim());
+                        break;
+                    case 3:
                         //"email" and "active" and "storeId" fields specified
                         email = tmp[0].Trim();
-                        isActive = Boolean.Parse(tmp[1].Trim());
+                        isActive = bool.Parse(tmp[1].Trim());
                         storeId = tmp[2].Trim();
-                    }
-                    else if (tmp.Length == 4)
-                    {
+                        break;
+                    case 4:
                         //"email" and "active" and "storeId" and categories fields specified
                         email = tmp[0].Trim();
-                        isActive = Boolean.Parse(tmp[1].Trim());
+                        isActive = bool.Parse(tmp[1].Trim());
                         storeId = tmp[2].Trim();
                         try
                         {
                             var items = tmp[3].Trim().Split(';').ToList();
-                            foreach (var item in items)
-                            {
-                                if (!string.IsNullOrEmpty(item))
-                                {
-                                    categories.Add(item);
-                                }
-                            }
-                            iscategories = true;
+                            categories.AddRange(items.Where(item => !string.IsNullOrEmpty(item)));
+                            isCategories = true;
                         }
-                        catch { };
-                    }
-                    else
+                        catch
+                        {
+                            // ignored
+                        }
+                        break;
+                    default:
                         throw new GrandException("Wrong file format");
-
-                    //import
-                    await ImportSubscription(email, storeId, isActive, iscategories, categories);
-
-                    count++;
                 }
+
+                //import
+                await ImportSubscription(email, storeId, isActive, isCategories, categories);
+
+                count++;
             }
 
             return count;
         }
 
-        protected virtual async Task ImportSubscription(string email, string storeId, bool isActive, bool iscategories, List<string> categories)
+        protected virtual async Task ImportSubscription(string email, string storeId, bool isActive, bool isCategories, List<string> categories)
         {
             var subscription = await GetNewsLetterSubscriptionByEmailAndStoreId(email, storeId);
             if (subscription != null)
             {
                 subscription.Email = email;
                 subscription.Active = isActive;
-                if (iscategories)
+                if (isCategories)
                 {
                     subscription.Categories.Clear();
                     foreach (var item in categories)

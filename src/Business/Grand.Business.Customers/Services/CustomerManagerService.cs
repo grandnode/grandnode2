@@ -15,7 +15,7 @@ namespace Grand.Business.Customers.Services
     /// <summary>
     /// Customer manager service
     /// </summary>
-    public partial class CustomerManagerService : ICustomerManagerService
+    public class CustomerManagerService : ICustomerManagerService
     {
         #region Fields
 
@@ -66,13 +66,13 @@ namespace Grand.Business.Customers.Services
 
         #region Methods
 
-        protected bool PasswordMatch(CustomerHistoryPassword customerPassword, ChangePasswordRequest request)
+        private bool PasswordMatch(CustomerHistoryPassword customerPassword, ChangePasswordRequest request)
         {
-            string newPwd = request.PasswordFormat switch {
+            var newPwd = request.PasswordFormat switch {
                 PasswordFormat.Clear => request.NewPassword,
                 PasswordFormat.Encrypted => _encryptionService.EncryptText(request.NewPassword, customerPassword.PasswordSalt),
                 PasswordFormat.Hashed => _encryptionService.CreatePasswordHash(request.NewPassword, customerPassword.PasswordSalt, _customerSettings.HashedPasswordFormat),
-                _ => throw new Exception("PasswordFormat not supported"),
+                _ => throw new Exception("PasswordFormat not supported")
             };
             return customerPassword.Password.Equals(newPwd);
         }
@@ -102,11 +102,11 @@ namespace Grand.Business.Customers.Services
 
             if (string.IsNullOrEmpty(password))
                 return CustomerLoginResults.WrongPassword;
-            string pwd = customer.PasswordFormatId switch {
+            var pwd = customer.PasswordFormatId switch {
                 PasswordFormat.Clear => password,
                 PasswordFormat.Encrypted => _encryptionService.EncryptText(password, customer.PasswordSalt),
                 PasswordFormat.Hashed => _encryptionService.CreatePasswordHash(password, customer.PasswordSalt, _customerSettings.HashedPasswordFormat),
-                _ => throw new Exception("PasswordFormat not supported"),
+                _ => throw new Exception("PasswordFormat not supported")
             };
             var isValid = pwd == customer.Password;
             if (!isValid)
@@ -218,7 +218,7 @@ namespace Grand.Business.Customers.Services
                     request.Customer.Password = _encryptionService.EncryptText(request.Password, request.Customer.PasswordSalt);
                     break;
                 case PasswordFormat.Hashed:
-                    string saltKey = _encryptionService.CreateSaltKey(5);
+                    var saltKey = _encryptionService.CreateSaltKey(5);
                     request.Customer.PasswordSalt = saltKey;
                     request.Customer.Password = _encryptionService.CreatePasswordHash(request.Password, saltKey, _customerSettings.HashedPasswordFormat);
                     break;
@@ -237,12 +237,12 @@ namespace Grand.Business.Customers.Services
             request.Customer.Groups.Add(registeredRole.Id);
             await _customerService.InsertCustomerGroupInCustomer(registeredRole, request.Customer.Id);
             //remove from 'Guests' role
-            var guestgroup = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Guests);
-            var guestexists = request.Customer.Groups.FirstOrDefault(cr => cr == guestgroup.Id);
-            if (guestexists != null)
+            var guestGroup = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Guests);
+            var guestExists = request.Customer.Groups.FirstOrDefault(cr => cr == guestGroup?.Id);
+            if (guestExists != null)
             {
-                request.Customer.Groups.Remove(guestgroup.Id);
-                await _customerService.DeleteCustomerGroupInCustomer(guestgroup, request.Customer.Id);
+                request.Customer.Groups.Remove(guestGroup.Id);
+                await _customerService.DeleteCustomerGroupInCustomer(guestGroup, request.Customer.Id);
             }
 
             request.Customer.PasswordChangeDateUtc = DateTime.UtcNow;
@@ -262,12 +262,12 @@ namespace Grand.Business.Customers.Services
                 throw new ArgumentNullException(nameof(request));
 
             var result = new ChangePasswordResult();
-            if (String.IsNullOrWhiteSpace(request.Email))
+            if (string.IsNullOrWhiteSpace(request.Email))
             {
                 result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.EmailIsNotProvided"));
                 return result;
             }
-            if (String.IsNullOrWhiteSpace(request.NewPassword))
+            if (string.IsNullOrWhiteSpace(request.NewPassword))
             {
                 result.AddError(_translationService.GetResource("Account.ChangePassword.Errors.PasswordIsNotProvided"));
                 return result;
@@ -282,19 +282,13 @@ namespace Grand.Business.Customers.Services
 
             if (request.ValidOldPassword)
             {
-                string oldPwd = "";
-                switch (customer.PasswordFormatId)
-                {
-                    case PasswordFormat.Encrypted:
-                        oldPwd = _encryptionService.EncryptText(request.OldPassword, customer.PasswordSalt);
-                        break;
-                    case PasswordFormat.Hashed:
-                        oldPwd = _encryptionService.CreatePasswordHash(request.OldPassword, customer.PasswordSalt, _customerSettings.HashedPasswordFormat);
-                        break;
-                    default:
-                        oldPwd = request.OldPassword;
-                        break;
-                }
+                var oldPwd = customer.PasswordFormatId switch {
+                    PasswordFormat.Encrypted => _encryptionService.EncryptText(request.OldPassword,
+                        customer.PasswordSalt),
+                    PasswordFormat.Hashed => _encryptionService.CreatePasswordHash(request.OldPassword,
+                        customer.PasswordSalt, _customerSettings.HashedPasswordFormat),
+                    _ => request.OldPassword
+                };
 
                 if (oldPwd != customer.Password)
                 {
@@ -332,7 +326,7 @@ namespace Grand.Business.Customers.Services
                     break;
                 case PasswordFormat.Hashed:
                     {
-                        string saltKey = _encryptionService.CreateSaltKey(5);
+                        var saltKey = _encryptionService.CreateSaltKey(5);
                         customer.PasswordSalt = saltKey;
                         customer.Password = _encryptionService.CreatePasswordHash(request.NewPassword, saltKey, _customerSettings.HashedPasswordFormat);
                     }

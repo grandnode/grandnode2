@@ -36,7 +36,7 @@ namespace Grand.Business.Marketing.Services.Customers
             if (customer.Coordinates == null)
                 await Task.FromResult((0, 0));
 
-            return await Task.FromResult((customer.Coordinates.X, customer.Coordinates.Y));
+            return await Task.FromResult((customer.Coordinates!.X, customer.Coordinates!.Y));
         }
 
         public async Task SaveGeoCoordinate(double longitude, double latitude)

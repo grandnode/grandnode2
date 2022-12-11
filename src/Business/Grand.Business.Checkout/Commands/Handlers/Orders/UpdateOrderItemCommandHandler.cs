@@ -40,45 +40,47 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
 
             var originalOrder = await _orderService.GetOrderById(request.Order.Id);
             var originalOrderItem = originalOrder.OrderItems.FirstOrDefault(x => x.Id == request.OrderItem.Id);
-
-            request.Order.OrderSubtotalExclTax += (request.OrderItem.PriceExclTax - originalOrderItem.PriceExclTax);
-            request.Order.OrderSubtotalInclTax += (request.OrderItem.PriceInclTax - originalOrderItem.PriceInclTax);
-            request.Order.OrderTax +=
-                ((request.OrderItem.PriceInclTax - request.OrderItem.PriceExclTax)
-                - (originalOrderItem.PriceInclTax - originalOrderItem.PriceExclTax));
-            request.Order.OrderTotal += (request.OrderItem.PriceInclTax - originalOrderItem.PriceInclTax);
-
-            //TODO 
-            //request.Order.OrderTaxes
-
-            //adjust inventory
-            if (originalOrderItem.Quantity != request.OrderItem.Quantity)
+            if (originalOrderItem != null)
             {
-                int qtyDifference = originalOrderItem.Quantity - request.OrderItem.Quantity;
-                var product = await _productService.GetProductById(request.OrderItem.ProductId);
-                await _inventoryManageService.AdjustReserved(product, qtyDifference, request.OrderItem.Attributes, request.OrderItem.WarehouseId);
+                request.Order.OrderSubtotalExclTax += request.OrderItem.PriceExclTax - originalOrderItem.PriceExclTax;
+                request.Order.OrderSubtotalInclTax += request.OrderItem.PriceInclTax - originalOrderItem.PriceInclTax;
+                request.Order.OrderTax +=
+                    request.OrderItem.PriceInclTax - request.OrderItem.PriceExclTax
+                                                   - (originalOrderItem.PriceInclTax - originalOrderItem.PriceExclTax);
+                request.Order.OrderTotal += request.OrderItem.PriceInclTax - originalOrderItem.PriceInclTax;
 
-                if (request.Order.ShippingStatusId == ShippingStatus.PartiallyShipped)
+                //TODO 
+                //request.Order.OrderTaxes
+
+                //adjust inventory
+                if (originalOrderItem.Quantity != request.OrderItem.Quantity)
                 {
-                    var shipments = (await _shipmentService.GetShipmentsByOrder(request.Order.Id));
+                    var qtyDifference = originalOrderItem.Quantity - request.OrderItem.Quantity;
+                    var product = await _productService.GetProductById(request.OrderItem.ProductId);
+                    await _inventoryManageService.AdjustReserved(product, qtyDifference, request.OrderItem.Attributes,
+                        request.OrderItem.WarehouseId);
 
-                    if (!request.Order.HasItemsToAddToShipment() && !shipments.Where(x => x.DeliveryDateUtc == null).Any())
+                    if (request.Order.ShippingStatusId == ShippingStatus.PartiallyShipped)
                     {
-                        request.Order.ShippingStatusId = ShippingStatus.Delivered;
+                        var shipments = await _shipmentService.GetShipmentsByOrder(request.Order.Id);
+
+                        if (!request.Order.HasItemsToAddToShipment() && shipments.All(x => x.DeliveryDateUtc != null))
+                        {
+                            request.Order.ShippingStatusId = ShippingStatus.Delivered;
+                        }
                     }
                 }
             }
             await _orderService.UpdateOrder(request.Order);
-
             //check order status
-            await _mediator.Send(new CheckOrderStatusCommand() { Order = request.Order });
+            await _mediator.Send(new CheckOrderStatusCommand() { Order = request.Order }, cancellationToken);
 
             //add a note
             await _orderService.InsertOrderNote(new OrderNote {
                 Note = "Order item has been edited",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
-                OrderId = request.Order.Id,
+                OrderId = request.Order.Id
             });
 
             return true;

@@ -14,8 +14,6 @@ namespace Grand.Business.Common.Services.ExportImport
                 IWorkbook xlPackage = new XSSFWorkbook();
                 ISheet worksheet = xlPackage.CreateSheet(typeof(T).Name);
 
-                var manager = new PropertyManager<T>(properties);
-
                 WriteCaption(worksheet, properties);
 
                 var row = 1;
@@ -29,18 +27,15 @@ namespace Grand.Business.Common.Services.ExportImport
             }
         }
 
-        private MemoryStream stream;
-        private IWorkbook xlPackage;
+        private MemoryStream _stream;
+        private IWorkbook _xlPackage;
         public virtual IExportProvider BuilderExportToByte<T>(PropertyByName<T>[] properties, IEnumerable<T> itemsToExport)
         {
-            if (stream == null)
-                stream = new MemoryStream();
+            _stream ??= new MemoryStream();
 
-            if (xlPackage == null)
-                xlPackage = new XSSFWorkbook();
+            _xlPackage ??= new XSSFWorkbook();
 
-            ISheet worksheet = xlPackage.CreateSheet(typeof(T).Name);
-            var manager = new PropertyManager<T>(properties);
+            ISheet worksheet = _xlPackage.CreateSheet(typeof(T).Name);
             WriteCaption(worksheet, properties);
             var row = 1;
             foreach (var items in itemsToExport)
@@ -52,14 +47,15 @@ namespace Grand.Business.Common.Services.ExportImport
         }
         public virtual byte[] BuilderExportToByte()
         {
-            xlPackage.Write(stream, false);
-            return stream.ToArray();
+            _xlPackage.Write(_stream, false);
+            return _stream.ToArray();
         }
 
         /// <summary>
         /// Write caption (first row) to XLSX worksheet
         /// </summary>
-        /// <param name="ISheet">sheet</param>
+        /// <param name="sheet"></param>
+        /// <param name="properties"></param>
         private void WriteCaption<T>(ISheet sheet, PropertyByName<T>[] properties)
         {
             IRow row = sheet.CreateRow(0);
@@ -72,19 +68,21 @@ namespace Grand.Business.Common.Services.ExportImport
         /// <summary>
         /// Write object data to XLSX worksheet
         /// </summary>
-        /// <param name="worksheet">worksheet</param>
-        /// <param name="row">Row index</param>
-        private void WriteToXlsx<T>(PropertyByName<T>[] properties, ISheet sheet, T items, int row)
+        /// <param name="items"></param>
+        /// <param name="id">Row index</param>
+        /// <param name="properties"></param>
+        /// <param name="sheet"></param>
+        private void WriteToXlsx<T>(PropertyByName<T>[] properties, ISheet sheet, T items, int id)
         {
-            IRow _row = sheet.CreateRow(row);
+            IRow row = sheet.CreateRow(id);
             foreach (var prop in properties)
             {
-                var cellValue = (prop.GetProperty(items)?.ToString());
-                if (cellValue != null && cellValue.Length >= 32767) // 32767 is the max char size of an excel cell
+                var cellValue = prop.GetProperty(items)?.ToString();
+                if (cellValue is { Length: >= 32767 }) // 32767 is the max char size of an excel cell
                 {
-                    cellValue = cellValue.Substring(0, 32767); //Truncate the content to max size.
+                    cellValue = cellValue[..32767]; //Truncate the content to max size.
                 }
-                _row.CreateCell(prop.PropertyOrderPosition).SetCellValue(cellValue);
+                row.CreateCell(prop.PropertyOrderPosition).SetCellValue(cellValue);
             }
         }
     }

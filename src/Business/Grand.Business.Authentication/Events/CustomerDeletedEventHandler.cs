@@ -14,8 +14,8 @@ namespace Grand.Business.Authentication.Events
         }
         public async Task Handle(EntityDeleted<Customer> notification, CancellationToken cancellationToken)
         {
-            var externalrecords = _externalAuthenticationRepository.Table.Where(x => x.CustomerId == notification.Entity.Id).ToList();
-            foreach (var item in externalrecords)
+            var externalRecords = _externalAuthenticationRepository.Table.Where(x => x.CustomerId == notification.Entity.Id).ToList();
+            foreach (var item in externalRecords)
             {
                 await _externalAuthenticationRepository.DeleteAsync(item);
             }

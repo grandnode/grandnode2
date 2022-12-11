@@ -17,19 +17,11 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             if (paymentTransaction.TransactionAmount == 0)
                 return Task.FromResult(false);
 
-            double canBeRefunded = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
+            var canBeRefunded = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
             if (canBeRefunded <= 0)
                 return Task.FromResult(false);
 
-            if (amountToRefund > canBeRefunded)
-                return Task.FromResult(false);
-
-            if (paymentTransaction.TransactionStatus == TransactionStatus.Paid ||
-                paymentTransaction.TransactionStatus == TransactionStatus.PartialPaid ||
-                paymentTransaction.TransactionStatus == TransactionStatus.PartiallyRefunded)
-                return Task.FromResult(true);
-
-            return Task.FromResult(false);
+            return amountToRefund > canBeRefunded ? Task.FromResult(false) : Task.FromResult(paymentTransaction.TransactionStatus is TransactionStatus.Paid or TransactionStatus.PartialPaid or TransactionStatus.PartiallyRefunded);
         }
     }
 }

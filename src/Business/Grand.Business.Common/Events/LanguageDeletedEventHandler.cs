@@ -30,12 +30,10 @@ namespace Grand.Business.Common.Events
             {
                 foreach (var activeLanguage in await _languageService.GetAllLanguages())
                 {
-                    if (activeLanguage.Id != notification.Entity.Id)
-                    {
-                        _languageSettings.DefaultAdminLanguageId = activeLanguage.Id;
-                        await _settingService.SaveSetting(_languageSettings);
-                        break;
-                    }
+                    if (activeLanguage.Id == notification.Entity.Id) continue;
+                    _languageSettings.DefaultAdminLanguageId = activeLanguage.Id;
+                    await _settingService.SaveSetting(_languageSettings);
+                    break;
                 }
             }
 

@@ -14,7 +14,7 @@ namespace Grand.Business.System.Services.Reports
     /// <summary>
     /// Order report service
     /// </summary>
-    public partial class OrderReportService : IOrderReportService
+    public class OrderReportService : IOrderReportService
     {
         #region Fields
 
@@ -66,7 +66,7 @@ namespace Grand.Business.System.Services.Reports
                         select p;
 
             query = query.Where(o => !o.Deleted);
-            if (!String.IsNullOrEmpty(storeId))
+            if (!string.IsNullOrEmpty(storeId))
                 query = query.Where(o => o.StoreId == storeId);
             if (os.HasValue)
                 query = query.Where(o => o.OrderStatusId == os.Value);
@@ -110,10 +110,8 @@ namespace Grand.Business.System.Services.Reports
             DateTime? endTimeUtc = null)
         {
             List<OrderByTimeReportLine> report = new List<OrderByTimeReportLine>();
-            if (!startTimeUtc.HasValue)
-                startTimeUtc = DateTime.MinValue;
-            if (!endTimeUtc.HasValue)
-                endTimeUtc = DateTime.UtcNow;
+            startTimeUtc ??= DateTime.MinValue;
+            endTimeUtc ??= DateTime.UtcNow;
 
             var endTime = new DateTime(endTimeUtc.Value.Year, endTimeUtc.Value.Month, endTimeUtc.Value.Day, 23, 59, 00);
 
@@ -187,8 +185,9 @@ namespace Grand.Business.System.Services.Reports
         /// <param name="startTimeUtc">Start date</param>
         /// <param name="endTimeUtc">End date</param>
         /// <param name="billingEmail">Billing email. Leave empty to load all records.</param>
+        /// <param name="billingLastName"></param>
         /// <param name="ignoreCancelledOrders">A value indicating whether to ignore cancelled orders</param>
-        /// <param name="tagid">Tag ident.</param>
+        /// <param name="tagId">Tag ident.</param>
         /// <returns>Result</returns>
         public virtual async Task<OrderAverageReportLine> GetOrderAverageReportLine(string storeId = "", string customerId = "",
             string vendorId = "", string salesEmployeeId = "", string billingCountryId = "",
@@ -196,7 +195,7 @@ namespace Grand.Business.System.Services.Reports
             int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
             DateTime? startTimeUtc = null, DateTime? endTimeUtc = null,
             string billingEmail = null, string billingLastName = "", bool ignoreCancelledOrders = false,
-            string tagid = null)
+            string tagId = null)
         {
             var builderquery = from p in _orderRepository.Table
                                select p;
@@ -225,9 +224,7 @@ namespace Grand.Business.System.Services.Reports
 
             if (ignoreCancelledOrders)
             {
-                var cancelledOrderStatusId = OrderStatusSystem.Cancelled;
-                builderquery = builderquery.Where(o => o.OrderStatusId != (int)cancelledOrderStatusId);
-
+                builderquery = builderquery.Where(o => o.OrderStatusId != (int)OrderStatusSystem.Cancelled);
             }
             if (!string.IsNullOrEmpty(paymentMethodSystemName))
                 builderquery = builderquery.Where(o => o.PaymentMethodSystemName == paymentMethodSystemName);
@@ -248,14 +245,14 @@ namespace Grand.Business.System.Services.Reports
                 builderquery = builderquery.Where(o => endTimeUtc.Value >= o.CreatedOnUtc);
 
             if (!string.IsNullOrEmpty(billingEmail))
-                builderquery = builderquery.Where(o => o.BillingAddress != null && !String.IsNullOrEmpty(o.BillingAddress.Email) && o.BillingAddress.Email.Contains(billingEmail));
+                builderquery = builderquery.Where(o => o.BillingAddress != null && !string.IsNullOrEmpty(o.BillingAddress.Email) && o.BillingAddress.Email.Contains(billingEmail));
 
             if (!string.IsNullOrEmpty(billingLastName))
-                builderquery = builderquery.Where(o => o.BillingAddress != null && !String.IsNullOrEmpty(o.BillingAddress.LastName) && o.BillingAddress.LastName.Contains(billingLastName));
+                builderquery = builderquery.Where(o => o.BillingAddress != null && !string.IsNullOrEmpty(o.BillingAddress.LastName) && o.BillingAddress.LastName.Contains(billingLastName));
 
             //tag filtering 
-            if (!string.IsNullOrEmpty(tagid))
-                builderquery = builderquery.Where(o => o.OrderTags.Any(y => y == tagid));
+            if (!string.IsNullOrEmpty(tagId))
+                builderquery = builderquery.Where(o => o.OrderTags.Any(y => y == tagId));
 
             var query = builderquery
                     .GroupBy(x => 1).Select(g => new OrderAverageReportLine {
@@ -348,8 +345,6 @@ namespace Grand.Business.System.Services.Reports
         /// </summary>
         /// <param name="storeId">Store identifier</param>
         /// <param name="vendorId">Vendor identifier</param>
-        /// <param name="categoryId">Category identifier</param>
-        /// <param name="collectionId">Collection identifier</param>
         /// <param name="createdFromUtc">Order created date from (UTC); null to load all records</param>
         /// <param name="createdToUtc">Order created date to (UTC); null to load all records</param>
         /// <param name="os">Order status; null to load all records</param>
@@ -475,11 +470,8 @@ namespace Grand.Business.System.Services.Reports
                 product = product.Take(recordsToReturn);
 
             var report = product.ToList();
-            var ids = new List<string>();
-            foreach (var reportLine in report)
-                ids.Add(reportLine.ProductId);
 
-            return await Task.FromResult(ids.ToArray());
+            return await Task.FromResult(report.Select(reportLine => reportLine.ProductId).ToArray());
         }
 
         /// <summary>
@@ -498,21 +490,21 @@ namespace Grand.Business.System.Services.Reports
             int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
         {
 
-            createdFromUtc = !createdFromUtc.HasValue ? DateTime.MinValue : createdFromUtc;
-            createdToUtc = !createdToUtc.HasValue ? DateTime.MaxValue : createdToUtc;
+            createdFromUtc ??= DateTime.MinValue;
+            createdToUtc ??= DateTime.MaxValue;
 
-            var query = ((from order in _orderRepository.Table
-                                where
-                                (string.IsNullOrEmpty(storeId) || order.StoreId == storeId) &&
-                                (createdFromUtc.Value <= order.CreatedOnUtc) &&
-                                (createdToUtc.Value >= order.CreatedOnUtc) &&
-                                (!order.Deleted)
-                                from orderItem in order.OrderItems
-                                select new { orderItem.ProductId }).ToList()).Distinct().Select(x => x.ProductId);
+            var query = (from order in _orderRepository.Table
+                where
+                    (string.IsNullOrEmpty(storeId) || order.StoreId == storeId) &&
+                    createdFromUtc.Value <= order.CreatedOnUtc &&
+                    createdToUtc.Value >= order.CreatedOnUtc &&
+                    (!order.Deleted)
+                from orderItem in order.OrderItems
+                select new { orderItem.ProductId }).ToList().Distinct().Select(x => x.ProductId);
 
             var qproducts = from p in _productRepository.Table
                             orderby p.Name
-                            where (!query.Contains(p.Id)) &&
+                            where !query.Contains(p.Id) &&
                                   //include only simple products
                                   (p.ProductTypeId == ProductType.SimpleProduct) &&
                                   (vendorId == "" || p.VendorId == vendorId) &&
@@ -521,11 +513,6 @@ namespace Grand.Business.System.Services.Reports
                             select p;
 
             return await PagedList<Product>.Create(qproducts, pageIndex, pageSize);
-        }
-
-        public class UnwindedOrderItem
-        {
-            public OrderItem OrderItems { get; set; }
         }
 
         public class OrderStats

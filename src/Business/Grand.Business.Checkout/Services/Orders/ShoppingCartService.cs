@@ -19,7 +19,7 @@ namespace Grand.Business.Checkout.Services.Orders
     /// <summary>
     /// Shopping cart service
     /// </summary>
-    public partial class ShoppingCartService : IShoppingCartService
+    public class ShoppingCartService : IShoppingCartService
     {
         #region Fields
 
@@ -90,11 +90,12 @@ namespace Grand.Business.Checkout.Services.Orders
         /// </summary>
         /// <param name="shoppingCart">Shopping cart</param>
         /// <param name="shoppingCartType">Shopping cart type</param>
-        /// <param name="product">Product</param>
+        /// <param name="warehouseId"></param>
         /// <param name="attributes">Attributes</param>
         /// <param name="customerEnteredPrice">Price entered by a customer</param>
         /// <param name="rentalStartDate">Rental start date</param>
         /// <param name="rentalEndDate">Rental end date</param>
+        /// <param name="productId"></param>
         /// <returns>Found shopping cart item</returns>
         public virtual async Task<ShoppingCartItem> FindShoppingCartItem(IList<ShoppingCartItem> shoppingCart,
             ShoppingCartType shoppingCartType,
@@ -110,59 +111,55 @@ namespace Grand.Business.Checkout.Services.Orders
 
             foreach (var sci in shoppingCart.Where(a => a.ShoppingCartTypeId == shoppingCartType))
             {
-                if (sci.ProductId == productId && sci.WarehouseId == warehouseId)
+                if (sci.ProductId != productId || sci.WarehouseId != warehouseId) continue;
+                //attributes
+                var product = await _productService.GetProductById(sci.ProductId);
+                var attributesEqual = ProductExtensions.AreProductAttributesEqual(product, sci.Attributes, attributes, false);
+                if (product.ProductTypeId == ProductType.BundledProduct)
                 {
-                    //attributes
-                    var _product = await _productService.GetProductById(sci.ProductId);
-                    bool attributesEqual = ProductExtensions.AreProductAttributesEqual(_product, sci.Attributes, attributes, false);
-                    if (_product.ProductTypeId == ProductType.BundledProduct)
+                    foreach (var bundle in product.BundleProducts)
                     {
-                        foreach (var bundle in _product.BundleProducts)
-                        {
-                            var p1 = await _productService.GetProductById(bundle.ProductId);
-                            if (p1 != null)
-                            {
-                                if (!ProductExtensions.AreProductAttributesEqual(p1, sci.Attributes, attributes, false))
-                                    attributesEqual = false;
-                            }
-                        }
+                        var p1 = await _productService.GetProductById(bundle.ProductId);
+                        if (p1 == null) continue;
+                        if (!ProductExtensions.AreProductAttributesEqual(p1, sci.Attributes, attributes, false))
+                            attributesEqual = false;
                     }
-                    //gift vouchers
-                    bool giftVoucherInfoSame = true;
-                    if (_product.IsGiftVoucher)
-                    {
-                        GiftVoucherExtensions.GetGiftVoucherAttribute(attributes,
-                            out var giftVoucherRecipientName1, out var giftVoucherRecipientEmail1,
-                            out var giftVoucherSenderName1, out var giftVoucherSenderEmail1, out var giftVoucherMessage1);
-
-                        GiftVoucherExtensions.GetGiftVoucherAttribute(sci.Attributes,
-                            out var giftVoucherRecipientName2, out var giftVoucherRecipientEmail2,
-                            out var giftVoucherSenderName2, out var giftVoucherSenderEmail2, out var giftVoucherMessage2);
-
-                        if (giftVoucherRecipientName1.ToLowerInvariant() != giftVoucherRecipientName2.ToLowerInvariant() ||
-                            giftVoucherSenderName1.ToLowerInvariant() != giftVoucherSenderName2.ToLowerInvariant())
-                            giftVoucherInfoSame = false;
-                    }
-
-                    //price is the same (for products which require customers to enter a price)
-                    bool customerEnteredPricesEqual = true;
-                    if (sci.EnteredPrice.HasValue)
-                    {
-                        if (customerEnteredPrice.HasValue)
-                            customerEnteredPricesEqual = Math.Round(sci.EnteredPrice.Value, 2) == Math.Round(customerEnteredPrice.Value, 2);
-                        else
-                            customerEnteredPricesEqual = false;
-                    }
-                    else
-                    {
-                        if (customerEnteredPrice.HasValue)
-                            customerEnteredPricesEqual = false;
-                    }
-
-                    //found?
-                    if (attributesEqual && giftVoucherInfoSame && customerEnteredPricesEqual)
-                        return sci;
                 }
+                //gift vouchers
+                var giftVoucherInfoSame = true;
+                if (product.IsGiftVoucher)
+                {
+                    GiftVoucherExtensions.GetGiftVoucherAttribute(attributes,
+                        out var giftVoucherRecipientName1, out _,
+                        out var giftVoucherSenderName1, out _, out _);
+
+                    GiftVoucherExtensions.GetGiftVoucherAttribute(sci.Attributes,
+                        out var giftVoucherRecipientName2, out _,
+                        out var giftVoucherSenderName2, out _, out _);
+
+                    if (!string.Equals(giftVoucherRecipientName1, giftVoucherRecipientName2, StringComparison.InvariantCultureIgnoreCase) ||
+                        !string.Equals(giftVoucherSenderName1, giftVoucherSenderName2, StringComparison.InvariantCultureIgnoreCase))
+                        giftVoucherInfoSame = false;
+                }
+
+                //price is the same (for products which require customers to enter a price)
+                var customerEnteredPricesEqual = true;
+                if (sci.EnteredPrice.HasValue)
+                {
+                    if (customerEnteredPrice.HasValue)
+                        customerEnteredPricesEqual = Math.Round(sci.EnteredPrice.Value, 2) == Math.Round(customerEnteredPrice.Value, 2);
+                    else
+                        customerEnteredPricesEqual = false;
+                }
+                else
+                {
+                    if (customerEnteredPrice.HasValue)
+                        customerEnteredPricesEqual = false;
+                }
+
+                //found?
+                if (attributesEqual && giftVoucherInfoSame && customerEnteredPricesEqual)
+                    return sci;
             }
 
             return null;
@@ -199,8 +196,7 @@ namespace Grand.Business.Checkout.Services.Orders
             if (customer == null)
                 throw new ArgumentNullException(nameof(customer));
 
-            if (validator == null)
-                validator = new ShoppingCartValidatorOptions();
+            validator ??= new ShoppingCartValidatorOptions();
 
             var product = await _productService.GetProductById(productId);
             if (product == null)
@@ -251,23 +247,21 @@ namespace Grand.Business.Checkout.Services.Orders
             }
             warnings.AddRange(await _shoppingCartValidator.GetShoppingCartItemWarnings(customer, shoppingCartItem, product, validator));
 
-            if (!warnings.Any())
-            {
-                if (update) await UpdateExistingShoppingCartItem(shoppingCartItem, customer, attributes);
-                else shoppingCartItem = await InsertNewItem(customer, product, shoppingCartItem, automaticallyAddRequiredProductsIfEnabled);
+            if (warnings.Any()) return (warnings, shoppingCartItem);
+            if (update) await UpdateExistingShoppingCartItem(shoppingCartItem, customer, attributes);
+            else shoppingCartItem = await InsertNewItem(customer, product, shoppingCartItem, automaticallyAddRequiredProductsIfEnabled);
 
-                if (product.ProductTypeId == ProductType.Reservation)
-                    await _mediator.Send(new AddCustomerReservationCommand() {
-                        Customer = customer,
-                        Product = product,
-                        ShoppingCartItem = shoppingCartItem,
-                        RentalStartDate = rentalStartDate,
-                        RentalEndDate = rentalEndDate,
-                        ReservationId = reservationId,
-                    });
-                //reset checkout info
-                await _customerService.ResetCheckoutData(customer, storeId);
-            }
+            if (product.ProductTypeId == ProductType.Reservation)
+                await _mediator.Send(new AddCustomerReservationCommand() {
+                    Customer = customer,
+                    Product = product,
+                    ShoppingCartItem = shoppingCartItem,
+                    RentalStartDate = rentalStartDate,
+                    RentalEndDate = rentalEndDate,
+                    ReservationId = reservationId,
+                });
+            //reset checkout info
+            await _customerService.ResetCheckoutData(customer, storeId);
 
             return (warnings, shoppingCartItem);
         }
@@ -310,12 +304,15 @@ namespace Grand.Business.Checkout.Services.Orders
         /// </summary>
         /// <param name="customer">Customer</param>
         /// <param name="shoppingCartItemId">Shopping cart item identifier</param>
+        /// <param name="warehouseId"></param>
         /// <param name="attributes">Attributes</param>
         /// <param name="customerEnteredPrice">New customer entered price</param>
         /// <param name="rentalStartDate">Rental start date</param>
         /// <param name="rentalEndDate">Rental end date</param>
         /// <param name="quantity">New shopping cart item quantity</param>
         /// <param name="resetCheckoutData">A value indicating whether to reset checkout data</param>
+        /// <param name="reservationId"></param>
+        /// <param name="sciId"></param>
         /// <returns>Warnings</returns>
         public virtual async Task<IList<string>> UpdateShoppingCartItem(Customer customer,
             string shoppingCartItemId, string warehouseId, IList<CustomAttribute> attributes,
@@ -329,44 +326,40 @@ namespace Grand.Business.Checkout.Services.Orders
             var warnings = new List<string>();
 
             var shoppingCartItem = customer.ShoppingCartItems.FirstOrDefault(sci => sci.Id == shoppingCartItemId);
-            if (shoppingCartItem != null)
+            if (shoppingCartItem == null) return warnings;
+            if (resetCheckoutData)
             {
-                if (resetCheckoutData)
-                {
-                    //reset checkout data
-                    await _customerService.ResetCheckoutData(customer, shoppingCartItem.StoreId);
-                }
-                if (quantity > 0)
-                {
-                    var product = await _productService.GetProductById(shoppingCartItem.ProductId);
-                    shoppingCartItem.Quantity = quantity;
-                    shoppingCartItem.WarehouseId = warehouseId;
-                    shoppingCartItem.Attributes = attributes;
-                    shoppingCartItem.EnteredPrice = customerEnteredPrice;
-                    shoppingCartItem.RentalStartDateUtc = rentalStartDate;
-                    shoppingCartItem.RentalEndDateUtc = rentalEndDate;
-                    shoppingCartItem.UpdatedOnUtc = DateTime.UtcNow;
-                    shoppingCartItem.AdditionalShippingChargeProduct = product.AdditionalShippingCharge;
-                    shoppingCartItem.IsFreeShipping = product.IsFreeShipping;
-                    shoppingCartItem.IsShipEnabled = product.IsShipEnabled;
-                    shoppingCartItem.IsTaxExempt = product.IsTaxExempt;
-                    shoppingCartItem.IsGiftVoucher = product.IsGiftVoucher;
-                    //check warnings
-                    warnings.AddRange(await _shoppingCartValidator.GetShoppingCartItemWarnings(customer, shoppingCartItem, product, new ShoppingCartValidatorOptions()));
-                    if (!warnings.Any())
-                    {
-                        //if everything is OK, then update a shopping cart item
-                        await _customerService.UpdateShoppingCartItem(customer.Id, shoppingCartItem);
+                //reset checkout data
+                await _customerService.ResetCheckoutData(customer, shoppingCartItem.StoreId);
+            }
+            if (quantity > 0)
+            {
+                var product = await _productService.GetProductById(shoppingCartItem.ProductId);
+                shoppingCartItem.Quantity = quantity;
+                shoppingCartItem.WarehouseId = warehouseId;
+                shoppingCartItem.Attributes = attributes;
+                shoppingCartItem.EnteredPrice = customerEnteredPrice;
+                shoppingCartItem.RentalStartDateUtc = rentalStartDate;
+                shoppingCartItem.RentalEndDateUtc = rentalEndDate;
+                shoppingCartItem.UpdatedOnUtc = DateTime.UtcNow;
+                shoppingCartItem.AdditionalShippingChargeProduct = product.AdditionalShippingCharge;
+                shoppingCartItem.IsFreeShipping = product.IsFreeShipping;
+                shoppingCartItem.IsShipEnabled = product.IsShipEnabled;
+                shoppingCartItem.IsTaxExempt = product.IsTaxExempt;
+                shoppingCartItem.IsGiftVoucher = product.IsGiftVoucher;
+                //check warnings
+                warnings.AddRange(await _shoppingCartValidator.GetShoppingCartItemWarnings(customer, shoppingCartItem, product, new ShoppingCartValidatorOptions()));
+                if (warnings.Any()) return warnings;
+                //if everything is OK, then update a shopping cart item
+                await _customerService.UpdateShoppingCartItem(customer.Id, shoppingCartItem);
 
-                        //event notification
-                        await _mediator.EntityUpdated(shoppingCartItem);
-                    }
-                }
-                else
-                {
-                    //delete a shopping cart item
-                    await DeleteShoppingCartItem(customer, shoppingCartItem, resetCheckoutData, true);
-                }
+                //event notification
+                await _mediator.EntityUpdated(shoppingCartItem);
+            }
+            else
+            {
+                //delete a shopping cart item
+                await DeleteShoppingCartItem(customer, shoppingCartItem, resetCheckoutData, true);
             }
 
             return warnings;
@@ -375,6 +368,7 @@ namespace Grand.Business.Checkout.Services.Orders
         /// <summary>
         /// Delete shopping cart item
         /// </summary>
+        /// <param name="customer"></param>
         /// <param name="shoppingCartItem">Shopping cart item</param>
         /// <param name="resetCheckoutData">A value indicating whether to reset checkout data</param>
         /// <param name="ensureOnlyActiveCheckoutAttributes">A value indicating whether to ensure that only active checkout attributes are attached to the current customer</param>
@@ -391,7 +385,7 @@ namespace Grand.Business.Checkout.Services.Orders
             }
 
             //delete item
-            customer.ShoppingCartItems.Remove(customer.ShoppingCartItems.Where(x => x.Id == shoppingCartItem.Id).FirstOrDefault());
+            customer.ShoppingCartItems.Remove(customer.ShoppingCartItems.FirstOrDefault(x => x.Id == shoppingCartItem.Id));
             await _customerService.DeleteShoppingCartItem(customer.Id, shoppingCartItem);
 
             //event notification
@@ -417,17 +411,15 @@ namespace Grand.Business.Checkout.Services.Orders
 
             //shopping cart items
             var fromCart = fromCustomer.ShoppingCartItems.ToList();
-            for (int i = 0; i < fromCart.Count; i++)
+            foreach (var sci in fromCart)
             {
-                var sci = fromCart[i];
                 await AddToCart(toCustomer, sci.ProductId, sci.ShoppingCartTypeId, sci.StoreId, sci.WarehouseId,
                     sci.Attributes, sci.EnteredPrice,
                     sci.RentalStartDateUtc, sci.RentalEndDateUtc, sci.Quantity, false, sci.ReservationId, sci.Parameter, sci.Duration,
                     new ShoppingCartValidatorOptions());
             }
-            for (int i = 0; i < fromCart.Count; i++)
+            foreach (var sci in fromCart)
             {
-                var sci = fromCart[i];
                 await DeleteShoppingCartItem(fromCustomer, sci);
             }
 
@@ -436,13 +428,13 @@ namespace Grand.Business.Checkout.Services.Orders
             {
                 //discount
                 var coupons = fromCustomer.ParseAppliedCouponCodes(SystemCustomerFieldNames.DiscountCoupons);
-                var resultcoupons = toCustomer.ApplyCouponCode(SystemCustomerFieldNames.DiscountCoupons, coupons);
-                await _userFieldService.SaveField(toCustomer, SystemCustomerFieldNames.DiscountCoupons, resultcoupons);
+                var resultCoupons = toCustomer.ApplyCouponCode(SystemCustomerFieldNames.DiscountCoupons, coupons);
+                await _userFieldService.SaveField(toCustomer, SystemCustomerFieldNames.DiscountCoupons, resultCoupons);
 
                 //gift voucher
-                var giftvoucher = fromCustomer.ParseAppliedCouponCodes(SystemCustomerFieldNames.GiftVoucherCoupons);
-                var resultgift = toCustomer.ApplyCouponCode(SystemCustomerFieldNames.GiftVoucherCoupons, giftvoucher);
-                await _userFieldService.SaveField(toCustomer, SystemCustomerFieldNames.GiftVoucherCoupons, resultgift);
+                var giftVoucher = fromCustomer.ParseAppliedCouponCodes(SystemCustomerFieldNames.GiftVoucherCoupons);
+                var resultGift = toCustomer.ApplyCouponCode(SystemCustomerFieldNames.GiftVoucherCoupons, giftVoucher);
+                await _userFieldService.SaveField(toCustomer, SystemCustomerFieldNames.GiftVoucherCoupons, resultGift);
             }
 
             //copy url referer

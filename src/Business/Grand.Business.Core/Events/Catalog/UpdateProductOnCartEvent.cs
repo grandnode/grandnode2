@@ -12,7 +12,6 @@ namespace Grand.Business.Core.Events.Catalog
             _product = product;
         }
 
-        public Product Product { get { return _product; } }
-
+        public Product Product => _product;
     }
 }

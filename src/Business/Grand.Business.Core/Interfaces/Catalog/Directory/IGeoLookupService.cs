@@ -3,7 +3,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Directory
     /// <summary>
     /// GEO lookup service
     /// </summary>
-    public partial interface IGeoLookupService
+    public interface IGeoLookupService
     {
         /// <summary>
         /// Get country name

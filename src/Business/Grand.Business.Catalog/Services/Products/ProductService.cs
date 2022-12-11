@@ -19,7 +19,7 @@ namespace Grand.Business.Catalog.Services.Products
     /// <summary>
     /// Product service
     /// </summary>
-    public partial class ProductService : IProductService
+    public class ProductService : IProductService
     {
         #region Fields
 
@@ -87,21 +87,18 @@ namespace Grand.Business.Catalog.Services.Products
         /// Gets product
         /// </summary>
         /// <param name="productId">Product identifier</param>
-        /// <param name="fromDB">get data from db (not from cache)</param>
+        /// <param name="fromDb">get data from db (not from cache)</param>
         /// <returns>Product</returns>
-        public virtual async Task<Product> GetProductById(string productId, bool fromDB = false)
+        public virtual async Task<Product> GetProductById(string productId, bool fromDb = false)
         {
             if (string.IsNullOrEmpty(productId))
                 return null;
 
-            if (fromDB)
+            if (fromDb)
                 return await _productRepository.GetByIdAsync(productId);
 
             var key = string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId);
-            return await _cacheBase.GetAsync(key, () =>
-            {
-                return _productRepository.GetByIdAsync(productId);
-            });
+            return await _cacheBase.GetAsync(key, () => _productRepository.GetByIdAsync(productId));
         }
 
         /// <summary>
@@ -111,20 +108,16 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Product</returns>
         public virtual async Task<Product> GetProductByIdIncludeArch(string productId)
         {
-            if (String.IsNullOrEmpty(productId))
+            if (string.IsNullOrEmpty(productId))
                 return null;
-            var product = await GetProductById(productId);
-            if (product == null)
-                product = await _mediator.Send(new GetProductArchByIdQuery() { Id = productId });
-
+            var product = await GetProductById(productId) ?? await _mediator.Send(new GetProductArchByIdQuery() { Id = productId });
             return product;
         }
-
-
         /// <summary>
         /// Get products by identifiers
         /// </summary>
         /// <param name="productIds">Product identifiers</param>
+        /// <param name="showHidden">Show hidden</param>
         /// <returns>Products</returns>
         public virtual async Task<IList<Product>> GetProductsByIds(string[] productIds, bool showHidden = false)
         {
@@ -132,10 +125,10 @@ namespace Grand.Business.Catalog.Services.Products
                 return new List<Product>();
 
             var products = new List<Product>();
-            foreach (string id in productIds)
+            foreach (var id in productIds)
             {
                 var product = await GetProductById(id);
-                if (product != null && (showHidden || (_aclService.Authorize(product, _workContext.CurrentCustomer) && _aclService.Authorize(product, _workContext.CurrentStore.Id) && (product.IsAvailable()))))
+                if (product != null && (showHidden || (_aclService.Authorize(product, _workContext.CurrentCustomer) && _aclService.Authorize(product, _workContext.CurrentStore.Id) && product.IsAvailable())))
                     products.Add(product);
             }
             return products;
@@ -145,6 +138,8 @@ namespace Grand.Business.Catalog.Services.Products
         /// Gets products by discount
         /// </summary>
         /// <param name="discountId">Product identifiers</param>
+        /// <param name="pageIndex">Page index</param>
+        /// <param name="pageSize">Page size</param>
         /// <returns>Products</returns>
         public virtual async Task<IPagedList<Product>> GetProductsByDiscount(string discountId, int pageIndex = 0, int pageSize = int.MaxValue)
         {
@@ -252,7 +247,7 @@ namespace Grand.Business.Catalog.Services.Products
                 .Set(x => x.MetaTitle, product.MetaTitle)
                 .Set(x => x.MinEnteredPrice, product.MinEnteredPrice)
                 .Set(x => x.MinStockQuantity, product.MinStockQuantity)
-                .Set(x => x.LowStock, ((product.MinStockQuantity > 0 && product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) || product.StockQuantity - product.ReservedQuantity <= 0))
+                .Set(x => x.LowStock, (product.MinStockQuantity > 0 && product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) || product.StockQuantity - product.ReservedQuantity <= 0)
                 .Set(x => x.Name, product.Name)
                 .Set(x => x.NotApprovedRatingSum, product.NotApprovedRatingSum)
                 .Set(x => x.NotApprovedTotalReviews, product.NotApprovedTotalReviews)
@@ -315,12 +310,16 @@ namespace Grand.Business.Catalog.Services.Products
                 await _mediator.Publish(new UpdateProductOnCartEvent(product));
             }
 
-            //raise event 
-            if (!oldProduct.Published && product.Published)
-                await _mediator.Publish(new ProductPublishEvent(product));
-
-            if (oldProduct.Published && !product.Published)
-                await _mediator.Publish(new ProductUnPublishEvent(product));
+            switch (oldProduct.Published)
+            {
+                //raise event 
+                case false when product.Published:
+                    await _mediator.Publish(new ProductPublishEvent(product));
+                    break;
+                case true when !product.Published:
+                    await _mediator.Publish(new ProductUnPublishEvent(product));
+                    break;
+            }
 
             //cache
             await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
@@ -341,7 +340,7 @@ namespace Grand.Business.Catalog.Services.Products
                 throw new ArgumentNullException(nameof(product));
 
             //update field
-            await _productRepository.UpdateField<T>(product.Id, expression, value);
+            await _productRepository.UpdateField(product.Id, expression, value);
 
             //cache
             await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
@@ -366,7 +365,7 @@ namespace Grand.Business.Catalog.Services.Products
                 throw new ArgumentNullException(nameof(product));
 
             //inc field
-            await _productRepository.IncField<T>(product.Id, expression, value);
+            await _productRepository.IncField(product.Id, expression, value);
         }
 
         /// <summary>
@@ -388,8 +387,7 @@ namespace Grand.Business.Catalog.Services.Products
             await _mediator.EntityDeleted(product);
         }
 
-       
-        public virtual async Task UnpublishProduct(Product product)
+        public virtual async Task UnPublishProduct(Product product)
         {
             var update = UpdateBuilder<Product>.Create()
                     .Set(x => x.Published, false)
@@ -456,7 +454,6 @@ namespace Grand.Business.Catalog.Services.Products
         /// <summary>
         /// Search products
         /// </summary>
-        /// <param name="filterableSpecificationAttributeOptionIds">The specification attribute option identifiers applied to loaded products (all pages)</param>
         /// <param name="loadFilterableSpecificationAttributeOptionIds">A value indicating whether we should load the specification attribute option identifiers applied to loaded products (all pages)</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
@@ -468,6 +465,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="warehouseId">Warehouse identifier; "" to load all records</param>
         /// <param name="productType">Product type; "" to load all records</param>
         /// <param name="visibleIndividuallyOnly">A values indicating whether to load only products marked as "visible individually"; "false" to load all records; "true" to load "visible individually" only</param>
+        /// <param name="showOnHomePage">Show on home page</param>
         /// <param name="featuredProducts">A value indicating whether loaded products are marked as featured (relates only to categories and collections). 0 to load featured products only, 1 to load not featured products only, null to load all products</param>
         /// <param name="priceMin">Minimum price; null to load all records</param>
         /// <param name="priceMax">Maximum price; null to load all records</param>
@@ -486,6 +484,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// true - load only "Published" products
         /// false - load only "Unpublished" products
         /// </param>
+        /// <param name="markedAsNewOnly">Marked as new</param>
         /// <returns>Products</returns>
         public virtual async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)> SearchProducts(
             bool loadFilterableSpecificationAttributeOptionIds = false,
@@ -517,7 +516,7 @@ namespace Grand.Business.Catalog.Services.Products
             bool? overridePublished = null)
         {
 
-            var model = await _mediator.Send(new GetSearchProductsQuery() {
+            var model = await _mediator.Send(new GetSearchProductsQuery {
                 Customer = _workContext.CurrentCustomer,
                 LoadFilterableSpecificationAttributeOptionIds = loadFilterableSpecificationAttributeOptionIds,
                 PageIndex = pageIndex,
@@ -558,7 +557,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Products</returns>
-        public virtual async Task<IPagedList<Product>> GetProductsByProductAtributeId(string productAttributeId,
+        public virtual async Task<IPagedList<Product>> GetProductsByProductAttributeId(string productAttributeId,
             int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var query = from p in _productRepository.Table
@@ -575,6 +574,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <param name="parentGroupedProductId">Parent product identifier (used with grouped products)</param>
         /// <param name="storeId">Store identifier; "" to load all records</param>
         /// <param name="vendorId">Vendor identifier; "" to load all records</param>
+        /// <param name="showHidden">Show hidden</param>
         /// <returns>Products</returns>
         public virtual async Task<IList<Product>> GetAssociatedProducts(string parentGroupedProductId,
             string storeId = "", string vendorId = "", bool showHidden = false)
@@ -631,7 +631,7 @@ namespace Grand.Business.Catalog.Services.Products
                 return null;
 
             sku = sku.Trim();
-            return await Task.FromResult(_productRepository.Table.Where(x => x.Sku == sku).FirstOrDefault());            
+            return await Task.FromResult(_productRepository.Table.FirstOrDefault(x => x.Sku == sku));            
         }
 
         public virtual async Task UpdateAssociatedProduct(Product product)
@@ -888,37 +888,33 @@ namespace Grand.Business.Catalog.Services.Products
             var cartProductIds = new List<string>();
             foreach (var sci in cart)
             {
-                string prodId = sci.ProductId;
-                if (!cartProductIds.Contains(prodId))
-                    cartProductIds.Add(prodId);
+                if (!cartProductIds.Contains(sci.ProductId))
+                    cartProductIds.Add(sci.ProductId);
             }
 
             foreach (var sci in cart)
             {
                 var product = await GetProductById(sci.ProductId);
-                if (product == null || !product.Published)
+                if (product is not { Published: true })
                     continue;
 
                 var crossSells = product.CrossSellProduct;
                 foreach (var crossSell in crossSells)
                 {
                     //validate that this product is not added to result yet
-                    //validate that this product is not in the cart
-                    if (result.Find(p => p.Id == crossSell) == null &&
-                        !cartProductIds.Contains(crossSell))
-                    {
-                        var productToAdd = await GetProductById(crossSell);
-                        //validate product
-                        if (productToAdd == null || !productToAdd.Published
-                             || !_aclService.Authorize(productToAdd, _workContext.CurrentCustomer) || !_aclService.Authorize(productToAdd, _workContext.CurrentStore.Id)
-                             || !productToAdd.IsAvailable())
-                            continue;
+                    if (result.Find(p => p.Id == crossSell) != null ||
+                        cartProductIds.Contains(crossSell)) continue;
+                    var productToAdd = await GetProductById(crossSell);
+                    //validate product
+                    if (productToAdd is not { Published: true } 
+                        || !_aclService.Authorize(productToAdd, _workContext.CurrentCustomer) || !_aclService.Authorize(productToAdd, _workContext.CurrentStore.Id) 
+                        || !productToAdd.IsAvailable())
+                        continue;
 
-                        //add a product to result
-                        result.Add(productToAdd);
-                        if (result.Count >= numberOfProducts)
-                            return result;
-                    }
+                    //add a product to result
+                    result.Add(productToAdd);
+                    if (result.Count >= numberOfProducts)
+                        return result;
                 }
             }
             return result;
@@ -931,7 +927,8 @@ namespace Grand.Business.Catalog.Services.Products
         /// <summary>
         /// Inserts a recommended product
         /// </summary>
-        /// <param name="recommendedProduct">Recommended product</param>
+        /// <param name="productId">Product ident</param>
+        /// <param name="recommendedProductId">Recommended product</param>
         public virtual async Task InsertRecommendedProduct(string productId, string recommendedProductId)
         {
             if (productId == null)
@@ -950,7 +947,8 @@ namespace Grand.Business.Catalog.Services.Products
         /// <summary>
         /// Deletes a recommended product
         /// </summary>
-        /// <param name="recommendedProduct">Recommended identifier</param>
+        /// <param name="productId">Product ident</param>
+        /// <param name="recommendedProductId">Recommended identifier</param>
         public virtual async Task DeleteRecommendedProduct(string productId, string recommendedProductId)
         {
             if (productId == null)
@@ -1051,7 +1049,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <summary>
         /// Updates the product price
         /// </summary>
-        /// <param name="tierPrice">Tier price</param>
+        /// <param name="productPrice">Tier price</param>
         public virtual async Task UpdateProductPrice(ProductPrice productPrice)
         {
             if (productPrice == null)
@@ -1146,7 +1144,7 @@ namespace Grand.Business.Catalog.Services.Products
 
         #region Product warehouse inventory        
         /// <summary>
-        /// Insert product warehouse inwentory
+        /// Insert product warehouse inventory
         /// </summary>
         /// <param name="pwi"></param>
         /// <param name="productId"></param>

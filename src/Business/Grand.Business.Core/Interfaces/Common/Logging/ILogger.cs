@@ -7,7 +7,7 @@ namespace Grand.Business.Core.Interfaces.Common.Logging
     /// <summary>
     /// Logger interface
     /// </summary>
-    public partial interface ILogger
+    public interface ILogger
     {
         /// <summary>
         /// Gets all log items
@@ -45,12 +45,12 @@ namespace Grand.Business.Core.Interfaces.Common.Logging
         /// <param name="fullMessage">The full message</param>
         /// <param name="customer">The customer to associate log record with</param>
         /// <param name="ipAddress">Ip address</param>
-        /// <param name="pageurl">Page url</param>
+        /// <param name="pageUrl">Page url</param>
         /// <param name="referrerUrl">Referrer url</param>
         /// <returns>A log item</returns>
         Task InsertLog(LogLevel logLevel, string shortMessage, string fullMessage = "", Customer customer = null, 
             string ipAddress = default, 
-            string pageurl = default, 
+            string pageUrl = default, 
             string referrerUrl = default);
 
         /// <summary>

@@ -49,10 +49,7 @@ namespace Grand.Business.Common.Services.Logging
         protected virtual async Task<IList<ActivityLogType>> GetAllActivityTypesCached()
         {
             //cache
-            return await _cacheBase.GetAsync(CacheKey.ACTIVITYTYPE_ALL_KEY, async () =>
-            {
-                return await GetAllActivityTypes();
-            });
+            return await _cacheBase.GetAsync(CacheKey.ACTIVITYTYPE_ALL_KEY, async () => await GetAllActivityTypes());
         }
 
         /// <summary>
@@ -155,7 +152,7 @@ namespace Grand.Business.Common.Services.Logging
 
             var activityTypes = GetAllActivityTypesCachedSync();
             var activityType = activityTypes.FirstOrDefault(at => at.SystemKeyword == systemKeyword);
-            if (activityType == null || !activityType.Enabled)
+            if (activityType is not { Enabled: true })
                 return null;
 
             comment = CommonHelper.EnsureNotNull(comment);
@@ -195,6 +192,7 @@ namespace Grand.Business.Common.Services.Logging
         /// <param name="createdOnTo">Log item creation to; null to load all customers</param>
         /// <param name="customerId">Customer identifier; null to load all customers</param>
         /// <param name="activityLogTypeId">Activity log type identifier</param>
+        /// <param name="ipAddress"></param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Activity log items</returns>
@@ -207,17 +205,17 @@ namespace Grand.Business.Common.Services.Logging
             var query = from p in _activityLogRepository.Table
                         select p;
 
-            if (!String.IsNullOrEmpty(comment))
+            if (!string.IsNullOrEmpty(comment))
                 query = query.Where(al => al.Comment != null && al.Comment.ToLower().Contains(comment.ToLower()));
             if (createdOnFrom.HasValue)
                 query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
             if (createdOnTo.HasValue)
                 query = query.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
-            if (!String.IsNullOrEmpty(activityLogTypeId))
+            if (!string.IsNullOrEmpty(activityLogTypeId))
                 query = query.Where(al => activityLogTypeId == al.ActivityLogTypeId);
-            if (!String.IsNullOrEmpty(customerId))
+            if (!string.IsNullOrEmpty(customerId))
                 query = query.Where(al => customerId == al.CustomerId);
-            if (!String.IsNullOrEmpty(ipAddress))
+            if (!string.IsNullOrEmpty(ipAddress))
                 query = query.Where(al => ipAddress == al.IpAddress);
 
             query = query.OrderByDescending(al => al.CreatedOnUtc);
@@ -244,7 +242,7 @@ namespace Grand.Business.Common.Services.Logging
                 query = query.Where(al => createdOnFrom.Value <= al.CreatedOnUtc);
             if (createdOnTo.HasValue)
                 query = query.Where(al => createdOnTo.Value >= al.CreatedOnUtc);
-            if (!String.IsNullOrEmpty(activityLogTypeId))
+            if (!string.IsNullOrEmpty(activityLogTypeId))
                 query = query.Where(al => activityLogTypeId == al.ActivityLogTypeId);
 
             var gquery = query.GroupBy(key => new { key.ActivityLogTypeId, key.EntityKeyId })
@@ -289,7 +287,7 @@ namespace Grand.Business.Common.Services.Logging
         }
 
         /// <summary>
-        /// Gets knowledgebase category activity log items
+        /// Gets knowledge base category activity log items
         /// </summary>
         /// <param name="createdOnFrom">Log item creation from; null to load all records</param>
         /// <param name="createdOnTo">Log item creation to; null to load all records</param>
@@ -319,7 +317,7 @@ namespace Grand.Business.Common.Services.Logging
         }
 
         /// <summary>
-        /// Gets knowledgebase article activity log items
+        /// Gets knowledge base article activity log items
         /// </summary>
         /// <param name="createdOnFrom">Log item creation from; null to load all records</param>
         /// <param name="createdOnTo">Log item creation to; null to load all records</param>
@@ -382,7 +380,7 @@ namespace Grand.Business.Common.Services.Logging
         /// </summary>
         /// <param name="createdOnFrom">Log item creation from; null to load all records</param>
         /// <param name="createdOnTo">Log item creation to; null to load all records</param>
-        /// <param name="categoryId">Collection identifier</param>        
+        /// <param name="collectionId">Collection identifier</param>        
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Activity log items</returns>

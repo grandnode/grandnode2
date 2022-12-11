@@ -21,15 +21,15 @@ namespace Grand.Business.Core.Extensions
             var firstName = affiliate.Address.FirstName;
             var lastName = affiliate.Address.LastName;
 
-            string fullName = "";
-            if (!String.IsNullOrWhiteSpace(firstName) && !String.IsNullOrWhiteSpace(lastName))
-                fullName = string.Format("{0} {1}", firstName, lastName);
+            var fullName = "";
+            if (!string.IsNullOrWhiteSpace(firstName) && !string.IsNullOrWhiteSpace(lastName))
+                fullName = $"{firstName} {lastName}";
             else
             {
-                if (!String.IsNullOrWhiteSpace(firstName))
+                if (!string.IsNullOrWhiteSpace(firstName))
                     fullName = firstName;
 
-                if (!String.IsNullOrWhiteSpace(lastName))
+                if (!string.IsNullOrWhiteSpace(lastName))
                     fullName = lastName;
             }
             return fullName;
@@ -37,11 +37,11 @@ namespace Grand.Business.Core.Extensions
 
 
         /// <summary>
-        /// Generate affilaite URL
+        /// Generate affiliate URL
         /// </summary>
         /// <param name="affiliate">Affiliate</param>
         /// <param name="host">Host</param>
-        /// <returns>Generated affilaite URL</returns>
+        /// <returns>Generated affiliate URL</returns>
         public static string GenerateUrl(this Affiliate affiliate, string host)
         {
             if (affiliate == null)
@@ -61,7 +61,10 @@ namespace Grand.Business.Core.Extensions
         /// Validate friendly URL name
         /// </summary>
         /// <param name="affiliate">Affiliate</param>
+        /// <param name="seoSettings"></param>
         /// <param name="friendlyUrlName">Friendly URL name</param>
+        /// <param name="affiliateService"></param>
+        /// <param name="name"></param>
         /// <returns>Valid friendly name</returns>
         public static async Task<string> ValidateFriendlyUrlName(this Affiliate affiliate, IAffiliateService affiliateService, SeoSettings seoSettings, string friendlyUrlName, string name)
         {
@@ -77,19 +80,19 @@ namespace Grand.Business.Core.Extensions
             //max length
             friendlyUrlName = CommonHelper.EnsureMaximumLength(friendlyUrlName, 200);
 
-            if (String.IsNullOrEmpty(friendlyUrlName))
+            if (string.IsNullOrEmpty(friendlyUrlName))
                 return friendlyUrlName;
             //check whether such friendly URL name already exists (and that is not the current affiliate)
-            int i = 2;
+            var i = 2;
             var tempName = friendlyUrlName;
             while (true)
             {
                 var affiliateByFriendlyUrlName = await affiliateService.GetAffiliateByFriendlyUrlName(tempName);
-                bool reserved = affiliateByFriendlyUrlName != null && affiliateByFriendlyUrlName.Id != affiliate.Id;
+                var reserved = affiliateByFriendlyUrlName != null && affiliateByFriendlyUrlName.Id != affiliate.Id;
                 if (!reserved)
                     break;
 
-                tempName = string.Format("{0}-{1}", friendlyUrlName, i);
+                tempName = $"{friendlyUrlName}-{i}";
                 i++;
             }
             friendlyUrlName = tempName;

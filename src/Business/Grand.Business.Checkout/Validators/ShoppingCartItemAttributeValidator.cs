@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
-using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
@@ -15,14 +14,12 @@ namespace Grand.Business.Checkout.Validators
     public class ShoppingCartItemAttributeValidator : AbstractValidator<ShoppingCartItemAttributeValidatorRecord>
     {
         private readonly ITranslationService _translationService;
-        private readonly IAclService _aclService;
         private readonly IProductService _productService;
         private readonly IProductAttributeService _productAttributeService;
 
-        public ShoppingCartItemAttributeValidator(ITranslationService translationService, IAclService aclService, IProductService productService, IProductAttributeService productAttributeService)
+        public ShoppingCartItemAttributeValidator(ITranslationService translationService, IProductService productService, IProductAttributeService productAttributeService)
         {
             _translationService = translationService;
-            _aclService = aclService;
             _productService = productService;
             _productAttributeService = productAttributeService;
 
@@ -31,7 +28,7 @@ namespace Grand.Business.Checkout.Validators
                 var warnings = await GetShoppingCartItemWarnings(value);
                 if (warnings.Any())
                 {
-                    warnings.ToList().ForEach(x => context.AddFailure(x));
+                    warnings.ToList().ForEach(context.AddFailure);
                     return;
                 }
 
@@ -40,11 +37,11 @@ namespace Grand.Business.Checkout.Validators
                 var attributeValues = value.Product.ParseProductAttributeValues(value.ShoppingCartItem.Attributes);
                 foreach (var attributeValue in attributeValues)
                 {
-                    var _productAttributeMapping = value.Product.ProductAttributeMappings.Where(x => x.ProductAttributeValues.Any(z => z.Id == attributeValue.Id)).FirstOrDefault();
-                    //TODO - check value.Product.ProductAttributeMappings.Where(x => x.Id == attributeValue.ProductAttributeMappingId).FirstOrDefault();
-                    if (attributeValue.AttributeValueTypeId == AttributeValueType.AssociatedToProduct && _productAttributeMapping != null)
+                    var productAttributeMapping = value.Product.ProductAttributeMappings.FirstOrDefault(x => x.ProductAttributeValues.Any(z => z.Id == attributeValue.Id));
+                    if (attributeValue.AttributeValueTypeId != AttributeValueType.AssociatedToProduct ||
+                        productAttributeMapping == null) continue;
                     {
-                        if (value.IgnoreNonCombinableAttributes && _productAttributeMapping.IsNonCombinable())
+                        if (value.IgnoreNonCombinableAttributes && productAttributeMapping.IsNonCombinable())
                             continue;
 
                         //associated product (bundle)
@@ -53,16 +50,16 @@ namespace Grand.Business.Checkout.Validators
                         {
                             var totalQty = value.ShoppingCartItem.Quantity * attributeValue.Quantity;
                             var associatedProductWarnings = await GetShoppingCartItemWarnings(
-                                new ShoppingCartItemAttributeValidatorRecord(value.Customer, associatedProduct, new ShoppingCartItem() {
+                                value with { Product = associatedProduct, ShoppingCartItem = new ShoppingCartItem() {
                                     ShoppingCartTypeId = value.ShoppingCartItem.ShoppingCartTypeId,
                                     StoreId = value.ShoppingCartItem.Id,
                                     Quantity = totalQty,
                                     WarehouseId = value.ShoppingCartItem.WarehouseId,
                                     Attributes = value.ShoppingCartItem.Attributes
-                                }, value.IgnoreNonCombinableAttributes));
+                                } });
                             foreach (var associatedProductWarning in associatedProductWarnings)
                             {
-                                var productAttribute = await productAttributeService.GetProductAttributeById(_productAttributeMapping.ProductAttributeId);
+                                var productAttribute = await productAttributeService.GetProductAttributeById(productAttributeMapping.ProductAttributeId);
                                 var attributeName = productAttribute.Name;
                                 var attributeValueName = attributeValue.Name;
                                 warnings.Add(string.Format(
@@ -72,14 +69,12 @@ namespace Grand.Business.Checkout.Validators
                         }
                         else
                         {
-                            warnings.Add(string.Format("Associated product cannot be loaded - {0}", attributeValue.AssociatedProductId));
+                            warnings.Add($"Associated product cannot be loaded - {attributeValue.AssociatedProductId}");
                         }
 
-                        if (warnings.Any())
-                        {
-                            warnings.ToList().ForEach(x => context.AddFailure(x));
-                            return;
-                        }
+                        if (!warnings.Any()) continue;
+                        warnings.ToList().ForEach(context.AddFailure);
+                        return;
                     }
                 }
             });
@@ -147,22 +142,14 @@ namespace Grand.Business.Checkout.Validators
             {
                 if (a2.IsRequired)
                 {
-                    bool found = false;
+                    var found = false;
                     //selected product attributes
-                    foreach (var a1 in attributes1)
+                    foreach (var attributeValuesStr in from a1 in attributes1 where a1.Id == a2.Id 
+                             select ProductExtensions.ParseValues(value.ShoppingCartItem.Attributes, a1.Id) 
+                             into attributeValuesStr 
+                             where attributeValuesStr.Any(str1 => !string.IsNullOrEmpty(str1.Trim())) select attributeValuesStr)
                     {
-                        if (a1.Id == a2.Id)
-                        {
-                            var attributeValuesStr = ProductExtensions.ParseValues(value.ShoppingCartItem.Attributes, a1.Id);
-                            foreach (string str1 in attributeValuesStr)
-                            {
-                                if (!string.IsNullOrEmpty(str1.Trim()))
-                                {
-                                    found = true;
-                                    break;
-                                }
-                            }
-                        }
+                        found = true;
                     }
 
                     //if not found
@@ -209,37 +196,31 @@ namespace Grand.Business.Checkout.Validators
                 //minimum length
                 if (pam.ValidationMinLength.HasValue)
                 {
-                    if (pam.AttributeControlTypeId == AttributeControlType.TextBox ||
-                        pam.AttributeControlTypeId == AttributeControlType.MultilineTextbox)
+                    if (pam.AttributeControlTypeId is AttributeControlType.TextBox or AttributeControlType.MultilineTextbox)
                     {
                         var valuesStr = ProductExtensions.ParseValues(value.ShoppingCartItem.Attributes, pam.Id);
                         var enteredText = valuesStr.FirstOrDefault();
-                        int enteredTextLength = String.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
+                        var enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
 
                         if (pam.ValidationMinLength.Value > enteredTextLength)
                         {
-                            var _pam = await _productAttributeService.GetProductAttributeById(pam.ProductAttributeId);
-                            warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.TextboxMinimumLength"), _pam.Name, pam.ValidationMinLength.Value));
+                            var productAttribute = await _productAttributeService.GetProductAttributeById(pam.ProductAttributeId);
+                            warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.TextboxMinimumLength"), productAttribute.Name, pam.ValidationMinLength.Value));
                         }
                     }
                 }
-
                 //maximum length
-                if (pam.ValidationMaxLength.HasValue)
+                if (!pam.ValidationMaxLength.HasValue) continue;
                 {
-                    if (pam.AttributeControlTypeId == AttributeControlType.TextBox ||
-                        pam.AttributeControlTypeId == AttributeControlType.MultilineTextbox)
-                    {
-                        var valuesStr = ProductExtensions.ParseValues(value.ShoppingCartItem.Attributes, pam.Id);
-                        var enteredText = valuesStr.FirstOrDefault();
-                        int enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
+                    if (pam.AttributeControlTypeId != AttributeControlType.TextBox &&
+                        pam.AttributeControlTypeId != AttributeControlType.MultilineTextbox) continue;
+                    var valuesStr = ProductExtensions.ParseValues(value.ShoppingCartItem.Attributes, pam.Id);
+                    var enteredText = valuesStr.FirstOrDefault();
+                    var enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
 
-                        if (pam.ValidationMaxLength.Value < enteredTextLength)
-                        {
-                            var _pam = await _productAttributeService.GetProductAttributeById(pam.ProductAttributeId);
-                            warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.TextboxMaximumLength"), _pam.Name, pam.ValidationMaxLength.Value));
-                        }
-                    }
+                    if (pam.ValidationMaxLength.Value >= enteredTextLength) continue;
+                    var productAttribute = await _productAttributeService.GetProductAttributeById(pam.ProductAttributeId);
+                    warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.TextboxMaximumLength"), productAttribute.Name, pam.ValidationMaxLength.Value));
                 }
             }
             return warnings;

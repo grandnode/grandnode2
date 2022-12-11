@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Commands.Messages;
+using Grand.Business.Core.Commands.Messages.Tokens;
 using Grand.Business.Core.Extensions;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;

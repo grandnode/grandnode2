@@ -7,7 +7,7 @@ using System.Net;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidShipmentItem : Drop
+    public class LiquidShipmentItem : Drop
     {
         private readonly ShipmentItem _shipmentItem;
         private readonly Shipment _shipment;

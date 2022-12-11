@@ -26,9 +26,8 @@ namespace Grand.Business.Core.Interfaces.Storage
         /// <summary>
         /// Retrieves information about the given directory within the file store.
         /// </summary>
-        /// <param name="path">The path within the file store.</param>
         /// <returns>A <see cref="PhysicalDirectoryInfo"/> object representing the directory, or <c>null</c> if the directory does not exist.</returns>
-        Task<PhysicalDirectoryInfo> GetPhysicalDirectoryInfo(string directorypath);
+        Task<PhysicalDirectoryInfo> GetPhysicalDirectoryInfo(string directoryPath);
 
         /// <summary>
         /// Enumerates the content (files and directories) in a given directory within the file store.
@@ -169,10 +168,7 @@ namespace Grand.Business.Core.Interfaces.Storage
         /// </remarks>
         public static string NormalizePath(this IFileStore fileStore, string path)
         {
-            if (path == null)
-                return null;
-
-            return path.Replace('\\', '/').Trim('/', ' ');
+            return path?.Replace('\\', '/').Trim('/', ' ');
         }
     }
 }

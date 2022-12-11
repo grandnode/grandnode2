@@ -31,7 +31,7 @@ namespace Grand.Business.Marketing.Services.Courses
         public virtual async Task<IList<CourseLesson>> GetByCourseId(string courseId)
         {
             if (string.IsNullOrEmpty(courseId))
-                throw new ArgumentNullException("courseId");
+                throw new ArgumentNullException(nameof(courseId));
 
             var query = from c in _courseLessonRepository.Table
                         where c.CourseId == courseId

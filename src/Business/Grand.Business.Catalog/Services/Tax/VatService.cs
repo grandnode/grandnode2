@@ -18,15 +18,13 @@ namespace Grand.Business.Catalog.Services.Tax
         /// Gets VAT Number status
         /// </summary>
         /// <param name="fullVatNumber">Two letter ISO code of a country and VAT number (e.g. GB 111 1111 111)</param>
-        /// <param name="name">Name (if received)</param>
-        /// <param name="address">Address (if received)</param>
         /// <returns>VAT Number status</returns>
         public virtual async Task<(VatNumberStatus status, string name, string address, Exception exception)> GetVatNumberStatus(string fullVatNumber)
         {
-            string name = string.Empty;
-            string address = string.Empty;
+            var name = string.Empty;
+            var address = string.Empty;
 
-            if (String.IsNullOrWhiteSpace(fullVatNumber))
+            if (string.IsNullOrWhiteSpace(fullVatNumber))
                 return (VatNumberStatus.Empty, name, address, null);
 
             fullVatNumber = fullVatNumber.Trim();
@@ -49,13 +47,11 @@ namespace Grand.Business.Catalog.Services.Tax
         /// </summary>
         /// <param name="twoLetterIsoCode">Two letter ISO code of a country</param>
         /// <param name="vatNumber">VAT number</param>
-        /// <param name="name">Name (if received)</param>
-        /// <param name="address">Address (if received)</param>
         /// <returns>VAT Number status</returns>
         public virtual async Task<(VatNumberStatus status, string name, string address, Exception exception)> GetVatNumberStatus(string twoLetterIsoCode, string vatNumber)
         {
-            string name = string.Empty;
-            string address = string.Empty;
+            var name = string.Empty;
+            var address = string.Empty;
 
             if (string.IsNullOrEmpty(twoLetterIsoCode))
                 return (VatNumberStatus.Empty, name, address, null);
@@ -77,35 +73,27 @@ namespace Grand.Business.Catalog.Services.Tax
         /// </summary>
         /// <param name="twoLetterIsoCode">Two letter ISO code of a country</param>
         /// <param name="vatNumber">VAT number</param>
-        /// <param name="name">Company name</param>
-        /// <param name="address">Address</param>
-        /// <param name="exception">Exception</param>
         /// <returns>VAT number status</returns>
         public virtual async Task<(VatNumberStatus status, string name, string address, Exception exception)>
             DoVatCheck(string twoLetterIsoCode, string vatNumber)
         {
-            var name = string.Empty;
-            var address = string.Empty;
-
-            if (vatNumber == null)
-                vatNumber = string.Empty;
+            vatNumber ??= string.Empty;
             vatNumber = vatNumber.Trim().Replace(" ", "");
 
-            if (twoLetterIsoCode == null)
-                twoLetterIsoCode = string.Empty;
-            if (!String.IsNullOrEmpty(twoLetterIsoCode))
+            twoLetterIsoCode ??= string.Empty;
+            if (!string.IsNullOrEmpty(twoLetterIsoCode))
                 //The service returns INVALID_INPUT for country codes that are not uppercase.
                 twoLetterIsoCode = twoLetterIsoCode.ToUpper();
 
             try
             {
-                var result = await CheckVatRequest(new VatRequest() {
+                var result = await CheckVatRequest(new VatRequest {
                     CountryCode = twoLetterIsoCode,
                     VatNumber = vatNumber
                 });
                 var valid = result.Valid;
-                name = result.Name;
-                address = result.Address;
+                var name = result.Name;
+                var address = result.Address;
 
                 return (valid ? VatNumberStatus.Valid : VatNumberStatus.Invalid, name, address, null);
             }

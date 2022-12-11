@@ -4,7 +4,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using MediatR;
 
-namespace Grand.Business.Core.Commands.Messages
+namespace Grand.Business.Core.Commands.Messages.Tokens
 {
     public class GetShoppingCartTokensCommand : IRequest<LiquidShoppingCart>
     {

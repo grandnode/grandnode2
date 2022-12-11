@@ -9,7 +9,7 @@ namespace Grand.Business.Core.Extensions
         /// <summary>
         /// Publishes the shipment sent event.
         /// </summary>
-        /// <param name="eventPublisher">The event publisher.</param>
+        /// <param name="mediator">The event publisher.</param>
         /// <param name="shipment">The shipment.</param>
         public static async Task PublishShipmentSent(this IMediator mediator, Shipment shipment)
         {
@@ -18,7 +18,7 @@ namespace Grand.Business.Core.Extensions
         /// <summary>
         /// Publishes the shipment delivered event.
         /// </summary>
-        /// <param name="eventPublisher">The event publisher.</param>
+        /// <param name="mediator">The event publisher.</param>
         /// <param name="shipment">The shipment.</param>
         public static async Task PublishShipmentDelivered(this IMediator mediator, Shipment shipment)
         {

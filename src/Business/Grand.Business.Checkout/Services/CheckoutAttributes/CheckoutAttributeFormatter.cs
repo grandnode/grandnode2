@@ -16,7 +16,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
     /// <summary>
     /// Checkout attribute helper
     /// </summary>
-    public partial class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
+    public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
     {
         private readonly IWorkContext _workContext;
         private readonly ICheckoutAttributeParser _checkoutAttributeParser;
@@ -42,14 +42,14 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
         /// </summary>
         /// <param name="customAttributes">Attributes</param>
         /// <param name="customer">Customer</param>
-        /// <param name="serapator">Serapator</param>
+        /// <param name="separator">Separator</param>
         /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
         /// <param name="renderPrices">A value indicating whether to render prices</param>
-        /// <param name="allowHyperlinks">A value indicating whether to HTML hyperink tags could be rendered (if required)</param>
+        /// <param name="allowHyperlinks">A value indicating whether to HTML hyperlink tags could be rendered (if required)</param>
         /// <returns>Attributes</returns>
         public virtual async Task<string> FormatAttributes(IList<CustomAttribute> customAttributes,
             Customer customer,
-            string serapator = "<br />",
+            string separator = "<br />",
             bool htmlEncode = true,
             bool renderPrices = true,
             bool allowHyperlinks = true)
@@ -60,7 +60,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
                 return result.ToString();
 
             var attributes = await _checkoutAttributeParser.ParseCheckoutAttributes(customAttributes);
-            for (int i = 0; i < attributes.Count; i++)
+            for (var i = 0; i < attributes.Count; i++)
             {
                 var attribute = attributes[i];
                 var valuesStr = customAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value).ToList();
@@ -73,13 +73,13 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
                         //no values
                         if (attribute.AttributeControlTypeId == AttributeControlType.MultilineTextbox)
                         {
-                            //multiline textbox
+                            //multiline text box
                             var attributeName = attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id);
                             //encode (if required)
                             if (htmlEncode)
                                 attributeName = WebUtility.HtmlEncode(attributeName);
-                            formattedAttribute = string.Format("{0}: {1}", attributeName, FormatText.ConvertText(valueStr));
-                            //we never encode multiline textbox input
+                            formattedAttribute = $"{attributeName}: {FormatText.ConvertText(valueStr)}";
+                            //we never encode multiline text box input
                         }
                         else if (attribute.AttributeControlTypeId == AttributeControlType.FileUpload)
                         {
@@ -91,16 +91,19 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
                                 if (allowHyperlinks)
                                 {
                                     //hyperlinks are allowed
-                                    var downloadLink = string.Format("{0}/download/getfileupload/?downloadId={1}", _workContext.CurrentHost.Url.TrimEnd('/'), downloadGuid);
-                                    attributeText = string.Format("<a href=\"{0}\" class=\"fileuploadattribute\">{1}</a>", downloadLink, attribute.GetTranslation(a => a.TextPrompt, _workContext.WorkingLanguage.Id));
+                                    var downloadLink =
+                                        $"{_workContext.CurrentHost.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";
+                                    attributeText =
+                                        $"<a href=\"{downloadLink}\" class=\"fileuploadattribute\">{attribute.GetTranslation(a => a.TextPrompt, _workContext.WorkingLanguage.Id)}</a>";
                                 }
-                                formattedAttribute = string.Format("{0}: {1}", attributeName, attributeText);
+                                formattedAttribute = $"{attributeName}: {attributeText}";
                             }
                         }
                         else
                         {
-                            //other attributes (textbox, datepicker)
-                            formattedAttribute = string.Format("{0}: {1}", attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id), valueStr);
+                            //other attributes (text box, datepicker)
+                            formattedAttribute =
+                                $"{attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id)}: {valueStr}";
                             //encode (if required)
                             if (htmlEncode)
                                 formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
@@ -108,18 +111,19 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
                     }
                     else
                     {
-                        var attributeValue = attribute.CheckoutAttributeValues.Where(x => x.Id == valueStr).FirstOrDefault();
+                        var attributeValue = attribute.CheckoutAttributeValues.FirstOrDefault(x => x.Id == valueStr);
                         if (attributeValue != null)
                         {
-                            formattedAttribute = string.Format("{0}: {1}", attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id), attributeValue.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id));
+                            formattedAttribute =
+                                $"{attribute.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id)}: {attributeValue.GetTranslation(a => a.Name, _workContext.WorkingLanguage.Id)}";
                             if (renderPrices)
                             {
-                                double priceAdjustmentBase = (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue, customer)).checkoutPrice;
-                                double priceAdjustment = await _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase, _workContext.WorkingCurrency);
+                                var priceAdjustmentBase = (await _taxService.GetCheckoutAttributePrice(attribute, attributeValue, customer)).checkoutPrice;
+                                var priceAdjustment = await _currencyService.ConvertFromPrimaryStoreCurrency(priceAdjustmentBase, _workContext.WorkingCurrency);
                                 if (priceAdjustmentBase > 0)
                                 {
-                                    string priceAdjustmentStr = _priceFormatter.FormatPrice(priceAdjustment);
-                                    formattedAttribute += string.Format(" [+{0}]", priceAdjustmentStr);
+                                    var priceAdjustmentStr = _priceFormatter.FormatPrice(priceAdjustment);
+                                    formattedAttribute += $" [+{priceAdjustmentStr}]";
                                 }
                             }
                         }
@@ -128,15 +132,12 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
                             formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
                     }
 
-                    if (!String.IsNullOrEmpty(formattedAttribute))
-                    {
-                        if (i != 0 || j != 0)
-                            result.Append(serapator);
-                        result.Append(formattedAttribute);
-                    }
+                    if (string.IsNullOrEmpty(formattedAttribute)) continue;
+                    if (i != 0 || j != 0)
+                        result.Append(separator);
+                    result.Append(formattedAttribute);
                 }
             }
-
             return result.ToString();
         }
     }

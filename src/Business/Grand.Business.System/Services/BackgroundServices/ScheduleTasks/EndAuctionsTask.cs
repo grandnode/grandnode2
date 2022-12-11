@@ -12,7 +12,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
     /// <summary>
     /// Represents a task end auctions
     /// </summary>
-    public partial class EndAuctionsTask : IScheduleTask
+    public class EndAuctionsTask : IScheduleTask
     {
         private readonly IAuctionService _auctionService;
         private readonly IMessageProviderService _messageProviderService;
@@ -41,7 +41,7 @@ namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
             var auctionsToEnd = await _auctionService.GetAuctionsToEnd();
             foreach (var auctionToEnd in auctionsToEnd)
             {
-                var bid = (await _auctionService.GetBidsByProductId(auctionToEnd.Id)).OrderByDescending(x => x.Amount).FirstOrDefault();
+                var bid = (await _auctionService.GetBidsByProductId(auctionToEnd.Id)).MaxBy(x => x.Amount);
                 if (bid == null)
                 {
                     await _auctionService.UpdateAuctionEnded(auctionToEnd, true);

@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Messages
     /// <summary>
     /// Message template service
     /// </summary>
-    public partial interface IMessageTemplateService
+    public interface IMessageTemplateService
     {
         /// <summary>
         /// Inserts a message template

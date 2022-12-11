@@ -79,18 +79,16 @@ namespace Grand.Business.System.Commands.Handlers.Common
         }
         private string RemoveBom(string p)
         {
-            string BOMMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
-            if (p.StartsWith(BOMMarkUtf8))
-                p = p.Remove(0, BOMMarkUtf8.Length);
+            var bomMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
+            if (p.StartsWith(bomMarkUtf8))
+                p = p.Remove(0, bomMarkUtf8.Length);
             return p.Replace("\0", "");
         }
         private async Task<string> Generate(Language language, Store store)
         {
-            using (var stream = new MemoryStream())
-            {
-                await Generate(stream, language, store);
-                return RemoveBom(Encoding.UTF8.GetString(stream.ToArray()));
-            }
+            using var stream = new MemoryStream();
+            await Generate(stream, language, store);
+            return RemoveBom(Encoding.UTF8.GetString(stream.ToArray()));
         }
 
         private async Task Generate(Stream stream, Language language, Store store)
@@ -105,7 +103,7 @@ namespace Grand.Business.System.Commands.Handlers.Common
         /// <summary>
         /// Represents sitemap URL 
         /// </summary>
-        class SitemapUrl
+        private class SitemapUrl
         {
             public SitemapUrl(string location, string image, UpdateFrequency frequency, DateTime updatedOn)
             {
@@ -194,7 +192,7 @@ namespace Grand.Business.System.Commands.Handlers.Common
                 sitemapUrls.Add(new SitemapUrl(url, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow));
             }
 
-            //knowledgebase
+            //knowledge base
             if (_knowledgebaseSettings.Enabled)
             {
                 var url = _linkGenerator.GetUriByRouteValues("Knowledgebase", routeValues, GetHttpProtocol(), GetHost());
@@ -203,7 +201,7 @@ namespace Grand.Business.System.Commands.Handlers.Common
 
             //categories
             if (_commonSettings.SitemapIncludeCategories)
-                sitemapUrls.AddRange(await GetCategoryUrls("", language, store));
+                sitemapUrls.AddRange(await GetCategoryUrls("", language));
 
             //brands
             if (_commonSettings.SitemapIncludeBrands)
@@ -219,7 +217,7 @@ namespace Grand.Business.System.Commands.Handlers.Common
             //blog posts
             sitemapUrls.AddRange(await GetBlogPostsUrls(language, store));
 
-            //knowledgebase articles
+            //knowledge base articles
             sitemapUrls.AddRange(await GetKnowledgebaseUrls(language));
 
             //custom URLs
@@ -228,7 +226,7 @@ namespace Grand.Business.System.Commands.Handlers.Common
             return sitemapUrls;
         }
 
-        private async Task<IEnumerable<SitemapUrl>> GetCategoryUrls(string parentCategoryId, Language language, Store store)
+        private async Task<IEnumerable<SitemapUrl>> GetCategoryUrls(string parentCategoryId, Language language)
         {
             var allCategoriesByParentCategoryId = await _categoryService.GetAllCategoriesByParentCategoryId(parentCategoryId: parentCategoryId);
             var categories = new List<SitemapUrl>();
@@ -251,7 +249,7 @@ namespace Grand.Business.System.Commands.Handlers.Common
                     }
                 }
                 categories.Add(new SitemapUrl(url, imageurl, UpdateFrequency.Weekly, category.UpdatedOnUtc));
-                categories.AddRange(await GetCategoryUrls(category.Id, language, store));
+                categories.AddRange(await GetCategoryUrls(category.Id, language));
             }
             return categories;
         }
@@ -259,7 +257,7 @@ namespace Grand.Business.System.Commands.Handlers.Common
         private async Task<IEnumerable<SitemapUrl>> GetBrandUrls(Language language, Store store)
         {
             var brands = await _brandService.GetAllBrands(storeId: store.Id);
-            var _brands = new List<SitemapUrl>();
+            var brandUrls = new List<SitemapUrl>();
             var storeLocation = GetStoreLocation();
             foreach (var brand in brands)
             {
@@ -269,17 +267,17 @@ namespace Grand.Business.System.Commands.Handlers.Common
                     :
                     _linkGenerator.GetUriByRouteValues("Brand", new { SeName = brand.GetSeName(language.Id) }, GetHttpProtocol(), GetHost());
 
-                var imageurl = string.Empty;
+                var imageUrl = string.Empty;
                 if (_commonSettings.SitemapIncludeImage)
                 {
                     if (!string.IsNullOrEmpty(brand.PictureId))
                     {
-                        imageurl = await _pictureService.GetPictureUrl(brand.PictureId, showDefaultPicture: false, storeLocation: storeLocation);
+                        imageUrl = await _pictureService.GetPictureUrl(brand.PictureId, showDefaultPicture: false, storeLocation: storeLocation);
                     }
                 }
-                _brands.Add(new SitemapUrl(url, imageurl, UpdateFrequency.Weekly, brand.UpdatedOnUtc));
+                brandUrls.Add(new SitemapUrl(url, imageUrl, UpdateFrequency.Weekly, brand.UpdatedOnUtc));
             }
-            return _brands;
+            return brandUrls;
         }
 
         private async Task<IEnumerable<SitemapUrl>> GetProductUrls(Language language, Store store)
@@ -296,15 +294,15 @@ namespace Grand.Business.System.Commands.Handlers.Common
                     :
                     _linkGenerator.GetUriByRouteValues("Product", new { SeName = product.GetSeName(language.Id) }, GetHttpProtocol(), GetHost());
 
-                var imageurl = string.Empty;
+                var imageUrl = string.Empty;
                 if (_commonSettings.SitemapIncludeImage)
                 {
                     if (!string.IsNullOrEmpty(product.ProductPictures.FirstOrDefault()?.PictureId))
                     {
-                        imageurl = await _pictureService.GetPictureUrl(product.ProductPictures.FirstOrDefault().PictureId, showDefaultPicture: false, storeLocation: storeLocation);
+                        imageUrl = await _pictureService.GetPictureUrl(product.ProductPictures.FirstOrDefault()?.PictureId, showDefaultPicture: false, storeLocation: storeLocation);
                     }
                 }
-                products.Add(new SitemapUrl(url, imageurl, UpdateFrequency.Weekly, product.UpdatedOnUtc));
+                products.Add(new SitemapUrl(url, imageUrl, UpdateFrequency.Weekly, product.UpdatedOnUtc));
             }
             return products;
 
@@ -357,19 +355,12 @@ namespace Grand.Business.System.Commands.Handlers.Common
         private async Task<IEnumerable<SitemapUrl>> GetKnowledgebaseUrls(Language language)
         {
             var knowledgebasearticles = await _knowledgebaseService.GetPublicKnowledgebaseArticles();
-            var knowledgebase = new List<SitemapUrl>();
-            foreach (var knowledgebasearticle in knowledgebasearticles)
-            {
-                var url =
-                    _appConfig.SeoFriendlyUrlsForLanguagesEnabled ?
-                    _linkGenerator.GetUriByRouteValues("KnowledgebaseArticle", new { SeName = knowledgebasearticle.GetSeName(language.Id), language = language.UniqueSeoCode }, GetHttpProtocol(), GetHost())
-                    :
-                    _linkGenerator.GetUriByRouteValues("KnowledgebaseArticle", new { SeName = knowledgebasearticle.GetSeName(language.Id) }, GetHttpProtocol(), GetHost());
 
-                knowledgebase.Add(new SitemapUrl(url, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow));
-            }
-
-            return knowledgebase;
+            return knowledgebasearticles.Select(knowledgebasearticle => _appConfig.SeoFriendlyUrlsForLanguagesEnabled
+                    ? _linkGenerator.GetUriByRouteValues("KnowledgebaseArticle", new { SeName = knowledgebasearticle.GetSeName(language.Id), language = language.UniqueSeoCode }, GetHttpProtocol(), GetHost())
+                    : _linkGenerator.GetUriByRouteValues("KnowledgebaseArticle", new { SeName = knowledgebasearticle.GetSeName(language.Id) }, GetHttpProtocol(), GetHost()))
+                .Select(url => new SitemapUrl(url, string.Empty, UpdateFrequency.Weekly, DateTime.UtcNow))
+                .ToList();
         }
 
         private IEnumerable<SitemapUrl> GetCustomUrls()
@@ -385,20 +376,18 @@ namespace Grand.Business.System.Commands.Handlers.Common
             if (str == null)
                 return null;
             str = Regex.Replace(str, @"[^\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD]", "", RegexOptions.Compiled);
-            if (str == null)
+            if (string.IsNullOrEmpty(str))
                 return null;
 
             var xwSettings = new XmlWriterSettings
             {
                 ConformanceLevel = ConformanceLevel.Auto
             };
-            using (var sw = new StringWriter())
-            using (var xwr = XmlWriter.Create(sw, xwSettings))
-            {
-                xwr.WriteString(str);
-                xwr.Flush();
-                return sw.ToString();
-            }
+            using var sw = new StringWriter();
+            using var xwr = XmlWriter.Create(sw, xwSettings);
+            xwr.WriteString(str);
+            xwr.Flush();
+            return sw.ToString();
         }
 
 
@@ -414,38 +403,36 @@ namespace Grand.Business.System.Commands.Handlers.Common
                 Async = true
             };
 
-            using (var writer = XmlWriter.Create(stream, xwSettings))
+            await using var writer = XmlWriter.Create(stream, xwSettings);
+            await writer.WriteStartDocumentAsync();
+            writer.WriteStartElement("urlset");
+            await writer.WriteAttributeStringAsync("urlset", "xmlns", null, "http://www.sitemaps.org/schemas/sitemap/0.9");
+
+            if (_commonSettings.SitemapIncludeImage)
+                await writer.WriteAttributeStringAsync("xmlns", "image", null, "http://www.google.com/schemas/sitemap-image/1.1");
+
+            await writer.WriteAttributeStringAsync("xsi", "schemaLocation", null, "http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd");
+
+            foreach (var url in sitemapUrls)
             {
-                await writer.WriteStartDocumentAsync();
-                writer.WriteStartElement("urlset");
-                await writer.WriteAttributeStringAsync("urlset", "xmlns", null, "http://www.sitemaps.org/schemas/sitemap/0.9");
+                writer.WriteStartElement("url");
+                var location = XmlEncode(url.Location);
+                writer.WriteElementString("loc", location);
 
-                if (_commonSettings.SitemapIncludeImage)
-                    await writer.WriteAttributeStringAsync("xmlns", "image", null, "http://www.google.com/schemas/sitemap-image/1.1");
-
-                await writer.WriteAttributeStringAsync("xsi", "schemaLocation", null, "http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd");
-
-                foreach (var url in sitemapUrls)
+                if (_commonSettings.SitemapIncludeImage && !string.IsNullOrEmpty(url.Image))
                 {
-                    writer.WriteStartElement("url");
-                    var location = XmlEncode(url.Location);
-                    writer.WriteElementString("loc", location);
-
-                    if (_commonSettings.SitemapIncludeImage && !string.IsNullOrEmpty(url.Image))
-                    {
-                        writer.WriteStartElement("image", "image", null);
-                        writer.WriteElementString("image", "loc", null, url.Image);
-                        writer.WriteEndElement();
-                    }
-
-                    writer.WriteElementString("changefreq", url.UpdateFrequency.ToString().ToLowerInvariant());
-                    writer.WriteElementString("lastmod", url.UpdatedOn.ToString(DateFormat));
+                    writer.WriteStartElement("image", "image", null);
+                    writer.WriteElementString("image", "loc", null, url.Image);
                     writer.WriteEndElement();
                 }
 
-                await writer.WriteEndElementAsync();
-                await writer.FlushAsync();
+                writer.WriteElementString("changefreq", url.UpdateFrequency.ToString().ToLowerInvariant());
+                writer.WriteElementString("lastmod", url.UpdatedOn.ToString(DateFormat));
+                writer.WriteEndElement();
             }
+
+            await writer.WriteEndElementAsync();
+            await writer.FlushAsync();
         }
 
     }

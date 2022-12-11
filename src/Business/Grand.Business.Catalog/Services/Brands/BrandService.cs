@@ -15,7 +15,7 @@ namespace Grand.Business.Catalog.Services.Brands
     /// <summary>
     /// Brand service
     /// </summary>
-    public partial class BrandService : IBrandService
+    public class BrandService : IBrandService
     {
         #region Fields
 
@@ -65,10 +65,10 @@ namespace Grand.Business.Catalog.Services.Brands
 
             if (!showHidden)
                 query = query.Where(m => m.Published);
-            if (!String.IsNullOrWhiteSpace(brandName))
+            if (!string.IsNullOrWhiteSpace(brandName))
                 query = query.Where(m => m.Name != null && m.Name.ToLower().Contains(brandName.ToLower()));
 
-            if ((!CommonHelper.IgnoreAcl || (!String.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)))
+            if (!CommonHelper.IgnoreAcl || (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations))
             {
                 if (!showHidden && !CommonHelper.IgnoreAcl)
                 {
@@ -79,7 +79,7 @@ namespace Grand.Business.Catalog.Services.Brands
                             select p;
 
                 }
-                if (!String.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)
+                if (!string.IsNullOrEmpty(storeId) && !CommonHelper.IgnoreStoreLimitations)
                 {
                     //Limited to stores rules
                     query = from p in query
@@ -98,7 +98,7 @@ namespace Grand.Business.Catalog.Services.Brands
         /// <returns>Brand</returns>
         public virtual Task<Brand> GetBrandById(string brandId)
         {
-            string key = string.Format(CacheKey.BRANDS_BY_ID_KEY, brandId);
+            var key = string.Format(CacheKey.BRANDS_BY_ID_KEY, brandId);
             return _cacheBase.GetAsync(key, () => _brandRepository.GetByIdAsync(brandId));
         }
 

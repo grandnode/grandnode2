@@ -19,10 +19,9 @@ namespace Grand.Business.Core.Events.Checkout.ShoppingCart
             _shoppingCartItem = shoppingCartItem;
             _product = product;
         }
-        public IList<string> Warnings { get { return _warnings; } }
-        public C Customer { get { return _customer; } }
-        public S ShoppingCartItem { get { return _shoppingCartItem; } }
-        public P Product { get { return _product; } }
-
+        public IList<string> Warnings => _warnings;
+        public C Customer => _customer;
+        public S ShoppingCartItem => _shoppingCartItem;
+        public P Product => _product;
     }
 }

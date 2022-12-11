@@ -21,21 +21,16 @@ namespace Grand.Business.Catalog.Queries.Handlers
         public async Task<double?> Handle(GetPriceByCustomerProductQuery request, CancellationToken cancellationToken)
         {
             var key = string.Format(CacheKey.CUSTOMER_PRODUCT_PRICE_KEY_ID, request.CustomerId, request.ProductId);
-            var productprice = _cacheBase.Get(key, () =>
+            var productPrice = _cacheBase.Get(key, () =>
             {
                 var pp = _customerProductPriceRepository.Table
-                .Where(x => x.CustomerId == request.CustomerId && x.ProductId == request.ProductId)
-                .FirstOrDefault();
-                if (pp == null)
-                    return (null, false);
-                else
-                    return (pp, true);
+                    .FirstOrDefault(x => x.CustomerId == request.CustomerId && x.ProductId == request.ProductId);
+                return pp == null ? (null, false) : (pp, true);
             });
 
-            if (!productprice.Item2)
+            if (!productPrice.Item2)
                 return await Task.FromResult(default(double?));
-            else
-                return await Task.FromResult(productprice.pp.Price);
+            return await Task.FromResult(productPrice.pp.Price);
         }
     }
 }

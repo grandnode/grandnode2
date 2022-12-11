@@ -29,36 +29,25 @@ namespace Grand.Business.Catalog.Services.Products
             {
                 if (total)
                 {
-                    if (useReservedQuantity)
-                        return product.ProductWarehouseInventory.Sum(x => x.StockQuantity - x.ReservedQuantity);
-                    else
-                        return product.ProductWarehouseInventory.Sum(x => x.StockQuantity);
+                    return useReservedQuantity ? product.ProductWarehouseInventory.Sum(x => x.StockQuantity - x.ReservedQuantity) : product.ProductWarehouseInventory.Sum(x => x.StockQuantity);
                 }
-                else
+
+                var pwi = product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId);
+                if (pwi == null) return 0;
+                var result = pwi.StockQuantity;
+                if (useReservedQuantity)
                 {
-                    var pwi = product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId);
-                    if (pwi != null)
-                    {
-                        var result = pwi.StockQuantity;
-                        if (useReservedQuantity)
-                        {
-                            result -= pwi.ReservedQuantity;
-                        }
-                        return result;
-                    }
-                    return 0;
+                    result -= pwi.ReservedQuantity;
                 }
+                return result;
             }
             if (string.IsNullOrEmpty(warehouseId) || string.IsNullOrEmpty(product.WarehouseId))
                 return product.StockQuantity - (useReservedQuantity ? product.ReservedQuantity : 0);
-            else
-            {
-                if (product.WarehouseId == warehouseId)
-                    return product.StockQuantity - (useReservedQuantity ? product.ReservedQuantity : 0);
-                else
-                    return 0;
-            }
-
+            
+            if (product.WarehouseId == warehouseId)
+                return product.StockQuantity - (useReservedQuantity ? product.ReservedQuantity : 0);
+            
+            return 0;
         }
 
         public virtual int GetTotalStockQuantityForCombination(Product product, ProductAttributeCombination combination,
@@ -78,28 +67,22 @@ namespace Grand.Business.Catalog.Services.Products
             if (product.UseMultipleWarehouses)
             {
                 var pwi = combination.WarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId);
-                if (pwi != null)
+                if (pwi == null) return 0;
+                var result = pwi.StockQuantity;
+                if (useReservedQuantity)
                 {
-                    var result = pwi.StockQuantity;
-                    if (useReservedQuantity)
-                    {
-                        result -= pwi.ReservedQuantity;
-                    }
-                    return result;
+                    result -= pwi.ReservedQuantity;
                 }
-                return 0;
+                return result;
             }
 
             if (string.IsNullOrEmpty(warehouseId) || string.IsNullOrEmpty(product.WarehouseId))
                 return combination.StockQuantity - (useReservedQuantity ? combination.ReservedQuantity : 0);
-            else
-            {
-                if (product.WarehouseId == warehouseId)
-                    return combination.StockQuantity - (useReservedQuantity ? combination.ReservedQuantity : 0);
-                else
-                    return 0;
-            }
-
+            
+            if (product.WarehouseId == warehouseId)
+                return combination.StockQuantity - (useReservedQuantity ? combination.ReservedQuantity : 0);
+            
+            return 0;
         }
 
         public virtual string FormatStockMessage(Product product, string warehouseId, IList<CustomAttribute> attributes)
@@ -107,7 +90,7 @@ namespace Grand.Business.Catalog.Services.Products
             if (product == null)
                 throw new ArgumentNullException(nameof(product));
 
-            string stockMessage = string.Empty;
+            var stockMessage = string.Empty;
 
             switch (product.ManageInventoryMethodId)
             {

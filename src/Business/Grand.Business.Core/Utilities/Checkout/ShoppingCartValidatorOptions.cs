@@ -7,7 +7,6 @@
         public bool GetInventoryWarnings = true;
         public bool GetGiftVoucherWarnings = true;
         public bool GetRequiredProductWarnings = true;
-        public bool GetRentalWarnings = true;
         public bool GetReservationWarnings = true;
     }
 }

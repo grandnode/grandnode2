@@ -7,7 +7,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
     /// <summary>
     /// Checkout attribute parser
     /// </summary>
-    public partial class CheckoutAttributeParser : ICheckoutAttributeParser
+    public class CheckoutAttributeParser : ICheckoutAttributeParser
     {
         private readonly ICheckoutAttributeService _checkoutAttributeService;
 
@@ -19,7 +19,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
         /// <summary>
         /// Gets selected checkout attributes
         /// </summary>
-        /// <param name="attributes">Attributes</param>
+        /// <param name="customAttributes">Attributes</param>
         /// <returns>Selected checkout attributes</returns>
         public virtual async Task<IList<CheckoutAttribute>> ParseCheckoutAttributes(IList<CustomAttribute> customAttributes)
         {
@@ -56,15 +56,8 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
                     continue;
 
                 var valuesStr = customAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value);
-                foreach (var valueStr in valuesStr)
-                {
-                    if (!string.IsNullOrEmpty(valueStr))
-                    {
-                        var value = attribute.CheckoutAttributeValues.Where(x => x.Id == valueStr).FirstOrDefault();
-                        if (value != null)
-                            values.Add(value);
-                    }
-                }
+                values.AddRange(from valueStr in valuesStr where !string.IsNullOrEmpty(valueStr) 
+                    select attribute.CheckoutAttributeValues.FirstOrDefault(x => x.Id == valueStr) into value where value != null select value);
             }
             return values;
         }
@@ -87,15 +80,8 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
                     continue;
 
                 var valuesStr = customAttributes.Where(x => x.Key == attribute.Id).Select(x => x.Value);
-                foreach (var valueStr in valuesStr)
-                {
-                    if (!string.IsNullOrEmpty(valueStr))
-                    {
-                        var value = attribute.CheckoutAttributeValues.Where(x => x.Id == valueStr).FirstOrDefault();
-                        if (value != null)
-                            values.Add((attribute, value));
-                    }
-                }
+                values.AddRange(from valueStr in valuesStr where !string.IsNullOrEmpty(valueStr) 
+                    select attribute.CheckoutAttributeValues.FirstOrDefault(x => x.Id == valueStr) into value where value != null select (attribute, value));
             }
             return values;
         }
@@ -103,16 +89,15 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
         /// <summary>
         /// Adds an attribute
         /// </summary>
-        /// <param name="attributes">Attributes</param>
+        /// <param name="customAttributes">Attributes</param>
         /// <param name="ca">Checkout attribute</param>
         /// <param name="value">Value</param>
         /// <returns>Attributes</returns>
         public virtual IList<CustomAttribute> AddCheckoutAttribute(IList<CustomAttribute> customAttributes, CheckoutAttribute ca, string value)
         {
-            if (customAttributes == null)
-                customAttributes = new List<CustomAttribute>();
+            customAttributes ??= new List<CustomAttribute>();
 
-            customAttributes.Add(new CustomAttribute() { Key = ca.Id, Value = value });
+            customAttributes.Add(new CustomAttribute { Key = ca.Id, Value = value });
             return customAttributes;
         }
 
@@ -124,23 +109,15 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
         /// <returns>Updated attributes</returns>
         public virtual async Task<IList<CustomAttribute>> EnsureOnlyActiveAttributes(IList<CustomAttribute> customAttributes, IList<ShoppingCartItem> cart)
         {
-            if (customAttributes == null)
-                customAttributes = new List<CustomAttribute>();
+            customAttributes ??= new List<CustomAttribute>();
 
-            if (!cart.RequiresShipping())
+            if (cart.RequiresShipping()) return customAttributes;
+            var attributes = await ParseCheckoutAttributes(customAttributes);
+            var checkoutAttributeIdsToRemove = (from ca in attributes where ca.ShippableProductRequired select ca.Id).ToList();
+
+            foreach (var attr in checkoutAttributeIdsToRemove.Select(id => customAttributes.FirstOrDefault(x => x.Key == id)).Where(attr => attr != null))
             {
-                var checkoutAttributeIdsToRemove = new List<string>();
-                var attributes = await ParseCheckoutAttributes(customAttributes);
-                foreach (var ca in attributes)
-                    if (ca.ShippableProductRequired)
-                        checkoutAttributeIdsToRemove.Add(ca.Id);
-
-                foreach (var id in checkoutAttributeIdsToRemove)
-                {
-                    var attr = customAttributes.FirstOrDefault(x => x.Key == id);
-                    if (attr != null)
-                        customAttributes.Remove(attr);
-                }
+                customAttributes.Remove(attr);
             }
 
             return customAttributes;
@@ -149,15 +126,14 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
         /// Check whether condition of some attribute is met.
         /// </summary>
         /// <param name="attribute">Checkout attribute</param>
-        /// <param name="selectedAttributes">Selected attributes</param>
+        /// <param name="customAttributes">Selected attributes</param>
         /// <returns>Result</returns>
         public virtual async Task<bool?> IsConditionMet(CheckoutAttribute attribute, IList<CustomAttribute> customAttributes)
         {
             if (attribute == null)
                 throw new ArgumentNullException(nameof(attribute));
 
-            if (customAttributes == null)
-                customAttributes = new List<CustomAttribute>();
+            customAttributes ??= new List<CustomAttribute>();
 
             var conditionAttribute = attribute.ConditionAttribute;
             if (!conditionAttribute.Any())
@@ -181,10 +157,9 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
             var allFound = true;
             foreach (var t1 in valuesThatShouldBeSelected)
             {
-                bool found = false;
-                foreach (var t2 in selectedValues)
-                    if (t1 == t2)
-                        found = true;
+                var found = false;
+                foreach (var t2 in selectedValues.Where(t2 => t1 == t2))
+                    found = true;
                 if (!found)
                     allFound = false;
             }
@@ -195,7 +170,7 @@ namespace Grand.Business.Checkout.Services.CheckoutAttributes
         /// <summary>
         /// Remove an attribute
         /// </summary>
-        /// <param name="attributes">Attributes</param>
+        /// <param name="customAttributes">Attributes</param>
         /// <param name="attribute">Checkout attribute</param>
         /// <returns>Updated</returns>
         public virtual IList<CustomAttribute> RemoveCheckoutAttribute(IList<CustomAttribute> customAttributes, CheckoutAttribute attribute)

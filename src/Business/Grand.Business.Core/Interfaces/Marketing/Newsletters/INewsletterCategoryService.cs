@@ -2,32 +2,32 @@
 
 namespace Grand.Business.Core.Interfaces.Marketing.Newsletters
 {
-    public partial interface INewsletterCategoryService
+    public interface INewsletterCategoryService
     {
         /// <summary>
         /// Inserts a newsletter category
         /// </summary>
-        /// <param name="NewsletterCategory">NewsletterCategory</param>        
-        Task InsertNewsletterCategory(NewsletterCategory newslettercategory);
+        /// <param name="newsletterCategory">NewsletterCategory</param>        
+        Task InsertNewsletterCategory(NewsletterCategory newsletterCategory);
 
         /// <summary>
         /// Updates a newsletter category
         /// </summary>
-        /// <param name="NewsletterCategory">NewsletterCategory</param>
-        Task UpdateNewsletterCategory(NewsletterCategory newslettercategory);
+        /// <param name="newsletterCategory">NewsletterCategory</param>
+        Task UpdateNewsletterCategory(NewsletterCategory newsletterCategory);
 
         /// <summary>
         /// Deleted a newsletter category
         /// </summary>
-        /// <param name="NewsletterCategory">NewsletterCategory</param>
-        Task DeleteNewsletterCategory(NewsletterCategory newslettercategory);
+        /// <param name="newsletterCategory">NewsletterCategory</param>
+        Task DeleteNewsletterCategory(NewsletterCategory newsletterCategory);
 
         /// <summary>
         /// Gets a newsletter by category
         /// </summary>
-        /// <param name="Id">newsletter category</param>
+        /// <param name="id">newsletter category</param>
         /// <returns>NewsletterCategory</returns>
-        Task<NewsletterCategory> GetNewsletterCategoryById(string Id);
+        Task<NewsletterCategory> GetNewsletterCategoryById(string id);
 
         /// <summary>
         /// Gets all newsletter categories

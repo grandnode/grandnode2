@@ -20,7 +20,7 @@ namespace Grand.Business.Checkout.Validators
             IPermissionService permissionService, ShoppingCartSettings shoppingCartSettings)
         {
 
-            RuleFor(x => x).CustomAsync(async (value, context, ct) =>
+            RuleFor(x => x).CustomAsync(async (value, context, _) =>
             {
                 //maximum items validation
                 switch (value.ShoppingCartType)

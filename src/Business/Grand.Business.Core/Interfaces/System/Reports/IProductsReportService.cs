@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Interfaces.System.Reports
     /// <summary>
     /// Product report service interface
     /// </summary>
-    public partial interface IProductsReportService
+    public interface IProductsReportService
     {
         /// <summary>
         /// Get "low stock products" report

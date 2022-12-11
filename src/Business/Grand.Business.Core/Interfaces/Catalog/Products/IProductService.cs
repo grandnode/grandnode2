@@ -9,7 +9,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
     /// <summary>
     /// Product service
     /// </summary>
-    public partial interface IProductService
+    public interface IProductService
     {
         #region Products
 
@@ -29,9 +29,9 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// Gets product
         /// </summary>
         /// <param name="productId">Product identifier</param>
-        /// <param name="fromDB">get data from db (not from cache)</param>
+        /// <param name="fromDb">get data from db (not from cache)</param>
         /// <returns>Product</returns>
-        Task<Product> GetProductById(string productId, bool fromDB = false);
+        Task<Product> GetProductById(string productId, bool fromDb = false);
 
         /// <summary>
         /// Gets product from product or product deleted
@@ -52,6 +52,8 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// Gets products by discount
         /// </summary>
         /// <param name="discountId">Product identifiers</param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
         /// <returns>Products</returns>
         Task<IPagedList<Product>> GetProductsByDiscount(string discountId, int pageIndex = 0, int pageSize = int.MaxValue);
 
@@ -77,12 +79,14 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// Set product as unpublished
         /// </summary>
         /// <param name="product"></param>
-        Task UnpublishProduct(Product product);
+        Task UnPublishProduct(Product product);
 
         /// <summary>
         /// Updates the product field
         /// </summary>
         /// <param name="product">Product</param>
+        /// <param name="expression"></param>
+        /// <param name="value"></param>
         Task UpdateProductField<T>(Product product,
             Expression<Func<Product, T>> expression, T value);
 
@@ -91,6 +95,8 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// Increment the product field
         /// </summary>
         /// <param name="product">Product</param>
+        /// <param name="expression"></param>
+        /// <param name="value"></param>
         Task IncrementProductField<T>(Product product,
             Expression<Func<Product, T>> expression, T value);
 
@@ -108,7 +114,6 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// <summary>
         /// Search products
         /// </summary>
-        /// <param name="filterableSpecificationAttributeOptionIds">The specification attribute option identifiers applied to loaded products (all pages)</param>
         /// <param name="loadFilterableSpecificationAttributeOptionIds">A value indicating whether we should load the specification attribute option identifiers applied to loaded products (all pages)</param>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
@@ -120,6 +125,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// <param name="warehouseId">Warehouse identifier; "" to load all records</param>
         /// <param name="productType">Product type; "" to load all records</param>
         /// <param name="visibleIndividuallyOnly">A values indicating whether to load only products marked as "visible individually"; "false" to load all records; "true" to load "visible individually" only</param>
+        /// <param name="markedAsNewOnly">Marked as new</param>
         /// <param name="showOnHomePage">A value indicating whether loaded products show on homepage</param>
         /// <param name="featuredProducts">A value indicating whether loaded products are marked as featured (relates only to categories and collections). 0 to load featured products only, 1 to load not featured products only, null to load all products</param>
         /// <param name="priceMin">Minimum price; null to load all records</param>
@@ -176,7 +182,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Products</returns>
-        Task<IPagedList<Product>> GetProductsByProductAtributeId(string productAttributeId,
+        Task<IPagedList<Product>> GetProductsByProductAttributeId(string productAttributeId,
             int pageIndex = 0, int pageSize = int.MaxValue);
 
         /// <summary>
@@ -279,15 +285,13 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         #region Recommmended products
 
         /// <summary>
-        /// Inserts a recommended product
+        /// Insert a recommended product
         /// </summary>
-        /// <param name="recommendedProduct">Recommended product</param>
         Task InsertRecommendedProduct(string productId, string recommendedProductId);
 
         /// <summary>
-        /// Deletes a recommended product
+        /// Delete a recommended product
         /// </summary>
-        /// <param name="recommendedProduct">Recommended identifier</param>
         Task DeleteRecommendedProduct(string productId, string recommendedProductId);
 
         #endregion
@@ -377,6 +381,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Products
         /// Updates a product picture
         /// </summary>
         /// <param name="productPicture">Product picture</param>
+        /// <param name="productId">Product ident</param>
         Task UpdateProductPicture(ProductPicture productPicture, string productId);
 
         /// <summary>

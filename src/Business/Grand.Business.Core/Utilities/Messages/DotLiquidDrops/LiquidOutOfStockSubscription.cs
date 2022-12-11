@@ -5,7 +5,7 @@ using Grand.Domain.Stores;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidOutOfStockSubscription : Drop
+    public class LiquidOutOfStockSubscription : Drop
     {
         private readonly OutOfStockSubscription _outOfStockSubscription;
         private readonly Product _product;

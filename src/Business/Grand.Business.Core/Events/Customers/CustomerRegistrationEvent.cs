@@ -13,8 +13,7 @@ namespace Grand.Business.Core.Events.Customers
             _result = result;
             _request = request;
         }
-        public C Result { get { return _result; } }
-        public R Request { get { return _request; } }
-
+        public C Result => _result;
+        public R Request => _request;
     }
 }

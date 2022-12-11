@@ -25,13 +25,11 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             var vendors = new List<Vendor>();
             foreach (var vendorKey in order.OrderItems.GroupBy(x => x.VendorId))
             {
-                if (!string.IsNullOrEmpty(vendorKey.Key))
+                if (string.IsNullOrEmpty(vendorKey.Key)) continue;
+                var vendor = await _vendorService.GetVendorById(vendorKey.Key);
+                if (vendor is { Deleted: false, Active: true })
                 {
-                    var vendor = await _vendorService.GetVendorById(vendorKey.Key);
-                    if (vendor != null && !vendor.Deleted && vendor.Active)
-                    {
-                        vendors.Add(vendor);
-                    }
+                    vendors.Add(vendor);
                 }
             }
 

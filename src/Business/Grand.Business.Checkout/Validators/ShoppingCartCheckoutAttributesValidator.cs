@@ -18,7 +18,7 @@ namespace Grand.Business.Checkout.Validators
             ICheckoutAttributeParser checkoutAttributeParser, ICheckoutAttributeService checkoutAttributeService)
         {
 
-            RuleFor(x => x).CustomAsync(async (value, context, ct) =>
+            RuleFor(x => x).CustomAsync(async (value, context, _) =>
             {
                 //selected attributes
                 var attributes1 = await checkoutAttributeParser.ParseCheckoutAttributes(value.CheckoutAttributes);
@@ -28,29 +28,26 @@ namespace Grand.Business.Checkout.Validators
                 foreach (var a2 in attributes2)
                 {
                     var conditionMet = await checkoutAttributeParser.IsConditionMet(a2, value.CheckoutAttributes);
-                    if (a2.IsRequired && ((conditionMet.HasValue && conditionMet.Value) || !conditionMet.HasValue))
+                    if (!a2.IsRequired || ((!conditionMet.HasValue || !conditionMet.Value) && conditionMet.HasValue))
+                        continue;
+                    var found = false;
+                    //selected checkout attributes
+                    foreach (var a1 in attributes1)
                     {
-                        bool found = false;
-                        //selected checkout attributes
-                        foreach (var a1 in attributes1)
-                        {
-                            if (a1.Id == a2.Id)
+                        if (a1.Id != a2.Id) continue;
+                        var attributeValuesStr = value.CheckoutAttributes.Where(x => x.Key == a1.Id).Select(x => x.Value);
+                        foreach (var str1 in attributeValuesStr)
+                            if (!string.IsNullOrEmpty(str1.Trim()))
                             {
-                                var attributeValuesStr = value.CheckoutAttributes.Where(x => x.Key == a1.Id).Select(x => x.Value);
-                                foreach (var str1 in attributeValuesStr)
-                                    if (!string.IsNullOrEmpty(str1.Trim()))
-                                    {
-                                        found = true;
-                                        break;
-                                    }
+                                found = true;
+                                break;
                             }
-                        }
+                    }
 
-                        //if not found
-                        if (!found)
-                        {
-                            context.AddFailure(a2.TextPrompt ?? string.Format(translationService.GetResource("ShoppingCart.SelectAttribute"), a2.Name));                            
-                        }
+                    //if not found
+                    if (!found)
+                    {
+                        context.AddFailure(a2.TextPrompt ?? string.Format(translationService.GetResource("ShoppingCart.SelectAttribute"), a2.Name));                            
                     }
                 }
 
@@ -61,34 +58,30 @@ namespace Grand.Business.Checkout.Validators
                 {
                     if (ca.ValidationMinLength.HasValue)
                     {
-                        if (ca.AttributeControlTypeId == AttributeControlType.TextBox ||
-                            ca.AttributeControlTypeId == AttributeControlType.MultilineTextbox)
+                        if (ca.AttributeControlTypeId is AttributeControlType.TextBox or AttributeControlType.MultilineTextbox)
                         {
                             var valuesStr = value.CheckoutAttributes.Where(x => x.Key == ca.Id).Select(x => x.Value);
-                            var enteredText = valuesStr?.FirstOrDefault();
-                            int enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
+                            var enteredText = valuesStr.FirstOrDefault();
+                            var enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
 
                             if (ca.ValidationMinLength.Value > enteredTextLength)
                             {
-                                context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.TextboxMinimumLength"), ca.Name, ca.ValidationMinLength.Value));
+                                context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.TextBoxMinimumLength"), ca.Name, ca.ValidationMinLength.Value));
                             }
                         }
                     }
-
                     //maximum length
-                    if (ca.ValidationMaxLength.HasValue)
+                    if (!ca.ValidationMaxLength.HasValue) continue;
                     {
-                        if (ca.AttributeControlTypeId == AttributeControlType.TextBox ||
-                            ca.AttributeControlTypeId == AttributeControlType.MultilineTextbox)
-                        {
-                            var valuesStr = value.CheckoutAttributes.Where(x => x.Key == ca.Id).Select(x => x.Value);
-                            var enteredText = valuesStr?.FirstOrDefault();
-                            int enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
+                        if (ca.AttributeControlTypeId != AttributeControlType.TextBox &&
+                            ca.AttributeControlTypeId != AttributeControlType.MultilineTextbox) continue;
+                        var valuesStr = value.CheckoutAttributes.Where(x => x.Key == ca.Id).Select(x => x.Value);
+                        var enteredText = valuesStr.FirstOrDefault();
+                        var enteredTextLength = string.IsNullOrEmpty(enteredText) ? 0 : enteredText.Length;
 
-                            if (ca.ValidationMaxLength.Value < enteredTextLength)
-                            {
-                                context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.TextboxMaximumLength"), ca.Name, ca.ValidationMaxLength.Value));
-                            }
+                        if (ca.ValidationMaxLength.Value < enteredTextLength)
+                        {
+                            context.AddFailure(string.Format(translationService.GetResource("ShoppingCart.TextBoxMaximumLength"), ca.Name, ca.ValidationMaxLength.Value));
                         }
                     }
                 }

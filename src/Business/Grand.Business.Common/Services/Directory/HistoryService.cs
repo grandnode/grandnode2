@@ -8,7 +8,7 @@ namespace Grand.Business.Common.Services.Directory
     /// <summary>
     /// History service interface
     /// </summary>
-    public partial class HistoryService : IHistoryService
+    public class HistoryService : IHistoryService
     {
         private readonly IRepository<HistoryObject> _historyRepository;
 
@@ -21,7 +21,7 @@ namespace Grand.Business.Common.Services.Directory
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
-            var history = new HistoryObject()
+            var history = new HistoryObject
             {
                 CreatedOnUtc = DateTime.UtcNow,
                 Object = entity

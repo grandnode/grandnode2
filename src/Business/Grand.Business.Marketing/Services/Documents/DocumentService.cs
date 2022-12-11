@@ -8,7 +8,7 @@ using Grand.Domain.Common;
 
 namespace Grand.Business.Marketing.Services.Documents
 {
-    public partial class DocumentService : IDocumentService
+    public class DocumentService : IDocumentService
     {
         private readonly IRepository<Document> _documentRepository;
         private readonly IMediator _mediator;

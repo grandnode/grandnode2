@@ -5,7 +5,7 @@ using Grand.SharedKernel.Extensions;
 
 namespace Grand.Business.Core.Utilities.Messages.DotLiquidDrops
 {
-    public partial class LiquidMerchandiseReturn : Drop
+    public class LiquidMerchandiseReturn : Drop
     {
         private readonly MerchandiseReturn _merchandiseReturn;
         private readonly Order _order;

@@ -9,13 +9,14 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
     /// <summary>
     /// Shipping service interface
     /// </summary>
-    public partial interface IShippingService
+    public interface IShippingService
     {
         /// <summary>
         /// Load active Shipping rate  providers
         /// </summary>
         /// <param name="customer">Customer</param>
         /// <param name="storeId">Store ident</param>
+        /// <param name="cart">Cart</param>
         /// <returns>Shipping rate  methods</returns>
         Task<IList<IShippingRateCalculationProvider>> LoadActiveShippingRateCalculationProviders(Customer customer = null, string storeId = "", IList<ShoppingCartItem> cart = null);
 
@@ -48,10 +49,11 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping
         /// <summary>
         ///  Gets available shipping options
         /// </summary>
+        /// <param name="customer"></param>
         /// <param name="cart">Shopping cart</param>
         /// <param name="shippingAddress">Shipping address</param>
         /// <param name="allowedShippingRateMethodSystemName">Filter by Shipping rate  method identifier; null to load shipping options of all Shipping rate  methods</param>
-        /// <param name="storeId">Load records allowed only in a specified store; pass "" to load all records</param>
+        /// <param name="store">Load records allowed only in a specified store; pass "" to load all records</param>
         /// <returns>Shipping options</returns>
         Task<GetShippingOptionResponse> GetShippingOptions(Customer customer, IList<ShoppingCartItem> cart, Address shippingAddress,
             string allowedShippingRateMethodSystemName = "", Store store = null);

@@ -13,7 +13,7 @@ namespace Grand.Business.Core.Extensions
         #region Fields
 
         private static Dictionary<string, string> _seoCharacterTable;
-        private static readonly object s_lock = new object();
+        private static readonly object SLock = new object();
 
         #endregion
 
@@ -54,7 +54,7 @@ namespace Grand.Business.Core.Extensions
             var seName = string.Empty;
             if (!string.IsNullOrEmpty(languageId))
             {
-                var value = entity.Locales.Where(x => x.LanguageId == languageId && x.LocaleKey == "SeName").FirstOrDefault();
+                var value = entity.Locales.FirstOrDefault(x => x.LanguageId == languageId && x.LocaleKey == "SeName");
                 if (value != null)
                     if (!string.IsNullOrEmpty(value.LocaleValue))
                         seName = value.LocaleValue;
@@ -74,9 +74,12 @@ namespace Grand.Business.Core.Extensions
         /// </summary>
         /// <param name="entity">Entity</param>
         /// <param name="seName">Search engine name to validate</param>
-        /// <param name="name">User-friendly name used to generate sename</param>
-        /// <param name="ensureNotEmpty">Ensreu that sename is not empty</param>
-        /// <returns>Valid sename</returns>
+        /// <param name="name">User-friendly name used to generate se-name</param>
+        /// <param name="ensureNotEmpty">Ensure that se-name is not empty</param>
+        /// <param name="seoSettings"></param>
+        /// <param name="slugService"></param>
+        /// <param name="languageService"></param>
+        /// <returns>Valid se-name</returns>
         public static async Task<string> ValidateSeName<T>(this T entity, string seName, string name, bool ensureNotEmpty,
             SeoSettings seoSettings, ISlugService slugService, ILanguageService languageService)
              where T : BaseEntity, ISlugEntity
@@ -84,7 +87,7 @@ namespace Grand.Business.Core.Extensions
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            //use name if sename is not specified
+            //use name if se-name is not specified
             if (string.IsNullOrWhiteSpace(seName) && !string.IsNullOrWhiteSpace(name))
                 seName = name;
 
@@ -101,8 +104,8 @@ namespace Grand.Business.Core.Extensions
             {
                 if (ensureNotEmpty)
                 {
-                    //use entity identifier as sename if empty
-                    seName = entity.Id.ToString();
+                    //use entity identifier as se-name if empty
+                    seName = entity.Id;
                 }
                 else
                 {
@@ -111,7 +114,7 @@ namespace Grand.Business.Core.Extensions
                 }
             }
 
-            //ensure this sename is not reserved yet
+            //ensure this se-name is not reserved yet
             var entityName = typeof(T).Name;
             var i = 1;
             var tempSeName = seName;
@@ -126,13 +129,11 @@ namespace Grand.Business.Core.Extensions
                 if (!reserved1 && !reserved2 && !reserved3)
                     break;
 
-                tempSeName = string.Format("{0}-{1}", seName, i);
+                tempSeName = $"{seName}-{i}";
                 i++;
-                if(i > 4)
-                {
-                    tempSeName = string.Format("{0}-{1}", seName, Guid.NewGuid());
-                    break;
-                }
+                if (i <= 4) continue;
+                tempSeName = $"{seName}-{Guid.NewGuid()}";
+                break;
             }
             seName = tempSeName;
 
@@ -144,6 +145,7 @@ namespace Grand.Business.Core.Extensions
         /// Get SE name
         /// </summary>
         /// <param name="name">Name</param>
+        /// <param name="seoSettings">SeoSettings</param>
         /// <returns>Result</returns>
         public static string GetSeName(string name, SeoSettings seoSettings)
         {
@@ -154,25 +156,31 @@ namespace Grand.Business.Core.Extensions
         /// Get SE name
         /// </summary>
         /// <param name="name">Name</param>
+        /// <param name="convertNonWesternChars"></param>
+        /// <param name="allowUnicodeCharsInUrls"></param>
+        /// <param name="charConversions"></param>
         /// <returns>Result</returns>
         public static string GetSeName(string name, bool convertNonWesternChars, bool allowUnicodeCharsInUrls, string charConversions = null)
         {
             return GenerateSlug(name, convertNonWesternChars, allowUnicodeCharsInUrls, false, charConversions);
         }
+
         /// <summary>
         /// Get SE name
         /// </summary>
         /// <param name="name">Name</param>
         /// <param name="convertNonWesternChars">A value indicating whether non western chars should be converted</param>
         /// <param name="allowUnicodeCharsInUrls">A value indicating whether Unicode chars are allowed</param>
+        /// <param name="allowSlashChar"></param>
+        /// <param name="charConversions"></param>
         /// <returns>Result</returns>
-        public static string GenerateSlug(string name, bool convertNonWesternChars, bool allowUnicodeCharsInUrls, bool allowslashChar, string charConversions = null)
+        public static string GenerateSlug(string name, bool convertNonWesternChars, bool allowUnicodeCharsInUrls, bool allowSlashChar, string charConversions = null)
         {
             if (string.IsNullOrEmpty(name))
                 return name;
 
             var okChars = "abcdefghijklmnopqrstuvwxyz1234567890 _-";
-            if (allowslashChar)
+            if (allowSlashChar)
                 okChars += '/';
 
             name = name.Trim().ToLowerInvariant();
@@ -214,20 +222,18 @@ namespace Grand.Business.Core.Extensions
 
         private static void InitializeSeoCharacterTable(string charConversions)
         {
-            lock (s_lock)
+            lock (SLock)
             {
-                if (_seoCharacterTable == null)
-                {
-                    _seoCharacterTable = new Dictionary<string, string>();
+                if (_seoCharacterTable != null) return;
+                _seoCharacterTable = new Dictionary<string, string>();
 
-                    foreach (var conversion in charConversions.Split(";"))
+                foreach (var conversion in charConversions.Split(";"))
+                {
+                    var strLeft = conversion.Split(":").FirstOrDefault();
+                    var strRight = conversion.Split(":").LastOrDefault();
+                    if (!string.IsNullOrEmpty(strLeft) && !_seoCharacterTable.ContainsKey(strLeft))
                     {
-                        var strLeft = conversion.Split(":").FirstOrDefault();
-                        var strRight = conversion.Split(":").LastOrDefault();
-                        if (!string.IsNullOrEmpty(strLeft) && !_seoCharacterTable.ContainsKey(strLeft))
-                        {
-                            _seoCharacterTable.Add(strLeft.Trim(), strRight.Trim());
-                        }
+                        _seoCharacterTable.Add(strLeft.Trim(), strRight?.Trim());
                     }
                 }
             }

@@ -29,20 +29,15 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
             //if (order.OrderStatus == OrderStatus.Cancelled)
             //    return false;
 
-            double canBeRefunded = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
+            var canBeRefunded = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
             if (canBeRefunded <= 0)
                 return false;
 
             if (amountToRefund > canBeRefunded)
                 return false;
 
-            if ((paymentTransaction.TransactionStatus == TransactionStatus.Paid ||
-                paymentTransaction.TransactionStatus == TransactionStatus.PartialPaid ||
-                paymentTransaction.TransactionStatus == TransactionStatus.PartiallyRefunded) &&
-                await _paymentService.SupportPartiallyRefund(paymentTransaction.PaymentMethodSystemName))
-                return true;
-
-            return false;
+            return paymentTransaction.TransactionStatus is TransactionStatus.Paid or TransactionStatus.PartialPaid or TransactionStatus.PartiallyRefunded &&
+                   await _paymentService.SupportPartiallyRefund(paymentTransaction.PaymentMethodSystemName);
         }
     }
 }

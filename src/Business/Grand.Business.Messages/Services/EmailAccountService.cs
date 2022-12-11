@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Grand.Business.Messages.Services
 {
-    public partial class EmailAccountService : IEmailAccountService
+    public class EmailAccountService : IEmailAccountService
     {
         private readonly IRepository<EmailAccount> _emailAccountRepository;
         private readonly ICacheBase _cacheBase;

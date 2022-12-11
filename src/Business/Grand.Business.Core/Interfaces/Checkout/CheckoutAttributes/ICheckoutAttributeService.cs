@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes
     /// <summary>
     /// Checkout attribute service
     /// </summary>
-    public partial interface ICheckoutAttributeService
+    public interface ICheckoutAttributeService
     {
         #region Checkout attributes
 
@@ -13,9 +13,10 @@ namespace Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes
         /// Gets all checkout attributes
         /// </summary>
         /// <param name="storeId">Store identifier</param>
-        /// <param name="excludeShippableAttributes">A value indicating whether we should exlude shippable attributes</param>
+        /// <param name="excludeShippableAttributes">A value indicating whether we should exclude shippable attributes</param>
+        /// <param name="ignoreAcl"></param>
         /// <returns>Checkout attributes</returns>
-        Task<IList<CheckoutAttribute>> GetAllCheckoutAttributes(string storeId = "", bool excludeShippableAttributes = false, bool ignorAcl = false);
+        Task<IList<CheckoutAttribute>> GetAllCheckoutAttributes(string storeId = "", bool excludeShippableAttributes = false, bool ignoreAcl = false);
 
         /// <summary>
         /// Gets a checkout attribute 

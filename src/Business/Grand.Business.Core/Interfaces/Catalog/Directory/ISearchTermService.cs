@@ -5,9 +5,9 @@ using Grand.Domain.Common;
 namespace Grand.Business.Core.Interfaces.Catalog.Directory
 {
     /// <summary>
-    /// Search term service interafce
+    /// Search term service interface
     /// </summary>
-    public partial interface ISearchTermService
+    public interface ISearchTermService
     {
         /// <summary>
         /// Deletes a search term record

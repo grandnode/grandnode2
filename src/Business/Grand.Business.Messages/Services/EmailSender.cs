@@ -10,7 +10,7 @@ namespace Grand.Business.Messages.Services
     /// <summary>
     /// Email sender
     /// </summary>
-    public partial class EmailSender : IEmailSender
+    public class EmailSender : IEmailSender
     {
         private readonly IDownloadService _downloadService;
         private readonly IMimeMappingService _mimeMappingService;
@@ -37,7 +37,7 @@ namespace Grand.Business.Messages.Services
         /// <param name="ccAddresses">CC addresses list</param>
         /// <param name="attachmentFilePath">Attachment file path</param>
         /// <param name="attachmentFileName">Attachment file name. If specified, then this file name will be sent to a recipient. Otherwise, "AttachmentFilePath" name will be used.</param>
-        /// <param name="attachedDownloads">Attachment download ID (another attachedment)</param>
+        /// <param name="attachedDownloads">Attachment download ID (another attachment)</param>
         public virtual async Task SendEmail(EmailAccount emailAccount, string subject, string body,
             string fromAddress, string fromName, string toAddress, string toName,
             string replyToAddress = null, string replyToName = null,
@@ -50,7 +50,7 @@ namespace Grand.Business.Messages.Services
             //from, to, reply to
             message.From.Add(new MailboxAddress(fromName, fromAddress));
             message.To.Add(new MailboxAddress(toName, toAddress));
-            if (!String.IsNullOrEmpty(replyToAddress))
+            if (!string.IsNullOrEmpty(replyToAddress))
             {
                 message.ReplyTo.Add(new MailboxAddress(replyToName, replyToAddress));
             }
@@ -58,7 +58,7 @@ namespace Grand.Business.Messages.Services
             //BCC
             if (bccAddresses != null && bccAddresses.Any())
             {
-                foreach (var address in bccAddresses.Where(bccValue => !String.IsNullOrWhiteSpace(bccValue)))
+                foreach (var address in bccAddresses.Where(bccValue => !string.IsNullOrWhiteSpace(bccValue)))
                 {
                     message.Bcc.Add(MailboxAddress.Parse(address.Trim()));
                 }
@@ -67,7 +67,7 @@ namespace Grand.Business.Messages.Services
             //CC
             if (ccAddresses != null && ccAddresses.Any())
             {
-                foreach (var address in ccAddresses.Where(ccValue => !String.IsNullOrWhiteSpace(ccValue)))
+                foreach (var address in ccAddresses.Where(ccValue => !string.IsNullOrWhiteSpace(ccValue)))
                 {
                     message.Cc.Add(MailboxAddress.Parse(address.Trim()));
                 }
@@ -77,11 +77,12 @@ namespace Grand.Business.Messages.Services
             message.Subject = subject;
 
             //content
-            var builder = new BodyBuilder();
-            builder.HtmlBody = body;
+            var builder = new BodyBuilder {
+                HtmlBody = body
+            };
 
             //create  the file attachment for this e-mail message
-            if (!String.IsNullOrEmpty(attachmentFilePath) &&
+            if (!string.IsNullOrEmpty(attachmentFilePath) &&
                 File.Exists(attachmentFilePath))
             {
                 // TODO: should probably include a check for the attachmentFileName not being null or white space
@@ -125,16 +126,14 @@ namespace Grand.Business.Messages.Services
             message.Body = builder.ToMessageBody();
 
             //send email
-            using (var smtpClient = new SmtpClient())
-            {
-                smtpClient.ServerCertificateValidationCallback =
-                    (s, c, h, e) => emailAccount.UseServerCertificateValidation;
-                await smtpClient.ConnectAsync(emailAccount.Host, emailAccount.Port,
-                    (SecureSocketOptions)emailAccount.SecureSocketOptionsId);
-                await smtpClient.AuthenticateAsync(emailAccount.Username, emailAccount.Password);
-                await smtpClient.SendAsync(message);
-                await smtpClient.DisconnectAsync(true);
-            }
+            using var smtpClient = new SmtpClient();
+            smtpClient.ServerCertificateValidationCallback =
+                (_, _, _, _) => emailAccount.UseServerCertificateValidation;
+            await smtpClient.ConnectAsync(emailAccount.Host, emailAccount.Port,
+                (SecureSocketOptions)emailAccount.SecureSocketOptionsId);
+            await smtpClient.AuthenticateAsync(emailAccount.Username, emailAccount.Password);
+            await smtpClient.SendAsync(message);
+            await smtpClient.DisconnectAsync(true);
         }
     }
 }

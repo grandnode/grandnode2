@@ -12,7 +12,7 @@ namespace Grand.Business.Catalog.Services.Products
     /// <summary>
     /// Product attribute service
     /// </summary>
-    public partial class ProductAttributeService : IProductAttributeService
+    public class ProductAttributeService : IProductAttributeService
     {
         #region Fields
 
@@ -31,7 +31,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// </summary>
         /// <param name="cacheBase">Cache manager</param>
         /// <param name="productAttributeRepository">Product attribute repository</param>
-        /// <param name="productAttributeCombinationRepository">Product attribute combination repository</param>
+        /// <param name="productRepository">Product repository</param>
         /// <param name="mediator">Mediator</param>
         public ProductAttributeService(ICacheBase cacheBase,
             IRepository<ProductAttribute> productAttributeRepository,
@@ -58,7 +58,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Product attributes</returns>
         public virtual async Task<IPagedList<ProductAttribute>> GetAllProductAttributes(int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            string key = string.Format(CacheKey.PRODUCTATTRIBUTES_ALL_KEY, pageIndex, pageSize);
+            var key = string.Format(CacheKey.PRODUCTATTRIBUTES_ALL_KEY, pageIndex, pageSize);
             return await _cacheBase.GetAsync(key, () =>
             {
                 var query = from pa in _productAttributeRepository.Table
@@ -75,7 +75,7 @@ namespace Grand.Business.Catalog.Services.Products
         /// <returns>Product attribute </returns>
         public virtual Task<ProductAttribute> GetProductAttributeById(string productAttributeId)
         {
-            string key = string.Format(CacheKey.PRODUCTATTRIBUTES_BY_ID_KEY, productAttributeId);
+            var key = string.Format(CacheKey.PRODUCTATTRIBUTES_BY_ID_KEY, productAttributeId);
             return _cacheBase.GetAsync(key, () => _productAttributeRepository.GetByIdAsync(productAttributeId));
         }
 
@@ -227,15 +227,12 @@ namespace Grand.Business.Catalog.Services.Products
             var p = await _productRepository.GetByIdAsync(productId);
             if (p != null)
             {
-                var pavs = p.ProductAttributeMappings.Where(x => x.Id == productAttributeMappingId).FirstOrDefault();
-                if (pavs != null)
+                var pavs = p.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
+                var pav = pavs?.ProductAttributeValues.FirstOrDefault(x => x.Id == productAttributeValue.Id);
+                if (pav != null)
                 {
-                    var pav = pavs.ProductAttributeValues.Where(x => x.Id == productAttributeValue.Id).FirstOrDefault();
-                    if (pav != null)
-                    {
-                        pavs.ProductAttributeValues.Remove(pav);
-                        await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id, productAttributeMappingId, pavs);
-                    }
+                    pavs.ProductAttributeValues.Remove(pav);
+                    await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id, productAttributeMappingId, pavs);
                 }
             }
 
@@ -288,31 +285,25 @@ namespace Grand.Business.Catalog.Services.Products
                 throw new ArgumentNullException(nameof(productAttributeValue));
 
             var p = await _productRepository.GetByIdAsync(productId);
-            if (p != null)
+            var pavs = p?.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
+            var pav = pavs?.ProductAttributeValues.FirstOrDefault(x => x.Id == productAttributeValue.Id);
+            if (pav != null)
             {
-                var pavs = p.ProductAttributeMappings.Where(x => x.Id == productAttributeMappingId).FirstOrDefault();
-                if (pavs != null)
-                {
-                    var pav = pavs.ProductAttributeValues.Where(x => x.Id == productAttributeValue.Id).FirstOrDefault();
-                    if (pav != null)
-                    {
-                        pav.AttributeValueTypeId = productAttributeValue.AttributeValueTypeId;
-                        pav.AssociatedProductId = productAttributeValue.AssociatedProductId;
-                        pav.Name = productAttributeValue.Name;
-                        pav.ColorSquaresRgb = productAttributeValue.ColorSquaresRgb;
-                        pav.ImageSquaresPictureId = productAttributeValue.ImageSquaresPictureId;
-                        pav.PriceAdjustment = productAttributeValue.PriceAdjustment;
-                        pav.WeightAdjustment = productAttributeValue.WeightAdjustment;
-                        pav.Cost = productAttributeValue.Cost;
-                        pav.Quantity = productAttributeValue.Quantity;
-                        pav.IsPreSelected = productAttributeValue.IsPreSelected;
-                        pav.DisplayOrder = productAttributeValue.DisplayOrder;
-                        pav.PictureId = productAttributeValue.PictureId;
-                        pav.Locales = productAttributeValue.Locales;
+                pav.AttributeValueTypeId = productAttributeValue.AttributeValueTypeId;
+                pav.AssociatedProductId = productAttributeValue.AssociatedProductId;
+                pav.Name = productAttributeValue.Name;
+                pav.ColorSquaresRgb = productAttributeValue.ColorSquaresRgb;
+                pav.ImageSquaresPictureId = productAttributeValue.ImageSquaresPictureId;
+                pav.PriceAdjustment = productAttributeValue.PriceAdjustment;
+                pav.WeightAdjustment = productAttributeValue.WeightAdjustment;
+                pav.Cost = productAttributeValue.Cost;
+                pav.Quantity = productAttributeValue.Quantity;
+                pav.IsPreSelected = productAttributeValue.IsPreSelected;
+                pav.DisplayOrder = productAttributeValue.DisplayOrder;
+                pav.PictureId = productAttributeValue.PictureId;
+                pav.Locales = productAttributeValue.Locales;
 
-                        await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id, productAttributeMappingId, pavs);
-                    }
-                }
+                await _productRepository.UpdateToSet(productId, x => x.ProductAttributeMappings, z => z.Id, productAttributeMappingId, pavs);
             }
 
             //cache

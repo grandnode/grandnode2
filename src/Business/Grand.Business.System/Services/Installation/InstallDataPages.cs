@@ -4,7 +4,7 @@ using Grand.Domain.Seo;
 
 namespace Grand.Business.System.Services.Installation
 {
-    public partial class InstallationService : IInstallationService
+    public partial class InstallationService
     {
         protected virtual async Task InstallPages()
         {

@@ -4,9 +4,9 @@ using Grand.Infrastructure.Caching;
 namespace Grand.Business.System.Services.BackgroundServices.ScheduleTasks
 {
     /// <summary>
-    /// Clear cache schedueled task implementation
+    /// Clear cache scheduled task implementation
     /// </summary>
-    public partial class ClearCacheScheduleTask : IScheduleTask
+    public class ClearCacheScheduleTask : IScheduleTask
     {
         private readonly ICacheBase _cacheBase;
 

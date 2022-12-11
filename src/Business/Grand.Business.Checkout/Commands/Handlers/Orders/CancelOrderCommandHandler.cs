@@ -60,13 +60,13 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 throw new Exception("Cannot do cancel for order with shipments");
 
             //Cancel order
-            await _mediator.Send(new SetOrderStatusCommand()
+            await _mediator.Send(new SetOrderStatusCommand
             {
                 Order = request.Order,
                 Os = OrderStatusSystem.Cancelled,
                 NotifyCustomer = request.NotifyCustomer,
                 NotifyStoreOwner = request.NotifyStoreOwner
-            });
+            }, cancellationToken);
 
             //add a note
             await _orderService.InsertOrderNote(new OrderNote
@@ -74,12 +74,12 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                 Note = "Order has been cancelled",
                 DisplayToCustomer = false,
                 CreatedOnUtc = DateTime.UtcNow,
-                OrderId = request.Order.Id,
+                OrderId = request.Order.Id
 
             });
 
-            //return (add) back redeemded loyalty points
-            await _mediator.Send(new ReturnBackRedeemedLoyaltyPointsCommand() { Order = request.Order });
+            //return (add) back redeemed loyalty points
+            await _mediator.Send(new ReturnBackRedeemedLoyaltyPointsCommand { Order = request.Order }, cancellationToken);
 
             //Adjust inventory
             foreach (var orderItem in request.Order.OrderItems)
@@ -105,12 +105,12 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
             await _discountService.CancelDiscount(request.Order.Id);
 
             //cancel payments
-            var payment = await _paymentTransactionService.GetByOrdeGuid(request.Order.OrderGuid);
+            var payment = await _paymentTransactionService.GetOrderByGuid(request.Order.OrderGuid);
             if (payment != null)
                 await _paymentService.CancelPayment(payment);
 
             //event notification
-            await _mediator.Publish(new OrderCancelledEvent(request.Order));
+            await _mediator.Publish(new OrderCancelledEvent(request.Order), cancellationToken);
 
             return true;
         }

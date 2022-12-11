@@ -14,7 +14,7 @@
         /// <summary>
         /// Ctor
         /// </summary>
-        /// <param name="properties">All acsess properties</param>
+        /// <param name="properties">All access properties</param>
         public PropertyManager(PropertyByName<T>[] properties)
         {
             _properties = new Dictionary<string, PropertyByName<T>>();

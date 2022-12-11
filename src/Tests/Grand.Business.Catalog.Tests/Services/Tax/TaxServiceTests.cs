@@ -165,8 +165,8 @@ namespace Grand.Business.Catalog.Tests.Service.Tax
             Assert.AreEqual(scUnitPriceExclTax, result02.UnitPriceExclTax, "unit price excluding tax");
             Assert.AreEqual(scSubTotalInclTax, result02.SubTotalInclTax, "sub total including tax");
             Assert.AreEqual(scSubTotalExclTax, result02.SubTotalExclTax, "sub total excluding tax");
-            Assert.AreEqual(discountAmountInclTax, result02.discountAmountInclTax, "discount including tax");
-            Assert.AreEqual(discountAmountExclTax, result02.discountAmountExclTax, "discount excluding tax");
+            Assert.AreEqual(discountAmountInclTax, result02.DiscountAmountInclTax, "discount including tax");
+            Assert.AreEqual(discountAmountExclTax, result02.DiscountAmountExclTax, "discount excluding tax");
         }
 
         [TestMethod()]
@@ -198,8 +198,8 @@ namespace Grand.Business.Catalog.Tests.Service.Tax
             Assert.AreEqual(scUnitPriceExclTax, result02.UnitPriceExclTax, "unit price excluding tax");
             Assert.AreEqual(scSubTotalInclTax, result02.SubTotalInclTax, "sub total including tax");
             Assert.AreEqual(scSubTotalExclTax, result02.SubTotalExclTax, "sub total excluding tax");
-            Assert.AreEqual(discountAmountInclTax, result02.discountAmountInclTax, "discount including tax");
-            Assert.AreEqual(discountAmountExclTax, result02.discountAmountExclTax, "discount excluding tax");
+            Assert.AreEqual(discountAmountInclTax, result02.DiscountAmountInclTax, "discount including tax");
+            Assert.AreEqual(discountAmountExclTax, result02.DiscountAmountExclTax, "discount excluding tax");
         }
 
         [TestMethod()]
@@ -231,8 +231,8 @@ namespace Grand.Business.Catalog.Tests.Service.Tax
             Assert.AreEqual(scUnitPriceExclTax, result02.UnitPriceExclTax, "unit price excluding tax");
             Assert.AreEqual(scSubTotalInclTax, result02.SubTotalInclTax, "sub total including tax");
             Assert.AreEqual(scSubTotalExclTax, result02.SubTotalExclTax, "sub total excluding tax");
-            Assert.AreEqual(discountAmountInclTax, result02.discountAmountInclTax, "discount including tax");
-            Assert.AreEqual(discountAmountExclTax, result02.discountAmountExclTax, "discount excluding tax");
+            Assert.AreEqual(discountAmountInclTax, result02.DiscountAmountInclTax, "discount including tax");
+            Assert.AreEqual(discountAmountExclTax, result02.DiscountAmountExclTax, "discount excluding tax");
         }
 
         [TestMethod()]
@@ -264,8 +264,8 @@ namespace Grand.Business.Catalog.Tests.Service.Tax
             Assert.AreEqual(scUnitPriceExclTax, result02.UnitPriceExclTax, "unit price excluding tax");
             Assert.AreEqual(scSubTotalInclTax, result02.SubTotalInclTax, "sub total including tax");
             Assert.AreEqual(scSubTotalExclTax, result02.SubTotalExclTax, "sub total excluding tax");
-            Assert.AreEqual(discountAmountInclTax, result02.discountAmountInclTax, "discount including tax");
-            Assert.AreEqual(discountAmountExclTax, result02.discountAmountExclTax, "discount excluding tax");
+            Assert.AreEqual(discountAmountInclTax, result02.DiscountAmountInclTax, "discount including tax");
+            Assert.AreEqual(discountAmountExclTax, result02.DiscountAmountExclTax, "discount excluding tax");
         }
 
     }

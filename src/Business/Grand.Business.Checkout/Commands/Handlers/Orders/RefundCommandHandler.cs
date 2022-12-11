@@ -67,7 +67,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     if (order == null)
                         throw new ArgumentNullException(nameof(order));
 
-                    double totalAmountRefunded = order.RefundedAmount + request.AmountToRefund;
+                    var totalAmountRefunded = order.RefundedAmount + request.AmountToRefund;
 
                     //update order info
                     order.RefundedAmount = totalAmountRefunded;
@@ -75,7 +75,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     await _orderService.UpdateOrder(order);
 
                     //check order status
-                    await _mediator.Send(new CheckOrderStatusCommand() { Order = order });
+                    await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
 
                     //notifications for store owner
                     await _messageProviderService.SendOrderRefundedStoreOwnerMessage(order, request.AmountToRefund, _languageSettings.DefaultAdminLanguageId);
@@ -84,32 +84,29 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders
                     await _messageProviderService.SendOrderRefundedCustomerMessage(order, request.AmountToRefund, order.CustomerLanguageId);
 
                     //raise event       
-                    await _mediator.Publish(new PaymentTransactionRefundedEvent(paymentTransaction, request.AmountToRefund));
+                    await _mediator.Publish(new PaymentTransactionRefundedEvent(paymentTransaction, request.AmountToRefund), cancellationToken);
                 }
 
             }
             catch (Exception exc)
             {
-                if (result == null)
-                    result = new RefundPaymentResult();
-                result.AddError(string.Format("Error: {0}. Full exception: {1}", exc.Message, exc.ToString()));
+                result ??= new RefundPaymentResult();
+                result.AddError($"Error: {exc.Message}. Full exception: {exc}");
             }
 
             //process errors
-            string error = "";
-            for (int i = 0; i < result.Errors.Count; i++)
+            var error = "";
+            for (var i = 0; i < result.Errors.Count; i++)
             {
-                error += string.Format("Error {0}: {1}", i, result.Errors[i]);
+                error += $"Error {i}: {result.Errors[i]}";
                 if (i != result.Errors.Count - 1)
                     error += ". ";
             }
-            if (!String.IsNullOrEmpty(error))
-            {
 
-                //log it
-                string logError = string.Format("Error refunding order #{0}. Error: {1}", paymentTransaction.OrderCode, error);
-                await _logger.InsertLog(LogLevel.Error, logError, logError);
-            }
+            if (string.IsNullOrEmpty(error)) return result.Errors;
+            //log it
+            var logError = $"Error refunding order #{paymentTransaction.OrderCode}. Error: {error}";
+            await _logger.InsertLog(LogLevel.Error, logError, logError);
             return result.Errors;
         }
     }

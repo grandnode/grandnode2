@@ -2,7 +2,7 @@
 
 namespace Grand.Business.Core.Interfaces.Catalog.Discounts
 {
-    public partial interface IDiscountProvider : IProvider
+    public interface IDiscountProvider : IProvider
     {
         IList<IDiscountRule> GetRequirementRules();
     }

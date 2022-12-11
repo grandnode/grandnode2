@@ -11,7 +11,7 @@ namespace Grand.Business.Customers.Services
     /// <summary>
     /// Affiliate service
     /// </summary>
-    public partial class AffiliateService : IAffiliateService
+    public class AffiliateService : IAffiliateService
     {
         #region Fields
 
@@ -80,11 +80,11 @@ namespace Grand.Business.Customers.Services
             var query = from p in _affiliateRepository.Table
                         select p;
 
-            if (!String.IsNullOrWhiteSpace(friendlyUrlName))
+            if (!string.IsNullOrWhiteSpace(friendlyUrlName))
                 query = query.Where(a => a.FriendlyUrlName != null && a.FriendlyUrlName.Contains(friendlyUrlName.ToLowerInvariant()));
-            if (!String.IsNullOrWhiteSpace(firstName))
+            if (!string.IsNullOrWhiteSpace(firstName))
                 query = query.Where(a => a.Address.FirstName != null && a.Address.FirstName.ToLower().Contains(firstName.ToLower()));
-            if (!String.IsNullOrWhiteSpace(lastName))
+            if (!string.IsNullOrWhiteSpace(lastName))
                 query = query.Where(a => a.Address.LastName != null && a.Address.LastName.ToLower().Contains(lastName.ToLower()));
             if (!showHidden)
                 query = query.Where(a => a.Active);

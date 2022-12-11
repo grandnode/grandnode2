@@ -31,8 +31,8 @@ namespace Grand.Business.Core.Interfaces.Marketing.PushNotifications
         /// <summary>
         /// Gets all push receivers
         /// </summary>
-        /// <param name="Id"></param>
-        Task<PushRegistration> GetPushReceiver(string Id);
+        /// <param name="id"></param>
+        Task<PushRegistration> GetPushReceiver(string id);
 
         /// <summary>
         /// Gets number of customers that accepted push notifications permission popup

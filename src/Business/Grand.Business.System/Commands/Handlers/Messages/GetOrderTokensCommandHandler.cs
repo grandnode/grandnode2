@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Commands.Messages;
+﻿using Grand.Business.Core.Commands.Messages.Tokens;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -11,10 +11,10 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
-using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using MediatR;
+using System.Globalization;
 using System.Net;
 
 namespace Grand.Business.System.Commands.Handlers.Messages
@@ -70,63 +70,53 @@ namespace Grand.Business.System.Commands.Handlers.Messages
             {
                 var product = await _productService.GetProductById(item.ProductId);
                 Vendor vendorItem = string.IsNullOrEmpty(item.VendorId) ? null : await _vendorService.GetVendorById(item.VendorId);
-                var liqitem = new LiquidOrderItem(item, product, language, request.Store, request.Host, vendorItem);
+                var liquidItem = new LiquidOrderItem(item, product, language, request.Store, request.Host, vendorItem);
 
                 #region Download
 
-                liqitem.IsDownloadAllowed = request.Order.IsDownloadAllowed(item, product);
-                liqitem.IsLicenseDownloadAllowed = request.Order.IsLicenseDownloadAllowed(item, product);
+                liquidItem.IsDownloadAllowed = request.Order.IsDownloadAllowed(item, product);
+                liquidItem.IsLicenseDownloadAllowed = request.Order.IsLicenseDownloadAllowed(item, product);
 
                 #endregion
 
                 #region Unit price
-                string unitPriceStr;
-                if (request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax)
-                {
+
+                var unitPriceStr =
                     //including tax
-                    unitPriceStr = _priceFormatter.FormatPrice(item.UnitPriceInclTax, currency, language, true);
-                }
-                else
-                {
+                    request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax ? _priceFormatter.FormatPrice(item.UnitPriceInclTax, currency, language, true) :
                     //excluding tax
-                    unitPriceStr = _priceFormatter.FormatPrice(item.UnitPriceExclTax, currency, language, false);
-                }
-                liqitem.UnitPrice = unitPriceStr;
+                    _priceFormatter.FormatPrice(item.UnitPriceExclTax, currency, language, false);
+                liquidItem.UnitPrice = unitPriceStr;
 
                 #endregion
 
                 #region total price
-                string priceStr;
-                if (request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax)
-                {
+
+                var priceStr =
                     //including tax
-                    priceStr = _priceFormatter.FormatPrice(item.PriceInclTax, currency, language, true);
-                }
-                else
-                {
+                    request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax ? _priceFormatter.FormatPrice(item.PriceInclTax, currency, language, true) :
                     //excluding tax
-                    priceStr = _priceFormatter.FormatPrice(item.PriceExclTax, currency, language, false);
-                }
-                liqitem.TotalPrice = priceStr;
+                    _priceFormatter.FormatPrice(item.PriceExclTax, currency, language, false);
+                liquidItem.TotalPrice = priceStr;
 
                 #endregion
 
-                string sku = "";
+                var sku = "";
                 if (product != null)
                     sku = product.FormatSku(item.Attributes);
 
-                liqitem.ProductSku = WebUtility.HtmlEncode(sku);
-                liquidOrder.OrderItems.Add(liqitem);
+                liquidItem.ProductSku = WebUtility.HtmlEncode(sku);
+                liquidOrder.OrderItems.Add(liquidItem);
             }
             var billingCountry = await _countryService.GetCountryById(request.Order.BillingAddress?.CountryId);
             liquidOrder.BillingCustomAttributes = await _addressAttributeParser.FormatAttributes(language, request.Order.BillingAddress?.Attributes);
             liquidOrder.BillingCountry = request.Order.BillingAddress != null && !string.IsNullOrEmpty(request.Order.BillingAddress.CountryId) ? billingCountry?.GetTranslation(x => x.Name, request.Order.CustomerLanguageId) : "";
-            liquidOrder.BillingStateProvince = !string.IsNullOrEmpty(request.Order.BillingAddress.StateProvinceId) ? billingCountry?.StateProvinces.FirstOrDefault(x => x.Id == request.Order.BillingAddress.StateProvinceId)?.GetTranslation(x => x.Name, request.Order.CustomerLanguageId) : "";
+            liquidOrder.BillingStateProvince = !string.IsNullOrEmpty(request.Order.BillingAddress?.StateProvinceId) ? billingCountry?.StateProvinces.FirstOrDefault(x => x.Id == request.Order.BillingAddress.StateProvinceId)?.GetTranslation(x => x.Name, request.Order.CustomerLanguageId) : "";
 
             var shippingCountry = await _countryService.GetCountryById(request.Order.ShippingAddress?.CountryId);
             liquidOrder.ShippingCountry = request.Order.ShippingAddress != null && !string.IsNullOrEmpty(request.Order.ShippingAddress.CountryId) ? shippingCountry?.GetTranslation(x => x.Name, request.Order.CustomerLanguageId) : "";
             liquidOrder.ShippingStateProvince = request.Order.ShippingAddress != null && !string.IsNullOrEmpty(request.Order.ShippingAddress.StateProvinceId) ? shippingCountry?.StateProvinces.FirstOrDefault(x => x.Id == request.Order.ShippingAddress.StateProvinceId)?.GetTranslation(x => x.Name, request.Order.CustomerLanguageId) : "";
-            liquidOrder.ShippingCustomAttributes = await _addressAttributeParser.FormatAttributes(language, request.Order.ShippingAddress != null ? request.Order.ShippingAddress.Attributes : null);
+            liquidOrder.ShippingCustomAttributes = await _addressAttributeParser.FormatAttributes(language, request.Order.ShippingAddress?.Attributes);
 
             var paymentMethod = _paymentService.LoadPaymentMethodBySystemName(request.Order.PaymentMethodSystemName);
             liquidOrder.PaymentMethod = paymentMethod != null ? paymentMethod.FriendlyName : request.Order.PaymentMethodSystemName;
@@ -138,7 +128,7 @@ namespace Grand.Business.System.Commands.Handlers.Messages
                 var taxValue = _priceFormatter.FormatPrice(item.Amount, currency, language, false);
 
                 if (string.IsNullOrEmpty(taxRate))
-                    taxRate = item.Percent.ToString();
+                    taxRate = item.Percent.ToString(CultureInfo.InvariantCulture);
 
                 if (!dict.ContainsKey(taxRate))
                     dict.Add(taxRate, taxValue);
@@ -151,8 +141,8 @@ namespace Grand.Business.System.Commands.Handlers.Messages
             foreach (var gcuh in gcuhC)
             {
                 var giftVoucher = await _giftVoucherService.GetGiftVoucherById(gcuh.GiftVoucherId);
-                string giftVoucherText = string.Format(_translationService.GetResource("Messages.Order.GiftVoucherInfo", language.Id), WebUtility.HtmlEncode(giftVoucher.Code));
-                string giftVoucherAmount = _priceFormatter.FormatPrice(-gcuh.UsedValue, currency, language, true, false);
+                var giftVoucherText = string.Format(_translationService.GetResource("Messages.Order.GiftVoucherInfo", language.Id), WebUtility.HtmlEncode(giftVoucher.Code));
+                var giftVoucherAmount = _priceFormatter.FormatPrice(-gcuh.UsedValue, currency, language, true, false);
                 cards.Add(giftVoucherText, giftVoucherAmount);
             }
             liquidOrder.GiftVouchers = cards;
@@ -192,8 +182,6 @@ namespace Grand.Business.System.Commands.Handlers.Messages
                 }
                 else
                 {
-                    //exсluding tax
-
                     //subtotal
                     _cusSubTotal = _priceFormatter.FormatPrice(request.Order.OrderSubtotalExclTax, currency, language, false);
                     //discount (applied to order subtotal)
@@ -226,16 +214,6 @@ namespace Grand.Business.System.Commands.Handlers.Messages
                     //payment method additional fee
                     _cusPaymentMethodAdditionalFee = _priceFormatter.FormatPaymentMethodAdditionalFee(request.Order.PaymentMethodAdditionalFeeExclTax, currency, language, false);
                 }
-
-                //shipping
-                bool displayShipping = request.Order.ShippingStatusId != ShippingStatus.ShippingNotRequired;
-
-                //payment method fee
-                bool displayPaymentMethodFee = request.Order.PaymentMethodAdditionalFeeExclTax > 0;
-
-                //tax
-                _displayTax = true;
-                _displayTaxRates = true;
                 if (_taxSettings.HideTaxInOrderSummary && request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax)
                 {
                     _displayTax = false;
@@ -253,7 +231,7 @@ namespace Grand.Business.System.Commands.Handlers.Messages
                         _displayTaxRates = _taxSettings.DisplayTaxRates && request.Order.OrderTaxes.Any();
                         _displayTax = !_displayTaxRates;
 
-                        string taxStr = _priceFormatter.FormatPrice(request.Order.OrderTax, currency, language, request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax, false);
+                        var taxStr = _priceFormatter.FormatPrice(request.Order.OrderTax, currency, language, request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax, false);
                         _cusTaxTotal = taxStr;
                     }
                 }

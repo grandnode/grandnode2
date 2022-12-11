@@ -28,14 +28,8 @@ namespace Grand.Business.Checkout.Queries.Handlers.Orders
 
             //if (order.OrderStatus == OrderStatus.Cancelled)
             //    return false;
-
-            if ((paymentTransaction.TransactionStatus == TransactionStatus.Paid ||
-                paymentTransaction.TransactionStatus == TransactionStatus.PartialPaid ||
-                paymentTransaction.TransactionStatus == TransactionStatus.PartiallyRefunded) &&
-                await _paymentService.SupportRefund(paymentTransaction.PaymentMethodSystemName))
-                return true;
-
-            return false;
+            return paymentTransaction.TransactionStatus is TransactionStatus.Paid or TransactionStatus.PartialPaid or TransactionStatus.PartiallyRefunded &&
+                   await _paymentService.SupportRefund(paymentTransaction.PaymentMethodSystemName);
         }
     }
 }

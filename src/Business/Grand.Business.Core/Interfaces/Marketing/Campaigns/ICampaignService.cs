@@ -3,7 +3,7 @@ using Grand.Domain.Messages;
 
 namespace Grand.Business.Core.Interfaces.Marketing.Campaigns
 {
-    public partial interface ICampaignService
+    public interface ICampaignService
     {
         /// <summary>
         /// Inserts a campaign
@@ -14,8 +14,8 @@ namespace Grand.Business.Core.Interfaces.Marketing.Campaigns
         /// <summary>
         /// Inserts a campaign history
         /// </summary>
-        /// <param name="campaign">Campaign</param>        
-        Task InsertCampaignHistory(CampaignHistory campaignhistory);
+        /// <param name="campaignHistory">Campaign history</param>        
+        Task InsertCampaignHistory(CampaignHistory campaignHistory);
         /// <summary>
         /// Updates a campaign
         /// </summary>
@@ -50,7 +50,9 @@ namespace Grand.Business.Core.Interfaces.Marketing.Campaigns
         /// <summary>
         /// Gets customer subscriptions
         /// </summary>
-        /// <param name="Campaign">Campaign</param>
+        /// <param name="campaign">Campaign</param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
         /// <returns>CampaignCustomerSubscription</returns>
         Task<IPagedList<NewsLetterSubscription>> CustomerSubscriptions(Campaign campaign, int pageIndex = 0, int pageSize = int.MaxValue);
 

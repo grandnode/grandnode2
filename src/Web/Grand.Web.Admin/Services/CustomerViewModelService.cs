@@ -961,7 +961,7 @@ namespace Grand.Web.Admin.Services
                         customer.Groups.Remove(customer.Groups.First(x => x == customerGroup.Id));
                 }
             }
-            await _customerService.UpdateCustomerinAdminPanel(customer);
+            await _customerService.UpdateCustomerInAdminPanel(customer);
 
 
             //ensure that a customer with a vendor associated is not in "Administrators" role
@@ -969,7 +969,7 @@ namespace Grand.Web.Admin.Services
             if (await _groupService.IsAdmin(customer) && !string.IsNullOrEmpty(customer.VendorId))
             {
                 customer.VendorId = "";
-                await _customerService.UpdateCustomerinAdminPanel(customer);
+                await _customerService.UpdateCustomerInAdminPanel(customer);
             }
 
             //ensure that a customer with a staff associated is not in "Administrators" role
@@ -977,7 +977,7 @@ namespace Grand.Web.Admin.Services
             if (await _groupService.IsAdmin(customer) && !string.IsNullOrEmpty(customer.StaffStoreId))
             {
                 customer.StaffStoreId = "";
-                await _customerService.UpdateCustomerinAdminPanel(customer);
+                await _customerService.UpdateCustomerInAdminPanel(customer);
             }
 
             //ensure that a customer in the Vendors role has a vendor account associated.
@@ -1141,7 +1141,7 @@ namespace Grand.Web.Admin.Services
         public virtual async Task DeleteAddress(Customer customer, Address address)
         {
             customer.RemoveAddress(address);
-            await _customerService.UpdateCustomerinAdminPanel(customer);
+            await _customerService.UpdateCustomerInAdminPanel(customer);
         }
 
         public virtual async Task<Address> InsertAddressModel(Customer customer, CustomerAddressModel model, List<CustomAttribute> customAttributes)
@@ -1150,7 +1150,7 @@ namespace Grand.Web.Admin.Services
             address.Attributes = customAttributes;
             address.CreatedOnUtc = DateTime.UtcNow;
             customer.Addresses.Add(address);
-            await _customerService.UpdateCustomerinAdminPanel(customer);
+            await _customerService.UpdateCustomerInAdminPanel(customer);
             return address;
         }
 
@@ -1219,7 +1219,7 @@ namespace Grand.Web.Admin.Services
         {
             address = model.Address.ToEntity(address);
             address.Attributes = customAttributes;
-            await _customerService.UpdateCustomerinAdminPanel(customer);
+            await _customerService.UpdateCustomerInAdminPanel(customer);
             return address;
         }
 
@@ -1266,7 +1266,7 @@ namespace Grand.Web.Admin.Services
             {
                 await _serviceProvider.GetRequiredService<IShoppingCartService>()
                     .DeleteShoppingCartItem(customer, cart, ensureOnlyActiveCheckoutAttributes: true);
-                await _customerService.UpdateCustomerinAdminPanel(customer);
+                await _customerService.UpdateCustomerInAdminPanel(customer);
             }
         }
 

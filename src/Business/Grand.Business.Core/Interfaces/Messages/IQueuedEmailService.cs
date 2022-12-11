@@ -3,7 +3,7 @@ using Grand.Domain.Messages;
 
 namespace Grand.Business.Core.Interfaces.Messages
 {
-    public partial interface IQueuedEmailService
+    public interface IQueuedEmailService
     {
         /// <summary>
         /// Inserts a queued email

@@ -30,8 +30,7 @@ namespace Grand.Business.Core.Extensions
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            var member = keySelector.Body as MemberExpression;
-            if (member == null)
+            if (keySelector.Body is not MemberExpression member)
                 throw new ArgumentException($"Expression '{keySelector}' refers to a method, not a property.");
 
             var propInfo = member.Member as PropertyInfo;
@@ -39,12 +38,11 @@ namespace Grand.Business.Core.Extensions
                 throw new ArgumentException($"Expression '{keySelector}' refers to a field, not a property.");
 
             string result = default;
-            string resultStr = string.Empty;
+            var resultStr = string.Empty;
 
-            string localeKeyGroup = typeof(T).Name;
-            string localeKey = propInfo.Name;
+            var localeKey = propInfo.Name;
 
-            if (!String.IsNullOrEmpty(languageId))
+            if (!string.IsNullOrEmpty(languageId))
             {
                 if (entity.Locales.Any())
                 {
@@ -52,16 +50,16 @@ namespace Grand.Business.Core.Extensions
                     if (en != null)
                     {
                         resultStr = en.LocaleValue;
-                        if (!String.IsNullOrEmpty(resultStr))
+                        if (!string.IsNullOrEmpty(resultStr))
                             result = resultStr;
                     }
                 }
             }
 
             //set default value if required
-            if (String.IsNullOrEmpty(resultStr) && returnDefaultValue)
+            if (string.IsNullOrEmpty(resultStr) && returnDefaultValue)
             {
-                result = (string)(propInfo.GetValue(entity));
+                result = (string)propInfo.GetValue(entity);
             }
             return result;
         }
@@ -102,13 +100,11 @@ namespace Grand.Business.Core.Extensions
             if (!typeof(T).GetTypeInfo().IsEnum) throw new ArgumentException("T must be enum type");
 
             //Translation value
-            string resourceName = string.Format("Enums.{0}.{1}",
-                typeof(T),
-                enumValue.ToString());
-            string result = translationService.GetResource(resourceName, languageId, "", true);
+            var resourceName = $"Enums.{typeof(T)}.{enumValue.ToString()}";
+            var result = translationService.GetResource(resourceName, languageId, "", true);
 
             //set default value if required
-            if (String.IsNullOrEmpty(result))
+            if (string.IsNullOrEmpty(result))
                 result = CommonHelper.ConvertEnum(enumValue);
 
             return result;
@@ -149,11 +145,11 @@ namespace Grand.Business.Core.Extensions
                 throw new ArgumentNullException(nameof(translationService));
 
             //Translation value
-            string name = $"Permission.{permissionRecord.SystemName}";
-            string result = translationService.GetResource(name, languageId, "", true);
+            var name = $"Permission.{permissionRecord.SystemName}";
+            var result = translationService.GetResource(name, languageId, "", true);
 
             //set default value if required
-            if (String.IsNullOrEmpty(result))
+            if (string.IsNullOrEmpty(result))
                 result = permissionRecord.Name;
 
             return result;
@@ -175,8 +171,8 @@ namespace Grand.Business.Core.Extensions
             if (languageService == null)
                 throw new ArgumentNullException(nameof(languageService));
 
-            string name = $"Permission.{permissionRecord.SystemName}";
-            string value = permissionRecord.Name;
+            var name = $"Permission.{permissionRecord.SystemName}";
+            var value = permissionRecord.Name;
 
             foreach (var lang in await languageService.GetAllLanguages(true))
             {
@@ -214,7 +210,7 @@ namespace Grand.Business.Core.Extensions
             if (languageService == null)
                 throw new ArgumentNullException(nameof(languageService));
 
-            string name = $"Permission.{permissionRecord.SystemName}";
+            var name = $"Permission.{permissionRecord.SystemName}";
             foreach (var lang in await languageService.GetAllLanguages(true))
             {
                 var lsr = await translationService.GetTranslateResourceByName(name, lang.Id);
@@ -275,7 +271,7 @@ namespace Grand.Business.Core.Extensions
                 name = name.ToLowerInvariant();
             foreach (var lang in await languageService.GetAllLanguages(true))
             {
-                if (!String.IsNullOrEmpty(languageCulture) && !languageCulture.Equals(lang.LanguageCulture))
+                if (!string.IsNullOrEmpty(languageCulture) && !languageCulture.Equals(lang.LanguageCulture))
                     continue;
 
                 var lsr = await translationService.GetTranslateResourceByName(name, lang.Id);

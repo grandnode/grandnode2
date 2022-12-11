@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Interfaces.Common.Directory
     /// <summary>
     /// Country service interface
     /// </summary>
-    public partial interface ICountryService
+    public interface ICountryService
     {      
         /// <summary>
         /// Gets all countries

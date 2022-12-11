@@ -9,7 +9,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Tax
     /// <summary>
     /// Tax service
     /// </summary>
-    public partial interface ITaxService
+    public interface ITaxService
     {
         /// <summary>
         /// Load active tax provider
@@ -38,7 +38,6 @@ namespace Grand.Business.Core.Interfaces.Catalog.Tax
         /// </summary>
         /// <param name="product">Product</param>
         /// <param name="price">Price</param>
-        /// <param name="taxRate">Tax rate</param>
         /// <returns>Price</returns>
         Task<(double productprice, double taxRate)> GetProductPrice(Product product, double price);
 
@@ -80,7 +79,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Tax
         /// <param name="product">Product</param>
         /// <param name="customer">Customer</param>
         /// <param name="unitPrice">Unit Price</param>
-        /// <param name="unitPricewithoutDisc">Unit price without discount</param>
+        /// <param name="unitPriceWithoutDisc">Unit price without discount</param>
         /// <param name="quantity">Quantity</param>
         /// <param name="subTotal">Sub-Total</param>
         /// <param name="discountAmount">Discount amount</param>
@@ -90,7 +89,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Tax
             Product product,
             Customer customer,
             double unitPrice,
-            double unitPricewithoutDisc,
+            double unitPriceWithoutDisc,
             int quantity,
             double subTotal,
             double discountAmount,

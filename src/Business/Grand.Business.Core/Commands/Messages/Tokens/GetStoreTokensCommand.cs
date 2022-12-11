@@ -1,10 +1,10 @@
-﻿using Grand.Domain.Localization;
+﻿using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
+using Grand.Domain.Localization;
 using Grand.Domain.Messages;
 using Grand.Domain.Stores;
-using Grand.Business.Core.Utilities.Messages.DotLiquidDrops;
 using MediatR;
 
-namespace Grand.Business.Core.Commands.Messages
+namespace Grand.Business.Core.Commands.Messages.Tokens
 {
     public class GetStoreTokensCommand : IRequest<LiquidStore>
     {

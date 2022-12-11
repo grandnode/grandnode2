@@ -12,7 +12,7 @@ namespace Grand.Business.Marketing.Services.Customers
     /// <summary>
     /// Customer tag service
     /// </summary>
-    public partial class CustomerTagService : ICustomerTagService
+    public class CustomerTagService : ICustomerTagService
     {
         #region Fields
 
@@ -193,11 +193,11 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <returns>Customer tag products</returns>
         public virtual async Task<IList<CustomerTagProduct>> GetCustomerTagProducts(string customerTagId)
         {
-            string key = string.Format(CacheKey.CUSTOMERTAGPRODUCTS_ROLE_KEY, customerTagId);
+            var key = string.Format(CacheKey.CUSTOMERTAGPRODUCTS_ROLE_KEY, customerTagId);
             return await _cacheBase.GetAsync(key, async () =>
             {
                 var query = from cr in _customerTagProductRepository.Table
-                            where (cr.CustomerTagId == customerTagId)
+                            where cr.CustomerTagId == customerTagId
                             orderby cr.DisplayOrder
                             select cr;
                 return await Task.FromResult(query.ToList());
@@ -222,7 +222,7 @@ namespace Grand.Business.Marketing.Services.Customers
         /// <summary>
         /// Gets customer tag product
         /// </summary>
-        /// <param name="Id">id</param>
+        /// <param name="id">id</param>
         /// <returns>Customer tag product</returns>
         public virtual Task<CustomerTagProduct> GetCustomerTagProductById(string id)
         {
