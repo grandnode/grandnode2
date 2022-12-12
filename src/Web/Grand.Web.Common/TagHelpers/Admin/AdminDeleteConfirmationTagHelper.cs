@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 namespace Grand.Web.Common.TagHelpers.Admin
 {
     [HtmlTargetElement("admin-delete-confirmation")]
-    public partial class AdminDeleteConfirmationTagHelper : TagHelper
+    public class AdminDeleteConfirmationTagHelper : TagHelper
     {
         [ViewContext]
         public ViewContext ViewContext { get; set; }
@@ -40,17 +40,17 @@ namespace Grand.Web.Common.TagHelpers.Admin
 
             var windowId = new HtmlString(ViewContext.ViewData.ModelMetadata.ModelType.Name.ToLower() + "-delete-confirmation").ToHtmlString();
 
-            var modelId = string.IsNullOrEmpty(ModelId) ? ViewContext.RouteData.Values["Id"].ToString() : ModelId;
+            var modelId = string.IsNullOrEmpty(ModelId) ? ViewContext.RouteData.Values["Id"]?.ToString() : ModelId;
 
             var deleteConfirmationModel = new DeleteConfirmationModel
             {
                 Id = modelId,
-                ControllerName = ViewContext.RouteData.Values["controller"].ToString(),
+                ControllerName = ViewContext.RouteData.Values["controller"]?.ToString(),
                 ActionName = Action,
                 WindowId = windowId
             };
 
-            (_htmlHelper as IViewContextAware).Contextualize(ViewContext);
+            (_htmlHelper as IViewContextAware)?.Contextualize(ViewContext);
 
             output.TagName = "div";
             output.TagMode = TagMode.StartTagAndEndTag;
@@ -62,14 +62,14 @@ namespace Grand.Web.Common.TagHelpers.Admin
             var window = new StringBuilder();
             window.AppendLine("<script>");
             window.AppendLine("$(document).ready(function() {");
-            window.AppendLine(string.Format("$('#{0}').click(function (e) ", ButtonId));
+            window.AppendLine($"$('#{ButtonId}').click(function (e) ");
             window.AppendLine("{");
             window.AppendLine("e.preventDefault();");
-            window.AppendLine(string.Format("var window = $('#{0}');", windowId));
+            window.AppendLine($"var window = $('#{windowId}');");
             window.AppendLine("if (!window.data('kendoWindow')) {");
             window.AppendLine("window.kendoWindow({");
             window.AppendLine("modal: true,");
-            window.AppendLine(string.Format("title: '{0}',", _translationService.GetResource("Admin.Common.AreYouSure")));
+            window.AppendLine($"title: '{_translationService.GetResource("Admin.Common.AreYouSure")}',");
             window.AppendLine("actions: ['Close']");
             window.AppendLine("});");
             window.AppendLine("}");

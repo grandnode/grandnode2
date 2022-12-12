@@ -121,7 +121,7 @@ namespace Grand.Web.Common.Filters
                 return language?.Published ?? false;
             }
 
-            private string AddLanguageSeo(string url, Language language)
+            private static string AddLanguageSeo(string url, Language language)
             {
                 if (language == null)
                     throw new ArgumentNullException(nameof(language));

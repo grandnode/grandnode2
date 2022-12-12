@@ -32,8 +32,9 @@ namespace Grand.Web.Common.TagHelpers
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            var linkEntry = new LinkEntry();
-            linkEntry.Priority = Priority;
+            var linkEntry = new LinkEntry {
+                Priority = Priority
+            };
 
             if (!string.IsNullOrEmpty(Src))
             {
@@ -62,7 +63,7 @@ namespace Grand.Web.Common.TagHelpers
 
             foreach (var attribute in output.Attributes)
             {
-                if (String.Equals(attribute.Name, "href", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(attribute.Name, "href", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }

@@ -59,7 +59,7 @@ namespace Grand.Web.Common.Startup
             if (config.RedisPubSubEnabled)
             {
                 var redis = ConnectionMultiplexer.Connect(config.RedisPubSubConnectionString);
-                serviceCollection.AddSingleton(c => redis.GetSubscriber());
+                serviceCollection.AddSingleton(_ => redis.GetSubscriber());
                 serviceCollection.AddSingleton<IMessageBus, RedisMessageBus>();
                 serviceCollection.AddSingleton<ICacheBase, RedisMessageCacheManager>();
                 return;

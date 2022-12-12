@@ -92,7 +92,7 @@ namespace Grand.Web.Common.Filters
                         return;
 
                     //whether current IP is allowed
-                    var currentIp = filterContext.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+                    var currentIp = filterContext.HttpContext.Connection.RemoteIpAddress?.ToString();
                     if (!ipAddresses.Any(ip => ip.Equals(currentIp, StringComparison.OrdinalIgnoreCase)))
                         filterContext.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
 

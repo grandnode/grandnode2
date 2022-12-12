@@ -28,11 +28,11 @@ namespace Grand.Web.Common.Themes
                     }
                     .Concat(viewLocations);
             }
-            if ((context.AreaName?.Equals("Admin") ?? false) && context.Values.TryGetValue(AreaAdminKey, out var admintheme))
+            if ((context.AreaName?.Equals("Admin") ?? false) && context.Values.TryGetValue(AreaAdminKey, out var adminTheme))
             {
                 viewLocations = new[] {
-                        $"/Areas/{{2}}/Themes/{admintheme}/Views/{{1}}/{{0}}.cshtml",
-                        $"/Areas/{{2}}/Themes/{admintheme}/Views/Shared/{{0}}.cshtml"
+                        $"/Areas/{{2}}/Themes/{adminTheme}/Views/{{1}}/{{0}}.cshtml",
+                        $"/Areas/{{2}}/Themes/{adminTheme}/Views/Shared/{{0}}.cshtml"
                     }
                     .Concat(viewLocations);
             }

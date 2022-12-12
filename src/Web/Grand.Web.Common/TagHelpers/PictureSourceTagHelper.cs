@@ -23,8 +23,8 @@ namespace Grand.Web.Common.TagHelpers
         {
             if (!string.IsNullOrEmpty(PictureId))
             {
-                var pictureurl = await _pictureService.GetPictureUrl(PictureId, PictureSize, showDefaultPicture: false);
-                var srcset = new TagHelperAttribute("srcset", pictureurl);
+                var pictureUrl = await _pictureService.GetPictureUrl(PictureId, PictureSize, showDefaultPicture: false);
+                var srcset = new TagHelperAttribute("srcset", pictureUrl);
                 output.Attributes.Add(srcset);
             }
             await base.ProcessAsync(context, output);

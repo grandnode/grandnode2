@@ -106,11 +106,11 @@ namespace Grand.Web.Common.Controllers
         /// <param name="persistNextRequest">A value indicating whether a message should be persisted for the next request</param>
         protected virtual void Notification(NotifyType type, string message, bool persistNextRequest)
         {
-            var dataKey = string.Format("grand.notifications.{0}", type);
+            var dataKey = $"grand.notifications.{type}";
 
             if (persistNextRequest)
             {
-                if (TempData[dataKey] == null || !(TempData[dataKey] is List<string>))
+                if (TempData[dataKey] == null || TempData[dataKey] is not List<string>)
                     TempData[dataKey] = new List<string>();
                 ((List<string>)TempData[dataKey]).Add(message);
             }
@@ -118,7 +118,7 @@ namespace Grand.Web.Common.Controllers
             {
                 //1. Compare with null (first usage)
                 //2. For some unknown reasons sometimes List<string> is converted to string[]. And it throws exceptions. That's why we reset it
-                if (ViewData[dataKey] == null || !(ViewData[dataKey] is List<string>))
+                if (ViewData[dataKey] == null || ViewData[dataKey] is not List<string>)
                     ViewData[dataKey] = new List<string>();
                 ((List<string>)ViewData[dataKey]).Add(message);
             }

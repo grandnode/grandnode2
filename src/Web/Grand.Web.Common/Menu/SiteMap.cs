@@ -25,7 +25,7 @@ namespace Grand.Web.Common.Menu
                 SystemName = "Home",
                 ResourceName = "Admin.Home",
                 ControllerName = "Home",
-                ActionName = "Overview",
+                ActionName = "Overview"
             };
             await PrepareRootNode(sitemap, adminSiteMaps);
         }

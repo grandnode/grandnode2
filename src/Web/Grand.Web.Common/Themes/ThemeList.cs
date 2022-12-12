@@ -21,7 +21,7 @@ namespace Grand.Web.Common.Themes
 
         public IList<ThemeConfiguration> ThemeConfigurations { get; }
 
-        private ThemeConfiguration CreateThemeConfiguration(string themePath)
+        private static ThemeConfiguration CreateThemeConfiguration(string themePath)
         {
             var themeDirectory = new DirectoryInfo(themePath);
             var themeConfigFile = new FileInfo(Path.Combine(themeDirectory.FullName, "theme.cfg"));

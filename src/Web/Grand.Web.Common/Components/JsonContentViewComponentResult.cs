@@ -33,7 +33,7 @@ namespace Grand.Web.Common.Components
         /// Set content type for response
         /// </summary>
         /// <param name="context"></param>
-        protected void ContentType(ViewComponentContext context)
+        private static void ContentType(ViewComponentContext context)
         {
             context.ViewContext.HttpContext.Response.ContentType = "application/json";
         }
