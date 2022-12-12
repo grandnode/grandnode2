@@ -30,7 +30,7 @@ namespace Grand.Web.Common.Components
         public string EncodedContent { get; }
 
         /// <summary>
-        /// Set content type for reponse
+        /// Set content type for response
         /// </summary>
         /// <param name="context"></param>
         protected void ContentType(ViewComponentContext context)

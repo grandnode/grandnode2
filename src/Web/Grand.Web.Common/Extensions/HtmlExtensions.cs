@@ -9,12 +9,10 @@ namespace Grand.Web.Common.Extensions
 
         public static string RenderHtmlContent(this IHtmlContent htmlContent)
         {
-            using (var writer = new StringWriter())
-            {
-                htmlContent.WriteTo(writer, HtmlEncoder.Default);
-                var htmlOutput = writer.ToString();
-                return htmlOutput;
-            }
+            using var writer = new StringWriter();
+            htmlContent.WriteTo(writer, HtmlEncoder.Default);
+            var htmlOutput = writer.ToString();
+            return htmlOutput;
         }
         #endregion
 
@@ -22,11 +20,9 @@ namespace Grand.Web.Common.Extensions
 
         public static string ToHtmlString(this IHtmlContent tag)
         {
-            using (var writer = new StringWriter())
-            {
-                tag.WriteTo(writer, HtmlEncoder.Default);
-                return writer.ToString();
-            }
+            using var writer = new StringWriter();
+            tag.WriteTo(writer, HtmlEncoder.Default);
+            return writer.ToString();
         }
 
         #endregion

@@ -15,10 +15,7 @@ namespace Grand.Web.Common.Routing
         public string TransformOutbound(object value)
         {
             var lang = _httpContextAccessor.HttpContext?.Request.RouteValues["language"];
-            if (lang != null)
-                return lang.ToString();
-
-            return value == null ? null : value.ToString();
+            return lang != null ? lang.ToString() : value?.ToString();
         }
     }
 }

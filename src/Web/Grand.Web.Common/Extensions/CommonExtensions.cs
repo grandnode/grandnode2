@@ -44,7 +44,7 @@ namespace Grand.Web.Common.Extensions
                          select new
                          {
                              ID = Convert.ToInt32(enumValue),
-                             Name = ((translationService != null && workContext != null) ? enumValue.GetTranslationEnum(translationService, workContext) : enumValue.ToString())
+                             Name = translationService != null && workContext != null ? enumValue.GetTranslationEnum(translationService, workContext) : enumValue.ToString()
                          };
             object selectedValue = null;
             if (markCurrentAsSelected)

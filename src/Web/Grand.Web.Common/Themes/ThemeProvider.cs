@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Grand.Web.Common.Themes
 {
-    public partial class ThemeProvider : IThemeProvider
+    public class ThemeProvider : IThemeProvider
     {
         #region Fields
 
@@ -30,10 +30,7 @@ namespace Grand.Web.Common.Themes
 
         public IList<ThemeConfiguration> GetConfigurations()
         {
-            if(string.IsNullOrEmpty(CommonPath.Param))
-                return _themeList.ThemeConfigurations;
-
-            return _themeList.ThemeConfigurations.Where(x => string.IsNullOrEmpty(x.Directory) || x.Directory == CommonPath.Param).ToList();
+            return string.IsNullOrEmpty(CommonPath.Param) ? _themeList.ThemeConfigurations : _themeList.ThemeConfigurations.Where(x => string.IsNullOrEmpty(x.Directory) || x.Directory == CommonPath.Param).ToList();
         }
 
         public ThemeInfo GetThemeDescriptorFromText(string text)
@@ -42,9 +39,12 @@ namespace Grand.Web.Common.Themes
             try
             {
                 var themeConfiguration = JsonConvert.DeserializeObject<ThemeConfiguration>(text);
-                themeDescriptor.FriendlyName = themeConfiguration.Title;
+                themeDescriptor.FriendlyName = themeConfiguration?.Title;
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
 
             return themeDescriptor;
         }

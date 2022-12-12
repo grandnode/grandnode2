@@ -60,16 +60,14 @@ namespace Grand.Web.Common.Controllers
         /// <summary>
         /// Display error notification
         /// </summary>
+        /// <param name="modelState">Model state</param>
         /// <param name="persistNextRequest">A value indicating whether a message should be persisted for the next request</param>
-        protected virtual void Error(ModelStateDictionary ModelState, bool persistNextRequest = true)
+        protected virtual void Error(ModelStateDictionary modelState, bool persistNextRequest = true)
         {
             var modelErrors = new List<string>();
-            foreach (var modelState in ModelState.Values)
+            foreach (var value in modelState.Values)
             {
-                foreach (var modelError in modelState.Errors)
-                {
-                    modelErrors.Add(modelError.ErrorMessage);
-                }
+                modelErrors.AddRange(value.Errors.Select(modelError => modelError.ErrorMessage));
             }
             Notification(NotifyType.Error, string.Join(',', modelErrors), persistNextRequest);
         }
@@ -96,8 +94,8 @@ namespace Grand.Web.Common.Controllers
         {
             var workContext = HttpContext.RequestServices.GetRequiredService<IWorkContext>();
             var logger = HttpContext.RequestServices.GetRequiredService<ILogger>();
-            _ = logger.InsertLog(Domain.Logging.LogLevel.Error, exception?.Message, exception?.ToString(), workContext.CurrentCustomer, HttpContext.Connection?.RemoteIpAddress?.ToString(),
-                HttpContext.Request?.GetDisplayUrl(), HttpContext.Request?.GetTypedHeaders().Referer?.ToString());
+            _ = logger.InsertLog(Domain.Logging.LogLevel.Error, exception?.Message, exception?.ToString(), workContext.CurrentCustomer, HttpContext.Connection.RemoteIpAddress?.ToString(),
+                HttpContext.Request.GetDisplayUrl(), HttpContext.Request.GetTypedHeaders().Referer?.ToString());
         }
 
         /// <summary>
@@ -211,7 +209,7 @@ namespace Grand.Web.Common.Controllers
         /// <returns>Access denied view</returns>
         protected virtual IActionResult AccessDeniedView()
         {
-            return RedirectToAction("AccessDenied", "Home", new { pageUrl = HttpContext?.Request?.GetEncodedPathAndQuery() });
+            return RedirectToAction("AccessDenied", "Home", new { pageUrl = HttpContext.Request.GetEncodedPathAndQuery() });
         }
 
         /// <summary>

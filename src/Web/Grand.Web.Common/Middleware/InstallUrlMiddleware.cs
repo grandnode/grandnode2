@@ -27,14 +27,13 @@ namespace Grand.Web.Common.Middleware
         /// Invoke middleware actions
         /// </summary>
         /// <param name="context">HTTP context</param>
-        /// <param name="webHelper">Web helper</param>
         /// <returns>Task</returns>
         public async Task InvokeAsync(HttpContext context)
         {
             //whether database is installed
             if (!DataSettingsManager.DatabaseIsInstalled())
             {
-                var installUrl = $"/install";
+                const string installUrl = $"/install";
                 if (!context.Request.GetEncodedPathAndQuery().StartsWith(installUrl, StringComparison.OrdinalIgnoreCase))
                 {
                     //redirect
