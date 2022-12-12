@@ -5,7 +5,7 @@ namespace Grand.Business.Catalog.Services.ExportImport.Dto
     public class ProductDto
     {
         public string Id { get; set; }
-        public ProductType? ProductTypeId { get; set; }
+        public int? ProductTypeId { get; set; }
         public string ParentGroupedProductId { get; set; }
         public bool? VisibleIndividually { get; set; }
         public string Name { get; set; }
@@ -31,7 +31,7 @@ namespace Grand.Business.Catalog.Services.ExportImport.Dto
         public string Mpn { get; set; }
         public string Gtin { get; set; }
         public bool? IsGiftVoucher { get; set; }
-        public GiftVoucherType? GiftVoucherTypeId { get; set; }
+        public int? GiftVoucherTypeId { get; set; }
         public double? OverGiftAmount { get; set; }
         public bool? RequireOtherProducts { get; set; }
         public string RequiredProductIds { get; set; }
@@ -40,17 +40,17 @@ namespace Grand.Business.Catalog.Services.ExportImport.Dto
         public bool? UnlimitedDownloads { get; set; }
         public int? MaxNumberOfDownloads { get; set; }
         public int? DownloadExpirationDays { get; set; }
-        public DownloadActivationType? DownloadActivationTypeId { get; set; }
+        public int? DownloadActivationTypeId { get; set; }
         public bool? HasSampleDownload { get; set; }
         public bool? HasUserAgreement { get; set; }
         public string UserAgreementText { get; set; }
         public bool? IsRecurring { get; set; }
         public int? RecurringCycleLength { get; set; }
-        public RecurringCyclePeriod? RecurringCyclePeriodId { get; set; }
+        public int? RecurringCyclePeriodId { get; set; }
         public int? RecurringTotalCycles { get; set; }
         public bool? IncBothDate { get; set; }
         public int? Interval { get; set; }
-        public IntervalUnit? IntervalUnitId { get; set; }
+        public int? IntervalUnitId { get; set; }
         public bool? IsShipEnabled { get; set; }
         public bool? IsFreeShipping { get; set; }
         public bool? ShipSeparately { get; set; }
@@ -59,7 +59,7 @@ namespace Grand.Business.Catalog.Services.ExportImport.Dto
         public bool? IsTaxExempt { get; set; }
         public string TaxCategoryId { get; set; }
         public bool? IsTele { get; set; }
-        public ManageInventoryMethod? ManageInventoryMethodId { get; set; }
+        public int? ManageInventoryMethodId { get; set; }
         public bool? UseMultipleWarehouses { get; set; }
         public string WarehouseId { get; set; }
         public int? StockQuantity { get; set; }
@@ -68,9 +68,9 @@ namespace Grand.Business.Catalog.Services.ExportImport.Dto
         public bool? DisplayStockQuantity { get; set; }
         public int? MinStockQuantity { get; set; }
         public bool? LowStock { get; set; }
-        public LowStockActivity? LowStockActivityId { get; set; }
+        public int? LowStockActivityId { get; set; }
         public int? NotifyAdminForQuantityBelow { get; set; }
-        public BackorderMode? BackorderModeId { get; set; }
+        public int? BackorderModeId { get; set; }
         public bool? AllowOutOfStockSubscriptions { get; set; }
         public int? OrderMinimumQuantity { get; set; }
         public int? OrderMaximumQuantity { get; set; }
