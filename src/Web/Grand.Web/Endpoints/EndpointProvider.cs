@@ -774,9 +774,7 @@ namespace Grand.Web.Endpoints
 
             endpointRouteBuilder.MapControllerRoute("InstallChangeLanguage", "installchangelanguage",
                             new { controller = "Install", action = "ChangeLanguage" });
-            //upgrade
-            endpointRouteBuilder.MapControllerRoute("Upgrade", "upgrade",
-                            new { controller = "Upgrade", action = "Index" });
+           
         }
     }
 }
