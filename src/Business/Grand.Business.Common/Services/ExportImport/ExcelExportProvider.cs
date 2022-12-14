@@ -9,22 +9,22 @@ namespace Grand.Business.Common.Services.ExportImport
     {
         public virtual byte[] ExportToByte<T>(PropertyByName<T>[] properties, IEnumerable<T> itemsToExport)
         {
-            using (var stream = new MemoryStream())
+            using var stream = new MemoryStream();
+            IWorkbook xlPackage = new XSSFWorkbook();
+            ISheet worksheet = xlPackage.CreateSheet(typeof(T).Name);
+
+            _ = new PropertyManager<T>(properties);
+
+            WriteCaption(worksheet, properties);
+
+            var row = 1;
+
+            foreach (var items in itemsToExport)
             {
-                IWorkbook xlPackage = new XSSFWorkbook();
-                ISheet worksheet = xlPackage.CreateSheet(typeof(T).Name);
-
-                WriteCaption(worksheet, properties);
-
-                var row = 1;
-
-                foreach (var items in itemsToExport)
-                {
-                    WriteToXlsx(properties, worksheet, items, row++);
-                }
-                xlPackage.Write(stream, false);
-                return stream.ToArray();
+                WriteToXlsx(properties, worksheet, items, row++);
             }
+            xlPackage.Write(stream, false);
+            return stream.ToArray();
         }
 
         private MemoryStream _stream;
@@ -36,6 +36,9 @@ namespace Grand.Business.Common.Services.ExportImport
             _xlPackage ??= new XSSFWorkbook();
 
             ISheet worksheet = _xlPackage.CreateSheet(typeof(T).Name);
+            
+            _ = new PropertyManager<T>(properties);
+            
             WriteCaption(worksheet, properties);
             var row = 1;
             foreach (var items in itemsToExport)
@@ -69,15 +72,15 @@ namespace Grand.Business.Common.Services.ExportImport
         /// Write object data to XLSX worksheet
         /// </summary>
         /// <param name="items"></param>
-        /// <param name="id">Row index</param>
+        /// <param name="idrow">Row index</param>
         /// <param name="properties"></param>
         /// <param name="sheet"></param>
-        private void WriteToXlsx<T>(PropertyByName<T>[] properties, ISheet sheet, T items, int id)
+        private void WriteToXlsx<T>(PropertyByName<T>[] properties, ISheet sheet, T items, int idrow)
         {
-            IRow row = sheet.CreateRow(id);
+            IRow row = sheet.CreateRow(idrow);
             foreach (var prop in properties)
             {
-                var cellValue = prop.GetProperty(items)?.ToString();
+                var cellValue = (prop.GetProperty(items)?.ToString());
                 if (cellValue is { Length: >= 32767 }) // 32767 is the max char size of an excel cell
                 {
                     cellValue = cellValue[..32767]; //Truncate the content to max size.
