@@ -8,7 +8,7 @@ namespace Grand.Web.Common.Page.Paging
     {
         #region Methods
 
-        public virtual void LoadPagedList<T>(IPagedList<T> pagedList)
+        public void LoadPagedList<T>(IPagedList<T> pagedList)
         {
             FirstItem = pagedList.PageIndex * pagedList.PageSize + 1;
             HasNextPage = pagedList.HasNextPage;

@@ -32,7 +32,7 @@ namespace Grand.Web.Common.Controllers
         /// </summary>
         /// <param name="message">Message</param>
         /// <param name="persistNextRequest">A value indicating whether a message should be persisted for the next request</param>
-        protected virtual void Success(string message, bool persistNextRequest = true)
+        protected void Success(string message, bool persistNextRequest = true)
         {
             Notification(NotifyType.Success, message, persistNextRequest);
         }
@@ -42,7 +42,7 @@ namespace Grand.Web.Common.Controllers
         /// </summary>
         /// <param name="message">Message</param>
         /// <param name="persistNextRequest">A value indicating whether a message should be persisted for the next request</param>
-        protected virtual void Warning(string message, bool persistNextRequest = true)
+        protected void Warning(string message, bool persistNextRequest = true)
         {
             Notification(NotifyType.Warning, message, persistNextRequest);
         }
@@ -52,7 +52,7 @@ namespace Grand.Web.Common.Controllers
         /// </summary>
         /// <param name="message">Message</param>
         /// <param name="persistNextRequest">A value indicating whether a message should be persisted for the next request</param>
-        protected virtual void Error(string message, bool persistNextRequest = true)
+        protected void Error(string message, bool persistNextRequest = true)
         {
             Notification(NotifyType.Error, message, persistNextRequest);
         }
@@ -62,7 +62,7 @@ namespace Grand.Web.Common.Controllers
         /// </summary>
         /// <param name="modelState">Model state</param>
         /// <param name="persistNextRequest">A value indicating whether a message should be persisted for the next request</param>
-        protected virtual void Error(ModelStateDictionary modelState, bool persistNextRequest = true)
+        protected void Error(ModelStateDictionary modelState, bool persistNextRequest = true)
         {
             var modelErrors = new List<string>();
             foreach (var value in modelState.Values)
@@ -78,7 +78,7 @@ namespace Grand.Web.Common.Controllers
         /// <param name="exception">Exception</param>
         /// <param name="persistNextRequest">A value indicating whether a message should be persisted for the next request</param>
         /// <param name="logException">A value indicating whether exception should be logged</param>
-        protected virtual void Error(Exception exception, bool persistNextRequest = true, bool logException = true)
+        protected void Error(Exception exception, bool persistNextRequest = true, bool logException = true)
         {
             if (logException)
                 LogException(exception);
@@ -90,7 +90,7 @@ namespace Grand.Web.Common.Controllers
         /// Log exception
         /// </summary>
         /// <param name="exception">Exception</param>
-        protected void LogException(Exception exception)
+        private void LogException(Exception exception)
         {
             var workContext = HttpContext.RequestServices.GetRequiredService<IWorkContext>();
             var logger = HttpContext.RequestServices.GetRequiredService<ILogger>();
@@ -104,7 +104,7 @@ namespace Grand.Web.Common.Controllers
         /// <param name="type">Notification type</param>
         /// <param name="message">Message</param>
         /// <param name="persistNextRequest">A value indicating whether a message should be persisted for the next request</param>
-        protected virtual void Notification(NotifyType type, string message, bool persistNextRequest)
+        protected void Notification(NotifyType type, string message, bool persistNextRequest)
         {
             var dataKey = $"grand.notifications.{type}";
 
@@ -207,7 +207,7 @@ namespace Grand.Web.Common.Controllers
         /// Access denied view
         /// </summary>
         /// <returns>Access denied view</returns>
-        protected virtual IActionResult AccessDeniedView()
+        protected IActionResult AccessDeniedView()
         {
             return RedirectToAction("AccessDenied", "Home", new { pageUrl = HttpContext.Request.GetEncodedPathAndQuery() });
         }
