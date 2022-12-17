@@ -18,7 +18,7 @@ namespace Grand.Web.Common.TagHelpers
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            bool.TryParse(IsDisabled, out bool disabled);
+            bool.TryParse(IsDisabled, out var disabled);
             if (disabled)
             {
                 var d = new TagHelperAttribute("disabled", "disabled");

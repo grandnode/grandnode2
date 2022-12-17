@@ -31,24 +31,24 @@ namespace Grand.Web.Common.Middleware
         /// Invoke middleware actions
         /// </summary>
         /// <param name="context">HTTP context</param>
+        /// <param name="workContext">workContext</param>
         /// <returns>Task</returns>
         public async Task Invoke(HttpContext context, IWorkContext workContext)
         {
-            if (context == null || context.Request == null)
+            if (context?.Request == null)
             {
-                await _next(context);
                 return;
             }
 
             //set current context
             var customer = await workContext.SetCurrentCustomer();
-            var vendor = await workContext.SetCurrentVendor(customer);
+            await workContext.SetCurrentVendor(customer);
             var language = await workContext.SetWorkingLanguage(customer);
-            var currency = await workContext.SetWorkingCurrency(customer);
-            var taxtype = await workContext.SetTaxDisplayType(customer);
+            await workContext.SetWorkingCurrency(customer);
+            await workContext.SetTaxDisplayType(customer);
 
             //set culture in admin area
-            if (context.Request.Path.Value.StartsWith("/admin", StringComparison.InvariantCultureIgnoreCase))
+            if (context.Request.Path.Value != null && context.Request.Path.Value.StartsWith("/admin", StringComparison.InvariantCultureIgnoreCase))
             {
                 var culture = new CultureInfo("en-US");
                 CultureInfo.CurrentCulture = culture;

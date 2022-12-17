@@ -69,7 +69,7 @@ namespace Grand.Web.Common.Filters
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
                 await next();
-                if (context == null || context.HttpContext == null || context.HttpContext.Request == null)
+                if (context?.HttpContext?.Request == null)
                     return;
 
                 if (!DataSettingsManager.DatabaseIsInstalled())

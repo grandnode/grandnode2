@@ -5,7 +5,7 @@ namespace Grand.Web.Common.Page
     /// <summary>
     /// Page head builder
     /// </summary>
-    public partial interface IPageHeadBuilder
+    public interface IPageHeadBuilder
     {
         void AddTitleParts(string part);
         void AppendTitleParts(string part);

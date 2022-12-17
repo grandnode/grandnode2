@@ -3,7 +3,7 @@
 namespace Grand.Web.Common.TagHelpers.Admin
 {
     [HtmlTargetElement("items", ParentTag = "admin-tabstrip")]
-    public partial class AdminTabStripItemsTagHelper : TagHelper
+    public class AdminTabStripItemsTagHelper : TagHelper
     {
         public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {

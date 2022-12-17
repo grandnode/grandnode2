@@ -37,11 +37,9 @@ namespace Grand.Web.Common.Startup
             {
                 if (File.Exists("App_Data/UrlRewrite.xml"))
                 {
-                    using (var streamReader = File.OpenText("App_Data/UrlRewrite.xml"))
-                    {
-                        rewriteOptions = true;
-                        urlRewriteOptions.AddIISUrlRewrite(streamReader);
-                    }
+                    using var streamReader = File.OpenText("App_Data/UrlRewrite.xml");
+                    rewriteOptions = true;
+                    urlRewriteOptions.AddIISUrlRewrite(streamReader);
                 }
             }
             if (urlConfig.UrlRewriteHttpsOptions)

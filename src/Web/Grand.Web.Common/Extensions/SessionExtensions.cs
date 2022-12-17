@@ -30,10 +30,7 @@ namespace Grand.Web.Common.Extensions
         public static T Get<T>(this ISession session, string key)
         {
             var value = session.GetString(key);
-            if (value == null)
-                return default(T);
-
-            return JsonConvert.DeserializeObject<T>(value);
+            return value == null ? default : JsonConvert.DeserializeObject<T>(value);
         }
     }
 }

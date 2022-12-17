@@ -23,9 +23,9 @@ namespace Grand.Web.Common.Routing
             _config = config;
         }
 
-        protected async ValueTask<string> GetSeName(string entityId, string entityName, string languageId)
+        private async ValueTask<string> GetSeName(string entityId, string entityName, string languageId)
         {
-            string result = string.Empty;
+            var result = string.Empty;
             if (!string.IsNullOrEmpty(languageId))
             {
                 result = await _slugService.GetActiveSlug(entityId, entityName, languageId);
@@ -73,14 +73,13 @@ namespace Grand.Web.Common.Routing
             //otherwise it can cause some issues when customers choose a new language but a slug stays the same
             if (_config.SeoFriendlyUrlsForLanguagesEnabled)
             {
-                var urllanguage = values["language"];
-                if (urllanguage != null && !string.IsNullOrEmpty(urllanguage.ToString()))
+                var urlLanguage = values["language"];
+                if (urlLanguage != null && !string.IsNullOrEmpty(urlLanguage.ToString()))
                 {
-                    var language = (await _languageService.GetAllLanguages()).FirstOrDefault(x => x.UniqueSeoCode.ToLowerInvariant() == urllanguage.ToString().ToLowerInvariant());
-                    if (language == null)
-                        language = (await _languageService.GetAllLanguages()).FirstOrDefault();
+                    var language = (await _languageService.GetAllLanguages()).FirstOrDefault(x => x.UniqueSeoCode.ToLowerInvariant() == urlLanguage.ToString()?.ToLowerInvariant()) ??
+                                   (await _languageService.GetAllLanguages()).FirstOrDefault();
 
-                    var slugForCurrentLanguage = await GetSeName(entityUrl.EntityId, entityUrl.EntityName, language.Id);
+                    var slugForCurrentLanguage = await GetSeName(entityUrl.EntityId, entityUrl.EntityName, language?.Id);
                     if (!string.IsNullOrEmpty(slugForCurrentLanguage) && !slugForCurrentLanguage.Equals(slug.ToString(), StringComparison.OrdinalIgnoreCase))
                     {
                         values["controller"] = "Common";
@@ -92,11 +91,8 @@ namespace Grand.Web.Common.Routing
                     }
                 }
             }
-            else
-            {
-                //TODO - redirect when current lang is not the same as slug lang
-            }
 
+            //TODO - redirect when current lang is not the same as slug lang
             switch (entityUrl.EntityName.ToLowerInvariant())
             {
                 case "product":

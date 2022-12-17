@@ -39,7 +39,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
                                 : "control-label col-md-3 col-sm-3";
             if (RequiredAttribute)
             {
-                classValue = classValue + " required";
+                classValue += " required";
             }
             output.Attributes.SetAttribute("class", classValue);
 
@@ -55,7 +55,7 @@ namespace Grand.Web.Common.TagHelpers.Admin
                 output.Content.SetContent(resource);
             }
 
-            if (resourceDisplayName != null && DisplayHint)
+            if (DisplayHint)
             {
 
                 var hintResource = _translationService.GetResource(

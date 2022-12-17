@@ -29,7 +29,7 @@ namespace Grand.Web.Common.TagHelpers
         }
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            bool isAjaxCall = _httpContextAccessor.HttpContext.Request.Headers["x-requested-with"] == "XMLHttpRequest";
+            var isAjaxCall = _httpContextAccessor.HttpContext != null && _httpContextAccessor.HttpContext.Request.Headers["x-requested-with"] == "XMLHttpRequest";
             if (!isAjaxCall)
             {
                 output.SuppressOutput();
@@ -44,15 +44,15 @@ namespace Grand.Web.Common.TagHelpers
                     builder.Attributes.Add(attribute.Name, attribute.Value.ToString());
                 }
 
-                if (Header && !Footer)
+                switch (Header)
                 {
-                    _resourceManager.RegisterTemplate(builder, true);
+                    case true when !Footer:
+                        _resourceManager.RegisterTemplate(builder, true);
+                        break;
+                    case false when Footer:
+                        _resourceManager.RegisterTemplate(builder, false);
+                        break;
                 }
-                if (!Header && Footer)
-                {
-                    _resourceManager.RegisterTemplate(builder, false);
-                }
-
             }
         }
         

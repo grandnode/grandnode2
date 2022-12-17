@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Routing;
 namespace Grand.Web.Common.ViewRender
 {
     /// <summary>
-    /// Allow to get Rezor page content as string
+    /// Allow to get Razor page content as string
     /// </summary>
     public class ViewRenderService : IViewRenderService
     {
@@ -35,33 +35,29 @@ namespace Grand.Web.Common.ViewRender
             var httpContext = new DefaultHttpContext { RequestServices = _serviceProvider };
             var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
 
-            using (var sw = new StringWriter())
+            await using var sw = new StringWriter();
+            var viewResult = _razorViewEngine.GetView(viewPath, viewPath, false);
+
+            if (viewResult.View == null)
             {
-                var viewResult = _razorViewEngine.GetView(viewPath, viewPath, false);
-
-                if (viewResult.View == null)
-                {
-                    throw new ArgumentNullException($"{viewPath} does not match any available view");
-                }
-
-                var viewDictionary = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) {
-                    Model = model
-                };
-
-                var viewContext = new ViewContext(
-                    actionContext,
-                    viewResult.View,
-                    viewDictionary,
-                    new TempDataDictionary(actionContext.HttpContext, _tempDataProvider),
-                    sw,
-                    new HtmlHelperOptions()
-                );
-
-                await viewResult.View.RenderAsync(viewContext);
-                return sw.ToString();
+                throw new ArgumentNullException($"{viewPath} does not match any available view");
             }
 
+            var viewDictionary = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) {
+                Model = model
+            };
 
+            var viewContext = new ViewContext(
+                actionContext,
+                viewResult.View,
+                viewDictionary,
+                new TempDataDictionary(actionContext.HttpContext, _tempDataProvider),
+                sw,
+                new HtmlHelperOptions()
+            );
+
+            await viewResult.View.RenderAsync(viewContext);
+            return sw.ToString();
         }
     }
 }

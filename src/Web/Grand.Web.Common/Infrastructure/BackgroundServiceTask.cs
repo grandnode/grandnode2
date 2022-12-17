@@ -11,21 +11,11 @@ namespace Grand.Web.Common.Infrastructure
     public class BackgroundServiceTask : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
-        private string _taskType;
-        public BackgroundServiceTask(string tasktype, IServiceProvider serviceProvider)
+        private readonly string _taskType;
+        public BackgroundServiceTask(string taskType, IServiceProvider serviceProvider)
         {
-            _taskType = tasktype;
+            _taskType = taskType;
             _serviceProvider = serviceProvider;
-        }
-
-        public override Task StartAsync(CancellationToken cancellationToken)
-        {
-            return base.StartAsync(cancellationToken);
-        }
-
-        public override Task StopAsync(CancellationToken cancellationToken)
-        {
-            return base.StopAsync(cancellationToken);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -47,7 +37,7 @@ namespace Grand.Web.Common.Infrastructure
 
                     var machineName = Environment.MachineName;
                     var timeInterval = task.TimeInterval > 0 ? task.TimeInterval : 1;
-                    if (task.Enabled && (string.IsNullOrEmpty(task.LeasedByMachineName) || (machineName == task.LeasedByMachineName)))
+                    if (task.Enabled && (string.IsNullOrEmpty(task.LeasedByMachineName) || machineName == task.LeasedByMachineName))
                     {
                         var typeofTask = Type.GetType(_taskType);
                         if (typeofTask != null)
@@ -58,7 +48,7 @@ namespace Grand.Web.Common.Infrastructure
 
                                 //assign current customer (background task) / current store (from task)
                                 await WorkContext(serviceProvider, task);
-                                bool runTask = true;
+                                var runTask = true;
                                 if(task.LastStartUtc.HasValue)
                                 {
                                     if (DateTime.UtcNow < task.LastStartUtc.Value.AddMinutes(task.TimeInterval))
@@ -121,7 +111,8 @@ namespace Grand.Web.Common.Infrastructure
 
             }
         }
-        protected async Task WorkContext(IServiceProvider serviceProvider, ScheduleTask scheduleTask)
+
+        private async Task WorkContext(IServiceProvider serviceProvider, ScheduleTask scheduleTask)
         {
             var workContext = serviceProvider.GetRequiredService<IWorkContext>();
             var storeHelper = serviceProvider.GetRequiredService<IStoreHelper>();

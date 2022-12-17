@@ -31,9 +31,8 @@ namespace Grand.Web.Common.Startup
         /// <summary>
         /// Register services and interfaces
         /// </summary>
-        /// <param name="ServiceCollection">Service Collection</param>
-        /// <param name="typeSearcher">Type finder</param>
-        /// <param name="config">Config</param>
+        /// <param name="services">Service Collection</param>
+        /// <param name="configuration">Config</param>
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             RegisterCache(services, configuration);
@@ -60,7 +59,7 @@ namespace Grand.Web.Common.Startup
             if (config.RedisPubSubEnabled)
             {
                 var redis = ConnectionMultiplexer.Connect(config.RedisPubSubConnectionString);
-                serviceCollection.AddSingleton<ISubscriber>(c => redis.GetSubscriber());
+                serviceCollection.AddSingleton(_ => redis.GetSubscriber());
                 serviceCollection.AddSingleton<IMessageBus, RedisMessageBus>();
                 serviceCollection.AddSingleton<ICacheBase, RedisMessageCacheManager>();
                 return;
@@ -101,8 +100,8 @@ namespace Grand.Web.Common.Startup
             else
             {
                 var provider = serviceCollection.BuildServiceProvider();
-                var _tmp = provider.GetRequiredService<IStringLocalizerFactory>();
-                serviceCollection.AddScoped(c => new LocService(_tmp));
+                var tmp = provider.GetRequiredService<IStringLocalizerFactory>();
+                serviceCollection.AddScoped(_ => new LocService(tmp));
             }
 
             //powered by

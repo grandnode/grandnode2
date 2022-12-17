@@ -16,7 +16,7 @@ namespace Grand.Web.Common
         private Store _cachedStore;
         private DomainHost _cachedDomainHost;
 
-        private const string STORE_COOKIE_NAME = ".Grand.Store";
+        private const string StoreCookieName = ".Grand.Store";
 
         #endregion
 
@@ -37,77 +37,64 @@ namespace Grand.Web.Common
 
         protected virtual string GetStoreCookie()
         {
-            if (_httpContextAccessor.HttpContext == null || _httpContextAccessor.HttpContext.Request == null)
-                return null;
-
-            return _httpContextAccessor.HttpContext.Request.Cookies[STORE_COOKIE_NAME];
+            return _httpContextAccessor.HttpContext?.Request.Cookies[StoreCookieName];
         }
         #endregion
 
         public Store StoreHost {
             get {
-                if (_cachedStore == null)
-                {
-                    //try to determine the current store by HOST header
-                    string host = _httpContextAccessor.HttpContext?.Request?.Host.Host;
+                if (_cachedStore != null) return _cachedStore;
+                //try to determine the current store by HOST header
+                var host = _httpContextAccessor.HttpContext?.Request.Host.Host;
 
-                    var allStores = _storeService.GetAll();
-                    var stores = allStores.Where(s => s.ContainsHostValue(host));
-                    if (stores.Count() == 0)
-                    {
-                        _cachedStore = allStores.FirstOrDefault();
-                    }
-                    else if (stores.Count() == 1)
-                    {
+                var allStores = _storeService.GetAll();
+                var stores = allStores.Where(s => s.ContainsHostValue(host)).ToList();
+                if (!stores.Any())
+                {
+                    _cachedStore = allStores.FirstOrDefault();
+                }
+                else switch (stores.Count)
+                {
+                    case 1:
                         _cachedStore = stores.FirstOrDefault();
-                    }
-                    else if (stores.Count() > 1)
+                        break;
+                    case > 1:
                     {
                         var cookie = GetStoreCookie();
                         if (!string.IsNullOrEmpty(cookie))
                         {
-                            var storecookie = stores.FirstOrDefault(x => x.Id == cookie);
-                            if (storecookie != null)
-                                _cachedStore = storecookie;
-                            else
-                                _cachedStore = stores.FirstOrDefault();
+                            var storeCookie = stores.FirstOrDefault(x => x.Id == cookie);
+                            _cachedStore = storeCookie ?? stores.FirstOrDefault();
                         }
                         else
                             _cachedStore = stores.FirstOrDefault();
+
+                        break;
                     }
-                    return _cachedStore ?? throw new Exception("No store could be loaded");
-
-
                 }
-                return _cachedStore;
+                return _cachedStore ?? throw new Exception("No store could be loaded");
             }
         }
 
         public DomainHost DomainHost {
             get {
-                if (_cachedDomainHost == null)
+                if (_cachedDomainHost != null) return _cachedDomainHost;
+                //try to determine the current HOST header
+                var host = _httpContextAccessor.HttpContext?.Request.GetTypedHeaders().Host.ToString();
+                if (StoreHost != null)
                 {
-                    //try to determine the current HOST header
-                    var host = _httpContextAccessor.HttpContext?.Request?.GetTypedHeaders().Host.ToString();
-                    if (StoreHost != null)
-                    {
-                        _cachedDomainHost = StoreHost.HostValue(host) ?? new DomainHost() {
-                            Id = int.MinValue.ToString(),
-                            Url = StoreHost.SslEnabled ? StoreHost.SecureUrl : StoreHost.Url,
-                            HostName = "temporary-store"
-                        };
-                    }
-                    if (_cachedDomainHost == null)
-                    {
-                        _cachedDomainHost = new DomainHost() {
-                            Id = int.MinValue.ToString(),
-                            Url = host,
-                            HostName = "temporary"
-                        };
-                    }
-                    return _cachedDomainHost;
+                    _cachedDomainHost = StoreHost.HostValue(host) ?? new DomainHost {
+                        Id = int.MinValue.ToString(),
+                        Url = StoreHost.SslEnabled ? StoreHost.SecureUrl : StoreHost.Url,
+                        HostName = "temporary-store"
+                    };
                 }
-                return _cachedDomainHost;
+
+                return _cachedDomainHost ??= new DomainHost {
+                    Id = int.MinValue.ToString(),
+                    Url = host,
+                    HostName = "temporary"
+                };
             }
         }
 
@@ -123,8 +110,7 @@ namespace Grand.Web.Common
                 if (store != null)
                     _cachedStore = store;
             }
-            if (_cachedStore == null)
-                _cachedStore = (await _storeService.GetAllStores()).FirstOrDefault();
+            _cachedStore ??= (await _storeService.GetAllStores()).FirstOrDefault();
 
             return _cachedStore ?? throw new Exception("No store could be loaded by BackgroundService");
 
@@ -136,7 +122,7 @@ namespace Grand.Web.Common
         /// <param name="storeId">Store ident</param>
         public virtual async Task SetStoreCookie(string storeId)
         {
-            if (_httpContextAccessor.HttpContext == null || _httpContextAccessor.HttpContext.Response == null)
+            if (_httpContextAccessor.HttpContext == null)
                 return;
 
             var store = await _storeService.GetStoreById(storeId);
@@ -144,7 +130,7 @@ namespace Grand.Web.Common
                 return;
 
             //remove current cookie
-            _httpContextAccessor.HttpContext.Response.Cookies.Delete(STORE_COOKIE_NAME);
+            _httpContextAccessor.HttpContext.Response.Cookies.Delete(StoreCookieName);
 
             //get date of cookie expiration
             var cookieExpiresDate = DateTime.UtcNow.AddHours(CommonHelper.CookieAuthExpires);
@@ -154,7 +140,7 @@ namespace Grand.Web.Common
                 HttpOnly = true,
                 Expires = cookieExpiresDate
             };
-            _httpContextAccessor.HttpContext.Response.Cookies.Append(STORE_COOKIE_NAME, storeId, options);
+            _httpContextAccessor.HttpContext.Response.Cookies.Append(StoreCookieName, storeId, options);
         }
 
     }

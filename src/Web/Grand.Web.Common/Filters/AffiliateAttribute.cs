@@ -28,8 +28,8 @@ namespace Grand.Web.Common.Filters
         {
             #region Constants
 
-            private const string ID_QUERY_PARAMETER_NAME = "affiliateid";
-            private const string FRIENDLYURLNAME_QUERY_PARAMETER_NAME = "affiliate";
+            private const string IdQueryParameterName = "affiliateid";
+            private const string FriendlyUrlNameQueryParameterName = "affiliate";
 
             #endregion
 
@@ -60,9 +60,9 @@ namespace Grand.Web.Common.Filters
             /// Set the affiliate identifier of current customer
             /// </summary>
             /// <param name="affiliate">Affiliate</param>
-            protected async Task SetCustomerAffiliateId(Affiliate affiliate)
+            private async Task SetCustomerAffiliateId(Affiliate affiliate)
             {
-                if (affiliate == null || !affiliate.Active)
+                if (affiliate is not { Active: true })
                     return;
 
                 if (affiliate.Id == _workContext.CurrentCustomer.AffiliateId)
@@ -81,33 +81,34 @@ namespace Grand.Web.Common.Filters
             /// Called before the action executes, after model binding is complete
             /// </summary>
             /// <param name="context">A context for action filters</param>
+            /// <param name="next">Action execution delegate</param>
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
                 await next();
 
-                if (context == null || context.HttpContext == null || context.HttpContext.Request == null)
+                if (context?.HttpContext.Request == null)
                     return;
 
                 //check request query parameters
                 var request = context.HttpContext.Request;
-                if (request?.Query == null || !request.Query.Any())
+                if (!request.Query.Any())
                     return;
 
                 if (!DataSettingsManager.DatabaseIsInstalled())
                     return;
 
                 //try to find by ID
-                var affiliateIds = request.Query[ID_QUERY_PARAMETER_NAME];
+                var affiliateIds = request.Query[IdQueryParameterName];
                 if (affiliateIds.Any())
                 {
-                    string affiliateId = affiliateIds.FirstOrDefault();
+                    var affiliateId = affiliateIds.FirstOrDefault();
                     if (!string.IsNullOrEmpty(affiliateId))
                         await SetCustomerAffiliateId(await _affiliateService.GetAffiliateById(affiliateId));
                     return;
                 }
 
                 //try to find by friendly name
-                var affiliateNames = request.Query[FRIENDLYURLNAME_QUERY_PARAMETER_NAME];
+                var affiliateNames = request.Query[FriendlyUrlNameQueryParameterName];
                 if (affiliateNames.Any())
                 {
                     var affiliateName = affiliateNames.FirstOrDefault();

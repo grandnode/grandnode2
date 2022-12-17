@@ -41,7 +41,7 @@ namespace Grand.Web.Common.TagHelpers
             if (localizationSupported)
             {
                 var tabStrip = new StringBuilder();
-                tabStrip.AppendLine(string.Format("<div id='{0}'>", Name));
+                tabStrip.AppendLine($"<div id='{Name}'>");
                 tabStrip.AppendLine("<ul>");
 
                 //default tab
@@ -59,7 +59,7 @@ namespace Grand.Web.Common.TagHelpers
                     tabStrip.AppendLine("<li>");
                     var urlHelper = new UrlHelper(ViewContext);
                     var iconUrl = urlHelper.Content("~/assets/images/flags/" + language.FlagImageFileName);
-                    tabStrip.AppendLine(string.Format("<img class='k-image' alt='' src='{0}'>", iconUrl));
+                    tabStrip.AppendLine($"<img class='k-image' alt='' src='{iconUrl}'>");
                     tabStrip.AppendLine(WebUtility.HtmlEncode(language.Name));
                     tabStrip.AppendLine("</li>");
                 }
@@ -71,7 +71,7 @@ namespace Grand.Web.Common.TagHelpers
                 tabStrip.AppendLine(standardContent);
                 tabStrip.AppendLine("</div>");
 
-                for (int i = 0; i < LanguagesIds.Count; i++)
+                for (var i = 0; i < LanguagesIds.Count; i++)
                 {
                     //languages
                     tabStrip.AppendLine("<div>");
@@ -82,7 +82,7 @@ namespace Grand.Web.Common.TagHelpers
                 tabStrip.AppendLine("</div>");
                 tabStrip.AppendLine("<script>");
                 tabStrip.AppendLine("$(document).ready(function() {");
-                tabStrip.AppendLine(string.Format("$('#{0}').kendoTabStrip(", Name));
+                tabStrip.AppendLine($"$('#{Name}').kendoTabStrip(");
                 tabStrip.AppendLine("{");
                 tabStrip.AppendLine("animation:  {");
                 tabStrip.AppendLine("open: {");

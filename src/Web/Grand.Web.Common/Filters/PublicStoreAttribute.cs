@@ -81,13 +81,9 @@ namespace Grand.Web.Common.Filters
                 if (await _permissionService.Authorize(StandardPermission.PublicStoreAllowNavigation))
                     return;
 
-                if (_storeInformationSettings.StoreClosed)
-                {
-                    filterContext.Result = new RedirectToRouteResult("StoreClosed", new RouteValueDictionary());
-                }
-                else
+                filterContext.Result = _storeInformationSettings.StoreClosed ? new RedirectToRouteResult("StoreClosed", new RouteValueDictionary()) :
                     //customer has not access to a public store
-                    filterContext.Result = new RedirectToRouteResult("Login", new RouteValueDictionary());
+                    new RedirectToRouteResult("Login", new RouteValueDictionary());
 
             }
 

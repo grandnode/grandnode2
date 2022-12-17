@@ -57,9 +57,10 @@ namespace Grand.Web.Common.Filters
             /// Called before the action executes, after model binding is complete
             /// </summary>
             /// <param name="context">A context for action filters</param>
+            /// <param name="next">Action execution delegate</param>
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                if (context == null || context.HttpContext == null || context.HttpContext.Request == null)
+                if (context?.HttpContext?.Request == null)
                 {
                     await next();
                     return;
@@ -117,10 +118,10 @@ namespace Grand.Web.Common.Filters
                 var language = (await _languageService.GetAllLanguages())
                     .FirstOrDefault(urlLanguage => urlLanguage.UniqueSeoCode.Equals(firstSegment, StringComparison.OrdinalIgnoreCase));
 
-                return language != null ? language.Published : false;
+                return language?.Published ?? false;
             }
 
-            private string AddLanguageSeo(string url, Language language)
+            private static string AddLanguageSeo(string url, Language language)
             {
                 if (language == null)
                     throw new ArgumentNullException(nameof(language));
