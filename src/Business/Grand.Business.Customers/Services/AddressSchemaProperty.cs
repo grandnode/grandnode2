@@ -14,7 +14,7 @@ namespace Grand.Business.Customers.Services
             _countryService = countryService;
         }
 
-        public virtual PropertyByName<Address>[] GetProperties()
+        public virtual async Task<PropertyByName<Address>[]> GetProperties()
         {
             var properties = new[]
             {
@@ -28,7 +28,7 @@ namespace Grand.Business.Customers.Services
                 new PropertyByName<Address>("City", p=>p.City),
                 new PropertyByName<Address>("Country", p=> !string.IsNullOrEmpty(p.CountryId) ? _countryService.GetCountryById(p.CountryId).Result?.Name : "")
             };
-            return properties;
+            return await Task.FromResult(properties);
         }
     }
 }

@@ -199,7 +199,7 @@ namespace Grand.Web.Admin.Controllers
             var orders = await _orderViewModelService.PrepareOrders(model);
             try
             {
-                byte[] bytes = _exportManager.Export(orders);
+                byte[] bytes = await _exportManager.Export(orders);
                 return File(bytes, "text/xls", "orders.xlsx");
             }
             catch (Exception exc)
@@ -230,7 +230,7 @@ namespace Grand.Web.Admin.Controllers
             {
                 orders = orders.Where(x => x.StoreId == _workContext.CurrentCustomer.StaffStoreId).ToList();
             }
-            byte[] bytes = _exportManager.Export(orders);
+            byte[] bytes = await _exportManager.Export(orders);
             return File(bytes, "text/xls", "orders.xlsx");
         }
 

@@ -5,7 +5,7 @@ namespace Grand.Business.Common.Services.ExportImport
 {
     public class CountrySchemaProperty : ISchemaProperty<CountryStates>
     {
-        public virtual PropertyByName<CountryStates>[] GetProperties()
+        public virtual async Task<PropertyByName<CountryStates>[]> GetProperties()
         {
             var properties = new[]
             {
@@ -15,7 +15,7 @@ namespace Grand.Business.Common.Services.ExportImport
                 new PropertyByName<CountryStates>("DisplayOrder", p => p.DisplayOrder),
                 new PropertyByName<CountryStates>("Published", p => p.Published)
             };
-            return properties;
+            return await Task.FromResult(properties);
         }
     }
 }

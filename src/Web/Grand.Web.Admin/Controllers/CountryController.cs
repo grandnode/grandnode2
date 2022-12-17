@@ -350,7 +350,7 @@ namespace Grand.Web.Admin.Controllers
                             Published = s.Published
                         };
 
-            var bytes = _exportManager.Export(query);
+            var bytes = await _exportManager.Export(query);
             return File(bytes, "text/xls", "country.xlsx");
         }
 

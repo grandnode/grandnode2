@@ -295,7 +295,7 @@ namespace Grand.Web.Admin.Controllers
         {
             try
             {
-                var bytes = exportManager.Export(await _categoryService.GetAllCategories(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
+                var bytes = await exportManager.Export(await _categoryService.GetAllCategories(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
                 return File(bytes, "text/xls", "categories.xlsx");
             }
             catch (Exception exc)

@@ -13,9 +13,9 @@ namespace Grand.Business.Common.Services.ExportImport
             _schemaProperty = schemaProperty;
         }
 
-        public virtual byte[] Export(IEnumerable<T> entity)
+        public virtual async Task<byte[]> Export(IEnumerable<T> entity)
         {
-            return _exportProvider.ExportToByte(_schemaProperty.GetProperties(), entity);
+            return _exportProvider.ExportToByte(await _schemaProperty.GetProperties(), entity);
         }
     }
 }

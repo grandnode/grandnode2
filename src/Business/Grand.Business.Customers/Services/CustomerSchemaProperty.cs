@@ -7,7 +7,7 @@ namespace Grand.Business.Customers.Services
 {
     public class CustomerSchemaProperty : ISchemaProperty<Customer>
     {
-        public virtual PropertyByName<Customer>[] GetProperties()
+        public virtual async Task<PropertyByName<Customer>[]> GetProperties()
         {
             var properties = new[]
             {
@@ -38,7 +38,7 @@ namespace Grand.Business.Customers.Services
                 new PropertyByName<Customer>("VatNumber", p => p.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.VatNumber)),
                 new PropertyByName<Customer>("VatNumberStatusId", p => p.GetUserFieldFromEntity<int>(SystemCustomerFieldNames.VatNumberStatusId))
             };
-            return properties;
+            return await Task.FromResult(properties);
         }
     }
 }

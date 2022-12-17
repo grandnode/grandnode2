@@ -14,7 +14,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
             _pictureService = pictureService;
         }
 
-        public virtual PropertyByName<Brand>[] GetProperties()
+        public virtual async Task<PropertyByName<Brand>[]> GetProperties()
         {
             var properties = new[]
             {
@@ -34,7 +34,7 @@ namespace Grand.Business.Catalog.Services.ExportImport
                 new PropertyByName<Brand>("DisplayOrder", p => p.DisplayOrder),
                 new PropertyByName<Brand>("ExternalId", p => p.ExternalId)
             };
-            return properties;
+            return await Task.FromResult(properties);
         }
 
         protected virtual async Task<string> GetPictures(string pictureId)

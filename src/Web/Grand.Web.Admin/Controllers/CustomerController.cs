@@ -1151,7 +1151,7 @@ namespace Grand.Web.Admin.Controllers
 
             try
             {
-                byte[] bytes = _exportManager.Export(customers);
+                byte[] bytes = await _exportManager.Export(customers);
                 return File(bytes, "text/xls", "customers.xlsx");
             }
             catch (Exception exc)
@@ -1175,7 +1175,7 @@ namespace Grand.Web.Admin.Controllers
                 customers.AddRange(await _customerService.GetCustomersByIds(ids));
             }
 
-            byte[] bytes = _exportManager.Export(customers);
+            byte[] bytes = await _exportManager.Export(customers);
             return File(bytes, "text/xls", "customers.xlsx");
         }
 

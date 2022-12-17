@@ -36,9 +36,9 @@ namespace Grand.Web.Features.Handlers.Customers
                 customerId: request.Customer.Id);
 
             _exportProvider
-                .BuilderExportToByte(_customerSchemaProperty.GetProperties(), new List<Customer> { request.Customer })
-                .BuilderExportToByte(_addresSchemaProperty.GetProperties(), request.Customer.Addresses)
-                .BuilderExportToByte(_orderSchemaProperty.GetProperties(), orders);
+                .BuilderExportToByte(await _customerSchemaProperty.GetProperties(), new List<Customer> { request.Customer })
+                .BuilderExportToByte(await _addresSchemaProperty.GetProperties(), request.Customer.Addresses)
+                .BuilderExportToByte(await _orderSchemaProperty.GetProperties(), orders);
 
             return _exportProvider.BuilderExportToByte();
         }

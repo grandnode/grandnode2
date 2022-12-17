@@ -1563,7 +1563,7 @@ namespace Grand.Web.Admin.Controllers
             var products = await _productViewModelService.PrepareProducts(model);
             try
             {
-                byte[] bytes = exportManager.Export(products);
+                byte[] bytes = await exportManager.Export(products);
                 return File(bytes, "text/xls", "products.xlsx");
             }
             catch (Exception exc)
@@ -1592,7 +1592,7 @@ namespace Grand.Web.Admin.Controllers
                 products = products.Where(p => p.VendorId == _workContext.CurrentVendor.Id).ToList();
             }
 
-            byte[] bytes = exportManager.Export(products);
+            byte[] bytes = await exportManager.Export(products);
             return File(bytes, "text/xls", "products.xlsx");
         }
 

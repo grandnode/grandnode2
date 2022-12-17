@@ -14,7 +14,7 @@ namespace Grand.Business.Checkout.Services.ExportImport
             _countryService = countryService;
         }
 
-        public virtual PropertyByName<Order>[] GetProperties()
+        public virtual async Task<PropertyByName<Order>[]> GetProperties()
         {
             var properties = new[]
             {
@@ -73,7 +73,7 @@ namespace Grand.Business.Checkout.Services.ExportImport
                 new PropertyByName<Order>("ShippingPhoneNumber",p=>p.ShippingAddress?.PhoneNumber),
                 new PropertyByName<Order>("ShippingFaxNumber", p=>p.ShippingAddress?.FaxNumber)
             };
-            return properties;
+            return await Task.FromResult(properties);
         }
     }
 }

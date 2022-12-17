@@ -336,7 +336,7 @@ namespace Grand.Web.Admin.Controllers
         {
             try
             {
-                var bytes = exportManager.Export(await _brandService.GetAllBrands(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
+                var bytes = await exportManager.Export(await _brandService.GetAllBrands(showHidden: true, storeId: _workContext.CurrentCustomer.StaffStoreId));
                 return File(bytes, "text/xls", "brands.xlsx");
             }
             catch (Exception exc)
