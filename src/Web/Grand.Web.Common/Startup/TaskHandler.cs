@@ -2,7 +2,7 @@
 using Grand.Domain.Data;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
-using Grand.Infrastructure.TypeSearchers;
+using Grand.Infrastructure.TypeSearch;
 using Grand.Web.Common.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

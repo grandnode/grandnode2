@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 
-namespace Grand.Infrastructure.TypeSearchers
+namespace Grand.Infrastructure.TypeSearch
 {
     /// <summary>
     /// A class that finds types needed by looping assemblies in the 
@@ -31,8 +31,6 @@ namespace Grand.Infrastructure.TypeSearchers
                 {
                     Type[] types = null;
                     types = a.GetTypes();
-                    if (types == null)
-                        continue;
 
                     foreach (var t in types)
                     {
@@ -58,9 +56,7 @@ namespace Grand.Infrastructure.TypeSearchers
             }
             catch (ReflectionTypeLoadException ex)
             {
-                var msg = string.Empty;
-                foreach (var e in ex.LoaderExceptions)
-                    msg += e.Message + Environment.NewLine;
+                var msg = ex.LoaderExceptions.Aggregate(string.Empty, (current, e) => current + (e!.Message + Environment.NewLine));
 
                 var fail = new Exception(msg, ex);
                 Debug.WriteLine(fail.Message, fail);
@@ -76,7 +72,7 @@ namespace Grand.Infrastructure.TypeSearchers
         /// <param name="type"></param>
         /// <param name="openGeneric"></param>
         /// <returns></returns>
-        protected virtual bool DoesTypeImplementOpenGeneric(Type type, Type openGeneric)
+        private bool DoesTypeImplementOpenGeneric(Type type, Type openGeneric)
         {
             try
             {
@@ -118,46 +114,22 @@ namespace Grand.Infrastructure.TypeSearchers
             {
                 var product = assembly.GetCustomAttribute<AssemblyProductAttribute>();
                 var referencedAssemblies = assembly.GetReferencedAssemblies().ToList();
-                if (referencedAssemblies.Where(x => x.FullName == currentAssem.FullName).Any()
-                    || product?.Product == "grandnode")
-                {
-                    if (!addedAssemblyNames.Contains(assembly.FullName))
-                    {
-                        assemblies.Add(assembly);
-                        addedAssemblyNames.Add(assembly.FullName);
-                    }
-                }
+                if (referencedAssemblies.All(x => x.FullName != currentAssem.FullName) && product?.Product != "grandnode") continue;
+                if (addedAssemblyNames.Contains(assembly.FullName)) continue;
+                assemblies.Add(assembly);
+                addedAssemblyNames.Add(assembly.FullName);
             }
             //add scripts
-            if (Roslyn.RoslynCompiler.ReferencedScripts != null)
-                foreach (var scripts in Roslyn.RoslynCompiler.ReferencedScripts)
-                {
-                    if (!string.IsNullOrEmpty(scripts.ReferencedAssembly.FullName))
-                    {
-                        if (!addedAssemblyNames.Contains(scripts.ReferencedAssembly.FullName))
-                        {
-                            assemblies.Add(scripts.ReferencedAssembly);
-                            addedAssemblyNames.Add(scripts.ReferencedAssembly.FullName);
-                        }
-                    }
-                }
+            if (Roslyn.RoslynCompiler.ReferencedScripts == null) return assemblies;
+            foreach (var scripts in Roslyn.RoslynCompiler.ReferencedScripts)
+            {
+                if (string.IsNullOrEmpty(scripts.ReferencedAssembly.FullName)) continue;
+                if (addedAssemblyNames.Contains(scripts.ReferencedAssembly.FullName)) continue;
+                assemblies.Add(scripts.ReferencedAssembly);
+                addedAssemblyNames.Add(scripts.ReferencedAssembly.FullName);
+            }
 
             return assemblies;
-        }
-
-        /// <summary>
-        /// Makes sure matching assemblies in the supplied folder are loaded in the app domain.
-        /// </summary>
-        /// <param name="directoryPath">
-        /// The physical path to a directory containing dlls to load in the app domain.
-        /// </param>
-        protected virtual void LoadMatchingAssemblies()
-        {
-            var loadedAssemblyNames = new List<string>();
-            foreach (Assembly a in GetAssemblies())
-            {
-                loadedAssemblyNames.Add(a.FullName);
-            }
         }
 
         #endregion

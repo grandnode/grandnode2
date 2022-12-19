@@ -1,6 +1,6 @@
 ﻿namespace Grand.Infrastructure.Configuration
 {
-    public partial class UrlRewriteConfig
+    public class UrlRewriteConfig
     {
         /// <summary>
         /// Gets or sets a value indicating whether we use url rewrite

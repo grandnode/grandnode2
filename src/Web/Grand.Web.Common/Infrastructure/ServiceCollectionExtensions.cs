@@ -11,7 +11,7 @@ using Grand.Domain.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
-using Grand.Infrastructure.TypeSearchers;
+using Grand.Infrastructure.TypeSearch;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Themes;
 using Microsoft.AspNetCore.Builder;

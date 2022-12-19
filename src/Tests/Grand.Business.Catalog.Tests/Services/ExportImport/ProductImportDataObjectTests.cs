@@ -25,6 +25,7 @@ using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
+using Grand.Infrastructure.TypeSearch;
 
 namespace Grand.Business.Catalog.Services.ExportImport.Tests
 {

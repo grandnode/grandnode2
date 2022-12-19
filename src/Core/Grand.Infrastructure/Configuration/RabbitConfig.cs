@@ -1,6 +1,6 @@
 ﻿namespace Grand.Infrastructure.Configuration
 {
-    public partial class RabbitConfig
+    public class RabbitConfig
     {
         public bool RabbitEnabled { get; set; }
         public bool RabbitCachePubSubEnabled { get; set; }

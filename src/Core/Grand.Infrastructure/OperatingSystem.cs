@@ -7,7 +7,7 @@ namespace Grand.Infrastructure
         public static bool IsWindows() =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-        public static bool IsMacOS() =>
+        public static bool IsMacOs() =>
             RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 
         public static bool IsLinux() =>

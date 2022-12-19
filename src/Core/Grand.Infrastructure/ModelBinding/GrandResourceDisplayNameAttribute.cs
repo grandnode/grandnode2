@@ -7,12 +7,6 @@ namespace Grand.Infrastructure.ModelBinding
     /// </summary>
     public class GrandResourceDisplayNameAttribute : DisplayNameAttribute, IModelAttribute
     {
-        #region Fields
-
-        private string _resourceValue = string.Empty;
-
-        #endregion
-
         #region Ctor
 
         /// <summary>

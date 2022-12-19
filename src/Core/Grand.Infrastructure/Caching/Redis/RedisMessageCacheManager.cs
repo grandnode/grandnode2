@@ -20,6 +20,7 @@ namespace Grand.Infrastructure.Caching.Redis
         /// Removes the value with the specified key from the cache
         /// </summary>
         /// <param name="key">Key of cached item</param>
+        /// <param name="publisher">Publisher</param>
         public override Task RemoveAsync(string key, bool publisher = true)
         {
             _cache.Remove(key);
@@ -37,10 +38,10 @@ namespace Grand.Infrastructure.Caching.Redis
         /// <param name="publisher">publisher</param>
         public override Task RemoveByPrefix(string prefix, bool publisher = true)
         {
-            var entriesToRemove = _cacheEntries.Where(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-            foreach (var cacheEntrie in entriesToRemove)
+            var entriesToRemove = CacheEntries.Where(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+            foreach (var cacheEntries in entriesToRemove)
             {
-                _cache.Remove(cacheEntrie.Key);
+                _cache.Remove(cacheEntries.Key);
             }
 
             if (publisher)
