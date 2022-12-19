@@ -132,7 +132,7 @@ namespace Grand.Infrastructure
         /// </summary>
         /// <param name="services">Collection of service descriptors</param>
         /// <param name="typeSearcher"></param>
-        private static void AddMediator(this IServiceCollection services, AppTypeSearcher typeSearcher)
+        private static void AddMediator(this IServiceCollection services, ITypeSearcher typeSearcher)
         {
             var assemblies = typeSearcher.GetAssemblies().ToArray();
             services.AddMediatR(assemblies);
@@ -144,7 +144,7 @@ namespace Grand.Infrastructure
         /// <param name="services"></param>
         /// <param name="configuration"></param>
         /// <param name="typeSearcher"></param>
-        private static void AddMassTransitRabbitMq(IServiceCollection services, IConfiguration configuration, AppTypeSearcher typeSearcher)
+        private static void AddMassTransitRabbitMq(IServiceCollection services, IConfiguration configuration, ITypeSearcher typeSearcher)
         {
             var config = new RabbitConfig();
             configuration.GetSection("Rabbit").Bind(config);
@@ -306,7 +306,7 @@ namespace Grand.Infrastructure
                 instance.Configure(application, webHostEnvironment);
         }
 
-        private static void ExecuteStartupBase(AppTypeSearcher typeSearcher)
+        private static void ExecuteStartupBase(ITypeSearcher typeSearcher)
         {
             var startupBaseConfigurations = typeSearcher.ClassesOfType<IStartupBase>();
 

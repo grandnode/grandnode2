@@ -9,7 +9,6 @@ namespace Grand.Infrastructure.TypeSearch
     /// </summary>
     public class TypeSearcher : ITypeSearcher
     {
-
         #region Methods
 
         public IEnumerable<Type> ClassesOfType<T>(bool onlyConcreteClasses = true)
@@ -22,19 +21,19 @@ namespace Grand.Infrastructure.TypeSearch
             return ClassesOfType(assignTypeFrom, GetAssemblies(), onlyConcreteClasses);
         }
 
-        public IEnumerable<Type> ClassesOfType(Type assignTypeFrom, IEnumerable<Assembly> assemblies, bool onlyConcreteClasses = true)
+        public IEnumerable<Type> ClassesOfType(Type assignTypeFrom, IEnumerable<Assembly> assemblies,
+            bool onlyConcreteClasses = true)
         {
             var result = new List<Type>();
             try
             {
                 foreach (var a in assemblies)
                 {
-                    Type[] types = null;
-                    types = a.GetTypes();
-
+                    Type[] types = a.GetTypes();
                     foreach (var t in types)
                     {
-                        if (!assignTypeFrom.IsAssignableFrom(t) && (!assignTypeFrom.IsGenericTypeDefinition || !DoesTypeImplementOpenGeneric(t, assignTypeFrom)))
+                        if (!assignTypeFrom.IsAssignableFrom(t) && (!assignTypeFrom.IsGenericTypeDefinition ||
+                                                                    !DoesTypeImplementOpenGeneric(t, assignTypeFrom)))
                             continue;
 
                         if (t.IsInterface)
@@ -56,16 +55,17 @@ namespace Grand.Infrastructure.TypeSearch
             }
             catch (ReflectionTypeLoadException ex)
             {
-                var msg = ex.LoaderExceptions.Aggregate(string.Empty, (current, e) => current + (e!.Message + Environment.NewLine));
+                var msg = ex.LoaderExceptions.Aggregate(string.Empty,
+                    (current, e) => current + (e!.Message + Environment.NewLine));
 
                 var fail = new Exception(msg, ex);
                 Debug.WriteLine(fail.Message, fail);
 
                 throw fail;
             }
+
             return result;
         }
-
         /// <summary>
         /// Does type implement generic?
         /// </summary>
@@ -77,16 +77,10 @@ namespace Grand.Infrastructure.TypeSearch
             try
             {
                 var genericTypeDefinition = openGeneric.GetGenericTypeDefinition();
-                foreach (var implementedInterface in type.FindInterfaces((objType, objCriteria) => true, null))
-                {
-                    if (!implementedInterface.IsGenericType)
-                        continue;
-
-                    var isMatch = genericTypeDefinition.IsAssignableFrom(implementedInterface.GetGenericTypeDefinition());
-                    return isMatch;
-                }
-
-                return false;
+                return (from implementedInterface in type.FindInterfaces((_, _) => true, null)
+                        where implementedInterface.IsGenericType
+                        select genericTypeDefinition.IsAssignableFrom(implementedInterface.GetGenericTypeDefinition()))
+                    .FirstOrDefault();
             }
             catch
             {
@@ -114,11 +108,13 @@ namespace Grand.Infrastructure.TypeSearch
             {
                 var product = assembly.GetCustomAttribute<AssemblyProductAttribute>();
                 var referencedAssemblies = assembly.GetReferencedAssemblies().ToList();
-                if (referencedAssemblies.All(x => x.FullName != currentAssem.FullName) && product?.Product != "grandnode") continue;
+                if (referencedAssemblies.All(x => x.FullName != currentAssem.FullName) &&
+                    product?.Product != "grandnode") continue;
                 if (addedAssemblyNames.Contains(assembly.FullName)) continue;
                 assemblies.Add(assembly);
                 addedAssemblyNames.Add(assembly.FullName);
             }
+
             //add scripts
             if (Roslyn.RoslynCompiler.ReferencedScripts == null) return assemblies;
             foreach (var scripts in Roslyn.RoslynCompiler.ReferencedScripts)

@@ -39,9 +39,9 @@ namespace Grand.Infrastructure.Caching.RabbitMq
         public override async Task RemoveByPrefix(string prefix, bool publisher = true)
         {
             var entriesToRemove = CacheEntries.Where(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-            foreach (var cacheEntrie in entriesToRemove)
+            foreach (var cacheEntries in entriesToRemove)
             {
-                _cache.Remove(cacheEntrie.Key);
+                _cache.Remove(cacheEntries.Key);
             }
 
             if (publisher)

@@ -12,6 +12,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearch;
+using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Themes;
 using Microsoft.AspNetCore.Builder;
@@ -301,7 +302,7 @@ namespace Grand.Web.Common.Infrastructure
                 });
             }
         }
-
+        
         public static void AddGrandHealthChecks(this IServiceCollection services)
         {
             var connection = DataSettingsManager.LoadSettings();

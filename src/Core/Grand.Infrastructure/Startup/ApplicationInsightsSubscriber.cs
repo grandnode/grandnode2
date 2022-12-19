@@ -51,7 +51,7 @@ namespace Grand.Infrastructure.Startup
             };
             TelemetryClient?.TrackDependency(telemetry);
 
-            _dictionary.TryRemove(cmdSuccess.RequestId, out var _);
+            _dictionary.TryRemove(cmdSuccess.RequestId, out _);
         }
     }
 }
