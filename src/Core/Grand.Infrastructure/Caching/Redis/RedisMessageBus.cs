@@ -27,7 +27,6 @@ namespace Grand.Infrastructure.Caching.Redis
         {
             try
             {
-                //var pub = _subscriber.Multiplexer.GetSubscriber();
                 var client = new MessageEventClient {
                     ClientId = ClientId,
                     Key = msg.Key,
@@ -44,8 +43,6 @@ namespace Grand.Infrastructure.Caching.Redis
 
         public Task SubscribeAsync()
         {
-            //var sub = _subscriber.Multiplexer.GetSubscriber();
-
             _subscriber.SubscribeAsync(_redisConfig.RedisPubSubChannel,  (_, redisValue) =>
             {
                 try
