@@ -18,7 +18,7 @@ namespace Grand.Web.Common.Startup
             if (!DataSettingsManager.DatabaseIsInstalled()) return;
             var appConfig = services.BuildServiceProvider().GetRequiredService<AppConfig>();
             if (appConfig.DisableHostedService) return;
-            var typeSearcher = new AppTypeSearcher();
+            var typeSearcher = new TypeSearcher();
             var scheduleTasks = typeSearcher.ClassesOfType<IScheduleTask>();
 
             var scheduleTasksInstalled = scheduleTasks

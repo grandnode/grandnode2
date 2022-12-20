@@ -73,7 +73,7 @@ namespace Grand.Api.Infrastructure
 
         private void RegisterDependencies(ODataConventionModelBuilder builder, BackendAPIConfig apiConfig)
         {
-            var typeFinder = new AppTypeSearcher();
+            var typeFinder = new TypeSearcher();
 
             //find dependency provided by other assemblies
             var dependencyInject = typeFinder.ClassesOfType<IDependencyEdmModel>();

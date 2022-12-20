@@ -184,7 +184,7 @@ namespace Grand.Web.Common.Infrastructure
             });
 
             //register external authentication plugins now
-            var typeSearcher = new AppTypeSearcher();
+            var typeSearcher = new TypeSearcher();
             var externalAuthConfigurations = typeSearcher.ClassesOfType<IAuthenticationBuilder>();
             var externalAuthInstances = externalAuthConfigurations
                 .Where(PluginExtensions.OnlyInstalledPlugins)
@@ -245,7 +245,7 @@ namespace Grand.Web.Common.Infrastructure
 
             //Add fluentValidation
             services.AddFluentValidationClientsideAdapters();
-            var typeSearcher = new AppTypeSearcher();
+            var typeSearcher = new TypeSearcher();
             var assemblies = typeSearcher.GetAssemblies();
             services.AddValidatorsFromAssemblies(assemblies);
 
@@ -284,7 +284,7 @@ namespace Grand.Web.Common.Infrastructure
 
         public static void AddSettings(this IServiceCollection services)
         {
-            var typeSearcher = new AppTypeSearcher();
+            var typeSearcher = new TypeSearcher();
             var settings = typeSearcher.ClassesOfType<ISettings>();
             var instances = settings.Select(x => (ISettings)Activator.CreateInstance(x));
             foreach (var item in instances)

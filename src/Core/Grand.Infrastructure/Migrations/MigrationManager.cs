@@ -9,7 +9,7 @@ namespace Grand.Infrastructure.Migrations
 
         public MigrationManager()
         {
-            var typeSearcher = new AppTypeSearcher();
+            var typeSearcher = new TypeSearcher();
             _migrationConfigurations = typeSearcher.ClassesOfType<IMigration>();
         }
         

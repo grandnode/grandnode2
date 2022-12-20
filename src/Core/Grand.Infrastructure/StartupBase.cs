@@ -241,7 +241,7 @@ namespace Grand.Infrastructure
             RegisterExtensions(mvcBuilder, configuration);
 
             //find startup configurations provided by other assemblies
-            var typeSearcher = new AppTypeSearcher();
+            var typeSearcher = new TypeSearcher();
             services.AddSingleton<ITypeSearcher>(typeSearcher);
 
             var startupConfigurations = typeSearcher.ClassesOfType<IStartupApplication>();
@@ -292,7 +292,7 @@ namespace Grand.Infrastructure
         public static void ConfigureRequestPipeline(IApplicationBuilder application, IWebHostEnvironment webHostEnvironment)
         {
             //find startup configurations provided by other assemblies
-            var typeSearcher = new AppTypeSearcher();
+            var typeSearcher = new TypeSearcher();
             var startupConfigurations = typeSearcher.ClassesOfType<IStartupApplication>();
 
             //create and sort instances of startup configurations

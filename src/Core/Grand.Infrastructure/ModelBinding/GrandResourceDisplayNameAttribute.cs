@@ -30,9 +30,7 @@ namespace Grand.Infrastructure.ModelBinding
         /// <summary>
         /// Gets name of the attribute
         /// </summary>
-        public string Name {
-            get { return nameof(GrandResourceDisplayNameAttribute); }
-        }
+        public string Name => nameof(GrandResourceDisplayNameAttribute);
 
         #endregion
     }
