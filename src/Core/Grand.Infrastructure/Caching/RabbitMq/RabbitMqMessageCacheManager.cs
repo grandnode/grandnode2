@@ -28,7 +28,7 @@ namespace Grand.Infrastructure.Caching.RabbitMq
             _cache.Remove(key);
 
             if (publisher)
-                await _bus.Publish(new CacheMessageEvent() { ClientId = ManageClientId, Key = key, MessageType = (int)MessageEventType.RemoveKey });
+                await _bus.Publish(new CacheMessageEvent { ClientId = ManageClientId, Key = key, MessageType = (int)MessageEventType.RemoveKey });
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Grand.Infrastructure.Caching.RabbitMq
             }
 
             if (publisher)
-                await _bus.Publish(new CacheMessageEvent() { ClientId = ManageClientId, Key = prefix, MessageType = (int)MessageEventType.RemoveByPrefix });
+                await _bus.Publish(new CacheMessageEvent { ClientId = ManageClientId, Key = prefix, MessageType = (int)MessageEventType.RemoveByPrefix });
         }
 
         ///<summary>
@@ -56,7 +56,7 @@ namespace Grand.Infrastructure.Caching.RabbitMq
         {
             await base.Clear();
             if (publisher)
-                await _bus.Publish(new CacheMessageEvent() { ClientId = ManageClientId, Key = "", MessageType = (int)MessageEventType.ClearCache });
+                await _bus.Publish(new CacheMessageEvent { ClientId = ManageClientId, Key = "", MessageType = (int)MessageEventType.ClearCache });
         }
     }
 }

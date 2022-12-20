@@ -3,7 +3,7 @@
     public static partial class CacheKey
     {
         /// <summary>
-        /// Key for all merchandise return reaason
+        /// Key for all merchandise return reason
         /// </summary>
         public static string MERCHANDISE_RETURN_REASONS_ALL_KEY => "Grand.merchandisereturn.reasons.all";
         /// <summary>

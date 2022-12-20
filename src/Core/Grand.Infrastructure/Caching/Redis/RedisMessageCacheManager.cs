@@ -26,7 +26,7 @@ namespace Grand.Infrastructure.Caching.Redis
             _cache.Remove(key);
 
             if (publisher)
-                _messageBus.PublishAsync(new MessageEvent() { Key = key, MessageType = (int)MessageEventType.RemoveKey });
+                _messageBus.PublishAsync(new MessageEvent { Key = key, MessageType = (int)MessageEventType.RemoveKey });
 
             return Task.CompletedTask;
         }
@@ -45,7 +45,7 @@ namespace Grand.Infrastructure.Caching.Redis
             }
 
             if (publisher)
-                _messageBus.PublishAsync(new MessageEvent() { Key = prefix, MessageType = (int)MessageEventType.RemoveByPrefix });
+                _messageBus.PublishAsync(new MessageEvent { Key = prefix, MessageType = (int)MessageEventType.RemoveByPrefix });
 
             return Task.CompletedTask;
         }
@@ -58,7 +58,7 @@ namespace Grand.Infrastructure.Caching.Redis
         {
             base.Clear();
             if (publisher)
-                _messageBus.PublishAsync(new MessageEvent() { Key = "", MessageType = (int)MessageEventType.ClearCache });
+                _messageBus.PublishAsync(new MessageEvent { Key = "", MessageType = (int)MessageEventType.ClearCache });
 
             return Task.CompletedTask;
         }

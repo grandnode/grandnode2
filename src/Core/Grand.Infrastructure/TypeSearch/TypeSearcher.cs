@@ -56,7 +56,7 @@ namespace Grand.Infrastructure.TypeSearch
             catch (ReflectionTypeLoadException ex)
             {
                 var msg = ex.LoaderExceptions.Aggregate(string.Empty,
-                    (current, e) => current + (e!.Message + Environment.NewLine));
+                    (current, e) => current + e!.Message + Environment.NewLine);
 
                 var fail = new Exception(msg, ex);
                 Debug.WriteLine(fail.Message, fail);
@@ -72,7 +72,7 @@ namespace Grand.Infrastructure.TypeSearch
         /// <param name="type"></param>
         /// <param name="openGeneric"></param>
         /// <returns></returns>
-        private bool DoesTypeImplementOpenGeneric(Type type, Type openGeneric)
+        private static bool DoesTypeImplementOpenGeneric(Type type, Type openGeneric)
         {
             try
             {
@@ -99,7 +99,7 @@ namespace Grand.Infrastructure.TypeSearch
 
         #region Utilities
 
-        private IList<Assembly> AssembliesInAppDomain()
+        private static IList<Assembly> AssembliesInAppDomain()
         {
             var addedAssemblyNames = new List<string>();
             var assemblies = new List<Assembly>();

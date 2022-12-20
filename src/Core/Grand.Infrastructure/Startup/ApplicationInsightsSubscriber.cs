@@ -47,7 +47,7 @@ namespace Grand.Infrastructure.Startup
                 Type = "MongoDB",
                 Timestamp = DateTime.UtcNow.Subtract(cmdSuccess.Duration),
                 Duration = cmdSuccess.Duration,
-                Success = true,
+                Success = true
             };
             TelemetryClient?.TrackDependency(telemetry);
 

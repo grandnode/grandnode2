@@ -9,47 +9,30 @@ namespace Grand.Infrastructure.TypeConverters.Converter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
-            if (sourceType == typeof(string))
-            {
-                return true;
-            }
-
-            return base.CanConvertFrom(context, sourceType);
+            return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
         }
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            if (value is string)
+            if (value is not string valueStr) return base.ConvertFrom(context, culture, value);
+            List<ShippingOption> shippingOptions = null;
+            if (string.IsNullOrEmpty(valueStr)) return (List<ShippingOption>)null;
+            try
             {
-                List<ShippingOption> shippingOptions = null;
-                var valueStr = value as string;
-                if (!string.IsNullOrEmpty(valueStr))
-                {
-                    try
-                    {
-                        shippingOptions = JsonSerializer.Deserialize<List<ShippingOption>>(valueStr);
-                    }
-                    catch
-                    {
-                        //xml error
-                    }
-                }
-                return shippingOptions;
+                shippingOptions = JsonSerializer.Deserialize<List<ShippingOption>>(valueStr);
             }
-            return base.ConvertFrom(context, culture, value);
+            catch
+            {
+                //xml error
+            }
+            return shippingOptions;
         }
 
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
             if (destinationType == typeof(string))
             {
-                var shippingOptions = value as List<ShippingOption>;
-                if (shippingOptions != null)
-                {
-                    return JsonSerializer.Serialize(shippingOptions);
-                }
-
-                return "";
+                return value is List<ShippingOption> shippingOptions ? JsonSerializer.Serialize(shippingOptions) : "";
             }
 
             return base.ConvertTo(context, culture, value, destinationType);

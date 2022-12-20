@@ -134,7 +134,7 @@
         /// key for caching by country id
         /// </summary>
         /// <remarks>
-        /// {0} : twoletter
+        /// {0} : two-letter
         /// </remarks>
         public static string COUNTRIES_BY_TWOLETTER => "Grand.country.twoletter-{0}";
 
@@ -142,7 +142,7 @@
         /// key for caching by country id
         /// </summary>
         /// <remarks>
-        /// {0} : threeletter
+        /// {0} : three-letter
         /// </remarks>
         public static string COUNTRIES_BY_THREELETTER => "Grand.country.threeletter-{0}";
 

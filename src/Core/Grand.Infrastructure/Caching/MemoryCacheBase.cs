@@ -153,7 +153,7 @@ namespace Grand.Infrastructure.Caching
 
         private MemoryCacheEntryOptions GetMemoryCacheEntryOptions(int cacheTime)
         {
-            var options = new MemoryCacheEntryOptions() { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(cacheTime) }
+            var options = new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(cacheTime) }
                 .AddExpirationToken(new CancellationChangeToken(_resetCacheToken.Token))
                 .RegisterPostEvictionCallback(PostEvictionCallback);
 

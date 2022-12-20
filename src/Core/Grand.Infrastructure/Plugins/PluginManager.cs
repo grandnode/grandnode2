@@ -381,9 +381,7 @@ namespace Grand.Infrastructure.Plugins
         {
             if (folder == null) return false;
             if (folder.Name.Equals("bin", StringComparison.InvariantCultureIgnoreCase)) return false;
-            if (folder.Parent == null) return false;
-            if (!folder.Parent.Name.Equals("Plugins", StringComparison.OrdinalIgnoreCase)) return false;
-            return true;
+            return folder.Parent != null && folder.Parent.Name.Equals("Plugins", StringComparison.OrdinalIgnoreCase);
         }
 
 

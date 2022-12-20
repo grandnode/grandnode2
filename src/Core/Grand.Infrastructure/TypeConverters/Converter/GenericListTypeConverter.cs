@@ -84,25 +84,20 @@ namespace Grand.Infrastructure.TypeConverters.Converter
         /// <returns>Result</returns>
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
-            if (destinationType == typeof(string))
+            if (destinationType != typeof(string)) return base.ConvertTo(context, culture, value, destinationType);
+            var result = string.Empty;
+            if (value == null) return result;
+            //we don't use string.Join() because it doesn't support invariant culture
+            for (var i = 0; i < ((IList<T>)value).Count; i++)
             {
-                var result = string.Empty;
-                if (value != null)
-                {
-                    //we don't use string.Join() because it doesn't support invariant culture
-                    for (var i = 0; i < ((IList<T>)value).Count; i++)
-                    {
-                        var str1 = Convert.ToString(((IList<T>)value)[i], CultureInfo.InvariantCulture);
-                        result += str1;
-                        //don't add comma after the last element
-                        if (i != ((IList<T>)value).Count - 1)
-                            result += ",";
-                    }
-                }
-                return result;
+                var str1 = Convert.ToString(((IList<T>)value)[i], CultureInfo.InvariantCulture);
+                result += str1;
+                //don't add comma after the last element
+                if (i != ((IList<T>)value).Count - 1)
+                    result += ",";
             }
+            return result;
 
-            return base.ConvertTo(context, culture, value, destinationType);
         }
     }
 }

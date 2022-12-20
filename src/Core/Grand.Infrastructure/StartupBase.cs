@@ -36,9 +36,9 @@ namespace Grand.Infrastructure
             var advancedConfig = services.StartupConfig<AdvancedConfig>(configuration.GetSection("Advanced"));
             if (!string.IsNullOrEmpty(advancedConfig.DbConnectionString))
             {
-                DataSettingsManager.LoadDataSettings(new DataSettings() {
+                DataSettingsManager.LoadDataSettings(new DataSettings {
                     ConnectionString = advancedConfig.DbConnectionString,
-                    DbProvider = (DbProvider)advancedConfig.DbProvider,
+                    DbProvider = (DbProvider)advancedConfig.DbProvider
                 });
             }
         }
