@@ -16,7 +16,7 @@ namespace Grand.Infrastructure.TypeConverters.Converter
         {
             if (value is not string valueStr) return base.ConvertFrom(context, culture, value);
             RefreshToken refreshToken = null;
-            if (string.IsNullOrEmpty(valueStr)) return (RefreshToken)null;
+            if (string.IsNullOrEmpty(valueStr)) return null;
             try
             {
                 refreshToken = JsonSerializer.Deserialize<RefreshToken>(valueStr);

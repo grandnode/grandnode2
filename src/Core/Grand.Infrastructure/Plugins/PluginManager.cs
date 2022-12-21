@@ -298,30 +298,29 @@ namespace Grand.Infrastructure.Plugins
                     Log.Error(ex, "PluginManager");
                 }
             }
-            if (shouldCopy)
+
+            if (!shouldCopy) return shadowCopiedPlug;
+            try
             {
+                File.Copy(plug.FullName, shadowCopiedPlug.FullName, true);
+            }
+            catch (IOException)
+            {
+                Log.Information("{FullName} is locked, attempting to rename", shadowCopiedPlug.FullName);
+                //this occurs when the files are locked,
+                //for some reason devenv locks plugin files some times and for another crazy reason you are allowed to rename them
+                //which releases the lock, so that it what we are doing here, once it's renamed, we can re-shadow copy
                 try
                 {
-                    File.Copy(plug.FullName, shadowCopiedPlug.FullName, true);
+                    var oldFile = shadowCopiedPlug.FullName + Guid.NewGuid().ToString("N") + ".old";
+                    File.Move(shadowCopiedPlug.FullName, oldFile);
                 }
-                catch (IOException)
+                catch (IOException exc)
                 {
-                    Log.Information("{FullName} is locked, attempting to rename", shadowCopiedPlug.FullName);
-                    //this occurs when the files are locked,
-                    //for some reason devenv locks plugin files some times and for another crazy reason you are allowed to rename them
-                    //which releases the lock, so that it what we are doing here, once it's renamed, we can re-shadow copy
-                    try
-                    {
-                        var oldFile = shadowCopiedPlug.FullName + Guid.NewGuid().ToString("N") + ".old";
-                        File.Move(shadowCopiedPlug.FullName, oldFile);
-                    }
-                    catch (IOException exc)
-                    {
-                        throw new IOException(shadowCopiedPlug.FullName + " rename failed, cannot initialize plugin", exc);
-                    }
-                    //ok, we've made it this far, now retry the shadow copy
-                    File.Copy(plug.FullName, shadowCopiedPlug.FullName, true);
+                    throw new IOException(shadowCopiedPlug.FullName + " rename failed, cannot initialize plugin", exc);
                 }
+                //ok, we've made it this far, now retry the shadow copy
+                File.Copy(plug.FullName, shadowCopiedPlug.FullName, true);
             }
 
             return shadowCopiedPlug;

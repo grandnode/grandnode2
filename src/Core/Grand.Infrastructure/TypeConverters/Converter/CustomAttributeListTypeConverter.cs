@@ -16,7 +16,7 @@ namespace Grand.Infrastructure.TypeConverters.Converter
         {
             if (value is not string valueStr) return base.ConvertFrom(context, culture, value);
             List<CustomAttribute> customAttributes = null;
-            if (string.IsNullOrEmpty(valueStr)) return (List<CustomAttribute>)null;
+            if (string.IsNullOrEmpty(valueStr)) return null;
             try
             {
                 customAttributes = JsonSerializer.Deserialize<List<CustomAttribute>>(valueStr);
