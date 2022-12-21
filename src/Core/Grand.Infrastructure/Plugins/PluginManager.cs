@@ -46,19 +46,17 @@ namespace Grand.Infrastructure.Plugins
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void Load(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration)
         {
-            var config = new ExtensionsConfig();
-            configuration.GetSection("Extensions").Bind(config);
+            _config = new ExtensionsConfig();
+            configuration.GetSection("Extensions").Bind(_config);
 
-            var advconfig = new AdvancedConfig();
-            configuration.GetSection("Advanced").Bind(advconfig);
+            var advConfig = new AdvancedConfig();
+            configuration.GetSection("Advanced").Bind(advConfig);
 
             lock (_synLock)
             {
                 if (mvcCoreBuilder == null)
                     throw new ArgumentNullException(nameof(mvcCoreBuilder));
-
-                _config = config ?? throw new ArgumentNullException(nameof(config));
-
+                
                 _pluginFolder = new DirectoryInfo(CommonPath.PluginsPath);
                 _copyFolder = new DirectoryInfo(CommonPath.PluginsCopyPath);
 
@@ -66,19 +64,19 @@ namespace Grand.Infrastructure.Plugins
                 try
                 {
                     var installedPluginSystemNames =
-                        advconfig.InstalledPlugins.Any() ? advconfig.InstalledPlugins :
+                        advConfig.InstalledPlugins.Any() ? advConfig.InstalledPlugins :
                         PluginExtensions.ParseInstalledPluginsFile(CommonPath.InstalledPluginsFilePath);
 
                     Log.Information("Creating shadow copy folder and querying for dlls");
                     Directory.CreateDirectory(_pluginFolder.FullName);
                     Directory.CreateDirectory(_copyFolder.FullName);
                     var binFiles = _copyFolder.GetFiles("*", SearchOption.AllDirectories);
-                    if (config.PluginShadowCopy)
+                    if (_config.PluginShadowCopy)
                     {
                         //clear out shadow plugins
                         foreach (var f in binFiles)
                         {
-                            Log.Information($"Deleting {f.Name}");
+                            Log.Information("Deleting {FName}", f.Name);
                             try
                             {
                                 var fileName = Path.GetFileName(f.FullName);
@@ -99,7 +97,7 @@ namespace Grand.Infrastructure.Plugins
                     {
                         if (plugin.SupportedVersion != GrandVersion.SupportedPluginVersion)
                         {
-                            Log.Information($"Incompatible plugin {plugin.SystemName}");
+                            Log.Information("Incompatible plugin {PluginSystemName}", plugin.SystemName);
                             //set as not installed
                             referencedPlugins.Add(plugin);
                             continue;
@@ -107,9 +105,9 @@ namespace Grand.Infrastructure.Plugins
 
                         //some validation
                         if (string.IsNullOrWhiteSpace(plugin.SystemName))
-                            throw new Exception(string.Format("The plugin '{0}' has no system name.", plugin.SystemName));
+                            throw new Exception($"The plugin '{plugin.SystemName}' has no system name.");
                         if (referencedPlugins.Contains(plugin))
-                            throw new Exception(string.Format("The plugin with '{0}' system name is already defined", plugin.SystemName));
+                            throw new Exception($"The plugin with '{plugin.SystemName}' system name is already defined");
 
                         //set 'Installed' property
                         plugin.Installed = installedPluginSystemNames
@@ -117,10 +115,10 @@ namespace Grand.Infrastructure.Plugins
 
                         try
                         {
-                            if (!config.PluginShadowCopy)
+                            if (!_config.PluginShadowCopy)
                             {
                                 //remove deps.json files 
-                                var depsFiles = plugin.OriginalAssemblyFile.Directory.GetFiles("*.deps.json", SearchOption.TopDirectoryOnly);
+                                var depsFiles = plugin.OriginalAssemblyFile.Directory!.GetFiles("*.deps.json", SearchOption.TopDirectoryOnly);
                                 foreach (var f in depsFiles)
                                 {
                                     try
@@ -154,16 +152,15 @@ namespace Grand.Infrastructure.Plugins
                         }
                         catch (ReflectionTypeLoadException ex)
                         {
-                            var msg = string.Format("Plugin '{0}'. ", plugin.FriendlyName);
-                            foreach (var e in ex.LoaderExceptions)
-                                msg += e.Message + Environment.NewLine;
+                            var msg = $"Plugin '{plugin.FriendlyName}'. ";
+                            msg = ex.LoaderExceptions.Aggregate(msg, (current, e) => current + (e!.Message + Environment.NewLine));
 
                             var fail = new Exception(msg, ex);
                             throw fail;
                         }
                         catch (Exception ex)
                         {
-                            var msg = string.Format("Plugin '{0}'. {1}", plugin.FriendlyName, ex.Message);
+                            var msg = $"Plugin '{plugin.FriendlyName}'. {ex.Message}";
 
                             var fail = new Exception(msg, ex);
                             throw fail;
@@ -193,11 +190,8 @@ namespace Grand.Infrastructure.Plugins
             if (typeAssembly == null)
                 throw new ArgumentNullException(nameof(typeAssembly));
 
-            if (ReferencedPlugins == null)
-                return null;
-
-            return ReferencedPlugins.FirstOrDefault(plugin => plugin.ReferencedAssembly != null
-                && plugin.ReferencedAssembly.FullName.Equals(typeAssembly.GetTypeInfo().Assembly.FullName, StringComparison.OrdinalIgnoreCase));
+            return ReferencedPlugins?.FirstOrDefault(plugin => plugin.ReferencedAssembly != null
+                                                               && plugin.ReferencedAssembly.FullName!.Equals(typeAssembly.GetTypeInfo().Assembly.FullName, StringComparison.OrdinalIgnoreCase));
         }
 
 
@@ -218,7 +212,7 @@ namespace Grand.Infrastructure.Plugins
         private static IList<PluginInfo> GetPluginInfo()
         {
             if (_pluginFolder == null)
-                throw new ArgumentNullException("pluginFolder");
+                throw new ArgumentNullException(nameof(_pluginFolder));
 
             var result = new List<PluginInfo>();
             foreach (var pluginFile in _pluginFolder.GetFiles("*.dll", SearchOption.AllDirectories))
@@ -243,9 +237,9 @@ namespace Grand.Infrastructure.Plugins
 
         private static PluginInfo PreparePluginInfo(FileInfo pluginFile)
         {
-            var _plug = _config.PluginShadowCopy ? ShadowCopyFile(pluginFile, Directory.CreateDirectory(_copyFolder.FullName)) : pluginFile;
+            var plug = _config.PluginShadowCopy ? ShadowCopyFile(pluginFile, Directory.CreateDirectory(_copyFolder.FullName)) : pluginFile;
 
-            Assembly assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(_plug.FullName);
+            Assembly assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(plug.FullName);
 
             var pluginInfo = assembly.GetCustomAttribute<PluginInfoAttribute>();
             if (pluginInfo == null)
@@ -261,7 +255,7 @@ namespace Grand.Infrastructure.Plugins
                 Version = pluginInfo.Version,
                 SupportedVersion = pluginInfo.SupportedVersion,
                 Author = pluginInfo.Author,
-                PluginFileName = _plug.Name,
+                PluginFileName = plug.Name,
                 OriginalAssemblyFile = pluginFile,
                 ReferencedAssembly = assembly
             };
@@ -288,48 +282,45 @@ namespace Grand.Infrastructure.Plugins
                 var areFilesIdentical = shadowCopiedPlug.CreationTimeUtc.Ticks >= plug.CreationTimeUtc.Ticks;
                 if (areFilesIdentical)
                 {
-                    Log.Information($"Not copying; files appear identical: {shadowCopiedPlug.Name}");
+                    Log.Information("Not copying; files appear identical: {Name}", shadowCopiedPlug.Name);
                     return shadowCopiedPlug;
                 }
-                else
-                {
-                    //delete an existing file
-                    Log.Information($"New plugin found; Deleting the old file: {shadowCopiedPlug.Name}");
-                    try
-                    {
-                        File.Delete(shadowCopiedPlug.FullName);
-                    }
-                    catch (Exception ex)
-                    {
-                        shouldCopy = false;
-                        Log.Error(ex, "PluginManager");
-                    }
-                }
-            }
-            if (shouldCopy)
-            {
+
+                //delete an existing file
+                Log.Information("New plugin found; Deleting the old file: {Name}", shadowCopiedPlug.Name);
                 try
                 {
-                    File.Copy(plug.FullName, shadowCopiedPlug.FullName, true);
+                    File.Delete(shadowCopiedPlug.FullName);
                 }
-                catch (IOException)
+                catch (Exception ex)
                 {
-                    Log.Information($"{shadowCopiedPlug.FullName} is locked, attempting to rename");
-                    //this occurs when the files are locked,
-                    //for some reason devenv locks plugin files some times and for another crazy reason you are allowed to rename them
-                    //which releases the lock, so that it what we are doing here, once it's renamed, we can re-shadow copy
-                    try
-                    {
-                        var oldFile = shadowCopiedPlug.FullName + Guid.NewGuid().ToString("N") + ".old";
-                        File.Move(shadowCopiedPlug.FullName, oldFile);
-                    }
-                    catch (IOException exc)
-                    {
-                        throw new IOException(shadowCopiedPlug.FullName + " rename failed, cannot initialize plugin", exc);
-                    }
-                    //ok, we've made it this far, now retry the shadow copy
-                    File.Copy(plug.FullName, shadowCopiedPlug.FullName, true);
+                    shouldCopy = false;
+                    Log.Error(ex, "PluginManager");
                 }
+            }
+
+            if (!shouldCopy) return shadowCopiedPlug;
+            try
+            {
+                File.Copy(plug.FullName, shadowCopiedPlug.FullName, true);
+            }
+            catch (IOException)
+            {
+                Log.Information("{FullName} is locked, attempting to rename", shadowCopiedPlug.FullName);
+                //this occurs when the files are locked,
+                //for some reason devenv locks plugin files some times and for another crazy reason you are allowed to rename them
+                //which releases the lock, so that it what we are doing here, once it's renamed, we can re-shadow copy
+                try
+                {
+                    var oldFile = shadowCopiedPlug.FullName + Guid.NewGuid().ToString("N") + ".old";
+                    File.Move(shadowCopiedPlug.FullName, oldFile);
+                }
+                catch (IOException exc)
+                {
+                    throw new IOException(shadowCopiedPlug.FullName + " rename failed, cannot initialize plugin", exc);
+                }
+                //ok, we've made it this far, now retry the shadow copy
+                File.Copy(plug.FullName, shadowCopiedPlug.FullName, true);
             }
 
             return shadowCopiedPlug;
@@ -389,9 +380,7 @@ namespace Grand.Infrastructure.Plugins
         {
             if (folder == null) return false;
             if (folder.Name.Equals("bin", StringComparison.InvariantCultureIgnoreCase)) return false;
-            if (folder.Parent == null) return false;
-            if (!folder.Parent.Name.Equals("Plugins", StringComparison.OrdinalIgnoreCase)) return false;
-            return true;
+            return folder.Parent != null && folder.Parent.Name.Equals("Plugins", StringComparison.OrdinalIgnoreCase);
         }
 
 

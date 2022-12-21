@@ -31,7 +31,7 @@ using Grand.Domain.Tasks;
 using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
-using Grand.Infrastructure.TypeSearchers;
+using Grand.Infrastructure.TypeSearch;
 using Grand.SharedKernel;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

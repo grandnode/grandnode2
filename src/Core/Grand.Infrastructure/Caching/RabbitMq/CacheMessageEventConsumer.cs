@@ -15,7 +15,7 @@ namespace Grand.Infrastructure.Caching.RabbitMq
         public async Task Consume(ConsumeContext<CacheMessageEvent> context)
         {
             var message = context.Message;
-            if (RabbitMqMessageCacheManager.ClientId.Equals(message.ClientId)) return;
+            if (RabbitMqMessageCacheManager.ManageClientId.Equals(message.ClientId)) return;
             switch (message.MessageType)
             {
                 case (int)MessageEventType.RemoveKey:

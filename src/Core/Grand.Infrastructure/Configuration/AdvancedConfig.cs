@@ -1,6 +1,6 @@
 ﻿namespace Grand.Infrastructure.Configuration
 {
-    public partial class AdvancedConfig
+    public class AdvancedConfig
     {
         public string DbConnectionString { get; set; }
         public int DbProvider { get; set; }

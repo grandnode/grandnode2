@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Grand.Infrastructure.TypeSearchers
+namespace Grand.Infrastructure.TypeSearch
 {
     /// <summary>
     /// Classes implementing this interface provide information about types 

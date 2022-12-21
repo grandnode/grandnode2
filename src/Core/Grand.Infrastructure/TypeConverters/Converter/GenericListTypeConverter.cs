@@ -12,15 +12,15 @@ namespace Grand.Infrastructure.TypeConverters.Converter
         /// <summary>
         /// Type converter
         /// </summary>
-        protected readonly TypeConverter typeConverter;
+        private readonly TypeConverter _typeConverter;
 
         /// <summary>
         /// Ctor
         /// </summary>
         public GenericListTypeConverter()
         {
-            typeConverter = TypeDescriptor.GetConverter(typeof(T));
-            if (typeConverter == null)
+            _typeConverter = TypeDescriptor.GetConverter(typeof(T));
+            if (_typeConverter == null)
                 throw new InvalidOperationException("No type converter exists for type " + typeof(T).FullName);
         }
 
@@ -31,7 +31,7 @@ namespace Grand.Infrastructure.TypeConverters.Converter
         /// <returns>Array</returns>
         protected virtual string[] GetStringArray(string input)
         {
-            return string.IsNullOrEmpty(input) ? new string[0] : input.Split(',').Select(x => x.Trim()).ToArray();
+            return string.IsNullOrEmpty(input) ? Array.Empty<string>() : input.Split(',').Select(x => x.Trim()).ToArray();
         }
 
         /// <summary>
@@ -44,13 +44,10 @@ namespace Grand.Infrastructure.TypeConverters.Converter
         /// <returns>Result</returns>
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
-            if (sourceType == typeof(string))
-            {
-                var items = GetStringArray(sourceType.ToString());
-                return items.Any();
-            }
+            if (sourceType != typeof(string)) return base.CanConvertFrom(context, sourceType);
+            var items = GetStringArray(sourceType.ToString());
+            return items.Any();
 
-            return base.CanConvertFrom(context, sourceType);
         }
 
         /// <summary>
@@ -62,22 +59,19 @@ namespace Grand.Infrastructure.TypeConverters.Converter
         /// <returns>Result</returns>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            if (value is string)
+            if (value is not string strValue) return base.ConvertFrom(context, culture, value);
+            var items = GetStringArray(strValue);
+            var result = new List<T>();
+            Array.ForEach(items, s =>
             {
-                var items = GetStringArray((string)value);
-                var result = new List<T>();
-                Array.ForEach(items, s =>
+                var item = _typeConverter.ConvertFromInvariantString(s);
+                if (item != null)
                 {
-                    var item = typeConverter.ConvertFromInvariantString(s);
-                    if (item != null)
-                    {
-                        result.Add((T)item);
-                    }
-                });
+                    result.Add((T)item);
+                }
+            });
 
-                return result;
-            }
-            return base.ConvertFrom(context, culture, value);
+            return result;
         }
 
         /// <summary>
@@ -90,25 +84,20 @@ namespace Grand.Infrastructure.TypeConverters.Converter
         /// <returns>Result</returns>
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
-            if (destinationType == typeof(string))
+            if (destinationType != typeof(string)) return base.ConvertTo(context, culture, value, destinationType);
+            var result = string.Empty;
+            if (value == null) return result;
+            //we don't use string.Join() because it doesn't support invariant culture
+            for (var i = 0; i < ((IList<T>)value).Count; i++)
             {
-                var result = string.Empty;
-                if (value != null)
-                {
-                    //we don't use string.Join() because it doesn't support invariant culture
-                    for (var i = 0; i < ((IList<T>)value).Count; i++)
-                    {
-                        var str1 = Convert.ToString(((IList<T>)value)[i], CultureInfo.InvariantCulture);
-                        result += str1;
-                        //don't add comma after the last element
-                        if (i != ((IList<T>)value).Count - 1)
-                            result += ",";
-                    }
-                }
-                return result;
+                var str1 = Convert.ToString(((IList<T>)value)[i], CultureInfo.InvariantCulture);
+                result += str1;
+                //don't add comma after the last element
+                if (i != ((IList<T>)value).Count - 1)
+                    result += ",";
             }
+            return result;
 
-            return base.ConvertTo(context, culture, value, destinationType);
         }
     }
 }

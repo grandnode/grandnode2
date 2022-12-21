@@ -64,7 +64,6 @@
         /// <summary>
         /// Key for caching
         /// </summary>
-        /// <remarks>
         public static string PRODUCTS_CUSTOMER_PERSONAL_PATTERN => "Grand.product.personal";
 
         /// <summary>

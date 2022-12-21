@@ -1,6 +1,6 @@
 ﻿namespace Grand.Infrastructure.Configuration
 {
-    public partial class SecurityConfig
+    public class SecurityConfig
     {
         /// <summary>
         /// Gets or sets a value indicating whether to use Forwards proxied headers onto current request
