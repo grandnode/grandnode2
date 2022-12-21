@@ -8,7 +8,7 @@ using Grand.Api.Queries.Handlers.Common;
 using Grand.Api.Queries.Models.Common;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.TypeSearchers;
+using Grand.Infrastructure.TypeSearch;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -73,7 +73,7 @@ namespace Grand.Api.Infrastructure
 
         private void RegisterDependencies(ODataConventionModelBuilder builder, BackendAPIConfig apiConfig)
         {
-            var typeFinder = new AppTypeSearcher();
+            var typeFinder = new TypeSearcher();
 
             //find dependency provided by other assemblies
             var dependencyInject = typeFinder.ClassesOfType<IDependencyEdmModel>();

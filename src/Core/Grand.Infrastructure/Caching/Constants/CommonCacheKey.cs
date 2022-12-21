@@ -26,7 +26,7 @@
         /// Key for caching
         /// </summary>
         /// <remarks>
-        /// {0} : discont ID
+        /// {0} : discount ID
         /// </remarks>
         public static string DISCOUNTS_BY_ID_KEY => "Grand.discount.id-{0}";
 
@@ -218,7 +218,7 @@
         /// Key for caching
         /// </summary>
         /// <remarks>
-        /// {0} : page systemname
+        /// {0} : page system name
         /// {1} : store id
         /// </remarks>
         public static string PAGES_BY_SYSTEMNAME => "Grand.pages.systemname-{0}-{1}";

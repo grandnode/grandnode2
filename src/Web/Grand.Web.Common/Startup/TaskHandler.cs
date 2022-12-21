@@ -2,7 +2,7 @@
 using Grand.Domain.Data;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
-using Grand.Infrastructure.TypeSearchers;
+using Grand.Infrastructure.TypeSearch;
 using Grand.Web.Common.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,7 +18,7 @@ namespace Grand.Web.Common.Startup
             if (!DataSettingsManager.DatabaseIsInstalled()) return;
             var appConfig = services.BuildServiceProvider().GetRequiredService<AppConfig>();
             if (appConfig.DisableHostedService) return;
-            var typeSearcher = new AppTypeSearcher();
+            var typeSearcher = new TypeSearcher();
             var scheduleTasks = typeSearcher.ClassesOfType<IScheduleTask>();
 
             var scheduleTasksInstalled = scheduleTasks

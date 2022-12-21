@@ -16,8 +16,8 @@ namespace Grand.Infrastructure.Roslyn
     {
         #region Const
 
-        public const string ScriptPath = "Roslyn";
-        public const string ShadowCopyScriptPath = "Roslyn/bin";
+        private const string ScriptPath = "Roslyn";
+        private const string ShadowCopyScriptPath = "Roslyn/bin";
 
         #endregion
 
@@ -72,12 +72,12 @@ namespace Grand.Infrastructure.Roslyn
                 var ctxFiles = roslynFolder.GetFiles("*.csx", SearchOption.TopDirectoryOnly);
                 foreach (var file in ctxFiles)
                 {
-                    var csxcript = new ResultCompiler
+                    var csxScript = new ResultCompiler
                     {
                         OriginalFile = file.FullName
                     };
 
-                    string ctxCode = File.ReadAllText(file.FullName);
+                    var ctxCode = File.ReadAllText(file.FullName);
                     var sourceFileResolver = new SourceFileResolver(ImmutableArray<string>.Empty, AppContext.BaseDirectory);
                     var opts = ScriptOptions.Default.WithSourceResolver(sourceFileResolver);
                     var script = CSharpScript.Create(ctxCode, opts);
@@ -92,27 +92,27 @@ namespace Grand.Infrastructure.Roslyn
                             var shadowFileName = Path.Combine(_shadowCopyScriptPath.FullName, file.Name + "-" + Guid.NewGuid().ToString("D") + ".dll");
                             File.WriteAllBytes(shadowFileName, ms.ToArray());
                             Assembly shadowCopiedAssembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(shadowFileName);
-                            csxcript.DLLAssemblyFile = shadowFileName;
-                            csxcript.ReferencedAssembly = shadowCopiedAssembly;
-                            csxcript.IsCompiled = true;
+                            csxScript.DLLAssemblyFile = shadowFileName;
+                            csxScript.ReferencedAssembly = shadowCopiedAssembly;
+                            csxScript.IsCompiled = true;
                             applicationPartManager.ApplicationParts.Add(new AssemblyPart(shadowCopiedAssembly));
                         }
                         else
                         {
                             foreach (var diagnostic in compilationResult.Diagnostics)
                             {
-                                csxcript.ErrorInfo.Add(diagnostic.ToString());
+                                csxScript.ErrorInfo.Add(diagnostic.ToString());
                             }
                         }
                     }
-                    referencedScripts.Add(csxcript);
+                    referencedScripts.Add(csxScript);
 
                 }
                 ReferencedScripts = referencedScripts;
             }
             catch (Exception ex)
             {
-                var msg = string.Format("Roslyn '{0}'", ex.Message);
+                var msg = $"Roslyn '{ex.Message}'";
 
                 var fail = new Exception(msg, ex);
                 throw fail;
@@ -136,21 +136,20 @@ namespace Grand.Infrastructure.Roslyn
             var opts = ScriptOptions.Default.WithSourceResolver(sourceFileResolver);
             var script = CSharpScript.Create(code, opts);
             var compilation = script.GetCompilation();
-            using (var ms = new MemoryStream())
+            using var ms = new MemoryStream();
+            var compilationResult = compilation.Emit(ms);
+            if (compilationResult.Success)
             {
-                var compilationResult = compilation.Emit(ms);
-                if (compilationResult.Success)
+                result.IsCompiled = true;
+            }
+            else
+            {
+                foreach (var diagnostic in compilationResult.Diagnostics)
                 {
-                    result.IsCompiled = true;
-                }
-                else
-                {
-                    foreach (var diagnostic in compilationResult.Diagnostics)
-                    {
-                        result.ErrorInfo.Add(diagnostic.ToString());
-                    }
+                    result.ErrorInfo.Add(diagnostic.ToString());
                 }
             }
+
             return result;
         }
     }

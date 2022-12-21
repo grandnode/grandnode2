@@ -2,7 +2,7 @@
 
 namespace Grand.Infrastructure.Roslyn
 {
-    public partial class ResultCompiler
+    public class ResultCompiler
     {
         public ResultCompiler()
         {

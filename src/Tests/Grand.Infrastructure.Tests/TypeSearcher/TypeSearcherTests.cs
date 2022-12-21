@@ -1,4 +1,5 @@
 ﻿using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.TypeSearch;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Infrastructure.TypeSearchers.Tests

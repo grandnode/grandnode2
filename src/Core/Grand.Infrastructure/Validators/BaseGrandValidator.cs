@@ -10,7 +10,7 @@ namespace Grand.Infrastructure.Validators
             PostInitialize(validators);
         }
 
-        protected virtual void PostInitialize(IEnumerable<IValidatorConsumer<T>> validators)
+        private void PostInitialize(IEnumerable<IValidatorConsumer<T>> validators)
         {
             foreach (var item in validators)
             {

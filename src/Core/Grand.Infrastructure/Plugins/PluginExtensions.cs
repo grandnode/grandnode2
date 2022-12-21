@@ -7,13 +7,8 @@ namespace Grand.Infrastructure.Plugins
     {
         public static bool OnlyInstalledPlugins(Type type)
         {
-            var value = true;
             var plugin = PluginManager.FindPlugin(type);
-            if (plugin != null)
-            {
-                return plugin.Installed;
-            }
-            return value;
+            return plugin == null || plugin.Installed;
         }
 
         public static IList<string> ParseInstalledPluginsFile(string filePath)
@@ -22,16 +17,13 @@ namespace Grand.Infrastructure.Plugins
                 return new List<string>();
 
             var text = File.ReadAllText(filePath);
-            if (String.IsNullOrEmpty(text))
-                return new List<string>();
-
-            return JsonSerializer.Deserialize<List<string>>(text);
+            return string.IsNullOrEmpty(text) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(text);
         }
 
         public static async Task SaveInstalledPluginsFile(IList<string> pluginSystemNames, string filePath)
         {
             //serialize
-            string result = JsonSerializer.Serialize(pluginSystemNames, new JsonSerializerOptions { WriteIndented = true });
+            var result = JsonSerializer.Serialize(pluginSystemNames, new JsonSerializerOptions { WriteIndented = true });
             //save
             await File.WriteAllTextAsync(filePath, result);
             await Task.CompletedTask;
@@ -44,11 +36,11 @@ namespace Grand.Infrastructure.Plugins
         public static async Task MarkPluginAsInstalled(string systemName)
         {
             if (string.IsNullOrEmpty(systemName))
-                throw new ArgumentNullException("systemName");
+                throw new ArgumentNullException(nameof(systemName));
 
             var filePath = CommonPath.InstalledPluginsFilePath;
             if (!File.Exists(filePath))
-                using (File.Create(filePath))
+                await using (File.Create(filePath))
                 {
                     //we use 'using' to close the file after it's created
                 }
@@ -73,7 +65,7 @@ namespace Grand.Infrastructure.Plugins
 
             var filePath = CommonPath.InstalledPluginsFilePath;
             if (!File.Exists(filePath))
-                using (File.Create(filePath))
+                await using (File.Create(filePath))
                 {
                 }
 

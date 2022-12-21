@@ -6,7 +6,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Endpoints;
 using Grand.Infrastructure.Plugins;
-using Grand.Infrastructure.TypeSearchers;
+using Grand.Infrastructure.TypeSearch;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

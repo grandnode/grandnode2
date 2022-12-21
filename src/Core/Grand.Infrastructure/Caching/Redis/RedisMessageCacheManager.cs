@@ -20,12 +20,13 @@ namespace Grand.Infrastructure.Caching.Redis
         /// Removes the value with the specified key from the cache
         /// </summary>
         /// <param name="key">Key of cached item</param>
+        /// <param name="publisher">Publisher</param>
         public override Task RemoveAsync(string key, bool publisher = true)
         {
             _cache.Remove(key);
 
             if (publisher)
-                _messageBus.PublishAsync(new MessageEvent() { Key = key, MessageType = (int)MessageEventType.RemoveKey });
+                _messageBus.PublishAsync(new MessageEvent { Key = key, MessageType = (int)MessageEventType.RemoveKey });
 
             return Task.CompletedTask;
         }
@@ -37,14 +38,14 @@ namespace Grand.Infrastructure.Caching.Redis
         /// <param name="publisher">publisher</param>
         public override Task RemoveByPrefix(string prefix, bool publisher = true)
         {
-            var entriesToRemove = _cacheEntries.Where(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-            foreach (var cacheEntrie in entriesToRemove)
+            var entriesToRemove = CacheEntries.Where(x => x.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+            foreach (var cacheEntries in entriesToRemove)
             {
-                _cache.Remove(cacheEntrie.Key);
+                _cache.Remove(cacheEntries.Key);
             }
 
             if (publisher)
-                _messageBus.PublishAsync(new MessageEvent() { Key = prefix, MessageType = (int)MessageEventType.RemoveByPrefix });
+                _messageBus.PublishAsync(new MessageEvent { Key = prefix, MessageType = (int)MessageEventType.RemoveByPrefix });
 
             return Task.CompletedTask;
         }
@@ -57,7 +58,7 @@ namespace Grand.Infrastructure.Caching.Redis
         {
             base.Clear();
             if (publisher)
-                _messageBus.PublishAsync(new MessageEvent() { Key = "", MessageType = (int)MessageEventType.ClearCache });
+                _messageBus.PublishAsync(new MessageEvent { Key = "", MessageType = (int)MessageEventType.ClearCache });
 
             return Task.CompletedTask;
         }

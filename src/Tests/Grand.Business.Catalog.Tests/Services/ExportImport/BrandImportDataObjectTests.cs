@@ -14,6 +14,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Mapper;
 using Grand.Infrastructure.Tests.Caching;
+using Grand.Infrastructure.TypeSearch;
 using Grand.Infrastructure.TypeSearchers;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
