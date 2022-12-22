@@ -675,14 +675,6 @@ namespace Grand.Web.Controllers
                     }
                     else
                     {
-                        //new address
-                        //var model = new CheckoutShippingAddressModel();
-                        /*const string prefix = "ShippingNewAddress";
-                        await TryUpdateModelAsync(model.NewAddress, prefix);
-                    
-                        var validationResult = await checkoutShippingAddressValidator.ValidateAsync(model);
-                        validationResult.AddToModelState(ModelState, prefix);*/
-
                         //custom address attributes
                         var customAttributes = await _mediator.Send(new GetParseCustomAddressAttributes()
                             { Form = form });
