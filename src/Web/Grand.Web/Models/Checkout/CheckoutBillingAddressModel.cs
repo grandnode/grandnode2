@@ -8,10 +8,11 @@ namespace Grand.Web.Models.Checkout
         public CheckoutBillingAddressModel()
         {
             ExistingAddresses = new List<AddressModel>();
-            NewAddress = new AddressModel();
+            BillingNewAddress = new AddressModel();
         }
         public IList<AddressModel> ExistingAddresses { get; set; }
-        public AddressModel NewAddress { get; set; }
+        public AddressModel BillingNewAddress { get; set; }
         public bool NewAddressPreselected { get; set; }
+        public string BillingAddressId { get; set; } 
     }
 }

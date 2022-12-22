@@ -60,13 +60,13 @@ namespace Grand.Web.Features.Handlers.Checkout
             }
 
             //new address
-            model.NewAddress.CountryId = request.SelectedCountryId;
+            model.BillingNewAddress.CountryId = request.SelectedCountryId;
             var countries = await _countryService.GetAllCountriesForBilling(request.Language.Id, request.Store.Id);
 
-            model.NewAddress = await _mediator.Send(new GetAddressModel() {
+            model.BillingNewAddress = await _mediator.Send(new GetAddressModel() {
                 Language = request.Language,
                 Store = request.Store,
-                Model = model.NewAddress,
+                Model = model.BillingNewAddress,
                 Address = null,
                 ExcludeProperties = false,
                 PrePopulateWithCustomerFields = request.PrePopulateNewAddressWithCustomerFields,
@@ -74,8 +74,8 @@ namespace Grand.Web.Features.Handlers.Checkout
                 Customer = request.Customer,
                 OverrideAttributes = request.OverrideAttributes
             });
-            model.NewAddress.HideAddressType = true;
-            model.NewAddress.AddressTypeId = _addressSettings.AddressTypeEnabled ? (int)AddressType.Billing : (int)AddressType.Any;
+            model.BillingNewAddress.HideAddressType = true;
+            model.BillingNewAddress.AddressTypeId = _addressSettings.AddressTypeEnabled ? (int)AddressType.Billing : (int)AddressType.Any;
 
             return model;
         }

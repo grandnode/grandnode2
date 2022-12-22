@@ -67,12 +67,12 @@ namespace Grand.Web.Features.Handlers.Checkout
             await PrepareAddresses(model, request);
 
             //new address
-            model.NewAddress.CountryId = request.SelectedCountryId;
+            model.ShippingNewAddress.CountryId = request.SelectedCountryId;
             var countries = await _countryService.GetAllCountriesForShipping(request.Language.Id, request.Store.Id);
-            model.NewAddress = await _mediator.Send(new GetAddressModel() {
+            model.ShippingNewAddress = await _mediator.Send(new GetAddressModel() {
                 Language = request.Language,
                 Store = request.Store,
-                Model = model.NewAddress,
+                Model = model.ShippingNewAddress,
                 Address = null,
                 ExcludeProperties = false,
                 LoadCountries = () => countries,
@@ -80,8 +80,8 @@ namespace Grand.Web.Features.Handlers.Checkout
                 Customer = request.Customer,
                 OverrideAttributes = request.OverrideAttributes,
             });
-            model.NewAddress.HideAddressType = true;
-            model.NewAddress.AddressTypeId = _addressSettings.AddressTypeEnabled ? (int)AddressType.Shipping : (int)AddressType.Any;
+            model.ShippingNewAddress.HideAddressType = true;
+            model.ShippingNewAddress.AddressTypeId = _addressSettings.AddressTypeEnabled ? (int)AddressType.Shipping : (int)AddressType.Any;
 
             return model;
         }

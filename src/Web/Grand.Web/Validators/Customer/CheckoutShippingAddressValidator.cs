@@ -11,13 +11,13 @@ namespace Grand.Web.Validators.Customer
     {
         public CheckoutShippingAddressValidator(
             IEnumerable<IValidatorConsumer<CheckoutShippingAddressModel>> validators,
-            IEnumerable<IValidatorConsumer<Models.Common.AddressModel>> addressvalidators,
+            IEnumerable<IValidatorConsumer<Models.Common.AddressModel>> addressValidators,
             ITranslationService translationService,
             ICountryService countryService,
             AddressSettings addressSettings)
             : base(validators)
         {
-            RuleFor(x => x.NewAddress).SetValidator(new AddressValidator(addressvalidators, translationService, countryService, addressSettings));
+            RuleFor(x => x.ShippingNewAddress).SetValidator(new AddressValidator(addressValidators, translationService, countryService, addressSettings));
         }
     }
 }

@@ -32,7 +32,7 @@
                 @if (Model.PickupPoints.Count == 1)
                 {
                     var point = Model.PickupPoints.First();
-                    @Html.Hidden("pickup-point-id", point.Id)
+                    @Html.Hidden("PickupPointId", point.Id)
                     <div class="section single-pickup-point">
                         <ul>
                             <li class="single-pickup-point name">@point.Name</li>
@@ -47,7 +47,7 @@
                 else
                 {
                     <label for="pickup-points-select">@Loc["Checkout.PickupPoints.SelectPickupPoint"]</label>
-                    <select name="pickup-point-id" id="pickup-points-select" class="custom-select address-select" title="">
+                    <select name="PickupPointId" id="pickup-points-select" class="custom-select address-select" title="">
                         @foreach (var point in Model.PickupPoints)
                         {
                             var addressLine = new StringBuilder();
