@@ -16,7 +16,7 @@ namespace Grand.Web.Models.Checkout
         public string LoyaltyPointsAmount { get; set; }
         public bool LoyaltyPointsEnoughToPayForOrder { get; set; }
         public bool UseLoyaltyPoints { get; set; }
-
+        public string PaymentMethod{ get; set; }
         #region Nested classes
 
         public partial class PaymentMethodModel : BaseModel

@@ -862,7 +862,7 @@ namespace Grand.Web.Controllers
             }
         }
 
-        public virtual async Task<IActionResult> SavePaymentMethod(IFormCollection form)
+        public virtual async Task<IActionResult> SavePaymentMethod(CheckoutPaymentMethodModel model)
         {
             try
             {
@@ -871,13 +871,9 @@ namespace Grand.Web.Controllers
                     ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
                 await CartValidate(cart);
 
-                string paymentmethod = form["paymentmethod"];
                 //payment method 
-                if (string.IsNullOrEmpty(paymentmethod))
+                if (string.IsNullOrEmpty(model.PaymentMethod))
                     throw new Exception("Selected payment method can't be parsed");
-
-                var model = new CheckoutPaymentMethodModel();
-                await TryUpdateModelAsync(model);
 
                 //loyalty points
                 if (_loyaltyPointsSettings.Enabled)
@@ -909,7 +905,7 @@ namespace Grand.Web.Controllers
                     });
                 }
 
-                var paymentMethodInst = _paymentService.LoadPaymentMethodBySystemName(paymentmethod);
+                var paymentMethodInst = _paymentService.LoadPaymentMethodBySystemName(model.PaymentMethod);
                 if (paymentMethodInst == null ||
                     !paymentMethodInst.IsPaymentMethodActive(_paymentSettings) ||
                     !paymentMethodInst.IsAuthenticateStore(_workContext.CurrentStore))
@@ -917,7 +913,7 @@ namespace Grand.Web.Controllers
 
                 //save
                 await _userFieldService.SaveField(_workContext.CurrentCustomer,
-                    SystemCustomerFieldNames.SelectedPaymentMethod, paymentmethod, _workContext.CurrentStore.Id);
+                    SystemCustomerFieldNames.SelectedPaymentMethod, model.PaymentMethod, _workContext.CurrentStore.Id);
 
                 var paymentTransaction = await paymentMethodInst.InitPaymentTransaction();
                 if (paymentTransaction != null)
