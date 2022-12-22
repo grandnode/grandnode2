@@ -149,7 +149,7 @@
                                     <div class="section select-pickup-address">
                                         <label for="pickup-address-select">@Loc["MerchandiseReturns.SelectPickupAddressOrEnterNewOne"]</label>
                                         <div>
-                                            <select name="pickup_address_id" id="pickup-address-select" class="custom-select address-select"
+                                            <select name="PickupAddressId" id="pickup-address-select" class="custom-select address-select"
                                                     title="" @@change="merchandisereturns.isNewAddress()">
                                                 @foreach (var address in Model.ExistingAddresses)
                                                 {
@@ -189,7 +189,7 @@
                                             @{
                                                 var dataDictAddress = new ViewDataDictionary(ViewData);
                                                 dataDictAddress.TemplateInfo.HtmlFieldPrefix = "MerchandiseReturnNewAddress";
-                                                <partial name="Partials/CreateOrUpdateAddress" model="Model.NewAddress" view-data="dataDictAddress" />
+                                                <partial name="Partials/CreateOrUpdateAddress" model="Model.MerchandiseReturnNewAddress" view-data="dataDictAddress" />
                                             }
                                         </div>
                                     </div>

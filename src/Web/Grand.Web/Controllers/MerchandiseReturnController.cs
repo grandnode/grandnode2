@@ -80,13 +80,12 @@ namespace Grand.Web.Controllers
 
         protected async Task<Address> PrepareAddress(MerchandiseReturnModel model, IFormCollection form)
         {
-            string pickupAddressId = form["pickup_address_id"];
             var address = new Address();
             if (_orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
             {
-                if (!string.IsNullOrEmpty(pickupAddressId))
+                if (!string.IsNullOrEmpty(model.PickupAddressId))
                 {
-                    address = _workContext.CurrentCustomer.Addresses.FirstOrDefault(a => a.Id == pickupAddressId);
+                    address = _workContext.CurrentCustomer.Addresses.FirstOrDefault(a => a.Id == model.PickupAddressId);
                 }
                 else
                 {
@@ -97,8 +96,7 @@ namespace Grand.Web.Controllers
                     {
                         ModelState.AddModelError("", error);
                     }
-                    await TryUpdateModelAsync(model.NewAddress, "MerchandiseReturnNewAddress");
-                    address = model.NewAddress.ToEntity(_workContext.CurrentCustomer, _addressSettings);
+                    address = model.MerchandiseReturnNewAddress.ToEntity(_workContext.CurrentCustomer, _addressSettings);
                     model.NewAddressPreselected = true;
                     address.Attributes = customAttributes;
                     address.CreatedOnUtc = DateTime.UtcNow;
@@ -157,8 +155,6 @@ namespace Grand.Web.Controllers
             if (!await _mediator.Send(new IsMerchandiseReturnAllowedQuery() { Order = order }))
                 return RedirectToRoute("HomePage");
 
-            ModelState.Clear();
-
             if (_orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate && _orderSettings.MerchandiseReturns_PickupDateRequired && model.PickupDate == null)
             {
                 ModelState.AddModelError("", _translationService.GetResource("MerchandiseReturns.PickupDateRequired"));
@@ -166,7 +162,7 @@ namespace Grand.Web.Controllers
 
             var address = await PrepareAddress(model, form);
 
-            if (!ModelState.IsValid && ModelState.ErrorCount > 0)
+            if (ModelState is { IsValid: false })
             {
                 var returnmodel = await _mediator.Send(new GetMerchandiseReturn()
                 {
@@ -174,14 +170,14 @@ namespace Grand.Web.Controllers
                     Language = _workContext.WorkingLanguage,
                     Store = _workContext.CurrentStore
                 });
-                returnmodel.Error = string.Join(", ", ModelState.Keys.SelectMany(k => ModelState[k].Errors).Select(m => m.ErrorMessage).ToArray());
+                returnmodel.Error = string.Join(", ", ModelState.Keys.SelectMany(k => ModelState[k]!.Errors).Select(m => m.ErrorMessage).ToArray());
                 returnmodel.Comments = model.Comments;
                 returnmodel.PickupDate = model.PickupDate;
                 returnmodel.NewAddressPreselected = model.NewAddressPreselected;
-                returnmodel.NewAddress = model.NewAddress;
+                returnmodel.MerchandiseReturnNewAddress = model.MerchandiseReturnNewAddress;
                 if (returnmodel.NewAddressPreselected || _orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
                 {
-                    await PrepareModelAddress(model.NewAddress, address);
+                    await PrepareModelAddress(model.MerchandiseReturnNewAddress, address);
                 }
                 return View(returnmodel);
             }
@@ -206,10 +202,10 @@ namespace Grand.Web.Controllers
                 returnmodel.Comments = model.Comments;
                 returnmodel.PickupDate = model.PickupDate;
                 returnmodel.NewAddressPreselected = model.NewAddressPreselected;
-                returnmodel.NewAddress = model.NewAddress;
+                returnmodel.MerchandiseReturnNewAddress = model.MerchandiseReturnNewAddress;
                 if (returnmodel.NewAddressPreselected || _orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
                 {
-                    await PrepareModelAddress(model.NewAddress, address);
+                    await PrepareModelAddress(model.MerchandiseReturnNewAddress, address);
                 }
                 return View(returnmodel);
             }

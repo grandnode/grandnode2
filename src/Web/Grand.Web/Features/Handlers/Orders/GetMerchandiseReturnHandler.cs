@@ -196,7 +196,7 @@ namespace Grand.Web.Features.Handlers.Orders
 
             //new address
             var countries = await _countryService.GetAllCountriesForShipping(request.Language.Id, request.Store.Id);
-            model.NewAddress = await _mediator.Send(new GetAddressModel()
+            model.MerchandiseReturnNewAddress = await _mediator.Send(new GetAddressModel()
             {
                 Language = request.Language,
                 Store = request.Store,
