@@ -1332,7 +1332,7 @@ namespace Grand.Web.Controllers
 
         [HttpPost]
         [AutoValidateAntiforgeryToken]
-        public virtual async Task<IActionResult> SubAccountEdit(SubAccountModel model, IFormCollection form)
+        public virtual async Task<IActionResult> SubAccountEdit(SubAccountModel model)
         {
             if (!await _groupService.IsRegistered(_workContext.CurrentCustomer))
                 return Challenge();
@@ -1345,7 +1345,6 @@ namespace Grand.Web.Controllers
                 var result = await _mediator.Send(new SubAccountEditCommand() {
                     CurrentCustomer = _workContext.CurrentCustomer,
                     Model = model,
-                    Form = form,
                     Store = _workContext.CurrentStore
                 });
 
