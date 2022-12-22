@@ -89,6 +89,19 @@ namespace Grand.Infrastructure
                 item.Register();
         }
 
+        /// <summary>
+        /// Register type ValidatorConsumer
+        /// </summary>
+        /// <param name="services">Service collection</param>
+        /// <param name="typeSearcher">TypeSearcher</param>
+        private static void RegisterValidatorConsumer(IServiceCollection services, ITypeSearcher typeSearcher)
+        {
+            services.Scan(scan => scan.FromAssemblies(typeSearcher.GetAssemblies())
+                .AddClasses(classes => classes.AssignableTo(typeof(IValidatorConsumer<>)))
+                .AsImplementedInterfaces().WithScopedLifetime());
+        }
+        
+        
         private static T StartupConfig<T>(this IServiceCollection services, IConfiguration configuration) where T : class, new()
         {
             if (services == null)
@@ -263,6 +276,9 @@ namespace Grand.Infrastructure
             //Register custom type converters
             RegisterTypeConverter(typeSearcher);
 
+            //Register type validator consumer
+            RegisterValidatorConsumer(services, typeSearcher);
+            
             //add mediator
             AddMediator(services, typeSearcher);
 
