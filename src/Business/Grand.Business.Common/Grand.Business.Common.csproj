@@ -2,7 +2,7 @@
   <Import Project="..\..\Build\Grand.Common.props" />
   <ItemGroup>
     <PackageReference Include="HtmlRendererCore.PdfSharp" Version="1.0.5" />
-	<PackageReference Include="ExcelMapper" Version="5.2.467" />
+	<PackageReference Include="ExcelMapper" Version="5.2.472" />
 	<PackageReference Include="NPOI" Version="2.6.0" />
   </ItemGroup>
   <ItemGroup>
